@@ -186,13 +186,13 @@ components:
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxTypeAuthFleet: # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
     cxIdAuthFleet: # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
     cxGroupsAuthFleet: # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
     uidAuthFleet: # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet' # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet' # NO EXTERNAL
 
 
     ############################################################################################
@@ -205,6 +205,9 @@ components:
       description: identificativo della delega
       schema:
         type: string
+        format: uuid
+        #minLength: 36
+        #maxLength: 36
 
     ############################################################################################
     ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
@@ -217,13 +220,15 @@ components:
       required: true
       schema:
         type: string
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         
     ############################################################################################
     ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
     ############################################################################################
     pathLegalFactType:
       description: >-
-        Categoria dell'atto opponbile a terzi
+        Categoria dell'atto opponibile a terzi
       name: legalFactType
       in: path
       required: true
@@ -232,9 +237,12 @@ components:
     
     pathLegalFactId:
       description: >-
-        Identificativo dell'atto opponbile a terzi
+        Identificativo dell'atto opponibile a terzi
       name: legalFactId
       in: path
       required: true
       schema:
         type: string
+        # ASCII printable characters
+        pattern: ^[ -~]*$
+        maxLength: 1024

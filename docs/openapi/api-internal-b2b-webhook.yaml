@@ -606,11 +606,11 @@ components:
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxTypeAuthFleet:                                                                                                                                            # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'  # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'  # NO EXTERNAL
     cxIdAuthFleet:                                                                                                                                              # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'    # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'    # NO EXTERNAL
     uidAuthFleet:                                                                                                                                               # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'     # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'     # NO EXTERNAL
 
 
     ############################################################################################
@@ -618,12 +618,16 @@ components:
     ############################################################################################
     queryLastEventId:
       description: >-
-        Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream
+        Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream.
+        Numero in una stringa di 38 caratteri con padding iniziale composto da '0'.
       name: lastEventId
       in: query
       required: false
       schema:
         type: string
+        minLength: 38
+        maxLength: 38
+        pattern: ^0\d{37}$
     pathStreamId:
       description: >-
         Identificativo dello stream di eventi
@@ -633,6 +637,8 @@ components:
       schema:
         type: string
         format: uuid
+        #minLength: 36
+        #maxLength: 36
 
   schemas:
     
@@ -649,6 +655,8 @@ components:
         title: 
           description: Nome sintetico dello stream
           type: string
+          maxLength: 256
+          pattern: ^.*$
         eventType:
           description: >-
             Tipo di eventi presenti nel flusso:
@@ -665,6 +673,9 @@ components:
           type: array
           items:
             type: string
+            minLength: 5
+            maxLength: 256
+            pattern: ^[A-Z_]+$
     
     StreamMetadataResponse:
       description: Configurazioni di un flusso di eventi
@@ -679,6 +690,8 @@ components:
               description: Identificativo del flusso di eventi
               type: string
               format: uuid
+              #minLength: 36
+              #maxLength: 36
             activationDate:
               description: Timestamp in cui il flusso di eventi è stato attivato
               type: string
@@ -699,8 +712,12 @@ components:
         streamId:
           type: string
           format: uuid
+          #minLength: 36
+          #maxLength: 36
         title: 
           type: string
+          maxLength: 256
+          pattern: ^.*$
         
     
 
@@ -739,6 +756,8 @@ components:
             Identificativo della notifica, presente solo se la richiesta di notifica è 
             stata accettata.
           type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
@@ -817,10 +836,15 @@ components:
       properties:                                                                       # NOT YET IMPLEMENTED
         iun:                                                                            # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
+          maxLength: 25                                                                 # NOT YET IMPLEMENTED
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$              # NOT YET IMPLEMENTED
         recipientTaxId:                                                                 # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
+          minLength: 11                                                                 # NOT YET IMPLEMENTED
+          maxLength: 16                                                                 # NOT YET IMPLEMENTED
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$ # NOT YET IMPLEMENTED
         recipientType:                                                                  # NOT YET IMPLEMENTED
-          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'   # NOT YET IMPLEMENTED
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'      # NOT YET IMPLEMENTED
         paymentType:                                                                    # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
           enum:                                                                         # NOT YET IMPLEMENTED
