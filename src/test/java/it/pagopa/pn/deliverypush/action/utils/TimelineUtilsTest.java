@@ -417,8 +417,10 @@ class TimelineUtilsTest {
                 .deliveryFailureCause("M1")
                 .build();
 
+        final String sendRequestId = "send_request_id";
+
         TimelineElementInternal actual = timelineUtils.buildAnalogFailureAttemptTimelineElement(
-                notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt
+                notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt, sendRequestId
         );
 
         String timelineEventIdExpected = "SEND_ANALOG_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_0#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);

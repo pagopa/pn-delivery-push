@@ -609,6 +609,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
           
 
     BaseRegisteredLetterDetails:

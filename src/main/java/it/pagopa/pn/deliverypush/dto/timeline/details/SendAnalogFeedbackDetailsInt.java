@@ -30,6 +30,7 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private String deliveryDetailCode;
     private Instant notificationDate;
     private List<AttachmentDetailsInt> attachments;
+    private String sendRequestId;
 
     public String toLog() {
         return String.format(

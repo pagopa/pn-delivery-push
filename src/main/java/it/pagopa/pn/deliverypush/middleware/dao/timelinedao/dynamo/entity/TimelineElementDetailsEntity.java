@@ -69,4 +69,5 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryFailureCause")})) private String deliveryFailureCause;
     @Getter(onMethod=@__({@DynamoDbAttribute("attachments")})) private List<AttachmentDetailsEntity> attachments;
     @Getter(onMethod=@__({@DynamoDbAttribute("prepareRequestId")})) String prepareRequestId;
+    @Getter(onMethod=@__({@DynamoDbAttribute("sendRequestId")})) String sendRequestId;
 }

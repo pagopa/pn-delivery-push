@@ -505,28 +505,30 @@ public class TimelineUtils {
                 details, timelineBuilder );
     }
 
-    public TimelineElementInternal buildAnalogSuccessAttemptTimelineElement(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
-                                                                            BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
+    public TimelineElementInternal buildAnalogSuccessAttemptTimelineElement(NotificationInt notification, List<AttachmentDetailsInt> attachments,
+                                                                            BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt,
+                                                                            String sendRequestId) {
         log.debug("buildAnalogSuccessAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(sendPaperDetails.getRecIndex())
-                        .sentAttemptMade(sentAttemptMade)
+                        .sentAttemptMade(sendPaperDetails.getSentAttemptMade())
                         .build()
         );
 
         SendAnalogFeedbackDetailsInt details = SendAnalogFeedbackDetailsInt.builder()
                 .recIndex(sendPaperDetails.getRecIndex())
                 .physicalAddress(sendPaperDetails.getPhysicalAddress())
-                .sentAttemptMade(sentAttemptMade)
+                .sentAttemptMade(sendPaperDetails.getSentAttemptMade())
                 .serviceLevel(sendPaperDetails.getServiceLevel())
                 .newAddress(sendEventInt.getDiscoveredAddress())
                 .deliveryDetailCode(sendEventInt.getStatusDetail())
                 .notificationDate(sendEventInt.getStatusDateTime())
                 .responseStatus(ResponseStatusInt.OK)
                 .attachments(attachments)
+                .sendRequestId(sendRequestId)
                 .build();
         
         List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);
@@ -554,7 +556,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildAnalogFailureAttemptTimelineElement(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
-                                                                            BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
+                                                                            BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
         log.debug("buildAnalogFailureAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
@@ -577,6 +579,7 @@ public class TimelineUtils {
                 .requestTimelineId(elementId)
                 .responseStatus(ResponseStatusInt.KO)
                 .attachments(attachments)
+                .sendRequestId(sendRequestId)
                 .build();
 
         List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);

@@ -157,9 +157,9 @@ public class AnalogWorkflowPaperChannelResponseHandler {
                     case PROGRESS -> 
                             handleStatusProgress(response, sendPaperDetails, notification, recIndex, response.getAttachments());
                     case OK ->
-                            handleStatusOK(response, sendPaperDetails, notification, recIndex, response.getAttachments());
+                            handleStatusOK(response, sendPaperDetails, notification, recIndex, response.getAttachments(), timelineElementInternal.getElementId());
                     case KO -> 
-                            handleStatusKO(response, sendPaperDetails, notification, recIndex, response.getAttachments());
+                            handleStatusKO(response, sendPaperDetails, notification, recIndex, response.getAttachments(), timelineElementInternal.getElementId());
                     default -> 
                             throw new PnInternalException("Invalid status from PaperChannel response", ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
                 }
@@ -174,12 +174,17 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         analogWorkflowUtils.addAnalogProgressAttemptToTimeline(notification, recIndex, sendPaperDetails.getSentAttemptMade(), attachments,  sendPaperDetails, response);
     }
 
-    private void handleStatusOK(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<AttachmentDetailsInt> attachments) {
+    private void handleStatusOK(SendEventInt response, 
+                                BaseAnalogDetailsInt sendPaperDetails,
+                                NotificationInt notification, 
+                                Integer recIndex, 
+                                List<AttachmentDetailsInt> attachments,
+                                String sendRequestId) {
         PnAuditLogEvent logEvent = buildSendEventAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, attachments);
 
         // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
         try {
-            String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), attachments,  sendPaperDetails, response);
+            String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, attachments,  sendPaperDetails, response, sendRequestId);
             completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
 
             logEvent.generateSuccess("generated success timelineid={}", timelineId).log();
@@ -189,12 +194,17 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         }
     }
 
-    private void handleStatusKO(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<AttachmentDetailsInt> attachments) {
+    private void handleStatusKO(SendEventInt response,
+                                BaseAnalogDetailsInt sendPaperDetails,
+                                NotificationInt notification, 
+                                Integer recIndex,
+                                List<AttachmentDetailsInt> attachments,
+                                String sendRequestId) {
         PnAuditLogEvent logEvent = buildSendEventAuditLog(notification.getIun(), recIndex, response, sendPaperDetails, attachments);
 
         try {
             // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
-            String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails, response);
+            String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails, response, sendRequestId);
             int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
             analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, response.getStatusDateTime());
             logEvent.generateSuccess("WARNING Analog notification failed with failure cause {} generated failure timelineid={}", response.getDeliveryFailureCause(), timelineId).log();
