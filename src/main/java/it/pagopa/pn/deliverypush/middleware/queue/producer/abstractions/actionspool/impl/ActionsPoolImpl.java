@@ -9,6 +9,8 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.service.ActionService;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.core.LockAssert;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -95,12 +97,12 @@ public class ActionsPoolImpl implements ActionsPool {
 //    lockAtLeastFor specifies minimum amount of time for which the lock should be kept. is to prevent execution from multiple nodes 
 //    in case of really short tasks and clock difference between the nodes. Setting lockAtLeastFor we make sure it's not executed more than once in 1 minute
     @Scheduled( fixedDelay = 10 * 1000L )
-//    @SchedulerLock(name = "actionPoll", lockAtMostFor = "1m", lockAtLeastFor = "30s")
+    @SchedulerLock(name = "actionPoll", lockAtMostFor = "1m", lockAtLeastFor = "30s")
     protected void pollForFutureActions() {
         // To assert that the lock is held (prevents misconfiguration errors)
         Instant start = Instant.now();
         
-//        LockAssert.assertLocked();
+        LockAssert.assertLocked();
 
         Optional<Instant> savedLastPollTime = lastFutureActionPoolExecutionTimeDao.getLastPollTime();
 
