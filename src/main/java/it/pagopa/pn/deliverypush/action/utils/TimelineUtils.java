@@ -475,15 +475,19 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildAnalogProgressTimelineElement(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
-                                                                           int progressIndex, BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt) {
+    public TimelineElementInternal buildAnalogProgressTimelineElement(NotificationInt notification,
+                                                                      List<AttachmentDetailsInt> attachments,
+                                                                      int progressIndex,
+                                                                      BaseAnalogDetailsInt sendPaperDetails,
+                                                                      SendEventInt sendEventInt,
+                                                                      String sendRequestId) {
         log.debug("buildAnalogProgressTimelineElement - iun={} and id={} progressIndex={}", notification.getIun(), sendPaperDetails.getRecIndex(), progressIndex);
 
         String elementId = TimelineEventId.SEND_ANALOG_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(sendPaperDetails.getRecIndex())
-                        .sentAttemptMade(sentAttemptMade)
+                        .sentAttemptMade(sendPaperDetails.getSentAttemptMade())
                         .progressIndex(progressIndex)
                         .build()
         );
@@ -494,6 +498,7 @@ public class TimelineUtils {
                 .deliveryDetailCode(sendEventInt.getStatusDetail())
                 .notificationDate(sendEventInt.getStatusDateTime())
                 .attachments(attachments)
+                .sendRequestId(sendRequestId)
                 .build();
 
         List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);

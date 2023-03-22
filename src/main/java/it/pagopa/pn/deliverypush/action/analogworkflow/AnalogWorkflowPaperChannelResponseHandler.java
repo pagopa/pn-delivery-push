@@ -155,7 +155,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             if (status!= null) {
                 switch (status) {
                     case PROGRESS -> 
-                            handleStatusProgress(response, sendPaperDetails, notification, recIndex, response.getAttachments());
+                            handleStatusProgress(response, sendPaperDetails, notification, recIndex, response.getAttachments(), timelineElementInternal.getElementId());
                     case OK ->
                             handleStatusOK(response, sendPaperDetails, notification, recIndex, response.getAttachments(), timelineElementInternal.getElementId());
                     case KO -> 
@@ -170,8 +170,19 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             throw new PnInternalException("Unexpected details of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
     }
 
-    private void handleStatusProgress(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, NotificationInt notification, Integer recIndex, List<AttachmentDetailsInt> attachments) {
-        analogWorkflowUtils.addAnalogProgressAttemptToTimeline(notification, recIndex, sendPaperDetails.getSentAttemptMade(), attachments,  sendPaperDetails, response);
+    private void handleStatusProgress(SendEventInt response,
+                                      BaseAnalogDetailsInt sendPaperDetails,
+                                      NotificationInt notification, 
+                                      Integer recIndex, 
+                                      List<AttachmentDetailsInt> attachments,
+                                      String sendRequestId) {
+        analogWorkflowUtils.addAnalogProgressAttemptToTimeline(
+                notification,
+                recIndex, 
+                attachments,
+                sendPaperDetails,
+                response,
+                sendRequestId);
     }
 
     private void handleStatusOK(SendEventInt response, 
