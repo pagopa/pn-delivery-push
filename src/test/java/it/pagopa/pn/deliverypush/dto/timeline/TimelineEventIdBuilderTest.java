@@ -651,9 +651,9 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildNATIONAL_REGISTRY_CALLTest() {
         //vecchia versione 123456789_1_DIGITAL_CHOOSE_DELIVERY_1_public_registry_call
-        String timeLineEventIdExpected = "NATIONAL_REGISTRY_CALL.IUN_123-456-789.RECINDEX_1.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "PUBLIC_REGISTRY_CALL.IUN_123-456-789.RECINDEX_1.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.SENTATTEMPTMADE_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
-                .withCategory(TimelineEventId.NATIONAL_REGISTRY_CALL.getValue())
+                .withCategory(TimelineEventId.PUBLIC_REGISTRY_CALL.getValue())
                 .withIun(IUN)
                 .withRecIndex(1)
                 .withDeliveryMode(DeliveryModeInt.DIGITAL)
@@ -663,7 +663,7 @@ class TimelineEventIdBuilderTest {
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
 
-        String timeLineEventIdActualFromBuildEvent = TimelineEventId.NATIONAL_REGISTRY_CALL.buildEventId(EventId
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.PUBLIC_REGISTRY_CALL.buildEventId(EventId
                 .builder()
                 .iun(IUN)
                 .recIndex(1)
@@ -682,13 +682,13 @@ class TimelineEventIdBuilderTest {
         //vecchia versione public_registry_response_corr12345
         String timeLineEventIdExpected = "NATIONAL_REGISTRY_RESPONSE.CORRELATIONID_corr12345";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
-                .withCategory(TimelineEventId.NATIONAL_REGISTRY_RESPONSE.getValue())
+                .withCategory(TimelineEventId.PUBLIC_REGISTRY_RESPONSE.getValue())
                 .withCorrelationId("corr12345")
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
 
-        String timeLineEventIdActualFromBuildEvent = TimelineEventId.NATIONAL_REGISTRY_RESPONSE.buildEventId("corr12345");
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.PUBLIC_REGISTRY_RESPONSE.buildEventId("corr12345");
 
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);

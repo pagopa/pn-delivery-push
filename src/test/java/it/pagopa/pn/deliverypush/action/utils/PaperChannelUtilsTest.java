@@ -95,8 +95,8 @@ class PaperChannelUtilsTest {
         SendResponse sendResponse = new SendResponse()
                 .amount(10)
                 .foreignState("FR");
-        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification, null, 0,  sendResponse, "NR_AR")).thenReturn(timelineElementInternal);
-        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   0, sendResponse, null, "NR_AR");
+        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification, null, 0,  sendResponse, "NR_AR", "prepare_request_id")).thenReturn(timelineElementInternal);
+        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   0, sendResponse, null, "NR_AR", "prepare_request_id");
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 

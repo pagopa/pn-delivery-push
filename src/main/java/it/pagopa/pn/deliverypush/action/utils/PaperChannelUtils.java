@@ -95,9 +95,10 @@ public class PaperChannelUtils {
         );
         return timelineElementInternal.getElementId();
     }
+    
     public String addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                      int sentAttemptMade, SendResponse sendResponse, String relatedRequestId, String productType) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, sendResponse, productType);
+                                                      int sentAttemptMade, SendResponse sendResponse, String relatedRequestId, String productType, String prepareRequestId) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, sendResponse, productType, prepareRequestId);
         addTimelineElement(timelineElementInternal,
                 notification
         );

@@ -260,7 +260,8 @@ class TimelineUtilsTest {
         String timelineEventIdExpected = "SEND_ANALOG_DOMICILE#IUN_Example_IUN_1234_Test#RECINDEX_1#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildSendAnalogNotificationTimelineElement(
-                address, recIndex, notification, relatedRequestId, sentAttemptMade, sendResponse, productType
+                address, recIndex, notification, relatedRequestId, sentAttemptMade, sendResponse, productType,
+                "prepare_request_id"
         );
 
         Assertions.assertAll(
