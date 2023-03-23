@@ -65,7 +65,6 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Fallito workflow analogico, ci sarà l'elemento di timeline Completely unreachable che porta allo stato UNREACHABLE
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_REFINEMENT, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Per le notifiche multi recipient potrebbe esserci il REFINEMENT anche in fase di DELIVERING (perchè la notifica potrebbe essere stata consegnata per un destinatario ma non per i restanti)
-                .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Con i MultiDestinatari potrebbe essere schedulato l'analog workflow anche in delivering
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Con i MultiDestinatari potrebbe essere inviato il messaggio di cortesia in delivering
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Multi Destinatari
@@ -76,15 +75,14 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
-
-        
+                
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, NotificationStatusInt.UNREACHABLE, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
-
+                .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
         ;
 
         // Delivered state
@@ -105,12 +103,35 @@ class StateMap {
         // Effective date state
         this.fromState(NotificationStatusInt.EFFECTIVE_DATE)
                 //STATE UNCHANGE
-                .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) //Multi destinatari
-                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
-                .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
-                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
-                .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
-                
+
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.GET_ADDRESS, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_CALL, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_RESPONSE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_REFINEMENT, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
+
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
         ;

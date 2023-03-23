@@ -1446,8 +1446,31 @@ class AnalogTestIT {
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
+        
+        String timelineId1 = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(rec1Index)
+                        .build()
+        );
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId1).isPresent())
+        );
+
+        String timelineId2 = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(rec2Index)
+                        .build()
+        );
+
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId2).isPresent())
+        );
+        
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
