@@ -651,7 +651,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildNATIONAL_REGISTRY_CALLTest() {
         //vecchia versione 123456789_1_DIGITAL_CHOOSE_DELIVERY_1_public_registry_call
-        String timeLineEventIdExpected = "PUBLIC_REGISTRY_CALL.IUN_123-456-789.RECINDEX_1.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "NATIONAL_REGISTRY_CALL.IUN_123-456-789.RECINDEX_1.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.SENTATTEMPTMADE_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.NATIONAL_REGISTRY_CALL.getValue())
                 .withIun(IUN)
