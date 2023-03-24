@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
 import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
@@ -321,32 +322,29 @@ public class TimelineUtils {
     public TimelineElementInternal buildSendAnalogNotificationTimelineElement(PhysicalAddressInt address,
                                                                               Integer recIndex,
                                                                               NotificationInt notification,
-                                                                              String relatedRequestId,
-                                                                              int sentAttemptMade, 
-                                                                              SendResponse sendResponse,
-                                                                              String productType,
-                                                                              String prepareRequestId) {
-        log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={} analogCost={} relatedRequestId={}", notification.getIun(), recIndex, sendResponse.getAmount(), relatedRequestId);
+                                                                              AnalogDtoInt analogDtoInfo) {
+        SendResponse sendResponse = analogDtoInfo.getSendResponse();
+        log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={} analogCost={} relatedRequestId={}", notification.getIun(), recIndex, sendResponse.getAmount(), analogDtoInfo.getRelatedRequestId());
         ServiceLevelInt serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevelInt.valueOf(notification.getPhysicalCommunicationType().name()) : null;
 
         String elementId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
-                        .sentAttemptMade(sentAttemptMade)
+                        .sentAttemptMade(analogDtoInfo.getSentAttemptMade())
                         .build());
 
         SendAnalogDetailsInt details = SendAnalogDetailsInt.builder()
                 .recIndex(recIndex)
                 .physicalAddress(address)
                 .serviceLevel(serviceLevel)
-                .sentAttemptMade(sentAttemptMade)
-                .relatedRequestId(relatedRequestId)
+                .sentAttemptMade(analogDtoInfo.getSentAttemptMade())
+                .relatedRequestId(analogDtoInfo.getRelatedRequestId())
                 .analogCost(sendResponse.getAmount())
-                .productType(productType)
+                .productType(analogDtoInfo.getProductType())
                 .numberOfPages(sendResponse.getNumberOfPages())
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
-                .prepareRequestId(prepareRequestId)
+                .prepareRequestId(analogDtoInfo.getPrepareRequestId())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
