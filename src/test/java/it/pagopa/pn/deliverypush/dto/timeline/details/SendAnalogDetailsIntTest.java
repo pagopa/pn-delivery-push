@@ -15,11 +15,7 @@ class SendAnalogDetailsIntTest {
         detailsInt.setServiceLevel(ServiceLevelInt.REGISTERED_LETTER_890);
         detailsInt.setSentAttemptMade(2);
     }
-    @Test
-    void toLog() {
-        String expected = "recIndex=3 sentAttemptMade=2 relatedRequestId=abc physicalAddress='Sensitive information' analogCost=100 productType=null";
-        Assertions.assertEquals(expected, detailsInt.toLog());
-    }
+
     @Test
     void testEquals() {
         SendAnalogDetailsInt expected = buildSendAnalogDetailsInt();

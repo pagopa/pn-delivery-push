@@ -446,7 +446,7 @@ public class TimelineUtils {
     public TimelineElementInternal buildPublicRegistryResponseCallTimelineElement(NotificationInt notification, Integer recIndex, PublicRegistryResponse response) {
         log.debug("buildPublicRegistryResponseCallTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
-        String eventId = TimelineEventId.PUBLIC_REGISTRY_RESPONSE.buildEventId(response.getCorrelationId());
+        String eventId = TimelineEventId.NATIONAL_REGISTRY_RESPONSE.buildEventId(response.getCorrelationId());
                 
         PublicRegistryResponseDetailsInt details = PublicRegistryResponseDetailsInt.builder()
                 .recIndex(recIndex)
