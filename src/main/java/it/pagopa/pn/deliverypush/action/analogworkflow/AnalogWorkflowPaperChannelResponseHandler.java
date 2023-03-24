@@ -151,15 +151,17 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             Integer recIndex = sendPaperDetails.getRecIndex();
             ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
 
-
+            final String prepareRequestId = timelineElementInternal.getElementId();
+            String sendRequestId = paperChannelUtils.getSendRequestId(response.getIun(), prepareRequestId);
+            
             if (status!= null) {
                 switch (status) {
                     case PROGRESS -> 
-                            handleStatusProgress(response, sendPaperDetails, notification, recIndex, response.getAttachments(), timelineElementInternal.getElementId());
+                            handleStatusProgress(response, sendPaperDetails, notification, recIndex, response.getAttachments(), sendRequestId);
                     case OK ->
-                            handleStatusOK(response, sendPaperDetails, notification, recIndex, response.getAttachments(), timelineElementInternal.getElementId());
+                            handleStatusOK(response, sendPaperDetails, notification, recIndex, response.getAttachments(), sendRequestId);
                     case KO -> 
-                            handleStatusKO(response, sendPaperDetails, notification, recIndex, response.getAttachments(), timelineElementInternal.getElementId());
+                            handleStatusKO(response, sendPaperDetails, notification, recIndex, response.getAttachments(), sendRequestId);
                     default -> 
                             throw new PnInternalException("Invalid status from PaperChannel response", ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
                 }
@@ -169,6 +171,8 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         } else
             throw new PnInternalException("Unexpected details of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
     }
+
+
 
     private void handleStatusProgress(SendEventInt response,
                                       BaseAnalogDetailsInt sendPaperDetails,
