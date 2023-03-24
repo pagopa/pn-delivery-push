@@ -10,11 +10,14 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
 
@@ -134,5 +137,29 @@ public class PaperChannelUtils {
             log.error("There isn't timelineElement - iun {} eventId {}", iun, eventId);
             throw new PnInternalException("There isn't timelineElement - iun " + iun + " eventId " + eventId, ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
         }
+    }
+
+    public String getSendRequestId(String iun, String prepareRequestId) {
+        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, false);
+        Optional<String> sendRequestIdOpt =  timeline.stream()
+                .filter(timelineElement -> filterSendAnalogDomicile(timelineElement, prepareRequestId))
+                .map(TimelineElementInternal::getElementId)
+                .findFirst();
+        
+        if(sendRequestIdOpt.isPresent()){
+            return sendRequestIdOpt.get();
+        }else {
+            log.warn("SendRequestId is not present for iun={} prepareRequestId={}", iun, prepareRequestId);
+            return null;
+        }
+    }
+
+    private boolean filterSendAnalogDomicile(TimelineElementInternal el, String prepareRequestId) {
+        boolean availableAddressCategory = TimelineElementCategoryInt.SEND_ANALOG_DOMICILE.equals(el.getCategory());
+        if (availableAddressCategory) {
+            SendAnalogDetailsInt details = (SendAnalogDetailsInt) el.getDetails();
+            return prepareRequestId.equals(details.getPrepareRequestId());
+        }
+        return false;
     }
 }
