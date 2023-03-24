@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendRe
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -95,9 +96,11 @@ public class PaperChannelUtils {
         );
         return timelineElementInternal.getElementId();
     }
+    
     public String addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                      int sentAttemptMade, SendResponse sendResponse, String relatedRequestId, String productType) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendAnalogNotificationTimelineElement(physicalAddress, recIndex, notification, relatedRequestId, sentAttemptMade, sendResponse, productType);
+                                                      AnalogDtoInt analogDtoInfo) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendAnalogNotificationTimelineElement(
+                physicalAddress, recIndex, notification, analogDtoInfo);
         addTimelineElement(timelineElementInternal,
                 notification
         );

@@ -19,7 +19,8 @@ public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineEle
     private String deliveryFailureCause;
     private String deliveryDetailCode;
     private List<AttachmentDetailsInt> attachments;
-
+    private String sendRequestId;
+    
     public String toLog() {
         return String.format(
                 "recIndex=%d notificationDate=%s deliveryFailureCause=%s deliveryDetailCode=%s attachments=%s",

@@ -568,6 +568,9 @@ components:
           type: integer
           description: peso in grammi della busta
           format: int32
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
 
     SendAnalogFeedbackDetails:
       type: object
@@ -606,6 +609,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
           
 
     BaseRegisteredLetterDetails:
@@ -754,6 +760,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
 
 
     SenderAckCreationRequestDetails:
