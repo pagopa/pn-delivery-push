@@ -267,7 +267,7 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
   
-  PnDeliveryLogGroup:
+  PnDeliveryPushLogGroup:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-log-group.yaml"
@@ -378,4 +378,4 @@ Outputs:
 
   # Log group exports
   EcsLogGroup:
-    Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
+    Value: !GetAtt PnDeliveryPushLogGroup.Outputs.LogGroupName
