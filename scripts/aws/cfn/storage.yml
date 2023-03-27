@@ -26,6 +26,10 @@ Parameters:
   AlarmSNSTopicName:
     Type: String
     Description: 'Topic alarm'
+  
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send Logs'
     
 Resources:
 
@@ -63,6 +67,8 @@ Resources:
   # Internal queues
   ScheduledActionsQueue:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
@@ -72,6 +78,8 @@ Resources:
 
   DoneActionsQueue:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
@@ -82,6 +90,8 @@ Resources:
   # Notification Timeline DynamoDB Table
   TimelinesTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: !Sub '${ProjectName}-Timelines'
       AttributeDefinitions:
@@ -105,6 +115,8 @@ Resources:
   # Failed Paper Notification
   PaperNotificationFailedTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: !Sub '${ProjectName}-PaperNotificationFailed'
       AttributeDefinitions:
@@ -124,6 +136,8 @@ Resources:
   # Action Table
   ActionTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: !Sub '${ProjectName}-Action'
       AttributeDefinitions:
@@ -139,6 +153,8 @@ Resources:
   # Future Action Table
   FutureActionTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: !Sub '${ProjectName}-FutureAction'
       AttributeDefinitions:
@@ -158,6 +174,8 @@ Resources:
   # Last scheduled poll time
   LastPollForFutureActionTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: !Sub '${ProjectName}-LastPollForFutureActionTable'
       AttributeDefinitions:
@@ -173,6 +191,8 @@ Resources:
   # Shared lock handling table
   PnDeliveryPushShedLockTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: !Sub '${ProjectName}-PnDeliveryPushShedLock'
       AttributeDefinitions:
@@ -188,6 +208,8 @@ Resources:
   # WebhookStreams table
   PnDeliveryPushWebhookStreamsTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: !Sub '${ProjectName}-WebhookStreams'
       AttributeDefinitions:
@@ -207,6 +229,8 @@ Resources:
   # WebhookEvents table
   PnDeliveryPushWebhookEventsTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: !Sub '${ProjectName}-WebhookEvents'
       AttributeDefinitions:
@@ -229,6 +253,8 @@ Resources:
   # Safe storage table containing request
   DocumentCreationRequestTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain   
     Properties:
       TableName: !Sub '${ProjectName}-DocumentCreationRequestTable'
       AttributeDefinitions:
@@ -241,6 +267,13 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
   
+  PnDeliveryLogGroup:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub '${ProjectName}-delivery-push'
+        LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
 
 Outputs:
 
@@ -343,3 +376,6 @@ Outputs:
     Description: ARN of dynamodb table containing Document creation request to storage
     Value: !Sub '${DocumentCreationRequestTable.Arn}'
 
+  # Log group exports
+  EcsLogGroup:
+    Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
