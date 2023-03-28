@@ -7,12 +7,12 @@ import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -37,12 +37,12 @@ class NationalRegistriesClientResponseHandlerTest {
     @Mock
     private NotificationService notificationService;
 
-    private PublicRegistryResponseHandler handler;
+    private NationalRegistriesResponseHandler handler;
 
     @BeforeEach
     public void setup() {
         TimelineUtils timelineUtils = new TimelineUtils(Mockito.mock(InstantNowSupplier.class), Mockito.mock(TimelineService.class));
-        handler = new PublicRegistryResponseHandler(chooseDeliveryHandler,
+        handler = new NationalRegistriesResponseHandler(chooseDeliveryHandler,
                 digitalWorkFlowHandler,
                 publicRegistryUtils, notificationService, timelineUtils);
     }
@@ -56,8 +56,8 @@ class NationalRegistriesClientResponseHandlerTest {
         Integer recIndex = 0;
         String correlationId = "NATIONAL_REGISTRY_CALL#IUN_iun01#RECINDEX_0#CONTACTPHASE_CHOOSE_DELIVERY".replace("#", TimelineEventIdBuilder.DELIMITER);
         
-        PublicRegistryResponse response =
-                PublicRegistryResponse.builder()
+        NationalRegistriesResponse response =
+                NationalRegistriesResponse.builder()
                         .correlationId(correlationId)
                         .digitalAddress(LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -100,8 +100,8 @@ class NationalRegistriesClientResponseHandlerTest {
         String correlationId = "national_call#IUN_iun01#RECINDEX_0#DELIVERYMODE_DIGITAL#CONTACTPHASE_SEND_ATTEMPT#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Integer recIndex = 0;
 
-        PublicRegistryResponse response =
-                PublicRegistryResponse.builder()
+        NationalRegistriesResponse response =
+                NationalRegistriesResponse.builder()
                         .correlationId(correlationId)
                         .digitalAddress(LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)

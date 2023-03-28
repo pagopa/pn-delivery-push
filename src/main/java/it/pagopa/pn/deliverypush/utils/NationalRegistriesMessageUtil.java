@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessageDigitalAddress;
 import org.springframework.util.CollectionUtils;
 
@@ -11,8 +11,8 @@ public class NationalRegistriesMessageUtil {
 
     private NationalRegistriesMessageUtil(){}
 
-    public static PublicRegistryResponse buildPublicRegistryResponse(String correlationId, List<AddressSQSMessageDigitalAddress> digitalAddresses) {
-        return PublicRegistryResponse.builder()
+    public static NationalRegistriesResponse buildPublicRegistryResponse(String correlationId, List<AddressSQSMessageDigitalAddress> digitalAddresses) {
+        return NationalRegistriesResponse.builder()
                 .correlationId(correlationId)
                 .digitalAddress(mapToLegalDigitalAddressInt(digitalAddresses))
                 .build();

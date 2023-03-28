@@ -30,7 +30,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregi
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
@@ -103,10 +103,10 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public NationalRegistriesClientMock publicRegistriesMapMock(@Lazy PublicRegistryResponseHandler publicRegistryResponseHandler,
+    public NationalRegistriesClientMock publicRegistriesMapMock(@Lazy NationalRegistriesResponseHandler nationalRegistriesResponseHandler,
                                                                 @Lazy TimelineService timelineService) {
         return new NationalRegistriesClientMock(
-                publicRegistryResponseHandler,
+                nationalRegistriesResponseHandler,
                 timelineService
             );
     }

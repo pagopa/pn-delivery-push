@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry.NationalRegistriesClient;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.CheckTaxIdOK;
 import org.junit.jupiter.api.Assertions;
@@ -19,16 +19,16 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
 
     public static final String NOT_VALID = "NOT_VALID";
     public static final String EXCEPTION = "EXCEPTION";
-    private final PublicRegistryResponseHandler publicRegistryResponseHandler;
+    private final NationalRegistriesResponseHandler nationalRegistriesResponseHandler;
     private ConcurrentMap<String, LegalDigitalAddressInt> digitalAddressResponse;
     private final TimelineService timelineService;
 
 
     public NationalRegistriesClientMock(
-            PublicRegistryResponseHandler publicRegistryResponseHandler,
+            NationalRegistriesResponseHandler nationalRegistriesResponseHandler,
             TimelineService timelineService
     ) {
-        this.publicRegistryResponseHandler = publicRegistryResponseHandler;
+        this.nationalRegistriesResponseHandler = nationalRegistriesResponseHandler;
         this.timelineService = timelineService;
     }
 
@@ -76,11 +76,11 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
     private void simulateDigitalAddressResponse(String taxId, String correlationId) {
         LegalDigitalAddressInt address = this.digitalAddressResponse.get(taxId);
 
-        PublicRegistryResponse response = PublicRegistryResponse.builder()
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .correlationId(correlationId)
                 .digitalAddress(address)
                 .build();
-        publicRegistryResponseHandler.handleResponse(response);
+        nationalRegistriesResponseHandler.handleResponse(response);
     }
 
 }

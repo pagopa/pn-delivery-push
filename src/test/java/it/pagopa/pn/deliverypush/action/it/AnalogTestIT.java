@@ -91,7 +91,7 @@ import static org.awaitility.Awaitility.with;
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
         CompletionWorkFlowHandler.class,
-        PublicRegistryResponseHandler.class,
+        NationalRegistriesResponseHandler.class,
         ExternalChannelResponseHandler.class,
         PaperChannelServiceImpl.class,
         PaperChannelUtils.class,

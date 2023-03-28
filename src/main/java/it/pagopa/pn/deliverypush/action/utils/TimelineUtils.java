@@ -9,7 +9,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReference
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
@@ -441,7 +441,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildPublicRegistryResponseCallTimelineElement(NotificationInt notification, Integer recIndex, PublicRegistryResponse response) {
+    public TimelineElementInternal buildPublicRegistryResponseCallTimelineElement(NotificationInt notification, Integer recIndex, NationalRegistriesResponse response) {
         log.debug("buildPublicRegistryResponseCallTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String eventId = TimelineEventId.NATIONAL_REGISTRY_RESPONSE.buildEventId(response.getCorrelationId());
