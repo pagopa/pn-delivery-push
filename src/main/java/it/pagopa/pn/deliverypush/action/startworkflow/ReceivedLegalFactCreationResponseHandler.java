@@ -39,7 +39,7 @@ public class ReceivedLegalFactCreationResponseHandler {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
             // cambio lo stato degli attachment in ATTACHED
-            attachmentUtils.changeAttachmentsStatusToAttached(notification);
+            //attachmentUtils.changeAttachmentsStatusToAttached(notification);
 
             addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
 

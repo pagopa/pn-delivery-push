@@ -48,7 +48,7 @@ class RefinementSchedulerTest {
                 pnDeliveryPushConfigs
         );
     }
-
+ 
     @Test
     @ExtendWith(SpringExtension.class)
     void scheduleDigitalRefinementSuccessNotViewedBeforeNonVisibilityTime() {
