@@ -114,8 +114,7 @@ class DigitalWorkFlowHandlerTest {
                                 .build())
                         .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
                         .build());
-        Mockito.when(instantNowSupplier.get())
-                .thenReturn(Instant.now());
+
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
                 .thenReturn(nextAddressInfo);
         NotificationInt notification = getNotification();
@@ -236,7 +235,6 @@ class DigitalWorkFlowHandlerTest {
                 .lastAttemptDate(Instant.now())
                 .build();
 
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
                .thenReturn(DigitalAddressInfoSentAttempt.builder()
