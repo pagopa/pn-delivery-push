@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.action.notificationview;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -27,7 +26,6 @@ import java.time.Instant;
 @Slf4j
 @RequiredArgsConstructor
 public class ViewNotification {
-    private final InstantNowSupplier instantNowSupplier;
     private final SaveLegalFactsService legalFactStore;
     private final DocumentCreationRequestService documentCreationRequestService;
     private final TimelineUtils timelineUtils;
@@ -67,7 +65,7 @@ public class ViewNotification {
 
     @NotNull
     private Mono<Void> handleLegalFactCreation(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp, DelegateInfoInt delegateInfo) {
-        return legalFactStore.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, delegateInfo, instantNowSupplier.get())
+        return legalFactStore.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, delegateInfo, eventTimestamp)
                 .doOnSuccess( legalFactId -> log.info("Completed sendCreationRequestForNotificationViewedLegalFact legalFactId={} - iun={} id={}", legalFactId, notification.getIun(), recIndex))
                 .flatMap(legalFactId ->
                         Mono.fromRunnable( () -> {

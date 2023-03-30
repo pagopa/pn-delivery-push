@@ -4,7 +4,6 @@ import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
@@ -33,8 +32,6 @@ import static org.mockito.Mockito.when;
 
 class ViewNotificationTest {
     @Mock
-    private InstantNowSupplier instantNowSupplier;
-    @Mock
     private SaveLegalFactsService legalFactStore;
     @Mock
     private TimelineUtils timelineUtils;
@@ -59,7 +56,6 @@ class ViewNotificationTest {
         when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         notificationUtils = new NotificationUtils();
         viewNotification = new ViewNotification(
-                instantNowSupplier, 
                 legalFactStore,
                 documentCreationRequestService,
                 timelineUtils, 
@@ -83,7 +79,6 @@ class ViewNotificationTest {
         String legalFactsId = "legalFactsId";
         when(legalFactStore.sendCreationRequestForNotificationViewedLegalFact(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.isNull(), Mockito.any(Instant.class)))
                 .thenReturn(Mono.just(legalFactsId));
-        when(instantNowSupplier.get()).thenReturn(Instant.now());
         when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
@@ -99,6 +94,9 @@ class ViewNotificationTest {
         viewNotification.startVewNotificationProcess(notification, recipient, recIndex, null, null, viewDate).block();
 
         //THEN
+
+        Mockito.verify(legalFactStore).sendCreationRequestForNotificationViewedLegalFact(notification, recipient, null, viewDate);
+                
         Mockito.verify(timelineUtils).buildNotificationViewedLegalFactCreationRequestTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex), 
                 Mockito.eq(legalFactsId), Mockito.isNull(), Mockito.isNull(), Mockito.eq(viewDate));
 
@@ -121,7 +119,6 @@ class ViewNotificationTest {
         when(legalFactStore.sendCreationRequestForNotificationViewedLegalFact(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(DelegateInfoInt.class), Mockito.any(Instant.class)))
                 .thenReturn(Mono.just(legalFactsId));
         
-        when(instantNowSupplier.get()).thenReturn(Instant.now());
         Instant viewDate = Instant.now();
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
