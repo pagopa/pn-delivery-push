@@ -338,6 +338,11 @@ Parameters:
     Type: String
     Description: 'Time interval between validations retry'
     
+  # Log group parameters
+  EcsLogGroup:
+    Type: String
+    Description: 'Ecs log group name'
+
   # Heath Check parameters
   HealthCheckInterval:
     Description: Seconds between two health check
@@ -499,9 +504,9 @@ Resources:
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
         AlbSecurityGroup: !Ref AlbSecurityGroup
+        EcsLogGroup: !Ref EcsLogGroup
 
   # Grant operational rights to PN-Delivery-push microservice microservice
   DeliveryPushMicroserviceTaskManagedPolicy:
@@ -727,4 +732,4 @@ Resources:
             - !Ref NationalRegistries2DeliveryPushQueueARN
         LogGroupsNames: !Join
           - ','
-          - - !Sub '/ecs/${ProjectName}-delivery-push'
+          - - !Sub '/aws/ecs/${ProjectName}-delivery-push'

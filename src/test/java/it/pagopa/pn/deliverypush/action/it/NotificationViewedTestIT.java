@@ -92,7 +92,7 @@ import static org.mockito.ArgumentMatchers.eq;
         AnalogWorkflowPaperChannelResponseHandler.class,
         AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
-        PublicRegistryResponseHandler.class,
+        NationalRegistriesResponseHandler.class,
         NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         ExternalChannelResponseHandler.class,
