@@ -334,7 +334,6 @@ class DigitalTestMultiRecipientIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
                 .build();
@@ -477,7 +476,6 @@ class DigitalTestMultiRecipientIT {
     // Il primo destinatario è UNREACHBLE, il secondo è raggiungibile, ma il primo destinatario visualizza la notifica
     // via PN dopo il primo feedback (negativo) di External Channels.
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void rec1ViewedRec2GeneralOk() { 
        /* Primo recipient
        - Platform address presente ed entrambi gli invii con fallimento
@@ -501,7 +499,7 @@ class DigitalTestMultiRecipientIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String iun = "IUN01-REC1VIEWEDREC2GENERALOK";
+        String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica a valle della ricezione primo esito fallito di externalChannel
         String taxId01 = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
@@ -666,7 +664,6 @@ class DigitalTestMultiRecipientIT {
 
     // il primo destinatario è raggiungibile, il secondo è UNREACHBLE
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void rec1PlatformOkRec2AllKo() {
        /* Primo recipient
        - Platform address presente e primo invio con fallimento
@@ -736,7 +733,6 @@ class DigitalTestMultiRecipientIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
                 .build();
@@ -887,7 +883,6 @@ class DigitalTestMultiRecipientIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
                 .build();
@@ -997,10 +992,12 @@ class DigitalTestMultiRecipientIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String iun = TestUtils.getRandomIun();
+
         //Simulazione visualizzazione notifica a valle della fine del workflow di fallimento
         String taxId01 = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun("IUN01")
+                        .iun(iun)
                         .recIndex(0)
                         .source(DigitalAddressSourceInt.PLATFORM)
                         .sentAttemptMade(0)
@@ -1047,8 +1044,8 @@ class DigitalTestMultiRecipientIT {
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
 
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
                 .build();
@@ -1059,7 +1056,6 @@ class DigitalTestMultiRecipientIT {
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
 
-        String iun = notification.getIun();
         int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
         int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
@@ -1137,7 +1133,6 @@ class DigitalTestMultiRecipientIT {
     // Entrambi i destinatari sono non raggiungibili, ma il primo visualizza la notifica su PN prima che il workflow
     // sia completato (in fallimento)
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void rec1AllKoRec2AllKoButFirstViewedBeforeWorkflow() {
        /* Primo recipient
        - Platform address presente ed entrambi gli invii con fallimento
@@ -1164,11 +1159,13 @@ class DigitalTestMultiRecipientIT {
                 .address("digitalDomicile1@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
+        
+        final String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica prima che il workflow sia completato (con fallimento)
         String taxId01 = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
-                        .iun("IUN01")
+                        .iun(iun)
                         .recIndex(0)
                         .source(DigitalAddressSourceInt.PLATFORM)
                         .sentAttemptMade(0)
@@ -1215,8 +1212,8 @@ class DigitalTestMultiRecipientIT {
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
 
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
                 .build();
@@ -1227,7 +1224,6 @@ class DigitalTestMultiRecipientIT {
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
 
-        String iun = notification.getIun();
         int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
         int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
@@ -1310,7 +1306,6 @@ class DigitalTestMultiRecipientIT {
     // Entrambi i destinatari sono raggiungibili e il primo visualizza la notifica su PN dopo che il workflow
     // sia completato (con successo). Successivamente, anche il secondo destinatario visualizza la notifica
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void rec1OKRec2OKAndFirstViewedAfterWorkflow() {
        /* Primo recipient
        - Platform address non presente
@@ -1329,10 +1324,12 @@ class DigitalTestMultiRecipientIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
+        String iun = TestUtils.getRandomIun();
+        
         //Simulazione visualizzazione notifica a valle della fine del workflow di successo
         String taxId01 = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun("IUN01")
+                        .iun(iun)
                         .recIndex(0)
                         .source(DigitalAddressSourceInt.SPECIAL)
                         .sentAttemptMade(0)
@@ -1353,7 +1350,7 @@ class DigitalTestMultiRecipientIT {
         //Simulazione visualizzazione notifica a valle della fine del workflow di successo
         String taxId02 = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
                 EventId.builder()
-                        .iun("IUN01")
+                        .iun(iun)
                         .recIndex(1)
                         .source(DigitalAddressSourceInt.SPECIAL)
                         .sentAttemptMade(0)
@@ -1375,8 +1372,8 @@ class DigitalTestMultiRecipientIT {
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
 
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
                 .build();
@@ -1385,7 +1382,6 @@ class DigitalTestMultiRecipientIT {
 
         pnDeliveryClientMock.addNotification(notification);
 
-        String iun = notification.getIun();
         int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
         int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
@@ -1497,7 +1493,6 @@ class DigitalTestMultiRecipientIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
                 .build();

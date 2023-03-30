@@ -158,7 +158,6 @@ import static org.awaitility.Awaitility.await;
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
-@Disabled("Da capire come calcolare il timestamp di scheduled")
 @DirtiesContext
 class DigitalTestIT { 
     
@@ -290,7 +289,7 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
                 .iun(iun)
@@ -424,7 +423,7 @@ class DigitalTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();
         
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(
@@ -542,7 +541,8 @@ class DigitalTestIT {
     }
 
     @Test
-    void CcompleteFailWithRegisteredLetter() {
+    @Disabled("Da capire come calcolare il timestamp di scheduled")
+    void completeFailWithRegisteredLetter() {
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -582,7 +582,6 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -700,7 +699,6 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -852,7 +850,6 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -948,7 +945,6 @@ class DigitalTestIT {
 
         final NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -1054,7 +1050,6 @@ class DigitalTestIT {
 
         final NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -1160,7 +1155,6 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -1257,7 +1251,6 @@ class DigitalTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -1369,7 +1362,6 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -1512,7 +1504,6 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -1643,7 +1634,6 @@ class DigitalTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();

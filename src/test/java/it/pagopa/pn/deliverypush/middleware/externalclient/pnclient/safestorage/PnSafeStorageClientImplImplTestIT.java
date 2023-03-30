@@ -132,7 +132,6 @@ class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
     }
     
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void getFile() throws JsonProcessingException {
         //Given
         String fileKey ="fileKey";

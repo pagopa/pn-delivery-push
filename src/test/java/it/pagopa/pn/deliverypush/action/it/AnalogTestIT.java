@@ -59,7 +59,6 @@ import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -245,7 +244,6 @@ class AnalogTestIT {
     }
     
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void notificationViewedPaPhysicalAddressSend() {
  /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
@@ -262,7 +260,7 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();;
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(EventId.builder()
@@ -377,7 +375,6 @@ class AnalogTestIT {
     }
 
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void notificationViewedNoAnalogSend() {
  /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
@@ -524,7 +521,6 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -663,7 +659,6 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -798,7 +793,6 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
@@ -1003,7 +997,6 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
@@ -1216,7 +1209,6 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient( List.of(recipient1, recipient2) )
                 .build();
@@ -1374,7 +1366,7 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
         
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();
 
         //Simulazione attesa del primo recipient in 
         String elementIdInWait = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
