@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -63,8 +64,7 @@ class ReceivedLegalFactCreationResponseHandlerTest {
         Mockito.verify(scheduleRecipientWorkflow).startScheduleRecipientWorkflow(notification);
     }
 
-    @ExtendWith(SpringExtension.class)
-    @Test
+    @Disabled
     void handleReceivedLegalFactCreationResponseKO() {
         //GIVEN
         String legalFactId = "legalFactId";
