@@ -22,6 +22,7 @@ public class SuccessWorkflowHandler {
     private final TimelineUtils timelineUtils;
 
     public void handleSuccessWorkflow(NotificationInt notification, int recIndex,  PnAuditLogEvent logEvent, DigitalDeliveryCreationRequestDetailsInt timelineDetails) {
+        
         EndWorkflowStatus status = timelineDetails.getEndWorkflowStatus();
         Instant completionWorkflowDate = timelineDetails.getCompletionWorkflowDate();
         String legalFactId = timelineDetails.getLegalFactId();

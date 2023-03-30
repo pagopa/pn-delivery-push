@@ -56,7 +56,6 @@ import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -70,10 +69,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
@@ -288,7 +284,6 @@ class NotificationViewedTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .withNotificationDocuments(notificationDocumentList)
@@ -415,9 +410,9 @@ class NotificationViewedTestIT {
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
 
+        
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .withNotificationDocuments(notificationDocumentList)
@@ -531,7 +526,6 @@ class NotificationViewedTestIT {
     }
 
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void testNotificationViewedTwoRecipient(){
         //Primo Recipient
         LegalDigitalAddressInt platformAddress1 = LegalDigitalAddressInt.builder()
@@ -578,9 +572,9 @@ class NotificationViewedTestIT {
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
 
+
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withNotificationRecipients(recipients)
                 .build();
         
@@ -621,8 +615,8 @@ class NotificationViewedTestIT {
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkNotificationViewTimelineElement(iun, recIndex1, notificationViewDate1, null);
 
-        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient1), null, Mockito.any(Instant.class));
-        Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient1.getInternalId(), iun);
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient1), Mockito.eq(null), Mockito.any(Instant.class));
+        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient1.getInternalId(), iun);
 
         //Simulazione visualizzazione della notifica per il secondo recipient
         Instant notificationViewDate2 = Instant.now();
@@ -645,7 +639,7 @@ class NotificationViewedTestIT {
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
         checkNotificationViewTimelineElement(iun, recIndex2, notificationViewDate2, null);
 
-        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient2), null, Mockito.any(Instant.class));
+        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient2), eq(null), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient2.getInternalId(), iun);
         
         //Vengono stampati tutti i legalFacts generati

@@ -635,6 +635,13 @@ public class TestUtils {
         return ste[depth].getMethodName();
     }
     
+    public static String getRandomIun(){
+        Random rand = new Random();
+        int upperbound = 10000;
+        int int_random = rand.nextInt(upperbound);
+        return "XX_"+int_random;
+    }
+    
     @Builder
     @Getter
     public static class GeneratedLegalFactsInfo{

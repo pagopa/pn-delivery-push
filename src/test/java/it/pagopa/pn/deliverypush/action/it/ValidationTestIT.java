@@ -248,7 +248,6 @@ class ValidationTestIT {
                 .build();
 
         NotificationInt notification = NotificationTestBuilder.builder()
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -319,7 +318,6 @@ class ValidationTestIT {
                 .build();
 
         NotificationInt notification = NotificationTestBuilder.builder()
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();

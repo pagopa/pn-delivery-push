@@ -289,7 +289,6 @@ class NotHandledTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -379,7 +378,7 @@ class NotHandledTestIT {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();
         //Viene simulata la visualizzazione della notifica
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.AAR_GENERATION.buildEventId(EventId.builder()
                 .iun(iun)
@@ -513,7 +512,6 @@ class NotHandledTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -599,7 +597,7 @@ class NotHandledTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();
 
         //Viene simulata la visualizzazione della notifica
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.AAR_GENERATION.buildEventId(EventId.builder()

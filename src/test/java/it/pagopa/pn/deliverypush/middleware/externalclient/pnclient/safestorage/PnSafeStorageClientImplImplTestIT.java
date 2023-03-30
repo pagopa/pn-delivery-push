@@ -15,6 +15,7 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestTemplate;
@@ -132,10 +133,9 @@ class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
     }
     
     @Test
-    @Disabled("Test fail only in build fase PN-3853")
     void getFile() throws JsonProcessingException {
         //Given
-        String fileKey ="fileKey";
+        String fileKey ="fileKey2";
 
         FileDownloadResponse fileDownloadInput = new FileDownloadResponse();
         fileDownloadInput.setChecksum("checkSum")
