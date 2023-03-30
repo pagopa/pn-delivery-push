@@ -1,9 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool;
 
-import it.pagopa.pn.deliverypush.action.details.NotHandledDetails;
-import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
-import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
-import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.details.*;
 import lombok.Getter;
 
 @Getter
@@ -47,6 +44,14 @@ public enum ActionType {
     @Override
     public String buildActionId(Action action) {
       return String.format("%s_digital_workflow_e_%d_timelineid_%s", action.getIun(), action.getRecipientIndex(), action.getTimelineId() == null ? "" : action.getTimelineId());
+    }
+  },
+
+
+  DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION(NextWorkflowActionExecuteDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("%s_digital_workflow_execute_e_%d_timelineid_%s", action.getIun(), action.getRecipientIndex(), action.getTimelineId() == null ? "" : action.getTimelineId());
     }
   },
 
