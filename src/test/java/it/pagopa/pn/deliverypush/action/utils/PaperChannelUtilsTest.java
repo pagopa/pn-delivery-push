@@ -8,9 +8,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +21,7 @@ import org.springframework.util.Base64Utils;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 class PaperChannelUtilsTest {
 
@@ -95,8 +92,18 @@ class PaperChannelUtilsTest {
         SendResponse sendResponse = new SendResponse()
                 .amount(10)
                 .foreignState("FR");
-        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification, null, 0,  sendResponse, "NR_AR")).thenReturn(timelineElementInternal);
-        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   0, sendResponse, null, "NR_AR");
+        
+        AnalogDtoInt analogDtoInfo = AnalogDtoInt.builder()
+                .sentAttemptMade(0)
+                .sendResponse(sendResponse)
+                .relatedRequestId(null)
+                .productType("NR_AR")
+                .prepareRequestId("prepare_request_id")
+                .build();
+
+        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification,analogDtoInfo)).thenReturn(timelineElementInternal);
+        
+        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   analogDtoInfo);
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 
@@ -122,6 +129,119 @@ class PaperChannelUtilsTest {
         Assertions.assertEquals(timelineElementInternal, actual);
     }
 
+    @Test
+    void getSendRequestId() {
+        String iun = "001";
+
+        final String prepareRequestId = "prepare_request_id";
+        
+        SendAnalogDetailsInt detailsInt = SendAnalogDetailsInt.builder()
+                .prepareRequestId(prepareRequestId)
+                .build();
+        final TimelineElementInternal sendAnalog = TimelineElementInternal.builder()
+                .iun("1")
+                .elementId("SEND_ANALOG_DETAILS")
+                .timestamp(Instant.now())
+                .paId("1")
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
+                .details(detailsInt)
+                .build();
+
+        SendAnalogFeedbackDetailsInt feedbackDetails = SendAnalogFeedbackDetailsInt.builder()
+                .sendRequestId(sendAnalog.getElementId())
+                .build();
+        final TimelineElementInternal sendAnalogFeedback = TimelineElementInternal.builder()
+                .iun("1")
+                .elementId("SEND_ANALOG_FEEDBACK")
+                .timestamp(Instant.now())
+                .paId("1")
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .details(feedbackDetails)
+                .build();
+
+        
+        Set<TimelineElementInternal> timeline = new HashSet<>();
+        timeline.add(sendAnalog);
+        timeline.add(sendAnalogFeedback);
+        
+        Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
+
+        String sendRequestId = channelUtils.getSendRequestId(iun, prepareRequestId);
+
+        Assertions.assertEquals(sendRequestId, sendAnalog.getElementId());
+    }
+
+    @Test
+    void getSendRequestIdNotFound() {
+        String iun = "001";
+
+        final String prepareRequestId = "prepare_request_id";
+
+        SendAnalogDetailsInt detailsInt = SendAnalogDetailsInt.builder()
+                .prepareRequestId(prepareRequestId + "different")
+                .build();
+        final TimelineElementInternal sendAnalog = TimelineElementInternal.builder()
+                .iun("1")
+                .elementId("SEND_ANALOG_DETAILS")
+                .timestamp(Instant.now())
+                .paId("1")
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
+                .details(detailsInt)
+                .build();
+
+        SendAnalogFeedbackDetailsInt feedbackDetails = SendAnalogFeedbackDetailsInt.builder()
+                .sendRequestId(sendAnalog.getElementId())
+                .build();
+        final TimelineElementInternal sendAnalogFeedback = TimelineElementInternal.builder()
+                .iun("1")
+                .elementId("SEND_ANALOG_FEEDBACK")
+                .timestamp(Instant.now())
+                .paId("1")
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .details(feedbackDetails)
+                .build();
+
+
+        Set<TimelineElementInternal> timeline = new HashSet<>();
+        timeline.add(sendAnalog);
+        timeline.add(sendAnalogFeedback);
+
+        Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
+
+        String sendRequestId = channelUtils.getSendRequestId(iun, prepareRequestId);
+
+        Assertions.assertNull(sendRequestId);
+    }
+
+    @Test
+    void getSendRequestIdNotPresent() {
+        String iun = "001";
+
+        final String prepareRequestId = "prepare_request_id";
+        
+        SendAnalogFeedbackDetailsInt feedbackDetails = SendAnalogFeedbackDetailsInt.builder()
+                .sendRequestId("test")
+                .build();
+        final TimelineElementInternal sendAnalogFeedback = TimelineElementInternal.builder()
+                .iun("1")
+                .elementId("SEND_ANALOG_FEEDBACK")
+                .timestamp(Instant.now())
+                .paId("1")
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .details(feedbackDetails)
+                .build();
+
+
+        Set<TimelineElementInternal> timeline = new HashSet<>();
+        timeline.add(sendAnalogFeedback);
+
+        Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
+
+        String sendRequestId = channelUtils.getSendRequestId(iun, prepareRequestId);
+
+        Assertions.assertNull(sendRequestId);
+    }
+    
     private List<NotificationRecipientInt> buildRecipients() {
         NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
                 .internalId("internalId")

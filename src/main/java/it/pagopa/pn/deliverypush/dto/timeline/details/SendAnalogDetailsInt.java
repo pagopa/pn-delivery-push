@@ -17,17 +17,19 @@ public class SendAnalogDetailsInt extends BaseAnalogDetailsInt implements Analog
     private String productType;
     private Integer numberOfPages;
     private Integer envelopeWeight;
-
+    private String prepareRequestId;
+    
     @Override
     public String toLog() {
         return String.format(
-                "recIndex=%d sentAttemptMade=%d relatedRequestId=%s physicalAddress=%s analogCost=%d productType=%s",
+                "recIndex=%d sentAttemptMade=%d relatedRequestId=%s physicalAddress=%s analogCost=%d productType=%s prepareRequestId=%s",
                 recIndex,
                 sentAttemptMade,
                 relatedRequestId,
                 AuditLogUtils.SENSITIVE,
                 analogCost,
-                productType
+                productType,
+                prepareRequestId
         );
     }
 }

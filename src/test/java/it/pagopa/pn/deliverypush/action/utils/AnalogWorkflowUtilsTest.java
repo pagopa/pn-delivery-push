@@ -127,11 +127,14 @@ class AnalogWorkflowUtilsTest {
                 .deliveryFailureCause("M1")
                 .build();
 
-        Mockito.when(timelineUtils.buildAnalogFailureAttemptTimelineElement(Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
-        
-        analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notificationInt, 1, attachments, sendPaperDetails,sendEventInt );
+        final String sendRequestId = "send_request_id";
 
-        Mockito.verify(timelineUtils).buildAnalogFailureAttemptTimelineElement(notificationInt, 1, attachments, sendPaperDetails, sendEventInt);
+        Mockito.when(timelineUtils.buildAnalogFailureAttemptTimelineElement(
+                Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
+
+        analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notificationInt, 1, attachments, sendPaperDetails,sendEventInt, sendRequestId);
+
+        Mockito.verify(timelineUtils).buildAnalogFailureAttemptTimelineElement(notificationInt, 1, attachments, sendPaperDetails, sendEventInt, sendRequestId);
     }
 
     @ExtendWith(MockitoExtension.class)

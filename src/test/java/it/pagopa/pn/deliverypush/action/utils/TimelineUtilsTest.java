@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
@@ -259,8 +260,17 @@ class TimelineUtilsTest {
         String productType ="RN_AR";
         String timelineEventIdExpected = "SEND_ANALOG_DOMICILE#IUN_Example_IUN_1234_Test#RECINDEX_1#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
+
+        AnalogDtoInt analogDtoInfo = AnalogDtoInt.builder()
+                .sentAttemptMade(sentAttemptMade)
+                .sendResponse(sendResponse)
+                .relatedRequestId(relatedRequestId)
+                .productType(productType)
+                .prepareRequestId("prepare_request_id")
+                .build();
+        
         TimelineElementInternal actual = timelineUtils.buildSendAnalogNotificationTimelineElement(
-                address, recIndex, notification, relatedRequestId, sentAttemptMade, sendResponse, productType
+                address, recIndex, notification, analogDtoInfo
         );
 
         Assertions.assertAll(
@@ -416,8 +426,10 @@ class TimelineUtilsTest {
                 .deliveryFailureCause("M1")
                 .build();
 
+        final String sendRequestId = "send_request_id";
+
         TimelineElementInternal actual = timelineUtils.buildAnalogFailureAttemptTimelineElement(
-                notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt
+                notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt, sendRequestId
         );
 
         String timelineEventIdExpected = "SEND_ANALOG_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_0#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
