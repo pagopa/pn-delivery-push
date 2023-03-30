@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @Builder(toBuilder = true)
 @EqualsAndHashCode
-public class PublicRegistryResponse {
+public class NationalRegistriesResponse {
     private String correlationId;
     private LegalDigitalAddressInt digitalAddress;
     private PhysicalAddressInt physicalAddress;

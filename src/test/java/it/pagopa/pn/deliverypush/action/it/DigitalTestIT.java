@@ -99,7 +99,7 @@ import static org.awaitility.Awaitility.await;
         AuditLogServiceImpl.class,
         DigitalWorkFlowRetryHandler.class,
         CompletionWorkFlowHandler.class,
-        PublicRegistryResponseHandler.class,
+        NationalRegistriesResponseHandler.class,
         NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
