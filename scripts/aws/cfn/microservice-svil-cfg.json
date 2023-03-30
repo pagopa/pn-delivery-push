@@ -11,7 +11,7 @@
     "SchedulingDaysFailureAnalogRefinement": "8m",
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "10",
-    "SandboxSafeStorageBaseUrl": "https://ewlg4idc89.execute-api.eu-south-1.amazonaws.com/dev",
+    "SandboxSafeStorageBaseUrl": "http://alb.confidential.pn.internal:8080/",
     "ExternalChannelBaseUrl": "https://zq5g01oxkb.execute-api.eu-south-1.amazonaws.com/dev/",
     "ExternalChannelDigitalRetryCount": "3",
     "ExternalChannelDigitalRetryDelay": "10m",
