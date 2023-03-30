@@ -11,7 +11,6 @@
     "SchedulingDaysFailureAnalogRefinement": "4m", 
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "10",
-    "SandboxSafeStorageBaseUrl": "http://alb.confidential.pn.internal:8080/",
     "ExternalChannelBaseUrl": "Mock",
     "ExternalChannelDigitalRetryCount": "3",
     "ExternalChannelDigitalRetryDelay": "10m",
