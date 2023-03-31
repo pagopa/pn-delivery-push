@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
@@ -58,13 +59,15 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                                                                         LegalFactCategory legalFactType,
                                                                         String legalfactId,
                                                                         String senderReceiverId,
-                                                                        String mandateId) {
+                                                                        String mandateId,
+                                                                  CxTypeAuthFleet cxType,
+                                                                  List<String> cxGroups) {
 
         log.debug( "GetLegalFactMetadata iun={} legalFactId={} senderReceiverId={}", iun, legalfactId, senderReceiverId );
-        
+
         return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
                 .flatMap(notification -> {
-                            Mono.fromRunnable(() -> authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId));
+                            Mono.fromRunnable(() -> authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId, cxType, cxGroups));
                             return Mono.just(notification);
                         }
                 )
@@ -119,13 +122,13 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
     @Override
     @NotNull
-    public List<LegalFactListElement> getLegalFacts(String iun, String senderReceiverId, String mandateId) {
+    public List<LegalFactListElement> getLegalFacts(String iun, String senderReceiverId, String mandateId, CxTypeAuthFleet cxType, List<String> cxGroups) {
         log.debug( "Retrieve timeline elements for iun={}", iun );
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun, true);
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId);
+        authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId, cxType, cxGroups);
         PnAuditLogEventType eventType = AuditLogUtils.getAuditLogEventType(notification, senderReceiverId, mandateId);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();

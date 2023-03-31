@@ -49,9 +49,4 @@ class SimpleRegisteredLetterDetailsIntTest {
         Assertions.assertEquals(100, cost);
     }
 
-    @Test
-    void testToString() {
-        String details = detailsInt.toString();
-        Assertions.assertEquals("SimpleRegisteredLetterDetailsInt(recIndex=0, physicalAddress=PhysicalAddressInt(fullname=null, at=null, address=null, addressDetails=000, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null), foreignState=001, analogCost=100, productType=null)", details);
-    }
 }

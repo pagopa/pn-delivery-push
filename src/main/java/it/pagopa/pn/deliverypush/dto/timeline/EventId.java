@@ -24,4 +24,7 @@ public class EventId {
     private Integer progressIndex;
     private DocumentCreationTypeInt documentCreationType;
     private CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT courtesyAddressType;
+    private String creditorTaxId;
+    private String noticeCode;
+    private String idF24;
 }

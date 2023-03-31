@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,13 +16,19 @@ import java.time.Instant;
 public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private Instant notificationDate;
-    private String eventCode;
-
+    private String deliveryFailureCause;
+    private String deliveryDetailCode;
+    private List<AttachmentDetailsInt> attachments;
+    private String sendRequestId;
+    
     public String toLog() {
         return String.format(
-                "recIndex=%d eventCode=%s",
+                "recIndex=%d notificationDate=%s deliveryFailureCause=%s deliveryDetailCode=%s attachments=%s",
                 recIndex,
-                eventCode
+                notificationDate,
+                deliveryFailureCause,
+                deliveryDetailCode,
+                attachments
         );
     }
 }

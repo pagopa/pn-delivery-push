@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
@@ -11,6 +12,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
@@ -221,13 +223,13 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
 
             try {
-                Integer sendCost = paperChannelSendClient.send(
+                SendResponse sendResponse = paperChannelSendClient.send(
                         new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
                                 receiverAddress, requestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
 
-                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendCost, productType);
+                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendResponse, productType);
                 log.info("Registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
-                auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendCost, timelineId).log();
+                auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
 
             } catch (Exception exc) {
                 auditLogEvent.generateFailure("failed send exc={}", exc).log();
@@ -263,15 +265,23 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 }
 
                 // IL sender/ar address son impostati a pagopa
-                Integer sendCost =  paperChannelSendClient.send(
+                SendResponse sendResponse =  paperChannelSendClient.send(
                         new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
                                 receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
 
 
-                timelineId = paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, sentAttemptMade, sendCost, relatedEventId, productType);
+                AnalogDtoInt analogDtoInfo = AnalogDtoInt.builder()
+                        .sentAttemptMade(sentAttemptMade)
+                        .sendResponse(sendResponse)
+                        .relatedRequestId(relatedEventId)
+                        .productType(productType)
+                        .prepareRequestId(prepareRequestId)
+                        .build();
+                
+                timelineId = paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, analogDtoInfo);
 
                 log.info("Analog notification sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
-                auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendCost, timelineId).log();
+                auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
 
             } catch (Exception exc) {
                 auditLogEvent.generateFailure("failed send exc={}", exc).log();

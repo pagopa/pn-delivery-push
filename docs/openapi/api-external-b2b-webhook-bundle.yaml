@@ -1,49 +1,257 @@
 openapi: 3.0.3
 info:
-  termsOfService: 'https://termofservice.it'
-  title: API B2B avanzamento notifiche
+  termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
+  title: 'Piattaforma Notifiche: API B2B avanzamento notifiche'
   x-summary: API B2B avanzamento notifiche
   version: 1.0.0
-  x-api-id: api-internal-b2b-webhook
+  x-api-id: api-external-b2b-webhook
   description: |-
-    I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo  automatico. E' possibile definire fino ad un massimo di 5 configurazioni di flussi per  informazioni relative a: <br/>
+    I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo  automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">5</span> configurazioni di flussi per singola PA</strong></font> su  informazioni relative a: <br/>
       - cambiamento di stato della notifica;  <br/>
       - inserimento di elementi nella timeline. <br/>
 
-    Per ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni  cambiamenti di stato o determinati eventi di timeline.
-    Esempio: - Ricezione dell'accettazione o rifiuto delle notifiche:
-    `` {
-      "title": "NotificationAccepted",
+    Per ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni  cambiamenti di stato o determinati eventi di timeline di maggiore interesse. Si consiglia  di creare gli stream prima dell'invio delle notifiche perchè gli stati o gli eventi di  timeline vengono registrati solo successivamente alla creazione dello stream.</br> </br> __Esempio:__ - Stream contenente tutte le notifiche in stato Cancellato: </br></br> `` {
+      "title": "NotificationCancelled",
       "eventType": "STATUS",
       "filterValues": [
-        "ACCEPTED","
+        "CANCELLED"
       ]
-    } ``
-    Gli stati della notifica sono: $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
-    Le categorie degli eventi di timeline sono:  $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
-    Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
-      - Creazione; <br/>
-      - Modifica; <br/>
-      - Cancellazione. <br/>
+    } `` </br></br> __Esempio:__ - Stream contenente tutte le notifiche in stato Accettato o Consegnato: </br></br> `` {
+      "title": "NotificationAcceptedOrDelivered",
+      "eventType": "STATUS",
+      "filterValues": [
+        "ACCEPTED","DELIVERED"
+      ]
+    } `` </br></br> __Esempio:__ - Stream contenente tutti gli eventi di timeline NOTIFICATION_VIEWED: </br></br> `` {
+      "title": "TimelineNotificationViewed",
+      "eventType": "TIMELINE",
+      "filterValues": [
+        "NOTIFICATION_VIEWED"
+      ]
+    } `` </br></br>
+    Gli stati della notifica che possono essere inseriti come __filterValues__ sono i seguenti: 
+      <details>
+        <summary>Stati</summary>
+        <ul>
+          <li><strong>ACCEPTED </strong><em>L'ente ha depositato la notifica con successo.</em></li>
+          <li><strong>REFUSED </strong><em>Notifica rifiutata a seguito della validazione.</em></li>
+          <li><strong>DELIVERING </strong><em>L'invio della notifica è in corso.</em></li>
+          <li><strong>DELIVERED </strong><em>La notifica è stata consegnata a tutti i destinatari.</em></li>
+          <li><strong>VIEWED </strong><em>Il destinatario ha letto la notifica entro il termine stabilito.</em></li>
+          <li><strong>EFFECTIVE_DATE </strong><em>Il destinatario non ha letto la notifica entro il termine stabilito.</em></li>
+          <li><strong>PAID </strong><em>Uno dei destinatari ha pagato la notifica.</em></li>
+          <li><strong>UNREACHABLE </strong><em>Il destinatario non è reperibile.</em></li>
+          <li><strong>CANCELLED </strong><em>L'ente ha annullato l'invio della notifica.</em></li>
+        </ul>
+      </details>
+    </br>
+    Le categorie degli eventi di timeline che possono essere inseriti come __filterValues__ sono i seguenti: 
 
-    Le operazioni con il tag __Events__ sono quelle utilizzate per la lettura degli eventi  filtrati in base alla configurazione impostata negli streams.
-    La api restituisce un massimo di 100 elementi. Se ci sono ulteriori eventi nello stream sarà restituito  l'elemento `retryAfter = 0`, per ottenere gli eventi successivi è necessario richiamare il servizio  passando il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. Questo permetterà alla piattaforma di cancellare gli eventi precedenti.
-    Gli eventi sono mantenuti per un massimo di X giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream.
+      <details>
+        <summary>Eventi di timeline</summary>
+        <ul>
+          <li><strong>REQUEST_ACCEPTED </strong><em>Richiesta di notifica accettata a seguito dei controlli di validazione.</em></li>
+          <li><strong>SEND_COURTESY_MESSAGE </strong><em>Invio di un messaggio di cortesia.</em></li>
+          <li><strong>GET_ADDRESS </strong><em>Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali).</em></li>
+          <li><strong>PUBLIC_REGISTRY_CALL </strong><em>Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.</em></li>
+          <li><strong>PUBLIC_REGISTRY_RESPONSE </strong><em>Ricevuta la risposta dei registri pubblici.</em></li>
+          <li><strong>SCHEDULE_ANALOG_WORKFLOW </strong><em>Inizio del workflow per invio cartaceo.</em></li>
+          <li><strong>SCHEDULE_DIGITAL_WORKFLOW </strong><em>Inizio il workflow per invio digitale (PEC).</em></li>
+          <li><strong>SEND_DIGITAL_DOMICILE </strong><em>Invio digitale dell’avviso di notifica</em></li>
+          <li><strong>SEND_DIGITAL_DOMICILE_FEEDBACK </strong><em>Ottenuto esito sull'invio digitale dell’avviso di notifica</em></li>
+          <li><strong>SEND_DIGITAL_FEEDBACK </strong><em>Ottenuto esito del processo di invio digitale</em></li>
+          <li><strong>REFINEMENT </strong><em>Perfezionamento per decorrenza termini</em></li>
+          <li><strong>SCHEDULE_REFINEMENT </strong><em>Pianificato il perfezionamento per decorrenza termini</em></li>
+          <li><strong>DIGITAL_SUCCESS_WORKFLOW </strong><em>Completato con successo il workflow di invio digitale.</em></li>
+          <li><strong>DIGITAL_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio digitale. <strong>NOTA</strong>: in caso di DIGITAL_FAILURE_WORKFLOW piattaforma notifiche invia la AAR (Avviso di Avvenuta Ricezione) tramite raccomandata semplice e la notifica si considera consegnata.</em></li>
+          <li><strong>ANALOG_SUCCESS_WORKFLOW </strong><em>Completato con successo il workflow di invio cartaceo.</em></li>
+          <li><strong>ANALOG_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio cartaceo. <strong>NOTA</strong>: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE</em></li>
+          <li><strong>SEND_SIMPLE_REGISTERED_LETTER </strong><em>Invio di raccomandata semplice</em></li>
+          <li><strong>NOTIFICATION_VIEWED </strong><em>Perfezionamento per presa visione</em></li>
+          <li><strong>SEND_ANALOG_DOMICILE </strong><em>Invio cartaceo dell’avviso di notifica</em></li>
+          <li><strong>SEND_PAPER_FEEDBACK </strong><em>Ricezione esito dell'invio cartaceo</em></li>
+          <li><strong>PAYMENT </strong><em>Ricezione pagamento della notifica</em></li>
+          <li><strong>COMPLETELY_UNREACHABLE </strong><em>Tutti i destinatari risultano irraggiungibili</em></li>
+          <li><strong>REQUEST_REFUSED </strong><em>Richiesta di notifica rifiutata per fallimento di validazione.</em></li>
+          <li><strong>AAR_GENERATION </strong><em>Generazione dell’AAR (Avviso di Avvenuta Ricezione)</em></li>
+          <li><strong>NOT_HANDLED </strong><em>Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline</em></li>
+        </ul>
+      </details>
+    </br> Di seguito un esempio di creazione e successiva interrogazione dello stream: 
+
+      <details>
+        <summary>Esempio dello stream</summary>
+      
+      <table>
+      
+      <tr>
+      
+      <td>
+      
+      </br>
+      
+      ### 1) Creazione dello stream ed inserimento notifica
+      In questo esempio creo 2 stream con il servizio di [creazione stream](#/Streams/createEventStream): uno per gli status</br> e l'altro per gli eventi di timeline.</br> Vedesi le request <big><strong>a)</strong></big> di esempio con le relative response <big><strong>b)</strong></big>, Da notare che sono presenti</br> dei filtri per ottenere solo specifici status o eventi; se si vogliono ottenere tutte </br>le variazioni non bisogna inserire nessun filtro: 
+      <code>"filterValues": []</code></br>      
+      Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
+      
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      
+      ### 2) Prima interrogazione degli stream appena creati
+      
+      Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">50</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
+      
+      A questo punto bisogna controllare il parametro <code>retry-after</code> contenuto nell'header</br> della response per capire quanto tempo attendere prima di richiamare lo stream</br> ed ottenere nuovi risultati: 
+      <ul>
+      <li>Se <code>retry-after = 0</code> significa che lo stream contiene ulteriori eventi rispetto</br> a quelli che ho appena ottenuto nella response e quindi posso richiamare subito</br> il servizio e consumare gli eventi successivi</li></br>
+      <li>se <code>retry-after ≠ 0</code> significa che lo stream NON contiene altri eventi rispetto</br> a quelli che ottenuti in questa chiamata e quindi dovrò attendere la quantità</br> di secondi indicati nel <code>retry-after</code> prima di effettuare un'altra chiamata</br> per consumare ulteriori eventi</li>
+      </ul>
+      
+      </br>
+      </br>
+      </br>
+
+      ### 3) Successive interrogazioni degli stream appena creati
+
+      Se l'header della prima interrogazione degli stream restituisce nell'header: <code>retry-after = 0</code></br> significa che lo stream contiene altri eventi che possono essere consumati subito con</br> un'ulteriore chiamata al servizio di [lettura degli eventi](#/Events/consumeEventStream), ma questa volta per consumare</br> gli eventi successivi ai primi ricevuti, bisogna valorizzare nei query params della request</br> il parametro <code>lastEventId</code> con l'eventId ottenuto nella precedente chiamata.</br> Così facendo il servizio eliminerà dallo stream tutti gli eventi precedenti a quello inserito</br> nel <code>lastEventId</code> e restituirà nella response <big><strong>d)</big></strong> solamente quelli successivi .</br>
+
+      A questo punto si potrà capire, sempre dal valore del <code>retry-after</code> contenuto nell'header</br> se chiamare subito il servizio ed inserire il <code>lastEventId</code> di questa ulteriore chiamata</br> o attendere i secondi indicati nell'header</br>
+
+      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveSentNotification) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
+
+      </td>
+      <td>
+      
+      #### a) Request di POST /delivery-progresses/streams
+      
+        {                                           {
+          "title": "stream-status-prova",             "title": "stream-timeline-prova",
+          "eventType": "STATUS",                      "eventType": "TIMELINE",
+          "filterValues": [                           "filterValues": [
+              "ACCEPTED"                                  "REQUEST_ACCEPTED"
+          ]                                           ]
+        }                                           }
+        
+      #### b) Response di POST /delivery-progresses/streams
+        
+        {                                           {
+            "title": "stream-status-prova",           "title": "stream-timeline-prova",
+            "eventType": "STATUS",                    "eventType": "TIMELINE",
+            "filterValues": [                         "filterValues": [
+                "ACCEPTED"                                "REQUEST_ACCEPTED"
+            ],                                        ],
+            "streamId":                               "streamId": 
+            "4e6d5e59-85fc-4ef7-bad8",                "6d87ree59-31ff-2rr7-lok1",
+            "activationDate":                         "activationDate": 
+            "2022-12-12T14:52:23.362454Z"             "2022-12-12T14:53:23.362454Z"
+        }                                           }  
+      
+      </br>
+      </br>
+
+      #### c) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events
+      
+        Headers: { "retry-after": "60000" }
+
+        [
+            {
+                "eventId": "0000000000000000000001",
+                "timestamp": "2022-12-06T08:14:26.140041Z",
+                "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
+                "iun": "ABCD-ABCD-ABCD-202212-V-1",
+                "newStatus": "ACCEPTED",
+                "timelineEventCategory": "REQUEST_ACCEPTED",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
+            }, 
+            ... // altri eventi nell'array
+        ]
+
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+
+      #### d) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events</br> chiamato valorizzando nei query params il parametro <code>lastEventId</code> con l'eventId</br> dell'ultimo evento nella precedente chiamata.</br>
+      
+        Headers: { "retry-after": "60000" }
+
+        [
+            {
+                "eventId": "0000000000000000000011",
+                "timestamp": "2022-12-07T10:13:22.158041Z",
+                "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
+                "iun": "ABCD-ABCD-ABCD-202212-V-1",
+                "newStatus": "DELIVERED",
+                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
+            }, 
+            ... // altri eventi nell'array
+        ]
+      
+      </td>
+      
+      </tr>
+      
+      </table>
+
+      </br>
+      </br>
+      
+      </details>  
+
+    Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
+      - [Creazione](#/Streams/createEventStream) <br/>
+      - [Elencare la lista degli stream creati](#/Streams/listEventStreams) <br/>
+      - [Leggere i metadati dello stream](#/Streams/getEventStream) <br/>
+      - [Modifica](#/Streams/updateEventStream) <br/>
+      - [Cancellazione](#/Streams/deleteEventStream) <br/>
+
+    Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream)  filtrati in base alla configurazione impostata negli streams.
+    La api restituisce un massimo di <span id="webhookMaxLength">50</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio  restituice l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando  il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. Si evidenzia che ogni nuova chiamata al servizio con _lastEventId_ implica la cancellazione degli eventi precedenti. Tuttavia, in fase di implementazione del client che consumerà i servizi, bisogna considerare il fattore della __non univocità degli eventi__: è possibile che se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br> Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br> <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__ </font> 
+    </br> </br>
+    <h3>Le <strong>FAQ</strong> possono essere consultate al seguente link:<a href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
+    <details>
+      <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
+    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di produzione</li> <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di collaudo</li> <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li> <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di sviluppo</li> </ul>   </details></br>
   contact:
-    email: pn@pagopa.it
+    email: pn-supporto-enti@pagopa.it
   license:
     name: Licenza di PN
-    url: 'https://da-definire/'
+    url: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
 servers:
-  - url: 'https://api.pn.pagopa.it'
+  - url: https://api.pn.pagopa.it
     description: Ambiente di produzione
-  - url: 'https://api.uat.pn.pagopa.it'
+  - url: https://api.coll.pn.pagopa.it
+    description: Ambiente di collaudo
+  - url: https://api.uat.pn.pagopa.it
     description: Ambiente di test
-  - url: 'https://api.dev.pn.pagopa.it'
+  - url: https://api.dev.pn.pagopa.it
     description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
-    description: Invocazioni per sapere lo stato del microservizio
+    description: 'Invocazioni per sapere lo stato del microservizio # il servizio è ancora in fase di sviluppo'
   - name: Streams
     description: Gestione degli stream di eventi che PN mette a disposizione
   - name: Events
@@ -64,7 +272,7 @@ paths:
   /delivery-progresses/streams:
     post:
       summary: Crea nuovo stream di eventi
-      description: 'Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno  relativi ai cambi di stato o agli eventi di timeline. <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il  timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata  invocata l''operazione.'
+      description: Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno  relativi ai cambi di stato o agli eventi di timeline. <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il  timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
       operationId: createEventStream
@@ -86,13 +294,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
+                $ref: '#/components/schemas/Problem'
     get:
       summary: Elenca stream di eventi
       description: Elenca gli stream di eventi
@@ -111,69 +319,14 @@ paths:
           content:
             application/problem+json:
               schema:
-                properties:
-                  type:
-                    description: URI reference of type definition
-                    type: string
-                  status:
-                    description: The HTTP status code generated by the origin server for this occurrence of the problem.
-                    type: integer
-                    format: int32
-                    example: 503
-                    maximum: 600
-                    minimum: 100
-                    exclusiveMaximum: true
-                  title:
-                    description: 'A short, summary of the problem type. Written in english and readable'
-                    example: Service Unavailable
-                    maxLength: 64
-                    pattern: '^[ -~]{0,64}$'
-                    type: string
-                  detail:
-                    description: A human readable explanation of the problem.
-                    example: Request took too long to complete.
-                    maxLength: 4096
-                    pattern: '^.{0,4096}$'
-                    type: string
-                  traceId:
-                    description: Internal support identifier associated to error
-                    example: 123e4567-e89b-12d3-a456-426614174000
-                    type: string
-                  timestamp:
-                    description: date and time referred to UTC
-                    example: 2022-07-27T12:22:33.444Z
-                    type: string
-                    format: date-time
-                  errors:
-                    type: array
-                    minItems: 1
-                    items:
-                      properties:
-                        code:
-                          description: 'Internal code of the error, in human-readable format'
-                          example: PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...
-                          type: string
-                        element:
-                          description: Parameter or request body field name for validation error
-                          example: 'body.order.item[2].quantity'
-                          type: string
-                        detail:
-                          description: A human readable explanation specific to this occurrence of the problem.
-                          example: Parameter not valid
-                          maxLength: 1024
-                          type: string
-                      required:
-                        - code
-                required:
-                  - status
-                  - errors
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
-  '/delivery-progresses/streams/{streamId}':
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/streams/{streamId}:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
@@ -194,13 +347,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
+                $ref: '#/components/schemas/Problem'
     put:
       summary: Update Stream metadata
       description: Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi
@@ -225,13 +378,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
+                $ref: '#/components/schemas/Problem'
     delete:
       summary: Remove Event Stream
       description: 'Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi  associati allo stream e non ancora consumati.'
@@ -246,14 +399,14 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
-  '/delivery-progresses/streams/{streamId}/events':
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/streams/{streamId}/events:
     get:
       summary: Leggi progressi notifiche
       description: Permette di leggere gli eventi presenti nello stream di aggiornamenti e indica che  la P.A. ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
@@ -271,7 +424,7 @@ paths:
               schema:
                 type: integer
                 format: int32
-              description: Numero di secondi di attesa prima di effettuare una nuova lettura di eventi. <br/> Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per  raggiunta dimensione massima della risposta. <br/> Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
+              description: Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi. <br/> Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per  raggiunta dimensione massima della risposta. <br/> Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
           content:
             application/json:
               schema:
@@ -281,30 +434,33 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
-        '419':
+                $ref: '#/components/schemas/Problem'
+        '429':
           description: Too Many Requests
           headers:
             retry-after:
               schema:
                 type: integer
                 format: int32
-              description: Numero di secondi di attesa prima di effettuare una nuova lettura di eventi.
+              description: Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi.
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: '#/paths/~1delivery-progresses~1streams/get/responses/400/content/application~1problem%2Bjson/schema'
+                $ref: '#/components/schemas/Problem'
 components:
   parameters:
     queryLastEventId:
-      description: 'Identificativo dell''ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream'
+      description: Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream. Numero in una stringa di 38 caratteri con padding iniziale composto da '0'.
       name: lastEventId
       in: query
       required: false
       schema:
         type: string
+        minLength: 38
+        maxLength: 38
+        pattern: ^0\d{37}$
     pathStreamId:
       description: Identificativo dello stream di eventi
       name: streamId
@@ -319,11 +475,13 @@ components:
       type: object
       required:
         - title
-        - eventTYpe
+        - eventType
       properties:
         title:
           description: Nome sintetico dello stream
           type: string
+          maxLength: 256
+          pattern: ^.*$
         eventType:
           description: |-
             Tipo di eventi presenti nel flusso:
@@ -338,6 +496,9 @@ components:
           type: array
           items:
             type: string
+            minLength: 5
+            maxLength: 256
+            pattern: ^[A-Z_]+$
     StreamMetadataResponse:
       description: Configurazioni di un flusso di eventi
       allOf:
@@ -371,6 +532,8 @@ components:
           format: uuid
         title:
           type: string
+          maxLength: 256
+          pattern: ^.*$
     ProgressResponse:
       type: array
       items:
@@ -392,122 +555,187 @@ components:
           description: Identificativo della richiesta di notifica
           type: string
         iun:
-          description: 'Identificativo della notifica, presente solo se la richiesta di notifica è stata accettata.'
+          description: Identificativo della notifica, presente solo se la richiesta di notifica è  stata accettata.
           type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         newStatus:
-          type: string
-          description: |
-            stato di avanzamento del processo di notifica:
-              * `IN_VALIDATION` - notifica in attesa di validazione
-              * `ACCEPTED` - notifica accettata 
-              * `REFUSED` - notifica rifiutata
-              * `DELIVERING` - invio della notifica in corso
-              * `DELIVERED` - notifica ricevuta da tutti i destinatari
-              * `VIEWED` - notifica perfezionata per presa visione da almeno un destinatario
-              * `EFFECTIVE_DATE` - notifica perfezionata per decorrenza termini per un destinatario
-              * `PAID` - notifica pagata
-              * `UNREACHABLE` - notifica non recapitabile per tutti i destintari
-              * `CANCELLED` - notifica annullata dal mittente
-          enum:
-            - IN_VALIDATION
-            - ACCEPTED
-            - DELIVERING
-            - DELIVERED
-            - VIEWED
-            - EFFECTIVE_DATE
-            - PAID
-            - UNREACHABLE
-            - REFUSED
-            - CANCELLED
+          $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
+          $ref: '#/components/schemas/TimelineElementCategory'
+        recipientIndex:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Indice del destinatario al quale si riferisce l'evento
+        analogCost:
+          type: integer
+          format: int32
+          description: Eventuale costo in eurocent associato all'evento
+        channel:
           type: string
-          description: |
-            stato di avanzamento del processo di notifica:`
-              * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
-              * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
-              * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
-              * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
-              * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
-              * `PUBLIC_REGISTRY_CALL` - Effettuata la richiesta ai registri pubblici per ottenere l'indirizzo generale
-              * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo generale
-              * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
-              * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
-              * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
-              * `SEND_DIGITAL_PROGRESS` - Ottenuto evento non finale da un invio digitale
-              * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
-              * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
-              * `REFINEMENT` - Perfezionamento per decorrenza termini
-              * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
-              * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
-              * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
-              * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
-              * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
-              * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
-              * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
-              * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
-              * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
-              * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
-              * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
-              * `SEND_ANALOG_PROGRESS` - Ricezione evento non finale dell'invio cartaceo
-              * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
-              * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
-              * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
-              * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
-              * `PAYMENT` - Ricezione pagamento della notifica
-              * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
-          enum:
-            - SENDER_ACK_CREATION_REQUEST
-            - REQUEST_ACCEPTED
-            - SEND_COURTESY_MESSAGE
-            - GET_ADDRESS
-            - PUBLIC_REGISTRY_CALL
-            - PUBLIC_REGISTRY_RESPONSE
-            - SCHEDULE_ANALOG_WORKFLOW
-            - SCHEDULE_DIGITAL_WORKFLOW
-            - SEND_DIGITAL_DOMICILE
-            - SEND_DIGITAL_PROGRESS
-            - SEND_DIGITAL_FEEDBACK
-            - REFINEMENT
-            - SCHEDULE_REFINEMENT
-            - DIGITAL_DELIVERY_CREATION_REQUEST
-            - DIGITAL_SUCCESS_WORKFLOW
-            - DIGITAL_FAILURE_WORKFLOW
-            - ANALOG_SUCCESS_WORKFLOW
-            - ANALOG_FAILURE_WORKFLOW
-            - PREPARE_SIMPLE_REGISTERED_LETTER
-            - SEND_SIMPLE_REGISTERED_LETTER
-            - NOTIFICATION_VIEWED_CREATION_REQUEST
-            - NOTIFICATION_VIEWED
-            - PREPARE_ANALOG_DOMICILE
-            - SEND_ANALOG_DOMICILE
-            - SEND_ANALOG_PROGRESS
-            - SEND_ANALOG_FEEDBACK
-            - PAYMENT
-            - COMPLETELY_UNREACHABLE
-            - REQUEST_REFUSED
-            - AAR_CREATION_REQUEST
-            - AAR_GENERATION
-            - NOT_HANDLED
-      recipientIndex:
-        type: integer
-        description: Indice del destinatario al quale si riferisce l'evento
-      analogCost:
-        type: integer
-        description: Eventuale costo in eurocent associato all'evento
-      channel:
-        type: string
-        description: >-
-          Canale a cui si riferisce l'evento. I valori previsti sono:
-          - Per eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL
-          - Per eventi legati all'invio digitale: PEC
-          - Per eventi legati all'invio analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890
-          - Per eventi legati all'invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER
-      legalfactIds:
-        type: array
-        items:
+          description: 'Canale a cui si riferisce l''evento. I valori previsti sono: - Per eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL - Per eventi legati all''invio digitale: PEC - Per eventi legati all''invio analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890 - Per eventi legati all''invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER'
+        legalfactIds:
+          type: array
+          items:
+            type: string
+          example:
+            - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q
+            - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E
+          description: chiavi degli eventuali allegati associati all'evento
+    ProblemError:
+      properties:
+        code:
+          description: Internal code of the error, in human-readable format
+          example: PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...
           type: string
-        example: ["PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q", "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"]
-        description: chiavi degli eventuali allegati associati all'evento
+        element:
+          description: Parameter or request body field name for validation error
+          example: body.order.item[2].quantity
+          type: string
+        detail:
+          description: A human readable explanation specific to this occurrence of the problem.
+          example: Parameter not valid
+          maxLength: 1024
+          type: string
+      required:
+        - code
+    Problem:
+      properties:
+        type:
+          description: URI reference of type definition
+          type: string
+        status:
+          description: The HTTP status code generated by the origin server for this occurrence of the problem.
+          type: integer
+          format: int32
+          example: 503
+          maximum: 600
+          minimum: 100
+          exclusiveMaximum: true
+        title:
+          description: A short, summary of the problem type. Written in english and readable
+          example: Service Unavailable
+          maxLength: 64
+          pattern: ^[ -~]{0,64}$
+          type: string
+        detail:
+          description: A human readable explanation of the problem.
+          example: Request took too long to complete.
+          maxLength: 4096
+          pattern: ^.{0,4096}$
+          type: string
+        traceId:
+          description: Internal support identifier associated to error
+          example: 123e4567-e89b-12d3-a456-426614174000
+          type: string
+        timestamp:
+          description: date and time referred to UTC
+          example: '2022-07-27T12:22:33.444Z'
+          type: string
+          format: date-time
+        errors:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ProblemError'
+      required:
+        - status
+        - errors
+    NotificationStatus:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica:
+          * `IN_VALIDATION` - notifica depositata in attesa di validazione
+          * `ACCEPTED` - L'ente ha depositato la notifica con successo
+          * `REFUSED` - Notifica rifiutata a seguito della validazione
+          * `DELIVERING` - L'invio della notifica è in corso
+          * `DELIVERED` - La notifica è stata consegnata a tutti i destinatari
+          * `VIEWED` - Il destinatario ha letto la notifica entro il termine stabilito
+          * `EFFECTIVE_DATE` - Il destinatario non ha letto la notifica entro il termine stabilito
+          * `PAID` - Uno dei destinatari ha pagato la notifica
+          * `UNREACHABLE` - Il destinatario non è reperibile
+          * `CANCELLED` - L'ente ha annullato l'invio della notifica
+      enum:
+        - IN_VALIDATION
+        - ACCEPTED
+        - REFUSED
+        - DELIVERING
+        - DELIVERED
+        - VIEWED
+        - EFFECTIVE_DATE
+        - PAID
+        - UNREACHABLE
+        - CANCELLED
+    TimelineElementCategory:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica:`
+          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
+          * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
+          * `PUBLIC_REGISTRY_CALL` - Effettuata la richiesta ai registri pubblici per ottenere l'indirizzo generale
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo generale
+          * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
+          * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
+          * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+          * `SEND_DIGITAL_PROGRESS` - Ottenuto evento non finale da un invio digitale
+          * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
+          * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
+          * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
+          * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
+          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
+          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
+          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
+          * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
+          * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_PROGRESS` - Ricezione evento non finale dell'invio cartaceo
+          * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
+          * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Ricezione pagamento della notifica
+          * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+      enum:
+        - SENDER_ACK_CREATION_REQUEST
+        - REQUEST_ACCEPTED
+        - SEND_COURTESY_MESSAGE
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
+        - SCHEDULE_ANALOG_WORKFLOW
+        - SCHEDULE_DIGITAL_WORKFLOW
+        - SEND_DIGITAL_DOMICILE
+        - SEND_DIGITAL_PROGRESS
+        - SEND_DIGITAL_FEEDBACK
+        - REFINEMENT
+        - SCHEDULE_REFINEMENT
+        - DIGITAL_DELIVERY_CREATION_REQUEST
+        - DIGITAL_SUCCESS_WORKFLOW
+        - DIGITAL_FAILURE_WORKFLOW
+        - ANALOG_SUCCESS_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW
+        - PREPARE_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER
+        - NOTIFICATION_VIEWED_CREATION_REQUEST
+        - NOTIFICATION_VIEWED
+        - PREPARE_ANALOG_DOMICILE
+        - SEND_ANALOG_DOMICILE
+        - SEND_ANALOG_PROGRESS
+        - SEND_ANALOG_FEEDBACK
+        - PAYMENT
+        - COMPLETELY_UNREACHABLE
+        - REQUEST_REFUSED
+        - AAR_CREATION_REQUEST
+        - AAR_GENERATION
+        - NOT_HANDLED
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

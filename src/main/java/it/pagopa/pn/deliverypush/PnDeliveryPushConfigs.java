@@ -102,6 +102,8 @@ public class PnDeliveryPushConfigs {
         private String fromExternalChannel;
 
         private String safeStorageEvents;
+
+        private String nationalRegistriesEvents;
     }
 
     @Data
@@ -132,9 +134,6 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class PaperChannel {
-        private List<String> analogCodesProgress;
-        private List<String> analogCodesSuccess;
-        private List<String> analogCodesFail;
 
         private SenderAddress senderAddress;
 

@@ -11,12 +11,15 @@ import lombok.*;
 @ToString
 public class NotificationPaidDetails implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
+    private String recipientType;
+    private Integer amount;
+    private String creditorTaxId;
+    private String noticeCode;
+    private String idF24;
+    private String paymentSourceChannel;
 
     @Override
     public String toLog() {
-        return String.format(
-                "recIndex=%d",
-                recIndex
-        );
+        return this.toString(); // non ha info sensibili
     }
 }

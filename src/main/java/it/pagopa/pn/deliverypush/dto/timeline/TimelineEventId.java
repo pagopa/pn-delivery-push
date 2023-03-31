@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
 public enum TimelineEventId {
-    SENDERACK_CREATION_REQUEST("senderack_legalfact_creation_request") {
+    SENDERACK_CREATION_REQUEST("SENDERACK_LEGALFACT_CREATION_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -11,7 +11,7 @@ public enum TimelineEventId {
         }
     },
     
-    REQUEST_ACCEPTED("request_accepted") {
+    REQUEST_ACCEPTED("REQUEST_ACCEPTED") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -21,7 +21,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_COURTESY_MESSAGE("send_courtesy_message") {
+    SEND_COURTESY_MESSAGE("SEND_COURTESY_MESSAGE") {
 
         @Override
         public String buildEventId(EventId eventId) {
@@ -44,7 +44,7 @@ public enum TimelineEventId {
 
     },
     
-    GET_ADDRESS("get_address") {
+    GET_ADDRESS("GET_ADDRESS") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -57,7 +57,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_DIGITAL_FEEDBACK("send_digital_feedback") {
+    SEND_DIGITAL_FEEDBACK("SEND_DIGITAL_FEEDBACK") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -70,7 +70,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_DIGITAL_PROGRESS("digital_delivering_progress") {
+    SEND_DIGITAL_PROGRESS("DIGITAL_DELIVERING_PROGRESS") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -93,7 +93,7 @@ public enum TimelineEventId {
         }
     },
     
-    SEND_ANALOG_FEEDBACK("send_analog_feedback") {
+    SEND_ANALOG_FEEDBACK("SEND_ANALOG_FEEDBACK") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -105,7 +105,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_ANALOG_PROGRESS("send_analog_progress") {
+    SEND_ANALOG_PROGRESS("SEND_ANALOG_PROGRESS") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -118,7 +118,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_DIGITAL_DOMICILE("send_digital_domicile") {
+    SEND_DIGITAL_DOMICILE("SEND_DIGITAL_DOMICILE") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -131,7 +131,7 @@ public enum TimelineEventId {
         }
     },
 
-    PREPARE_SIMPLE_REGISTERED_LETTER("prepare_simple_registered_letter") {
+    PREPARE_SIMPLE_REGISTERED_LETTER("PREPARE_SIMPLE_REGISTERED_LETTER") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -142,7 +142,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_SIMPLE_REGISTERED_LETTER("send_simple_registered_letter") {
+    SEND_SIMPLE_REGISTERED_LETTER("SEND_SIMPLE_REGISTERED_LETTER") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -153,7 +153,7 @@ public enum TimelineEventId {
         }
     },
 
-    PREPARE_ANALOG_DOMICILE("prepare_analog_domicile") {
+    PREPARE_ANALOG_DOMICILE("PREPARE_ANALOG_DOMICILE") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -165,7 +165,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_ANALOG_DOMICILE("send_analog_domicile") {
+    SEND_ANALOG_DOMICILE("SEND_ANALOG_DOMICILE") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -177,7 +177,7 @@ public enum TimelineEventId {
         }
     },
 
-    DIGITAL_DELIVERY_CREATION_REQUEST("digital_delivery_creation_request") {
+    DIGITAL_DELIVERY_CREATION_REQUEST("DIGITAL_DELIVERY_CREATION_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -188,7 +188,7 @@ public enum TimelineEventId {
         }
     },
     
-    DIGITAL_SUCCESS_WORKFLOW("digital_success_workflow") {
+    DIGITAL_SUCCESS_WORKFLOW("DIGITAL_SUCCESS_WORKFLOW") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -199,7 +199,7 @@ public enum TimelineEventId {
         }
     },
 
-    DIGITAL_FAILURE_WORKFLOW("digital_failure_workflow") {
+    DIGITAL_FAILURE_WORKFLOW("DIGITAL_FAILURE_WORKFLOW") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -210,7 +210,7 @@ public enum TimelineEventId {
         }
     },
 
-    ANALOG_SUCCESS_WORKFLOW("analog_success_workflow") {
+    ANALOG_SUCCESS_WORKFLOW("ANALOG_SUCCESS_WORKFLOW") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -221,7 +221,7 @@ public enum TimelineEventId {
         }
     },
 
-    ANALOG_FAILURE_WORKFLOW("analog_failure_workflow") {
+    ANALOG_FAILURE_WORKFLOW("ANALOG_FAILURE_WORKFLOW") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -232,7 +232,7 @@ public enum TimelineEventId {
         }
     },
 
-    NOTIFICATION_VIEWED_CREATION_REQUEST("notification_viewed_creation_request") {
+    NOTIFICATION_VIEWED_CREATION_REQUEST("NOTIFICATION_VIEWED_CREATION_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -243,7 +243,7 @@ public enum TimelineEventId {
         }
     },
     
-    NOTIFICATION_VIEWED("notification_viewed") {
+    NOTIFICATION_VIEWED("NOTIFICATION_VIEWED") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -254,7 +254,7 @@ public enum TimelineEventId {
         }
     },
 
-    COMPLETELY_UNREACHABLE("completely_unreachable") {
+    COMPLETELY_UNREACHABLE("COMPLETELY_UNREACHABLE") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -265,7 +265,7 @@ public enum TimelineEventId {
         }
     },
 
-    REFINEMENT("refinement") {
+    REFINEMENT("REFINEMENT") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -276,7 +276,7 @@ public enum TimelineEventId {
         }
     },
 
-    SCHEDULE_DIGITAL_WORKFLOW("schedule_digital_workflow") {
+    SCHEDULE_DIGITAL_WORKFLOW("SCHEDULE_DIGITAL_WORKFLOW") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -289,7 +289,7 @@ public enum TimelineEventId {
         }
     },
 
-    SCHEDULE_ANALOG_WORKFLOW("schedule_analog_workflow") {
+    SCHEDULE_ANALOG_WORKFLOW("SCHEDULE_ANALOG_WORKFLOW") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -301,7 +301,7 @@ public enum TimelineEventId {
         }
     },
 
-    SCHEDULE_REFINEMENT_WORKFLOW("schedule_refinement_workflow") {
+    SCHEDULE_REFINEMENT_WORKFLOW("SCHEDULE_REFINEMENT_WORKFLOW") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -312,7 +312,7 @@ public enum TimelineEventId {
         }
     },
 
-    REQUEST_REFUSED("request_refused") {
+    REQUEST_REFUSED("REQUEST_REFUSED") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -322,7 +322,7 @@ public enum TimelineEventId {
         }
     },
 
-    NATIONAL_REGISTRY_CALL("national_registry_call") {
+    NATIONAL_REGISTRY_CALL("NATIONAL_REGISTRY_CALL") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -336,7 +336,7 @@ public enum TimelineEventId {
         }
     },
 
-    NATIONAL_REGISTRY_RESPONSE("national_registry_response") {
+    NATIONAL_REGISTRY_RESPONSE("NATIONAL_REGISTRY_RESPONSE") {
         @Override
         public String buildEventId(String eventId) {
             return new TimelineEventIdBuilder()
@@ -346,7 +346,7 @@ public enum TimelineEventId {
         }
     },
 
-    AAR_CREATION_REQUEST("aar_creation_request") {
+    AAR_CREATION_REQUEST("AAR_CREATION_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -357,7 +357,7 @@ public enum TimelineEventId {
         }
     },
     
-    AAR_GENERATION("aar_gen") {
+    AAR_GENERATION("AAR_GEN") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -368,7 +368,7 @@ public enum TimelineEventId {
         }
     },
     
-    NOT_HANDLED("not_handled") {
+    NOT_HANDLED("NOT_HANDLED") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -379,13 +379,27 @@ public enum TimelineEventId {
         }
     },
 
-    NOTIFICATION_PAID("notification_paid") {
+    NOTIFICATION_PAID("NOTIFICATION_PAID") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
                     .withCategory(this.getValue())
                     .withIun(eventId.getIun())
+                    .withPaymentCode(buildPaymentCode(eventId))
                     .build();
+        }
+
+        private String buildPaymentCode(EventId eventId) {
+            String paymentCode;
+            if(eventId.getIdF24() != null) {
+                //per pagamenti f24
+                paymentCode = "F24" + eventId.getIdF24();
+            }
+            else {
+                //per pagamenti PagoPa
+                paymentCode = "PPA" + eventId.getNoticeCode() + eventId.getCreditorTaxId();
+            }
+            return paymentCode;
         }
     }
     ;
@@ -402,7 +416,7 @@ public enum TimelineEventId {
         throw new UnsupportedOperationException("Must be implemented for each action type");
     }
 
-    private String value;
+    private final String value;
 
     TimelineEventId(String value ) {
         this.value = value;

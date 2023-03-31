@@ -1,7 +1,7 @@
-package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils;
+package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessage;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessageDigitalAddress;
 import org.junit.jupiter.api.Assertions;
@@ -26,7 +26,7 @@ class NationalRegistriesEventHandlerTestIT {
     private FunctionCatalog functionCatalog;
 
     @MockBean
-    private PublicRegistryResponseHandler handler;
+    private NationalRegistriesResponseHandler handler;
 
     @Test
     void consumeMessageOK() {

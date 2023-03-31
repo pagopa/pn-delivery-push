@@ -3,9 +3,9 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
@@ -19,20 +19,23 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 
 @Component
 @Slf4j
-public class PublicRegistryResponseHandler {
+public class NationalRegistriesResponseHandler {
     private final ChooseDeliveryModeHandler chooseDeliveryHandler;
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final PublicRegistryUtils publicRegistryUtils;
     private final NotificationService notificationService;
+    private final TimelineUtils timelineUtils;
 
-    public PublicRegistryResponseHandler(ChooseDeliveryModeHandler chooseDeliveryHandler,
-                                         DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                         PublicRegistryUtils publicRegistryUtils, 
-                                         NotificationService notificationService) {
+    public NationalRegistriesResponseHandler(ChooseDeliveryModeHandler chooseDeliveryHandler,
+                                             DigitalWorkFlowHandler digitalWorkFlowHandler,
+                                             PublicRegistryUtils publicRegistryUtils,
+                                             NotificationService notificationService,
+                                             TimelineUtils timelineUtils) {
         this.chooseDeliveryHandler = chooseDeliveryHandler;
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.publicRegistryUtils = publicRegistryUtils;
         this.notificationService = notificationService;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -40,12 +43,11 @@ public class PublicRegistryResponseHandler {
      *
      * @param response public registry response
      */
-    public void handleResponse(PublicRegistryResponse response) {
+    public void handleResponse(NationalRegistriesResponse response) {
 
         String correlationId = response.getCorrelationId();
         //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
-        String iunFromElementId = correlationId.split(TimelineEventIdBuilder.DELIMITER)[1];
-        String iun = iunFromElementId.replace("IUN_", "");
+        String iun = timelineUtils.getIunFromTimelineId(correlationId);
         log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
@@ -85,7 +87,7 @@ public class PublicRegistryResponseHandler {
         throw new PnInternalException("Specified contactPhase " + publicRegistryCallDetails.getContactPhase() + " does not exist for correlationId " + correlationId, ERROR_CODE_DELIVERYPUSH_CONTACTPHASENOTFOUND);
     }
 
-    private void handleResponseForSendAttempt(PublicRegistryResponse response, NotificationInt notification, PublicRegistryCallDetailsInt publicRegistryCallDetails) {
+    private void handleResponseForSendAttempt(NationalRegistriesResponse response, NotificationInt notification, PublicRegistryCallDetailsInt publicRegistryCallDetails) {
         Integer recIndex = publicRegistryCallDetails.getRecIndex();
         String iun = notification.getIun();
         

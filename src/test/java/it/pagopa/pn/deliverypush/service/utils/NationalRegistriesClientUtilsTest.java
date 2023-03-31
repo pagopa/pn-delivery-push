@@ -5,7 +5,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
@@ -81,8 +81,8 @@ class NationalRegistriesClientUtilsTest {
 
     @Test
     void addPublicRegistryResponseToTimeline() {
-        PublicRegistryResponse publicRegistryResponse =
-                PublicRegistryResponse.builder()
+        NationalRegistriesResponse nationalRegistriesResponse =
+                NationalRegistriesResponse.builder()
                         .correlationId("001" + "_" + "001" + "1121")
                         .digitalAddress(LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -90,9 +90,9 @@ class NationalRegistriesClientUtilsTest {
                                 .build()).build();
 
 
-        publicRegistryUtils.addPublicRegistryResponseToTimeline(buildNotificationInt("001"), 1, publicRegistryResponse);
+        publicRegistryUtils.addPublicRegistryResponseToTimeline(buildNotificationInt("001"), 1, nationalRegistriesResponse);
 
-        Mockito.verify(timelineUtils, Mockito.times(1)).buildPublicRegistryResponseCallTimelineElement(buildNotificationInt("001"), 1, publicRegistryResponse);
+        Mockito.verify(timelineUtils, Mockito.times(1)).buildPublicRegistryResponseCallTimelineElement(buildNotificationInt("001"), 1, nationalRegistriesResponse);
     }
 
     private NotificationInt buildNotificationInt(String iun) {

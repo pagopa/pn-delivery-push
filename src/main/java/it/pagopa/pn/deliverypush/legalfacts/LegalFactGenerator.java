@@ -56,6 +56,7 @@ public class LegalFactGenerator {
     public static final String FIELD_QUICK_ACCESS_LINK = "quickAccessLink";
     public static final String FIELD_RECIPIENT_TYPE = "recipientType";
     public static final String FIELD_DELEGATE = "delegate";
+    public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -143,6 +144,7 @@ public class LegalFactGenerator {
     public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
+        
         templateModel.put(FIELD_IUN, iun);
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_DELEGATE, delegateInfo);
@@ -320,6 +322,12 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PN_FAQ_URL, this.getFAQAccessLink());
         templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getAccessUrlLabel(recipient));
+        sb.append("/");
+        sb.append("perfezionamento");
+        templateModel.put(FIELD_PERFEZIONAMENTO, sb.toString());
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
         log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );

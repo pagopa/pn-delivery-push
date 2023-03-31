@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
@@ -183,7 +183,7 @@ class ChooseDeliveryModeHandlerTest {
     @Test
     void handleGeneralAddressResponseDigital() {
         //GIVEN
-        PublicRegistryResponse response = PublicRegistryResponse.builder()
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .digitalAddress(LegalDigitalAddressInt.builder()
                         .address("Via nuova")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -219,7 +219,7 @@ class ChooseDeliveryModeHandlerTest {
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
-        PublicRegistryResponse response = PublicRegistryResponse.builder()
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .digitalAddress(null).build();
 
         Instant courtesyMessageDate = Instant.now();
@@ -261,7 +261,7 @@ class ChooseDeliveryModeHandlerTest {
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
-        PublicRegistryResponse response = PublicRegistryResponse.builder()
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .digitalAddress(null).build();
         
         Mockito.when(chooseDeliveryUtils.getFirstSentCourtesyMessage(Mockito.anyString(), Mockito.anyInt()))

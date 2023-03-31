@@ -87,11 +87,11 @@ import static org.awaitility.Awaitility.await;
         AnalogWorkflowPaperChannelResponseHandler.class,
         AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
-        PublicRegistryResponseHandler.class,
+        NationalRegistriesResponseHandler.class,
         NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
-        NotificationCostServiceImpl.class,
+        NotificationProcessCostServiceImpl.class,
         SafeStorageServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
@@ -464,7 +464,8 @@ class DigitalTestMultiRecipientIT {
                 generatedLegalFactsInfo,
                 endWorkflowStatus,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
     }
 

@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentDownloadMetadataResponse;
 import it.pagopa.pn.deliverypush.service.GetDocumentService;
@@ -17,9 +18,13 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 
 import static it.pagopa.pn.deliverypush.rest.PnDocumentsController.HEADER_RETRY_AFTER;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @WebFluxTest(PnDocumentsController.class)
 class PnDocumentsControllerTest {
+
+    private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
 
     @Autowired
     WebTestClient webTestClient;
@@ -33,13 +38,13 @@ class PnDocumentsControllerTest {
         
         Mono<DocumentDownloadMetadataResponse> monoDownloadMetadataResponse = Mono.just(downloadMetadataResponse);
 
-        Mockito.when( getDocumentService.getDocumentMetadata( Mockito.anyString(), Mockito.any(DocumentCategory.class)
-                        , Mockito.anyString(), Mockito.anyString() ))
+        Mockito.when( getDocumentService.getDocumentMetadata( anyString(), any(DocumentCategory.class)
+                        , anyString(), anyString() ))
                 .thenReturn( monoDownloadMetadataResponse );
 
-        String iun = "fake_iun";
+        String iun = IUN;
         DocumentCategory documentType = DocumentCategory.AAR;
-        String documentId = "legal_fact_id";
+        String documentId = "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
         String recipientInternalId = "testRecipientInternalId";
         
         webTestClient.get()
@@ -65,19 +70,19 @@ class PnDocumentsControllerTest {
 
         Mono<DocumentDownloadMetadataResponse> monoDownloadMetadataResponse = Mono.just(downloadMetadataResponse);
 
-        Mockito.when( getDocumentService.getDocumentWebMetadata( Mockito.anyString(), Mockito.any(DocumentCategory.class)
-                        , Mockito.anyString(), Mockito.anyString(), Mockito.isNull() ))
-                .thenReturn( monoDownloadMetadataResponse );
+        Mockito.when(getDocumentService.getDocumentWebMetadata(anyString(), any(DocumentCategory.class),
+                        anyString(), anyString(), Mockito.isNull(), any(), any()))
+                .thenReturn(monoDownloadMetadataResponse);
 
-        String iun = "fake_iun";
+        String iun = IUN;
         DocumentCategory documentType = DocumentCategory.AAR;
-        String documentId = "legal_fact_id";
+        String documentId = "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
         String senderReceiverId = "senderReceiverId";
 
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + iun + "/document/"+documentType.getValue())
+                                .path("/delivery-push/" + iun + "/document/" + documentType.getValue())
                                 .queryParam("documentId", documentId)
                                 .build())
                 .accept(MediaType.ALL)
@@ -91,7 +96,7 @@ class PnDocumentsControllerTest {
                 .expectHeader()
                 .valueEquals(HEADER_RETRY_AFTER, BigDecimal.ZERO.toString());
 
-        Mockito.verify( getDocumentService ).getDocumentWebMetadata( iun, documentType, documentId, senderReceiverId, null );
+        Mockito.verify(getDocumentService).getDocumentWebMetadata(iun, documentType, documentId, senderReceiverId, null, CxTypeAuthFleet.PF, null);
     }
 
     @Test
@@ -99,19 +104,19 @@ class PnDocumentsControllerTest {
         DocumentDownloadMetadataResponse downloadMetadataResponse = new DocumentDownloadMetadataResponse();
         downloadMetadataResponse.setRetryAfter(BigDecimal.ZERO);
 
-        Mockito.when( getDocumentService.getDocumentWebMetadata( Mockito.anyString(), Mockito.any(DocumentCategory.class)
-                        , Mockito.anyString(), Mockito.anyString(), Mockito.isNull() ))
-                .thenThrow( new PnNotFoundException("", "", ""));
+        Mockito.when(getDocumentService.getDocumentWebMetadata(anyString(), any(DocumentCategory.class),
+                        anyString(), anyString(), Mockito.isNull(), any(), any()))
+                .thenThrow(new PnNotFoundException("", "", ""));
 
-        String iun = "fake_iun";
+        String iun = IUN;
         DocumentCategory documentType = DocumentCategory.AAR;
-        String documentId = "legal_fact_id";
+        String documentId = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
         String senderReceiverId = "senderReceiverId";
 
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + iun + "/document/"+documentType.getValue())
+                                .path("/delivery-push/" + iun + "/document/" + documentType.getValue())
                                 .queryParam("documentId", documentId)
                                 .build())
                 .accept(MediaType.ALL)
@@ -123,7 +128,7 @@ class PnDocumentsControllerTest {
                 .expectStatus()
                 .isNotFound();
 
-        Mockito.verify( getDocumentService ).getDocumentWebMetadata( iun, documentType, documentId, senderReceiverId, null );
+        Mockito.verify(getDocumentService).getDocumentWebMetadata(iun, documentType, documentId, senderReceiverId, null, CxTypeAuthFleet.PF, null);
     }
 
 }

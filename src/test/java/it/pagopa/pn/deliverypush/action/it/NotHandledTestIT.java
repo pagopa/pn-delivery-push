@@ -95,11 +95,11 @@ import static org.awaitility.Awaitility.with;
         AnalogWorkflowPaperChannelResponseHandler.class,
         AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
-        PublicRegistryResponseHandler.class,
+        NationalRegistriesResponseHandler.class,
         NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
-        NotificationCostServiceImpl.class,
+        NotificationProcessCostServiceImpl.class,
         SafeStorageServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
@@ -351,7 +351,8 @@ class NotHandledTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -470,7 +471,8 @@ class NotHandledTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
 
@@ -569,7 +571,8 @@ class NotHandledTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
@@ -680,7 +683,8 @@ class NotHandledTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati

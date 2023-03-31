@@ -1,5 +1,5 @@
 # di seguito le variabili che possono subire variazioni in caso di modifiche all'applicazione, da ricercare in base all'ID
-# <span id="webhookMaxLength">10</span> pn.delivery-push.webhook.max-length = lunghezza massima della response degli eventi
+# <span id="webhookMaxLength">50</span> pn.delivery-push.webhook.max-length = lunghezza massima della response degli eventi
 # <span id="webhookMaxStreams">5</span> pn.delivery-push.webhook.max-streams = numero massimo di stream confgurabili per PA
 # <span id="webhookTtl">7</span> pn.delivery-push.webhook.ttl = retention per gli eventi webhook PN-2264
 openapi: 3.0.3
@@ -8,7 +8,8 @@ info:
   title: 'Piattaforma Notifiche: API B2B avanzamento notifiche'
   x-summary: 'API B2B avanzamento notifiche'
   version: '1.0.0'
-  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
+  x-api-id: api-internal-b2b-webhook # NO EXTERNAL
+#  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
   description: >- 
     I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
     automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">5</span> configurazioni di flussi per singola PA</strong></font> su 
@@ -140,7 +141,7 @@ info:
       
       ### 2) Prima interrogazione degli stream appena creati
       
-      Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">10</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
+      Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">50</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
       
       A questo punto bisogna controllare il parametro <code>retry-after</code> contenuto nell'header</br> della response per capire quanto tempo attendere prima di richiamare lo stream</br> ed ottenere nuovi risultati: 
       <ul>
@@ -201,7 +202,14 @@ info:
                 "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
                 "iun": "ABCD-ABCD-ABCD-202212-V-1",
                 "newStatus": "ACCEPTED",
-                "timelineEventCategory": "REQUEST_ACCEPTED"
+                "timelineEventCategory": "REQUEST_ACCEPTED",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
             }, 
             ... // altri eventi nell'array
         ]
@@ -225,7 +233,14 @@ info:
                 "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
                 "iun": "ABCD-ABCD-ABCD-202212-V-1",
                 "newStatus": "DELIVERED",
-                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW"
+                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
             }, 
             ... // altri eventi nell'array
         ]
@@ -251,7 +266,7 @@ info:
     Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream) 
     filtrati in base alla configurazione impostata negli streams.
     
-    La api restituisce un massimo di <span id="webhookMaxLength">10</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio 
+    La api restituisce un massimo di <span id="webhookMaxLength">50</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio 
     restituice l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando 
     il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente.
     Si evidenzia che ogni nuova chiamata al servizio con _lastEventId_ implica la cancellazione degli eventi precedenti.
@@ -263,84 +278,8 @@ info:
 
     </br>
     </br>
-    </br>
-
-    <details>
-      <summary><strong><big><big><big><big>FAQ</big></big></big></big></strong></summary>
-
-      ><details>
-      <summary><strong>Cosa devo fare se ricevo</strong> `{"message": "Unauthorized"}`<strong>?</strong></summary>
-      <em>Il messaggio indica che non sono disponibili le credenziali per utilizzare i servizi di PN. Per intraprendere il processo di accreditamento, occorre contattare il personale preposto su [account@pagopa.it](mailto:account@pagopa.it)</em>
-      </details>
-
-      ><details>
-      <summary><strong>Se creo uno stream senza filtri ad esempio</strong></br>`{ "title": "NoFilteredStream", "eventType": "STATUS", "filterValues": [] }`</br><strong> questo raccoglierà tutti i cambi di stato avvenuti nel tempo?</strong></summary>
-      <em>SI. Questo concetto è valido anche per gli eventi di TIMELINE.</em>
-      </details>
-
-      ><details>
-      <summary><strong>E' meglio avere più stream filtrati, per inquadrare specifici eventi di interesse?</strong></summary>
-      <em>SI, è consigliato generare uno o più stream applicando i filtri sugli eventi di status / timeline di maggior interesse, 
-      <font color="red"><strong>restando nel limite massimo di <span id="webhookMaxStreams">5</span> 
-      stream per PA.</font></strong></em>
-      </details>      
-
-      ><details>
-      <summary><strong>Dopo aver creato uno stream ed inserite alcune notifiche, come posso vedere gli eventi da esse generati?</strong></summary>
-      <em>Per ottenere gli eventi bisogna chiamare il servizio per la [lettura degli eventi](#/Events/consumeEventStream) inserendo nel path variabile lo _streamId_ dello stream che si vuole interrogare. A questo punto:</br>
-      >><strong>1) </strong>Se nell'header della response ottengo <strong>retry-after = 0</strong> significa che è possibile consumare ulteriori eventi presenti nello stream;</br> quindi, per ottenere gli eventi successivi dovrò richiamare nuovamente lo stesso servizio, aggiungendo come query param l'<strong>eventId</strong> dell'ultimo evento.</br></br>
-      <strong>2) </strong>Se nell'header della response ottengo <strong>retryAfter ≠ 0</strong> ed ho eventi nel body della response, significa che lo stream non contiene altri eventi e sarà necessario</br> attendere che ne siano generati di nuovi, prima di poter richiamare di nuovamente il servizio sullo stesso stream.</em></br></br>
-      </details>      
-
-      ><details>
-      <summary><strong>Posso ottenere più di <span id="webhookMaxLength">10</span> eventi da una singola chiamata?</strong></summary>
-      <em>NO, questo valore è configurato pari a <span id="webhookMaxLength">10</span> a livello applicativo e non può essere modificato dal consumer.</em>
-      </details> 
-
-      ><details>
-      <summary><strong>Ho interrogato uno stream inserendo come path variabile lo _streamId_ di mio interesse ed ho ottenuto <span id="webhookMaxLength">10</span> eventi, ognuno con il proprio _eventId_. Ho richiamato di nuovo lo stesso servizio aggiungendo come query param l'_eventId_ dell'ultimo evento ottenuto nella prima chiamata ed ottengo gli eventi successivi a quelli ottenuti nella prima chiamata. Posso vedere di nuovo gli eventi ottenuti dalla prima chiamata?</strong></summary>
-      <em>NO, una volta passato il query param __eventId__ alla chiamata del servizio, tutti gli eventi precedenti sono cancellati dallo stream e non possono più essere recuperati. E' quindi fondamentale salvare gli eventi ottenuti da ogni chiamata, prima di richiedere i successivi.</em></br></br>
-      </details> 
-
-      ><details><summary><strong>Per quanto tempo gli eventi restano registrati su uno stream?</strong></summary><em>Gli eventi restano registrati su uno stream per <strong><span id="webhookTtl">7</span> 
-      giorni</strong>, trascorsi i quali non potranno più essere recuperati. A questo punto sarà possibile ottenere lo stato della notifica solo attraverso il servizio puntuale [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus), mentre se si conosce lo IUN si può utilizzare il servizio [getSentNotification](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveSentNotification) per leggere tutti i dettagli di una notifica accettata</em></details>
-      
-      ><details>
-      <summary><strong>Come si possono testare i diversi stati ed eventi appartenenti al processo di notifica?</strong></summary>
-      <em>Si possono creare 2 stream con <code>"eventType": "STATUS"</code> e con <code>"eventType": "TIMELINE"</code>, inserire una notifica ed attendere alcuni minuti per permettere alla Piattaforma di elaborare la notifica appena inserita; infatti il workflow della notifica inizia subito dopo l'inserimento con la generarazione dei vari eventi legati ai passaggi che si susseguono.</br>Gli eventi che si generano potranno essere consumati dallo stream ed essere utili ai fini dei test.</em>
-      </details>
     
-      ><details>
-      <summary><strong>Come faccio a capire il canale di spedizione seguito da una notifica?</strong></summary>
-      <em>Gli eventi di workflow sono differenti a seconda che il canale di spedizione sia digitale o analogico, ad esempio <strong>SCHEDULE_ANALOG_WORKFLOW</strong> determina l'inizio del workflow per invio cartaceo mentre <strong>SCHEDULE_DIGITAL_WORKFLOW</strong> per l'invio digitale.</br> In base all'evento presente nello stream sarà quindi possibile dedurre il canale di spedizione utilizzato.</em>
-      </details>
-      
-      ><details>
-      <summary><strong>In caso di destinatario multiplo, che significato ha lo stato della notifica?</strong></summary>
-      <em>Lo stato della notifica è unico per la notifica stessa ed i destinatari multipli si intedono come co-obbigati; questo significa che:</em>
-      ><ul>
-      <li><small><em>lo stato è <strong>Depositata</strong> quando viene depositata dalla PA.</em></small></li>
-      <li><small><em>lo stato è <strong>Invio in corso</strong> quando la notifica inizia il processo di spedizione per almeno un destinatario.</em></small></li>
-      <li><small><em>lo stato è <strong>Consegnata</strong> quando il processo di spedizione è terminato per tutti ed almeno uno dei destinatari è stato raggiunto.</em></small></li>
-      <li><small><em>lo stato è <strong>Irreperibile</strong> quando non è stato possibile raggiungere nessuno dei destinatari.</em></small></li>
-      <li><small><em>lo stato è <strong>Visualizzata</strong> quando almeno un destinatario ha acceduto agli atti della notifica. </em></small></li>
-      <li><small><em>lo stato è <strong>Perfezionata per decorrenza termini</strong> quando si perfeziona per decorrenza termini (a norma di legge) per almeno un destinatario e se nessuno dei destinatari ha preso visione della notifica stessa.</em></small></li>
-      <li><small><em>lo stato è <strong>Pagata</strong> quando uno dei destinatari ha completato con successo il pagamento.</em></small></li>
-      <li><small><em>lo stato è <strong>Annullata</strong> quando la notifica viene annullata da una PA creandone una nuova.</em></small></li>
-      </ul>
-      </details>
-      
-      ><details>
-      <summary><strong>In caso di destinatario multiplo, che significato ha un evento di timeline?</strong></summary>
-      <em>Quando sono presenti destinatari multipli, ogni evento di timeline sarà specifico per ogni destinatario ed appariranno tutti nella timeline con l'indicazione del destinatario impattato dall'evento.</em>
-      </details>
-      
-      ><details>
-      <summary><strong>In caso di destinatario multiplo, ricevo un'attestazione opponibile per ogni destinatario?</strong></summary>
-      <em>NO, le attestazione opponibile ai terzi vengono generate al verificarsi di alcuni eventi rilevanti per la notificazione e di conseguenza avrò un'unca attestazione dello stesso tipo, per notifica.</em>
-      </details>
-
-    </details></br>
+    <h3>Le <strong>FAQ</strong> possono essere consultate al seguente link:<a href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
     
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
@@ -395,6 +334,10 @@ paths:
     ############################################################################################
 
   '/delivery-progresses/streams':
+    parameters:                                               # NO EXTERNAL
+      - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
+      - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
+      - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
     post:
       summary: Crea nuovo stream di eventi
       description: >-
@@ -460,6 +403,9 @@ paths:
 
   '/delivery-progresses/streams/{streamId}':
     parameters:
+      - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
+      - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
+      - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/pathStreamId'        
     get:
       summary: Leggi metadati dello stream
@@ -467,7 +413,8 @@ paths:
         Permette di leggere le configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStream                       # ONLY EXTERNAL
+      operationId: getEventStream                             # NO EXTERNAL
+#      operationId: retrieveEventStream                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -526,7 +473,8 @@ paths:
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStream                         # ONLY EXTERNAL
+      operationId: deleteEventStream                          # NO EXTERNAL
+#      operationId: removeEventStream                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -559,6 +507,9 @@ paths:
         - Events
       operationId: consumeEventStream
       parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
       responses:
@@ -578,7 +529,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProgressResponse"
-        '419':
+        '429':
           description: Too Many Requests
           headers:
             retry-after:
@@ -605,8 +556,48 @@ paths:
     ###                INVIO DI EVENTI DA PARTE DELLA PUBBLICA AMMNISTRAZIONE                ###
     ############################################################################################
 
+  '/delivery-progresses/events':                                                              # NOT YET IMPLEMENTED
+    post:                                                                                     # NOT YET IMPLEMENTED
+      summary: Invio eventi da parte della PA                                                 # NOT YET IMPLEMENTED
+      description: >-                                                                         # NOT YET IMPLEMENTED
+        Questa API è a disposizione della Pubblica Amministrazione per inviare eventi, come   # NOT YET IMPLEMENTED
+        quello di chiusura di una posizione debitoria con pagamento tramite F24, che possono  # NOT YET IMPLEMENTED
+        avvenire fuori dal controllo di PagoPA. <br/>                                         # NOT YET IMPLEMENTED
 
+        L'elaborazione può avvenire in maniera parziale, quindi ogni evento deve avere un     # NOT YET IMPLEMENTED
+        identificativo univoco (generato dalla PA). In caso di fallimento vanno ritrasmessi   # NOT YET IMPLEMENTED
+        gli eventi con lo stesso identificativo. Sarà Piattaforma Notifica ad identificare    # NOT YET IMPLEMENTED
+        quelli già elaborati ed evitare duplicazioni. <br/>                                   # NOT YET IMPLEMENTED
 
+        Allo stato attuale gli unici eventi sono quelli di pagamento                          # NOT YET IMPLEMENTED
+      tags:                                                                                   # NOT YET IMPLEMENTED
+        - Events                                                                              # NOT YET IMPLEMENTED
+      operationId: informOnExternalEvent                                                      # NOT YET IMPLEMENTED
+      parameters:                                                                             # NOT YET IMPLEMENTED
+        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL                 # NOT YET IMPLEMENTED
+        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL                 # NOT YET IMPLEMENTED
+        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL                 # NOT YET IMPLEMENTED
+      requestBody:                                                                            # NOT YET IMPLEMENTED
+        required: true                                                                        # NOT YET IMPLEMENTED
+        content:                                                                              # NOT YET IMPLEMENTED
+          application/json:                                                                   # NOT YET IMPLEMENTED
+              schema:                                                                         # NOT YET IMPLEMENTED
+                $ref: "#/components/schemas/ExternalEventsRequest"                            # NOT YET IMPLEMENTED
+      responses:                                                                              # NOT YET IMPLEMENTED
+        '204':                                                                                # NOT YET IMPLEMENTED
+          description: OK                                                                     # NOT YET IMPLEMENTED
+        '400':                                                                                # NOT YET IMPLEMENTED
+          description: Invalid input                                                          # NOT YET IMPLEMENTED
+          content:                                                                            # NOT YET IMPLEMENTED
+            application/problem+json:                                                         # NOT YET IMPLEMENTED
+              schema:                                                                         # NOT YET IMPLEMENTED
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'                 # NOT YET IMPLEMENTED
+        '500':                                                                                # NOT YET IMPLEMENTED
+          description: Internal Server Error                                                  # NOT YET IMPLEMENTED
+          content:                                                                            # NOT YET IMPLEMENTED
+            application/problem+json:                                                         # NOT YET IMPLEMENTED
+              schema:                                                                         # NOT YET IMPLEMENTED
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'                 # NOT YET IMPLEMENTED
   
 components:
   
@@ -614,6 +605,12 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
+    cxTypeAuthFleet:                                                                                                                                            # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'  # NO EXTERNAL
+    cxIdAuthFleet:                                                                                                                                              # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'    # NO EXTERNAL
+    uidAuthFleet:                                                                                                                                               # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'     # NO EXTERNAL
 
 
     ############################################################################################
@@ -621,12 +618,16 @@ components:
     ############################################################################################
     queryLastEventId:
       description: >-
-        Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream
+        Identificativo dell'ultimo evento memorizzato dal chiamante, se non passato si intende dal primo evento presente nello stream.
+        Numero in una stringa di 38 caratteri con padding iniziale composto da '0'.
       name: lastEventId
       in: query
       required: false
       schema:
         type: string
+        minLength: 38
+        maxLength: 38
+        pattern: ^0\d{37}$
     pathStreamId:
       description: >-
         Identificativo dello stream di eventi
@@ -636,6 +637,8 @@ components:
       schema:
         type: string
         format: uuid
+        #minLength: 36
+        #maxLength: 36
 
   schemas:
     
@@ -647,11 +650,13 @@ components:
       type: object
       required:
         - title
-        - eventTYpe
+        - eventType
       properties:
         title: 
           description: Nome sintetico dello stream
           type: string
+          maxLength: 256
+          pattern: ^.*$
         eventType:
           description: >-
             Tipo di eventi presenti nel flusso:
@@ -668,6 +673,9 @@ components:
           type: array
           items:
             type: string
+            minLength: 5
+            maxLength: 256
+            pattern: ^[A-Z_]+$
     
     StreamMetadataResponse:
       description: Configurazioni di un flusso di eventi
@@ -682,6 +690,8 @@ components:
               description: Identificativo del flusso di eventi
               type: string
               format: uuid
+              #minLength: 36
+              #maxLength: 36
             activationDate:
               description: Timestamp in cui il flusso di eventi è stato attivato
               type: string
@@ -702,8 +712,12 @@ components:
         streamId:
           type: string
           format: uuid
+          #minLength: 36
+          #maxLength: 36
         title: 
           type: string
+          maxLength: 256
+          pattern: ^.*$
         
     
 
@@ -742,16 +756,21 @@ components:
             Identificativo della notifica, presente solo se la richiesta di notifica è 
             stata accettata.
           type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
         newStatus:
-          $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementCategory'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategory'
         recipientIndex:
           type: integer
+          format: int32
+          minimum: 0
           description: Indice del destinatario al quale si riferisce l'evento
         analogCost:
           type: integer
+          format: int32
           description: Eventuale costo in eurocent associato all'evento
         channel:
           type: string
@@ -771,16 +790,77 @@ components:
     
     ###  - EVENTI GENERATI DALLA P.A.
     ###################################
+    ExternalEventsRequest:                                                              # NOT YET IMPLEMENTED
+      title: Invio eventi da P.A. a P.N.                                                # NOT YET IMPLEMENTED
+      description: >-                                                                   # NOT YET IMPLEMENTED
+        Richiesta contenente un array di eventi di cui una Pubblica Amministrazione     # NOT YET IMPLEMENTED
+        deve avvisare Piattaforma Notifiche.                                            # NOT YET IMPLEMENTED
+      type: object                                                                      # NOT YET IMPLEMENTED
+      required:                                                                         # NOT YET IMPLEMENTED
+        - events                                                                        # NOT YET IMPLEMENTED
+      properties:                                                                       # NOT YET IMPLEMENTED
+        events:                                                                         # NOT YET IMPLEMENTED
+          description: Elenco degli eventi                                              # NOT YET IMPLEMENTED
+          type: array                                                                   # NOT YET IMPLEMENTED
+          items:                                                                        # NOT YET IMPLEMENTED
+            $ref: '#/components/schemas/ExternalEvent'                                  # NOT YET IMPLEMENTED
 
+    ExternalEvent:                                                                      # NOT YET IMPLEMENTED
+      title: Un evento generato all'esterno di PN.                                      # NOT YET IMPLEMENTED
+      description: >-                                                                   # NOT YET IMPLEMENTED
+        Un evento riguardante la notifica generato all'esterno di Piattaforma Notifiche come, # NOT YET IMPLEMENTED
+        ad esempio, il pagamento che può avvenire anche tramite F24. <br/>                    # NOT YET IMPLEMENTED
+                                                                                              # NOT YET IMPLEMENTED
+        Deve essere valorizzata una solo campo, quello specifico del tipo di evento.          # NOT YET IMPLEMENTED
+      type: object                                                                      # NOT YET IMPLEMENTED
+      properties:                                                                       # NOT YET IMPLEMENTED
+        payment:                                                                        # NOT YET IMPLEMENTED
+          $ref: '#/components/schemas/PaymentEvent'                                     # NOT YET IMPLEMENTED
     
+    PaymentEvent:                                                                       # NOT YET IMPLEMENTED
+      title: Evento di pagamento                                                        # NOT YET IMPLEMENTED
+      description: >-                                                                   # NOT YET IMPLEMENTED
+        Comprende: <br/>                                                                # NOT YET IMPLEMENTED
+          - data e ora del pagamento, <br/>                                             # NOT YET IMPLEMENTED
+          - modalità di pagamento (PAGOPA / F24), <br/>                                 # NOT YET IMPLEMENTED
+          - lo _IUN_ della notifica pagata, <br/>                                       # NOT YET IMPLEMENTED
+          - il codice fiscale del destinatario pagatore, <br/>                          # NOT YET IMPLEMENTED
+          - e la tipologia del destinatario pagatore (PF / PG). <br/>                   # NOT YET IMPLEMENTED
+      type: object                                                                      # NOT YET IMPLEMENTED
+      required:                                                                         # NOT YET IMPLEMENTED
+        - iun                                                                           # NOT YET IMPLEMENTED
+        - recipientTaxId                                                                # NOT YET IMPLEMENTED
+        - recipientType                                                                 # NOT YET IMPLEMENTED
+        - paymentType                                                                   # NOT YET IMPLEMENTED
+        - timestamp                                                                     # NOT YET IMPLEMENTED
+      properties:                                                                       # NOT YET IMPLEMENTED
+        iun:                                                                            # NOT YET IMPLEMENTED
+          type: string                                                                  # NOT YET IMPLEMENTED
+          maxLength: 25                                                                 # NOT YET IMPLEMENTED
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$              # NOT YET IMPLEMENTED
+        recipientTaxId:                                                                 # NOT YET IMPLEMENTED
+          type: string                                                                  # NOT YET IMPLEMENTED
+          minLength: 11                                                                 # NOT YET IMPLEMENTED
+          maxLength: 16                                                                 # NOT YET IMPLEMENTED
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$ # NOT YET IMPLEMENTED
+        recipientType:                                                                  # NOT YET IMPLEMENTED
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'      # NOT YET IMPLEMENTED
+        paymentType:                                                                    # NOT YET IMPLEMENTED
+          type: string                                                                  # NOT YET IMPLEMENTED
+          enum:                                                                         # NOT YET IMPLEMENTED
+            - F24                                                                       # NOT YET IMPLEMENTED
+            - PAGOPA                                                                    # NOT YET IMPLEMENTED
+        timestamp:                                                                      # NOT YET IMPLEMENTED
+          type: string                                                                  # NOT YET IMPLEMENTED
+          format: date-time                                                             # NOT YET IMPLEMENTED
         
   
-  securitySchemes:        # ONLY EXTERNAL
-    ApiKeyAuth:           # ONLY EXTERNAL
-      type: apiKey        # ONLY EXTERNAL
-      in: header          # ONLY EXTERNAL
-      name: x-api-key     # ONLY EXTERNAL
+#  securitySchemes:        # ONLY EXTERNAL
+#    ApiKeyAuth:           # ONLY EXTERNAL
+#      type: apiKey        # ONLY EXTERNAL
+#      in: header          # ONLY EXTERNAL
+#      name: x-api-key     # ONLY EXTERNAL
 
-security:                 # ONLY EXTERNAL
-  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+#security:                 # ONLY EXTERNAL
+#  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
               

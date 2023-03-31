@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
  */
 public class TimelineEventIdBuilder {
 
-    public static final String DELIMITER = ";";
+    public static final String DELIMITER = ".";
 
     private String iun = "";
 
@@ -39,6 +39,8 @@ public class TimelineEventIdBuilder {
     private String correlationId = ""; // for national registries
 
     private String courtesyAddressType = "";
+
+    private String paymentCode = "";
 
     public TimelineEventIdBuilder withIun(@Nullable String iun) {
         if(iun != null)
@@ -100,6 +102,15 @@ public class TimelineEventIdBuilder {
         return this;
     }
 
+
+    // payment code per pagamenti PagoPa = PPANoticeNumberCreditorTaxId
+    // payment code per pagamenti f24 = F24Idf24
+    public TimelineEventIdBuilder withPaymentCode(@Nullable String paymentCode) {
+        if(paymentCode != null)
+            this.paymentCode = DELIMITER.concat("CODE_").concat(paymentCode);
+        return this;
+    }
+
     public String build() {
         return new StringBuilder()
                 .append(category)
@@ -112,6 +123,7 @@ public class TimelineEventIdBuilder {
                 .append(sentAttemptMade)
                 .append(progressIndex)
                 .append(correlationId)
+                .append(paymentCode)
                 .toString();
     }
 

@@ -213,7 +213,7 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
         
         PaperChannelSendRequest paperChannelSendRequest = PaperChannelSendRequest.builder()
                 .requestId(requestId)
-                .productType(ProductTypeEnum.RN_890.getValue())
+                .productType(ProductTypeEnum._890.getValue())
                 .arAddress(PhysicalAddressInt.builder()
                         .address("test")
                         .build())
@@ -225,9 +225,9 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
                 .attachments(List.of("Att"))
                 .build();
 
-        Integer notificationCost = client.send(paperChannelSendRequest);
+        SendResponse sendResponse = client.send(paperChannelSendRequest);
         
-        Assertions.assertEquals(notificationCostExpected, notificationCost);
+        Assertions.assertEquals(notificationCostExpected, sendResponse.getAmount());
 
     }
 }

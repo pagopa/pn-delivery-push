@@ -32,12 +32,12 @@ public class IoServiceImpl implements IoService {
     }
 
     @Override
-    public boolean sendIOMessage(NotificationInt notification, int recIndex) {
+    public SendMessageResponse.ResultEnum sendIOMessage(NotificationInt notification, int recIndex) {
         log.info("Start send message to App IO - iun={} id={}", notification.getIun(), recIndex);
 
         NotificationRecipientInt recipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
-        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt);
+        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt, recIndex);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_DA_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
@@ -54,7 +54,7 @@ public class IoServiceImpl implements IoService {
                   throw new PnInternalException("Error in sendIoMessage, with errorStatus="+ sendIoMessageResponse.getResult() +" - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
               } else {
                   logEvent.generateSuccess("Send io message success, with result={}", sendIoMessageResponse.getResult()).log();
-                  return (isSentStatus(sendIoMessageResponse.getResult()));
+                  return sendIoMessageResponse.getResult();
               }
           }else {
               logEvent.generateFailure("endIOMessage return not valid response response - iun={} id={} ", notification.getIun(), recIndex).log();
@@ -71,12 +71,8 @@ public class IoServiceImpl implements IoService {
         return ERROR_USER_STATUS.equals(result) || ERROR_COURTESY.equals(result) || ERROR_OPTIN.equals(result);
     }
 
-    private boolean isSentStatus(SendMessageResponse.ResultEnum result) {
-        return SENT_COURTESY.equals(result);
-    }
-
     @NotNull
-    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt) {
+    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt, int recIndex) {
         SendMessageRequest sendMessageRequest = new SendMessageRequest();
         sendMessageRequest.setAmount(notification.getAmount());
         sendMessageRequest.setDueDate(notification.getPaymentExpirationDate());
@@ -84,6 +80,8 @@ public class IoServiceImpl implements IoService {
         sendMessageRequest.setRequestAcceptedDate(notification.getSentAt());
         sendMessageRequest.setSenderDenomination(notification.getSender().getPaDenomination());
         sendMessageRequest.setIun(notification.getIun());
+        sendMessageRequest.setRecipientIndex(recIndex);
+        sendMessageRequest.setRecipientInternalID(recipientInt.getInternalId());
         
         String subject = notification.getSender().getPaDenomination() +"-"+ notification.getSubject();
         sendMessageRequest.setSubject(subject);

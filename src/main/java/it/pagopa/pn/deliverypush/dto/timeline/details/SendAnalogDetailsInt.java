@@ -1,34 +1,35 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Builder(toBuilder = true)
-@EqualsAndHashCode
-@ToString
-public class SendAnalogDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement {
-    private int recIndex;
-    private PhysicalAddressInt physicalAddress;
-    private ServiceLevelInt serviceLevel;
-    private Integer sentAttemptMade;
-    private String relatedRequestId;
+@SuperBuilder( toBuilder = true )
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class SendAnalogDetailsInt extends BaseAnalogDetailsInt implements AnalogSendTimelineElement {
+
     private Integer analogCost;
     private String productType;
-
+    private Integer numberOfPages;
+    private Integer envelopeWeight;
+    private String prepareRequestId;
+    
+    @Override
     public String toLog() {
         return String.format(
-                "recIndex=%d sentAttemptMade=%d relatedRequestId=%s physicalAddress=%s analogCost=%d productType=%s",
+                "recIndex=%d sentAttemptMade=%d relatedRequestId=%s physicalAddress=%s analogCost=%d productType=%s prepareRequestId=%s",
                 recIndex,
                 sentAttemptMade,
                 relatedRequestId,
                 AuditLogUtils.SENSITIVE,
                 analogCost,
-                productType
+                productType,
+                prepareRequestId
         );
     }
 }

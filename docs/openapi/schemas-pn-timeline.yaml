@@ -91,7 +91,7 @@ components:
         legalFactsIds:
           type: array
           items:
-            $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactsId"
+            $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsId"
           description: >-
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
@@ -125,13 +125,16 @@ components:
         - "$ref": "#/components/schemas/SendDigitalDetails"
         - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
         - "$ref": "#/components/schemas/SendDigitalProgressDetails"
+        - "$ref": "#/components/schemas/BaseAnalogDetails"
         - "$ref": "#/components/schemas/SendAnalogDetails"
         - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
+        - "$ref": "#/components/schemas/BaseRegisteredLetterDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
         - "$ref": "#/components/schemas/AarCreationRequestDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
         - "$ref": "#/components/schemas/NotificationPaidDetails"
+        - "$ref": "#/components/schemas/SendAnalogProgressDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -162,7 +165,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
     DigitalFailureWorkflowDetails:
       type: object
@@ -185,7 +188,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         endWorkflowStatus:
           $ref: "#/components/schemas/EndWorkflowStatus"
         completionWorkflowDate:
@@ -207,7 +210,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
 
     CompletelyUnreachableDetails:
       type: object
@@ -321,9 +324,9 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
     RefinementDetails:
       type: object
@@ -376,7 +379,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         sentAttemptMade:
@@ -395,6 +398,9 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        schedulingDate:
+          type: string
+          format: date-time
 
     SendCourtesyMessageDetails:
       type: object
@@ -408,11 +414,14 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         sendDate:
           type: string
           description: data invio messaggio di cortesia
           format: date-time
+        ioSendMessageResult:
+          $ref: '#/components/schemas/IoSendMessageResult'
+        
 
     SendDigitalDetails:
       type: object
@@ -427,7 +436,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
@@ -449,7 +458,7 @@ components:
           type: boolean
           description: indica se il progress ha dato luogo ad un ritentativo
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         notificationDate:
@@ -478,7 +487,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
         notificationDate:
@@ -497,6 +506,30 @@ components:
           items:
             $ref: '#/components/schemas/SendingReceipt'
 
+    BaseAnalogDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        relatedRequestId:
+          type: string
+          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
+
     SendAnalogDetails:
       type: object
       required:
@@ -510,7 +543,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
           "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
@@ -527,6 +560,17 @@ components:
           type: integer
           description: costo in eurocent dell'invio
           format: int32
+        numberOfPages:
+          type: integer
+          description: numero delle pagina che compongono la spedizione cartacea
+          format: int32
+        envelopeWeight:
+          type: integer
+          description: peso in grammi della busta
+          format: int32
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
 
     SendAnalogFeedbackDetails:
       type: object
@@ -543,7 +587,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         serviceLevel:
           "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
@@ -554,16 +598,35 @@ components:
           type: boolean
           description: E' richiesta investigazione indirizzo fisico alternativo
         newAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
-        errors:
+        deliveryFailureCause:
+          type: string
+        deliveryDetailCode:
+          type: string
+        attachments:
           type: array
-          x-pn-fieldannotations: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)"
-          description: Lista errori, vuota in caso di successo
           items:
-            type: string
-            description: Lista errori, vuota in caso di successo
+            $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
+          
+
+    BaseRegisteredLetterDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+
 
     SimpleRegisteredLetterDetails:
       type: object
@@ -576,13 +639,21 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         productType:
           type: string
           description: Tipo di invio cartaceo effettivamente inviato
         analogCost:
           type: integer
           description: costo in eurocent dell'invio
+          format: int32
+        numberOfPages:
+          type: integer
+          description: numero delle pagina che compongono la spedizione cartacea
+          format: int32
+        envelopeWeight:
+          type: integer
+          description: peso in grammi della busta
           format: int32
 
     AarCreationRequestDetails:
@@ -645,16 +716,59 @@ components:
       type: object
       required:
         - recIndex
+        - recipientType
+        - paymentSourceChannel
       properties:
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
           format: int32
+        recipientType:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
+        amount:
+          type: integer
+          description: Importo di pagamento in eurocent
+          format: int32
+        creditorTaxId:
+          $ref: 'remote-refs.yaml#/components/schemas/PaTaxId'
+        noticeCode:
+          $ref: 'remote-refs.yaml#/components/schemas/NoticeCode'
+        idF24:
+          type: string
+          description: un UUID che identifica un pagamento f24
+        paymentSourceChannel:
+          type: string
+          description: Canale sorgente della richiesta di pagamento
+
+    SendAnalogProgressDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        notificationDate:
+          type: string
+          format: date-time
+        deliveryFailureCause:
+          type: string
+        deliveryDetailCode:
+          type: string
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
+
 
     SenderAckCreationRequestDetails:
       type: object
       properties:
-        legalfactId:
+        legalFactId:
           type: string
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
@@ -734,4 +848,25 @@ components:
         denomination:
           type: string
         delegateType:
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/RecipientType'
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
+
+    IoSendMessageResult:
+      type: string
+      description: Risultato invio messaggio su IO
+      enum:
+        - NOT_SENT_OPTIN_ALREADY_SENT
+        - SENT_COURTESY
+        - SENT_OPTIN
+
+    AttachmentDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        documentType:
+          type: string
+        url:
+          type: string
+        date:
+          type: string
+          format: date-time

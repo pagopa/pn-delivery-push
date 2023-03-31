@@ -1,0 +1,39 @@
+{
+    "openapi": [
+        {
+            "intendedUsage": "IO",
+            "openapiFiles": [
+                "api-internal-pn-delivery-push.yaml"
+            ],
+            "servicePath": "delivery-push"
+        },
+        {
+            "intendedUsage": "B2B",
+            "openapiFiles": [
+                "api-internal-b2b-webhook.yaml"
+            ],
+            "servicePath": "delivery-progresses",
+            "generateBundle": true
+        },
+        {
+            "intendedUsage": "B2B",
+            "openapiFiles": [
+                "api-internal-pn-delivery-push.yaml"
+            ],
+            "servicePath": "delivery-push",
+            "generateBundle": true
+        },
+        {
+            "intendedUsage": "WEB",
+            "openapiFiles": [
+                "api-internal-pn-delivery-push.yaml"
+            ],
+            "servicePath": "delivery-push"
+        }
+    ],
+    "openapiBundlePresenceCheck": [
+        "api-external-b2b-webhook-bundle.yaml",
+        "api-external-pn-delivery-push-bundle.yaml"
+    ]
+}
+    

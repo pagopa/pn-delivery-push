@@ -79,11 +79,11 @@ import static org.awaitility.Awaitility.await;
         AnalogWorkflowPaperChannelResponseHandler.class,
         AuditLogServiceImpl.class,
         CompletionWorkFlowHandler.class,
-        PublicRegistryResponseHandler.class,
+        NationalRegistriesResponseHandler.class,
         NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
-        NotificationCostServiceImpl.class,
+        NotificationProcessCostServiceImpl.class,
         SafeStorageServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
@@ -132,7 +132,7 @@ import static org.awaitility.Awaitility.await;
         TaxIdPivaValidator.class,
         ReceivedLegalFactCreationRequest.class,
         NotificationValidationScheduler.class,
-        ValidationDocumentErrorTestIT.SpringTestConfiguration.class
+        ValidationTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource(
         locations ="classpath:/application-test.properties",
@@ -140,7 +140,7 @@ import static org.awaitility.Awaitility.await;
 )
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
 @DirtiesContext
-class ValidationDocumentErrorTestIT {
+class ValidationTestIT {
     
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
