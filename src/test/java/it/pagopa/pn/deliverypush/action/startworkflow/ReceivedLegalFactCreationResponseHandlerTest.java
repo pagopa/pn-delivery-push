@@ -64,7 +64,8 @@ class ReceivedLegalFactCreationResponseHandlerTest {
         Mockito.verify(scheduleRecipientWorkflow).startScheduleRecipientWorkflow(notification);
     }
 
-    @Disabled
+    @ExtendWith(SpringExtension.class)
+    @Test
     void handleReceivedLegalFactCreationResponseKO() {
         //GIVEN
         String legalFactId = "legalFactId";
