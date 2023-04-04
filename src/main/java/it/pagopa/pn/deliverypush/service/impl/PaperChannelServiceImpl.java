@@ -16,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
@@ -121,7 +122,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         String eventId = paperChannelUtils.buildPrepareSimpleRegisteredLetterEventId(notification, recIndex);
 
         // recupero gli allegati
-        List<String> attachments = retrieveAttachments(notification, recIndex, false);
+        List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled(NotificationChannelType.SIMPLE_REGISTERED_LETTER));
         PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER.name(), attachments);
 
         try {
@@ -147,7 +148,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         String eventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade);
 
         // recupero gli allegati
-        List<String> attachments = retrieveAttachments(notification, recIndex, false);
+        List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled(NotificationChannelType.ANALOG_NOTIFICATION));
         PhysicalAddressInt.ANALOG_TYPE analogType = getAnalogType(notification);
         PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, analogType.name(), attachments);
 
@@ -227,7 +228,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             log.info("Registered Letter sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
             // recupero gli allegati
-            List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled("simple-registered-letter"));
+            List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled(NotificationChannelType.SIMPLE_REGISTERED_LETTER));
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, requestId, productType, attachments);
 
@@ -263,7 +264,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             log.info("Analog notification sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
             // recupero gli allegati
-            List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled("analog-notification"));
+            List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled(NotificationChannelType.ANALOG_NOTIFICATION));
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
@@ -323,14 +324,14 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         }
     }
 
-    private boolean isSendNotificationAttachmentsEnabled(String notificationChannelType) {
+    private boolean isSendNotificationAttachmentsEnabled(NotificationChannelType notificationChannelType) {
         switch(notificationChannelType) {
-            case "analog-notification":
-                return (cfg.getSendNotificationAttachments() != null && (cfg.getSendNotificationAttachments().equals("analog-notification") ||
-                        cfg.getSendNotificationAttachments().equals("simple-registered-letter-and-analog-notification")) ? true : false);
-            case "simple-registered-letter":
-                return (cfg.getSendNotificationAttachments() != null && (cfg.getSendNotificationAttachments().equals("simple-registered-letter") ||
-                        cfg.getSendNotificationAttachments().equals("simple-registered-letter-and-analog-notification")) ? true : false);
+            case ANALOG_NOTIFICATION:
+                return (cfg.getSendNotificationAttachments() != null && (cfg.getSendNotificationAttachments().equals(NotificationChannelType.ANALOG_NOTIFICATION.toString()) ||
+                        cfg.getSendNotificationAttachments().equals(NotificationChannelType.SIMPLE_REGISTERED_LETTER_AND_ANALOG_NOTIFICATION.toString())));
+            case SIMPLE_REGISTERED_LETTER:
+                return (cfg.getSendNotificationAttachments() != null && (cfg.getSendNotificationAttachments().equals(NotificationChannelType.SIMPLE_REGISTERED_LETTER.toString()) ||
+                        cfg.getSendNotificationAttachments().equals(NotificationChannelType.SIMPLE_REGISTERED_LETTER_AND_ANALOG_NOTIFICATION.toString())));
             default: return false;
         }
     }
