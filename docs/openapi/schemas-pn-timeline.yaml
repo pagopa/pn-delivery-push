@@ -451,9 +451,12 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-        eventCode:
+        deliveryFailureCause:
+          description: Codice errore, opzionale
           type: string
-          description: esito tornate da ext-channel
+        deliveryDetailCode:
+          type: string
+          description: Codice relativo all'evento
         shouldRetry:
           type: boolean
           description: indica se il progress ha dato luogo ad un ritentativo
@@ -494,13 +497,12 @@ components:
           type: string
           description: data notifica
           format: date-time
-        errors:
-          type: array
-          x-pn-fieldannotations: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)"
-          description: Lista errori, vuota in caso di successo
-          items:
-            type: string
-            description: Lista errori, vuota in caso di successo
+        deliveryFailureCause:
+          description: Codice errore, vuoto in caso di successo
+          type: string
+        deliveryDetailCode:
+          type: string
+          description: Codice relativo all'evento
         sendingReceipts:
           type: array
           items:

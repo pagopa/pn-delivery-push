@@ -669,9 +669,8 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.any(NotificationInt.class),
                 Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(),
                 Mockito.anyInt(),
-                Mockito.any(DigitalMessageReferenceInt.class),
+                Mockito.any(ExtChannelDigitalSentResponseInt.class),
                 Mockito.any(DigitalAddressFeedback.class)
         );
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
@@ -721,7 +720,7 @@ class DigitalWorkFlowHandlerTest {
         TimelineElementInternal t2 = TimelineElementInternal.builder()
                 .iun("iun1").elementId("aaaa2").timestamp(Instant.now().minusMillis(20000))
                 .details(SendDigitalProgressDetailsInt.builder()
-                        .eventCode("C008")
+                        .deliveryDetailCode("C008")
                         .shouldRetry(true)
                         .retryNumber(0)
                         .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
@@ -736,7 +735,7 @@ class DigitalWorkFlowHandlerTest {
         TimelineElementInternal t3 = TimelineElementInternal.builder()
                 .iun("iun1").elementId("aaaa3").timestamp(Instant.now().minusMillis(10000))
                 .details(SendDigitalProgressDetailsInt.builder()
-                        .eventCode("C008")
+                        .deliveryDetailCode("C008")
                         .shouldRetry(true)
                         .retryNumber(0)
                         .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
@@ -751,7 +750,7 @@ class DigitalWorkFlowHandlerTest {
         TimelineElementInternal t4 = TimelineElementInternal.builder()
                 .iun("iun1").elementId("aaaa4").timestamp(Instant.now().minusMillis(0))
                 .details(SendDigitalProgressDetailsInt.builder()
-                        .eventCode("C008")
+                        .deliveryDetailCode("C008")
                         .shouldRetry(true)
                         .retryNumber(0)
                         .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
@@ -792,9 +791,8 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.any(NotificationInt.class),
                 Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(),
                 Mockito.anyInt(), 
-                Mockito.any(DigitalMessageReferenceInt.class),
+                Mockito.any(ExtChannelDigitalSentResponseInt.class),
                 Mockito.any(DigitalAddressFeedback.class)
         );
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
@@ -844,7 +842,7 @@ class DigitalWorkFlowHandlerTest {
                                         .address(lastAttemptMade.getDigitalAddress().getAddress())
                                         .build())
                                 .shouldRetry(true)
-                                .eventCode("C0008")
+                                .deliveryDetailCode("C008")
                                 .build())
                         .build()
 
@@ -863,7 +861,7 @@ class DigitalWorkFlowHandlerTest {
                                 .address(lastAttemptMade.getDigitalAddress().getAddress())
                                 .build())
                         .shouldRetry(false)
-                        .eventCode("DP00")
+                        .deliveryDetailCode("DP00")
                         .build())
                 .build());
         Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
@@ -938,7 +936,7 @@ class DigitalWorkFlowHandlerTest {
                                 .address(lastAttemptMade.getDigitalAddress().getAddress())
                                 .build())
                         .shouldRetry(false)
-                        .eventCode("DP00")
+                        .deliveryDetailCode("DP00")
                         .build())
                 .build());
         Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
@@ -1185,7 +1183,7 @@ class DigitalWorkFlowHandlerTest {
                                         .address(lastAttemptMade.getDigitalAddress().getAddress())
                                         .build())
                                 .shouldRetry(true)
-                                .eventCode("C0008")
+                                .deliveryDetailCode("C008")
                                 .build())
                         .build()
 
@@ -1204,7 +1202,7 @@ class DigitalWorkFlowHandlerTest {
                                 .address(lastAttemptMade.getDigitalAddress().getAddress())
                                 .build())
                         .shouldRetry(false)
-                        .eventCode("DP00")
+                        .deliveryDetailCode("DP00")
                         .build())
                 .build());
 
@@ -1264,7 +1262,7 @@ class DigitalWorkFlowHandlerTest {
                                         .address(lastAttemptMade.getDigitalAddress().getAddress())
                                         .build())
                                 .shouldRetry(true)
-                                .eventCode("C0008")
+                                .deliveryDetailCode("C008")
                                 .build())
                         .build()
 
@@ -1415,9 +1413,8 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.any(NotificationInt.class),
                 Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(), 
                 Mockito.anyInt(), 
-                Mockito.any(DigitalMessageReferenceInt.class),
+                Mockito.any(ExtChannelDigitalSentResponseInt.class),
                 Mockito.any(DigitalAddressFeedback.class));
     }
 
@@ -1477,9 +1474,8 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.any(NotificationInt.class), 
                 Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(),
                 Mockito.anyInt(),
-                Mockito.any(DigitalMessageReferenceInt.class),
+                Mockito.any(ExtChannelDigitalSentResponseInt.class),
                 Mockito.any(DigitalAddressFeedback.class));
     }
     
@@ -1552,9 +1548,8 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.any(NotificationInt.class), 
                 Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(),
                 Mockito.anyInt(),
-                Mockito.any(DigitalMessageReferenceInt.class),
+                Mockito.any(ExtChannelDigitalSentResponseInt.class),
                 Mockito.any(DigitalAddressFeedback.class));
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
@@ -1630,9 +1625,8 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.any(NotificationInt.class), 
                 Mockito.eq(ResponseStatusInt.KO),
-                Mockito.any(), 
                 Mockito.anyInt(), 
-                Mockito.any(DigitalMessageReferenceInt.class),
+                Mockito.any(ExtChannelDigitalSentResponseInt.class),
                 Mockito.any(DigitalAddressFeedback.class));
 
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
@@ -1713,13 +1707,12 @@ class DigitalWorkFlowHandlerTest {
                 .build();
         
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(
-                null,
-                notification, 
-                ResponseStatusInt.KO,
-                Collections.emptyList(),
-                details.getRecIndex(),
-                extChannelResponse.getGeneratedMessage(),
-                digitalAddressFeedback);
+                Mockito.isNull(),
+                Mockito.eq(notification),
+                Mockito.eq(ResponseStatusInt.KO),
+                Mockito.eq(details.getRecIndex()),
+                Mockito.eq(extChannelResponse),
+                Mockito.eq(digitalAddressFeedback));
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
@@ -1842,13 +1835,12 @@ class DigitalWorkFlowHandlerTest {
                 .build();
         
         Mockito.verify(digitalWorkFlowUtils).addDigitalFeedbackTimelineElement(
-                null,
-                notification, 
-                ResponseStatusInt.OK,
-                Collections.emptyList(),
-                details.getRecIndex(),
-                extChannelResponse.getGeneratedMessage(),
-                digitalAddressFeedback);
+                Mockito.isNull(),
+                Mockito.eq(notification),
+                Mockito.eq(ResponseStatusInt.OK),
+                Mockito.eq(details.getRecIndex()),
+                Mockito.eq(extChannelResponse),
+                Mockito.eq(digitalAddressFeedback));
 
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
         Mockito.verify( auditLogEvent).log();

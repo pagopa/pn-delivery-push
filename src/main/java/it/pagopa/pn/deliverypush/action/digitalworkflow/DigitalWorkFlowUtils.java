@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -227,14 +227,13 @@ public class DigitalWorkFlowUtils {
     public String addDigitalFeedbackTimelineElement(
                                                   String digitalDomicileTimeLineId,
                                                   NotificationInt notification,
-                                                  ResponseStatusInt status, 
-                                                  List<String> errors,
+                                                  ResponseStatusInt status,
                                                   int recIndex,
-                                                  DigitalMessageReferenceInt digitalMessageReference,
+                                                  ExtChannelDigitalSentResponseInt extChannelDigitalSentResponseInt,
                                                   DigitalAddressFeedback digitalAddressInfo
                                                   ) {
         TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalFeedbackTimelineElement(
-                digitalDomicileTimeLineId,notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo
+                digitalDomicileTimeLineId,notification, status, recIndex, extChannelDigitalSentResponseInt, digitalAddressInfo
         );
         addTimelineElement(timelineElementInternal, notification);
 

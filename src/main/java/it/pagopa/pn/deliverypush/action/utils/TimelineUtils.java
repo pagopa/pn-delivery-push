@@ -4,10 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendRe
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
@@ -144,9 +141,8 @@ public class TimelineUtils {
                                                                        String digitalDomicileTimelineId,
                                                                        NotificationInt notification,
                                                                        ResponseStatusInt status,
-                                                                       List<String> errors,
                                                                        int recIndex,
-                                                                       DigitalMessageReferenceInt digitalMessageReference,
+                                                                       ExtChannelDigitalSentResponseInt extChannelDigitalSentResponseInt,
                                                                        DigitalAddressFeedback digitalAddressInfo) {
         log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
@@ -159,11 +155,14 @@ public class TimelineUtils {
                         .build()
         );
 
+        DigitalMessageReferenceInt digitalMessageReference = extChannelDigitalSentResponseInt.getGeneratedMessage();
+
         SendDigitalFeedbackDetailsInt details = SendDigitalFeedbackDetailsInt.builder()
-                .errors(errors)
+                .deliveryFailureCause(extChannelDigitalSentResponseInt.getEventDetails())
                 .digitalAddress(digitalAddressInfo.getDigitalAddress())
                 .digitalAddressSource(digitalAddressInfo.getDigitalAddressSource())
                 .responseStatus(status)
+                .deliveryDetailCode(extChannelDigitalSentResponseInt.getEventCode().getValue())
                 .recIndex(recIndex)
                 .notificationDate(digitalAddressInfo.getEventTimestamp())
                 .sendingReceipts(
@@ -208,7 +207,7 @@ public class TimelineUtils {
                 .retryNumber(digitalAddressFeedback.getRetryNumber())
                 .recIndex(recIndex)
                 .notificationDate(instantNowSupplier.get())
-                .eventCode(eventCode.getValue())
+                .deliveryDetailCode(eventCode.getValue())
                 .shouldRetry(shouldRetry)
                 .sendingReceipts(
                         (digitalMessageReference != null && digitalMessageReference.getId() != null)?
