@@ -160,6 +160,6 @@ public class AttachmentUtils {
     }
 
     public List<String> getNotificationAttachments(NotificationInt notification) {
-        return getAllAttachment(notification).stream().map(attachment -> attachment.getRef().getKey()).collect(Collectors.toList());
+        return getAllAttachment(notification).stream().map(attachment -> attachment.getRef().getKey()).toList();
     }
 }
