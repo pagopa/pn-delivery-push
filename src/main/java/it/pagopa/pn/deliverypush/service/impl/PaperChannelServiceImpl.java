@@ -4,12 +4,15 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
@@ -40,6 +43,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private final MVPParameterConsumer mvpParameterConsumer;
     private final AnalogWorkflowUtils analogWorkflowUtils;
     private final AuditLogService auditLogService;
+    private final PnDeliveryPushConfigs cfg;
+    private final AttachmentUtils attachmentUtils;
 
     public PaperChannelServiceImpl(PaperChannelUtils paperChannelUtils,
                                    PaperChannelSendClient paperChannelSendClient,
@@ -47,7 +52,9 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                                    AarUtils aarUtils,
                                    TimelineUtils timelineUtils,
                                    MVPParameterConsumer mvpParameterConsumer,
-                                   AnalogWorkflowUtils analogWorkflowUtils, AuditLogService auditLogService) {
+                                   AnalogWorkflowUtils analogWorkflowUtils, AuditLogService auditLogService,
+                                   PnDeliveryPushConfigs cfg,
+                                   AttachmentUtils attachmentUtils) {
         this.paperChannelUtils = paperChannelUtils;
         this.paperChannelSendClient = paperChannelSendClient;
         this.notificationUtils = notificationUtils;
@@ -56,6 +63,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.analogWorkflowUtils = analogWorkflowUtils;
         this.auditLogService = auditLogService;
+        this.cfg = cfg;
+        this.attachmentUtils = attachmentUtils;
     }
 
 
@@ -112,7 +121,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         String eventId = paperChannelUtils.buildPrepareSimpleRegisteredLetterEventId(notification, recIndex);
 
         // recupero gli allegati
-        List<String> attachments = retrieveAttachments(notification, recIndex);
+        List<String> attachments = retrieveAttachments(notification, recIndex, false);
         PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER.name(), attachments);
 
         try {
@@ -138,7 +147,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         String eventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade);
 
         // recupero gli allegati
-        List<String> attachments = retrieveAttachments(notification, recIndex);
+        List<String> attachments = retrieveAttachments(notification, recIndex, false);
         PhysicalAddressInt.ANALOG_TYPE analogType = getAnalogType(notification);
         PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, analogType.name(), attachments);
 
@@ -196,14 +205,15 @@ public class PaperChannelServiceImpl implements PaperChannelService {
      * @return lista id allegati
      */
     @NotNull
-    private List<String> retrieveAttachments(NotificationInt notification, Integer recIndex) {
+    private List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, boolean isSendNotificationAttachmentsEnabled) {
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
         List<String> attachments = new ArrayList<>();
         attachments.add(0, aarGenerationDetails.getGeneratedAarUrl());
         // nel caso in cui NON sia simple registered letter, devo allegare anche gli atti
-        // Da valutare eventuale inserimento condizionato degli allegati della notifica, per ora vien commentato
-        // l'invocazione a attachments  addAll (attachmentUtils  getNotificationAttachments )
+
+        if(isSendNotificationAttachmentsEnabled)
+            attachments.addAll(attachmentUtils.getNotificationAttachments(notification));
         return attachments;
     }
 
@@ -217,7 +227,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             log.info("Registered Letter sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
             // recupero gli allegati
-            List<String> attachments = retrieveAttachments(notification, recIndex);
+            List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled("simple-registered-letter"));
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, requestId, productType, attachments);
 
@@ -253,7 +263,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             log.info("Analog notification sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
             // recupero gli allegati
-            List<String> attachments = retrieveAttachments(notification, recIndex);
+            List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled("analog-notification"));
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
@@ -310,6 +320,18 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         else
         {
             return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_PD_EXECUTE, "sendRequest requestId={} analogType={} attachments={}", requestId, analogType, attachments);
+        }
+    }
+
+    private boolean isSendNotificationAttachmentsEnabled(String notificationChannelType) {
+        switch(notificationChannelType) {
+            case "analog-notification":
+                return (cfg.getSendNotificationAttachments() != null && (cfg.getSendNotificationAttachments().equals("analog-notification") ||
+                        cfg.getSendNotificationAttachments().equals("simple-registered-letter-and-analog-notification")) ? true : false);
+            case "simple-registered-letter":
+                return (cfg.getSendNotificationAttachments() != null && (cfg.getSendNotificationAttachments().equals("simple-registered-letter") ||
+                        cfg.getSendNotificationAttachments().equals("simple-registered-letter-and-analog-notification")) ? true : false);
+            default: return false;
         }
     }
 
