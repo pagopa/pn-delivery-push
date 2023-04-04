@@ -21,6 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
 
@@ -156,5 +157,9 @@ public class AttachmentUtils {
                     return Mono.empty();
 
                 });
+    }
+
+    public List<String> getNotificationAttachments(NotificationInt notification) {
+        return getAllAttachment(notification).stream().map(attachment -> attachment.getRef().getKey()).collect(Collectors.toList());
     }
 }
