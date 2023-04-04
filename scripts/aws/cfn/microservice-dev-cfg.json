@@ -20,7 +20,8 @@
     "IsMvpDefaultValue": "false",
     "RetentionAttachmentDaysAfterRefinement": "120",
     "ValidationRetryIntervals": "10s, 1m, 1m, 5m, 1h, -1s",
-    "MaxTasksNumber": "1"
+    "MaxTasksNumber": "1",
+    "SendNotificationAttachments": "analog-notification"
   }
 }
 
