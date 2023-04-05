@@ -220,7 +220,7 @@ class LegalFactPdfGeneratorTest {
 					String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt, quickAccesstoken);
 					PrintWriter out = new PrintWriter(filePath.toString());
 					out.println(element);
-
+					out.close();
 					System.out.println("element "+element);
 				}
 		);
