@@ -265,6 +265,9 @@ public class LegalFactGenerator {
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
+        Path filePath = Paths.get(TEMPLATES_DIR_NAME + File.separator + "images/aar-logo-short.png");
+        String logoBase64 = readLocalImagesInBase64(filePath.toString());
+        templateModel.put(FIELD_LOGO, logoBase64);
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL,
@@ -389,14 +392,13 @@ public class LegalFactGenerator {
                 .getResourceAsStream(path);
 
         if (ioStream == null) {
-            IllegalArgumentException e = new IllegalArgumentException(path + " is not found");
-            e.printStackTrace();
+            log.debug(path + " is not found");
         } else {
             try {
                 byte[] bytes = IOUtils.toByteArray(ioStream);
                 encodedBase64 = new String(Base64.getEncoder().encodeToString(bytes));
             } catch (IOException e) {
-                e.printStackTrace();
+                log.debug("error during file conversion", e);
             }
         }
         return encodedBase64;
