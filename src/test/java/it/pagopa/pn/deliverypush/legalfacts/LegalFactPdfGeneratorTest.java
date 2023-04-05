@@ -95,7 +95,7 @@ class LegalFactPdfGeneratorTest {
 	}
 	
 	@Test 
-	void generateNotificationViewedLegalFactTest() throws IOException {
+	void zgenerateNotificationViewedLegalFactTest() throws IOException {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
 		String iun = "iun1234Test_Viewed";
 		NotificationRecipientInt recipient = buildRecipients().get(0);

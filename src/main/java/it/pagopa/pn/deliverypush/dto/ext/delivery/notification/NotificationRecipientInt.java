@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.dto.ext.delivery.notification;
 
 
 
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -21,4 +22,9 @@ public class NotificationRecipientInt {
     private PhysicalAddressInt physicalAddress;
     private NotificationPaymentInfoInt payment;
     private RecipientTypeInt recipientType;
+
+    public DigitalAddressSourceInt getDigitalDomicileSource() {
+        // only special for notification recipient digital domicile
+        return DigitalAddressSourceInt.SPECIAL;
+    }
 }
