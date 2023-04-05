@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Yxk53TtwzoEgO+NAVNw6IcMb1XiWZh19m26VT+OxTbM=
+  version: /JD8gERRQgOeeqReq3aeF/ERJlXIyVOWAStQXkOHgUM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -524,6 +524,13 @@ components:
             - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q
             - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E
           description: chiavi degli eventuali allegati associati all'evento
+        validationErrors:
+          type: array
+          items:
+            type: string
+          example:
+            - '[FILE_SHA_ERROR] - iun WGLX-WGLU-RAHT-202304-V-1'
+          description: eventuali errori di validazione associati all'evento
     ProblemError:
       properties:
         code:

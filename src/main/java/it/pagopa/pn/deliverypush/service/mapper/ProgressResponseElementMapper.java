@@ -21,6 +21,7 @@ public class ProgressResponseElementMapper {
         progressResponseElement.setRecipientIndex(ev.getRecipientIndex());
         progressResponseElement.setLegalfactIds(ev.getLegalfactIds());
         progressResponseElement.setAnalogCost(ev.getAnalogCost());
+        progressResponseElement.setValidationErrors(ev.getValidationErrors());
         return progressResponseElement;
     }
 

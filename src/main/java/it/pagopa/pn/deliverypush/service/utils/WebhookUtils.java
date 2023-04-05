@@ -108,6 +108,8 @@ public class WebhookUtils {
 
         enrichWithLegalFacts(eventEntity, timelineElementInternal);
 
+        enrichWithValidationErrors(eventEntity, details);
+
         return eventEntity;
     }
 
@@ -156,6 +158,13 @@ public class WebhookUtils {
         if (!CollectionUtils.isEmpty(timelineElementInternal.getLegalFactsIds()))
         {
             eventEntity.setLegalfactIds(timelineElementInternal.getLegalFactsIds().stream().filter(Objects::nonNull).map(LegalFactsIdInt::getKey).map(legalFactKey -> legalFactKey.replace(PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX,"")).toList());
+        }
+    }
+
+    private void enrichWithValidationErrors(EventEntity eventEntity, TimelineElementDetailsInt details) {
+        // aggiungo gli errori di validazione
+        if (details instanceof RequestRefusedDetailsInt requestRefusedDetailsInt) {
+            eventEntity.setValidationErrors( requestRefusedDetailsInt.getErrors() );
         }
     }
 
