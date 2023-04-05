@@ -11,6 +11,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -310,6 +311,7 @@ class LegalFactPdfGeneratorTest {
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.address("prova@test.com")
 						.build())
+				.digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
 				.responseStatus(ResponseStatusInt.KO)
 				.notificationDate(Instant.now().minus(10, ChronoUnit.MINUTES))
 				.build();
@@ -320,6 +322,18 @@ class LegalFactPdfGeneratorTest {
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.address("pçroà2@test.com")
 						.build())
+				.digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+				.responseStatus(status)
+				.notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
+				.build();
+
+		SendDigitalFeedbackDetailsInt sdf3 = SendDigitalFeedbackDetailsInt.builder()
+				.recIndex( 0 )
+				.digitalAddress(LegalDigitalAddressInt.builder()
+						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+						.address("pçroà3@test.com")
+						.build())
+				.digitalAddressSource(DigitalAddressSourceInt.GENERAL)
 				.responseStatus(status)
 				.notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
 				.build();
@@ -327,6 +341,7 @@ class LegalFactPdfGeneratorTest {
 		List<SendDigitalFeedbackDetailsInt> result = new ArrayList<SendDigitalFeedbackDetailsInt>();
 		result.add(sdf);
 		result.add(sdf2);
+		result.add(sdf3);
 		return result;
 	}
 
