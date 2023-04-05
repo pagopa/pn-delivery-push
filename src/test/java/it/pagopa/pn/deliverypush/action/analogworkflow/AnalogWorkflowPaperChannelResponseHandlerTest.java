@@ -182,13 +182,13 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE_RECEIVE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
 
         // WHEN
         Assertions.assertDoesNotThrow(() -> analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(sendEventInt));
 
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).generateWarning(Mockito.anyString(), Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
 

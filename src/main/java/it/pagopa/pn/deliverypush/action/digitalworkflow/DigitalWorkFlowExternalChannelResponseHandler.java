@@ -148,7 +148,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             );
 
             digitalWorkFlowHandler.nextWorkflowStep( digitalResultInfos );
-            logEvent.generateSuccess("WARNING Digital notification failed with eventCode={} eventDetails={} timelineId={}",
+            logEvent.generateWarning("Digital notification failed with eventCode={} eventDetails={} timelineId={}",
                     digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getEventDetails(), timelineId).log();
 
         } catch (Exception e) {
