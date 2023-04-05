@@ -222,7 +222,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails, response, sendRequestId);
             int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
             analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, response.getStatusDateTime());
-            logEvent.generateSuccess("WARNING Analog notification failed with failure cause {} generated failure timelineid={}", response.getDeliveryFailureCause(), timelineId).log();
+            logEvent.generateWarning("Analog notification failed with failure cause {} generated failure timelineid={}", response.getDeliveryFailureCause(), timelineId).log();
 
         } catch (Exception e) {
             logEvent.generateFailure("Error handling execute response ex={}", e).log();

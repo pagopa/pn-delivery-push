@@ -624,6 +624,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
         Mockito.when(externalChannel.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -652,6 +653,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.reset(auditLogEvent);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(0);
 
         Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
@@ -674,7 +676,7 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(DigitalMessageReferenceInt.class),
                 Mockito.any(DigitalAddressFeedback.class)
         );
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
 
@@ -711,7 +713,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.reset(auditLogEvent);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(3);
 
         TimelineElementInternal t1 = TimelineElementInternal.builder()
@@ -797,7 +799,7 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(DigitalMessageReferenceInt.class),
                 Mockito.any(DigitalAddressFeedback.class)
         );
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
 
@@ -1542,7 +1544,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -1556,7 +1558,7 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.anyInt(),
                 Mockito.any(DigitalMessageReferenceInt.class),
                 Mockito.any(DigitalAddressFeedback.class));
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
@@ -1620,7 +1622,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -1635,7 +1637,7 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(DigitalMessageReferenceInt.class),
                 Mockito.any(DigitalAddressFeedback.class));
 
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
@@ -1698,7 +1700,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(externalChannel.getDigitalCodesFail()).thenReturn(List.of("C002", "C004", "C006", "C009"));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -1720,7 +1722,7 @@ class DigitalWorkFlowHandlerTest {
                 details.getRecIndex(),
                 extChannelResponse.getGeneratedMessage(),
                 digitalAddressFeedback);
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.any(), Mockito.any());
+        Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
