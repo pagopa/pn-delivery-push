@@ -118,6 +118,19 @@ public enum TimelineEventId {
         }
     },
 
+    PREPARE_DIGITAL_DOMICILE("PREPARE_DIGITAL_DOMICILE") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .withSource(eventId.getSource())
+                    .withSentAttemptMade(eventId.getSentAttemptMade())
+                    .build();
+        }
+    },
+
     SEND_DIGITAL_DOMICILE("SEND_DIGITAL_DOMICILE") {
         @Override
         public String buildEventId(EventId eventId) {

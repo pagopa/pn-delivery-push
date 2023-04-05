@@ -284,6 +284,33 @@ public class TimelineUtils {
     }
 
 
+    public TimelineElementInternal buildPrepareDigitalNotificationTimelineElement(NotificationInt notification, Integer recIndex,
+                                                                                  LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, int sentAttemptMade, Instant lastAttemptMade,
+                                                                                DigitalAddressSourceInt nextDigitalAddressSource, Instant nextLastAttemptMadeForSource, int nextSourceAttemptsMade) {
+        log.debug("buildPrepareDigitalNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.PREPARE_DIGITAL_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .source(nextDigitalAddressSource)
+                        .sentAttemptMade(nextSourceAttemptsMade)
+                        .build());
+
+        PrepareDigitalDetailsInt details = PrepareDigitalDetailsInt.builder()
+                .recIndex(recIndex)
+                .retryNumber(sentAttemptMade)
+                .digitalAddress(digitalAddress)
+                .digitalAddressSource(addressSource)
+                .attemptDate(lastAttemptMade)
+                .nextDigitalAddressSource(nextDigitalAddressSource)
+                .nextLastAttemptMadeForSource(nextLastAttemptMadeForSource)
+                .nextSourceAttemptsMade(nextSourceAttemptsMade)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, elementId, details);
+    }
+
     public TimelineElementInternal buildSendDigitalNotificationTimelineElement(LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex,
                                                                                NotificationInt notification, int sentAttemptMade, String eventId) {
         log.debug("buildSendDigitalNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);

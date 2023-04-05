@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.details.NextWorkflowActionExecuteDetails;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
@@ -16,12 +15,13 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareDigitalDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -94,20 +94,26 @@ public class DigitalWorkFlowHandler {
 
         // viene spezzato il flusso perchè le operazione di invio, vanno a salvare in timeline dei record e quindi nel caso vi siano errori di invio, rieseguire
         // il nextaddressinfo potrebbe dare risultati diversi. In questo modo invece, viene calcolato qual è l'indirizzo a cui spedire, e poi si può procedere all'effettivo invio.
+        // NB salvo in timeline perchè salvare i dati come actionDetails non era possibile, dato che contenevano dati sensibili
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        String timelineId = digitalWorkFlowUtils.addPrepareSendToTimeline(notification, recIndex, lastAttemptMade, nextAddressInfo);
         schedulerService.scheduleEvent(iun, recIndex, Instant.now(),
-                ActionType.DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION, null, new NextWorkflowActionExecuteDetails(lastAttemptMade, nextAddressInfo));
+                ActionType.DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION, timelineId);
     }
 
     /**
      * Handle digital notification Workflow based on already made attempt
      */
-    public void startNextWorkFlowActionExecute(String iun, Integer recIndex, NextWorkflowActionExecuteDetails details) {
-        log.info("Start Next Digital workflow action - iun={} id={}", iun, recIndex);
+    public void startNextWorkFlowActionExecute(String iun, Integer recIndex, String timelineId) {
+        log.info("Start Next Digital workflow action - iun={} id={} timelineId={}", iun, recIndex, timelineId);
+
+        // recupero le info salvate in precedenza
+        PrepareDigitalDetailsInt prepareDigitalDetailsInt = digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(iun, timelineId);
+        DigitalAddressInfoSentAttempt lastAttemptMade = digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(prepareDigitalDetailsInt);
+        DigitalAddressInfoSentAttempt nextAddressInfo = digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(prepareDigitalDetailsInt);
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        DigitalAddressInfoSentAttempt lastAttemptMade = details.getLastAttemptMade();
-        DigitalAddressInfoSentAttempt nextAddressInfo = details.getNextAddressInfo();
 
         if (nextAddressInfo.getSentAttemptMade() < MAX_ATTEMPT_NUMBER) {
             switch (nextAddressInfo.getSentAttemptMade()) {

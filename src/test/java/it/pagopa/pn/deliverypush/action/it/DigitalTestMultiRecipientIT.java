@@ -240,6 +240,10 @@ class DigitalTestMultiRecipientIT {
     @BeforeEach
     public void setup() {
 
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         pnDeliveryClientMock.clear();

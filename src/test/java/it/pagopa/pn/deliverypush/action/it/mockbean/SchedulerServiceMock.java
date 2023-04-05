@@ -4,7 +4,6 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
-import it.pagopa.pn.deliverypush.action.details.NextWorkflowActionExecuteDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
@@ -83,8 +82,6 @@ public class SchedulerServiceMock implements SchedulerService {
                   refinementHandler.handleRefinement(iun, recIndex);
           case DIGITAL_WORKFLOW_NEXT_ACTION -> 
                   digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex, null);
-          case DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION ->
-                  digitalWorkFlowHandler.startNextWorkFlowActionExecute(iun, recIndex, (NextWorkflowActionExecuteDetails) actionDetails);
           case DIGITAL_WORKFLOW_RETRY_ACTION ->
                   digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(iun, recIndex,
                   iun + "_retry_action_" + recIndex);
@@ -119,9 +116,10 @@ public class SchedulerServiceMock implements SchedulerService {
 
         switch (actionType) {
 
-          case DIGITAL_WORKFLOW_NEXT_ACTION:
+          case DIGITAL_WORKFLOW_NEXT_ACTION ->
             digitalWorkFlowHandler.startScheduledNextWorkflow(iun, recIndex, timelineId);
-            break;
+          case DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION ->
+            digitalWorkFlowHandler.startNextWorkFlowActionExecute(iun, recIndex, timelineId);
         /*case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION:
           digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(iun, recIndex,
                   timelineId);
