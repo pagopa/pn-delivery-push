@@ -210,5 +210,6 @@ public class PnDeliveryPushConfigs {
         private SanitizeMode sanitizeMode;
     }
 
+    private String sendNotificationAttachments;
 
 }

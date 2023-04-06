@@ -28,4 +28,5 @@ public class EventId {
     private String noticeCode;
     private String idF24;
     private Boolean isFirstSendRetry;
+    private String relatedTimelineId;
 }

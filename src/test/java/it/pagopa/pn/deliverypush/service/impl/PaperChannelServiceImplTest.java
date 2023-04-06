@@ -4,16 +4,16 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
@@ -28,7 +28,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 class PaperChannelServiceImplTest {
     @Mock
@@ -50,6 +52,11 @@ class PaperChannelServiceImplTest {
 
     private PaperChannelService paperChannelService;
 
+    @Mock
+    private PnDeliveryPushConfigs cfg;
+    @Mock
+    private AttachmentUtils attachmentUtils;
+
     @BeforeEach
     void setup() {
         paperChannelService = new PaperChannelServiceImpl(
@@ -59,7 +66,9 @@ class PaperChannelServiceImplTest {
                 aarUtils,
                 timelineUtils,
                 mvpParameterConsumer,
-                analogWorkflowUtils, auditLogService);
+                analogWorkflowUtils, auditLogService,
+                cfg,
+                attachmentUtils);
     }
 
 
@@ -273,6 +282,7 @@ class PaperChannelServiceImplTest {
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
         NotificationInt notificationInt = newNotification("taxid");
+
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
@@ -283,6 +293,12 @@ class PaperChannelServiceImplTest {
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
+
+        Mockito.when(cfg.getSendNotificationAttachments()).thenReturn("simple-registered-letter-and-analog-notification");
+        List<String> attachments = new ArrayList<String>(2);
+        attachments.add("attachment1");
+        attachments.add("attachment2");
+        Mockito.when(attachmentUtils.getNotificationAttachments(notificationInt)).thenReturn(attachments);
 
         // WHEN
         paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
@@ -331,6 +347,12 @@ class PaperChannelServiceImplTest {
         Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
         Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
+
+        Mockito.when(cfg.getSendNotificationAttachments()).thenReturn("analog-notification");
+        List<String> attachments = new ArrayList<String>(2);
+        attachments.add("attachment1");
+        attachments.add("attachment2");
+        Mockito.when(attachmentUtils.getNotificationAttachments(notificationInt)).thenReturn(attachments);
         
         // WHEN
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");

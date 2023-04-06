@@ -72,5 +72,8 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("sendRequestId")})) String sendRequestId;
     @Getter(onMethod=@__({@DynamoDbAttribute("isFirstSendRetry")})) Boolean isFirstSendRetry;
     @Getter(onMethod=@__({@DynamoDbAttribute("relatedFeedbackTimelineId")})) String relatedFeedbackTimelineId;
+    @Getter(onMethod=@__({@DynamoDbAttribute("nextDigitalAddressSource")}))  DigitalAddressSourceEntity nextDigitalAddressSource;
+    @Getter(onMethod=@__({@DynamoDbAttribute("nextSourceAttemptsMade")}))  int nextSourceAttemptsMade;
+    @Getter(onMethod=@__({@DynamoDbAttribute("nextLastAttemptMadeForSource")}))  Instant nextLastAttemptMadeForSource;
 
 }
