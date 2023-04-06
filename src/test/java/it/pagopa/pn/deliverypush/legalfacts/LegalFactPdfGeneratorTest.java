@@ -210,7 +210,7 @@ class LegalFactPdfGeneratorTest {
     }
 	
 	@Test
-	void generateNotificationAAREmailTest() throws IOException {
+	void generateNotificationAAREmailTest() {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);

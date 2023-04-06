@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 
@@ -385,24 +387,17 @@ public class LegalFactGenerator {
                 : pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplateLegal();
     }
 
-    private String readLocalImagesInBase64(String path) {
-        String encodedBase64 = null;
-        InputStream ioStream = this.getClass()
-                .getClassLoader()
-                .getResourceAsStream(path);
-
-        if (ioStream == null) {
-            log.debug(path + " is not found");
-        } else {
-            try {
-                byte[] bytes = IOUtils.toByteArray(ioStream);
-                encodedBase64 = new String(Base64.getEncoder().encodeToString(bytes));
-            } catch (IOException e) {
-                log.debug("error during file conversion", e);
-            }
+    private String readLocalImagesInBase64(String classPath) {
+        try {
+            String encodedBase64;
+            InputStream ioStream = new ClassPathResource(classPath).getInputStream();
+            byte[] bytes = IOUtils.toByteArray(ioStream);
+            encodedBase64 = Base64.getEncoder().encodeToString(bytes);
+            return encodedBase64;
+        } catch (Exception e) {
+            throw new PnReadFileException("error during file conversion", e);
         }
-        return encodedBase64;
-    }
 
+    }
 }
 
