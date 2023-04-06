@@ -362,6 +362,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 .addressDetails(physicalAddress2.getAddressDetails())
                 .zip(physicalAddress2.getZip())
                 .municipalityDetails(physicalAddress2.getMunicipalityDetails())
+                .foreignState(physicalAddress2.getForeignState())
                 .build();
     }
 

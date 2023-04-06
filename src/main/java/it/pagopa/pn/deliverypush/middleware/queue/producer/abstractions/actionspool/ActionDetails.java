@@ -14,7 +14,7 @@ import it.pagopa.pn.deliverypush.action.details.*;
         @JsonSubTypes.Type(value = NotHandledDetails.class, name = "CHOOSE_DELIVERY_MODE"),
         @JsonSubTypes.Type(value = NotHandledDetails.class, name = "ANALOG_WORKFLOW"),
         @JsonSubTypes.Type(value = NotHandledDetails.class, name = "DIGITAL_WORKFLOW_NEXT_ACTION"),
-        @JsonSubTypes.Type(value = NextWorkflowActionExecuteDetails.class, name = "DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION"),
+        @JsonSubTypes.Type(value = NotHandledDetails.class, name = "DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION"),
         @JsonSubTypes.Type(value = NotHandledDetails.class, name = "DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION"),
         @JsonSubTypes.Type(value = NotHandledDetails.class, name = "DIGITAL_WORKFLOW_RETRY_ACTION"),
         @JsonSubTypes.Type(value = NotHandledDetails.class, name = "REFINEMENT_NOTIFICATION"),

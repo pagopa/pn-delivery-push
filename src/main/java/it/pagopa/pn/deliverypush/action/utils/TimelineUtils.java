@@ -283,6 +283,35 @@ public class TimelineUtils {
     }
 
 
+    public TimelineElementInternal buildPrepareDigitalNotificationTimelineElement(NotificationInt notification, Integer recIndex,
+                                                                                  LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, int sentAttemptMade, Instant lastAttemptMade,
+                                                                                DigitalAddressSourceInt nextDigitalAddressSource, Instant nextLastAttemptMadeForSource, int nextSourceAttemptsMade,
+                                                                                  String sourceTimelineId) {
+        log.debug("buildPrepareDigitalNotificationTimelineElement - IUN={} and id={} sourceTimelineId={}", notification.getIun(), recIndex, sourceTimelineId);
+
+        String elementId = TimelineEventId.PREPARE_DIGITAL_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .source(nextDigitalAddressSource)
+                        .sentAttemptMade(nextSourceAttemptsMade)
+                        .relatedTimelineId(sourceTimelineId)    // nel caso di scheduling a 7gg, di fatto si ripetevano gli stessi argomenti. La discriminante è che il sourcetimelineId è diverso
+                        .build());
+
+        PrepareDigitalDetailsInt details = PrepareDigitalDetailsInt.builder()
+                .recIndex(recIndex)
+                .retryNumber(sentAttemptMade)
+                .digitalAddress(digitalAddress)
+                .digitalAddressSource(addressSource)
+                .attemptDate(lastAttemptMade)
+                .nextDigitalAddressSource(nextDigitalAddressSource)
+                .nextLastAttemptMadeForSource(nextLastAttemptMadeForSource)
+                .nextSourceAttemptsMade(nextSourceAttemptsMade)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, elementId, details);
+    }
+
     public TimelineElementInternal buildSendDigitalNotificationTimelineElement(LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex,
                                                                                NotificationInt notification, int sentAttemptMade, String eventId) {
         log.debug("buildSendDigitalNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
