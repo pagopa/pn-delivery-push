@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -32,19 +33,15 @@ import java.util.Set;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class DigitalWorkFlowUtils {
     private final TimelineService timelineService;
     private final AddressBookService addressBookService;
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
+
     
-    public DigitalWorkFlowUtils(TimelineService timelineService, AddressBookService addressBookService, TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
-        this.timelineService = timelineService;
-        this.addressBookService = addressBookService;
-        this.timelineUtils = timelineUtils;
-        this.notificationUtils = notificationUtils;
-    }
 
     public DigitalAddressInfoSentAttempt getNextAddressInfo(String iun, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
         log.debug("Start getNextAddressInfo - iun {} id {}", iun, recIndex);
@@ -246,7 +243,9 @@ public class DigitalWorkFlowUtils {
                                                             int recIndex, 
                                                             boolean shouldRetry,
                                                             DigitalMessageReferenceInt digitalMessageReference,
-                                                            DigitalAddressFeedback digitalAddressFeedback) {
+                                                            DigitalAddressFeedback digitalAddressFeedback,
+                                                            Boolean isFirstSendRetry,
+                                                            String relatedFeedbackTimelineId) {
         
         int progressIndex = getPreviousTimelineProgress(notification, recIndex, digitalAddressFeedback.getRetryNumber(), digitalAddressFeedback.getDigitalAddressSource()).size() + 1;
 
@@ -258,7 +257,9 @@ public class DigitalWorkFlowUtils {
                         shouldRetry,
                         digitalMessageReference,
                         progressIndex,
-                        digitalAddressFeedback
+                        digitalAddressFeedback,
+                        isFirstSendRetry,
+                        relatedFeedbackTimelineId
                 ),
                 notification
         );
@@ -279,6 +280,7 @@ public class DigitalWorkFlowUtils {
         );
         return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false);
     }
+    
 
     private String addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         String timelineId = element.getElementId();

@@ -176,7 +176,7 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertFalse(listIsAvailableCaptorValues.get(1));
 
         Mockito.verify(nationalRegistriesService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
-                Mockito.any(ContactPhaseInt.class), Mockito.anyInt());
+                Mockito.any(ContactPhaseInt.class), Mockito.anyInt(), Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)

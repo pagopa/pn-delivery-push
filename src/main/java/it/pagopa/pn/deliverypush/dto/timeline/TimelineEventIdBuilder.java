@@ -42,6 +42,8 @@ public class TimelineEventIdBuilder {
 
     private String paymentCode = "";
 
+    private String isFirstSendRetry = "";
+    
     public TimelineEventIdBuilder withIun(@Nullable String iun) {
         if(iun != null)
             this.iun = DELIMITER.concat("IUN_").concat(iun);
@@ -111,6 +113,12 @@ public class TimelineEventIdBuilder {
         return this;
     }
 
+    public TimelineEventIdBuilder withIsFirstSendRetry(@Nullable Boolean retry) {
+        if(retry != null)
+            this.isFirstSendRetry = DELIMITER.concat("FIRSTSENDRETRY_").concat(retry.toString());
+        return this;
+    }
+    
     public String build() {
         return new StringBuilder()
                 .append(category)
@@ -120,6 +128,7 @@ public class TimelineEventIdBuilder {
                 .append(source)
                 .append(deliveryMode)
                 .append(contactPhase)
+                .append(isFirstSendRetry)
                 .append(sentAttemptMade)
                 .append(progressIndex)
                 .append(correlationId)

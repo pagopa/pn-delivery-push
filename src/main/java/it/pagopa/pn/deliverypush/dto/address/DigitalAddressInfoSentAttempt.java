@@ -15,4 +15,5 @@ import java.time.Instant;
 public class DigitalAddressInfoSentAttempt  extends DigitalAddressInfo{
     private int sentAttemptMade;
     private Instant lastAttemptDate;
+    private String relatedFeedbackTimelineId;
 }

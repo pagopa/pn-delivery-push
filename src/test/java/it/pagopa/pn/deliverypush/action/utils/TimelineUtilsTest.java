@@ -172,7 +172,9 @@ class TimelineUtilsTest {
                 shouldRetry, 
                 digitalMessageReference, 
                 progressIndex,
-                digitalAddressFeedback
+                digitalAddressFeedback,
+                false,
+                null
         );
         
         Assertions.assertAll(
@@ -238,7 +240,7 @@ class TimelineUtilsTest {
         int sentAttemptMade = 1;
         String eventId = "001";
 
-        TimelineElementInternal actual = timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, eventId);
+        TimelineElementInternal actual = timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, false, eventId, null);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals("001", actual.getElementId()),
@@ -397,7 +399,7 @@ class TimelineUtilsTest {
         int sentAttemptMade = 1;
 
         TimelineElementInternal actual = timelineUtils.buildPublicRegistryCallTimelineElement(
-                notification, recIndex, eventId, deliveryMode, contactPhase, sentAttemptMade
+                notification, recIndex, eventId, deliveryMode, contactPhase, sentAttemptMade, null
         );
 
         Assertions.assertAll(

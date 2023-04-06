@@ -41,14 +41,20 @@ class DigitalWorkFlowUtilsTest {
     private TimelineUtils timelineUtils;
     private NotificationUtils notificationUtils;
     private DigitalWorkFlowUtils digitalWorkFlowUtils;
-
+    
+    
     @BeforeEach
     void setup() {
         timelineService = Mockito.mock(TimelineService.class);
         addressBookService = Mockito.mock(AddressBookService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
-        digitalWorkFlowUtils = new DigitalWorkFlowUtils(timelineService, addressBookService, timelineUtils, notificationUtils);
+        
+        digitalWorkFlowUtils = new DigitalWorkFlowUtils(
+                timelineService,
+                addressBookService, 
+                timelineUtils, 
+                notificationUtils);
     }
 
     @Test
@@ -306,7 +312,9 @@ class DigitalWorkFlowUtilsTest {
         timelineElementInternalSet.add(timelineElementInternal);
         String timelineEventId = "DIGITAL_DELIVERING_PROGRESS#IUN_IUN_01#RECINDEX_1#SOURCE_SPECIAL#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Mockito.when(timelineService.getTimelineByIunTimelineId("IUN_01", timelineEventId, Boolean.FALSE)).thenReturn(timelineElementInternalSet);
-
+        
+        Boolean isFirstSendRetry = false;
+        
         DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                 .retryNumber(sentAttemptMade)
                 .eventTimestamp(eventTimestamp)
@@ -321,7 +329,9 @@ class DigitalWorkFlowUtilsTest {
                 shouldRetry, 
                 digitalMessageReference, 
                 2,
-                digitalAddressFeedback
+                digitalAddressFeedback,
+                isFirstSendRetry,
+                null
         )).thenReturn(timelineElementInternal);
 
         digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
@@ -330,7 +340,9 @@ class DigitalWorkFlowUtilsTest {
                 recIndex, 
                 shouldRetry,
                 digitalMessageReference,
-                digitalAddressFeedback
+                digitalAddressFeedback,
+                isFirstSendRetry,
+                null
         );
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);

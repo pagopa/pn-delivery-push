@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -19,23 +20,16 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class DigitalWorkFlowRetryHandler {
 
     private final NotificationService notificationService;
 
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
-    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final SendAndUnscheduleNotification sendAndUnscheduleNotification;
     private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
 
-    public DigitalWorkFlowRetryHandler(DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                       NotificationService notificationService,
-                                       DigitalWorkFlowUtils digitalWorkFlowUtils, DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler) {
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
-        this.notificationService = notificationService;
-        this.digitalWorkFlowUtils = digitalWorkFlowUtils;
-        this.digitalWorkFlowExternalChannelResponseHandler = digitalWorkFlowExternalChannelResponseHandler;
-    }
 
     /**
      * Callback nel caso di ritentativo a breve termine di invio PEC
@@ -51,14 +45,20 @@ public class DigitalWorkFlowRetryHandler {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
             if (checkIfEventIsStillValid(iun, recIndex, timelineElement.get())) {
-                digitalWorkFlowHandler.sendDigitalNotificationAndScheduleTimeoutAction(notification,
+                sendAndUnscheduleNotification.sendDigitalNotificationAndScheduleTimeoutAction(
+                        notification,
                         originalSendDigitalProgressDetailsInt.getDigitalAddress(),
                         DigitalAddressInfoSentAttempt.builder()
                                 .digitalAddress(originalSendDigitalProgressDetailsInt.getDigitalAddress())
                                 .digitalAddressSource(originalSendDigitalProgressDetailsInt.getDigitalAddressSource())
                                 .lastAttemptDate(timelineElement.get().getTimestamp())
                                 .sentAttemptMade(originalSendDigitalProgressDetailsInt.getRetryNumber())
-                                .build(), recIndex, true, timelineId);
+                                .relatedFeedbackTimelineId(originalSendDigitalProgressDetailsInt.getRelatedFeedbackTimelineId())
+                                .build(), 
+                        recIndex, 
+                        true,
+                        timelineId,
+                        originalSendDigitalProgressDetailsInt.getIsFirstSendRetry());
             }
             else
             {
@@ -147,7 +147,9 @@ public class DigitalWorkFlowRetryHandler {
                     recIndex,
                     false,
                     null,
-                    digitalAddressFeedback);
+                    digitalAddressFeedback,
+                    null,
+                    null);
 
             log.error("elapsedExtChannelTimeout Last timelineevent doesn't match original timelineevent source and retrynumber, skipping more actions iun={} recIdx={}", iun, recIndex);
         }

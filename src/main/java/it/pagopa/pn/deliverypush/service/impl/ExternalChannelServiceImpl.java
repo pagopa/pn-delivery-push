@@ -67,7 +67,9 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                           DigitalAddressSourceInt addressSource,
                                           Integer recIndex,
                                           int sentAttemptMade,
-                                          boolean sendAlreadyInProgress
+                                          boolean sendAlreadyInProgress,
+                                          Boolean isFirstSendRetry,
+                                          String relatedFeedbackTimelineId
     ) {
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), digitalAddress, recIndex);
 
@@ -85,10 +87,20 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                 .recIndex(recIndex)
                                 .source(addressSource)
                                 .sentAttemptMade(sentAttemptMade)
+                                .isFirstSendRetry(isFirstSendRetry)
                                 .build()
                 );
                 externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, digitalAddress, eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
-                externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
+                externalChannelUtils.addSendDigitalNotificationToTimeline(
+                        notification,
+                        digitalAddress, 
+                        addressSource,
+                        recIndex,
+                        sentAttemptMade, 
+                        isFirstSendRetry,
+                        eventId, 
+                        relatedFeedbackTimelineId
+                );
             }
             else
             {
@@ -103,10 +115,17 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                 .source(addressSource)
                                 .sentAttemptMade(sentAttemptMade)
                                 .progressIndex(progressIndex)
+                                .isFirstSendRetry(isFirstSendRetry)
                                 .build()
                 );
 
-            externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, digitalAddress, eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
+            externalChannel.sendLegalNotification(
+                    notification,
+                    digitalParameters.recipientFromIndex,
+                    digitalAddress, 
+                    eventId, 
+                    digitalParameters.aarKey, 
+                    digitalParameters.quickAccessToken);
 
                 DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                         .retryNumber(sentAttemptMade)
@@ -121,7 +140,10 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                         recIndex,
                         false,
                         null,
-                        digitalAddressFeedback);
+                        digitalAddressFeedback,
+                        isFirstSendRetry,
+                        relatedFeedbackTimelineId
+                );
 
             }
 

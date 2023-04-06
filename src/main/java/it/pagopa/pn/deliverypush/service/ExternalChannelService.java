@@ -6,7 +6,14 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 
 public interface ExternalChannelService {
-    String sendDigitalNotification(NotificationInt notification, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex, int sentAttemptMade, boolean sendAlreadyInProgress);
+    String sendDigitalNotification(NotificationInt notification,
+                                   LegalDigitalAddressInt digitalAddress,
+                                   DigitalAddressSourceInt addressSource,
+                                   Integer recIndex, 
+                                   int sentAttemptMade,
+                                   boolean sendAlreadyInProgress,
+                                   Boolean isFirstSendRetry,
+                                   String relatedFeedbackTimelineId);
 
     void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId);
 

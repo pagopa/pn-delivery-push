@@ -140,7 +140,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_PROGRESSTest() {
         //vecchia versione 123456789_digital_delivering_progress_1_source_PLATFORM_attempt_1_progidx_1
-        String timeLineEventIdExpected = "DIGITAL_DELIVERING_PROGRESS.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.SENTATTEMPTMADE_0.PROGRESSINDEX_1";
+        String timeLineEventIdExpected = "DIGITAL_DELIVERING_PROGRESS.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.SENTATTEMPTMADE_0.PROGRESSINDEX_1_FIRSTSENDRETRY_FALSE";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_PROGRESS.getValue())
                 .withIun(IUN)
@@ -225,13 +225,14 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_DOMICILETest() {
         //vecchia versione 123456789_send_digital_domicile_1_source_PLATFORM_attempt_0
-        String timeLineEventIdExpected = "SEND_DIGITAL_DOMICILE.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.SENTATTEMPTMADE_0";
+        String timeLineEventIdExpected = "SEND_DIGITAL_DOMICILE.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.SENTATTEMPTMADE_0_FIRSTSENDRETRY_FALSE";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_DOMICILE.getValue())
                 .withIun(IUN)
                 .withRecIndex(1)
                 .withSource(DigitalAddressSourceInt.PLATFORM)
                 .withSentAttemptMade(0)
+                .withIsFirstSendRetry(Boolean.FALSE)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -242,6 +243,7 @@ class TimelineEventIdBuilderTest {
                 .recIndex(1)
                 .source(DigitalAddressSourceInt.PLATFORM)
                 .sentAttemptMade(0)
+                .isFirstSendRetry(Boolean.FALSE)
                 .build());
 
 

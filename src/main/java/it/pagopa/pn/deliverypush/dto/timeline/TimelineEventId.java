@@ -78,6 +78,7 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .withSource(eventId.getSource())
+                    .withIsFirstSendRetry(eventId.getIsFirstSendRetry())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .withProgressIndex(eventId.getProgressIndex())
                     .build();
@@ -126,6 +127,7 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .withSource(eventId.getSource())
+                    .withIsFirstSendRetry(eventId.getIsFirstSendRetry())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
         }

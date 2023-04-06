@@ -58,9 +58,9 @@ class NationalRegistriesClientServiceImplTest {
         Mockito.when(publicRegistryUtils.generateCorrelationId(notification.getIun(), recIndex, contactPhase, sentAttemptMade, DeliveryModeInt.DIGITAL)).thenReturn(correlationId);
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndex)).thenReturn(recipient);
 
-        service.sendRequestForGetDigitalGeneralAddress(notification, recIndex, contactPhase, sentAttemptMade);
+        service.sendRequestForGetDigitalGeneralAddress(notification, recIndex, contactPhase, sentAttemptMade, null);
 
-        Mockito.verify(publicRegistryUtils, Mockito.times(1)).addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryModeInt.DIGITAL);
+        Mockito.verify(publicRegistryUtils, Mockito.times(1)).addPublicRegistryCallToTimeline(notification, recIndex, contactPhase, sentAttemptMade, correlationId, DeliveryModeInt.DIGITAL, null);
         Mockito.verify(nationalRegistriesClient, Mockito.times(1)).sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId);
     }
 

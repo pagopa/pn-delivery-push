@@ -9,10 +9,7 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -154,6 +151,8 @@ import static org.awaitility.Awaitility.await;
         TaxIdPivaValidator.class,
         ReceivedLegalFactCreationRequest.class,
         NotificationValidationScheduler.class,
+        DigitalWorkflowFirstSendRepeatHandler.class,
+        SendAndUnscheduleNotification.class,
         DigitalTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -1651,6 +1650,11 @@ class DigitalTestIT {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+/*        try {
+            Thread.sleep(10000000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }*/
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );

@@ -54,9 +54,18 @@ class ExternalChannelUtilsTest {
                 .iun("iun1").elementId("aaaa1").timestamp(Instant.now().minusMillis(30000))
                 .details(SendDigitalProgressDetailsInt.builder().build())
                 .build();
-        Mockito.when(timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, DigitalAddressSourceInt.GENERAL, 1, notification, 1, "001")).thenReturn(t1);
+        Mockito.when(timelineUtils.buildSendDigitalNotificationTimelineElement(
+                digitalAddress, 
+                DigitalAddressSourceInt.GENERAL,
+                1, 
+                notification, 
+                1,
+                false,
+                "001",
+                null
+        )).thenReturn(t1);
 
-        channelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, DigitalAddressSourceInt.GENERAL, 1, 1, "001");
+        channelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, DigitalAddressSourceInt.GENERAL, 1, 1,false, "001", null);
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(t1, notification);
     }
 

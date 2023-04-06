@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 
@@ -25,16 +24,20 @@ public class SendDigitalProgressDetailsInt implements DigitalSendTimelineElement
     private List<SendingReceipt> sendingReceipts;
     private String eventCode;
     private boolean shouldRetry;
-
+    private Boolean isFirstSendRetry;
+    private String relatedFeedbackTimelineId;
+    
     public String toLog() {
         return String.format(
-                "recIndex=%d eventCode=%s digitalAddress=%s shouldRetry=%b digitalAddressSource=%s retryNumber=%d",
+                "recIndex=%d eventCode=%s digitalAddress=%s shouldRetry=%b digitalAddressSource=%s retryNumber=%d isFirstSendRetry=%s relatedFeedbackTimelineId=%s",
                 recIndex,
                 eventCode,
                 AuditLogUtils.SENSITIVE,
                 shouldRetry,
                 digitalAddressSource.getValue(),
-                retryNumber
+                retryNumber,
+                isFirstSendRetry,
+                relatedFeedbackTimelineId
         );
     }
 }
