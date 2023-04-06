@@ -352,7 +352,7 @@ components:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            type: string
+            $ref: '#/components/schemas/NotificationRefusedError'
             description: Motivazioni che hanno portato al rifiuto della notifica
 
     ScheduleAnalogWorkflowDetails:
@@ -870,3 +870,16 @@ components:
         date:
           type: string
           format: date-time
+
+    NotificationRefusedError:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          enum:
+            - FILE_NOTFOUND
+            - FILE_SHA_ERROR
+            - TAXID_NOT_VALID
+            - SERVICE_UNAVAILABLE
+        detail:
+          type: string
