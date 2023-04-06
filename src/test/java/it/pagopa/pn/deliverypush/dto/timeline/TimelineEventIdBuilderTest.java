@@ -140,7 +140,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_PROGRESSTest() {
         //vecchia versione 123456789_digital_delivering_progress_1_source_PLATFORM_attempt_1_progidx_1
-        String timeLineEventIdExpected = "DIGITAL_DELIVERING_PROGRESS.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.SENTATTEMPTMADE_0.PROGRESSINDEX_1_FIRSTSENDRETRY_FALSE";
+        String timeLineEventIdExpected = "DIGITAL_DELIVERING_PROGRESS.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.FIRSTSENDRETRY_false.SENTATTEMPTMADE_0.PROGRESSINDEX_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_PROGRESS.getValue())
                 .withIun(IUN)
@@ -148,6 +148,7 @@ class TimelineEventIdBuilderTest {
                 .withSource(DigitalAddressSourceInt.PLATFORM)
                 .withSentAttemptMade(0)
                 .withProgressIndex(1)
+                .withIsFirstSendRetry(false)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -157,6 +158,7 @@ class TimelineEventIdBuilderTest {
                 .iun(IUN)
                 .recIndex(1)
                 .source(DigitalAddressSourceInt.PLATFORM)
+                .isFirstSendRetry(false)
                 .sentAttemptMade(0)
                 .progressIndex(1)
                 .build());
@@ -225,7 +227,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_DOMICILETest() {
         //vecchia versione 123456789_send_digital_domicile_1_source_PLATFORM_attempt_0
-        String timeLineEventIdExpected = "SEND_DIGITAL_DOMICILE.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.SENTATTEMPTMADE_0_FIRSTSENDRETRY_FALSE";
+        String timeLineEventIdExpected = "SEND_DIGITAL_DOMICILE.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.FIRSTSENDRETRY_false.SENTATTEMPTMADE_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_DOMICILE.getValue())
                 .withIun(IUN)

@@ -120,6 +120,7 @@ class ExternalChannelServiceImplTest {
                         .recIndex(recIndex)
                         .source(addressSource)
                         .sentAttemptMade(sentAttemptMade)
+                        .isFirstSendRetry(isFirstSendRetry)
                         .build()
         );
         
@@ -188,6 +189,7 @@ class ExternalChannelServiceImplTest {
                         .recIndex(recIndex)
                         .source(addressSource)
                         .sentAttemptMade(sentAttemptMade)
+                        .isFirstSendRetry(isFirstSendRetry)
                         .build()
         );
 
@@ -245,7 +247,8 @@ class ExternalChannelServiceImplTest {
         Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
 
         //WHEN
-        externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, true, false, null);
+        final boolean isFirstSendRetry = false;
+        externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, true, isFirstSendRetry, null);
 
         //THEN
         String eventIdExpected = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
@@ -255,6 +258,7 @@ class ExternalChannelServiceImplTest {
                         .source(addressSource)
                         .progressIndex(1)
                         .sentAttemptMade(0)
+                        .isFirstSendRetry(isFirstSendRetry)
                         .build()
         );
 
@@ -264,7 +268,7 @@ class ExternalChannelServiceImplTest {
                 eq(notification),
                 eq(EventCodeInt.DP00),
                         eq(recIndex),
-                                eq(false),
+                                eq(isFirstSendRetry),
                                         eq(null),
                                                 Mockito.any(DigitalAddressFeedback.class),
                                                     Mockito.any(),
