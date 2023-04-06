@@ -388,12 +388,9 @@ public class LegalFactGenerator {
     }
 
     private String readLocalImagesInBase64(String classPath) {
-        try {
-            String encodedBase64;
-            InputStream ioStream = new ClassPathResource(classPath).getInputStream();
+        try (InputStream ioStream = new ClassPathResource(classPath).getInputStream()) {
             byte[] bytes = IOUtils.toByteArray(ioStream);
-            encodedBase64 = Base64.getEncoder().encodeToString(bytes);
-            return encodedBase64;
+            return Base64.getEncoder().encodeToString(bytes);
         } catch (Exception e) {
             throw new PnReadFileException("error during file conversion", e);
         }
