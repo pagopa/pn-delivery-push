@@ -3,6 +3,8 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
@@ -18,10 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -571,6 +570,12 @@ class TimelineEntityDaoDynamoTestIT {
 
     @Test
     void checkSendDigitalProgress() {
+        List<NotificationRefusedErrorEntity> errors = new ArrayList<>();
+        NotificationRefusedErrorEntity notificationRefusedError = NotificationRefusedErrorEntity.builder()
+                .errorCode(NotificationRefusedErrorCodeEntity.FILE_NOTFOUND)
+                .detail("details")
+                .build();
+        errors.add(notificationRefusedError);
         //GIVEN
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
@@ -605,9 +610,7 @@ class TimelineEntityDaoDynamoTestIT {
                                                         .build()
                                         )
                                 )
-                                .errors(List.of(
-                                        NotificationRefusedErrorCodeEntity.FILE_NOTFOUND.getValue()
-                                ))
+                                .errors(errors)
                                 .build()
                 )
                 .build();

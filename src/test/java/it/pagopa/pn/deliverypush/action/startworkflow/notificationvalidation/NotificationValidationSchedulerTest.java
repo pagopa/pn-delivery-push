@@ -65,7 +65,7 @@ class NotificationValidationSchedulerTest {
         
         //WHEN
         int retryAttempt = 0;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
         
         //THEN
         Instant schedulingDate = now.plus(intervalsDuration[retryAttempt]);
@@ -86,7 +86,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, null);
 
         //THEN
         Instant schedulingDate = now.plus(intervalsDuration[retryAttempt - 1]);
@@ -106,7 +106,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
 
         //THEN
         Instant schedulingDate = now.plus(DEFAULT_INTERVAL);
@@ -131,7 +131,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
 
         //THEN
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
