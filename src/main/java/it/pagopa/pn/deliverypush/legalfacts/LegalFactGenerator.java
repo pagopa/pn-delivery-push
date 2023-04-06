@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import com.amazonaws.util.IOUtils;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.utils.FileUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -22,9 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
-import java.io.IOException;
+
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,6 +61,7 @@ public class LegalFactGenerator {
     public static final String FIELD_RECIPIENT_TYPE = "recipientType";
     public static final String FIELD_DELEGATE = "delegate";
     public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
+    public static final String FIELD_LOGO = "logoBase64";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -64,6 +69,7 @@ public class LegalFactGenerator {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final InstantNowSupplier instantNowSupplier;
     private final MVPParameterConsumer mvpParameterConsumer;
+    private static final String TEMPLATES_DIR_NAME = "documents_composition_templates";
 
     public LegalFactGenerator(
             DocumentComposition documentComposition,
@@ -270,6 +276,9 @@ public class LegalFactGenerator {
     public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
+        Path filePath = Paths.get(TEMPLATES_DIR_NAME + File.separator + "images/aar-logo-short.png");
+        String logoBase64 = readLocalImagesInBase64(filePath.toString());
+        templateModel.put(FIELD_LOGO, logoBase64);
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC,
@@ -358,7 +367,6 @@ public class LegalFactGenerator {
         return templateUrl + '=' + quickAccessToken;
     }
 
-
     private String getFAQAccessLink() {
         return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
     }
@@ -372,6 +380,26 @@ public class LegalFactGenerator {
         return RecipientTypeInt.PF == recipient.getRecipientType()
                 ? pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplatePhysical()
                 : pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplateLegal();
+    }
+
+    private String readLocalImagesInBase64(String path) {
+        String encodedBase64 = null;
+        InputStream ioStream = this.getClass()
+                .getClassLoader()
+                .getResourceAsStream(path);
+
+        if (ioStream == null) {
+            IllegalArgumentException e = new IllegalArgumentException(path + " is not found");
+            e.printStackTrace();
+        } else {
+            try {
+                byte[] bytes = IOUtils.toByteArray(ioStream);
+                encodedBase64 = new String(Base64.getEncoder().encodeToString(bytes));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return encodedBase64;
     }
 
 }
