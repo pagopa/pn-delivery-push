@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -27,7 +28,7 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("contactPhase")})) private ContactPhaseEntity contactPhase;
     @Getter(onMethod=@__({@DynamoDbAttribute("sentAttemptMade")})) private Integer sentAttemptMade;
     @Getter(onMethod=@__({@DynamoDbAttribute("sendDate")})) private Instant sendDate;
-    @Getter(onMethod=@__({@DynamoDbAttribute("errors")})) private List<String> errors = null;
+    @Getter(onMethod=@__({@DynamoDbAttribute("errors")})) private List<NotificationRefusedErrorEntity> errors = null;
     @Getter(onMethod=@__({@DynamoDbAttribute("lastAttemptDate")})) private Instant lastAttemptDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("retryNumber")})) private Integer retryNumber;
     @Getter(onMethod=@__({@DynamoDbAttribute("downstreamId")})) private DownstreamIdEntity downstreamId;

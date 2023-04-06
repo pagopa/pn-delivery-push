@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -19,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -42,7 +44,7 @@ public class NotificationValidationScheduler {
         schedulerService.scheduleEvent(iun, schedulingDate, ActionType.NOTIFICATION_VALIDATION, details);
     }
     
-    public void scheduleNotificationValidation(NotificationInt notification, int retryAttempt) {
+    public void scheduleNotificationValidation(NotificationInt notification, int retryAttempt, Exception ex) {
         String iun = notification.getIun();
         log.info("Start NotificationValidationScheduler - iun={} retryAttempt={}", iun, retryAttempt);
 
@@ -67,7 +69,7 @@ public class NotificationValidationScheduler {
                 /*Se retryAttempt > arrayLength ho terminato i ritentativi possibili porto la notifica in rifiutata (l'unico caso in cui devo
                 rischedulare anche in caso di retryAttempt > arrayLength è se devo scehdulare all'infinito, ma è stato escluso nello step precedente */
                 log.debug("retryAttempt={} is greater then arrayLength={} - need to refuse notification - iun={}", retryAttempt, arrayLength, iun);
-                handleValidationError(notification);
+                handleValidationError(notification, ex);
             } else {
                 //altrimenti schedulo il nuovo tentativo
                 log.debug("Need to schedule new attempt - iun={}", iun);
@@ -109,15 +111,22 @@ public class NotificationValidationScheduler {
         return waitingTime;
     }
 
-    private void handleValidationError(NotificationInt notification) {
-        List<String> errors = new ArrayList<>();
-        
-        NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
-                .errorCode(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.SERVICE_UNAVAILABLE)
-                .detail("Servizio non disponibile")
-                .build();
+    private void handleValidationError(NotificationInt notification, Exception ex) {
+        List<NotificationRefusedErrorInt> errors = new ArrayList<>();
+        NotificationRefusedErrorInt notificationRefusedError = null;
 
-        errors.add(notificationRefusedError.getErrorCode().getValue());
+        if(Objects.nonNull(ex) && ex instanceof PnValidationFileNotFoundException) {
+            notificationRefusedError = NotificationRefusedErrorInt.builder()
+                    .errorCode(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.FILE_NOTFOUND)
+                    .detail("Allegati non trovati")
+                    .build();
+        } else {
+            notificationRefusedError = NotificationRefusedErrorInt.builder()
+                    .errorCode(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.SERVICE_UNAVAILABLE)
+                    .detail("Servizio non disponibile")
+                    .build();
+        }
+        errors.add(notificationRefusedError);
         
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
         addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);

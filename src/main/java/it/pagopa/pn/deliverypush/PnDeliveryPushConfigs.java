@@ -212,4 +212,6 @@ public class PnDeliveryPushConfigs {
 
     private String sendNotificationAttachments;
 
+    private boolean safeStorageFileNotFoundRetry;
+
 }
