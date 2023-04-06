@@ -78,14 +78,14 @@ public class DigitalWorkFlowHandler {
 
         ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow = digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(iun, timelineId);
         DigitalAddressInfoSentAttempt digitalAddressInfoSentAttempt = getDigitalAddressInfo(scheduleDigitalWorkflow);
-        scheduleNextWorkFlowExecuteAction(iun, recIndex, digitalAddressInfoSentAttempt);
+        scheduleNextWorkFlowExecuteAction(iun, recIndex, digitalAddressInfoSentAttempt, timelineId);
     }
 
     /**
      * Schedule Handle digital notification Workflow based on already made attempt
      */
-    private void scheduleNextWorkFlowExecuteAction(String iun, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
-        log.info("Start Next Digital workflow action - iun={} id={}", iun, recIndex);
+    private void scheduleNextWorkFlowExecuteAction(String iun, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, String sourceTimelineId) {
+        log.info("Start Next Digital workflow action - iun={} id={} sourceTimelineId={}", iun, recIndex, sourceTimelineId);
 
         
         //Viene ottenuta la source del prossimo indirizzo da testare, con il numero di tentativi già effettuati per tale sorgente e la data dell'ultimo tentativo
@@ -96,7 +96,7 @@ public class DigitalWorkFlowHandler {
         // il nextaddressinfo potrebbe dare risultati diversi. In questo modo invece, viene calcolato qual è l'indirizzo a cui spedire, e poi si può procedere all'effettivo invio.
         // NB salvo in timeline perchè salvare i dati come actionDetails non era possibile, dato che contenevano dati sensibili
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        String timelineId = digitalWorkFlowUtils.addPrepareSendToTimeline(notification, recIndex, lastAttemptMade, nextAddressInfo);
+        String timelineId = digitalWorkFlowUtils.addPrepareSendToTimeline(notification, recIndex, lastAttemptMade, nextAddressInfo, sourceTimelineId);
         schedulerService.scheduleEvent(iun, recIndex, Instant.now(),
                 ActionType.DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION, timelineId);
     }
@@ -173,7 +173,7 @@ public class DigitalWorkFlowHandler {
         Instant schedulingDate = lastAttemptDate.plus(secondNotificationWorkflowWaitingTime);
         Instant now = instantNowSupplier.get();
 
-        log.debug("Check scheduling nextAttempt, lastAttemptDate={} secondNotificationWorkflowWaitingTime={} schedulingDate={} now={}- iun={} id={}",
+        log.info("Check scheduling nextAttempt, lastAttemptDate={} secondNotificationWorkflowWaitingTime={} schedulingDate={} now={}- iun={} id={}",
                 lastAttemptDate, secondNotificationWorkflowWaitingTime, schedulingDate, now, notification.getIun(), recIndex);
 
         //Vengono aggiunti 7 giorni alla data dell'ultimo tentativo effettuata per questa source
@@ -230,7 +230,7 @@ public class DigitalWorkFlowHandler {
                     addressInfo.getDigitalAddressSource(), iun, recIndex);
             
             digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), false, addressInfo.getSentAttemptMade());
-            scheduleNextWorkFlowExecuteAction(iun, recIndex, addressInfo);
+            scheduleNextWorkFlowExecuteAction(iun, recIndex, addressInfo, null);
         }
     }
 
@@ -284,7 +284,7 @@ public class DigitalWorkFlowHandler {
                 .lastAttemptDate(digitalResultInfos.getTimelineElementInternal().getTimestamp())
                 .build();
 
-        scheduleNextWorkFlowExecuteAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), lastAttemptMade);
+        scheduleNextWorkFlowExecuteAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), lastAttemptMade, null);
     }
 
     private DigitalAddressInfoSentAttempt getDigitalAddressInfo(ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow) {

@@ -66,6 +66,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -240,10 +241,6 @@ class DigitalTestMultiRecipientIT {
     @BeforeEach
     public void setup() {
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-        }
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         pnDeliveryClientMock.clear();
@@ -449,6 +446,8 @@ class DigitalTestMultiRecipientIT {
         await().untilAsserted(() ->
                 Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
         );
+
+        await().atLeast(Duration.ofSeconds(1));
     }
 
     private void checkGeneratedLegalFacts(NotificationRecipientInt recipient1, NotificationInt notification, int recIndex1, boolean isNotificationReceivedLegalFactsGenerated, boolean isNotificationAARGenerated, boolean isNotificationViewedLegalFactGenerated, boolean isPecDeliveryWorkflowLegalFactsGenerated, EndWorkflowStatus endWorkflowStatus, int i) {

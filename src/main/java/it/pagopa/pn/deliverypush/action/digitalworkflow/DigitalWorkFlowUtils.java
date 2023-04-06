@@ -226,12 +226,12 @@ public class DigitalWorkFlowUtils {
     }
 
 
-    public String addPrepareSendToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, DigitalAddressInfoSentAttempt nextAddressInfo) {
+    public String addPrepareSendToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, DigitalAddressInfoSentAttempt nextAddressInfo, String sourceTimelineId) {
 
         // il metodo si preoccupa di salvare in timeline le info del lastattemptmade e del nextaddressinfo, verranno recuperate poi
         return addTimelineElement(
                 timelineUtils.buildPrepareDigitalNotificationTimelineElement(notification, recIndex, lastAttemptMade.getDigitalAddress(), lastAttemptMade.getDigitalAddressSource(), lastAttemptMade.getSentAttemptMade(), lastAttemptMade.getLastAttemptDate(),
-                        nextAddressInfo.getDigitalAddressSource(), nextAddressInfo.getLastAttemptDate(), nextAddressInfo.getSentAttemptMade()),
+                        nextAddressInfo.getDigitalAddressSource(), nextAddressInfo.getLastAttemptDate(), nextAddressInfo.getSentAttemptMade(), sourceTimelineId),
                 notification
         );
     }

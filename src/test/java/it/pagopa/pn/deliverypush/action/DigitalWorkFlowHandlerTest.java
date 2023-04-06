@@ -121,7 +121,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(digitalWorkFlowUtils.addPrepareSendToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.any(DigitalAddressInfoSentAttempt.class)))
+        Mockito.when(digitalWorkFlowUtils.addPrepareSendToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.any()))
                 .thenReturn("timeline_id_1234");
 
         handler.startScheduledNextWorkflow(notification.getIun(), 1, "timeline_id_0");

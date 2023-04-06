@@ -108,7 +108,7 @@ public class SchedulerServiceMock implements SchedulerService {
   @Override
   public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
       ActionType actionType, String timelineId) {
-    log.info("[TEST] Start scheduling with timelineid - iun={} id={} actionType={} timelineid={} ", iun, recIndex, actionType, timelineId);
+    log.info("[TEST] Start scheduling with timelineid - iun={} id={} actionType={} timelineid={} datetoschedule={}", iun, recIndex, actionType, timelineId, dateToSchedule);
 
     new Thread(() -> {
       Assertions.assertDoesNotThrow(() -> {
@@ -147,8 +147,13 @@ public class SchedulerServiceMock implements SchedulerService {
   }
 
   private void mockSchedulingDate(Instant dateToSchedule) {
+    Instant previousCurrentTime = instantNowSupplier.get();
     Instant schedulingDate = dateToSchedule.plus(1, ChronoUnit.HOURS);
+    if (previousCurrentTime.isAfter(schedulingDate))
+      schedulingDate = previousCurrentTime.plus(1, ChronoUnit.HOURS);
+
     Mockito.when(instantNowSupplier.get()).thenReturn(schedulingDate);
+    log.info("[TEST] mockSchedulingDate instantNow is {}" , schedulingDate);
   }
 
   @Override

@@ -286,8 +286,9 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildPrepareDigitalNotificationTimelineElement(NotificationInt notification, Integer recIndex,
                                                                                   LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, int sentAttemptMade, Instant lastAttemptMade,
-                                                                                DigitalAddressSourceInt nextDigitalAddressSource, Instant nextLastAttemptMadeForSource, int nextSourceAttemptsMade) {
-        log.debug("buildPrepareDigitalNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+                                                                                DigitalAddressSourceInt nextDigitalAddressSource, Instant nextLastAttemptMadeForSource, int nextSourceAttemptsMade,
+                                                                                  String sourceTimelineId) {
+        log.debug("buildPrepareDigitalNotificationTimelineElement - IUN={} and id={} sourceTimelineId={}", notification.getIun(), recIndex, sourceTimelineId);
 
         String elementId = TimelineEventId.PREPARE_DIGITAL_DOMICILE.buildEventId(
                 EventId.builder()
@@ -295,6 +296,7 @@ public class TimelineUtils {
                         .recIndex(recIndex)
                         .source(nextDigitalAddressSource)
                         .sentAttemptMade(nextSourceAttemptsMade)
+                        .relatedTimelineId(sourceTimelineId)    // nel caso di scheduling a 7gg, di fatto si ripetevano gli stessi argomenti. La discriminante è che il sourcetimelineId è diverso
                         .build());
 
         PrepareDigitalDetailsInt details = PrepareDigitalDetailsInt.builder()

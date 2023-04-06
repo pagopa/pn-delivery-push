@@ -127,6 +127,7 @@ public enum TimelineEventId {
                     .withRecIndex(eventId.getRecIndex())
                     .withSource(eventId.getSource())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
+                    .withCorrelationId(eventId.getRelatedTimelineId())
                     .build();
         }
     },
