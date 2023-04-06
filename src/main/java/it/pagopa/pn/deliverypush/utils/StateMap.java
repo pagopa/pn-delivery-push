@@ -41,6 +41,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_REFINEMENT, NotificationStatusInt.ACCEPTED, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
 
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
@@ -53,6 +54,7 @@ class StateMap {
         // Delivering state
         this.fromState(NotificationStatusInt.DELIVERING)
                 //STATE UNCHANGE
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
@@ -103,7 +105,7 @@ class StateMap {
         // Effective date state
         this.fromState(NotificationStatusInt.EFFECTIVE_DATE)
                 //STATE UNCHANGE
-
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
@@ -143,6 +145,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.GET_ADDRESS, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_CALL, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_RESPONSE, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
@@ -199,6 +202,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.PAID, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.PAID, SINGLE_RECIPINET)

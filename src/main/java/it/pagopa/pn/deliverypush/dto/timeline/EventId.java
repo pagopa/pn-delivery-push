@@ -27,4 +27,5 @@ public class EventId {
     private String creditorTaxId;
     private String noticeCode;
     private String idF24;
+    private String relatedTimelineId;
 }

@@ -70,4 +70,9 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("attachments")})) private List<AttachmentDetailsEntity> attachments;
     @Getter(onMethod=@__({@DynamoDbAttribute("prepareRequestId")})) String prepareRequestId;
     @Getter(onMethod=@__({@DynamoDbAttribute("sendRequestId")})) String sendRequestId;
+
+    @Getter(onMethod=@__({@DynamoDbAttribute("nextDigitalAddressSource")}))  DigitalAddressSourceEntity nextDigitalAddressSource;
+    @Getter(onMethod=@__({@DynamoDbAttribute("nextSourceAttemptsMade")}))  int nextSourceAttemptsMade;
+    @Getter(onMethod=@__({@DynamoDbAttribute("nextLastAttemptMadeForSource")}))  Instant nextLastAttemptMadeForSource;
+
 }
