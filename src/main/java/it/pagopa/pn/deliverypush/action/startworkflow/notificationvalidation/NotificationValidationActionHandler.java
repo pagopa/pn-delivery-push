@@ -12,7 +12,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
-import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -80,10 +79,6 @@ public class NotificationValidationActionHandler {
        safeStorage (in questo caso si di deve procedere con i ritentativi). Si sceglie dunque per ore di ritentare in entrambi i casi
     */
         log.warn(String.format("File not found exception in validateNotification - iun=%s", iun), ex);
-        ex.getProblem().setErrors(List.of(ProblemError.builder()
-                .code(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.FILE_NOTFOUND.toString())
-                .detail("Allegati non trovati")
-                .build()));
         if(cfg.isSafeStorageFileNotFoundRetry()) {
             log.info("Notification validation need to be rescheduled  - iun={}", iun);
             notificationValidationScheduler.scheduleNotificationValidation(notification, details.getRetryAttempt(), ex);

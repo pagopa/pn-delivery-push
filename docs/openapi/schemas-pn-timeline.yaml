@@ -876,10 +876,11 @@ components:
       properties:
         errorCode:
           type: string
-          enum:
-            - FILE_NOTFOUND
-            - FILE_SHA_ERROR
-            - TAXID_NOT_VALID
-            - SERVICE_UNAVAILABLE
+          description: >-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND
+              - FILE_SHA_ERROR
+              - TAXID_NOT_VALID
+              - SERVICE_UNAVAILABLE
         detail:
           type: string
