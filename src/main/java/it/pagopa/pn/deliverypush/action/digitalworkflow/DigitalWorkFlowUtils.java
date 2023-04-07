@@ -274,10 +274,11 @@ public class DigitalWorkFlowUtils {
                                                   List<String> errors,
                                                   int recIndex,
                                                   DigitalMessageReferenceInt digitalMessageReference,
-                                                  DigitalAddressFeedback digitalAddressInfo
+                                                  DigitalAddressFeedback digitalAddressInfo,
+                                                  Boolean isFirstSentRetry
                                                   ) {
         TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalFeedbackTimelineElement(
-                digitalDomicileTimeLineId,notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo
+                digitalDomicileTimeLineId,notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo, isFirstSentRetry
         );
         addTimelineElement(timelineElementInternal, notification);
 

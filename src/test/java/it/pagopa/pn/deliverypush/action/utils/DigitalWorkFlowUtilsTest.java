@@ -279,8 +279,9 @@ class DigitalWorkFlowUtilsTest {
                 status,
                 Collections.emptyList(),
                 1,
-                digitalMessageReference, 
-                        digitalAddressFeedback))
+                digitalMessageReference,
+                digitalAddressFeedback, 
+                        false))
                 .thenReturn(timelineElementInternal);
 
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
@@ -290,7 +291,8 @@ class DigitalWorkFlowUtilsTest {
                 Collections.emptyList(),
                 1,
                 digitalMessageReference,
-                digitalAddressFeedback);
+                digitalAddressFeedback,
+                false);
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }

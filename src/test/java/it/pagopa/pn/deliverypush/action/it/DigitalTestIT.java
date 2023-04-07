@@ -1650,11 +1650,7 @@ class DigitalTestIT {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-/*        try {
-            Thread.sleep(10000000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }*/
+        
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );

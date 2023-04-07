@@ -644,6 +644,7 @@ class DigitalTestMultiRecipientIT {
                         .iun(iun)
                         .recIndex(0)
                         .source(DigitalAddressSourceInt.PLATFORM)
+                        .isFirstSendRetry(false)
                         .sentAttemptMade(0)
                         .build()
         );
@@ -1305,6 +1306,7 @@ class DigitalTestMultiRecipientIT {
                         .iun(iun)
                         .recIndex(0)
                         .source(DigitalAddressSourceInt.PLATFORM)
+                        .isFirstSendRetry(false)
                         .sentAttemptMade(0)
                         .build()
         );

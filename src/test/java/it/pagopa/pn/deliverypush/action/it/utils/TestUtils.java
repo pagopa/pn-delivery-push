@@ -285,10 +285,17 @@ public class TestUtils {
 
     public static void checkIsPresentAcceptanceInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
                                                                DigitalAddressSourceInt addressSource, TimelineService timelineService) {
+
+        Boolean isFirstRetry = isPossibileCaseToRepeat(addressSource, sendAttemptMade);
+        checkAcceptance(iun, recIndex, sendAttemptMade, digitalAddress, addressSource, timelineService, isFirstRetry);
+    }
+
+    public static void checkAcceptance(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, TimelineService timelineService, Boolean isFirstRetry) {
         String timelineEventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
+                        .isFirstSendRetry(isFirstRetry)
                         .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
                         .progressIndex(1)
@@ -308,12 +315,20 @@ public class TestUtils {
 
     public static void checkIsPresentDigitalFeedbackInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
                                                                DigitalAddressSourceInt addressSource, TimelineService timelineService, ResponseStatusInt status) {
+
+        Boolean isFirstRetry = isPossibileCaseToRepeat(addressSource, sendAttemptMade);
+
+        checkDigitalFeedback(iun, recIndex, sendAttemptMade, digitalAddress, addressSource, timelineService, status, isFirstRetry);
+    }
+
+    public static void checkDigitalFeedback(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, TimelineService timelineService, ResponseStatusInt status, Boolean isFirstRetry) {
         String timelineEventId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
                         .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
+                        .isFirstSendRetry(isFirstRetry)
                         .build()
         );
 
@@ -328,7 +343,7 @@ public class TestUtils {
         Assertions.assertEquals( digitalAddress.getAddress(), details.getDigitalAddress().getAddress() );
         Assertions.assertEquals(status, details.getResponseStatus());
     }
-    
+
     public synchronized static NotificationStatusInt getNotificationStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils){
         int numberOfRecipient = notification.getRecipients().size();
         Instant notificationCreatedAt = notification.getSentAt();

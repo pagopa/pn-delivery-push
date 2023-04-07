@@ -111,7 +111,7 @@ class TimelineUtilsTest {
     void buildDigitalFeedbackTimelineElement() {
         NotificationInt notification = buildNotification();
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
-        String timelineEventIdExpected = "SEND_DIGITAL_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "SEND_DIGITAL_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#FIRSTSENDRETRY_false#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         LegalDigitalAddressInt legalDigitalAddressInt = LegalDigitalAddressInt.builder()
                 .address("Via nuova")
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -132,7 +132,9 @@ class TimelineUtilsTest {
                         Collections.emptyList(),
                         1,
                         DigitalMessageReferenceInt.builder().build(),
-                        digitalAddressFeedback );
+                        digitalAddressFeedback,
+                        false
+                );
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),

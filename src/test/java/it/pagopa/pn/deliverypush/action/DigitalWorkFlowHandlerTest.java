@@ -721,7 +721,8 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.anyInt(),
                 Mockito.any(DigitalMessageReferenceInt.class),
-                Mockito.any(DigitalAddressFeedback.class)
+                Mockito.any(DigitalAddressFeedback.class),
+                Mockito.any(Boolean.class)
         );
         Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
@@ -848,7 +849,8 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.anyInt(), 
                 Mockito.any(DigitalMessageReferenceInt.class),
-                Mockito.any(DigitalAddressFeedback.class)
+                Mockito.any(DigitalAddressFeedback.class),
+                Mockito.any(Boolean.class)
         );
         Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
@@ -1484,7 +1486,9 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(), 
                 Mockito.anyInt(), 
                 Mockito.any(DigitalMessageReferenceInt.class),
-                Mockito.any(DigitalAddressFeedback.class));
+                Mockito.any(DigitalAddressFeedback.class),
+                Mockito.any(Boolean.class)
+        );
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -1546,7 +1550,9 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.anyInt(),
                 Mockito.any(DigitalMessageReferenceInt.class),
-                Mockito.any(DigitalAddressFeedback.class));
+                Mockito.any(DigitalAddressFeedback.class),
+                Mockito.any(Boolean.class)
+        );
     }
     
     @ExtendWith(MockitoExtension.class)
@@ -1575,6 +1581,7 @@ class DigitalWorkFlowHandlerTest {
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
                 .retryNumber(0)
+                .isFirstSendRetry(true)
                 .digitalAddress(
                         LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -1621,7 +1628,9 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(),
                 Mockito.anyInt(),
                 Mockito.any(DigitalMessageReferenceInt.class),
-                Mockito.any(DigitalAddressFeedback.class));
+                Mockito.any(DigitalAddressFeedback.class),
+                Mockito.any(Boolean.class)
+        );
         Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
@@ -1653,6 +1662,7 @@ class DigitalWorkFlowHandlerTest {
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
                 .retryNumber(0)
+                .isFirstSendRetry(false)
                 .digitalAddress(
                         LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -1699,7 +1709,8 @@ class DigitalWorkFlowHandlerTest {
                 Mockito.any(), 
                 Mockito.anyInt(), 
                 Mockito.any(DigitalMessageReferenceInt.class),
-                Mockito.any(DigitalAddressFeedback.class));
+                Mockito.any(DigitalAddressFeedback.class),
+                Mockito.any(Boolean.class));
 
         Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
@@ -1731,6 +1742,7 @@ class DigitalWorkFlowHandlerTest {
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
                 .retryNumber(0)
+                .isFirstSendRetry(false)
                 .digitalAddress(
                         LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -1785,7 +1797,9 @@ class DigitalWorkFlowHandlerTest {
                 Collections.emptyList(),
                 details.getRecIndex(),
                 extChannelResponse.getGeneratedMessage(),
-                digitalAddressFeedback);
+                digitalAddressFeedback,
+                details.getIsFirstSendRetry());
+        
         Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
@@ -1869,6 +1883,7 @@ class DigitalWorkFlowHandlerTest {
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
                 .retryNumber(0)
+                .isFirstSendRetry(false)
                 .digitalAddress(
                         LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -1914,7 +1929,8 @@ class DigitalWorkFlowHandlerTest {
                 Collections.emptyList(),
                 details.getRecIndex(),
                 extChannelResponse.getGeneratedMessage(),
-                digitalAddressFeedback);
+                digitalAddressFeedback,
+                details.getIsFirstSendRetry());
 
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
         Mockito.verify( auditLogEvent).log();

@@ -140,14 +140,14 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildDigitalFeedbackTimelineElement(
-                                                                       String digitalDomicileTimelineId,
+    public TimelineElementInternal buildDigitalFeedbackTimelineElement(String digitalDomicileTimelineId,
                                                                        NotificationInt notification,
                                                                        ResponseStatusInt status,
                                                                        List<String> errors,
                                                                        int recIndex,
                                                                        DigitalMessageReferenceInt digitalMessageReference,
-                                                                       DigitalAddressFeedback digitalAddressFeedback) {
+                                                                       DigitalAddressFeedback digitalAddressFeedback,
+                                                                       Boolean isFirstSentRetry) {
         log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
@@ -156,6 +156,7 @@ public class TimelineUtils {
                         .recIndex(recIndex)
                         .sentAttemptMade(digitalAddressFeedback.getRetryNumber())
                         .source(digitalAddressFeedback.getDigitalAddressSource())
+                        .isFirstSendRetry(isFirstSentRetry)
                         .build()
         );
 
@@ -200,6 +201,7 @@ public class TimelineUtils {
                         .recIndex(recIndex)
                         .sentAttemptMade(digitalAddressFeedback.getRetryNumber())
                         .source(digitalAddressFeedback.getDigitalAddressSource())
+                        .isFirstSendRetry(isFirstSendRetry)
                         .progressIndex(progressIndex)
                         .build()
         );

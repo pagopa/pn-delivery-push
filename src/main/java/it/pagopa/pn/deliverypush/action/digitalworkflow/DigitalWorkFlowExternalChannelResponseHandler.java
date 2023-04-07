@@ -63,7 +63,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             digitalResultInfos.setResponse(response);
             digitalResultInfos.setTimelineElementInternal(timelineElement);
             
-            //TODO Dubbio ci sono casistiche in cui potrebbe non essere di tipo DigitalSendTimelineElementDetails ?? Oppure il cast posso farlo a prescindere
+            //Nota qui dovrebbe essere sempre un caso di sendDigital o digitalProgress
             if (timelineElement.getDetails() instanceof DigitalSendTimelineElementDetails sendDigitalDetailsInt)
             {
                 digitalResultInfos.setRecIndex(sendDigitalDetailsInt.getRecIndex());
@@ -137,7 +137,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                 digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
                 digitalResultInfos.getRecIndex(),
                 digitalResultInfos.getResponse().getGeneratedMessage(),
-                digitalAddressFeedback
+                digitalAddressFeedback,
+                   digitalResultInfos.getIsFirstSendRetry()
             );
 
             if(digitalResultInfos.getIsFirstSendRetry() != null && digitalResultInfos.getIsFirstSendRetry() == true){
@@ -203,7 +204,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                 Collections.emptyList(),
                 digitalResultInfos.getRecIndex(),
                 digitalResultInfos.getResponse().getGeneratedMessage(),
-                digitalAddressFeedback
+                digitalAddressFeedback,
+                    digitalResultInfos.getIsFirstSendRetry()
             );
 
             log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
