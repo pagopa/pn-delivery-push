@@ -353,7 +353,6 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedError'
-            description: Motivazioni che hanno portato al rifiuto della notifica
 
     ScheduleAnalogWorkflowDetails:
       type: object
