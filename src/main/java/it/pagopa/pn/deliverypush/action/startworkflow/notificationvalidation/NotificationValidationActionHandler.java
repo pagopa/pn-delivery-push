@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -98,7 +97,7 @@ public class NotificationValidationActionHandler {
             ex.getProblem().getErrors().forEach( elem -> {
                 //Per sviluppi futuri si può pensare d'inserire questo intero oggetto in timeline
                 NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
-                        .errorCode(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.valueOf(elem.getCode()))
+                        .errorCode(elem.getCode())
                         .detail(elem.getDetail())
                         .build();
                 

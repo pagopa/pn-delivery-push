@@ -13,12 +13,12 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 public class RequestRefusedDetailsInt implements TimelineElementDetailsInt {
-    private List<NotificationRefusedErrorInt> errors;
+    private List<NotificationRefusedErrorInt> refusalReasons;
 
     public String toLog() {
         return String.format(
                 "errors=%s",
-                errors
+                refusalReasons
         );
     }
 }

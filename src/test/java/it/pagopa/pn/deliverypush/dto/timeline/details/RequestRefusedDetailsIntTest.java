@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,13 +19,13 @@ class RequestRefusedDetailsIntTest {
 
         List<NotificationRefusedErrorInt> errors = new ArrayList<>();
         NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
-                .errorCode(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.FILE_NOTFOUND)
+                .errorCode("FILE_NOTFOUND")
                 .detail("details")
                 .build();
         errors.add(notificationRefusedError);
 
         request = RequestRefusedDetailsInt.builder()
-                .errors(errors)
+                .refusalReasons(errors)
                 .build();
     }
 
@@ -39,13 +38,13 @@ class RequestRefusedDetailsIntTest {
     @Test
     void getErrors() {
         //List<String> actualErrors = request.getErrors();
-        List<NotificationRefusedErrorInt> actualErrors = request.getErrors();
+        List<NotificationRefusedErrorInt> actualErrors = request.getRefusalReasons();
         Assertions.assertEquals(1, actualErrors.size());
     }
 
     @Test
     void testToString() {
         String actual = request.toString();
-        Assertions.assertEquals("RequestRefusedDetailsInt(errors=[NotificationRefusedErrorInt(errorCode=FILE_NOTFOUND, detail=details)])", actual);
+        Assertions.assertEquals("RequestRefusedDetailsInt(refusalReasons=[NotificationRefusedErrorInt(errorCode=FILE_NOTFOUND, detail=details)])", actual);
     }
 }

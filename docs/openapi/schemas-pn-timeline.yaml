@@ -346,9 +346,9 @@ components:
     RequestRefusedDetails:
       type: object
       required:
-        - errors
+        - refusalReasons
       properties:
-        errors:
+        refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:

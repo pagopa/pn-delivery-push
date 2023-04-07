@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -113,16 +112,16 @@ public class NotificationValidationScheduler {
 
     private void handleValidationError(NotificationInt notification, Exception ex) {
         List<NotificationRefusedErrorInt> errors = new ArrayList<>();
-        NotificationRefusedErrorInt notificationRefusedError = null;
+        NotificationRefusedErrorInt notificationRefusedError;
 
         if(Objects.nonNull(ex) && ex instanceof PnValidationFileNotFoundException) {
             notificationRefusedError = NotificationRefusedErrorInt.builder()
-                    .errorCode(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.FILE_NOTFOUND)
+                    .errorCode("FILE_NOTFOUND")
                     .detail("Allegati non trovati")
                     .build();
         } else {
             notificationRefusedError = NotificationRefusedErrorInt.builder()
-                    .errorCode(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.SERVICE_UNAVAILABLE)
+                    .errorCode("SERVICE_UNAVAILABLE")
                     .detail("Servizio non disponibile")
                     .build();
         }

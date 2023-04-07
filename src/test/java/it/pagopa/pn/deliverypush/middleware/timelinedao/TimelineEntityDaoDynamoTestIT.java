@@ -3,8 +3,6 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
-import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
@@ -85,8 +83,8 @@ class TimelineEntityDaoDynamoTestIT {
             TimelineElementEntity elementFromDb = elementFromDbOpt.get();
             Assertions.assertEquals(elementToInsert, elementFromDb);
             
-        }finally {
-           // removeElementFromDb(elementToInsert);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
     }
@@ -142,9 +140,7 @@ class TimelineEntityDaoDynamoTestIT {
 
         //WHEN
         
-        assertThrows(PnIdConflictException.class, () -> {
-            timelineEntityDao.putIfAbsent(elementNotToBeInserted);
-        });
+        assertThrows(PnIdConflictException.class, () -> timelineEntityDao.putIfAbsent(elementNotToBeInserted));
         
         //THEN
         Optional<TimelineElementEntity> elementFromDbOpt =  timelineEntityDao.get(elementsKey);
@@ -572,7 +568,7 @@ class TimelineEntityDaoDynamoTestIT {
     void checkSendDigitalProgress() {
         List<NotificationRefusedErrorEntity> errors = new ArrayList<>();
         NotificationRefusedErrorEntity notificationRefusedError = NotificationRefusedErrorEntity.builder()
-                .errorCode(NotificationRefusedErrorCodeEntity.FILE_NOTFOUND)
+                .errorCode("FILE_NOTFOUND")
                 .detail("details")
                 .build();
         errors.add(notificationRefusedError);
@@ -610,7 +606,7 @@ class TimelineEntityDaoDynamoTestIT {
                                                         .build()
                                         )
                                 )
-                                .errors(errors)
+                                .refusalReasons(errors)
                                 .build()
                 )
                 .build();
