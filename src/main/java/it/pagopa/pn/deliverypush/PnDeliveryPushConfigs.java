@@ -165,6 +165,7 @@ public class PnDeliveryPushConfigs {
         private String directAccessUrlTemplateLegal;
         private String faqUrlTemplateSuffix;
         private String faqCompletionMomentHash;
+        private String faqSendHash;
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
    }
