@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -65,7 +66,7 @@ class NotificationValidationSchedulerTest {
         
         //WHEN
         int retryAttempt = 0;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
         
         //THEN
         Instant schedulingDate = now.plus(intervalsDuration[retryAttempt]);
@@ -86,7 +87,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, null);
 
         //THEN
         Instant schedulingDate = now.plus(intervalsDuration[retryAttempt - 1]);
@@ -106,7 +107,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
 
         //THEN
         Instant schedulingDate = now.plus(DEFAULT_INTERVAL);
@@ -131,7 +132,32 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
+
+        //THEN
+        Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
+    }
+
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void testScheduleNotificationValidationNotFoundRefused() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotification();
+
+        Duration [] intervalsDuration = { Duration.ofSeconds(2), Duration.ofSeconds(3) };
+        Mockito.when(configs.getValidationRetryIntervals()).thenReturn(intervalsDuration);
+
+        Instant now = Instant.now();
+        Mockito.when(instantNowSupplier.get()).thenReturn(now);
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
+        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
+                .thenReturn(timelineElementInternal);
+
+        //WHEN
+        int retryAttempt = 2;
+        PnValidationFileNotFoundException ex = new PnValidationFileNotFoundException( "file non trovato", new Throwable() );
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, ex);
 
         //THEN
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);

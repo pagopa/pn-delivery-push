@@ -33,8 +33,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GETFILEERROR;
-
 @Component
 @Slf4j
 public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeStorageClient {
@@ -68,9 +66,10 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
 
                     if(error.getStatusCode().equals(HttpStatus.NOT_FOUND)){
                         log.error("File not found from safeStorage fileKey={} error={}", finalFileKey, error);
+                        String errorDetail = "Allegato non trovato. fileKey=" + finalFileKey;
                         return Mono.error(
                                 new PnValidationFileNotFoundException(
-                                        ERROR_CODE_DELIVERYPUSH_GETFILEERROR,
+                                        errorDetail,
                                         error)
                         );
                     }
