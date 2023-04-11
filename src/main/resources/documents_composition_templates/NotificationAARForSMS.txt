@@ -1,1 +1,1 @@
-Ciao, hai una notifica con Codice IUN ${notification.iun}. Per leggerla, accedi con SPID o CIE al sito di Piattaforma Notifiche.
+Hai ricevuto una notifica con Codice IUN ${notification.iun}. Per leggerla, accedi con SPID o CIE al sito di SEND - Servizio Notifiche Digitali.

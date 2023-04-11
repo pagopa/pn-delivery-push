@@ -224,6 +224,52 @@ public class DigitalWorkFlowUtils {
                 notification
         );
     }
+
+
+    public String addPrepareSendToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, DigitalAddressInfoSentAttempt nextAddressInfo, String sourceTimelineId) {
+
+        // il metodo si preoccupa di salvare in timeline le info del lastattemptmade e del nextaddressinfo, verranno recuperate poi
+        return addTimelineElement(
+                timelineUtils.buildPrepareDigitalNotificationTimelineElement(notification, recIndex, lastAttemptMade.getDigitalAddress(), lastAttemptMade.getDigitalAddressSource(), lastAttemptMade.getSentAttemptMade(), lastAttemptMade.getLastAttemptDate(),
+                        nextAddressInfo.getDigitalAddressSource(), nextAddressInfo.getLastAttemptDate(), nextAddressInfo.getSentAttemptMade(), sourceTimelineId),
+                notification
+        );
+    }
+
+
+    public PrepareDigitalDetailsInt getPrepareSendDigitalWorkflowTimelineElement(String iun, String timelineId) {
+
+        Optional<PrepareDigitalDetailsInt> optTimeLineScheduleDigitalWorkflow = timelineService.getTimelineElementDetails(iun, timelineId,
+                PrepareDigitalDetailsInt.class);
+        if (optTimeLineScheduleDigitalWorkflow.isPresent()) {
+            return optTimeLineScheduleDigitalWorkflow.get();
+        } else {
+            log.error("getPrepareSendDigitalWorkflowTimelineElement element not exist - iun {} eventId {}", iun, timelineId);
+            throw new PnInternalException("getPrepareSendDigitalWorkflowTimelineElement element not exist - iun " + iun + " eventId " + timelineId, ERROR_CODE_DELIVERYPUSH_SCHEDULEDPREPARETIMELINEEVENTNOTFOUND);
+        }
+    }
+
+    public DigitalAddressInfoSentAttempt getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(PrepareDigitalDetailsInt prepareDigitalDetailsInt) {
+        // ricostruisco il lastAttemptMade
+        return DigitalAddressInfoSentAttempt.builder()
+                .lastAttemptDate(prepareDigitalDetailsInt.getAttemptDate())
+                .sentAttemptMade(prepareDigitalDetailsInt.getRetryNumber())
+                .digitalAddress(prepareDigitalDetailsInt.getDigitalAddress())
+                .digitalAddressSource(prepareDigitalDetailsInt.getDigitalAddressSource())
+                .build();
+    }
+
+    public DigitalAddressInfoSentAttempt getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(PrepareDigitalDetailsInt prepareDigitalDetailsInt) {
+        // ricostruisco il nextAddressInfo
+        // NB: il digitalAddress non è popolato
+        return DigitalAddressInfoSentAttempt.builder()
+                .lastAttemptDate(prepareDigitalDetailsInt.getNextLastAttemptMadeForSource())
+                .sentAttemptMade(prepareDigitalDetailsInt.getNextSourceAttemptsMade())
+                .digitalAddressSource(prepareDigitalDetailsInt.getNextDigitalAddressSource())
+                .build();
+    }
+
+
     public String addDigitalFeedbackTimelineElement(
                                                   String digitalDomicileTimeLineId,
                                                   NotificationInt notification,

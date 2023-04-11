@@ -13,6 +13,7 @@ public enum TimelineElementCategoryInt {
     PUBLIC_REGISTRY_RESPONSE(PublicRegistryResponseDetailsInt.class, TimelineElementCategory.PUBLIC_REGISTRY_RESPONSE.getValue()),
     SCHEDULE_ANALOG_WORKFLOW(ScheduleAnalogWorkflowDetailsInt.class, TimelineElementCategory.SCHEDULE_ANALOG_WORKFLOW.getValue()),
     SCHEDULE_DIGITAL_WORKFLOW(ScheduleDigitalWorkflowDetailsInt.class, TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW.getValue()),
+    PREPARE_DIGITAL_DOMICILE(PrepareDigitalDetailsInt.class, TimelineElementCategory.PREPARE_DIGITAL_DOMICILE.getValue()),
     SEND_DIGITAL_DOMICILE(SendDigitalDetailsInt.class, TimelineElementCategory.SEND_DIGITAL_DOMICILE.getValue()),
     SEND_DIGITAL_FEEDBACK(SendDigitalFeedbackDetailsInt.class, TimelineElementCategory.SEND_DIGITAL_FEEDBACK.getValue()),
     SEND_DIGITAL_PROGRESS(SendDigitalProgressDetailsInt.class, TimelineElementCategory.SEND_DIGITAL_PROGRESS.getValue()),

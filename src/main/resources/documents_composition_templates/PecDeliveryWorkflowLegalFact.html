@@ -206,14 +206,33 @@
           </div>
         </div>
 
+        <div class="row">
+          <div class="left-col col-5-10">
+            <p>Tipologia di domicilio digitale</p>
+          </div>
+          <div class="left-col col-5-10">
+            <p><#if delivery.addressSource??>
+              <#if delivery.addressSource == "PLATFORM">
+                <strong>Domicilio di Piattaforma ex art.26, comma 5 lettera c del D.L. 76/2020</strong>
+                <#elseif delivery.addressSource == "SPECIAL">
+                <strong>Domicilio eletto presso la Pubblica Amministrazione mittente ex art.26, comma 5 lettera b del D.L. 76/2020</strong>
+                <#elseif delivery.addressSource == "GENERAL">
+                <strong>Domicilio generale inserito nei registri pubblici ex art.26, comma 5 lettera a del D.L. 76/2020</strong>
+              </#if>
+              <#else>
+              non presente
+            </#if></p>
+          </div>
+        </div>
+
       </div>
       <#if delivery.ok>
       <div class="paragraph">
-        il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data <br/><strong>${delivery.responseDate}</strong>.
+        il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data <br/><strong>${delivery.responseDate}</strong> al domicilio digitale indicato immediatamente sopra la presente data.
       </div>
       <#else>
       <div class="paragraph">
-        in data <strong>${delivery.responseDate}</strong> è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale già indicato.
+        in data <strong>${delivery.responseDate}</strong> è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale indicato immediatamente sopra la presente data.
       </div>
     </#if>
 

@@ -17,10 +17,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
+import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -283,6 +280,35 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, elementId, details , timelineBuilder);
     }
 
+
+    public TimelineElementInternal buildPrepareDigitalNotificationTimelineElement(NotificationInt notification, Integer recIndex,
+                                                                                  LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, int sentAttemptMade, Instant lastAttemptMade,
+                                                                                DigitalAddressSourceInt nextDigitalAddressSource, Instant nextLastAttemptMadeForSource, int nextSourceAttemptsMade,
+                                                                                  String sourceTimelineId) {
+        log.debug("buildPrepareDigitalNotificationTimelineElement - IUN={} and id={} sourceTimelineId={}", notification.getIun(), recIndex, sourceTimelineId);
+
+        String elementId = TimelineEventId.PREPARE_DIGITAL_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .source(nextDigitalAddressSource)
+                        .sentAttemptMade(nextSourceAttemptsMade)
+                        .relatedTimelineId(sourceTimelineId)    // nel caso di scheduling a 7gg, di fatto si ripetevano gli stessi argomenti. La discriminante è che il sourcetimelineId è diverso
+                        .build());
+
+        PrepareDigitalDetailsInt details = PrepareDigitalDetailsInt.builder()
+                .recIndex(recIndex)
+                .retryNumber(sentAttemptMade)
+                .digitalAddress(digitalAddress)
+                .digitalAddressSource(addressSource)
+                .attemptDate(lastAttemptMade)
+                .nextDigitalAddressSource(nextDigitalAddressSource)
+                .nextLastAttemptMadeForSource(nextLastAttemptMadeForSource)
+                .nextSourceAttemptsMade(nextSourceAttemptsMade)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, elementId, details);
+    }
 
     public TimelineElementInternal buildSendDigitalNotificationTimelineElement(LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex,
                                                                                NotificationInt notification, int sentAttemptMade, String eventId) {
@@ -743,7 +769,7 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_REFINEMENT, elementId, details);
     }
 
-    public TimelineElementInternal buildRefusedRequestTimelineElement(NotificationInt notification, List<String> errors) {
+    public TimelineElementInternal buildRefusedRequestTimelineElement(NotificationInt notification, List<NotificationRefusedErrorInt> errors) {
         log.debug("buildRefusedRequestTimelineElement - iun={}", notification.getIun());
 
         String elementId = TimelineEventId.REQUEST_REFUSED.buildEventId(
@@ -752,7 +778,7 @@ public class TimelineUtils {
                         .build());
 
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
-                .errors(errors)
+                .refusalReasons(errors)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);

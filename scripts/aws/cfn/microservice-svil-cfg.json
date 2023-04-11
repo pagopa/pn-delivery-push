@@ -20,6 +20,7 @@
     "IsMvpDefaultValue": "false",
     "RetentionAttachmentDaysAfterRefinement": "120",
     "ValidationRetryIntervals": "10s, 1m, 1m, 5m, 1h, -1s",
-    "SendNotificationAttachments": "analog-notification"
+    "SendNotificationAttachments": "analog-notification",
+    "SafeStorageFileNotFoundRetry": "false"
   }
 }

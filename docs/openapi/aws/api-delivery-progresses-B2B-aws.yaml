@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: /JD8gERRQgOeeqReq3aeF/ERJlXIyVOWAStQXkOHgUM=
+  version: 2MQqCgs7woMu97d2vToDLgpkc3SG9pcJsRrDO9M/DmY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -635,6 +635,7 @@ components:
           * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo generale
           * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
           * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
+          * `PREPARE_DIGITAL_DOMICILE` - Preparazione all'invio invio digitale (PEC)
           * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
           * `SEND_DIGITAL_PROGRESS` - Ottenuto evento non finale da un invio digitale
           * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
@@ -667,6 +668,7 @@ components:
         - PUBLIC_REGISTRY_RESPONSE
         - SCHEDULE_ANALOG_WORKFLOW
         - SCHEDULE_DIGITAL_WORKFLOW
+        - PREPARE_DIGITAL_DOMICILE
         - SEND_DIGITAL_DOMICILE
         - SEND_DIGITAL_PROGRESS
         - SEND_DIGITAL_FEEDBACK

@@ -424,6 +424,14 @@ Parameters:
     Type: String
     Description: 'Configuration to enable sending notification attachments'
 
+  SafeStorageFileNotFoundRetry:
+    Default: 'false'
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    Description: 'Enables retry of the notification validation in case of SafeStorage 404 error'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -502,6 +510,7 @@ Resources:
         ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
         ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
         ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_SENDNOTIFICATIONATTACHMENTS=${SendNotificationAttachments}'
+        ContainerEnvEntry48: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
