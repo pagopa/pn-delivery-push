@@ -175,6 +175,7 @@ public class LegalFactGenerator {
         private String denomination;
         private String taxId;
         private String address;
+        private String addressSource;
         private Instant orderBy;
         private String responseDate;
         private boolean ok;
@@ -196,6 +197,7 @@ public class LegalFactGenerator {
                             recipient.getDenomination(),
                             recipient.getTaxId(),
                             feedbackFromExtChannel.getDigitalAddress().getAddress(),
+                            feedbackFromExtChannel.getDigitalAddressSource() != null ? feedbackFromExtChannel.getDigitalAddressSource().getValue() : null,
                             notificationDate,
                             instantWriter.instantToDate(notificationDate),
                             ResponseStatusInt.OK.equals( sentPecStatus )

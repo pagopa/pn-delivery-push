@@ -232,6 +232,23 @@
 
         <div class="row">
             <div class="left-col col-5-10">
+                <p>Tipologia di domicilio digitale</p>
+            </div>
+            <div class="left-col col-5-10">
+                <p>
+                    <strong>
+                        <#if (recipient.getDigitalDomicile().getAddress())??>
+                        Domicilio eletto presso la Pubblica Amministrazione mittente ex art.26, comma 5 lettera b del D.L. 76/2020
+                        <#else>
+                        non fornito dalla PA
+                    </#if>
+                    </strong>
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="left-col col-5-10">
                 <p>Indirizzo fisico</p>
             </div>
             <div class="left-col col-5-10">
