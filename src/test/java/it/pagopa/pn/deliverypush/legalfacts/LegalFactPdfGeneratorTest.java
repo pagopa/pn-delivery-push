@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Base64Utils;
 
@@ -210,7 +212,7 @@ class LegalFactPdfGeneratorTest {
     }
 	
 	@Test
-	void generateNotificationAAREmailTest() throws IOException {
+	void generateNotificationAAREmailTest() {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
@@ -220,7 +222,7 @@ class LegalFactPdfGeneratorTest {
 					String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt, quickAccesstoken);
 					PrintWriter out = new PrintWriter(filePath.toString());
 					out.println(element);
-
+					out.close();
 					System.out.println("element "+element);
 				}
 		);
@@ -260,6 +262,7 @@ class LegalFactPdfGeneratorTest {
 					String element = pdfUtils.generateNotificationAARPECBody(notificationInt, notificationRecipientInt, quickAccessToken);
 					PrintWriter out = new PrintWriter(filePath.toString());
 					out.println(element);
+					out.close();
 		
 					System.out.println("element "+element);
 				}

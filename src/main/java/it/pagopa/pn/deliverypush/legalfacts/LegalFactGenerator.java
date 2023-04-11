@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import com.amazonaws.util.IOUtils;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.utils.FileUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
@@ -13,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,11 +22,15 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
-import java.io.IOException;
+
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,6 +63,7 @@ public class LegalFactGenerator {
     public static final String FIELD_RECIPIENT_TYPE = "recipientType";
     public static final String FIELD_DELEGATE = "delegate";
     public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
+    public static final String FIELD_LOGO = "logoBase64";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -64,6 +71,7 @@ public class LegalFactGenerator {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final InstantNowSupplier instantNowSupplier;
     private final MVPParameterConsumer mvpParameterConsumer;
+    private static final String TEMPLATES_DIR_NAME = "documents_composition_templates";
 
     public LegalFactGenerator(
             DocumentComposition documentComposition,
@@ -259,6 +267,9 @@ public class LegalFactGenerator {
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
+        Path filePath = Paths.get(TEMPLATES_DIR_NAME + File.separator + "images/aar-logo-short.png");
+        String logoBase64 = readLocalImagesInBase64(filePath.toString());
+        templateModel.put(FIELD_LOGO, logoBase64);
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL,
@@ -270,6 +281,9 @@ public class LegalFactGenerator {
     public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
+        Path filePath = Paths.get(TEMPLATES_DIR_NAME + File.separator + "images/aar-logo-short.png");
+        String logoBase64 = readLocalImagesInBase64(filePath.toString());
+        templateModel.put(FIELD_LOGO, logoBase64);
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC,
@@ -358,7 +372,6 @@ public class LegalFactGenerator {
         return templateUrl + '=' + quickAccessToken;
     }
 
-
     private String getFAQAccessLink() {
         return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
     }
@@ -374,5 +387,14 @@ public class LegalFactGenerator {
                 : pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplateLegal();
     }
 
+    private String readLocalImagesInBase64(String classPath) {
+        try (InputStream ioStream = new ClassPathResource(classPath).getInputStream()) {
+            byte[] bytes = IOUtils.toByteArray(ioStream);
+            return Base64.getEncoder().encodeToString(bytes);
+        } catch (Exception e) {
+            throw new PnReadFileException("error during file conversion", e);
+        }
+
+    }
 }
 
