@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.dto.timeline;
 import lombok.*;
 
 @Getter
+@Setter
 @Builder
 @EqualsAndHashCode
 @AllArgsConstructor
