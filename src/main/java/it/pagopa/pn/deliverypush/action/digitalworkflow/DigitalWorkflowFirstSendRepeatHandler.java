@@ -36,13 +36,12 @@ public class DigitalWorkflowFirstSendRepeatHandler {
         Optional<SendDigitalDetailsInt> sendDigitalDetailsOpt =  timelineService.getTimelineElementDetails(notification.getIun(), firstSendDigitalDomicileEventId, SendDigitalDetailsInt.class);
         
         if (sendDigitalDetailsOpt.isPresent()){
-            log.info("there is a first attempt for the source={} - iun={} recIndex={} ", nextAddressInfo.getDigitalAddressSource(), notification.getIun(), recIndex);
+            log.info("There is a first attempt for the source={} - iun={} recIndex={} ", nextAddressInfo.getDigitalAddressSource(), notification.getIun(), recIndex);
 
             //E' stato effettuato un primo tentativo per questa source, si procede ad effettuare un ulteriore tentativo per lo stesso indirizzo
             SendDigitalDetailsInt sendDigitalDetailsInt = sendDigitalDetailsOpt.get();
             
             //Viene verificato se il ritentativo è stato già effettuato
-            //TODO Verificare se necessario effettuare quest ulteriore check
             Optional<SendDigitalDetailsInt> firstSendRetryOptElement = getFirstSendRetryOptElement(notification, recIndex, nextAddressInfo);
 
             if (firstSendRetryOptElement.isEmpty()){

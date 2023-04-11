@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.service.mapper.CourtesyCourtesyDigitalAddressMa
 import it.pagopa.pn.deliverypush.service.mapper.LegalLegalDigitalAddressMapper;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -65,7 +64,7 @@ public class UserAttributesClientMock implements UserAttributesClient {
         String id = getId(taxId, senderId);
         
         Collection<LegalDigitalAddress> collectionLegalDigitalAddresses;
-        if(getLegalAddressCalledTimes <= 1){
+        if(getLegalAddressCalledTimes == 0){
             collectionLegalDigitalAddresses = mapLegalDigitalAddresses.get(id);
         }else {
             collectionLegalDigitalAddresses = mapSecondCycleLegalDigitalAddresses.get(id);
@@ -78,12 +77,6 @@ public class UserAttributesClientMock implements UserAttributesClient {
         
         getLegalAddressCalledTimes += 1;
         return listLegalDigitalAddress;
-    }
-
-    @NotNull
-    public static String getNewAddress(String addressValue) {
-        String newAddressValue = addressValue + "_CHANGED";
-        return newAddressValue;
     }
 
     @Override

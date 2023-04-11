@@ -14,13 +14,8 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentRe
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareDigitalDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -161,7 +156,7 @@ public class DigitalWorkFlowHandler {
             resendFirstAttempt = digitalWorkflowFirstSendRepeatHandler.handleCheckResend(notification, recIndex, nextAddressInfo);
         }
         
-        if(!resendFirstAttempt){
+        if(Boolean.FALSE.equals(resendFirstAttempt)){
             log.info("No need to resend notification - iun={} id={}", notification.getIun(), recIndex);
             checkAndSendNotification(notification, recIndex, nextAddressInfo);
         }
@@ -259,84 +254,96 @@ public class DigitalWorkFlowHandler {
         LegalDigitalAddressInt digitalAddress = addressInfo.getDigitalAddress();
         
         if (digitalAddress != null) {
-            log.info("Address with source={} is available, check if  need to send notification to external channel - iun={} id={}",
-                    addressInfo.getDigitalAddressSource(), iun, recIndex);
-            digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), true, addressInfo.getSentAttemptMade());
+            handleSendWithDigitalAddress(notification, recIndex, addressInfo, iun, digitalAddress);
 
-            if(addressInfo.getRelatedFeedbackTimelineId() != null){
-                log.info("RelatedFeedbackId is present {}, need to check if is equals to previous attempt - iun={} id={}",
-                        addressInfo.getRelatedFeedbackTimelineId(), iun, recIndex);
-
-                //Se tratta del secondo tentativo nel secondo ciclo d'invii a valle del primo tentativo (del secondo ciclo, cioè la ripetizione del primo) andato a buon fine
-                //Devo verificare che l'indirizzo ottenuto non sia uguale a quello già utilizzato in quest'ultimo tentativo
-                TimelineElementInternal timelineElement = getTimelineElement(iun, recIndex, addressInfo.getRelatedFeedbackTimelineId());
-                SendDigitalFeedbackDetailsInt sendDigitalDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElement.getDetails();
-                
-                if( ! digitalAddress.equals(sendDigitalDetailsInt.getDigitalAddress())){
-                    log.info("Found address and previous attempt address are different, notification can proceed to new address found - iun={} id={}",
-                             iun, recIndex);
-
-                    //Se l'indirizzo è preso da base dati è diverso da quello appena utilizzato nel tentativo precedente allora effettuo un nuovo invio
-                    sendAndUnscheduleNotification.sendDigitalNotificationAndScheduleTimeoutAction(
-                            notification,
-                            digitalAddress,
-                            addressInfo,
-                            recIndex,
-                            false,
-                            null,
-                            false);
-                }else {
-                    log.info("Found address and previous attempt address are equals, notification will be not sent to this address. Check if first attempt was sent successfully - iun={} id={}",
-                             iun, recIndex);
-                    
-                    //Verifico se il primo tentativo è andato a buon fine o devo passare al prossimo step del workflow
-                    if(ResponseStatusInt.OK.equals(sendDigitalDetailsInt.getResponseStatus())){
-                        //Se il primo tentativo è andato a buon fine il workflow può concludersi con successo
-
-                        log.info("First attempt was sent successfully. Complete workflow with success - iun={} id={}",
-                                iun, recIndex);
-
-                        completionWorkflow.completionDigitalWorkflow(
-                                notification,
-                                recIndex,
-                                timelineElement.getTimestamp(),
-                                sendDigitalDetailsInt.getDigitalAddress(),
-                                EndWorkflowStatus.SUCCESS
-                        );
-                    }else {
-                        log.info("First attempt was not sent successfully. Go to next step - iun={} id={}",
-                                iun, recIndex);
-                        //altrimenti passo al prossimo step del workflow
-                        nextWorkflowStep(notification, recIndex, addressInfo, iun);
-                    }
-                    
-                }
-                
-            } else {
-                //Se non si tratta di una casistica di doppio invio passo ad inviare la notifica normalmente
-                sendAndUnscheduleNotification.sendDigitalNotificationAndScheduleTimeoutAction(
-                        notification,
-                        digitalAddress,
-                        addressInfo,
-                        recIndex,
-                        false,
-                        null,
-                        false);
-            }
-            
         } else {
-            //Se l'indirizzo recuperato da base dati è nullo
-            if(addressInfo.getRelatedFeedbackTimelineId() != null){
-                //E si tratta del secondo tentativo nel secondo ciclo d'invii a valle del primo tentativo (del secondo ciclo, cioè la ripetizione del primo) andato a buon fine
-                boolean completedWorkflowSuccess = checkFirstAttemptAndCompleteWorkflow(notification, recIndex, addressInfo.getRelatedFeedbackTimelineId(), iun);
-                if(! completedWorkflowSuccess){
-                    //Se il primo tentativo NON è andato a buon fine si passa al prossimo step del workflow
-                    nextWorkflowStep(notification, recIndex, addressInfo, iun);
-                }
-            } else {
-                //Se si tratta di un tentativo classico, passo semplicemente al prossimo step del workflow
+            handleDigitalAddressNotPresent(notification, recIndex, addressInfo, iun);
+        }
+    }
+    
+    private void handleSendWithDigitalAddress(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo, String iun, LegalDigitalAddressInt digitalAddress) {
+        log.info("Address with source={} is available, check if  need to send notification to external channel - iun={} id={}",
+                addressInfo.getDigitalAddressSource(), iun, recIndex);
+        digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), true, addressInfo.getSentAttemptMade());
+
+        if(addressInfo.getRelatedFeedbackTimelineId() != null){
+            handleForResend(notification, recIndex, addressInfo, iun, digitalAddress);
+
+        } else {
+            //Non si tratta di una casistica di doppio invio passo ad inviare la notifica normalmente
+            sendAndUnscheduleNotification.sendDigitalNotificationAndScheduleTimeoutAction(
+                    notification,
+                    digitalAddress,
+                    addressInfo,
+                    recIndex,
+                    false,
+                    null,
+                    false);
+        }
+    }
+
+    private void handleForResend(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo, String iun, LegalDigitalAddressInt digitalAddress) {
+        log.info("RelatedFeedbackId is present {}, need to check if is equals to previous attempt - iun={} id={}",
+                addressInfo.getRelatedFeedbackTimelineId(), iun, recIndex);
+
+        //Se tratta del secondo tentativo nel secondo ciclo d'invii a valle del primo tentativo (del secondo ciclo, cioè la ripetizione del primo) andato a buon fine
+        //Devo verificare che l'indirizzo ottenuto non sia uguale a quello già utilizzato in quest'ultimo tentativo
+        TimelineElementInternal timelineElement = getTimelineElement(iun, recIndex, addressInfo.getRelatedFeedbackTimelineId());
+        SendDigitalFeedbackDetailsInt sendDigitalDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElement.getDetails();
+
+        if( ! digitalAddress.equals(sendDigitalDetailsInt.getDigitalAddress())){
+            log.info("Found address and previous attempt address are different, notification can proceed to new address found - iun={} id={}",
+                    iun, recIndex);
+
+            //Se l'indirizzo è preso da base dati è diverso da quello appena utilizzato nel tentativo precedente allora effettuo un nuovo invio
+            sendAndUnscheduleNotification.sendDigitalNotificationAndScheduleTimeoutAction(
+                    notification,
+                    digitalAddress,
+                    addressInfo,
+                    recIndex,
+                    false,
+                    null,
+                    false);
+        } else {
+            log.info("Found address and previous attempt address are equals, notification will be not sent to this address. Check if first attempt was sent successfully - iun={} id={}",
+                    iun, recIndex);
+            
+            //Verifico se il primo tentativo è andato a buon fine o devo passare al prossimo step del workflow
+            if(ResponseStatusInt.OK.equals(sendDigitalDetailsInt.getResponseStatus())){
+                //Se il primo tentativo è andato a buon fine il workflow può concludersi con successo
+
+                log.info("First attempt was sent successfully. Complete workflow with success - iun={} id={}",
+                        iun, recIndex);
+
+                completionWorkflow.completionDigitalWorkflow(
+                        notification,
+                        recIndex,
+                        timelineElement.getTimestamp(),
+                        sendDigitalDetailsInt.getDigitalAddress(),
+                        EndWorkflowStatus.SUCCESS
+                );
+            }else {
+                log.info("First attempt was not sent successfully. Go to next step - iun={} id={}",
+                        iun, recIndex);
+                //altrimenti passo al prossimo step del workflow
                 nextWorkflowStep(notification, recIndex, addressInfo, iun);
             }
+            
+        }
+    }
+
+    private void handleDigitalAddressNotPresent(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo, String iun) {
+        //Se l'indirizzo recuperato da base dati è nullo
+        if(addressInfo.getRelatedFeedbackTimelineId() != null){
+            //E si tratta del secondo tentativo nel secondo ciclo d'invii a valle del primo tentativo (del secondo ciclo, cioè la ripetizione del primo) andato a buon fine
+            boolean completedWorkflowSuccess = checkFirstAttemptAndCompleteWorkflow(notification, recIndex, addressInfo.getRelatedFeedbackTimelineId(), iun);
+            if(! completedWorkflowSuccess){
+                //Se il primo tentativo NON è andato a buon fine si passa al prossimo step del workflow
+                nextWorkflowStep(notification, recIndex, addressInfo, iun);
+            }
+        } else {
+            //Se si tratta di un tentativo classico, passo semplicemente al prossimo step del workflow
+            nextWorkflowStep(notification, recIndex, addressInfo, iun);
         }
     }
 

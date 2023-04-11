@@ -79,7 +79,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
             String eventId;
             if (!sendAlreadyInProgress)
             {
-                log.debug("Start sendDigitalNotification - iun={} recipientIndex={} attempt={}", notification.getIun(), recIndex, sentAttemptMade);
+                log.info("Start sendDigitalNotification - iun={} recipientIndex={} attempt={} addressSource={}", notification.getIun(), recIndex, sentAttemptMade, addressSource);
 
                 eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                         EventId.builder()

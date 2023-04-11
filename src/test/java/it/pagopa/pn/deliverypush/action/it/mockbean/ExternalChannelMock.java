@@ -32,6 +32,8 @@ import static org.awaitility.Awaitility.await;
 public class ExternalChannelMock implements ExternalChannelSendClient {
     //DIGITAL
     public static final String EXT_CHANNEL_SEND_FAIL_BOTH = "fail-both";
+
+    public static final String EXT_CHANNEL_SEND_FAIL = "fail-ever";
     public static final String EXT_CHANNEL_SEND_FAIL_FIRST = "fail-first";
     public static final String EXT_CHANNEL_WORKS = "works";
 
@@ -153,7 +155,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         if (address != null) {
             String domainPart = address.replaceFirst(".*@", "");
 
-            if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH)
+            if (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_BOTH) || domainPart.startsWith(EXT_CHANNEL_SEND_FAIL)
                     || (domainPart.startsWith(EXT_CHANNEL_SEND_FAIL_FIRST) && "0".equals(retryNumberPart))) {
                 status = ProgressEventCategory.ERROR;
                 eventCode = LegalMessageSentDetails.EventCodeEnum.C004;
