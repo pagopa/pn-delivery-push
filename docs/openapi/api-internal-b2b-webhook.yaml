@@ -72,7 +72,6 @@ info:
           <li><strong>DELIVERED </strong><em>La notifica è stata consegnata a tutti i destinatari.</em></li>
           <li><strong>VIEWED </strong><em>Il destinatario ha letto la notifica entro il termine stabilito.</em></li>
           <li><strong>EFFECTIVE_DATE </strong><em>Il destinatario non ha letto la notifica entro il termine stabilito.</em></li>
-          <li><strong>PAID </strong><em>Uno dei destinatari ha pagato la notifica.</em></li>
           <li><strong>UNREACHABLE </strong><em>Il destinatario non è reperibile.</em></li>
           <li><strong>CANCELLED </strong><em>L'ente ha annullato l'invio della notifica.</em></li>
         </ul>
