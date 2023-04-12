@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
@@ -42,12 +43,14 @@ class NotificationValidationActionHandlerTest {
     private AuditLogService auditLogService;
 
     private NotificationValidationActionHandler handler;
+    @Mock
+    private PnDeliveryPushConfigs cfg;
 
     @BeforeEach
     public void setup() {
         handler = new NotificationValidationActionHandler(attachmentUtils, taxIdPivaValidator,
                 timelineService, timelineUtils, notificationService, receivedLegalFactCreationRequest,
-                notificationValidationScheduler, auditLogService);
+                notificationValidationScheduler, auditLogService, cfg);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -78,12 +81,15 @@ class NotificationValidationActionHandlerTest {
     
     @ExtendWith(SpringExtension.class)
     @Test
-    void validateNotificationKONotFound() {
+    void validateNotificationKONotFound_isSafeStorageFileNotFoundRetry_true() {
         //GIVEN
         NotificationInt notification = TestUtils.getNotification();
+        Mockito.when(cfg.isSafeStorageFileNotFoundRetry())
+                .thenReturn(true);
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        doThrow(new PnValidationFileNotFoundException("detail", new RuntimeException())).when(attachmentUtils).validateAttachment(notification);
+        PnValidationFileNotFoundException ex = new PnValidationFileNotFoundException("detail", new RuntimeException());
+        doThrow(ex).when(attachmentUtils).validateAttachment(notification);
 
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(1)
@@ -103,8 +109,42 @@ class NotificationValidationActionHandlerTest {
 
         //THEN
         Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
-        Mockito.verify(notificationValidationScheduler).scheduleNotificationValidation(notification, details.getRetryAttempt());
+        Mockito.verify(notificationValidationScheduler).scheduleNotificationValidation(notification, details.getRetryAttempt(), ex);
         Mockito.verify(auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
+    }
+
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void validateNotificationKONotFound_isSafeStorageFileNotFoundRetry_false() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotification();
+        Mockito.when(cfg.isSafeStorageFileNotFoundRetry())
+                .thenReturn(false);
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+        PnValidationFileNotFoundException ex = new PnValidationFileNotFoundException("detail", new RuntimeException());
+        doThrow(ex).when(attachmentUtils).validateAttachment(notification);
+
+        NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
+                .retryAttempt(1)
+                .build();
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
+        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
+                .thenReturn(timelineElementInternal);
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), Mockito.any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
+        //WHEN
+        handler.validateNotification(notification.getIun(), details);
+
+        //THEN
+        Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
+        Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(notification, details.getRetryAttempt(), ex);
+        Mockito.verify(auditLogEvent, Mockito.never()).generateWarning(Mockito.any(), Mockito.any());
     }
 
     @ExtendWith(SpringExtension.class)
@@ -178,7 +218,8 @@ class NotificationValidationActionHandlerTest {
                 .thenReturn(notification);
         
         //Simulazione runtimeException generica (servizio non risponde ecc)
-        doThrow(new RuntimeException()).when(attachmentUtils).validateAttachment(notification);
+        RuntimeException ex = new RuntimeException();
+        doThrow(ex).when(attachmentUtils).validateAttachment(notification);
 
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(1)
@@ -198,7 +239,7 @@ class NotificationValidationActionHandlerTest {
 
         //THEN
         Mockito.verify(receivedLegalFactCreationRequest, Mockito.never()).saveNotificationReceivedLegalFacts(notification);
-        Mockito.verify(notificationValidationScheduler).scheduleNotificationValidation(notification, details.getRetryAttempt());
+        Mockito.verify(notificationValidationScheduler).scheduleNotificationValidation(notification, details.getRetryAttempt(),ex);
         Mockito.verify(auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
     }
 
