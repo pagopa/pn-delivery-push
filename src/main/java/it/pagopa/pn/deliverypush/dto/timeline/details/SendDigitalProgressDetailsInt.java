@@ -22,16 +22,17 @@ public class SendDigitalProgressDetailsInt implements DigitalSendTimelineElement
     private Integer retryNumber;
     private Instant notificationDate;
     private List<SendingReceipt> sendingReceipts;
-    private String eventCode;
+    private String deliveryFailureCause;
+    private String deliveryDetailCode;
     private boolean shouldRetry;
     private Boolean isFirstSendRetry;
     private String relatedFeedbackTimelineId;
     
     public String toLog() {
         return String.format(
-                "recIndex=%d eventCode=%s digitalAddress=%s shouldRetry=%b digitalAddressSource=%s retryNumber=%d isFirstSendRetry=%s relatedFeedbackTimelineId=%s",
+                "recIndex=%d deliveryDetailCode=%s digitalAddress=%s shouldRetry=%b digitalAddressSource=%s retryNumber=%d isFirstSendRetry=%s relatedFeedbackTimelineId=%s",
                 recIndex,
-                eventCode,
+                deliveryDetailCode,
                 AuditLogUtils.SENSITIVE,
                 shouldRetry,
                 digitalAddressSource.getValue(),

@@ -7,10 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
@@ -129,9 +126,10 @@ class TimelineUtilsTest {
                         "digital_domicile_timeline_id_0",
                         notification, 
                         ResponseStatusInt.OK,
-                        Collections.emptyList(),
                         1,
-                        DigitalMessageReferenceInt.builder().build(),
+                        ExtChannelDigitalSentResponseInt.builder()
+                                .eventCode(EventCodeInt.C003)
+                                .build(),
                         digitalAddressFeedback,
                         false
                 );
@@ -139,6 +137,7 @@ class TimelineUtilsTest {
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals(EventCodeInt.C003.getValue(), ((SendDigitalFeedbackDetailsInt)actual.getDetails()).getDeliveryDetailCode()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }

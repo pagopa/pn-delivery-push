@@ -4,10 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendRe
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
@@ -17,10 +14,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
+import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -143,9 +137,8 @@ public class TimelineUtils {
     public TimelineElementInternal buildDigitalFeedbackTimelineElement(String digitalDomicileTimelineId,
                                                                        NotificationInt notification,
                                                                        ResponseStatusInt status,
-                                                                       List<String> errors,
                                                                        int recIndex,
-                                                                       DigitalMessageReferenceInt digitalMessageReference,
+                                                                       ExtChannelDigitalSentResponseInt extChannelDigitalSentResponseInt,
                                                                        DigitalAddressFeedback digitalAddressFeedback,
                                                                        Boolean isFirstSentRetry) {
         log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
@@ -160,11 +153,14 @@ public class TimelineUtils {
                         .build()
         );
 
+        DigitalMessageReferenceInt digitalMessageReference = extChannelDigitalSentResponseInt.getGeneratedMessage();
+
         SendDigitalFeedbackDetailsInt details = SendDigitalFeedbackDetailsInt.builder()
-                .errors(errors)
+                .deliveryFailureCause(extChannelDigitalSentResponseInt.getEventDetails())
                 .digitalAddress(digitalAddressFeedback.getDigitalAddress())
                 .digitalAddressSource(digitalAddressFeedback.getDigitalAddressSource())
                 .responseStatus(status)
+                .deliveryDetailCode(extChannelDigitalSentResponseInt.getEventCode().getValue())
                 .recIndex(recIndex)
                 .notificationDate(digitalAddressFeedback.getEventTimestamp())
                 .sendingReceipts(
@@ -212,7 +208,7 @@ public class TimelineUtils {
                 .retryNumber(digitalAddressFeedback.getRetryNumber())
                 .recIndex(recIndex)
                 .notificationDate(instantNowSupplier.get())
-                .eventCode(eventCode.getValue())
+                .deliveryDetailCode(eventCode.getValue())
                 .shouldRetry(shouldRetry)
                 .sendingReceipts(
                         (digitalMessageReference != null && digitalMessageReference.getId() != null)?
@@ -788,7 +784,7 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_REFINEMENT, elementId, details);
     }
 
-    public TimelineElementInternal buildRefusedRequestTimelineElement(NotificationInt notification, List<String> errors) {
+    public TimelineElementInternal buildRefusedRequestTimelineElement(NotificationInt notification, List<NotificationRefusedErrorInt> errors) {
         log.debug("buildRefusedRequestTimelineElement - iun={}", notification.getIun());
 
         String elementId = TimelineEventId.REQUEST_REFUSED.buildEventId(
@@ -797,7 +793,7 @@ public class TimelineUtils {
                         .build());
 
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
-                .errors(errors)
+                .refusalReasons(errors)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);
