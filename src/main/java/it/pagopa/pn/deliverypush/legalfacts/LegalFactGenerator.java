@@ -54,7 +54,6 @@ public class LegalFactGenerator {
     public static final String FIELD_WHEN = "when";
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL = "piattaformaNotificheURL";
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL = "piattaformaNotificheURLLabel";
-    public static final String FIELD_PN_FAQ_URL = "PNFaqURL";
     public static final String FIELD_PN_FAQ_COMPLETION_MOMENT_URL = "PNFaqCompletionMomentURL";
     public static final String FIELD_SEND_URL = "PNFaqSendURL";
     public static final String FIELD_END_WORKFLOW_STATUS = "endWorkflowStatus";
@@ -339,7 +338,6 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(recipient) );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel(recipient) );
-        templateModel.put(FIELD_PN_FAQ_URL, this.getFAQAccessLink());
         templateModel.put(FIELD_PN_FAQ_COMPLETION_MOMENT_URL, this.getFAQCompletionMomentAccessLink());
         templateModel.put(FIELD_SEND_URL, this.getFAQSendURL());
         templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
