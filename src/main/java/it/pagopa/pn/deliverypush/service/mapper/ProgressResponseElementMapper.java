@@ -2,8 +2,14 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.RefusedReason;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.RefusedReasonEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoRefusedReasonMapper;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 public class ProgressResponseElementMapper {
     private ProgressResponseElementMapper() {
@@ -21,8 +27,13 @@ public class ProgressResponseElementMapper {
         progressResponseElement.setRecipientIndex(ev.getRecipientIndex());
         progressResponseElement.setLegalfactIds(ev.getLegalfactIds());
         progressResponseElement.setAnalogCost(ev.getAnalogCost());
-        progressResponseElement.setValidationErrors(ev.getValidationErrors());
+        progressResponseElement.setValidationErrors( !CollectionUtils.isEmpty( ev.getValidationErrors() ) ? mapRefusedReasons( ev.getValidationErrors() ) : null );
         return progressResponseElement;
+    }
+    private static List<RefusedReason> mapRefusedReasons(List<RefusedReasonEntity> refusedReasonEntityList) {
+        return refusedReasonEntityList.stream()
+                .map(EntityToDtoRefusedReasonMapper::entityToDto)
+                .toList();
     }
 
 }

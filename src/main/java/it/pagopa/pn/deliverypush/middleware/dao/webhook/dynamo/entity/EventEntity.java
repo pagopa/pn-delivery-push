@@ -59,5 +59,5 @@ public class EventEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_LEGALFACT_IDS)})) private List<String> legalfactIds;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_ANALOG_COST)})) private Integer analogCost;
 
-    @Getter(onMethod=@__({@DynamoDbAttribute(COL_VALIDATION_ERRORS)})) private List<String> validationErrors;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_VALIDATION_ERRORS)})) private List<RefusedReasonEntity> validationErrors;
 }

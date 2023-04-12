@@ -730,10 +730,17 @@ components:
 
         validationErrors:
           type: array
-          items:
-            type: string
-          example: ["[FILE_SHA_ERROR] - iun WGLX-WGLU-RAHT-202304-V-1"]
           description: eventuali errori di validazione associati all'evento
+          items:
+            $ref: '#/components/schemas/RefusedReason'
+
+    RefusedReason:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
     
     ###  - EVENTI GENERATI DALLA P.A.
     ###################################
