@@ -500,6 +500,7 @@ class HtmlSanitizerTest {
                 denomination,
                 UUID.randomUUID().toString(),
                 "digital address",
+                "digital address source",
                 Instant.now(),
                 Instant.now().toString(),
                 true

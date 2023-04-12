@@ -98,7 +98,7 @@ class AttachmentUtilsTest {
         Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(Mono.error(new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND)));
 
         //THEN
-        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
+        assertThrows(PnNotFoundException.class, () -> attachmentUtils.validateAttachment(notification));
     }
     
     @Test

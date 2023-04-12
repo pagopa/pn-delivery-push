@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,29 +14,37 @@ class RequestRefusedDetailsIntTest {
 
     @BeforeEach
     public void setup() {
-        List<String> errors = new ArrayList<>();
-        errors.add(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.FILE_NOTFOUND.getValue());
+        //List<String> errors = new ArrayList<>();
+        //errors.add(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.FILE_NOTFOUND.getValue());
+
+        List<NotificationRefusedErrorInt> errors = new ArrayList<>();
+        NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
+                .errorCode("FILE_NOTFOUND")
+                .detail("details")
+                .build();
+        errors.add(notificationRefusedError);
 
         request = RequestRefusedDetailsInt.builder()
-                .errors(errors)
+                .refusalReasons(errors)
                 .build();
     }
 
     @Test
     void toLog() {
         String log = request.toLog();
-        Assertions.assertEquals("errors=[FILE_NOTFOUND]", log);
+        Assertions.assertEquals("errors=[NotificationRefusedErrorInt(errorCode=FILE_NOTFOUND, detail=details)]", log);
     }
 
     @Test
     void getErrors() {
-        List<String> actualErrors = request.getErrors();
+        //List<String> actualErrors = request.getErrors();
+        List<NotificationRefusedErrorInt> actualErrors = request.getRefusalReasons();
         Assertions.assertEquals(1, actualErrors.size());
     }
 
     @Test
     void testToString() {
         String actual = request.toString();
-        Assertions.assertEquals("RequestRefusedDetailsInt(errors=[FILE_NOTFOUND])", actual);
+        Assertions.assertEquals("RequestRefusedDetailsInt(refusalReasons=[NotificationRefusedErrorInt(errorCode=FILE_NOTFOUND, detail=details)])", actual);
     }
 }
