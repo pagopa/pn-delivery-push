@@ -141,9 +141,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                 digitalResultInfos.getTimelineElementInternal()==null?"":digitalResultInfos.getTimelineElementInternal().getElementId(),
                 digitalResultInfos.getNotification(),
                 digitalResultInfos.getStatus(),
-                digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
                 digitalResultInfos.getRecIndex(),
-                digitalResultInfos.getResponse().getGeneratedMessage(),
+                digitalResultInfos.getResponse(),
                 digitalAddressFeedback
             );
 
@@ -182,9 +181,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                 digitalResultInfos.getTimelineElementInternal()==null?"":digitalResultInfos.getTimelineElementInternal().getElementId(),
                 digitalResultInfos.getNotification(),
                 digitalResultInfos.getStatus(),
-                Collections.emptyList(),
                 digitalResultInfos.getRecIndex(),
-                digitalResultInfos.getResponse().getGeneratedMessage(),
+                digitalResultInfos.getResponse(),
                 digitalAddressFeedback
             );
 

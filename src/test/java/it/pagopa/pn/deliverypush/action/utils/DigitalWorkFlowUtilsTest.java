@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
@@ -268,22 +269,20 @@ class DigitalWorkFlowUtilsTest {
                 .build();
         
         Mockito.when(timelineUtils.buildDigitalFeedbackTimelineElement(
-                "IUN-01_event_idx_0",
-                notification,
-                status,
-                Collections.emptyList(),
-                1,
-                digitalMessageReference, 
-                        digitalAddressFeedback))
+                        Mockito.eq("IUN-01_event_idx_0"),
+                        Mockito.eq(notification),
+                        Mockito.eq(status),
+                        Mockito.eq(1),
+                        Mockito.any(ExtChannelDigitalSentResponseInt.class),
+                        Mockito.eq(digitalAddressFeedback)))
                 .thenReturn(timelineElementInternal);
 
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
                 "IUN-01_event_idx_0",
                 notification,
                 status,
-                Collections.emptyList(),
                 1,
-                digitalMessageReference,
+                ExtChannelDigitalSentResponseInt.builder().build(),
                 digitalAddressFeedback);
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
