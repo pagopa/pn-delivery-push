@@ -69,7 +69,7 @@ public class TimelineEventIdBuilder {
 
     public TimelineEventIdBuilder withSentAttemptMade(@Nullable Integer sentAttemptMade) {
         if(sentAttemptMade != null && sentAttemptMade >= 0)
-            this.sentAttemptMade = DELIMITER.concat("SENTATTEMPTMADE_").concat(sentAttemptMade + "");
+            this.sentAttemptMade = DELIMITER.concat("ATTEMPT_").concat(sentAttemptMade + "");
         return this;
     }
 
@@ -115,7 +115,7 @@ public class TimelineEventIdBuilder {
 
     public TimelineEventIdBuilder withIsFirstSendRetry(@Nullable Boolean retry) {
         if(retry != null)
-            this.isFirstSendRetry = DELIMITER.concat("FIRSTSENDRETRY_").concat(retry.toString());
+            this.isFirstSendRetry = DELIMITER.concat("RETRY_").concat(retry.toString());
         return this;
     }
     
