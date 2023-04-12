@@ -86,7 +86,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildGET_ADDRESSTest() {
         //vecchia versione 123456789_get_address_1_source_PLATFORM_attempt_1
-        String timeLineEventIdExpected = "GET_ADDRESS.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "GET_ADDRESS.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.GET_ADDRESS.getValue())
                 .withIun(IUN)
@@ -113,7 +113,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_FEEDBACKTest() {
         //vecchia versione 123456789_send_digital_feedback_1_source_PLATFORM_attempt_1
-        String timeLineEventIdExpected = "SEND_DIGITAL_FEEDBACK.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "SEND_DIGITAL_FEEDBACK.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_FEEDBACK.getValue())
                 .withIun(IUN)
@@ -140,7 +140,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_PROGRESSTest() {
         //vecchia versione 123456789_digital_delivering_progress_1_source_PLATFORM_attempt_1_progidx_1
-        String timeLineEventIdExpected = "DIGITAL_DELIVERING_PROGRESS.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.FIRSTSENDRETRY_false.SENTATTEMPTMADE_0.PROGRESSINDEX_1";
+        String timeLineEventIdExpected = "DIGITAL_DELIVERING_PROGRESS.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.RETRY_false.ATTEMPT_0.PROGRESSINDEX_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_PROGRESS.getValue())
                 .withIun(IUN)
@@ -175,7 +175,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_ANALOG_FEEDBACKTest() {
         //vecchia versione 123456789_send_analog_feedback_1_attempt_1
-        String timeLineEventIdExpected = "SEND_ANALOG_FEEDBACK.IUN_123-456-789.RECINDEX_1.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "SEND_ANALOG_FEEDBACK.IUN_123-456-789.RECINDEX_1.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_ANALOG_FEEDBACK.getValue())
                 .withIun(IUN)
@@ -200,7 +200,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSSEND_ANALOG_PROGRESSTest() {
         //vecchia versione 123456789_send_analog_progress_1_attempt_1_progidx_1
-        String timeLineEventIdExpected = "SEND_ANALOG_PROGRESS.IUN_123-456-789.RECINDEX_1.SENTATTEMPTMADE_1.PROGRESSINDEX_1";
+        String timeLineEventIdExpected = "SEND_ANALOG_PROGRESS.IUN_123-456-789.RECINDEX_1.ATTEMPT_1.PROGRESSINDEX_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_ANALOG_PROGRESS.getValue())
                 .withIun(IUN)
@@ -227,7 +227,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_DOMICILETest() {
         //vecchia versione 123456789_send_digital_domicile_1_source_PLATFORM_attempt_0
-        String timeLineEventIdExpected = "SEND_DIGITAL_DOMICILE.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.FIRSTSENDRETRY_false.SENTATTEMPTMADE_0";
+        String timeLineEventIdExpected = "SEND_DIGITAL_DOMICILE.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.RETRY_false.ATTEMPT_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_DOMICILE.getValue())
                 .withIun(IUN)
@@ -302,7 +302,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildPREPARE_ANALOG_DOMICILETest() {
         //vecchia versione 123456789_prepare_analog_domicile_1_attempt_1
-        String timeLineEventIdExpected = "PREPARE_ANALOG_DOMICILE.IUN_123-456-789.RECINDEX_1.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "PREPARE_ANALOG_DOMICILE.IUN_123-456-789.RECINDEX_1.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.PREPARE_ANALOG_DOMICILE.getValue())
                 .withIun(IUN)
@@ -327,7 +327,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_ANALOG_DOMICILETest() {
         //vecchia versione 123456789_send_analog_domicile_1_attempt_1
-        String timeLineEventIdExpected = "SEND_ANALOG_DOMICILE.IUN_123-456-789.RECINDEX_1.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "SEND_ANALOG_DOMICILE.IUN_123-456-789.RECINDEX_1.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_ANALOG_DOMICILE.getValue())
                 .withIun(IUN)
@@ -559,7 +559,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSCHEDULE_DIGITAL_WORKFLOWTest() {
         //vecchia versione 123456789_schedule_digital_workflow_1_source_PLATFORM_retry_1
-        String timeLineEventIdExpected = "SCHEDULE_DIGITAL_WORKFLOW.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "SCHEDULE_DIGITAL_WORKFLOW.IUN_123-456-789.RECINDEX_1.SOURCE_PLATFORM.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.getValue())
                 .withIun(IUN)
@@ -586,7 +586,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSCHEDULE_ANALOG_WORKFLOWTest() {
         //vecchia versione 123456789_schedule_analog_workflow_1_retry_1
-        String timeLineEventIdExpected = "SCHEDULE_ANALOG_WORKFLOW.IUN_123-456-789.RECINDEX_1.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "SCHEDULE_ANALOG_WORKFLOW.IUN_123-456-789.RECINDEX_1.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.getValue())
                 .withIun(IUN)
@@ -655,7 +655,7 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildNATIONAL_REGISTRY_CALLTest() {
         //vecchia versione 123456789_1_DIGITAL_CHOOSE_DELIVERY_1_public_registry_call
-        String timeLineEventIdExpected = "NATIONAL_REGISTRY_CALL.IUN_123-456-789.RECINDEX_1.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.SENTATTEMPTMADE_1";
+        String timeLineEventIdExpected = "NATIONAL_REGISTRY_CALL.IUN_123-456-789.RECINDEX_1.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.NATIONAL_REGISTRY_CALL.getValue())
                 .withIun(IUN)

@@ -96,7 +96,7 @@ class TimelineUtilsTest {
     void buildAvailabilitySourceTimelineElement() {
         NotificationInt notification = buildNotification();
         TimelineElementInternal actual = timelineUtils.buildAvailabilitySourceTimelineElement(1, notification, DigitalAddressSourceInt.PLATFORM, Boolean.FALSE, 1);
-        String timelineEventIdExpected = "GET_ADDRESS#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_PLATFORM#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "GET_ADDRESS#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_PLATFORM#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
@@ -108,7 +108,7 @@ class TimelineUtilsTest {
     void buildDigitalFeedbackTimelineElement() {
         NotificationInt notification = buildNotification();
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
-        String timelineEventIdExpected = "SEND_DIGITAL_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#FIRSTSENDRETRY_false#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "SEND_DIGITAL_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#RETRY_false#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         LegalDigitalAddressInt legalDigitalAddressInt = LegalDigitalAddressInt.builder()
                 .address("Via nuova")
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -157,7 +157,7 @@ class TimelineUtilsTest {
         DigitalMessageReferenceInt digitalMessageReference = DigitalMessageReferenceInt.builder().build();
         int progressIndex = 1;
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
-        String timelineEventIdExpected = "DIGITAL_DELIVERING_PROGRESS#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#SENTATTEMPTMADE_1#PROGRESSINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "DIGITAL_DELIVERING_PROGRESS#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL.RETRY_false#ATTEMPT_1#PROGRESSINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                 .retryNumber(sentAttemptMade)
@@ -261,7 +261,7 @@ class TimelineUtilsTest {
                 .foreignState("FR");
 
         String productType ="RN_AR";
-        String timelineEventIdExpected = "SEND_ANALOG_DOMICILE#IUN_Example_IUN_1234_Test#RECINDEX_1#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "SEND_ANALOG_DOMICILE#IUN_Example_IUN_1234_Test#RECINDEX_1#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
 
         AnalogDtoInt analogDtoInfo = AnalogDtoInt.builder()
@@ -435,7 +435,7 @@ class TimelineUtilsTest {
                 notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt, sendRequestId
         );
 
-        String timelineEventIdExpected = "SEND_ANALOG_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_0#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "SEND_ANALOG_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_0#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
@@ -509,7 +509,7 @@ class TimelineUtilsTest {
                 notification, recIndex, lastAttemptInfo
         );
 
-        String timelineEventIdExpected = "SCHEDULE_DIGITAL_WORKFLOW#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "SCHEDULE_DIGITAL_WORKFLOW#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
