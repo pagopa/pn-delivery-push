@@ -298,7 +298,7 @@ public class DigitalWorkFlowHandler {
         
         
         log.info("Check if found address={} and previous address={} are equals - iun={} id={}",
-                digitalAddress != null ? LogUtils.maskEmailAddress(digitalAddress.getAddress()) : null,
+                LogUtils.maskEmailAddress(digitalAddress.getAddress()),
                 sendDigitalDetailsInt.getDigitalAddress() != null ? LogUtils.maskEmailAddress(sendDigitalDetailsInt.getDigitalAddress().getAddress()) : null,
                 iun, 
                 recIndex
