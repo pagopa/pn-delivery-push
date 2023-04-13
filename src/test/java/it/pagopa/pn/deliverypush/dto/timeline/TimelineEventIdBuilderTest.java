@@ -226,6 +226,36 @@ class TimelineEventIdBuilderTest {
     }
 
     @Test
+    void buildPrepareDigitalDomicile() {
+        //vecchia versione 123456789_send_digital_domicile_1_source_PLATFORM_attempt_0
+        String timeLineEventIdExpected = "PREPARE_DIGITAL_DOMICILE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.SOURCE_PLATFORM.ATTEMPT_0.CORRELATIONID_1234";
+        final String corrId = "1234";
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.PREPARE_DIGITAL_DOMICILE.getValue())
+                .withIun(IUN)
+                .withRecIndex(1)
+                .withSource(DigitalAddressSourceInt.PLATFORM)
+                .withSentAttemptMade(0)
+                .withCorrelationId(corrId)
+                .build();
+
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.PREPARE_DIGITAL_DOMICILE.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .recIndex(1)
+                .source(DigitalAddressSourceInt.PLATFORM)
+                .sentAttemptMade(0)
+                .isFirstSendRetry(Boolean.FALSE)
+                .relatedTimelineId(corrId)
+                .build());
+
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+    }
+    
+    @Test
     void buildSEND_DIGITAL_DOMICILETest() {
         //vecchia versione 123456789_send_digital_domicile_1_source_PLATFORM_attempt_0
         String timeLineEventIdExpected = "SEND_DIGITAL.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.SOURCE_PLATFORM.REPEAT_false.ATTEMPT_0";
@@ -819,5 +849,6 @@ class TimelineEventIdBuilderTest {
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
 
     }
+
 
 }
