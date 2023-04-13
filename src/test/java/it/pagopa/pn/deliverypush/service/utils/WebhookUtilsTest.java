@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
@@ -14,6 +15,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class WebhookUtilsTest {
 
 
+    public static final String ERROR_CODE = "FILE_NOTFOUND";
+    public static final String DETAIL = "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869";
     private TimelineService timelineService;
     private StatusService statusService;
     private NotificationService notificationService;
@@ -185,6 +189,32 @@ class WebhookUtilsTest {
         assertEquals(1, eventEntity.getRecipientIndex());
         assertEquals("EMAIL", eventEntity.getChannel());
         assertNotNull(eventEntity.getTtl());
+    }
+
+    @Test
+    void buildEventEntity_6() {
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .iun( "IUN-ABC-123" )
+                .timestamp( Instant.now() )
+                .category( TimelineElementCategoryInt.REQUEST_REFUSED )
+                .details( RequestRefusedDetailsInt.builder()
+                        .refusalReasons( List.of(NotificationRefusedErrorInt.builder()
+                                        .errorCode( ERROR_CODE )
+                                        .detail( DETAIL )
+                                .build() ) )
+                        .build()  )
+                .build();
+
+        NotificationInt notificationInt = NotificationInt.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
+                .build();
+
+        StreamEntity streamEntity = new StreamEntity("paid", "abc");
+        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, null, timelineElementInternal, notificationInt);
+
+        Assertions.assertEquals( ERROR_CODE, eventEntity.getValidationErrors().get( 0 ).getErrorCode());
+        Assertions.assertEquals( DETAIL, eventEntity.getValidationErrors().get( 0 ).getDetail());
     }
 
     private List<TimelineElementInternal> generateTimeline(String iun, String paId){

@@ -10,12 +10,15 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.RefusedReason;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.DtoToEntityRefusedReasonMapper;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationRefusedMapper;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +32,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -108,6 +112,8 @@ public class WebhookUtils {
 
         enrichWithLegalFacts(eventEntity, timelineElementInternal);
 
+        enrichWithValidationErrors(eventEntity, details);
+
         return eventEntity;
     }
 
@@ -156,6 +162,14 @@ public class WebhookUtils {
         if (!CollectionUtils.isEmpty(timelineElementInternal.getLegalFactsIds()))
         {
             eventEntity.setLegalfactIds(timelineElementInternal.getLegalFactsIds().stream().filter(Objects::nonNull).map(LegalFactsIdInt::getKey).map(legalFactKey -> legalFactKey.replace(PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX,"")).toList());
+        }
+    }
+
+    private void enrichWithValidationErrors(EventEntity eventEntity, TimelineElementDetailsInt details) {
+        // aggiungo gli errori di validazione
+        if (details instanceof RequestRefusedDetailsInt requestRefusedDetailsInt) {
+            List<RefusedReason> refusedReasons = requestRefusedDetailsInt.getRefusalReasons().stream().map(NotificationRefusedMapper::internalToExternal).toList();
+            eventEntity.setValidationErrors( refusedReasons.stream().map(DtoToEntityRefusedReasonMapper::dtoToEntity).toList() );
         }
     }
 

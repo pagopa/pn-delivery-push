@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 2MQqCgs7woMu97d2vToDLgpkc3SG9pcJsRrDO9M/DmY=
+  version: V/1igTCdD9nlwA+SqBWanfwqai7BekKcx6aiFwxHs3w=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -524,6 +524,18 @@ components:
             - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q
             - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E
           description: chiavi degli eventuali allegati associati all'evento
+        validationErrors:
+          type: array
+          description: eventuali errori di validazione associati all'evento
+          items:
+            $ref: '#/components/schemas/RefusedReason'
+    RefusedReason:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
     ProblemError:
       properties:
         code:
