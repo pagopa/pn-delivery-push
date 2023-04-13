@@ -87,11 +87,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildGET_ADDRESSTest() {
         //vecchia versione 123456789_get_address_1_source_PLATFORM_attempt_1
-        String timeLineEventIdExpected = "GET_ADDRESS.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.SOURCE_PLATFORM.ATTEMPT_1";
+        String timeLineEventIdExpected = "GET_ADDRESS.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.GET_ADDRESS.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSource(DigitalAddressSourceInt.PLATFORM)
                 .withSentAttemptMade(1)
                 .build();
@@ -101,7 +101,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.GET_ADDRESS.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .source(DigitalAddressSourceInt.PLATFORM)
                 .sentAttemptMade(1)
                 .build());
@@ -114,11 +114,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_FEEDBACKTest() {
         //vecchia versione 123456789_send_digital_feedback_1_source_PLATFORM_attempt_1
-        String timeLineEventIdExpected = "SEND_DIGITAL_FEEDBACK.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.SOURCE_PLATFORM.ATTEMPT_1";
+        String timeLineEventIdExpected = "SEND_DIGITAL_FEEDBACK.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_FEEDBACK.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSource(DigitalAddressSourceInt.PLATFORM)
                 .withSentAttemptMade(1)
                 .build();
@@ -128,7 +128,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .source(DigitalAddressSourceInt.PLATFORM)
                 .sentAttemptMade(1)
                 .build());
@@ -141,11 +141,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_PROGRESSTest() {
         //vecchia versione 123456789_digital_delivering_progress_1_source_PLATFORM_attempt_1_progidx_1
-        String timeLineEventIdExpected = "DIGITAL_PROG.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.SOURCE_PLATFORM.REPEAT_false.ATTEMPT_0.IDX_1";
+        String timeLineEventIdExpected = "DIGITAL_PROG.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.SOURCE_PLATFORM.REPEAT_false.ATTEMPT_0.IDX_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_PROGRESS.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSource(DigitalAddressSourceInt.PLATFORM)
                 .withSentAttemptMade(0)
                 .withProgressIndex(1)
@@ -158,7 +158,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .source(DigitalAddressSourceInt.PLATFORM)
                 .isFirstSendRetry(false)
                 .sentAttemptMade(0)
@@ -168,19 +168,19 @@ class TimelineEventIdBuilderTest {
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
 
-        String eventIdByRecAndIndex = TimelineEventId.SEND_DIGITAL_PROGRESS.buildSearchEventIdByIunAndRecipientIndex(IUN, 1);
+        String eventIdByRecAndIndex = TimelineEventId.SEND_DIGITAL_PROGRESS.buildSearchEventIdByIunAndRecipientIndex(IUN, 0);
         //vecchio formato: 123456789_digital_delivering_progress_1_
-        assertThat(eventIdByRecAndIndex).isEqualTo("DIGITAL_PROG.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1");
+        assertThat(eventIdByRecAndIndex).isEqualTo("DIGITAL_PROG.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0");
     }
 
     @Test
     void buildSEND_ANALOG_FEEDBACKTest() {
         //vecchia versione 123456789_send_analog_feedback_1_attempt_1
-        String timeLineEventIdExpected = "SEND_ANALOG_FEEDBACK.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.ATTEMPT_1";
+        String timeLineEventIdExpected = "SEND_ANALOG_FEEDBACK.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_ANALOG_FEEDBACK.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSentAttemptMade(1)
                 .build();
 
@@ -189,7 +189,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .sentAttemptMade(1)
                 .build());
 
@@ -201,11 +201,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSSEND_ANALOG_PROGRESSTest() {
         //vecchia versione 123456789_send_analog_progress_1_attempt_1_progidx_1
-        String timeLineEventIdExpected = "SEND_ANALOG_PROGRESS.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.ATTEMPT_1.IDX_1";
+        String timeLineEventIdExpected = "SEND_ANALOG_PROGRESS.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.ATTEMPT_1.IDX_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_ANALOG_PROGRESS.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSentAttemptMade(1)
                 .withProgressIndex(1)
                 .build();
@@ -215,7 +215,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_ANALOG_PROGRESS.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .sentAttemptMade(1)
                 .progressIndex(1)
                 .build());
@@ -227,13 +227,12 @@ class TimelineEventIdBuilderTest {
 
     @Test
     void buildPrepareDigitalDomicile() {
-        //vecchia versione 123456789_send_digital_domicile_1_source_PLATFORM_attempt_0
-        String timeLineEventIdExpected = "PREPARE_DIGITAL_DOMICILE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.SOURCE_PLATFORM.ATTEMPT_0.CORRELATIONID_1234";
+        String timeLineEventIdExpected = "PREPARE_DIGITAL_DOMICILE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_0.CORRELATIONID_1234";
         final String corrId = "1234";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.PREPARE_DIGITAL_DOMICILE.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSource(DigitalAddressSourceInt.PLATFORM)
                 .withSentAttemptMade(0)
                 .withCorrelationId(corrId)
@@ -244,7 +243,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.PREPARE_DIGITAL_DOMICILE.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .source(DigitalAddressSourceInt.PLATFORM)
                 .sentAttemptMade(0)
                 .isFirstSendRetry(Boolean.FALSE)
@@ -258,11 +257,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_DIGITAL_DOMICILETest() {
         //vecchia versione 123456789_send_digital_domicile_1_source_PLATFORM_attempt_0
-        String timeLineEventIdExpected = "SEND_DIGITAL.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.SOURCE_PLATFORM.REPEAT_false.ATTEMPT_0";
+        String timeLineEventIdExpected = "SEND_DIGITAL.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.SOURCE_PLATFORM.REPEAT_false.ATTEMPT_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_DIGITAL_DOMICILE.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSource(DigitalAddressSourceInt.PLATFORM)
                 .withSentAttemptMade(0)
                 .withIsFirstSendRetry(Boolean.FALSE)
@@ -274,7 +273,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .source(DigitalAddressSourceInt.PLATFORM)
                 .sentAttemptMade(0)
                 .isFirstSendRetry(Boolean.FALSE)
@@ -288,11 +287,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildPREPARE_SIMPLE_REGISTERED_LETTERTest() {
         //vecchia versione 123456789_prepare_simple_registered_letter_1
-        String timeLineEventIdExpected = "PREPARE_SIMPLE_REGISTERED_LETTER.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "PREPARE_SIMPLE_REGISTERED_LETTER.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.PREPARE_SIMPLE_REGISTERED_LETTER.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -300,7 +299,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.PREPARE_SIMPLE_REGISTERED_LETTER.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -311,11 +310,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_SIMPLE_REGISTERED_LETTERTest() {
         //vecchia versione 123456789_send_simple_registered_letter_1
-        String timeLineEventIdExpected = "SEND_SIMPLE_REGISTERED_LETTER.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "SEND_SIMPLE_REGISTERED_LETTER.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -323,7 +322,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -334,11 +333,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildPREPARE_ANALOG_DOMICILETest() {
         //vecchia versione 123456789_prepare_analog_domicile_1_attempt_1
-        String timeLineEventIdExpected = "PREPARE_ANALOG_DOMICILE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.ATTEMPT_1";
+        String timeLineEventIdExpected = "PREPARE_ANALOG_DOMICILE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.PREPARE_ANALOG_DOMICILE.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSentAttemptMade(1)
                 .build();
 
@@ -347,7 +346,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.PREPARE_ANALOG_DOMICILE.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .sentAttemptMade(1)
                 .build());
 
@@ -359,11 +358,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSEND_ANALOG_DOMICILETest() {
         //vecchia versione 123456789_send_analog_domicile_1_attempt_1
-        String timeLineEventIdExpected = "SEND_ANALOG_DOMICILE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.ATTEMPT_1";
+        String timeLineEventIdExpected = "SEND_ANALOG_DOMICILE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SEND_ANALOG_DOMICILE.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSentAttemptMade(1)
                 .build();
 
@@ -372,7 +371,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .sentAttemptMade(1)
                 .build());
 
@@ -383,12 +382,12 @@ class TimelineEventIdBuilderTest {
 
     @Test
     void buildDIGITAL_DELIVERY_CREATION_REQUESTTest() {
-        //vecchia versione digital_delivery_creation_request_iun_123456789_recindex_1
-        String timeLineEventIdExpected = "DIGITAL_DELIVERY_CREATION_REQUEST.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        //vecchia versione digital_delivery_creation_request_iun_123456789_RECINDEX_0
+        String timeLineEventIdExpected = "DIGITAL_DELIVERY_CREATION_REQUEST.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.DIGITAL_DELIVERY_CREATION_REQUEST.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -396,7 +395,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.DIGITAL_DELIVERY_CREATION_REQUEST.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -407,11 +406,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildDIGITAL_SUCCESS_WORKFLOWTest() {
         //vecchia versione 123456789_digital_success_workflow_1
-        String timeLineEventIdExpected = "DIGITAL_SUCCESS_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "DIGITAL_SUCCESS_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -419,7 +418,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -430,11 +429,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildDIGITAL_FAILURE_WORKFLOWTest() {
         //vecchia versione 123456789_digital_failure_workflow_1
-        String timeLineEventIdExpected = "DIGITAL_FAILURE_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "DIGITAL_FAILURE_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.DIGITAL_FAILURE_WORKFLOW.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -442,7 +441,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -453,11 +452,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildANALOG_SUCCESS_WORKFLOWTest() {
         //vecchia versione 123456789_analog_success_workflow_1
-        String timeLineEventIdExpected = "ANALOG_SUCCESS_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "ANALOG_SUCCESS_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.ANALOG_SUCCESS_WORKFLOW.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -465,7 +464,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -476,11 +475,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildANALOG_FAILURE_WORKFLOWTest() {
         //vecchia versione 123456789_analog_failure_workflow_1
-        String timeLineEventIdExpected = "ANALOG_FAILURE_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "ANALOG_FAILURE_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.ANALOG_FAILURE_WORKFLOW.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -488,7 +487,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -498,12 +497,12 @@ class TimelineEventIdBuilderTest {
 
     @Test
     void buildNOTIFICATION_VIEWED_CREATION_REQUESTTest() {
-        //vecchia versione notification_viewed_creation_request_iun_123456789_recIndex_1
-        String timeLineEventIdExpected = "NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        //vecchia versione notification_viewed_creation_request_iun_123456789_RECINDEX_0
+        String timeLineEventIdExpected = "NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -511,7 +510,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -522,11 +521,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildNOTIFICATION_VIEWEDTest() {
         //vecchia versione 123456789_notification_viewed_1
-        String timeLineEventIdExpected = "NOTIFICATION_VIEWED.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "NOTIFICATION_VIEWED.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.NOTIFICATION_VIEWED.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -534,7 +533,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -545,11 +544,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildCOMPLETELY_UNREACHABLETest() {
         //vecchia versione 123456789_completely_unreachable_1
-        String timeLineEventIdExpected = "COMPLETELY_UNREACHABLE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "COMPLETELY_UNREACHABLE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.COMPLETELY_UNREACHABLE.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -557,7 +556,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.COMPLETELY_UNREACHABLE.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -568,11 +567,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildREFINEMENTTest() {
         //vecchia versione 123456789_refinement_1
-        String timeLineEventIdExpected = "REFINEMENT.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "REFINEMENT.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.REFINEMENT.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -580,7 +579,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.REFINEMENT.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -591,11 +590,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSCHEDULE_DIGITAL_WORKFLOWTest() {
         //vecchia versione 123456789_schedule_digital_workflow_1_source_PLATFORM_retry_1
-        String timeLineEventIdExpected = "SCHEDULE_DIGITAL_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.SOURCE_PLATFORM.ATTEMPT_1";
+        String timeLineEventIdExpected = "SCHEDULE_DIGITAL_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.SOURCE_PLATFORM.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSource(DigitalAddressSourceInt.PLATFORM)
                 .withSentAttemptMade(1)
                 .build();
@@ -605,7 +604,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .source(DigitalAddressSourceInt.PLATFORM)
                 .sentAttemptMade(1)
                 .build());
@@ -618,11 +617,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSCHEDULE_ANALOG_WORKFLOWTest() {
         //vecchia versione 123456789_schedule_analog_workflow_1_retry_1
-        String timeLineEventIdExpected = "SCHEDULE_ANALOG_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.ATTEMPT_1";
+        String timeLineEventIdExpected = "SCHEDULE_ANALOG_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withSentAttemptMade(1)
                 .build();
 
@@ -631,7 +630,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .sentAttemptMade(1)
                 .build());
 
@@ -643,11 +642,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildSCHEDULE_REFINEMENT_WORKFLOWTest() {
         //vecchia versione 123456789_schedule_refinement_workflow_1
-        String timeLineEventIdExpected = "SCHEDULE_REFINEMENT_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "SCHEDULE_REFINEMENT_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.SCHEDULE_REFINEMENT_WORKFLOW.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -655,7 +654,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SCHEDULE_REFINEMENT_WORKFLOW.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -687,11 +686,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildNATIONAL_REGISTRY_CALLTest() {
         //vecchia versione 123456789_1_DIGITAL_CHOOSE_DELIVERY_1_public_registry_call
-        String timeLineEventIdExpected = "NATIONAL_REGISTRY_CALL.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_1";
+        String timeLineEventIdExpected = "NATIONAL_REGISTRY_CALL.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.DELIVERYMODE_DIGITAL.CONTACTPHASE_CHOOSE_DELIVERY.ATTEMPT_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.NATIONAL_REGISTRY_CALL.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .withDeliveryMode(DeliveryModeInt.DIGITAL)
                 .withContactPhase(ContactPhaseInt.CHOOSE_DELIVERY)
                 .withSentAttemptMade(1)
@@ -702,7 +701,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.NATIONAL_REGISTRY_CALL.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .deliveryMode(DeliveryModeInt.DIGITAL)
                 .contactPhase(ContactPhaseInt.CHOOSE_DELIVERY)
                 .sentAttemptMade(1)
@@ -733,12 +732,12 @@ class TimelineEventIdBuilderTest {
 
     @Test
     void buildAAR_CREATION_REQUESTTest() {
-        //vecchia versione aar_creation_request_iun_123456789_recIndex_1
-        String timeLineEventIdExpected = "AAR_CREATION_REQUEST.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        //vecchia versione aar_creation_request_iun_123456789_RECINDEX_0
+        String timeLineEventIdExpected = "AAR_CREATION_REQUEST.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.AAR_CREATION_REQUEST.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -746,7 +745,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.AAR_CREATION_REQUEST.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -757,11 +756,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildAAR_GENERATIONTest() {
         //vecchia versione 123456789_aar_gen_1
-        String timeLineEventIdExpected = "AAR_GEN.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "AAR_GEN.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.AAR_GENERATION.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -769,7 +768,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.AAR_GENERATION.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
@@ -780,11 +779,11 @@ class TimelineEventIdBuilderTest {
     @Test
     void buildNOT_HANDLEDTest() {
         //vecchia versione 123456789_not_handled_1
-        String timeLineEventIdExpected = "NOT_HANDLED.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_1";
+        String timeLineEventIdExpected = "NOT_HANDLED.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.NOT_HANDLED.getValue())
                 .withIun(IUN)
-                .withRecIndex(1)
+                .withRecIndex(0)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
@@ -792,7 +791,7 @@ class TimelineEventIdBuilderTest {
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOT_HANDLED.buildEventId(EventId
                 .builder()
                 .iun(IUN)
-                .recIndex(1)
+                .recIndex(0)
                 .build());
 
 
