@@ -88,6 +88,77 @@ class DtoToEntityTimelineMapperTest {
 
     }
 
+    @Test
+    void dtoToEntityPrepareAnalogDomicile_ServiceLevel_AR_REGISTERED_LETTER() {
+        DtoToEntityTimelineMapper dto = new DtoToEntityTimelineMapper();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("PREPARE_ANALOG_DOMICILE.IUN_ATVR-VRDL-GPQG-202304-J-1.RECINDEX_0.SENTATTEMPTMADE_0")
+                .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
+                .notificationSentAt(Instant.now())
+                .paId("paTestMv")
+                .timestamp(Instant.now())
+                .details(BaseAnalogDetailsInt.builder()
+                        .recIndex(0)
+                        .physicalAddress(null)
+                        .serviceLevel(ServiceLevelInt.AR_REGISTERED_LETTER)
+                        .sentAttemptMade(0)
+                        .build())
+                .build();
+
+        TimelineElementEntity actual = dto.dtoToEntity(timelineElementInternal);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getIun()).isEqualTo(timelineElementInternal.getIun());
+        assertThat(actual.getTimelineElementId()).isEqualTo(timelineElementInternal.getElementId());
+        assertThat(actual.getPaId()).isEqualTo(timelineElementInternal.getPaId());
+        assertThat(actual.getNotificationSentAt()).isEqualTo(timelineElementInternal.getNotificationSentAt());
+        assertThat(actual.getCategory().name()).isEqualTo(timelineElementInternal.getCategory().name());
+        assertThat(actual.getTimestamp()).isEqualTo(timelineElementInternal.getTimestamp());
+
+        // verifica details
+        BaseAnalogDetailsInt details = (BaseAnalogDetailsInt) timelineElementInternal.getDetails();
+        assertThat(actual.getDetails()).isNotNull();
+        assertThat(actual.getDetails().getRecIndex()).isEqualTo(details.getRecIndex());
+        assertThat(actual.getDetails().getServiceLevel().name()).isEqualTo(details.getServiceLevel().name());
+        assertThat(actual.getDetails().getSentAttemptMade()).isEqualTo(details.getSentAttemptMade());
+    }
+
+    @Test
+    void dtoToEntityPrepareAnalogDomicile_ServiceLevel_REGISTERED_LETTER_890() {
+        DtoToEntityTimelineMapper dto = new DtoToEntityTimelineMapper();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("PREPARE_ANALOG_DOMICILE.IUN_ATVR-VRDL-GPQG-202304-J-1.RECINDEX_0.SENTATTEMPTMADE_0")
+                .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
+                .notificationSentAt(Instant.now())
+                .paId("paTestMv")
+                .timestamp(Instant.now())
+                .details(BaseAnalogDetailsInt.builder()
+                        .recIndex(0)
+                        .physicalAddress(null)
+                        .serviceLevel(ServiceLevelInt.REGISTERED_LETTER_890)
+                        .sentAttemptMade(0)
+                        .build())
+                .build();
+
+        TimelineElementEntity actual = dto.dtoToEntity(timelineElementInternal);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getIun()).isEqualTo(timelineElementInternal.getIun());
+        assertThat(actual.getTimelineElementId()).isEqualTo(timelineElementInternal.getElementId());
+        assertThat(actual.getPaId()).isEqualTo(timelineElementInternal.getPaId());
+        assertThat(actual.getNotificationSentAt()).isEqualTo(timelineElementInternal.getNotificationSentAt());
+        assertThat(actual.getCategory().name()).isEqualTo(timelineElementInternal.getCategory().name());
+        assertThat(actual.getTimestamp()).isEqualTo(timelineElementInternal.getTimestamp());
+
+        // verifica details
+        BaseAnalogDetailsInt details = (BaseAnalogDetailsInt) timelineElementInternal.getDetails();
+        assertThat(actual.getDetails()).isNotNull();
+        assertThat(actual.getDetails().getRecIndex()).isEqualTo(details.getRecIndex());
+        assertThat(actual.getDetails().getServiceLevel().name()).isEqualTo(details.getServiceLevel().name());
+        assertThat(actual.getDetails().getSentAttemptMade()).isEqualTo(details.getSentAttemptMade());
+
+    }
+
     private TimelineElementInternal buildTimelineElementInternal() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
         TimelineElementDetailsInt elementDetailsInt = parseDetailsFromEntity(TimelineElementDetailsEntity.builder()
