@@ -215,7 +215,7 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn(notification);
         Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.any(NotificationInt.class)))
                 .thenReturn(LegalDigitalAddressInt.builder()
-                        .address("testAddress")
+                        .address("testAddress@test.it")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build());
 
@@ -438,7 +438,7 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.any(NotificationInt.class)))
                 .thenReturn(LegalDigitalAddressInt.builder()
-                        .address("testAddress")
+                        .address("estAddress@test.it")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build());
 

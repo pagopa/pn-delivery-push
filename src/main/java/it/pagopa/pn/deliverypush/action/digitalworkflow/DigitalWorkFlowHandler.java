@@ -252,10 +252,11 @@ public class DigitalWorkFlowHandler {
         String iun = notification.getIun();
         LegalDigitalAddressInt digitalAddress = addressInfo.getDigitalAddress();
 
-        log.info("CheckAddressAndSend for source={} sentAttemptMade={} address={} - iun={} id={}", 
-                addressInfo.getDigitalAddressSource(), addressInfo.getSentAttemptMade(), LogUtils.maskEmailAddress(digitalAddress.getAddress()), iun, recIndex);
+        log.info("CheckAddressAndSend for source={} sentAttemptMade={} - iun={} id={}", 
+                addressInfo.getDigitalAddressSource(), addressInfo.getSentAttemptMade(), iun, recIndex);
         
         if (digitalAddress != null) {
+            log.info("Found address is {} - iun={} id={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), iun, recIndex);
             handleSendWithDigitalAddress(notification, recIndex, addressInfo, iun, digitalAddress);
         } else {
             handleDigitalAddressNotPresent(notification, recIndex, addressInfo, iun);
@@ -294,9 +295,14 @@ public class DigitalWorkFlowHandler {
         //Devo verificare che l'indirizzo ottenuto non sia uguale a quello già utilizzato in quest'ultimo tentativo
         TimelineElementInternal timelineElement = getTimelineElement(iun, recIndex, addressInfo.getRelatedFeedbackTimelineId());
         SendDigitalFeedbackDetailsInt sendDigitalDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElement.getDetails();
-
+        
+        
         log.info("Check if found address={} and previous address={} are equals - iun={} id={}",
-                LogUtils.maskEmailAddress(digitalAddress.getAddress()), LogUtils.maskEmailAddress(sendDigitalDetailsInt.getDigitalAddress().getAddress()), iun, recIndex);
+                digitalAddress != null ? LogUtils.maskEmailAddress(digitalAddress.getAddress()) : null,
+                sendDigitalDetailsInt.getDigitalAddress() != null ? LogUtils.maskEmailAddress(sendDigitalDetailsInt.getDigitalAddress().getAddress()) : null,
+                iun, 
+                recIndex
+        );
         
         if( ! digitalAddress.equals(sendDigitalDetailsInt.getDigitalAddress())){
             log.info("Found address and previous attempt address are different, notification can proceed to new address found - iun={} id={}",
@@ -338,7 +344,7 @@ public class DigitalWorkFlowHandler {
             
         }
     }
-
+    
     private void handleDigitalAddressNotPresent(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo, String iun) {
         //Se l'indirizzo recuperato da base dati è nullo
         if(addressInfo.getRelatedFeedbackTimelineId() != null){
