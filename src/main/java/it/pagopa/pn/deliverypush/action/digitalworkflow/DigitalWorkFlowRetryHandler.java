@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -135,11 +135,13 @@ public class DigitalWorkFlowRetryHandler {
             // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+            SendInformation digitalAddressFeedback = SendInformation.builder()
                     .retryNumber(originalRetryNumber)
                     .eventTimestamp(Instant.now())
                     .digitalAddressSource(originalAddressSource)
                     .digitalAddress(originalAddressInfo)
+                    .isFirstSendRetry(null)
+                    .relatedFeedbackTimelineId(null)
                     .build();
             
             digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification,
@@ -147,9 +149,7 @@ public class DigitalWorkFlowRetryHandler {
                     recIndex,
                     false,
                     null,
-                    digitalAddressFeedback,
-                    null,
-                    null);
+                    digitalAddressFeedback);
 
             log.error("elapsedExtChannelTimeout Last timelineevent doesn't match original timelineevent source and retrynumber, skipping more actions iun={} recIdx={}", iun, recIndex);
         }

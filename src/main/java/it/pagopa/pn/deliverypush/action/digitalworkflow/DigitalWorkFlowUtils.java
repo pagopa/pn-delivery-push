@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -273,7 +273,7 @@ public class DigitalWorkFlowUtils {
                                                   ResponseStatusInt status,
                                                   int recIndex,
                                                   ExtChannelDigitalSentResponseInt extChannelDigitalSentResponseInt,
-                                                  DigitalAddressFeedback digitalAddressInfo,
+                                                  SendInformation digitalAddressInfo,
                                                   Boolean isFirstSentRetry
                                                   ) {
         TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalFeedbackTimelineElement(
@@ -289,9 +289,7 @@ public class DigitalWorkFlowUtils {
                                                             int recIndex, 
                                                             boolean shouldRetry,
                                                             DigitalMessageReferenceInt digitalMessageReference,
-                                                            DigitalAddressFeedback digitalAddressFeedback,
-                                                            Boolean isFirstSendRetry,
-                                                            String relatedFeedbackTimelineId) {
+                                                            SendInformation digitalAddressFeedback) {
         
         int progressIndex = getPreviousTimelineProgress(notification, recIndex, digitalAddressFeedback.getRetryNumber(), digitalAddressFeedback.getDigitalAddressSource()).size() + 1;
 
@@ -303,9 +301,7 @@ public class DigitalWorkFlowUtils {
                         shouldRetry,
                         digitalMessageReference,
                         progressIndex,
-                        digitalAddressFeedback,
-                        isFirstSendRetry,
-                        relatedFeedbackTimelineId
+                        digitalAddressFeedback
                 ),
                 notification
         );

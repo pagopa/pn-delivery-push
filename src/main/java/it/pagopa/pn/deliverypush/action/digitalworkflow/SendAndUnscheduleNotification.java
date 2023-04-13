@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
@@ -42,15 +43,19 @@ public class SendAndUnscheduleNotification {
                                                          String sourceTimelineId,
                                                          Boolean isFirstSendRetry){
 
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalAddress)
+                .digitalAddressSource(addressInfo.getDigitalAddressSource())
+                .retryNumber(addressInfo.getSentAttemptMade())
+                .isFirstSendRetry(isFirstSendRetry)
+                .relatedFeedbackTimelineId(addressInfo.getRelatedFeedbackTimelineId())
+                .build();
+        
         String timelineId = externalChannelService.sendDigitalNotification(
                 notification,
-                digitalAddress,
-                addressInfo.getDigitalAddressSource(),
                 recIndex,
-                addressInfo.getSentAttemptMade(),
                 sendAlreadyInProgress,
-                isFirstSendRetry,
-                addressInfo.getRelatedFeedbackTimelineId());
+                sendInformation);
 
         unscheduleTimeoutAction(notification.getIun(), recIndex, sourceTimelineId);
 

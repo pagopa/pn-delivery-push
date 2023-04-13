@@ -114,7 +114,7 @@ class TimelineUtilsTest {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+        SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(1)
                 .eventTimestamp(eventTimestamp)
                 .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
@@ -159,11 +159,13 @@ class TimelineUtilsTest {
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
         String timelineEventIdExpected = "DIGITAL_PROG#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL.REPEAT_false#ATTEMPT_1#IDX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+        SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(sentAttemptMade)
                 .eventTimestamp(eventTimestamp)
                 .digitalAddressSource(digitalAddressSourceInt)
                 .digitalAddress(digitalAddressInt)
+                .isFirstSendRetry(false)
+                .relatedFeedbackTimelineId(null)
                 .build();
         
         TimelineElementInternal actual = timelineUtils.buildDigitalProgressFeedbackTimelineElement(
@@ -173,9 +175,7 @@ class TimelineUtilsTest {
                 shouldRetry, 
                 digitalMessageReference, 
                 progressIndex,
-                digitalAddressFeedback,
-                false,
-                null
+                digitalAddressFeedback
         );
         
         Assertions.assertAll(
@@ -241,7 +241,15 @@ class TimelineUtilsTest {
         int sentAttemptMade = 1;
         String eventId = "001";
 
-        TimelineElementInternal actual = timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, false, eventId, null);
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalAddress)
+                .digitalAddressSource(addressSource)
+                .retryNumber(sentAttemptMade)
+                .isFirstSendRetry(false)
+                .relatedFeedbackTimelineId(null)
+                .build();
+        
+        TimelineElementInternal actual = timelineUtils.buildSendDigitalNotificationTimelineElement(recIndex, notification, sendInformation, eventId);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals("001", actual.getElementId()),

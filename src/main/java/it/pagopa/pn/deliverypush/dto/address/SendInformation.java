@@ -12,7 +12,9 @@ import java.time.Instant;
 @SuperBuilder( toBuilder = true )
 @EqualsAndHashCode( callSuper = true )
 @ToString
-public class DigitalAddressFeedback extends DigitalAddressInfo{
+public class SendInformation extends DigitalAddressInfo{
     private int retryNumber;
     private Instant eventTimestamp;
+    private Boolean isFirstSendRetry;
+    private String relatedFeedbackTimelineId;
 }

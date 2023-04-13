@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.utils;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -30,15 +31,11 @@ public class ExternalChannelUtils {
     }
 
     public void addSendDigitalNotificationToTimeline(NotificationInt notification,
-                                                     LegalDigitalAddressInt digitalAddress, 
-                                                     DigitalAddressSourceInt addressSource,
-                                                     Integer recIndex, 
-                                                     int sentAttemptMade, 
-                                                     Boolean isFirstSendRetry,
-                                                     String eventId,
-                                                     String relatedFeedbackTimelineId) {
+                                                     Integer recIndex,
+                                                     SendInformation sendInformation,
+                                                     String eventId) {
         addTimelineElement(
-                timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, addressSource, recIndex, notification, sentAttemptMade, isFirstSendRetry, eventId, relatedFeedbackTimelineId),
+                timelineUtils.buildSendDigitalNotificationTimelineElement(recIndex, notification, sendInformation, eventId),
                 notification
         );
     }

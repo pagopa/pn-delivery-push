@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -111,7 +111,16 @@ class ExternalChannelServiceImplTest {
 
         //WHEN        
         final boolean isFirstSendRetry = false;
-        externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, false, isFirstSendRetry, null);
+        
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalDomicile)
+                .digitalAddressSource(addressSource)
+                .retryNumber(sentAttemptMade)
+                .isFirstSendRetry(isFirstSendRetry)
+                .relatedFeedbackTimelineId(null)
+                .build();
+        
+        externalChannelService.sendDigitalNotification(notification, recIndex, false, sendInformation);
         
         //THEN
         String eventIdExpected = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
@@ -125,7 +134,7 @@ class ExternalChannelServiceImplTest {
         );
         
         Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey, quickAccessToken);
-        Mockito.verify(externalChannelUtils).addSendDigitalNotificationToTimeline(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, isFirstSendRetry, eventIdExpected, null);
+        Mockito.verify(externalChannelUtils).addSendDigitalNotificationToTimeline(notification, recIndex, sendInformation, eventIdExpected);
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
@@ -180,7 +189,15 @@ class ExternalChannelServiceImplTest {
 
         //WHEN
         final boolean isFirstSendRetry = false;
-        Assertions.assertThrows(PnInternalException.class, () -> externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, false, isFirstSendRetry, null));
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalDomicile)
+                .digitalAddressSource(addressSource)
+                .retryNumber(sentAttemptMade)
+                .isFirstSendRetry(isFirstSendRetry)
+                .relatedFeedbackTimelineId(null)
+                .build();
+        
+        Assertions.assertThrows(PnInternalException.class, () -> externalChannelService.sendDigitalNotification(notification, recIndex,  false, sendInformation));
 
         //THEN
         String eventIdExpected = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
@@ -192,9 +209,9 @@ class ExternalChannelServiceImplTest {
                         .isFirstSendRetry(isFirstSendRetry)
                         .build()
         );
-
+        
         Mockito.verify(externalChannel).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey, quickAccessToken);
-        Mockito.verify(externalChannelUtils, Mockito.never()).addSendDigitalNotificationToTimeline(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, isFirstSendRetry, eventIdExpected, null);
+        Mockito.verify(externalChannelUtils, Mockito.never()).addSendDigitalNotificationToTimeline(notification, recIndex, sendInformation, eventIdExpected);
         Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess();
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent).generateFailure(Mockito.any(), Mockito.any());
@@ -248,7 +265,14 @@ class ExternalChannelServiceImplTest {
 
         //WHEN
         final boolean isFirstSendRetry = false;
-        externalChannelService.sendDigitalNotification(notification, digitalDomicile, addressSource, recIndex, sentAttemptMade, true, isFirstSendRetry, null);
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalDomicile)
+                .digitalAddressSource(addressSource)
+                .retryNumber(sentAttemptMade)
+                .isFirstSendRetry(isFirstSendRetry)
+                .relatedFeedbackTimelineId(null)
+                .build();
+        externalChannelService.sendDigitalNotification(notification,  recIndex, true, sendInformation);
 
         //THEN
         String eventIdExpected = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
@@ -267,12 +291,10 @@ class ExternalChannelServiceImplTest {
         Mockito.verify(digitalWorkFlowUtils).addDigitalDeliveringProgressTimelineElement(
                 eq(notification),
                 eq(EventCodeInt.DP00),
-                        eq(recIndex),
-                                eq(isFirstSendRetry),
-                                        eq(null),
-                                                Mockito.any(DigitalAddressFeedback.class),
-                                                    Mockito.any(),
-                Mockito.any()
+                eq(recIndex),
+                eq(isFirstSendRetry),
+                eq(null),
+                Mockito.any(SendInformation.class)
         );
 
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());

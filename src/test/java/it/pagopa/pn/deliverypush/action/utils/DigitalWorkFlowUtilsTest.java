@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -267,7 +267,7 @@ class DigitalWorkFlowUtilsTest {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+        SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(1)
                 .eventTimestamp(eventTimestamp)
                 .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
@@ -316,11 +316,13 @@ class DigitalWorkFlowUtilsTest {
         
         Boolean isFirstSendRetry = false;
         
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+        SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(sentAttemptMade)
                 .eventTimestamp(eventTimestamp)
                 .digitalAddressSource(digitalAddressSourceInt)
                 .digitalAddress(digitalAddressInt)
+                .isFirstSendRetry(isFirstSendRetry)
+                .relatedFeedbackTimelineId(null)
                 .build();
         
         Mockito.when(timelineUtils.buildDigitalProgressFeedbackTimelineElement(
@@ -330,9 +332,7 @@ class DigitalWorkFlowUtilsTest {
                 shouldRetry, 
                 digitalMessageReference, 
                 2,
-                digitalAddressFeedback,
-                isFirstSendRetry,
-                null
+                digitalAddressFeedback
         )).thenReturn(timelineElementInternal);
 
         digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
@@ -341,9 +341,7 @@ class DigitalWorkFlowUtilsTest {
                 recIndex, 
                 shouldRetry,
                 digitalMessageReference,
-                digitalAddressFeedback,
-                isFirstSendRetry,
-                null
+                digitalAddressFeedback
         );
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);

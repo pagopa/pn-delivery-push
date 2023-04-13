@@ -6,7 +6,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
@@ -123,7 +123,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             // unschedulo eventuale timer programmato di invio
             sendAndUnscheduleNotification.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
-            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+            SendInformation digitalAddressFeedback = SendInformation.builder()
                     .retryNumber(digitalResultInfos.getRetryNumber())
                     .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
                     .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
@@ -140,7 +140,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                    digitalResultInfos.getIsFirstSendRetry()
             );
 
-            if(digitalResultInfos.getIsFirstSendRetry() != null && digitalResultInfos.getIsFirstSendRetry() == true){
+            if(digitalResultInfos.getIsFirstSendRetry() != null && digitalResultInfos.getIsFirstSendRetry()){
                 //Si tratta della response al primo invio degli eventuali due invii (relativi al secondo ciclo di notifica),
                 // c'è da fare un ulteriore tentativo all'indirizzo recuperato da Banca dati se disponibile
                 DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
@@ -189,7 +189,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             // unschedulo eventuale timer programmato di invio
             sendAndUnscheduleNotification.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
-            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+            SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(digitalResultInfos.getRetryNumber())
                 .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
                 .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
@@ -208,7 +208,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
             log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
             
-            if(digitalResultInfos.getIsFirstSendRetry() != null && digitalResultInfos.getIsFirstSendRetry() == true){
+            if(digitalResultInfos.getIsFirstSendRetry() != null && digitalResultInfos.getIsFirstSendRetry()){
                 log.info("Is response for firstSendRetry - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
                 //Si tratta della response al primo invio degli eventuali due invii (relativi al secondo ciclo di notifica),
                 // c'è da fare un ulteriore tentativo all'indirizzo recuperato da Banca dati se disponibile
@@ -252,11 +252,13 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         log.info("Received PROGRESS response with eventCode={}  GeneratedMessage is {} - iun={} id={}",
                 digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
         
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+        SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(digitalResultInfos.getRetryNumber())
                 .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
                 .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
                 .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                .isFirstSendRetry(digitalResultInfos.getIsFirstSendRetry())
+                .relatedFeedbackTimelineId(digitalResultInfos.getRelatedFeedbackTimelineElement())
                 .build();
         
         digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
@@ -265,9 +267,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                 digitalResultInfos.getRecIndex(),
                 shouldRetry, 
                 digitalResultInfos.getResponse().getGeneratedMessage(),
-                digitalAddressFeedback,
-                digitalResultInfos.getIsFirstSendRetry(),
-                digitalResultInfos.getRelatedFeedbackTimelineElement()
+                digitalAddressFeedback
         );
     }
 
