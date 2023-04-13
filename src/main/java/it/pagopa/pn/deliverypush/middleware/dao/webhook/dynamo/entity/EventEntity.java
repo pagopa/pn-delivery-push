@@ -33,6 +33,8 @@ public class EventEntity {
     private static final String COL_LEGALFACT_IDS = "legalfactIds";
     private static final String COL_ANALOG_COST = "analogCost";
 
+    private static final String COL_VALIDATION_ERRORS = "validationErrors";
+
     public EventEntity(){}
 
     public EventEntity(Long eventId, String streamId){
@@ -57,4 +59,5 @@ public class EventEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_LEGALFACT_IDS)})) private List<String> legalfactIds;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_ANALOG_COST)})) private Integer analogCost;
 
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_VALIDATION_ERRORS)})) private List<RefusedReasonEntity> validationErrors;
 }

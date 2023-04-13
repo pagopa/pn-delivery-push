@@ -177,18 +177,20 @@ class ProgressResponseElementTest {
 
     @Test
     void testToString() {
-        String expected = "class ProgressResponseElement {\n" +
-                "    eventId: 001\n" +
-                "    timestamp: 2021-09-16T15:23:00Z\n" +
-                "    notificationRequestId: 003\n" +
-                "    iun: 002\n" +
-                "    newStatus: ACCEPTED\n" +
-                "    timelineEventCategory: REQUEST_ACCEPTED\n" +
-                "    recipientIndex: 1\n" +
-                "    analogCost: null\n" +
-                "    channel: channel\n" +
-                "    legalfactIds: [PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q]\n" +
-        "}";
+        String expected = """
+                class ProgressResponseElement {
+                    eventId: 001
+                    timestamp: 2021-09-16T15:23:00Z
+                    notificationRequestId: 003
+                    iun: 002
+                    newStatus: ACCEPTED
+                    timelineEventCategory: REQUEST_ACCEPTED
+                    recipientIndex: 1
+                    analogCost: null
+                    channel: channel
+                    legalfactIds: [PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q]
+                    validationErrors: null
+                }""";
         Assertions.assertEquals(expected, responseElement.toString());
     }
 }
