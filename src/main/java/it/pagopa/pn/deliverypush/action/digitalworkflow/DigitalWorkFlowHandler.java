@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
@@ -249,13 +250,13 @@ public class DigitalWorkFlowHandler {
 
     private void checkAddressAndSend(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo) {
         String iun = notification.getIun();
-        log.info("CheckAddressAndSend for source={} sentAttemptMade={} - iun={} id={}", addressInfo.getDigitalAddressSource(), addressInfo.getSentAttemptMade(), iun, recIndex);
-
         LegalDigitalAddressInt digitalAddress = addressInfo.getDigitalAddress();
+
+        log.info("CheckAddressAndSend for source={} sentAttemptMade={} address={} - iun={} id={}", 
+                addressInfo.getDigitalAddressSource(), addressInfo.getSentAttemptMade(), LogUtils.maskEmailAddress(digitalAddress.getAddress()), iun, recIndex);
         
         if (digitalAddress != null) {
             handleSendWithDigitalAddress(notification, recIndex, addressInfo, iun, digitalAddress);
-
         } else {
             handleDigitalAddressNotPresent(notification, recIndex, addressInfo, iun);
         }
@@ -267,10 +268,13 @@ public class DigitalWorkFlowHandler {
         digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), true, addressInfo.getSentAttemptMade());
 
         if(addressInfo.getRelatedFeedbackTimelineId() != null){
+            log.info("Is resend case - iun={} id={}", iun, recIndex);
             handleForResend(notification, recIndex, addressInfo, iun, digitalAddress);
 
         } else {
             //Non si tratta di una casistica di doppio invio passo ad inviare la notifica normalmente
+            log.info("Is not resend case - iun={} id={}", iun, recIndex);
+
             sendAndUnscheduleNotification.sendDigitalNotificationAndScheduleTimeoutAction(
                     notification,
                     digitalAddress,
@@ -291,6 +295,9 @@ public class DigitalWorkFlowHandler {
         TimelineElementInternal timelineElement = getTimelineElement(iun, recIndex, addressInfo.getRelatedFeedbackTimelineId());
         SendDigitalFeedbackDetailsInt sendDigitalDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElement.getDetails();
 
+        log.info("Check if found address={} and previous address={} are equals - iun={} id={}",
+                LogUtils.maskEmailAddress(digitalAddress.getAddress()), LogUtils.maskEmailAddress(sendDigitalDetailsInt.getDigitalAddress().getAddress()), iun, recIndex);
+        
         if( ! digitalAddress.equals(sendDigitalDetailsInt.getDigitalAddress())){
             log.info("Found address and previous attempt address are different, notification can proceed to new address found - iun={} id={}",
                     iun, recIndex);
@@ -355,6 +362,7 @@ public class DigitalWorkFlowHandler {
         SendDigitalFeedbackDetailsInt sendDigitalDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElement.getDetails();
 
         if(ResponseStatusInt.OK.equals(sendDigitalDetailsInt.getResponseStatus())){
+            log.info("Workflow can be completed with status success - iun={} id={}", iun, recIndex );
             //Se il primo tentativo è andato a buon fine il workflow può concludersi con successo
 
             completionWorkflow.completionDigitalWorkflow(

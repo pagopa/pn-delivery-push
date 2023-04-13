@@ -408,6 +408,147 @@ class DigitalTestRepeatIT {
     }
 
     @Test
+    void firstNotAvailableAndSecondSuccessPlatform() {
+        /*
+       - Platform non presente per il primo tentativo, il secondo ripetuto non avviene perchè non presente il primo
+            il terzo va a buon fine (valorizzando ExternalChannelMock.EXT_CHANNEL_WORKS is platformAddressSecondCycle)
+       - Special address presente e fallimento primo tentativo (Ottenuto valorizzando il digitaldomicile con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
+       - General address presente e fallimento primo tentativo (Ottenuto non valorizzando il digitaladdress con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST  per il recipient in PUB_REGISTRY_DIGITAL)
+    */
+        
+        //Il secondo tentativo platform non ripetuto invece viene definito con un ulteriore indirizzo
+        LegalDigitalAddressInt platformAddressSecondCycle = LegalDigitalAddressInt.builder()
+                .address("platformAddress2@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+                .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
+                .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        String taxId01 = "TAXID01";
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId01)
+                .withInternalId("ANON_"+taxId01)
+                .withDigitalDomicile(digitalDomicile)
+                .build();
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+
+        pnDeliveryClientMock.addNotification(notification);
+
+        addressBookMock.addSecondCycleLegalDigitalAddress(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddressSecondCycle));
+
+        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+
+        String iun = notification.getIun();
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
+        //Viene verificata la disponibilità degli indirizzi per il primo tentativo
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificato il numero di send PEC verso external channel
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        int sentPecAttemptNumber = 3;
+        Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        List<NotificationInt> notificationIntsEvents = notificationIntEventCaptor.getAllValues();
+        List<LegalDigitalAddressInt> digitalAddressesEvents = digitalAddressEventCaptor.getAllValues();
+
+        checkExternalChannelAttemptFirstNotAvailableSecondPlatformSuccess(digitalDomicile, pbDigitalAddress, platformAddressSecondCycle, iun, recIndex, notificationIntsEvents, digitalAddressesEvents);
+
+        //Viene verificato che il workflow abbia avuto successo
+        TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddressSecondCycle, 1, 0);
+
+        //Viene verificato che sia avvenuto il perfezionamento
+        TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .build();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                sentPecAttemptNumber,
+                generatedLegalFactsInfo,
+                endWorkflowStatus,
+                legalFactGenerator,
+                timelineService,
+                null
+        );
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
+    }
+
+
+    private void checkExternalChannelAttemptFirstNotAvailableSecondPlatformSuccess(
+                                                                  LegalDigitalAddressInt digitalDomicile,
+                                                                  LegalDigitalAddressInt pbDigitalAddress,
+                                                                  LegalDigitalAddressInt platformAddressSecondCycle,
+                                                                  String iun,
+                                                                  Integer recIndex,
+                                                                  List<NotificationInt> notificationIntsEvents,
+                                                                  List<LegalDigitalAddressInt> digitalAddressesEvents
+    ) {
+        int sentAttemptMade = 0;
+        
+        //Viene verificato che il secondo tentativo sia avvenuto con il domicilio digitale
+        TestUtils.checkExternalChannelPecSend(iun, digitalDomicile.getAddress(), notificationIntsEvents.get(0).getIun(), digitalAddressesEvents.get(0).getAddress());
+        checkIsPresentAcceptanceAndFeedbackInTimeline(digitalDomicile.getAddress(), iun, recIndex, sentAttemptMade, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
+
+        //Viene verificato che il terzo tentativo sia avvenuto con l'indirizzo fornito dai registri pubblici
+        TestUtils.checkExternalChannelPecSend(iun, pbDigitalAddress.getAddress(), notificationIntsEvents.get(1).getIun(), digitalAddressesEvents.get(1).getAddress());
+        checkIsPresentAcceptanceAndFeedbackInTimeline(pbDigitalAddress.getAddress(), iun, recIndex, sentAttemptMade, DigitalAddressSourceInt.GENERAL, ResponseStatusInt.KO);
+
+        sentAttemptMade+= 1;
+        
+        //Viene verificato che il quinto tentativo sia avvenuto con il platform address aggiornato a valle del primo tentativo
+        TestUtils.checkExternalChannelPecSend(iun, platformAddressSecondCycle.getAddress(), notificationIntsEvents.get(2).getIun(), digitalAddressesEvents.get(2).getAddress());
+        checkIsPresentAcceptanceAndFeedbackInTimeline(platformAddressSecondCycle.getAddress(), iun, recIndex, sentAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.OK, false);
+    }
+
+
+    @Test
     void secondFailPlatform() {
         /*
        - Platform address presente e fallimento primo tentativo, il secondo ripetuto fallisce (Grazie all'inserimento di ExternalChannelMock.EXT_CHANNEL_SEND_FAIL)
