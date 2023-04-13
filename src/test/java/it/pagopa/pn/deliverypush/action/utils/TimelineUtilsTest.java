@@ -108,7 +108,7 @@ class TimelineUtilsTest {
     void buildDigitalFeedbackTimelineElement() {
         NotificationInt notification = buildNotification();
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
-        String timelineEventIdExpected = "SEND_DIGITAL_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#RETRY_false#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "SEND_DIGITAL_FEEDBACK#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL#REPEAT_false#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         LegalDigitalAddressInt legalDigitalAddressInt = LegalDigitalAddressInt.builder()
                 .address("Via nuova")
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -157,7 +157,7 @@ class TimelineUtilsTest {
         DigitalMessageReferenceInt digitalMessageReference = DigitalMessageReferenceInt.builder().build();
         int progressIndex = 1;
         Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
-        String timelineEventIdExpected = "DIGITAL_DELIVERING_PROGRESS#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL.RETRY_false#ATTEMPT_1#PROGRESSINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "DIGITAL_PROG#IUN_Example_IUN_1234_Test#RECINDEX_1#SOURCE_GENERAL.REPEAT_false#ATTEMPT_1#IDX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
                 .retryNumber(sentAttemptMade)

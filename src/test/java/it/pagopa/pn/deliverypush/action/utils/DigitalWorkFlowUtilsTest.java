@@ -311,7 +311,7 @@ class DigitalWorkFlowUtilsTest {
 
         Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
         timelineElementInternalSet.add(timelineElementInternal);
-        String timelineEventId = "DIGITAL_DELIVERING_PROGRESS#IUN_IUN_01#RECINDEX_1#SOURCE_SPECIAL#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventId = "DIGITAL_PROG#IUN_IUN_01#RECINDEX_1#SOURCE_SPECIAL#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Mockito.when(timelineService.getTimelineByIunTimelineId("IUN_01", timelineEventId, Boolean.FALSE)).thenReturn(timelineElementInternalSet);
         
         Boolean isFirstSendRetry = false;

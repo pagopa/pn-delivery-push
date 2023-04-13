@@ -76,7 +76,7 @@ public class TimelineEventIdBuilder {
     public TimelineEventIdBuilder withProgressIndex(@Nullable Integer progressIndex) {
         // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
         if(progressIndex != null && progressIndex >= 0)
-            this.progressIndex = DELIMITER.concat("PROGRESSINDEX_").concat(progressIndex + "");
+            this.progressIndex = DELIMITER.concat("IDX_").concat(progressIndex + "");
         return this;
     }
 
@@ -115,7 +115,7 @@ public class TimelineEventIdBuilder {
 
     public TimelineEventIdBuilder withIsFirstSendRetry(@Nullable Boolean retry) {
         if(retry != null)
-            this.isFirstSendRetry = DELIMITER.concat("RETRY_").concat(retry.toString());
+            this.isFirstSendRetry = DELIMITER.concat("REPEAT_").concat(retry.toString());
         return this;
     }
     
