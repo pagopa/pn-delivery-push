@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -42,14 +42,20 @@ class DigitalWorkFlowUtilsTest {
     private TimelineUtils timelineUtils;
     private NotificationUtils notificationUtils;
     private DigitalWorkFlowUtils digitalWorkFlowUtils;
-
+    
+    
     @BeforeEach
     void setup() {
         timelineService = Mockito.mock(TimelineService.class);
         addressBookService = Mockito.mock(AddressBookService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
-        digitalWorkFlowUtils = new DigitalWorkFlowUtils(timelineService, addressBookService, timelineUtils, notificationUtils);
+        
+        digitalWorkFlowUtils = new DigitalWorkFlowUtils(
+                timelineService,
+                addressBookService, 
+                timelineUtils, 
+                notificationUtils);
     }
 
     @Test
@@ -261,7 +267,7 @@ class DigitalWorkFlowUtilsTest {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+        SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(1)
                 .eventTimestamp(eventTimestamp)
                 .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
@@ -274,7 +280,8 @@ class DigitalWorkFlowUtilsTest {
                         Mockito.eq(status),
                         Mockito.eq(1),
                         Mockito.any(ExtChannelDigitalSentResponseInt.class),
-                        Mockito.eq(digitalAddressFeedback)))
+                        Mockito.eq(digitalAddressFeedback),
+                        Mockito.eq(false)))
                 .thenReturn(timelineElementInternal);
 
         digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
@@ -283,7 +290,8 @@ class DigitalWorkFlowUtilsTest {
                 status,
                 1,
                 ExtChannelDigitalSentResponseInt.builder().build(),
-                digitalAddressFeedback);
+                digitalAddressFeedback,
+                false);
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
@@ -303,14 +311,18 @@ class DigitalWorkFlowUtilsTest {
 
         Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
         timelineElementInternalSet.add(timelineElementInternal);
-        String timelineEventId = "DIGITAL_DELIVERING_PROGRESS#IUN_IUN_01#RECINDEX_1#SOURCE_SPECIAL#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventId = "DIGITAL_PROG#IUN_IUN_01#RECINDEX_1#SOURCE_SPECIAL#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
         Mockito.when(timelineService.getTimelineByIunTimelineId("IUN_01", timelineEventId, Boolean.FALSE)).thenReturn(timelineElementInternalSet);
-
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+        
+        Boolean isFirstSendRetry = false;
+        
+        SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(sentAttemptMade)
                 .eventTimestamp(eventTimestamp)
                 .digitalAddressSource(digitalAddressSourceInt)
                 .digitalAddress(digitalAddressInt)
+                .isFirstSendRetry(isFirstSendRetry)
+                .relatedFeedbackTimelineId(null)
                 .build();
         
         Mockito.when(timelineUtils.buildDigitalProgressFeedbackTimelineElement(

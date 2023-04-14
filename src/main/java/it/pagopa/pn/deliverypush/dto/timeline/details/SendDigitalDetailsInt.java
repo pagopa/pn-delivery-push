@@ -18,14 +18,17 @@ public class SendDigitalDetailsInt implements DigitalSendTimelineElementDetails 
     private DigitalAddressSourceInt digitalAddressSource;
     private Integer retryNumber;
     private DownstreamIdInt downstreamId;
-
+    private Boolean isFirstSendRetry;
+    private String relatedFeedbackTimelineId;
+    
     public String toLog() {
         return String.format(
-                "recIndex=%d source=%s retryNumber=%s digitalAddress=%s",
+                "recIndex=%d source=%s retryNumber=%s digitalAddress=%s isFirstSendRetry=%s",
                 recIndex,
                 digitalAddressSource,
                 retryNumber,
-                AuditLogUtils.SENSITIVE
+                AuditLogUtils.SENSITIVE,
+                isFirstSendRetry
         );
     }
 }

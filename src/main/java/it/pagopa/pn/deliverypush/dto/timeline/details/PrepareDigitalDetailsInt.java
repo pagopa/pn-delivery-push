@@ -27,8 +27,9 @@ public class PrepareDigitalDetailsInt implements DigitalSendTimelineElementDetai
     private DigitalAddressSourceInt nextDigitalAddressSource;
     private int nextSourceAttemptsMade;
     private Instant nextLastAttemptMadeForSource;
-
-
+    private Boolean isFirstSendRetry;
+    private String relatedFeedbackTimelineId;
+    
     public String toLog() {
         return String.format(
                 "recIndex=%d source=%s retryNumber=%s digitalAddress=%s nextDigitalAddressSource=%s nextSourceAttemptsMade=%d lastAttemptMadeForSource=%s",

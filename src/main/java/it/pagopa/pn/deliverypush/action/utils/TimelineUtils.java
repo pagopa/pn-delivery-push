@@ -134,21 +134,22 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildDigitalFeedbackTimelineElement(
-                                                                       String digitalDomicileTimelineId,
+    public TimelineElementInternal buildDigitalFeedbackTimelineElement(String digitalDomicileTimelineId,
                                                                        NotificationInt notification,
                                                                        ResponseStatusInt status,
                                                                        int recIndex,
                                                                        ExtChannelDigitalSentResponseInt extChannelDigitalSentResponseInt,
-                                                                       DigitalAddressFeedback digitalAddressInfo) {
+                                                                       SendInformation digitalAddressFeedback,
+                                                                       Boolean isFirstSentRetry) {
         log.debug("buildDigitaFeedbackTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
-                        .sentAttemptMade(digitalAddressInfo.getRetryNumber())
-                        .source(digitalAddressInfo.getDigitalAddressSource())
+                        .sentAttemptMade(digitalAddressFeedback.getRetryNumber())
+                        .source(digitalAddressFeedback.getDigitalAddressSource())
+                        .isFirstSendRetry(isFirstSentRetry)
                         .build()
         );
 
@@ -156,12 +157,12 @@ public class TimelineUtils {
 
         SendDigitalFeedbackDetailsInt details = SendDigitalFeedbackDetailsInt.builder()
                 .deliveryFailureCause(extChannelDigitalSentResponseInt.getEventDetails())
-                .digitalAddress(digitalAddressInfo.getDigitalAddress())
-                .digitalAddressSource(digitalAddressInfo.getDigitalAddressSource())
+                .digitalAddress(digitalAddressFeedback.getDigitalAddress())
+                .digitalAddressSource(digitalAddressFeedback.getDigitalAddressSource())
                 .responseStatus(status)
                 .deliveryDetailCode(extChannelDigitalSentResponseInt.getEventCode().getValue())
                 .recIndex(recIndex)
-                .notificationDate(digitalAddressInfo.getEventTimestamp())
+                .notificationDate(digitalAddressFeedback.getEventTimestamp())
                 .sendingReceipts(
                         (digitalMessageReference != null && digitalMessageReference.getId() != null)?
                                 Collections.singletonList(SendingReceipt.builder()
@@ -176,7 +177,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(  (digitalMessageReference!=null && digitalMessageReference.getLocation()!=null)?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
         
-        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, digitalAddressInfo.getEventTimestamp(), details, timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, digitalAddressFeedback.getEventTimestamp(), details, timelineBuilder);
     }
 
     public TimelineElementInternal buildDigitalProgressFeedbackTimelineElement(NotificationInt notification,
@@ -185,7 +186,7 @@ public class TimelineUtils {
                                                                                boolean shouldRetry,
                                                                                DigitalMessageReferenceInt digitalMessageReference,
                                                                                int progressIndex,
-                                                                               DigitalAddressFeedback digitalAddressFeedback) {
+                                                                               SendInformation digitalAddressFeedback) {
         log.debug("buildDigitalDeliveringProgressTimelineElement - IUN={} and id={} and progressIndex={}", notification.getIun(), recIndex, progressIndex);
 
         String elementId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
@@ -194,6 +195,7 @@ public class TimelineUtils {
                         .recIndex(recIndex)
                         .sentAttemptMade(digitalAddressFeedback.getRetryNumber())
                         .source(digitalAddressFeedback.getDigitalAddressSource())
+                        .isFirstSendRetry(digitalAddressFeedback.getIsFirstSendRetry())
                         .progressIndex(progressIndex)
                         .build()
         );
@@ -214,6 +216,8 @@ public class TimelineUtils {
                                         .build())
                                 :null
                 )
+                .isFirstSendRetry(digitalAddressFeedback.getIsFirstSendRetry())
+                .relatedFeedbackTimelineId(digitalAddressFeedback.getRelatedFeedbackTimelineId())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -282,7 +286,7 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildPrepareDigitalNotificationTimelineElement(NotificationInt notification, Integer recIndex,
                                                                                   LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, int sentAttemptMade, Instant lastAttemptMade,
-                                                                                DigitalAddressSourceInt nextDigitalAddressSource, Instant nextLastAttemptMadeForSource, int nextSourceAttemptsMade,
+                                                                                  DigitalAddressSourceInt nextDigitalAddressSource, Instant nextLastAttemptMadeForSource, int nextSourceAttemptsMade,
                                                                                   String sourceTimelineId) {
         log.debug("buildPrepareDigitalNotificationTimelineElement - IUN={} and id={} sourceTimelineId={}", notification.getIun(), recIndex, sourceTimelineId);
 
@@ -308,16 +312,20 @@ public class TimelineUtils {
 
         return buildTimeline(notification, TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, elementId, details);
     }
-
-    public TimelineElementInternal buildSendDigitalNotificationTimelineElement(LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, Integer recIndex,
-                                                                               NotificationInt notification, int sentAttemptMade, String eventId) {
+    
+    public TimelineElementInternal buildSendDigitalNotificationTimelineElement(Integer recIndex,
+                                                                               NotificationInt notification,
+                                                                               SendInformation sendInformation,
+                                                                               String eventId) {
         log.debug("buildSendDigitalNotificationTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         SendDigitalDetailsInt details = SendDigitalDetailsInt.builder()
                 .recIndex(recIndex)
-                .retryNumber(sentAttemptMade)
-                .digitalAddress(digitalAddress)
-                .digitalAddressSource(addressSource)
+                .retryNumber(sendInformation.getRetryNumber())
+                .digitalAddress(sendInformation.getDigitalAddress())
+                .digitalAddressSource(sendInformation.getDigitalAddressSource())
+                .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
+                .relatedFeedbackTimelineId(sendInformation.getRelatedFeedbackTimelineId())
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE, eventId, details);
@@ -483,7 +491,8 @@ public class TimelineUtils {
 
 
     public TimelineElementInternal  buildPublicRegistryCallTimelineElement(NotificationInt notification, Integer recIndex, String eventId, DeliveryModeInt deliveryMode, 
-                                                                           ContactPhaseInt contactPhase, int sentAttemptMade) {
+                                                                           ContactPhaseInt contactPhase, int sentAttemptMade,
+                                                                           String relatedFeedbackTimelineId) {
         log.debug("buildPublicRegistryCallTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         PublicRegistryCallDetailsInt details = PublicRegistryCallDetailsInt.builder()
@@ -492,6 +501,7 @@ public class TimelineUtils {
                 .sentAttemptMade(sentAttemptMade)
                 .deliveryMode(deliveryMode)
                 .sendDate(instantNowSupplier.get())
+                .relatedFeedbackTimelineId(relatedFeedbackTimelineId)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_CALL, eventId, details);

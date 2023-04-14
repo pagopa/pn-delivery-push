@@ -65,12 +65,13 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .withSource(eventId.getSource())
+                    .withIsFirstSendRetry(eventId.getIsFirstSendRetry())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
         }
     },
 
-    SEND_DIGITAL_PROGRESS("DIGITAL_DELIVERING_PROGRESS") {
+    SEND_DIGITAL_PROGRESS("DIGITAL_PROG") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -78,6 +79,7 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .withSource(eventId.getSource())
+                    .withIsFirstSendRetry(eventId.getIsFirstSendRetry())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .withProgressIndex(eventId.getProgressIndex())
                     .build();
@@ -132,7 +134,7 @@ public enum TimelineEventId {
         }
     },
 
-    SEND_DIGITAL_DOMICILE("SEND_DIGITAL_DOMICILE") {
+    SEND_DIGITAL_DOMICILE("SEND_DIGITAL") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -140,6 +142,7 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .withRecIndex(eventId.getRecIndex())
                     .withSource(eventId.getSource())
+                    .withIsFirstSendRetry(eventId.getIsFirstSendRetry())
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
         }
