@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.utils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -54,9 +55,23 @@ class ExternalChannelUtilsTest {
                 .iun("iun1").elementId("aaaa1").timestamp(Instant.now().minusMillis(30000))
                 .details(SendDigitalProgressDetailsInt.builder().build())
                 .build();
-        Mockito.when(timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, DigitalAddressSourceInt.GENERAL, 1, notification, 1, "001")).thenReturn(t1);
 
-        channelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, DigitalAddressSourceInt.GENERAL, 1, 1, "001");
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalAddress)
+                .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
+                .retryNumber(1)
+                .isFirstSendRetry(false)
+                .relatedFeedbackTimelineId(null)
+                .build();
+        
+        Mockito.when(timelineUtils.buildSendDigitalNotificationTimelineElement(
+                1, 
+                notification,
+                sendInformation,
+                "001"
+        )).thenReturn(t1);
+        
+        channelUtils.addSendDigitalNotificationToTimeline(notification, 1, sendInformation, "001");
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(t1, notification);
     }
 

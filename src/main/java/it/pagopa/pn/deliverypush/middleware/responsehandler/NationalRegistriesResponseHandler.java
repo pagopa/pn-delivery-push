@@ -65,16 +65,13 @@ public class NationalRegistriesResponseHandler {
         //In base alla fase di contatto, inserita in timeline al momento dell'invio, viene scelto il percorso da prendere
         if (contactPhase != null) {
             switch (contactPhase) {
-                case CHOOSE_DELIVERY:
+                case CHOOSE_DELIVERY ->
                     //request has been sent during choose delivery
-                    chooseDeliveryHandler.handleGeneralAddressResponse(response, notification, recIndex);
-                    break;
-                case SEND_ATTEMPT:
+                        chooseDeliveryHandler.handleGeneralAddressResponse(response, notification, recIndex);
+                case SEND_ATTEMPT ->
                     //request has been sent in digital or analog workflow
-                    handleResponseForSendAttempt(response, notification, publicRegistryCallDetails);
-                    break;
-                default:
-                    handleContactPhaseError(correlationId, publicRegistryCallDetails);
+                        handleResponseForSendAttempt(response, notification, publicRegistryCallDetails);
+                default -> handleContactPhaseError(correlationId, publicRegistryCallDetails);
             }
         } else {
             handleContactPhaseError(correlationId, publicRegistryCallDetails);
@@ -87,7 +84,9 @@ public class NationalRegistriesResponseHandler {
         throw new PnInternalException("Specified contactPhase " + publicRegistryCallDetails.getContactPhase() + " does not exist for correlationId " + correlationId, ERROR_CODE_DELIVERYPUSH_CONTACTPHASENOTFOUND);
     }
 
-    private void handleResponseForSendAttempt(NationalRegistriesResponse response, NotificationInt notification, PublicRegistryCallDetailsInt publicRegistryCallDetails) {
+    private void handleResponseForSendAttempt(NationalRegistriesResponse response, 
+                                              NotificationInt notification,
+                                              PublicRegistryCallDetailsInt publicRegistryCallDetails) {
         Integer recIndex = publicRegistryCallDetails.getRecIndex();
         String iun = notification.getIun();
         

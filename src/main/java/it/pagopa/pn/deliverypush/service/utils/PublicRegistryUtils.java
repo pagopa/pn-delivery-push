@@ -41,10 +41,23 @@ public class PublicRegistryUtils {
                         .build());
     }
 
-    public void addPublicRegistryCallToTimeline(NotificationInt notification, Integer recIndex, ContactPhaseInt contactPhase, 
-                                                int sentAttemptMade, String correlationId, DeliveryModeInt digital) {
+    public void addPublicRegistryCallToTimeline(NotificationInt notification, 
+                                                Integer recIndex, 
+                                                ContactPhaseInt contactPhase, 
+                                                int sentAttemptMade, 
+                                                String correlationId, 
+                                                DeliveryModeInt digital, 
+                                                String relatedFeedbackTimelineId) {
         addTimelineElement( 
-                timelineUtils.buildPublicRegistryCallTimelineElement(notification, recIndex, correlationId, digital, contactPhase, sentAttemptMade), 
+                timelineUtils.buildPublicRegistryCallTimelineElement(
+                        notification,
+                        recIndex,
+                        correlationId,
+                        digital,
+                        contactPhase,
+                        sentAttemptMade,
+                        relatedFeedbackTimelineId
+                ), 
                 notification
         );
     }
