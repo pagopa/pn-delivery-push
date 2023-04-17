@@ -457,7 +457,7 @@ components:
       required: true
       schema:
         type: string
-        pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+        pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
         maxLength: 512
 
     ############################################################################################

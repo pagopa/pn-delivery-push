@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: H2/3ifPEotJwPMU3/FVTGkgDGDYpqUxmaGlzPwxweTE=
+  version: iu9kY16P2E74kGXpV3HqAg1nqKf4+kZH47akHFTJfo0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -279,7 +279,7 @@ components:
       required: true
       schema:
         type: string
-        pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+        pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
         maxLength: 512
   schemas:
     LegalFactCategory:
@@ -308,7 +308,7 @@ components:
             Chiave dell'atto opponibile a terzi generato durante il processo di
             consegna
           type: string
-          pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
