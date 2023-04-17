@@ -51,6 +51,7 @@ class NotificationPaidHandlerTest {
                 .creditorTaxId("taxId")
                 .recipientType(PnDeliveryPaymentEvent.RecipientType.PF)
                 .paymentType(PnDeliveryPaymentEvent.PaymentType.PAGOPA)
+                .uncertainPaymentDate(true)
                 .amount(1000)
                 .build();
 

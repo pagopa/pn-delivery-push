@@ -17,6 +17,7 @@ public class NotificationPaidDetails implements RecipientRelatedTimelineElementD
     private String noticeCode;
     private String idF24;
     private String paymentSourceChannel;
+    private boolean uncertainPaymentDate;
 
     @Override
     public String toLog() {

@@ -844,6 +844,9 @@ components:
         paymentSourceChannel:
           type: string
           description: Canale sorgente della richiesta di pagamento
+        uncertainPaymentDate:
+          type: boolean
+          description: Indica se la data di pagamento é certa
 
     SendAnalogProgressDetails:
       type: object
