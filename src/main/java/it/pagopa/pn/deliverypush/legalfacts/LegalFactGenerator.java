@@ -29,7 +29,6 @@ import org.springframework.util.Base64Utils;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -73,7 +72,7 @@ public class LegalFactGenerator {
     private final MVPParameterConsumer mvpParameterConsumer;
     private static final String TEMPLATES_DIR_NAME = "documents_composition_templates";
 
-    private static final String SEND_LOGO_BASE64 =  readLocalImagesInBase64(Paths.get(TEMPLATES_DIR_NAME + File.separator + "images/aar-logo-short-small.png").toString());
+    private static final String SEND_LOGO_BASE64 =  readLocalImagesInBase64(TEMPLATES_DIR_NAME + "/images/aar-logo-short-small.png");
 
     public LegalFactGenerator(
             DocumentComposition documentComposition,
