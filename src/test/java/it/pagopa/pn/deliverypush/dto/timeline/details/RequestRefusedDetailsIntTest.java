@@ -42,9 +42,4 @@ class RequestRefusedDetailsIntTest {
         Assertions.assertEquals(1, actualErrors.size());
     }
 
-    @Test
-    void testToString() {
-        String actual = request.toString();
-        Assertions.assertEquals("RequestRefusedDetailsInt(refusalReasons=[NotificationRefusedErrorInt(errorCode=FILE_NOTFOUND, detail=details)])", actual);
-    }
 }

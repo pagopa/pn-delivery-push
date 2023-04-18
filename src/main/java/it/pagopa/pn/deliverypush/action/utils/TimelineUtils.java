@@ -788,6 +788,7 @@ public class TimelineUtils {
 
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
                 .refusalReasons(errors)
+                .numberOfRecipients( notification.getRecipients().size() )
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);
