@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public class AttachmentUtils {
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
         forEachAttachment(notification, this::checkAttachment);
+        throw new PnValidationFileNotFoundException("Test rifiuto", new IOException());
     }
 
     public void changeAttachmentsStatusToAttached(NotificationInt notification ) {
@@ -147,7 +150,24 @@ public class AttachmentUtils {
                 });
     }
 
-    public List<String> getNotificationAttachments(NotificationInt notification) {
-        return getAllAttachment(notification).stream().map(attachment -> attachment.getRef().getKey()).toList();
+    private List<NotificationDocumentInt> getAllAttachmentByRecipient(NotificationInt notification, NotificationRecipientInt recipient)
+    {
+        List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
+
+        if(recipient.getPayment() != null ){
+
+            if(recipient.getPayment().getPagoPaForm() != null){
+                notificationDocuments.add(recipient.getPayment().getPagoPaForm());
+            }
+            if(recipient.getPayment().getF24flatRate() != null){
+                notificationDocuments.add(recipient.getPayment().getF24flatRate());
+            }
+        }
+
+        return notificationDocuments;
+    }
+
+    public List<String> getNotificationAttachments(NotificationInt notification, NotificationRecipientInt recipient) {
+        return getAllAttachmentByRecipient(notification, recipient).stream().map(attachment -> attachment.getRef().getKey()).toList();
     }
 }
