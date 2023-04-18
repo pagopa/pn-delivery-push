@@ -351,11 +351,6 @@ components:
       required:
         - refusalReasons
       properties:
-        numberOfRecipients:
-          type: integer
-          format: int64
-          description: Numero di destinatari della notifica
-          example: 1
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
