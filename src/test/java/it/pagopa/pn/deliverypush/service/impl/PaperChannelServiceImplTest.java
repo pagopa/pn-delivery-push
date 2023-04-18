@@ -298,7 +298,7 @@ class PaperChannelServiceImplTest {
         List<String> attachments = new ArrayList<String>(2);
         attachments.add("attachment1");
         attachments.add("attachment2");
-        Mockito.when(attachmentUtils.getNotificationAttachments(notificationInt)).thenReturn(attachments);
+        Mockito.when(attachmentUtils.getNotificationAttachments(Mockito.any(), Mockito.any())).thenReturn(attachments);
 
         // WHEN
         paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
@@ -352,7 +352,7 @@ class PaperChannelServiceImplTest {
         List<String> attachments = new ArrayList<String>(2);
         attachments.add("attachment1");
         attachments.add("attachment2");
-        Mockito.when(attachmentUtils.getNotificationAttachments(notificationInt)).thenReturn(attachments);
+        Mockito.when(attachmentUtils.getNotificationAttachments(Mockito.any(), Mockito.any())).thenReturn(attachments);
         
         // WHEN
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
