@@ -17,6 +17,7 @@ public class NotificationPaidInt {
     private RecipientTypeInt recipientType;
     private PaymentTypeInt paymentType;
     private Instant paymentDate;
+    private boolean uncertainPaymentDate;
     private String creditorTaxId;
     private String noticeCode;
     private String paymentSourceChannel;

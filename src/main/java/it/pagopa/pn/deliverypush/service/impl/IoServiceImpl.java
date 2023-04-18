@@ -82,9 +82,7 @@ public class IoServiceImpl implements IoService {
         sendMessageRequest.setIun(notification.getIun());
         sendMessageRequest.setRecipientIndex(recIndex);
         sendMessageRequest.setRecipientInternalID(recipientInt.getInternalId());
-        
-        String subject = notification.getSender().getPaDenomination() +"-"+ notification.getSubject();
-        sendMessageRequest.setSubject(subject);
+        sendMessageRequest.setSubject(notification.getSubject());
 
         return sendMessageRequest;
     }
