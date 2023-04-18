@@ -15,6 +15,7 @@ import java.util.List;
 public class RequestRefusedDetailsInt implements TimelineElementDetailsInt {
     private List<NotificationRefusedErrorInt> refusalReasons;
     private Integer numberOfRecipients;
+    private Integer notificationCost;
 
     public String toLog() {
         return String.format(
