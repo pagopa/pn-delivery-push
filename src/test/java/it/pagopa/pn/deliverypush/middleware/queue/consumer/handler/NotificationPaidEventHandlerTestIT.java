@@ -163,6 +163,7 @@ class NotificationPaidEventHandlerTestIT {
                         .iun(iun)
                         .paymentType(paymentType)
                         .paymentDate(Instant.now())
+                        .uncertainPaymentDate(true)
                         .recipientIdx(recipientIdx)
                         .recipientType(PnDeliveryPaymentEvent.RecipientType.PF)
                         .creditorTaxId(creditorTaxId)

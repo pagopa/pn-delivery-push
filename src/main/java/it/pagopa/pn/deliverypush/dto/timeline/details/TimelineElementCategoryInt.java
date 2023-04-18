@@ -32,7 +32,7 @@ public enum TimelineElementCategoryInt {
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue()),
     SEND_ANALOG_PROGRESS(SendAnalogProgressDetailsInt.class, TimelineElementCategory.SEND_ANALOG_PROGRESS.getValue()),
     SEND_ANALOG_FEEDBACK(SendAnalogFeedbackDetailsInt.class, TimelineElementCategory.SEND_ANALOG_FEEDBACK.getValue()),
-    PAYMENT(NotificationPaidDetails.class, TimelineElementCategory.PAYMENT.getValue()),
+    PAYMENT(NotificationPaidDetailsInt.class, TimelineElementCategory.PAYMENT.getValue()),
     COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategory.COMPLETELY_UNREACHABLE.getValue()),
     REQUEST_REFUSED(RequestRefusedDetailsInt.class, TimelineElementCategory.REQUEST_REFUSED.getValue()),
     AAR_CREATION_REQUEST(AarCreationRequestDetailsInt.class, TimelineElementCategory.AAR_CREATION_REQUEST.getValue()),

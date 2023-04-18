@@ -4,13 +4,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class NotificationPaidDetailsTest {
+class NotificationPaidDetailsIntTest {
 
-    private NotificationPaidDetails details;
+    private NotificationPaidDetailsInt details;
 
     @BeforeEach
     void setUp() {
-        details = new NotificationPaidDetails();
+        details = new NotificationPaidDetailsInt();
         details.setRecIndex(1);
         details.setAmount(1000);
         details.setNoticeCode("noticeCode");

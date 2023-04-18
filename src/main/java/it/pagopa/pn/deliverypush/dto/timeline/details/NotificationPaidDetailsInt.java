@@ -9,7 +9,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class NotificationPaidDetails implements RecipientRelatedTimelineElementDetails {
+public class NotificationPaidDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private String recipientType;
     private Integer amount;
@@ -17,6 +17,7 @@ public class NotificationPaidDetails implements RecipientRelatedTimelineElementD
     private String noticeCode;
     private String idF24;
     private String paymentSourceChannel;
+    private boolean uncertainPaymentDate;
 
     @Override
     public String toLog() {
