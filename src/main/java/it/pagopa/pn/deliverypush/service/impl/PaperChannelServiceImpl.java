@@ -214,7 +214,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         // nel caso in cui NON sia simple registered letter, devo allegare anche gli atti
 
         if(isSendNotificationAttachmentsEnabled)
-            attachments.addAll(attachmentUtils.getNotificationAttachments(notification));
+            attachments.addAll(attachmentUtils.getNotificationAttachments(notification, notificationUtils.getRecipientFromIndex(notification, recIndex)));
+
         return attachments;
     }
 
