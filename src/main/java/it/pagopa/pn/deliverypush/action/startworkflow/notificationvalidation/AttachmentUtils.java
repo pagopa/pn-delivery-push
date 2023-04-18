@@ -35,7 +35,6 @@ public class AttachmentUtils {
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
         forEachAttachment(notification, this::checkAttachment);
-        throw new PnValidationFileNotFoundException("Test rifiuto", new IOException());
     }
 
     public void changeAttachmentsStatusToAttached(NotificationInt notification ) {
