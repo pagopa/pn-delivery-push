@@ -348,8 +348,6 @@ components:
 
     RequestRefusedDetails:
       type: object
-      required:
-        - refusalReasons
       properties:
         refusalReasons:
           type: array
