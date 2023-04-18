@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationPaidDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationPaidDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -84,7 +84,7 @@ class NotificationPaidHandlerTest {
                 .paId("77777777777")
                 .category(TimelineElementCategoryInt.PAYMENT)
                 .legalFactsIds(new ArrayList<>())
-                .details(NotificationPaidDetails.builder()
+                .details(NotificationPaidDetailsInt.builder()
                         .recIndex(notificationPaidInt.getRecipientIdx())
                         .recipientType(notificationPaidInt.getRecipientType().getValue())
                         .amount(notificationPaidInt.getAmount())

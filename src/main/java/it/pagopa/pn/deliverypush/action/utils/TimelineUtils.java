@@ -842,7 +842,7 @@ public class TimelineUtils {
     public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, NotificationPaidInt notificationPaidInt, String elementId) {
         log.debug("buildNotificationPaidTimelineElement: {}", notificationPaidInt);
 
-        NotificationPaidDetails details = NotificationPaidDetails.builder()
+        NotificationPaidDetailsInt details = NotificationPaidDetailsInt.builder()
                 .recIndex(notificationPaidInt.getRecipientIdx())
                 .recipientType(notificationPaidInt.getRecipientType().getValue())
                 .amount(notificationPaidInt.getAmount())

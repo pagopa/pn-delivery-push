@@ -9,7 +9,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class NotificationPaidDetails implements RecipientRelatedTimelineElementDetails {
+public class NotificationPaidDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private String recipientType;
     private Integer amount;

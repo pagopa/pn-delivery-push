@@ -56,7 +56,7 @@ class DtoToEntityTimelineMapperTest {
                 .notificationSentAt(Instant.now())
                 .paId("aa6e8c72-7944-4dcd-8668-f596447fec6d")
                 .timestamp(Instant.now())
-                .details(NotificationPaidDetails.builder()
+                .details(NotificationPaidDetailsInt.builder()
                         .creditorTaxId("creditorTaxId")
                         .noticeCode("noticeId")
                         .recipientType("PF")
@@ -77,7 +77,7 @@ class DtoToEntityTimelineMapperTest {
         assertThat(actual.getTimestamp()).isEqualTo(timelineElementInternal.getTimestamp());
 
         // verifica details
-        NotificationPaidDetails details = (NotificationPaidDetails) timelineElementInternal.getDetails();
+        NotificationPaidDetailsInt details = (NotificationPaidDetailsInt) timelineElementInternal.getDetails();
         assertThat(actual.getDetails()).isNotNull();
         assertThat(actual.getDetails().getRecIndex()).isEqualTo(details.getRecIndex());
         assertThat(actual.getDetails().getCreditorTaxId()).isEqualTo(details.getCreditorTaxId());
