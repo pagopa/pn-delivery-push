@@ -786,8 +786,12 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .build());
 
+        int numberOfRecipients = notification.getRecipients().size();
+
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
                 .refusalReasons(errors)
+                .numberOfRecipients( numberOfRecipients )
+                .notificationCost( 100 * numberOfRecipients )
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);
