@@ -127,6 +127,29 @@ class SaveLegalFactsServiceImplTest {
         Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
 
+
+    @Test
+    void sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFactFailed() {
+        SendDigitalFeedbackDetailsInt sdf = buildSendDigitalFeedbackDetailsInt();
+        String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+        List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel = Collections.singletonList(sdf);
+        NotificationInt notification = buildNotification(denomination);
+        NotificationRecipientInt recipient = buildRecipient(denomination);
+        EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
+        Instant completionWorkflowDate = Instant.parse("2021-09-16T15:24:00.00Z");
+        FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_LEGAL_FACTS);
+        FileCreationResponseInt file = buildFileCreationResponseInt();
+
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+            saveLegalFactsService.sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(
+                    notification, recipient, status, completionWorkflowDate);
+        });
+
+        String expectErrorMsg = "PN_DELIVERYPUSH_SAVELEGALFACTSFAILED";
+
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
+    }
+
     @Test
     void savePecDeliveryWorkflowLegalFact() throws IOException {
         SendDigitalFeedbackDetailsInt sdf = buildSendDigitalFeedbackDetailsInt();
