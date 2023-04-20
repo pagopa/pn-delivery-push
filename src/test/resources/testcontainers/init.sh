@@ -1,27 +1,20 @@
 ## Quando viene aggiornato questo file, aggiornare anche il commitId presente nel file initsh-for-testcontainer-sh
 
 echo "### CREATE QUEUES ###"
-
 queues="local-delivery-push-safestorage-inputs local-delivery-push-actions local-ext-channels-inputs local-ext-channels-outputs local-delivery-push-actions-done local-ext-channels-elab-res"
-
 for qn in  $( echo $queues | tr " " "\n" ) ; do
-
     echo creating queue $qn ...
 
     aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
         sqs create-queue \
         --attributes '{"DelaySeconds":"2"}' \
         --queue-name $qn
-
 
 done
 
 echo "### CREATE QUEUES ###"
-
 queues="local-national-registries-gateway"
-
 for qn in  $( echo $queues | tr " " "\n" ) ; do
-
     echo creating queue $qn ...
 
     aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
@@ -29,11 +22,9 @@ for qn in  $( echo $queues | tr " " "\n" ) ; do
         --attributes '{"DelaySeconds":"2"}' \
         --queue-name $qn
 
-
 done
 
 echo " - Create pn-delivery-push TABLES"
-
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
     --table-name Timelines \
@@ -112,7 +103,7 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         AttributeName=sortKey,KeyType=RANGE \
     --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
-        
+
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
     --table-name WebhookEvents  \
@@ -134,9 +125,5 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         AttributeName=key,KeyType=HASH \
     --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
-        
-echo "Initialization terminated"
 
 echo "Initialization terminated"
-
-
