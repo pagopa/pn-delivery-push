@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PhysicalAddressRelatedTimelineElement;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
@@ -175,7 +176,15 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                     discoveredAddress.setFullname(notification.getRecipients().get(recIndex).getDenomination());
                 }
 
-                //PaperChannel NON ha bisogno per il secondo tentativo dell'indirizzo del primo tentativo
+                // se la relatedrequestid non è nulla, il receiver address è quello usato nella prima send
+                String eventIdPreviousSend = paperChannelUtils.buildSendAnalogDomicileEventId(notification, recIndex, sentAttemptMade-1);
+                TimelineElementInternal previousSendEvent = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), eventIdPreviousSend);
+
+                //PaperChannel ha bisogno per il secondo tentativo dell'indirizzo del primo tentativo
+                receiverAddress = ((PhysicalAddressRelatedTimelineElement)previousSendEvent.getDetails()).getPhysicalAddress();
+                if (receiverAddress != null && !StringUtils.hasText(receiverAddress.getFullname())) {
+                    receiverAddress.setFullname(notification.getRecipients().get(recIndex).getDenomination());
+                }
             }
             else
             {
