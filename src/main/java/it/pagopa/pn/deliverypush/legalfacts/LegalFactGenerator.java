@@ -56,6 +56,7 @@ public class LegalFactGenerator {
     public static final String FIELD_PN_FAQ_COMPLETION_MOMENT_URL = "PNFaqCompletionMomentURL";
     public static final String FIELD_END_WORKFLOW_STATUS = "endWorkflowStatus";
     public static final String FIELD_END_WORKFLOW_DATE = "endWorkflowDate";
+    public static final String FIELD_END_WORKFLOW_TIME = "endWorkflowTime";
     public static final String FIELD_LEGALFACT_CREATION_DATE = "legalFactCreationDate";
     public static final String FIELD_QRCODE_QUICK_ACCESS_LINK = "qrCodeQuickAccessLink";
     public static final String FIELD_QUICK_ACCESS_LINK = "quickAccessLink";
@@ -219,6 +220,31 @@ public class LegalFactGenerator {
         
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW,
+                templateModel
+        );
+    }
+
+
+
+    public byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
+                                                                 NotificationRecipientInt recipient,
+                                                                 EndWorkflowStatus status,
+                                                                 Instant completionWorkflowDate) throws IOException {
+
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_IUN, notification.getIun() );
+        templateModel.put(FIELD_END_WORKFLOW_STATUS, status.toString() );
+        templateModel.put(FIELD_END_WORKFLOW_DATE, instantWriter.instantToDate( completionWorkflowDate, true ) );
+        templateModel.put(FIELD_END_WORKFLOW_TIME, instantWriter.instantToTime( completionWorkflowDate ) );
+        templateModel.put(FIELD_RECIPIENT, recipient);
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
+        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
+
+
+        return documentComposition.executePdfTemplate(
+                DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE,
                 templateModel
         );
     }

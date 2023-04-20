@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -22,11 +23,11 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @AllArgsConstructor
 @Slf4j
 public class CompletionWorkFlowHandler {
-    private final CompletelyUnreachableUtils completelyUnreachableUtils;
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
     private final RefinementScheduler refinementScheduler;
     private final PecDeliveryWorkflowLegalFactsGenerator pecDeliveryWorkflowLegalFactsGenerator;
+    private final AnalogDeliveryFailureWorkflowLegalFactsGenerator analogDeliveryFailureWorkflowLegalFactsGenerator;
     private final DocumentCreationRequestService documentCreationRequestService;
 
     /**
@@ -59,9 +60,13 @@ public class CompletionWorkFlowHandler {
                     refinementScheduler.scheduleAnalogRefinement(notification, recIndex, completionWorkflowDate, status);
                 }
                 case FAILURE -> {
-                    timelineService.addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex), notification);
-                    completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex);
-                    refinementScheduler.scheduleAnalogRefinement(notification, recIndex, completionWorkflowDate, status);
+                    String legalFactId = analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+
+                    TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(notification, recIndex, status, completionWorkflowDate, legalFactId);
+                    timelineService.addTimelineElement(timelineElementInternal, notification);
+
+                    //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
+                    documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), recIndex, DocumentCreationTypeInt.ANALOG_FAILURE_DELIVERY, timelineElementInternal.getElementId());
                 }
                 default -> handleError(iun, recIndex, status);
             }

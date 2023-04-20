@@ -24,6 +24,7 @@ public enum TimelineElementCategoryInt {
     DIGITAL_FAILURE_WORKFLOW(DigitalFailureWorkflowDetailsInt.class, TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW.getValue()),
     ANALOG_SUCCESS_WORKFLOW(AnalogSuccessWorkflowDetailsInt.class, TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW.getValue()),
     ANALOG_FAILURE_WORKFLOW(AnalogFailureWorkflowDetailsInt.class, TimelineElementCategory.ANALOG_FAILURE_WORKFLOW.getValue()),
+    ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST(AnalogFailureWorkflowCreationRequestDetailsInt.class, TimelineElementCategory.ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST.getValue()),
     PREPARE_SIMPLE_REGISTERED_LETTER(BaseRegisteredLetterDetailsInt.class, TimelineElementCategory.PREPARE_SIMPLE_REGISTERED_LETTER.getValue()),
     SEND_SIMPLE_REGISTERED_LETTER(SimpleRegisteredLetterDetailsInt.class, TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER.getValue()),
     NOTIFICATION_VIEWED_CREATION_REQUEST(NotificationViewedCreationRequestDetailsInt.class, TimelineElementCategory.NOTIFICATION_VIEWED_CREATION_REQUEST.getValue()),

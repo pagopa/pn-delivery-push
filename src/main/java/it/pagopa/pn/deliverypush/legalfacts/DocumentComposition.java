@@ -35,6 +35,7 @@ public class DocumentComposition {
     public enum TemplateType {
         REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
         DIGITAL_NOTIFICATION_WORKFLOW("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),
+        ANALOG_NOTIFICATION_WORKFLOW_FAILURE("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
         AAR_NOTIFICATION("documents_composition_templates/NotificationAAR.html"),
     	AAR_NOTIFICATION_MVP("documents_composition_templates/NotificationAAR_MVP.html"),
