@@ -390,6 +390,7 @@
 						</configuration>
 					</execution>
 
+
 					<!-- OPEN API CLIENT PN-DATA-VAULT REACTIVE-->
 					<execution>
 						<id>generate-client-pn-data-vault-reactive</id>
