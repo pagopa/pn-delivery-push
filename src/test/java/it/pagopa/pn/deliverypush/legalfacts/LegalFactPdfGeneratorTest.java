@@ -121,6 +121,21 @@ class LegalFactPdfGeneratorTest {
 		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, delegateInfo, notificationViewedDate)));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
+
+	@Test
+	void generateAnalogDeliveryFailureWorkflowLegalFact() {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+		List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList( ResponseStatusInt.OK);
+		NotificationInt notification = buildNotification();
+		NotificationRecipientInt recipient = buildRecipients().get(0);
+		EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+		Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+		Assertions.assertDoesNotThrow(() -> {
+			return Files.write(filePath, pdfUtils.generateAnalogDeliveryFailureWorkflowLegalFact( notification, recipient, endWorkflowStatus, sentDate));
+		});
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
 	
 	@Test 
 	void generatePecDeliveryWorkflowLegalFactTest_OK() {

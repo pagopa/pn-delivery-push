@@ -6,6 +6,8 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DocumentCategor
 public enum DocumentCreationTypeInt {
     AAR(DocumentCategory.AAR.getValue()),
 
+    ANALOG_FAILURE_DELIVERY(LegalFactCategoryInt.ANALOG_FAILURE_DELIVERY.getValue()),
+
     SENDER_ACK(LegalFactCategoryInt.SENDER_ACK.getValue()),
 
     DIGITAL_DELIVERY(LegalFactCategoryInt.DIGITAL_DELIVERY.getValue()),

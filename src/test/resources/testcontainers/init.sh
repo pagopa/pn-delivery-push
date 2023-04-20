@@ -103,7 +103,7 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         AttributeName=sortKey,KeyType=RANGE \
     --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
-        
+
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \
     --table-name WebhookEvents  \
@@ -125,5 +125,5 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         AttributeName=key,KeyType=HASH \
     --provisioned-throughput \
         ReadCapacityUnits=10,WriteCapacityUnits=5
-        
+
 echo "Initialization terminated"

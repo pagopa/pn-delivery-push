@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.it;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
@@ -89,6 +90,7 @@ import static org.awaitility.Awaitility.await;
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
+        AnalogFailureDeliveryCreationResponseHandler.class,
         PaperChannelServiceImpl.class,
         PaperChannelUtils.class,
         PaperChannelResponseHandler.class,
@@ -124,6 +126,7 @@ import static org.awaitility.Awaitility.await;
         AttachmentUtils.class,
         NotificationUtils.class,
         PecDeliveryWorkflowLegalFactsGenerator.class,
+        AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
         RefinementScheduler.class,
         RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,
