@@ -5,12 +5,15 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
+import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -27,7 +30,8 @@ import java.util.Objects;
 @AllArgsConstructor
 @Slf4j
 public class NotificationValidationActionHandler {
-
+    private static final int FIRST_VALIDATION_STEP = 1;
+    private static final int SECOND_VALIDATION_STEP = 2;
     private final AttachmentUtils attachmentUtils;
     private final TaxIdPivaValidator taxIdPivaValidator;
     private final TimelineService timelineService;
@@ -35,21 +39,23 @@ public class NotificationValidationActionHandler {
     private final NotificationService notificationService;
     private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
     private final NotificationValidationScheduler notificationValidationScheduler;
+    private final AddressValidator addressValidator;
     private final AuditLogService auditLogService;
+    private final NormalizeAddressHandler normalizeAddressHandler;
     private final PnDeliveryPushConfigs cfg;
 
     public void validateNotification(String iun, NotificationValidationActionDetails details){
         log.info("Start validateNotification - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        PnAuditLogEvent logEvent = generateAuditLog(notification);
+        PnAuditLogEvent logEvent = generateAuditLog(notification, FIRST_VALIDATION_STEP);
 
         try {
             attachmentUtils.validateAttachment(notification);
             taxIdPivaValidator.validateTaxIdPiva(notification);
             
-            log.info("Notification validated successfully - iun={}", iun);
-            receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(notification);
+            //La validazione dell'indirizzo è async
+            addressValidator.requestValidateAndNormalizeAddresses(notification).block();
 
             logEvent.generateSuccess().log();
         } catch (PnValidationFileNotFoundException ex){
@@ -87,8 +93,8 @@ public class NotificationValidationActionHandler {
     }
 
     @NotNull
-    private PnAuditLogEvent generateAuditLog(NotificationInt notification) {
-        return auditLogService.buildAuditLogEvent(notification.getIun(), PnAuditLogEventType.AUD_NT_VALID, "Notification validation iun={}", notification.getIun());
+    private PnAuditLogEvent generateAuditLog(NotificationInt notification, int validationStep) {
+        return auditLogService.buildAuditLogEvent(notification.getIun(), PnAuditLogEventType.AUD_NT_VALID, "Notification validation step={}, iun={}", validationStep, notification.getIun());
     }
 
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
@@ -110,5 +116,25 @@ public class NotificationValidationActionHandler {
     
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
+    }
+
+    public void handleValidateAndNormalizeAddressResponse(String iun, NormalizeItemsResultInt normalizeItemsResult){
+        log.info("handleValidateAndNormalizeAddressResponse - iun {}", iun);
+
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+        PnAuditLogEvent logEvent = generateAuditLog(notification, SECOND_VALIDATION_STEP);
+
+        try {
+            addressValidator.handleAddressValidation(iun, normalizeItemsResult);
+            normalizeAddressHandler.handleNormalizedAddressResponse(notification, normalizeItemsResult);
+            
+            log.info("Notification validated successfully - iun={}", iun);
+            receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(notification);
+
+        } catch (PnValidationNotValidAddressException ex){
+            logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), ex).log();
+            handleValidationError(notification, ex);
+        }
+
     }
 }

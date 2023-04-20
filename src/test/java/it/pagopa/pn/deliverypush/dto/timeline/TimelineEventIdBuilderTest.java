@@ -35,6 +35,24 @@ class TimelineEventIdBuilderTest {
     }
 
     @Test
+    void buildVALIDATE_NORMALIZE_ADDRESSTest() {
+        String timeLineEventIdExpected = "VALIDATE_NORMALIZE_ADDRESS.IUN_KWKU-JHXN-HJXM-202304-U-1";
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.VALIDATE_NORMALIZE_ADDRESSES_REQUEST.getValue())
+                .withIun(IUN)
+                .build();
+
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.VALIDATE_NORMALIZE_ADDRESSES_REQUEST.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .build());
+        
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+    }
+
+    @Test
     void buildREQUEST_ACCEPTEDTest() {
         String timeLineEventIdExpected = "REQUEST_ACCEPTED.IUN_KWKU-JHXN-HJXM-202304-U-1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()

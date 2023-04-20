@@ -40,6 +40,8 @@ class NotificationValidationActionHandlerTest {
     @Mock
     private NotificationValidationScheduler notificationValidationScheduler;
     @Mock
+    private AddressValidator addressValidator;
+    @Mock
     private AuditLogService auditLogService;
 
     private NotificationValidationActionHandler handler;
@@ -50,7 +52,7 @@ class NotificationValidationActionHandlerTest {
     public void setup() {
         handler = new NotificationValidationActionHandler(attachmentUtils, taxIdPivaValidator,
                 timelineService, timelineUtils, notificationService, receivedLegalFactCreationRequest,
-                notificationValidationScheduler, auditLogService, cfg);
+                notificationValidationScheduler, addressValidator, auditLogService, cfg);
     }
 
     @ExtendWith(SpringExtension.class)

@@ -3,8 +3,10 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AddressDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AnalogDomicile;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
 
 public class ConfidentialTimelineElementDtoMapper {
     private ConfidentialTimelineElementDtoMapper() {
@@ -103,4 +105,25 @@ public class ConfidentialTimelineElementDtoMapper {
 
         return dtoIntBuilder.build();
     }
+
+    public static NotificationRecipientAddressesDto internalToExternal(NotificationRecipientAddressesDtoInt dtoInt) {
+        NotificationRecipientAddressesDto dtoExt = new NotificationRecipientAddressesDto();
+        dtoExt.setDenomination(dtoInt.getDenomination());
+        dtoExt.setPhysicalAddress(getAnalogDomicileFromPhysical(dtoInt.getPhysicalAddress()));
+        return dtoExt;
+    }
+
+
+    public static AnalogDomicile getAnalogDomicileFromPhysical(PhysicalAddressInt physicalAddress){
+        AnalogDomicile address = new AnalogDomicile();
+        address.setAddress(physicalAddress.getAddress());
+        address.setAddressDetails(physicalAddress.getAddressDetails());
+        address.setCap(physicalAddress.getZip());
+        address.setMunicipality(physicalAddress.getMunicipality());
+        address.setMunicipalityDetails(physicalAddress.getMunicipalityDetails());
+        address.setProvince(physicalAddress.getProvince());
+        address.setState(physicalAddress.getForeignState());
+        return address;
+    }
+
 }

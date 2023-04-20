@@ -10,6 +10,27 @@ public enum TimelineEventId {
                     .build();
         }
     },
+
+    VALIDATE_NORMALIZE_ADDRESSES_REQUEST("VALIDATE_NORMALIZE_ADDRESSES_REQUEST") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .build();
+        }
+    },
+
+    NORMALIZED_ADDRESS("NORMALIZED_ADDRESS"){
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
+        }
+    },
     
     REQUEST_ACCEPTED("REQUEST_ACCEPTED") {
         @Override

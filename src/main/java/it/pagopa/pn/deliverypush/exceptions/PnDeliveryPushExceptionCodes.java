@@ -70,7 +70,8 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERYPUSH_DOCUMENT_CREATION_RESPONSE_TYPE_NOT_HANDLED = "PN_DELIVERYPUSH_DOCUMENT_CREATION_RESPONSE_TYPE_NOT_HANDLED";
     public static final String ERROR_CODE_DELIVERYPUSH_TAXID_NOT_VALID = "PN_DELIVERYPUSH_TAXID_NOT_VALID";
     public static final String ERROR_CODE_DELIVERYPUSH_READ_FILE_ERROR = "PN_DELIVERYPUSH_READ_FILE_ERROR";
-
+    public static final String ERROR_CODE_DELIVERYPUSH_NORMALIZE_ADDRESS_ERROR = "PN_DELIVERYPUSH_NORMALIZE_ADDRESS_ERROR";
+    
     public enum NotificationRefusedErrorCodeInt {
         FILE_NOTFOUND("FILE_NOTFOUND"),
 
@@ -78,6 +79,8 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
         TAXID_NOT_VALID("TAXID_NOT_VALID"),
 
+        NOT_VALID_ADDRESS("NOT_VALID_ADDRESS"),
+        
         SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE");
 
         private final String value;

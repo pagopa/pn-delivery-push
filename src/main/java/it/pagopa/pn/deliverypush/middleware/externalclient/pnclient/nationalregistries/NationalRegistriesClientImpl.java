@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries;
 
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.commons.utils.LogUtils;
@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Slf4j
 public class NationalRegistriesClientImpl extends CommonBaseClient implements NationalRegistriesClient {
 
-    protected static final String PN_NATIONAL_REGISTRIES_CX_ID_VALUE = "pn-delivery-push";
+    public static final String PN_NATIONAL_REGISTRIES_CX_ID_VALUE = "pn-delivery-push";
 
     private final PnDeliveryPushConfigs cfg;
 

@@ -82,6 +82,10 @@ public class PnDeliveryPushConfigs {
 
     private String nationalRegistriesBaseUrl;
 
+    private String addressManagerBaseUrl;
+
+    private String addressManagerApiKey;
+    
     private Duration[] validationRetryIntervals;
     
     @Data
@@ -104,6 +108,8 @@ public class PnDeliveryPushConfigs {
         private String safeStorageEvents;
 
         private String nationalRegistriesEvents;
+
+        private String addressManagerEvents;
     }
 
     @Data

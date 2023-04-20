@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
@@ -135,5 +137,15 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
                     else 
                         return null;
                 });
+    }
+    
+    @Override
+    public Mono<Void> updateNotificationAddresses(String iun, Boolean normalized, List<NotificationRecipientAddressesDtoInt> listAddressDtoInt){
+
+        List<NotificationRecipientAddressesDto> listAddressExt = listAddressDtoInt.stream().map(
+                ConfidentialTimelineElementDtoMapper::internalToExternal
+        ).toList();
+        
+        return pnDataVaultClientReactive.updateNotificationAddressesByIun(iun, normalized, listAddressExt);
     }
 }

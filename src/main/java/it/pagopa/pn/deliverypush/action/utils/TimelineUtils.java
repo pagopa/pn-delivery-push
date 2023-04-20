@@ -94,6 +94,12 @@ public class TimelineUtils {
                 .build();
     }
     
+    public TimelineElementInternal buildValidateAndNormalizeAddressTimelineElement(NotificationInt notification, String elementId) {
+        log.debug("buildValidateAddressTimelineElement - iun={}", notification.getIun());
+        
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_NORMALIZE_ADDRESSES_REQUEST, elementId, null);
+    }
+    
     public TimelineElementInternal buildAcceptedRequestTimelineElement(NotificationInt notification, String legalFactId) {
         log.debug("buildAcceptedRequestTimelineElement - iun={}", notification.getIun());
 
@@ -944,6 +950,28 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, elementId,
                 details, timelineBuilder);
     }
+
+    public TimelineElementInternal buildNormalizedAddressTimelineElement(NotificationInt notification,
+                                                                         Integer recIndex,
+                                                                         PhysicalAddressInt oldAddress,
+                                                                         PhysicalAddressInt normalizedAddress) {
+        log.debug("buildNormalizedAddressTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.NORMALIZED_ADDRESS.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        NormalizedAddressDetailsInt details = NormalizedAddressDetailsInt.builder()
+                .recIndex(recIndex)
+                .oldAddress(oldAddress)
+                .normalizedAddress(normalizedAddress)
+                .build();
+        
+        return buildTimeline(notification, TimelineElementCategoryInt.NORMALIZED_ADDRESS, elementId, details);
+    }
+    
 
     public List<LegalFactsIdInt> singleLegalFactId(String legalFactKey, LegalFactCategoryInt type) {
         return Collections.singletonList( LegalFactsIdInt.builder()
