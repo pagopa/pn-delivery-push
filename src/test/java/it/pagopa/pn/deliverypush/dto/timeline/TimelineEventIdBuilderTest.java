@@ -36,7 +36,7 @@ class TimelineEventIdBuilderTest {
 
     @Test
     void buildVALIDATE_NORMALIZE_ADDRESSTest() {
-        String timeLineEventIdExpected = "VALIDATE_NORMALIZE_ADDRESS.IUN_KWKU-JHXN-HJXM-202304-U-1";
+        String timeLineEventIdExpected = "VALIDATE_NORMALIZE_ADDRESSES_REQUEST.IUN_KWKU-JHXN-HJXM-202304-U-1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.VALIDATE_NORMALIZE_ADDRESSES_REQUEST.getValue())
                 .withIun(IUN)

@@ -18,7 +18,6 @@ import java.util.List;
 
 import static org.awaitility.Awaitility.await;
 
-@Component
 @Setter
 @Slf4j
 public class AddressManagerClientMock implements AddressManagerClient {

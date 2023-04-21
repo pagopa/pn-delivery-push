@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
 
 import static org.mockito.Mockito.doThrow;
 
@@ -75,12 +76,13 @@ class NotificationValidationActionHandlerTest {
                 .thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
 
+        Mockito.when(addressValidator.requestValidateAndNormalizeAddresses(notification)).thenReturn(Mono.empty());
+                
         //WHEN
         handler.validateNotification(notification.getIun(), details);
         
         //THEN
         Mockito.verify(attachmentUtils).validateAttachment(notification);
-        Mockito.verify(receivedLegalFactCreationRequest).saveNotificationReceivedLegalFacts(notification);
         Mockito.verify(auditLogEvent).generateSuccess();
     }
     
