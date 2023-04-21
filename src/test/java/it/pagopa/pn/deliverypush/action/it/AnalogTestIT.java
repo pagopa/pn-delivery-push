@@ -806,7 +806,7 @@ class AnalogTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
-                .withNotificationRecipient( List.of(recipient1, recipient2) )
+                .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -1010,7 +1010,7 @@ class AnalogTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
-                .withNotificationRecipient( List.of(recipient1, recipient2) )
+                .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -1222,7 +1222,7 @@ class AnalogTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
-                .withNotificationRecipient( List.of(recipient1, recipient2) )
+                .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -1433,7 +1433,7 @@ class AnalogTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
-                .withNotificationRecipient( List.of(recipient1, recipient2) )
+                .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);

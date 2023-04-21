@@ -5,5 +5,5 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import reactor.core.publisher.Mono;
 
 public interface AddressManagerService {
-    Mono<AcceptedResponse> normalizeAddresses(NotificationInt listPhysicalAddress, String correlationId);
+    Mono<AcceptedResponse> normalizeAddresses(NotificationInt notification, String correlationId);
 }

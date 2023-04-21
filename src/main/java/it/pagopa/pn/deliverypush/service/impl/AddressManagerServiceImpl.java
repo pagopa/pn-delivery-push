@@ -34,24 +34,37 @@ public class AddressManagerServiceImpl implements AddressManagerService {
 
     @NotNull
     private NormalizeItemsRequest getRequest(NotificationInt notification, String correlationId) {
+        log.debug("Start getRequest - iun={} corrId={}", notification.getIun(), correlationId);
+        
         List<NormalizeRequest> normalizeRequestList = new ArrayList<>();
 
         notification.getRecipients().forEach(recipient -> {
             int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-            
-            NormalizeRequest normalizeRequest = new NormalizeRequest();
-            
-            AnalogAddress address = AddressManagerMapper.getAnalogAddressFromPhysical(recipient.getPhysicalAddress());
-            
-            normalizeRequest.setAddress(address);
-            normalizeRequest.setId(Integer.toString(recIndex));
 
-            normalizeRequestList.add(normalizeRequest);
+            if(recipient.getPhysicalAddress() != null){
+                
+                NormalizeRequest normalizeRequest = new NormalizeRequest();
+
+                AnalogAddress address = AddressManagerMapper.getAnalogAddressFromPhysical(recipient.getPhysicalAddress());
+
+                normalizeRequest.setAddress(address);
+                normalizeRequest.setId(Integer.toString(recIndex));
+
+                normalizeRequestList.add(normalizeRequest);
+
+                log.debug("Add normalize request for recIndex={} - iun={} corrId={}", recIndex, notification.getIun(), correlationId);
+            } else {
+                log.debug("Not add normalize request for recIndex={} - iun={} corrId={}", recIndex, notification.getIun(), correlationId);
+            }
+            
         });
+        
+        log.debug("Normalize itemRequest created with size={} - iun={} corrId={}", normalizeRequestList != null ? normalizeRequestList.size() : null, notification.getIun(), correlationId);
 
         NormalizeItemsRequest normalizeItemsRequest = new NormalizeItemsRequest();
         normalizeItemsRequest.setRequestItems(normalizeRequestList);
         normalizeItemsRequest.setCorrelationId(correlationId);
+
         return normalizeItemsRequest;
     }
 }

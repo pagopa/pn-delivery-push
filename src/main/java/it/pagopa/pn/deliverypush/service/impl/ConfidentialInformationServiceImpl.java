@@ -142,6 +142,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     
     @Override
     public Mono<Void> updateNotificationAddresses(String iun, Boolean normalized, List<NotificationRecipientAddressesDtoInt> listAddressDtoInt){
+        log.debug("Start updateNotificationAddresses - iun={}", iun);
 
         List<NotificationRecipientAddressesDto> listAddressExt = listAddressDtoInt.stream().map(
                 NotificationRecipientAddressesDtoMapper::internalToExternal

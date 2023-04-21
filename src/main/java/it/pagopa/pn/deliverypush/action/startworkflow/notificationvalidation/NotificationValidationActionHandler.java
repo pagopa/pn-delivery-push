@@ -53,7 +53,7 @@ public class NotificationValidationActionHandler {
         try {
             attachmentUtils.validateAttachment(notification);
             taxIdPivaValidator.validateTaxIdPiva(notification);
-            
+
             //La validazione dell'indirizzo è async
             addressValidator.requestValidateAndNormalizeAddresses(notification).block();
 

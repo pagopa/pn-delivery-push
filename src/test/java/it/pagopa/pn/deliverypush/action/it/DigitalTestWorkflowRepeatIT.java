@@ -142,12 +142,12 @@ import static org.awaitility.Awaitility.await;
         AddressManagerClientMock.class,
         NormalizeAddressHandler.class,
         AddressManagerResponseHandler.class,
-        DigitalTestRepeatIT.SpringTestConfiguration.class
+        DigitalTestWorkflowRepeatIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
 @DirtiesContext
-class DigitalTestRepeatIT { 
+class DigitalTestWorkflowRepeatIT { 
     
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {

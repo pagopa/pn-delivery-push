@@ -6,7 +6,6 @@ import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.mode
 import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeItemsRequest;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -14,7 +13,6 @@ import reactor.core.publisher.Mono;
 import javax.annotation.PostConstruct;
 
 @Component
-@Setter
 @Slf4j
 public class AddressManagerClientImpl extends CommonBaseClient implements AddressManagerClient {
     protected static final String PN_ADDRESS_MANAGER_CX_ID_VALUE = "pn-delivery-push";
@@ -30,7 +28,7 @@ public class AddressManagerClientImpl extends CommonBaseClient implements Addres
     @PostConstruct
     public void init() {
         ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()) );
-        newApiClient.setBasePath( this.cfg.getNationalRegistriesBaseUrl() );
+        newApiClient.setBasePath( this.cfg.getAddressManagerBaseUrl() );
         normalizeAddressServiceApi = new NormalizeAddressServiceApi(newApiClient);
     }
 

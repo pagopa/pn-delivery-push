@@ -22,22 +22,24 @@ public class AddressValidator {
     private final TimelineService timelineService;
     
     public Mono<Void> requestValidateAndNormalizeAddresses(NotificationInt notification){
+        log.debug("Start  requestValidateAndNormalizeAddresses - iun={}" , notification.getIun());
+
         String correlationId = TimelineEventId.VALIDATE_NORMALIZE_ADDRESSES_REQUEST.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .build());
         
        return addressManagerService.normalizeAddresses(notification, correlationId)
-                .flatMap( res ->
-                    Mono.fromCallable( () -> {
-                        log.debug("Get normalize address sync response - iun={}" , notification.getIun());
-                        timelineService.addTimelineElement(
-                                timelineUtils.buildValidateAndNormalizeAddressTimelineElement(notification, correlationId),
-                                notification
-                        );
-                        return null;
-                    })
-                );
+               .then(
+                       Mono.fromCallable(() -> {
+                           log.debug("Get normalize address sync response - iun={}" , notification.getIun());
+                           timelineService.addTimelineElement(
+                                   timelineUtils.buildValidateAndNormalizeAddressTimelineElement(notification, correlationId),
+                                   notification
+                           );
+                           return null;
+                       })
+               );
     }
 
     public void handleAddressValidation(String iun, NormalizeItemsResultInt normalizeItemsResult){

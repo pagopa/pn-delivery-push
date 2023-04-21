@@ -9,7 +9,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -21,9 +20,10 @@ import static org.awaitility.Awaitility.await;
 @Setter
 @Slf4j
 public class AddressManagerClientMock implements AddressManagerClient {
-    private final String TO_ERROR = "TO_ERROR";
-    private final String TO_NORMALIZE = "TO_NORMALIZE";
-    private final String NORMALIZED = "NORMALIZED";
+    private final String ADDRESS_MANAGER_NOT_VALID_ADDRESS = "ADDRESS_MANAGER_NOT_VALID_ADDRESS";
+    private final String ADDRESS_MANAGER_TO_NORMALIZE = "TO_NORMALIZE";
+    private final String ADDRESS_MANAGER_NORMALIZED = "NORMALIZED";
+    
     private AddressManagerResponseHandler addressManagerResponseHandler;
     private TimelineService timelineService;
     private TimelineUtils timelineUtils;
@@ -53,13 +53,12 @@ public class AddressManagerClientMock implements AddressManagerClient {
                 result.setId(request.getId());
 
                 AnalogAddress address = request.getAddress();
-                if (address != null) {
-                    if(address.getAddressRow().contains(TO_NORMALIZE)){
-                        address.setAddressRow(address.getAddressRow() + "_" + NORMALIZED);
-                    } else {
-                        if(address.getAddressRow().contains(TO_ERROR)){
-                            result.setError("Address is not Valid");
-                        }
+                if (address != null && address.getAddressRow() != null) {
+                    if(address.getAddressRow().contains(ADDRESS_MANAGER_TO_NORMALIZE)){
+                        address.setAddressRow(address.getAddressRow() + "_" + ADDRESS_MANAGER_NORMALIZED);
+                    }
+                    else if(address.getAddressRow().contains(ADDRESS_MANAGER_NOT_VALID_ADDRESS)){
+                        result.setError("Address is not Valid");
                     }
                 }
                 
