@@ -22,6 +22,8 @@ class StateMap {
         this.fromState(NotificationStatusInt.IN_VALIDATION)
                 //STATE UNCHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.SENDER_ACK_CREATION_REQUEST, NotificationStatusInt.IN_VALIDATION, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.VALIDATE_NORMALIZE_ADDRESSES_REQUEST, NotificationStatusInt.IN_VALIDATION, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NORMALIZED_ADDRESS, NotificationStatusInt.IN_VALIDATION, SINGLE_RECIPINET)
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.REQUEST_ACCEPTED, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.REQUEST_REFUSED, NotificationStatusInt.REFUSED, SINGLE_RECIPINET)

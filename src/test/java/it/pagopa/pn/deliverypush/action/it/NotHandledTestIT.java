@@ -19,14 +19,8 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFa
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
-import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationScheduler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdPivaValidator;
+import it.pagopa.pn.deliverypush.action.startworkflow.*;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -150,6 +144,11 @@ import static org.awaitility.Awaitility.with;
         NotificationValidationScheduler.class,
         DigitalWorkflowFirstSendRepeatHandler.class,
         SendAndUnscheduleNotification.class,
+        AddressValidator.class,
+        AddressManagerServiceImpl.class,
+        AddressManagerClientMock.class,
+        NormalizeAddressHandler.class,
+        AddressManagerResponseHandler.class,
         NotHandledTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource( 
@@ -239,20 +238,25 @@ class NotHandledTestIT {
     @Autowired
     private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
 
+    @Autowired
+    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
+
     @BeforeEach
     public void setup() {
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-        
-        safeStorageClientMock.clear();
-        pnDeliveryClientMock.clear();
-        addressBookMock.clear();
-        nationalRegistriesClientMock.clear();
-        timelineDaoMock.clear();
-        paperNotificationFailedDaoMock.clear();
-        pnDeliveryClientMock.clear();
-        pnDataVaultClientMock.clear();
-        documentCreationRequestDaoMock.clear();
+
+        TestUtils.initializeAllMockClient(
+                safeStorageClientMock,
+                pnDeliveryClientMock,
+                addressBookMock,
+                nationalRegistriesClientMock,
+                timelineDaoMock,
+                paperNotificationFailedDaoMock,
+                pnDataVaultClientMock,
+                pnDataVaultClientReactiveMock,
+                documentCreationRequestDaoMock
+        );
     }
 
     @Test

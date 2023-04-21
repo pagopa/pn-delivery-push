@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -43,6 +44,8 @@ class NotificationValidationActionHandlerTest {
     private AddressValidator addressValidator;
     @Mock
     private AuditLogService auditLogService;
+    @Mock
+    private NormalizeAddressHandler normalizeAddressHandler;
 
     private NotificationValidationActionHandler handler;
     @Mock
@@ -52,7 +55,7 @@ class NotificationValidationActionHandlerTest {
     public void setup() {
         handler = new NotificationValidationActionHandler(attachmentUtils, taxIdPivaValidator,
                 timelineService, timelineUtils, notificationService, receivedLegalFactCreationRequest,
-                notificationValidationScheduler, addressValidator, auditLogService, cfg);
+                notificationValidationScheduler, addressValidator, auditLogService, normalizeAddressHandler, cfg);
     }
 
     @ExtendWith(SpringExtension.class)

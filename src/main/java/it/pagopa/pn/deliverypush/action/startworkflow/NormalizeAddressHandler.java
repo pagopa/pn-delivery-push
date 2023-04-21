@@ -2,7 +2,9 @@ package it.pagopa.pn.deliverypush.action.startworkflow;
 
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
+import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -31,9 +33,12 @@ public class NormalizeAddressHandler {
             int recIndex = Integer.parseInt(result.getId());
             NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
+            PhysicalAddressInt normalizedAddressEnriched = enrichNormalizeAddress(result, recipient);
+            
             NotificationRecipientAddressesDtoInt normalizedAddressInt = NotificationRecipientAddressesDtoInt.builder()
                     .denomination(recipient.getDenomination())
-                    .physicalAddress(result.getNormalizedAddress())
+                    .digitalAddress(recipient.getDigitalDomicile())
+                    .physicalAddress(normalizedAddressEnriched)
                     .build();
             listNormalizedAddress.add(normalizedAddressInt);
             
@@ -42,6 +47,15 @@ public class NormalizeAddressHandler {
                     notification);
         });
         
-        confidentialInformationService.updateNotificationAddresses(notification.getIun(), true, listNormalizedAddress);
+        confidentialInformationService.updateNotificationAddresses(notification.getIun(), true, listNormalizedAddress).block();
+    }
+
+    private PhysicalAddressInt enrichNormalizeAddress(NormalizeResultInt result, NotificationRecipientInt recipient) {
+        PhysicalAddressInt physicalAddressInt = result.getNormalizedAddress();
+        if(physicalAddressInt != null){
+            physicalAddressInt.setAt(recipient.getPhysicalAddress().getAt());
+            physicalAddressInt.setFullname(recipient.getDenomination());
+        }
+        return physicalAddressInt;
     }
 }

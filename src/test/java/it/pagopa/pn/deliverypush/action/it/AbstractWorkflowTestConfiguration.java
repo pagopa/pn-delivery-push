@@ -46,8 +46,8 @@ import java.io.IOException;
 public class AbstractWorkflowTestConfiguration {
 
     @Bean
-    public PnDeliveryClient testPnDeliveryClient() {
-        return new PnDeliveryClientMock();
+    public PnDeliveryClient testPnDeliveryClient( PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
+        return new PnDeliveryClientMock(pnDataVaultClientReactiveMock);
     }
 
     @Bean

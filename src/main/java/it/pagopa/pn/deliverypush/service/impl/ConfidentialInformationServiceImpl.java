@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.Pn
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.mapper.ConfidentialTimelineElementDtoMapper;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationRecipientAddressesDtoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -143,7 +144,7 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
     public Mono<Void> updateNotificationAddresses(String iun, Boolean normalized, List<NotificationRecipientAddressesDtoInt> listAddressDtoInt){
 
         List<NotificationRecipientAddressesDto> listAddressExt = listAddressDtoInt.stream().map(
-                ConfidentialTimelineElementDtoMapper::internalToExternal
+                NotificationRecipientAddressesDtoMapper::internalToExternal
         ).toList();
         
         return pnDataVaultClientReactive.updateNotificationAddressesByIun(iun, normalized, listAddressExt);

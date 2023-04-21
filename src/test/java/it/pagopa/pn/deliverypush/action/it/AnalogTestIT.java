@@ -19,14 +19,8 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFa
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
-import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationScheduler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdPivaValidator;
+import it.pagopa.pn.deliverypush.action.startworkflow.*;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -150,6 +144,11 @@ import static org.awaitility.Awaitility.with;
         NotificationValidationScheduler.class,
         DigitalWorkflowFirstSendRepeatHandler.class,
         SendAndUnscheduleNotification.class,
+        AddressValidator.class,
+        AddressManagerServiceImpl.class,
+        AddressManagerClientMock.class,
+        NormalizeAddressHandler.class,
+        AddressManagerResponseHandler.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -213,6 +212,9 @@ class AnalogTestIT {
     
     @Autowired
     private PnDataVaultClientMock pnDataVaultClientMock;
+    
+    @Autowired
+    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
     @Autowired
     private PaperChannelService paperChannelService;
@@ -233,16 +235,21 @@ class AnalogTestIT {
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        safeStorageClientMock.clear();
-        pnDeliveryClientMock.clear();
-        addressBookMock.clear();
-        nationalRegistriesClientMock.clear();
-        timelineDaoMock.clear();
-        paperNotificationFailedDaoMock.clear();
-        pnDataVaultClientMock.clear();
-        documentCreationRequestDaoMock.clear();
+        TestUtils.initializeAllMockClient(
+                safeStorageClientMock,
+                pnDeliveryClientMock,
+                addressBookMock,
+                nationalRegistriesClientMock,
+                timelineDaoMock,
+                paperNotificationFailedDaoMock,
+                pnDataVaultClientMock,
+                pnDataVaultClientReactiveMock,
+                documentCreationRequestDaoMock
+        );
     }
-    
+
+
+
     @Test
     void notificationViewedPaPhysicalAddressSend() {
  /*
@@ -542,6 +549,11 @@ class AnalogTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+/*        try {
+            Thread.sleep(100000000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }*/
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
@@ -1438,7 +1450,12 @@ class AnalogTestIT {
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-        
+
+/*        try {
+            Thread.sleep(1000000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }*/
         String timelineId1 = TimelineEventId.REFINEMENT.buildEventId(
                 EventId.builder()
                         .iun(iun)

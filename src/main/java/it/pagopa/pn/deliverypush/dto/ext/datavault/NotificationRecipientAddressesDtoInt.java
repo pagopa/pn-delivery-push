@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.ext.datavault;
 
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.*;
 
@@ -11,5 +12,6 @@ import lombok.*;
 @ToString
 public class NotificationRecipientAddressesDtoInt {
     private String denomination;
+    private DigitalAddressInt digitalAddress;
     private PhysicalAddressInt physicalAddress;
 }

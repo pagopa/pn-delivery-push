@@ -115,7 +115,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 "Add timeline element: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s TIMESTAMP=%s",
                 dto.getCategory(),
                 dto.getIun(),
-                dto.getDetails().toLog(),
+                dto.getDetails() != null ? dto.getDetails().toLog() : null,
                 dto.getElementId(),
                 dto.getTimestamp()
         );

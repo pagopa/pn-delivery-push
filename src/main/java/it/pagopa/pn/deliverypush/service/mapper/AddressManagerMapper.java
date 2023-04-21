@@ -12,14 +12,17 @@ import java.util.List;
 public class AddressManagerMapper {
     
     public static AnalogAddress getAnalogAddressFromPhysical(PhysicalAddressInt physicalAddress){
-        AnalogAddress address = new AnalogAddress();
-        address.setAddressRow(physicalAddress.getAddress());
-        address.setAddressRow2(physicalAddress.getAddressDetails());
-        address.setCap(physicalAddress.getZip());
-        address.setCity(physicalAddress.getMunicipality());
-        address.setCity2(physicalAddress.getMunicipalityDetails());
-        address.setPr(physicalAddress.getProvince());
-        address.setCountry(physicalAddress.getForeignState());
+        AnalogAddress address = null;
+        if(physicalAddress != null){
+            address = new AnalogAddress();
+            address.setAddressRow(physicalAddress.getAddress());
+            address.setAddressRow2(physicalAddress.getAddressDetails());
+            address.setCap(physicalAddress.getZip());
+            address.setCity(physicalAddress.getMunicipality());
+            address.setCity2(physicalAddress.getMunicipalityDetails());
+            address.setPr(physicalAddress.getProvince());
+            address.setCountry(physicalAddress.getForeignState());
+        }
         return address;
     }
 
