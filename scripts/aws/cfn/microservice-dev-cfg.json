@@ -22,7 +22,8 @@
     "ValidationRetryIntervals": "10s, 1m, 1m, 5m, 1h, -1s",
     "MaxTasksNumber": "1",
     "SendNotificationAttachments": "analog-notification",
-    "SafeStorageFileNotFoundRetry": "false"
+    "SafeStorageFileNotFoundRetry": "false",
+    "LandingUrl": "https://www.dev.pn.pagopa.it"
   }
 }
 
