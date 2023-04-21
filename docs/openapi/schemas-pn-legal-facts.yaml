@@ -31,6 +31,7 @@ components:
         - ANALOG_DELIVERY
         - RECIPIENT_ACCESS
         - PEC_RECEIPT
+        - ANALOG_FAILURE_DELIVERY
     
     LegalFactList:
       title: Elenco atti opponibili
