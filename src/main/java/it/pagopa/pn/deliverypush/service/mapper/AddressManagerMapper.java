@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AddressManagerMapper {
-    
+    private AddressManagerMapper(){}
     public static AnalogAddress getAnalogAddressFromPhysical(PhysicalAddressInt physicalAddress){
         AnalogAddress address = new AnalogAddress();
         address.setAddressRow(physicalAddress.getAddress());
@@ -28,26 +28,24 @@ public class AddressManagerMapper {
         NormalizeItemsResultInt.NormalizeItemsResultIntBuilder normalizeItemsResultBuilder = NormalizeItemsResultInt.builder()
                         .correlationId(response.getCorrelationId());
         
-        if(response.getResultItems() != null){
-            List<NormalizeResultInt> resultItems = new ArrayList<>();
+        List<NormalizeResultInt> resultItems = new ArrayList<>();
 
-            response.getResultItems().forEach( normalizeResultResponse ->{
-                NormalizeResultInt.NormalizeResultIntBuilder normalizeResultBuilder = NormalizeResultInt.builder();
-                normalizeResultBuilder.id(normalizeResultResponse.getId());
-                normalizeResultBuilder.error(normalizeResultResponse.getError());
+        response.getResultItems().forEach( normalizeResultResponse ->{
+            NormalizeResultInt.NormalizeResultIntBuilder normalizeResultBuilder = NormalizeResultInt.builder();
+            normalizeResultBuilder.id(normalizeResultResponse.getId());
+            normalizeResultBuilder.error(normalizeResultResponse.getError());
 
-                if(normalizeResultResponse.getNormalizedAddress() != null){
-                    PhysicalAddressInt physicalAddressInt = getPhysicalFromAnalog(normalizeResultResponse.getNormalizedAddress());
-                    normalizeResultBuilder.normalizedAddress(physicalAddressInt);
-                }
+            if(normalizeResultResponse.getNormalizedAddress() != null){
+                PhysicalAddressInt physicalAddressInt = getPhysicalFromAnalog(normalizeResultResponse.getNormalizedAddress());
+                normalizeResultBuilder.normalizedAddress(physicalAddressInt);
+            }
 
-                NormalizeResultInt normalizeResultInt = normalizeResultBuilder.build();
-                resultItems.add(normalizeResultInt);
-            });
+            NormalizeResultInt normalizeResultInt = normalizeResultBuilder.build();
+            resultItems.add(normalizeResultInt);
+        });
 
-            normalizeItemsResultBuilder.resultItems(resultItems);
-        }
-
+        normalizeItemsResultBuilder.resultItems(resultItems);
+        
         return normalizeItemsResultBuilder.build();
     }
 

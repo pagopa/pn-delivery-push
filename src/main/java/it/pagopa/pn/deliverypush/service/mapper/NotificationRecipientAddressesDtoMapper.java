@@ -8,6 +8,8 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
 
 public class NotificationRecipientAddressesDtoMapper {
+    private NotificationRecipientAddressesDtoMapper(){}
+    
     public static NotificationRecipientAddressesDto internalToExternal(NotificationRecipientAddressesDtoInt dtoInt) {
         NotificationRecipientAddressesDto dtoExt = new NotificationRecipientAddressesDto();
         dtoExt.setDenomination(dtoInt.getDenomination());
