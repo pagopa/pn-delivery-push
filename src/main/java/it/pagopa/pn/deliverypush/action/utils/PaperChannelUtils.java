@@ -62,6 +62,19 @@ public class PaperChannelUtils {
     }
 
 
+    public String buildSendAnalogDomicileEventId(NotificationInt notification, Integer recIndex, int sentAttemptMade){
+        return TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(sentAttemptMade)
+                        .build()
+        );
+    }
+
+
+
+
     public String buildSendAnalogFeedbackEventId(NotificationInt notification, Integer recIndex, int sentAttemptMade){
         return TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
                 EventId.builder()
