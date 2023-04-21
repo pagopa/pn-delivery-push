@@ -240,6 +240,9 @@ class DigitalTestWorkflowRepeatIT {
     @Autowired
     private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
+    @Autowired
+    private AddressManagerClientMock addressManagerClientMock;
+    
     @BeforeEach
     public void setup() {
         
@@ -254,7 +257,8 @@ class DigitalTestWorkflowRepeatIT {
                 paperNotificationFailedDaoMock,
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock
+                documentCreationRequestDaoMock,
+                addressManagerClientMock
         );
     }
     

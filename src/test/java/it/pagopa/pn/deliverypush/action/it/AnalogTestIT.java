@@ -230,7 +230,10 @@ class AnalogTestIT {
 
     @Autowired
     private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
-
+    
+    @Autowired
+    private AddressManagerClientMock addressManagerClientMock;
+    
     @BeforeEach
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -244,7 +247,8 @@ class AnalogTestIT {
                 paperNotificationFailedDaoMock,
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock
+                documentCreationRequestDaoMock,
+                addressManagerClientMock
         );
     }
 

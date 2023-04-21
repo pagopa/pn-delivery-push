@@ -241,6 +241,9 @@ class NotHandledTestIT {
     @Autowired
     private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
+    @Autowired
+    private AddressManagerClientMock addressManagerClientMock;
+    
     @BeforeEach
     public void setup() {
         
@@ -255,7 +258,8 @@ class NotHandledTestIT {
                 paperNotificationFailedDaoMock,
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock
+                documentCreationRequestDaoMock,
+                addressManagerClientMock
         );
     }
 

@@ -129,6 +129,8 @@ public class NotificationValidationActionHandler {
             normalizeAddressHandler.handleNormalizedAddressResponse(notification, normalizeItemsResult);
             
             log.info("Notification validated successfully - iun={}", iun);
+            
+            //TODO Questa parte di codice deve essere portata in una action perchè non DEVO utilizzare la stessa notifica che ha ancora i vecchi dati
             receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(notification);
 
         } catch (PnValidationNotValidAddressException ex){

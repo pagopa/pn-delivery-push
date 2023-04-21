@@ -663,15 +663,16 @@ public class TestUtils {
         return "XX_"+int_random;
     }
 
-    public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock,
-                                         PnDeliveryClientMock pnDeliveryClientMock,
-                                         UserAttributesClientMock userAttributesClientMock,
-                                         NationalRegistriesClientMock nationalRegistriesClientMock,
-                                         TimelineDaoMock timelineDaoMock,
-                                         PaperNotificationFailedDaoMock paperNotificationFailedDaoMock,
-                                         PnDataVaultClientMock pnDataVaultClientMock,
-                                         PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock,
-                                         DocumentCreationRequestDaoMock documentCreationRequestDaoMock
+    public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock, 
+                                               PnDeliveryClientMock pnDeliveryClientMock, 
+                                               UserAttributesClientMock userAttributesClientMock, 
+                                               NationalRegistriesClientMock nationalRegistriesClientMock, 
+                                               TimelineDaoMock timelineDaoMock, 
+                                               PaperNotificationFailedDaoMock paperNotificationFailedDaoMock, 
+                                               PnDataVaultClientMock pnDataVaultClientMock, 
+                                               PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock, 
+                                               DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
+                                               AddressManagerClientMock addressManagerClientMock
     ) {
         safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
@@ -682,6 +683,7 @@ public class TestUtils {
         pnDataVaultClientMock.clear();
         pnDataVaultClientReactiveMock.clear();
         documentCreationRequestDaoMock.clear();
+        addressManagerClientMock.clear();
     }
     
     @Builder

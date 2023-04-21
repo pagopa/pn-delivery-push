@@ -53,7 +53,7 @@ public class AddressValidator {
                         normalizeResult.getId()
                 );
                 
-                log.error(errorMessage);
+                log.warn(errorMessage);
                 throw new PnValidationNotValidAddressException(errorMessage);
             }
         });

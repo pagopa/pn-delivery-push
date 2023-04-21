@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
@@ -23,6 +24,7 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationRespon
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
@@ -54,6 +56,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 
 import static org.awaitility.Awaitility.await;
 
@@ -206,6 +209,9 @@ class ValidationTestIT {
     @Autowired
     private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
+    @Autowired
+    private AddressManagerClientMock addressManagerClientMock;
+    
     @BeforeEach
     public void setup() {
         //Mock for get current date
@@ -220,7 +226,8 @@ class ValidationTestIT {
                 paperNotificationFailedDaoMock,
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock
+                documentCreationRequestDaoMock,
+                addressManagerClientMock
         );
     }
 
@@ -362,6 +369,61 @@ class ValidationTestIT {
 
         ConsoleAppenderCustom.checkLogs();
     }
-    
+
+    @Test
+    void addressNotValidTest() {
+        // GIVEN
+        
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01")
+                .withPhysicalAddress(PhysicalAddressBuilder.builder()
+                        .withAddress("Via Nuova_" + AddressManagerClientMock.ADDRESS_MANAGER_NOT_VALID_ADDRESS)
+                        .build())
+                .build();
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+
+        pnDeliveryClientMock.addNotification(notification);
+        
+        String iun = notification.getIun();
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        //WHEN the workflow start
+        startWorkflowHandler.startWorkflow(iun);
+
+        //THEN
+        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+                //Check worfklow is failed
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REQUEST_REFUSED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .build())).isPresent()
+                )
+        );
+
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(NotificationRecipientInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString()
+        );
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
+
+        ConsoleAppenderCustom.checkLogs();
+    }
     
 }

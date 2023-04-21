@@ -11,19 +11,7 @@ import java.util.List;
 
 public class AddressManagerMapper {
     private AddressManagerMapper(){}
-    public static AnalogAddress getAnalogAddressFromPhysical(PhysicalAddressInt physicalAddress){
-        AnalogAddress address = new AnalogAddress();
-        address.setAddressRow(physicalAddress.getAddress());
-        address.setAddressRow2(physicalAddress.getAddressDetails());
-        address.setCap(physicalAddress.getZip());
-        address.setCity(physicalAddress.getMunicipality());
-        address.setCity2(physicalAddress.getMunicipalityDetails());
-        address.setPr(physicalAddress.getProvince());
-        address.setCountry(physicalAddress.getForeignState());
-        
-        return address;
-    }
-
+    
     public static NormalizeItemsResultInt externalToInternal(NormalizeItemsResult response) {
         NormalizeItemsResultInt.NormalizeItemsResultIntBuilder normalizeItemsResultBuilder = NormalizeItemsResultInt.builder()
                         .correlationId(response.getCorrelationId());
@@ -48,6 +36,20 @@ public class AddressManagerMapper {
         
         return normalizeItemsResultBuilder.build();
     }
+
+    public static AnalogAddress getAnalogAddressFromPhysical(PhysicalAddressInt physicalAddress){
+        AnalogAddress address = new AnalogAddress();
+        address.setAddressRow(physicalAddress.getAddress());
+        address.setAddressRow2(physicalAddress.getAddressDetails());
+        address.setCap(physicalAddress.getZip());
+        address.setCity(physicalAddress.getMunicipality());
+        address.setCity2(physicalAddress.getMunicipalityDetails());
+        address.setPr(physicalAddress.getProvince());
+        address.setCountry(physicalAddress.getForeignState());
+
+        return address;
+    }
+
 
     private static PhysicalAddressInt getPhysicalFromAnalog(AnalogAddress analogAddress){
         return PhysicalAddressInt.builder()

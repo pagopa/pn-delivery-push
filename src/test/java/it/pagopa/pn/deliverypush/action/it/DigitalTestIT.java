@@ -250,6 +250,9 @@ class DigitalTestIT {
     @Autowired
     private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
+    @Autowired
+    private AddressManagerClientMock addressManagerClientMock;
+    
     @BeforeEach
     public void setup() {
         
@@ -264,7 +267,8 @@ class DigitalTestIT {
                 paperNotificationFailedDaoMock,
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock
+                documentCreationRequestDaoMock,
+                addressManagerClientMock
         );
     }
     

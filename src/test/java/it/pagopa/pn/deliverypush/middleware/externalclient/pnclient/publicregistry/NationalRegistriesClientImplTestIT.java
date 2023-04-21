@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.publicregistry;
 
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries.NationalRegistriesClient;

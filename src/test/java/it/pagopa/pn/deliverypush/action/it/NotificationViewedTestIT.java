@@ -231,6 +231,9 @@ class NotificationViewedTestIT {
 
     @Autowired
     private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
+
+    @Autowired
+    private AddressManagerClientMock addressManagerClientMock;
     
     @BeforeEach
     public void setup() {
@@ -245,7 +248,8 @@ class NotificationViewedTestIT {
                 paperNotificationFailedDaoMock,
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock
+                documentCreationRequestDaoMock,
+                addressManagerClientMock
         );
     }
 
