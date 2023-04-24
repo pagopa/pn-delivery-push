@@ -957,10 +957,8 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         oldAddress:
-          description: Indirizzo fisico ricevuto dalla pa
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         normalizedAddress:
-          description: Indirizzo fisico normalizzato
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
     DigitalAddressSource:
