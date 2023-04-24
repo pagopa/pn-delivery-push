@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
@@ -26,8 +27,6 @@ class CompletionWorkFlowHandlerTest {
     @Mock
     private RegisteredLetterSender registeredLetterSender;
     @Mock
-    private CompletelyUnreachableUtils completelyUnreachableUtils;
-    @Mock
     private TimelineUtils timelineUtils;
     @Mock
     private TimelineService timelineService;
@@ -37,6 +36,8 @@ class CompletionWorkFlowHandlerTest {
     private MVPParameterConsumer mvpParameterConsumer;
     @Mock
     private PecDeliveryWorkflowLegalFactsGenerator pecDeliveryWorkflowLegalFactsGenerator;
+    @Mock
+    private AnalogDeliveryFailureWorkflowLegalFactsGenerator analogDeliveryFailureWorkflowLegalFactsGenerator;
     @Mock
     private DocumentCreationRequestService documentCreationRequestService;
     
@@ -48,11 +49,11 @@ class CompletionWorkFlowHandlerTest {
     public void setup() {
         notificationUtils = new NotificationUtils();
         handler = new CompletionWorkFlowHandler(
-                completelyUnreachableUtils,
                 timelineUtils,
                 timelineService,
                 refinementScheduler,
                 pecDeliveryWorkflowLegalFactsGenerator,
+                analogDeliveryFailureWorkflowLegalFactsGenerator,
                 documentCreationRequestService);
     }
     
@@ -128,13 +129,17 @@ class CompletionWorkFlowHandlerTest {
         Instant notificationDate = Instant.now();
 
         EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
-        
+        String legalFactId = "legalFactsId";
+        Mockito.when( analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, endWorkflowStatus, notificationDate ) ).thenReturn(legalFactId);
+        final TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().elementId("test").build();
+        Mockito.when(timelineUtils.buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(notification, recIndex, endWorkflowStatus, notificationDate, legalFactId)).thenReturn(timelineElementInternal);
+
+
         //WHEN
         handler.completionAnalogWorkflow(notification, recIndex, notificationDate, recipient.getPhysicalAddress(), endWorkflowStatus);
     
         //THEN
-        Mockito.verify(timelineUtils).buildFailureAnalogWorkflowTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt());
-        Mockito.verify(refinementScheduler).scheduleAnalogRefinement(notification, recIndex, notificationDate, endWorkflowStatus);
+        Mockito.verify(documentCreationRequestService).addDocumentCreationRequest(legalFactId, notification.getIun(), recIndex, DocumentCreationTypeInt.ANALOG_FAILURE_DELIVERY, timelineElementInternal.getElementId());
     }
     
 }

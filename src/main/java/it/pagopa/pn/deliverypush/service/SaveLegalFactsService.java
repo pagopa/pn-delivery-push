@@ -23,6 +23,13 @@ public interface SaveLegalFactsService {
             EndWorkflowStatus status,
             Instant completionWorkflowDate
     );
+
+    String sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(
+            NotificationInt notification,
+            NotificationRecipientInt recipient,
+            EndWorkflowStatus status,
+            Instant completionWorkflowDate
+    );
     
     Mono<String> sendCreationRequestForNotificationViewedLegalFact(
             NotificationInt notification,
