@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
@@ -139,6 +140,8 @@ import static org.awaitility.Awaitility.await;
         AddressManagerClientMock.class,
         NormalizeAddressHandler.class,
         AddressManagerResponseHandler.class,
+        AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
+        AnalogFailureDeliveryCreationResponseHandler.class,
         AnalogTestITNormalizedAddress.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
