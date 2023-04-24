@@ -6,7 +6,6 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -14,14 +13,17 @@ import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,11 +39,11 @@ public class NotificationValidationActionHandler {
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
-    private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
     private final NotificationValidationScheduler notificationValidationScheduler;
     private final AddressValidator addressValidator;
     private final AuditLogService auditLogService;
     private final NormalizeAddressHandler normalizeAddressHandler;
+    private final SchedulerService schedulerService;
     private final PnDeliveryPushConfigs cfg;
 
     public void validateNotification(String iun, NotificationValidationActionDetails details){
@@ -130,8 +132,9 @@ public class NotificationValidationActionHandler {
             
             log.info("Notification validated successfully - iun={}", iun);
             
-            //TODO Questa parte di codice deve essere portata in una action perchè non DEVO utilizzare la stessa notifica che ha ancora i vecchi dati
-            receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(notification);
+            Instant schedulingDate = Instant.now();
+            log.info("Scheduling received legalFact generation, schedulingDate={} - iun={}", schedulingDate, iun);
+            schedulerService.scheduleEvent(iun, schedulingDate, ActionType.SCHEDULE_RECEIVED_LEGALFACT_GENERATION);
 
         } catch (PnValidationNotValidAddressException ex){
             logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), ex).log();

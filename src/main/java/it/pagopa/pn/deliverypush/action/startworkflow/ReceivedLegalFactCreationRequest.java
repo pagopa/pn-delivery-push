@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -19,8 +20,11 @@ public class ReceivedLegalFactCreationRequest {
     private final DocumentCreationRequestService documentCreationRequestService;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
+    private final NotificationService notificationService;
     
-    public void saveNotificationReceivedLegalFacts(NotificationInt notification) {
+    public void saveNotificationReceivedLegalFacts(String iun) {
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+                
         // Invio richiesta di creazione di atto opponibile a terzi di avvenuta ricezione da parte di PN a SafeStorage
         String legalFactId = saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(notification);
 

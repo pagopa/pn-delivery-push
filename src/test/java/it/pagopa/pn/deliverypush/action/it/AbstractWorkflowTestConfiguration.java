@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
@@ -115,12 +116,13 @@ public class AbstractWorkflowTestConfiguration {
     public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
                                                          @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
                                                          @Lazy AnalogWorkflowHandler analogWorkflowHandler,
-                                                         @Lazy RefinementHandler refinementHandler, 
+                                                         @Lazy RefinementHandler refinementHandler,
                                                          @Lazy InstantNowSupplier instantNowSupplier,
                                                          @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
                                                          @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
                                                          @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
-                                                         @Lazy NotificationValidationActionHandler notificationValidationActionHandler) {
+                                                         @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
+                                                         @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest) {
         return new SchedulerServiceMock(
                 digitalWorkFlowHandler,
                 digitalWorkFlowRetryHandler,
@@ -130,7 +132,8 @@ public class AbstractWorkflowTestConfiguration {
                 startWorkflowForRecipientHandler, 
                 chooseDeliveryModeHandler, 
                 documentCreationResponseHandler,
-                notificationValidationActionHandler);
+                notificationValidationActionHandler,
+                receivedLegalFactCreationRequest);
     }
 
     
