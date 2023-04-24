@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.AnalogAddress;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -460,7 +461,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex) {
+    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId) {
         log.debug("buildFailureAnalogWorkflowTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
@@ -473,7 +474,7 @@ public class TimelineUtils {
                 .build();
         
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds( Collections.emptyList() );
+                .legalFactsIds( singleLegalFactId(legalFactId, LegalFactCategoryInt.ANALOG_FAILURE_DELIVERY) );
 
         return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, elementId,
                 details, timelineBuilder);
@@ -792,8 +793,12 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .build());
 
+        int numberOfRecipients = notification.getRecipients().size();
+
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
                 .refusalReasons(errors)
+                .numberOfRecipients( numberOfRecipients )
+                .notificationCost( 100 * numberOfRecipients )
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);
@@ -848,7 +853,7 @@ public class TimelineUtils {
     public TimelineElementInternal buildNotificationPaidTimelineElement(NotificationInt notification, NotificationPaidInt notificationPaidInt, String elementId) {
         log.debug("buildNotificationPaidTimelineElement: {}", notificationPaidInt);
 
-        NotificationPaidDetails details = NotificationPaidDetails.builder()
+        NotificationPaidDetailsInt details = NotificationPaidDetailsInt.builder()
                 .recIndex(notificationPaidInt.getRecipientIdx())
                 .recipientType(notificationPaidInt.getRecipientType().getValue())
                 .amount(notificationPaidInt.getAmount())
@@ -856,6 +861,7 @@ public class TimelineUtils {
                 .noticeCode(notificationPaidInt.getNoticeCode())
                 .idF24(notificationPaidInt.getIdF24())
                 .paymentSourceChannel(notificationPaidInt.getPaymentSourceChannel())
+                .uncertainPaymentDate(notificationPaidInt.isUncertainPaymentDate())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -948,6 +954,34 @@ public class TimelineUtils {
                 .legalFactsIds( Collections.emptyList() );
 
         return buildTimeline(notification, TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, elementId,
+                details, timelineBuilder);
+    }
+
+
+    public TimelineElementInternal buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(NotificationInt notification,
+                                                                                                    Integer recIndex,
+                                                                                                    EndWorkflowStatus status,
+                                                                                                    Instant completionWorkflowDate,
+                                                                                                    String legalFactId) {
+        log.debug("buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        AnalogFailureWorkflowCreationRequestDetailsInt details = AnalogFailureWorkflowCreationRequestDetailsInt.builder()
+                .recIndex(recIndex)
+                .endWorkflowStatus(status)
+                .completionWorkflowDate(completionWorkflowDate)
+                .legalFactId(legalFactId)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( Collections.emptyList() );
+
+        return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST, elementId,
                 details, timelineBuilder);
     }
 

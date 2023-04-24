@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: V/1igTCdD9nlwA+SqBWanfwqai7BekKcx6aiFwxHs3w=
+  version: 8XuhlIgAWjGefypXiB3Cx7pj0tC8Sx93uQt+jBdDX5M=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -651,8 +651,10 @@ components:
           * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
           * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
           * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
+          * `ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto firmato e marcato di chiusura del workflow analogico completato con fallimento
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione evento non finale relativo all'invio della raccomandata semplice
           * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
           * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
           * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
@@ -684,8 +686,10 @@ components:
         - DIGITAL_FAILURE_WORKFLOW
         - ANALOG_SUCCESS_WORKFLOW
         - ANALOG_FAILURE_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST
         - PREPARE_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER
+        - SIMPLE_REGISTERED_LETTER_PROGRESS
         - NOTIFICATION_VIEWED_CREATION_REQUEST
         - NOTIFICATION_VIEWED
         - PREPARE_ANALOG_DOMICILE

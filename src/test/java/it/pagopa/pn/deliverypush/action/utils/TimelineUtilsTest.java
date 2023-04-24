@@ -360,7 +360,7 @@ class TimelineUtilsTest {
         String timelineEventIdExpected = "ANALOG_FAILURE_WORKFLOW#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildFailureAnalogWorkflowTimelineElement(
-                notification, recIndex
+                notification, recIndex, "key"
         );
 
         Assertions.assertAll(

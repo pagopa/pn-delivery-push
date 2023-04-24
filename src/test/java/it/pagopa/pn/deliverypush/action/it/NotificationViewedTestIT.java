@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
@@ -75,6 +76,7 @@ import static org.mockito.ArgumentMatchers.eq;
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
+        AnalogFailureDeliveryCreationResponseHandler.class,
         PaperChannelServiceImpl.class,
         PaperChannelUtils.class,
         PaperChannelResponseHandler.class,
@@ -109,6 +111,7 @@ import static org.mockito.ArgumentMatchers.eq;
         AttachmentUtils.class,
         NotificationUtils.class,
         PecDeliveryWorkflowLegalFactsGenerator.class,
+        AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
         RefinementScheduler.class,
         RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,

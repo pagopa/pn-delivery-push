@@ -270,6 +270,18 @@ public enum TimelineEventId {
         }
     },
 
+
+    ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST("ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
+        }
+    },
+
     NOTIFICATION_VIEWED_CREATION_REQUEST("NOTIFICATION_VIEWED_CREATION_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {

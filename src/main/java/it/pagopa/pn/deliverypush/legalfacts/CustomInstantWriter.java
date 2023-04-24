@@ -13,15 +13,24 @@ public class CustomInstantWriter {
 
     private static final DateTimeFormatter ITALIAN_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter ITALIAN_DATE_TIME_FORMAT_NO_TIME = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter ITALIAN_DATE_TIME_FORMAT_TIME_ONLY = DateTimeFormatter.ofPattern("HH:mm");
     private static final Duration ONE_HOUR = Duration.ofHours(1);
     private static final ZoneId ROME_ZONE = ZoneId.of("Europe/Rome");
 
     public String instantToDate(Instant instant) {
 
-        return instantToDate(instant, false);
+        return instantToDate(instant, ITALIAN_DATE_TIME_FORMAT);
+    }
+
+    public String instantToTime(Instant instant) {
+        return instantToDate(instant, ITALIAN_DATE_TIME_FORMAT_TIME_ONLY);
     }
 
     public String instantToDate(Instant instant, boolean withoutTime) {
+        return instantToDate(instant, withoutTime?ITALIAN_DATE_TIME_FORMAT_NO_TIME:ITALIAN_DATE_TIME_FORMAT);
+    }
+
+    private String instantToDate(Instant instant, DateTimeFormatter formatter) {
         String suffix;
         Instant nextTransition = ROME_ZONE.getRules().nextTransition(instant).getInstant();
         boolean isAmbiguous = isNear(instant, nextTransition);
@@ -40,11 +49,11 @@ public class CustomInstantWriter {
 
         LocalDateTime localDate = LocalDateTime.ofInstant(instant, ROME_ZONE);
 
-        if (withoutTime) {
-            return localDate.format(ITALIAN_DATE_TIME_FORMAT_NO_TIME);
+        if (formatter.equals(ITALIAN_DATE_TIME_FORMAT_NO_TIME)) {
+            return localDate.format(formatter);
         }
 
-        return localDate.format(ITALIAN_DATE_TIME_FORMAT) + suffix;
+        return localDate.format(formatter) + suffix;
     }
 
     private boolean isNear(Instant a, Instant b) {

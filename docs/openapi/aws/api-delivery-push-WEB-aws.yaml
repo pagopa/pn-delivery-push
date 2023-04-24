@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: iu9kY16P2E74kGXpV3HqAg1nqKf4+kZH47akHFTJfo0=
+  version: c9K0k/AXGU5t9th9NeFSbsYopC5OTnRHolYqcZtAGw8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -296,6 +296,7 @@ components:
         - ANALOG_DELIVERY
         - RECIPIENT_ACCESS
         - PEC_RECEIPT
+        - ANALOG_FAILURE_DELIVERY
     LegalFactsId:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
       type: object
@@ -484,6 +485,7 @@ components:
         authorizerUri: >-
           arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-jwtAuthorizerLambda/invocations
         authorizerResultTtlInSeconds: 300
+        identityValidationExpression: ^Bearer\s([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)\.([a-zA-Z0-9_\-]+)$
         type: token
 tags:
   - name: HealthCheck
