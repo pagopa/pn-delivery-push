@@ -234,7 +234,7 @@ Parameters:
   
   AddressManagerApiKey:
     Type: String
-    Description: 'ApiKey per accedere ai servizi di address manager'
+    Description: 'ApiKey to access address manager services'
     
   SandboxSafeStorageBaseUrl:
     Type: String
