@@ -69,6 +69,9 @@ class LegalFactPdfGeneratorTest {
 		InstantNowSupplier instantNowSupplier = new InstantNowSupplier();
 		pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
 		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq");
+		pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://www.dev.pn.pagopa.it");
+		pnDeliveryPushConfigs.getWebapp().setFaqSendHash("send-cosa-e");
+		pnDeliveryPushConfigs.getWebapp().setFaqCompletionMomentHash("perfezionamento-quando");
 		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.it");
 		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://notifichedigitali.legal.it");
 		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("aar");
