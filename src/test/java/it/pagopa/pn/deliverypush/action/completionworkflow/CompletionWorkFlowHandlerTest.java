@@ -12,6 +12,9 @@ import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleAnalogWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +25,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 class CompletionWorkFlowHandlerTest {
     @Mock
@@ -127,12 +134,44 @@ class CompletionWorkFlowHandlerTest {
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Instant notificationDate = Instant.now();
+        Instant aarDate = Instant.now().minusSeconds(3600);
+
+        List<TimelineElementInternal> timelineElementInternalList = new ArrayList<>();
+        final TimelineElementInternal timelineElementInternalAAR = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .details(AarGenerationDetailsInt.builder()
+                        .recIndex(recIndex)
+                        .build())
+                .timestamp(aarDate)
+                .elementId("test0").build();
+
+        final TimelineElementInternal timelineElementInternalAAR1 = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .details(AarGenerationDetailsInt.builder()
+                        .recIndex(recIndex+1)
+                        .build())
+                .timestamp(aarDate)
+                .elementId("test1").build();
+
+
+        final TimelineElementInternal timelineElementInternalOther = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW)
+                .details(ScheduleAnalogWorkflowDetailsInt.builder()
+                        .recIndex(recIndex)
+                        .build())
+                .timestamp(notificationDate)
+                .elementId("test2").build();
+
+        timelineElementInternalList.add(timelineElementInternalAAR);
+        timelineElementInternalList.add(timelineElementInternalAAR1);
+        timelineElementInternalList.add(timelineElementInternalOther);
 
         EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
         String legalFactId = "legalFactsId";
-        Mockito.when( analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, endWorkflowStatus, notificationDate ) ).thenReturn(legalFactId);
+        Mockito.when( analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, endWorkflowStatus, aarDate ) ).thenReturn(legalFactId);
         final TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().elementId("test").build();
         Mockito.when(timelineUtils.buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(notification, recIndex, endWorkflowStatus, notificationDate, legalFactId)).thenReturn(timelineElementInternal);
+        Mockito.when(timelineService.getTimeline(notification.getIun(), false)).thenReturn(timelineElementInternalList.stream().collect(Collectors.toSet()));
 
 
         //WHEN

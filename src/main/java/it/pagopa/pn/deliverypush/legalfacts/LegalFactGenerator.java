@@ -231,15 +231,15 @@ public class LegalFactGenerator {
     public byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
                                                                  NotificationRecipientInt recipient,
                                                                  EndWorkflowStatus status,
-                                                                 Instant completionWorkflowDate) throws IOException {
+                                                                 Instant aarDate) throws IOException {
 
 
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
         templateModel.put(FIELD_IUN, notification.getIun() );
         templateModel.put(FIELD_END_WORKFLOW_STATUS, status.toString() );
-        templateModel.put(FIELD_END_WORKFLOW_DATE, instantWriter.instantToDate( completionWorkflowDate, true ) );
-        templateModel.put(FIELD_END_WORKFLOW_TIME, instantWriter.instantToTime( completionWorkflowDate ) );
+        templateModel.put(FIELD_END_WORKFLOW_DATE, instantWriter.instantToDate( aarDate, true ) );
+        templateModel.put(FIELD_END_WORKFLOW_TIME, instantWriter.instantToTime( aarDate ) );
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
