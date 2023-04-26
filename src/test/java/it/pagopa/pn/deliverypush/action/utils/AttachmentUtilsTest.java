@@ -2,25 +2,28 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
@@ -33,10 +36,13 @@ class AttachmentUtilsTest {
 
     private SafeStorageService safeStorageService;
 
+    private NotificationUtils notificationUtils;
+
     @BeforeEach
     public void setup() {
         safeStorageService = Mockito.mock(SafeStorageService.class);
         attachmentUtils = new AttachmentUtils(safeStorageService);
+        notificationUtils = Mockito.mock(NotificationUtils.class);
     }
 
     @Test
@@ -187,6 +193,28 @@ class AttachmentUtilsTest {
         Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(Mockito.any(), Mockito.any());
     }
 
+    @Test
+    void getAttachmentsByRecipient() {
+        //GIVEN
+        NotificationInt notification = getNotificationWithMultipleRecipients();
+
+        Integer recIndexRecipient1 = 0;
+        Integer recIndexRecipient2 = 1;
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient1)).thenReturn(notification.getRecipients().get(recIndexRecipient1));
+        Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient2)).thenReturn(notification.getRecipients().get(recIndexRecipient2));
+
+        //WHEN
+        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachments(notification, notificationUtils.getRecipientFromIndex(notification, recIndexRecipient1));
+        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachments(notification, notificationUtils.getRecipientFromIndex(notification, recIndexRecipient2));
+
+        Assert.assertEquals(attachmentsRecipient1.size(), 1);
+        Assert.assertEquals(attachmentsRecipient2.size(), 2);
+        Assert.assertEquals(attachmentsRecipient1.get(0), notification.getDocuments().get(0).getRef().getKey());
+        Assert.assertEquals(attachmentsRecipient2.get(0), notification.getDocuments().get(0).getRef().getKey());
+        Assert.assertEquals(attachmentsRecipient2.get(1), notification.getRecipients().get(recIndexRecipient2).getPayment().getPagoPaForm().getRef().getKey());
+    }
+
     private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
         return NotificationTestBuilder.builder()
                 .withIun("iun_01")
@@ -222,5 +250,90 @@ class AttachmentUtilsTest {
                                 .build())
                         .build())
                 .build();
+    }
+
+    private NotificationInt getNotificationWithMultipleRecipients() {
+
+        NotificationRecipientInt notificationRecipient1 = NotificationRecipientTestBuilder.builder()
+                .withRecipientType(RecipientTypeInt.PF)
+                .withTaxId("CLMCST42R12D969Z")
+                .withInternalId("")
+                .withPhysicalAddress(
+                        PhysicalAddressInt.builder()
+                                .at("Presso")
+                                .address("Via@ok_AR")
+                                .addressDetails("scala b")
+                                .zip("40100")
+                                .municipality("Milano")
+                                .municipalityDetails("Milano")
+                                .province("MI")
+                                .foreignState("ITALIA")
+                                .build()
+                )
+                .withPayment(NotificationPaymentInfoInt.builder()
+                        .noticeCode("302011681384967173")
+                        .creditorTaxId("77777777777")
+                        .build()
+                )
+                .build();
+
+        NotificationRecipientInt notificationRecipient2 = NotificationRecipientTestBuilder.builder()
+                .withRecipientType(RecipientTypeInt.PG)
+                .withTaxId("MSSLGU51P10A087J")
+                .withInternalId("")
+                .withDenomination("Cucumber_Society")
+                .withPhysicalAddress(
+                        PhysicalAddressInt.builder()
+                                .at("Presso")
+                                .address("Via senza nome")
+                                .addressDetails("scala b")
+                                .zip("40100")
+                                .municipality("Milano")
+                                .municipalityDetails("Milano")
+                                .province("MI")
+                                .foreignState("ITALIA")
+                                .build()
+                )
+                .withDigitalDomicile(
+                        LegalDigitalAddressInt.builder()
+                                .address("testpagopa2@pnpagopa.postecert.local")
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .build()
+                )
+                .withPayment(NotificationPaymentInfoInt.builder()
+                        .noticeCode("302011681384967181")
+                        .creditorTaxId("77777777777")
+                        .pagoPaForm(NotificationDocumentInt.builder()
+                                .ref(NotificationDocumentInt.Ref.builder()
+                                        .key("PN_NOTIFICATION_ATTACHMENTS-a75e827e953c4917b6d1beaf6df56755.pdf")
+                                        .versionToken("v1")
+                                        .build())
+                                .digests( NotificationDocumentInt.Digests.builder()
+                                        .sha256( "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=" )
+                                        .build() )
+                                .build())
+                        .build())
+                .build();
+        NotificationInt notification =  NotificationInt.builder()
+                .paProtocolNumber("302011681384967158")
+                .subject("notifica analogica con cucumber")
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER)
+                .documents(List.of(NotificationDocumentInt.builder()
+                        .ref(NotificationDocumentInt.Ref.builder()
+                                .key("PN_NOTIFICATION_ATTACHMENTS-91a87a946c0d4c1ba17cd2a0037665db.pdf")
+                                .versionToken("v1")
+                                .build())
+                        .digests( NotificationDocumentInt.Digests.builder()
+                                .sha256( "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE" )
+                                .build() )
+                        .build()))
+                .sender(NotificationSenderInt.builder()
+                        .paTaxId("80016350821")
+                        .paDenomination("Comune di palermo")
+                        .build())
+                .recipients(List.of(notificationRecipient1, notificationRecipient2))
+                .build();
+
+        return notification;
     }
 }
