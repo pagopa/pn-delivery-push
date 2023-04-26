@@ -52,8 +52,8 @@ public class LegalFactGenerator {
     public static final String FIELD_WHEN = "when";
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL = "piattaformaNotificheURL";
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL = "piattaformaNotificheURLLabel";
-    public static final String FIELD_PN_FAQ_URL = "PNFaqURL";
     public static final String FIELD_PN_FAQ_COMPLETION_MOMENT_URL = "PNFaqCompletionMomentURL";
+    public static final String FIELD_SEND_URL = "PNFaqSendURL";
     public static final String FIELD_END_WORKFLOW_STATUS = "endWorkflowStatus";
     public static final String FIELD_END_WORKFLOW_DATE = "endWorkflowDate";
     public static final String FIELD_END_WORKFLOW_TIME = "endWorkflowTime";
@@ -63,6 +63,8 @@ public class LegalFactGenerator {
     public static final String FIELD_RECIPIENT_TYPE = "recipientType";
     public static final String FIELD_DELEGATE = "delegate";
     public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
+
+    public static final String FIELD_SENDURL = "sendURL";
     public static final String FIELD_LOGO = "logoBase64";
 
     private final DocumentComposition documentComposition;
@@ -358,8 +360,8 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(recipient) );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel(recipient) );
-        templateModel.put(FIELD_PN_FAQ_URL, this.getFAQAccessLink());
         templateModel.put(FIELD_PN_FAQ_COMPLETION_MOMENT_URL, this.getFAQCompletionMomentAccessLink());
+        templateModel.put(FIELD_SEND_URL, this.getFAQSendURL());
         templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
 
@@ -401,6 +403,10 @@ public class LegalFactGenerator {
 
     private String getFAQCompletionMomentAccessLink() {
         return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqCompletionMomentHash();
+    }
+
+    private String getFAQSendURL() {
+        return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqSendHash();
     }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
