@@ -456,6 +456,10 @@ Parameters:
       - false
     Description: 'Enables retry of the notification validation in case of SafeStorage 404 error'
 
+  LandingUrl:
+    Type: String
+    Description: 'SEND landing URL'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -535,9 +539,12 @@ Resources:
         ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
         ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_SENDNOTIFICATIONATTACHMENTS=${SendNotificationAttachments}'
         ContainerEnvEntry48: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
-        ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=${AddressManagerApiKey}'
-        ContainerEnvEntry51: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
+        ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
+        ContainerEnvEntry50: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
+        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
+        ContainerEnvEntry52: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=${AddressManagerApiKey}'
+        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
