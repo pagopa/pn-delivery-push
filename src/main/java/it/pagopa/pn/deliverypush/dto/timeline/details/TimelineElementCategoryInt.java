@@ -7,7 +7,7 @@ import lombok.Getter;
 public enum TimelineElementCategoryInt {
     SENDER_ACK_CREATION_REQUEST(SenderAckCreationRequestDetailsInt.class, TimelineElementCategory.SENDER_ACK_CREATION_REQUEST.getValue()),
     VALIDATE_NORMALIZE_ADDRESSES_REQUEST(ValidateNormalizeAddressDetailsInt.class, TimelineElementCategory.VALIDATE_NORMALIZE_ADDRESSES_REQUEST.getValue()),
-    NORMALIZED_ADDRESS(ValidateNormalizeAddressDetailsInt.class, TimelineElementCategory.NORMALIZED_ADDRESS.getValue()),
+    NORMALIZED_ADDRESS(NormalizedAddressDetailsInt.class, TimelineElementCategory.NORMALIZED_ADDRESS.getValue()),
     REQUEST_ACCEPTED(NotificationRequestAcceptedDetailsInt.class, TimelineElementCategory.REQUEST_ACCEPTED.getValue()),
     SEND_COURTESY_MESSAGE(SendCourtesyMessageDetailsInt.class, TimelineElementCategory.SEND_COURTESY_MESSAGE.getValue()),
     GET_ADDRESS(GetAddressInfoDetailsInt.class, TimelineElementCategory.GET_ADDRESS.getValue()),
