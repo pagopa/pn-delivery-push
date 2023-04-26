@@ -414,7 +414,13 @@ public enum TimelineEventId {
             }
             else {
                 //per pagamenti PagoPa
-                paymentCode = "PPA" + eventId.getNoticeCode() + eventId.getCreditorTaxId();
+                paymentCode = "PPA";
+                if(eventId.getNoticeCode() != null){
+                    paymentCode += eventId.getNoticeCode();
+                }
+                if(eventId.getCreditorTaxId() != null){
+                    paymentCode += eventId.getCreditorTaxId();
+                }
             }
             return paymentCode;
         }
