@@ -381,13 +381,7 @@ public class TestUtils {
     }
     
     public static boolean checkIsPresentRefinement(String iun, Integer recIndex, TimelineService timelineService) {
-        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.REFINEMENT.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recIndex(recIndex)
-                                .build()));
+        Optional<TimelineElementInternal> timelineElementOpt = getRefinement(iun, recIndex, timelineService);
 
         Assertions.assertTrue(timelineElementOpt.isPresent());
         TimelineElementInternal timelineElement = timelineElementOpt.get();
@@ -395,6 +389,16 @@ public class TestUtils {
         Assertions.assertNotNull(detailsInt.getNotificationCost());
         
         return true;
+    }
+
+    public static Optional<TimelineElementInternal> getRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        return timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()));
     }
 
     public static void checkFailureRefinement(String iun,

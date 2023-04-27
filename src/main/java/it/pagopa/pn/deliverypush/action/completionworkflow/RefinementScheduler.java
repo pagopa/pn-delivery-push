@@ -91,15 +91,15 @@ public class RefinementScheduler {
 
         Instant schedulingDate = getSchedulingDate(notificationDate, schedulingDays, notification.getIun());
 
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
+        boolean isNotificationAlreadyViewedOrPaid = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
 
         //Se la notifica è già stata visualizzata, non viene schedulato il perfezionamento per decorrenza termini dal momento che la notifica è già stata perfezionata per visione
-        if( !isNotificationAlreadyViewed ){
+        if( !isNotificationAlreadyViewedOrPaid ){
             log.info("Schedule refinement in date={} - iun={} id={}", schedulingDate, notification.getIun(), recIndex);
             addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex, schedulingDate), notification );
             scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
         }else {
-            log.info("Notification is already viewed, refinement will not be scheduled - iun={} id={}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed or paid, refinement will not be scheduled - iun={} id={}", notification.getIun(), recIndex);
         }
     }
 
