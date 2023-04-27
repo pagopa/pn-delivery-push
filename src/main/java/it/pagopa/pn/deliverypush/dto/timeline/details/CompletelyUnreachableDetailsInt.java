@@ -11,6 +11,7 @@ import lombok.*;
 @ToString
 public class CompletelyUnreachableDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
+    private String generatedAarUrl;
 
     public String toLog() {
         return String.format(

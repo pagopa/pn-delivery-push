@@ -168,10 +168,12 @@ class CompletionWorkFlowHandlerTest {
 
         EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
         String legalFactId = "legalFactsId";
-        Mockito.when( analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, endWorkflowStatus, aarDate ) ).thenReturn(legalFactId);
-        final TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().elementId("test").build();
+        Mockito.when( analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, endWorkflowStatus, notificationDate ) ).thenReturn(legalFactId);
+        final TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().elementId("test")
+                .timestamp(notificationDate)
+                .build();
+        Mockito.when(timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex)).thenReturn(timelineElementInternal);
         Mockito.when(timelineUtils.buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(notification, recIndex, endWorkflowStatus, notificationDate, legalFactId)).thenReturn(timelineElementInternal);
-        Mockito.when(timelineService.getTimeline(notification.getIun(), false)).thenReturn(timelineElementInternalList.stream().collect(Collectors.toSet()));
 
 
         //WHEN

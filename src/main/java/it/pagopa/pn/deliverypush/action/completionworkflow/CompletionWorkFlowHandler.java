@@ -64,10 +64,10 @@ public class CompletionWorkFlowHandler {
                     refinementScheduler.scheduleAnalogRefinement(notification, recIndex, completionWorkflowDate, status);
                 }
                 case FAILURE -> {
-                    // recupero la data di generazione dell'AAR, per poterla inserire nell'atto opponibile
-                    Instant aarDate = retrieveAARTimestampFromTimeline(notification.getIun(), recIndex);
+                    TimelineElementInternal failureAnalogWorkflow = timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex);
+                    timelineService.addTimelineElement(failureAnalogWorkflow, notification);
 
-                    String legalFactId = analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, status, aarDate);
+                    String legalFactId = analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, status, failureAnalogWorkflow.getTimestamp());
 
                     TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(notification, recIndex, status, completionWorkflowDate, legalFactId);
                     timelineService.addTimelineElement(timelineElementInternal, notification);
@@ -87,27 +87,4 @@ public class CompletionWorkFlowHandler {
         throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
     }
 
-    private Instant retrieveAARTimestampFromTimeline(String iun, int recIndex) {
-        log.info("retrieveAARTimestampFromTimeline iun={} recIndex={}", iun, recIndex);
-
-        Optional<TimelineElementInternal> timelineEvent = timelineService.getTimeline(iun, false)
-                .stream().filter(x -> x.getCategory() == TimelineElementCategoryInt.AAR_GENERATION)
-                .filter(x -> {
-                    if (x.getDetails() instanceof AarGenerationDetailsInt aarGenerationDetailsInt){
-                        return aarGenerationDetailsInt.getRecIndex() == recIndex;
-                    }
-                    return false;
-                })
-                .findFirst();
-
-        if (timelineEvent.isPresent()) {
-            log.info("retrieveAARTimestampFromTimeline iun={} recIndex={} aarGenerationTimestamp={}", iun, recIndex, timelineEvent.get().getTimestamp());
-            return timelineEvent.get().getTimestamp();
-        }
-        else
-        {
-            LogUtils.logAlarm(log,"Cannot retrieve AAR generation for iun={} recIndex={}", iun, recIndex);
-            throw new PnInternalException("Cannot retrieve AAR generation for Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
-        }
-    }
 }

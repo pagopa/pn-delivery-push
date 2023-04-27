@@ -30,6 +30,6 @@ class CompletelyUnreachableDetailsIntTest {
     @Test
     void testToString() {
         String details = detailsInt.toString();
-        Assertions.assertEquals("CompletelyUnreachableDetailsInt(recIndex=0)", details);
+        Assertions.assertEquals("CompletelyUnreachableDetailsInt(recIndex=0, generatedAarUrl=null)", details);
     }
 }

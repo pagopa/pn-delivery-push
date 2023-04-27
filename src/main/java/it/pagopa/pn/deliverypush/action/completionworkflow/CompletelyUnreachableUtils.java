@@ -30,14 +30,14 @@ public class CompletelyUnreachableUtils  {
         this.notificationUtils = notificationUtils;
     }
 
-    public void handleCompletelyUnreachable(NotificationInt notification, Integer recIndex) {
+    public void handleCompletelyUnreachable(NotificationInt notification, Integer recIndex, String legalFactId, String aarUrl) {
         log.info("HandleCompletelyUnreachable - iun {} id {} ", notification.getIun(), recIndex);
 
         if (!isNotificationAlreadyViewed(notification.getIun(), recIndex)) {
             addPaperNotificationFailed(notification, recIndex);
         }
         addTimelineElement( 
-                timelineUtils.buildCompletelyUnreachableTimelineElement(notification, recIndex),
+                timelineUtils.buildCompletelyUnreachableTimelineElement(notification, recIndex, legalFactId, aarUrl),
                 notification);
     }
 
