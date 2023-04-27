@@ -170,6 +170,17 @@ public enum TimelineEventId {
         }
     },
 
+    SEND_SIMPLE_REGISTERED_LETTER_PROGRESS("SEND_SIMPLE_REGISTERED_LETTER_PROGRESS") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
+        }
+    },
+
     PREPARE_ANALOG_DOMICILE("PREPARE_ANALOG_DOMICILE") {
         @Override
         public String buildEventId(EventId eventId) {

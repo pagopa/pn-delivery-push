@@ -20,4 +20,6 @@ public class SendEventInt extends PaperEventInt {
     private PhysicalAddressInt discoveredAddress;
     private String deliveryFailureCause;
 
+    private String registeredLetterCode;
+
 }

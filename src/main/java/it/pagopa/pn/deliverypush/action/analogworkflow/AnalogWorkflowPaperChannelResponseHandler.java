@@ -143,6 +143,13 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             //Al momento l'eventuale risposta alla send della simple registered letter viene solo loggata
             log.info("Received response for SendSimpleRegistered letter, statusCode={} iun={} recIndex={}", 
                     response.getStatusCode(), iun, simpleRegisteredLetterDetails.getRecIndex());
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+            final String prepareRequestId = timelineElementInternal.getElementId();
+            String sendRequestId = paperChannelUtils.getSendRequestId(response.getIun(), prepareRequestId, TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER);
+
+            handleStatusProgressSimpleRegisteredLetter(response, simpleRegisteredLetterDetails, notification, response.getAttachments(), sendRequestId);
+
         }
         else if (timelineElementInternal.getDetails() instanceof BaseAnalogDetailsInt sendPaperDetails){
 
@@ -152,7 +159,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
 
             final String prepareRequestId = timelineElementInternal.getElementId();
-            String sendRequestId = paperChannelUtils.getSendRequestId(response.getIun(), prepareRequestId);
+            String sendRequestId = paperChannelUtils.getSendRequestId(response.getIun(), prepareRequestId, TimelineElementCategoryInt.SEND_ANALOG_DOMICILE);
             
             if (status!= null) {
                 switch (status) {
@@ -173,6 +180,18 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
 
+    private void handleStatusProgressSimpleRegisteredLetter(SendEventInt response,
+                                                            BaseRegisteredLetterDetailsInt sendPaperDetails,
+                                                            NotificationInt notification,
+                                                            List<AttachmentDetailsInt> attachments,
+                                                            String sendRequestId) {
+        analogWorkflowUtils.addSendSimpleRegisteredLetterProgressToTimeline(
+                notification,
+                attachments,
+                sendPaperDetails,
+                response,
+                sendRequestId);
+    }
 
     private void handleStatusProgress(SendEventInt response,
                                       BaseAnalogDetailsInt sendPaperDetails,

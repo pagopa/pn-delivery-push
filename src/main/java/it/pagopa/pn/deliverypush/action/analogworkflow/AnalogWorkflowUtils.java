@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -86,6 +87,13 @@ public class AnalogWorkflowUtils {
 
         addTimelineElement(
                 timelineUtils.buildAnalogProgressTimelineElement(notification, attachments, progressIndex, sendPaperDetails, sendEventInt, sendRequestId),
+                notification);
+    }
+
+    public void addSendSimpleRegisteredLetterProgressToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
+                                                                   BaseRegisteredLetterDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
+        addTimelineElement(
+                timelineUtils.buildSendSimpleRegisteredLetterProgressTimelineElement(notification, attachments, sendPaperDetails, sendEventInt, sendRequestId),
                 notification);
     }
 

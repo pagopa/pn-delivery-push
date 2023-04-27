@@ -331,6 +331,27 @@ class TimelineEventIdBuilderTest {
     }
 
     @Test
+    void buildSSEND_SIMPLE_REGISTERED_LETTER_PROGRESSTest() {
+        String timeLineEventIdExpected = "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.getValue())
+                .withIun(IUN)
+                .withRecIndex(0)
+                .build();
+
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .recIndex(0)
+                .build());
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+
+    }
+
+    @Test
     void buildPREPARE_ANALOG_DOMICILETest() {
         //vecchia versione 123456789_prepare_analog_domicile_1_attempt_1
         String timeLineEventIdExpected = "PREPARE_ANALOG_DOMICILE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.ATTEMPT_1";
