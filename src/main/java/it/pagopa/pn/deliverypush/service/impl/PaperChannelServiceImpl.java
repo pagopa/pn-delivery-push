@@ -228,7 +228,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     }
 
     @Override
-    public String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String requestId, PhysicalAddressInt receiverAddress, String productType){
+    public String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String prepareRequestId, PhysicalAddressInt receiverAddress, String productType){
         log.info("Registered Letter check if send to paperChannel - iun={} id={}", notification.getIun(), recIndex);
         String timelineId = null;
         boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
@@ -239,15 +239,15 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             // recupero gli allegati
             List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled(NotificationChannelType.SIMPLE_REGISTERED_LETTER));
 
-            PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, requestId, productType, attachments);
+            PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
 
             try {
                 SendResponse sendResponse = paperChannelSendClient.send(
                         new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
-                                receiverAddress, requestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
+                                receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
 
-                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendResponse, productType, requestId);
+                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendResponse, productType, prepareRequestId);
                 log.info("Registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
 

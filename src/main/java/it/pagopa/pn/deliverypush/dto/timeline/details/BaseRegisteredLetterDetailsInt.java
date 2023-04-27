@@ -16,7 +16,6 @@ public class BaseRegisteredLetterDetailsInt implements RecipientRelatedTimelineE
     protected int recIndex;
     protected PhysicalAddressInt physicalAddress;
     protected String foreignState;
-    protected String requestId;
 
     public String toLog() {
         return String.format(

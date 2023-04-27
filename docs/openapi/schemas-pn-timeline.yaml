@@ -79,7 +79,6 @@ components:
         - AAR_CREATION_REQUEST
         - AAR_GENERATION
         - NOT_HANDLED
-        - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
     
     TimelineElement:
       type: object
@@ -787,6 +786,9 @@ components:
           type: integer
           description: peso in grammi della busta
           format: int32
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
 
     AarCreationRequestDetails:
       type: object

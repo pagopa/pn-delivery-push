@@ -90,10 +90,10 @@ public class AnalogWorkflowUtils {
                 notification);
     }
 
-    public void addSendSimpleRegisteredLetterProgressToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
+    public void addSimpleRegisteredLetterProgressToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
                                                                    BaseRegisteredLetterDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
         addTimelineElement(
-                timelineUtils.buildSendSimpleRegisteredLetterProgressTimelineElement(notification, attachments, sendPaperDetails, sendEventInt, sendRequestId),
+                timelineUtils.buildSimpleRegisteredLetterProgressTimelineElement(notification, attachments, sendPaperDetails, sendEventInt, sendRequestId),
                 notification);
     }
 

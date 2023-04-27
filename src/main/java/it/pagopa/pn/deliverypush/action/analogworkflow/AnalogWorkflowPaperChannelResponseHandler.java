@@ -146,7 +146,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
             final String prepareRequestId = timelineElementInternal.getElementId();
-            String sendRequestId = paperChannelUtils.getSendRequestId(response.getIun(), prepareRequestId, TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER);
+            String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
 
             handleStatusProgressSimpleRegisteredLetter(response, simpleRegisteredLetterDetails, notification, response.getAttachments(), sendRequestId);
 
@@ -159,7 +159,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
 
             final String prepareRequestId = timelineElementInternal.getElementId();
-            String sendRequestId = paperChannelUtils.getSendRequestId(response.getIun(), prepareRequestId, TimelineElementCategoryInt.SEND_ANALOG_DOMICILE);
+            String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
             
             if (status!= null) {
                 switch (status) {
@@ -185,7 +185,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
                                                             NotificationInt notification,
                                                             List<AttachmentDetailsInt> attachments,
                                                             String sendRequestId) {
-        analogWorkflowUtils.addSendSimpleRegisteredLetterProgressToTimeline(
+        analogWorkflowUtils.addSimpleRegisteredLetterProgressToTimeline(
                 notification,
                 attachments,
                 sendPaperDetails,

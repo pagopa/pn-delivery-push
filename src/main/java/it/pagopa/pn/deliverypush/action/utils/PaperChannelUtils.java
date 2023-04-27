@@ -93,8 +93,8 @@ public class PaperChannelUtils {
     }
 
     public String addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                          SendResponse sendResponse, String productType, String requestId) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, sendResponse, productType, requestId);
+                                                          SendResponse sendResponse, String productType, String prepareRequestId) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, sendResponse, productType, prepareRequestId);
         addTimelineElement(timelineElementInternal,
                 notification
         );
@@ -150,10 +150,10 @@ public class PaperChannelUtils {
         }
     }
 
-    public String getSendRequestId(String iun, String prepareRequestId, TimelineElementCategoryInt category) {
+    public String getSendRequestIdByPrepareRequestId(String iun, String prepareRequestId) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, false);
         Optional<String> sendRequestIdOpt =  timeline.stream()
-                .filter(timelineElement -> filterByCategory(timelineElement, prepareRequestId, category))
+                .filter(timelineElement -> filterSendByPrepareRequestId(timelineElement, prepareRequestId))
                 .map(TimelineElementInternal::getElementId)
                 .findFirst();
         
@@ -165,13 +165,13 @@ public class PaperChannelUtils {
         }
     }
 
-    private boolean filterByCategory(TimelineElementInternal el, String prepareRequestId, TimelineElementCategoryInt category) {
-        boolean availableAddressCategory = category.equals(el.getCategory());
+    private boolean filterSendByPrepareRequestId(TimelineElementInternal el, String prepareRequestId) {
+        boolean availableAddressCategory = TimelineElementCategoryInt.SEND_ANALOG_DOMICILE.equals(el.getCategory()) || TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER.equals(el.getCategory());
         if (availableAddressCategory) {
-            switch(category) {
+            switch(el.getCategory()) {
                 case SEND_SIMPLE_REGISTERED_LETTER -> {
-                   BaseRegisteredLetterDetailsInt details = (BaseRegisteredLetterDetailsInt) el.getDetails();
-                   return prepareRequestId.equals(details.getRequestId());
+                    SimpleRegisteredLetterDetailsInt details = (SimpleRegisteredLetterDetailsInt) el.getDetails();
+                    return prepareRequestId.equals(details.getPrepareRequestId());
                 }
                 case SEND_ANALOG_DOMICILE -> {
                     SendAnalogDetailsInt details = (SendAnalogDetailsInt) el.getDetails();
