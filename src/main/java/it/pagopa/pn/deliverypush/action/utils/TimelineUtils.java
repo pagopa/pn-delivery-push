@@ -956,7 +956,7 @@ public class TimelineUtils {
     public boolean checkNotificationIsViewedOrPaid(String iun, Integer recIndex){
         log.debug("checkNotificationIsViewedOrPaid - iun={} recIndex={}", iun, recIndex);
 
-        boolean isNotificationViewed = checkNotificationIsAlreadyViewed(iun, recIndex);
+        boolean isNotificationViewed = checkIsNotificationViewed(iun, recIndex);
         
         if (! isNotificationViewed){
             log.debug("notification is not viewed need to check if is paid - iun={} recIndex={}", iun, recIndex);
@@ -980,7 +980,7 @@ public class TimelineUtils {
         return notificationPaid;
     }
 
-    public boolean checkNotificationIsAlreadyViewed(String iun, Integer recIndex){
+    public boolean checkIsPresentNotificationViewCreationRequest(String iun, Integer recIndex){
         log.debug("checkNotificationIsAlreadyViewed - iun={} recIndex={}", iun, recIndex);
         
         Optional<TimelineElementInternal> notificationViewCreationRequestOpt = getNotificationViewCreationRequest(iun, recIndex);
@@ -997,6 +997,11 @@ public class TimelineUtils {
         return true;
     }
 
+    private boolean checkIsNotificationViewed(String iun, Integer recIndex) {
+        Optional<TimelineElementInternal> notificationViewTimelineElement = getNotificationView(iun, recIndex);
+        return notificationViewTimelineElement.isPresent();
+    }
+    
     private Optional<TimelineElementInternal> getNotificationView(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()

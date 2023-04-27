@@ -93,7 +93,7 @@ public class RefinementScheduler {
 
         boolean isNotificationAlreadyViewedOrPaid = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
 
-        //Se la notifica è già stata visualizzata, non viene schedulato il perfezionamento per decorrenza termini dal momento che la notifica è già stata perfezionata per visione
+        //Se la notifica è già stata visualizzata o pagata, non viene schedulato il perfezionamento per decorrenza termini dal momento che la notifica è già stata perfezionata per visione
         if( !isNotificationAlreadyViewedOrPaid ){
             log.info("Schedule refinement in date={} - iun={} id={}", schedulingDate, notification.getIun(), recIndex);
             addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex, schedulingDate), notification );
