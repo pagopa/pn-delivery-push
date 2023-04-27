@@ -287,6 +287,7 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildSimpleRegisteredLetterProgressTimelineElement(NotificationInt notification,
                                                                                       List<AttachmentDetailsInt> attachments,
+                                                                                      int progressIndex,
                                                                                       BaseRegisteredLetterDetailsInt sendPaperDetails,
                                                                                       SendEventInt sendEventInt,
                                                                                       String sendRequestId) {
@@ -296,6 +297,7 @@ public class TimelineUtils {
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(sendPaperDetails.getRecIndex())
+                        .progressIndex(progressIndex)
                         .build()
         );
 

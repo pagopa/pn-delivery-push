@@ -166,21 +166,18 @@ public class PaperChannelUtils {
     }
 
     private boolean filterSendByPrepareRequestId(TimelineElementInternal el, String prepareRequestId) {
-        boolean availableAddressCategory = TimelineElementCategoryInt.SEND_ANALOG_DOMICILE.equals(el.getCategory()) || TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER.equals(el.getCategory());
-        if (availableAddressCategory) {
-            switch(el.getCategory()) {
-                case SEND_SIMPLE_REGISTERED_LETTER -> {
-                    SimpleRegisteredLetterDetailsInt details = (SimpleRegisteredLetterDetailsInt) el.getDetails();
-                    return prepareRequestId.equals(details.getPrepareRequestId());
-                }
-                case SEND_ANALOG_DOMICILE -> {
-                    SendAnalogDetailsInt details = (SendAnalogDetailsInt) el.getDetails();
-                    return prepareRequestId.equals(details.getPrepareRequestId());
-                }
-                default -> { return false; }
+        switch(el.getCategory()) {
+            case SEND_SIMPLE_REGISTERED_LETTER -> {
+                SimpleRegisteredLetterDetailsInt details = (SimpleRegisteredLetterDetailsInt) el.getDetails();
+                return prepareRequestId.equals(details.getPrepareRequestId());
             }
+            case SEND_ANALOG_DOMICILE -> {
+                SendAnalogDetailsInt details = (SendAnalogDetailsInt) el.getDetails();
+                return prepareRequestId.equals(details.getPrepareRequestId());
+            }
+            default -> { return false; }
+
         }
-        return false;
     }
 
 }
