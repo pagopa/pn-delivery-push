@@ -259,7 +259,7 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildSendSimpleRegisteredLetterTimelineElement(Integer recIndex, NotificationInt notification, PhysicalAddressInt address,
-                                                                                  SendResponse sendResponse, String productType) {
+                                                                                  SendResponse sendResponse, String productType, String prepareRequestId) {
         log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
@@ -276,6 +276,7 @@ public class TimelineUtils {
                 .productType(productType)
                 .numberOfPages(sendResponse.getNumberOfPages())
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
+                .prepareRequestId(prepareRequestId)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -284,6 +285,40 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, elementId, details , timelineBuilder);
     }
 
+    public TimelineElementInternal buildSimpleRegisteredLetterProgressTimelineElement(NotificationInt notification,
+                                                                                      List<AttachmentDetailsInt> attachments,
+                                                                                      int progressIndex,
+                                                                                      BaseRegisteredLetterDetailsInt sendPaperDetails,
+                                                                                      SendEventInt sendEventInt,
+                                                                                      String sendRequestId) {
+        log.debug("buildSimpleRegisteredLetterProgressTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
+
+        String elementId = TimelineEventId.SIMPLE_REGISTERED_LETTER_PROGRESS.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(sendPaperDetails.getRecIndex())
+                        .progressIndex(progressIndex)
+                        .build()
+        );
+
+        SimpleRegisteredLetterProgressDetailsInt details = SimpleRegisteredLetterProgressDetailsInt.builder()
+                .recIndex(sendPaperDetails.getRecIndex())
+                .deliveryFailureCause(sendEventInt.getDeliveryFailureCause())
+                .deliveryDetailCode(sendEventInt.getStatusDetail())
+                .notificationDate(sendEventInt.getStatusDateTime())
+                .attachments(attachments)
+                .sendRequestId(sendRequestId)
+                .registeredLetterCode(sendEventInt.getRegisteredLetterCode())
+                .build();
+
+        List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( legalFactsListEntryIds );
+
+        return buildTimeline( notification, TimelineElementCategoryInt.SIMPLE_REGISTERED_LETTER_PROGRESS, elementId, sendEventInt.getStatusDateTime(),
+                details, timelineBuilder );
+    }
 
     public TimelineElementInternal buildPrepareDigitalNotificationTimelineElement(NotificationInt notification, Integer recIndex,
                                                                                   LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, int sentAttemptMade, Instant lastAttemptMade,
@@ -533,6 +568,7 @@ public class TimelineUtils {
                 .notificationDate(sendEventInt.getStatusDateTime())
                 .attachments(attachments)
                 .sendRequestId(sendRequestId)
+                .registeredLetterCode(sendEventInt.getRegisteredLetterCode())
                 .build();
 
         List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);
@@ -568,6 +604,7 @@ public class TimelineUtils {
                 .responseStatus(ResponseStatusInt.OK)
                 .attachments(attachments)
                 .sendRequestId(sendRequestId)
+                .registeredLetterCode(sendEventInt.getRegisteredLetterCode())
                 .build();
         
         List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);
@@ -619,6 +656,7 @@ public class TimelineUtils {
                 .responseStatus(ResponseStatusInt.KO)
                 .attachments(attachments)
                 .sendRequestId(sendRequestId)
+                .registeredLetterCode(sendEventInt.getRegisteredLetterCode())
                 .build();
 
         List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);
