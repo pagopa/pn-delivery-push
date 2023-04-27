@@ -50,6 +50,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
             
             int recIndex = 0;
             for (NotificationRecipient recipient : listRecipient){
+                
                 NotificationRecipientAddressesDto recipientAddressesDto = pnDataVaultClientReactiveMock.getAddressFromRecipientIndex(iun, recIndex);
                 
                 if(recipientAddressesDto != null){

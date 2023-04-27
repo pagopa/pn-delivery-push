@@ -46,12 +46,16 @@ class AddressManagerServiceImplTest {
     @Test
     void normalizeAddresses() {
         //GIVEN
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+                .withAddress(" Via Nuova 1")
+                .build();
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId("recipient1")
                 .withInternalId("ANON_recipient1")
+                .withPhysicalAddress(paPhysicalAddress1)
                 .build();
         PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
-                .withAddress(" Via Nuova")
+                .withAddress(" Via Nuova 2")
                 .build();
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId("recipient2")
@@ -59,7 +63,7 @@ class AddressManagerServiceImplTest {
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
         PhysicalAddressInt paPhysicalAddress3 = PhysicalAddressBuilder.builder()
-                .withAddress(" Via Nuova 2")
+                .withAddress(" Via Nuova 3")
                 .build();
         NotificationRecipientInt recipient3 = NotificationRecipientTestBuilder.builder()
                 .withTaxId("recipient3")
@@ -90,8 +94,7 @@ class AddressManagerServiceImplTest {
 
         List<NormalizeRequest> listRequest = normItemRequest.getRequestItems();
         
-        int numberRecipientWithPhysicalAddress = 2;
-        Assertions.assertEquals(numberRecipientWithPhysicalAddress, listRequest.size());
+        Assertions.assertEquals(notification.getRecipients().size(), listRequest.size());
         
         listRequest.forEach(elem -> {
             NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, Integer.valueOf(elem.getId()));

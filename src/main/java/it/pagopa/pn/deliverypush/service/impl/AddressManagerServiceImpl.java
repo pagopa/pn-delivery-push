@@ -4,8 +4,11 @@ import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.mode
 import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.AnalogAddress;
 import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeItemsRequest;
 import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeRequest;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.addressmanager.AddressManagerClient;
 import it.pagopa.pn.deliverypush.service.AddressManagerService;
 import it.pagopa.pn.deliverypush.service.mapper.AddressManagerMapper;
@@ -54,7 +57,7 @@ public class AddressManagerServiceImpl implements AddressManagerService {
 
                 log.debug("Add normalize request for recIndex={} - iun={} corrId={}", recIndex, notification.getIun(), correlationId);
             } else {
-                log.debug("Not add normalize request for recIndex={} - iun={} corrId={}", recIndex, notification.getIun(), correlationId);
+                handleError(notification, correlationId, recIndex);
             }
             
         });
@@ -66,5 +69,16 @@ public class AddressManagerServiceImpl implements AddressManagerService {
         normalizeItemsRequest.setCorrelationId(correlationId);
 
         return normalizeItemsRequest;
+    }
+
+    private static void handleError(NotificationInt notification, String correlationId, int recIndex) {
+        String errorMsg = String.format(
+                "Recipient haven't physicalAddress - iun=%s recIndex=%d correlationId=%s",
+                notification.getIun(),
+                recIndex,
+                correlationId
+        );
+        LogUtils.logAlarm(log, errorMsg);
+        throw new PnInternalException(errorMsg, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_PHYSICAL_ADDRESS_NOT_PRESENT);
     }
 }

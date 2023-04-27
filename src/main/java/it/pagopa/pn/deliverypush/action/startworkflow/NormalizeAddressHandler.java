@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action.startworkflow;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -8,6 +10,7 @@ import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -40,14 +43,25 @@ public class NormalizeAddressHandler {
             }
         });
         
-        if(! listNormalizedAddress.isEmpty()){
-            log.debug("There is normalized addresses, need to update confidential information- iun={}", notification.getIun());
+        if( listNormalizedAddress.size() == notification.getRecipients().size() ){
+            log.debug("Update confidential information with normalize address- iun={}", notification.getIun());
             confidentialInformationService.updateNotificationAddresses(notification.getIun(), true, listNormalizedAddress).block();
         } else {
-            log.debug("There isn't normalized address- iun={}", notification.getIun());
+            handleError(notification, listNormalizedAddress);
         }
         
         log.debug("End handleNormalizedAddressResponse - iun={}", notification.getIun());
+    }
+
+    private static void handleError(NotificationInt notification, List<NotificationRecipientAddressesDtoInt> listNormalizedAddress) {
+        String errorMsg = String.format(
+                "Normalize address size=%d are different from recipientSize=%d - iun=%s",
+                listNormalizedAddress.size(),
+                notification.getRecipients().size(),
+                notification.getIun()
+        );
+        LogUtils.logAlarm(log, errorMsg);
+        throw new PnInternalException(errorMsg, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NORMALIZE_ADDRESS_ERROR);
     }
 
     private void addNormalizeAddress(NotificationInt notification, List<NotificationRecipientAddressesDtoInt> listNormalizedAddress, NormalizeResultInt result, int recIndex, NotificationRecipientInt recipient) {

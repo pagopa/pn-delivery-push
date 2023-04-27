@@ -62,10 +62,10 @@ public class AddressManagerClientMock implements AddressManagerClient {
                 NormalizeResult result = new NormalizeResult();
                 result.setId(request.getId());
                 
-                AnalogAddress address = request.getAddress();
-                if (address != null && 
-                        address.getAddressRow() != null 
-                        && address.getAddressRow().contains(ADDRESS_MANAGER_NOT_VALID_ADDRESS)
+                AnalogAddress requestAddress = request.getAddress();
+                if (requestAddress != null && 
+                        requestAddress.getAddressRow() != null 
+                        && requestAddress.getAddressRow().contains(ADDRESS_MANAGER_NOT_VALID_ADDRESS)
                 ) {
                     result.setError("Address is not Valid");
                 } else {
@@ -73,6 +73,8 @@ public class AddressManagerClientMock implements AddressManagerClient {
                     AnalogAddress normalizedAddress = mapNormalizedAddress.get(key);
                     if(normalizedAddress != null){
                         result.setNormalizedAddress(normalizedAddress);
+                    } else {
+                        result.setNormalizedAddress(requestAddress);
                     }
                 }
                 resultItems.add(result);
