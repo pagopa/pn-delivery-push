@@ -501,7 +501,7 @@ components:
             - STATUS
             - TIMELINE
         filterValues:
-          description: Se non _null_ indica l'elenco degli stati o elementi di timeline che  si vogliono ricevere.
+          description: rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserire array vuoto [] se non si vuole applicare nessun filtro
           type: array
           items:
             type: string
@@ -763,7 +763,6 @@ components:
         - REQUEST_REFUSED
         - AAR_CREATION_REQUEST
         - AAR_GENERATION
-        
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
