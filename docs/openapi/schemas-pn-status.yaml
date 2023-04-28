@@ -5,11 +5,11 @@ components:
       type: string
       enum:
         - ACCEPTED
+        - REFUSED
         - DELIVERING
         - DELIVERED
         - VIEWED
         - EFFECTIVE_DATE
-        - PAID
         - UNREACHABLE
         - CANCELLED
     
