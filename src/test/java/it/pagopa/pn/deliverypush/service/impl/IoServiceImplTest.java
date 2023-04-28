@@ -15,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.Instant;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -68,7 +70,7 @@ class IoServiceImplTest {
         //WHEN
         SendMessageResponse.ResultEnum res = null;
         
-        res = ioService.sendIOMessage(notificationInt, 0);
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
 
         assertEquals(sentCourtesy, res);
     }
@@ -105,7 +107,7 @@ class IoServiceImplTest {
 
         //WHEN
         SendMessageResponse.ResultEnum res = null;
-        res = ioService.sendIOMessage(notificationInt, 0);
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
         assertEquals(notSentAppioUnavailable, res);
     }
 
@@ -141,7 +143,7 @@ class IoServiceImplTest {
 
         //WHEN
         SendMessageResponse.ResultEnum res = null;
-        res = ioService.sendIOMessage(notificationInt, 0);
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
         assertEquals(sentOptin, res);
     }
 
@@ -175,7 +177,7 @@ class IoServiceImplTest {
 
         //WHEN
         assertThrows(PnInternalException.class, () ->
-                ioService.sendIOMessage(notificationInt, 0)
+                ioService.sendIOMessage(notificationInt, 0, Instant.now())
         );
     }
 
@@ -205,7 +207,7 @@ class IoServiceImplTest {
 
         //WHEN
         assertThrows(Exception.class, () ->
-                ioService.sendIOMessage(notificationInt, 0)
+                ioService.sendIOMessage(notificationInt, 0, Instant.now())
         );
     }
 
@@ -235,7 +237,7 @@ class IoServiceImplTest {
         .thenThrow(PnHttpResponseException.class);
         //WHEN
         assertThrows(PnInternalException.class, () ->
-                ioService.sendIOMessage(notificationInt, 0)
+                ioService.sendIOMessage(notificationInt, 0, Instant.now())
         );
     }
     

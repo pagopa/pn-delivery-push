@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -17,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.IoService;
@@ -31,12 +33,13 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.Base64Utils;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 class CourtesyMessageUtilsTest {
 
@@ -44,11 +47,11 @@ class CourtesyMessageUtilsTest {
     private ExternalChannelService externalChannelService;
     private TimelineService timelineService;
     private TimelineUtils timelineUtils;
-    private InstantNowSupplier instantNowSupplier;
     private NotificationUtils notificationUtils;
     private IoService iOservice;
 
     private CourtesyMessageUtils courtesyMessageUtils;
+    private PnDeliveryPushConfigs mockConfig;
 
     @BeforeEach
     public void setup() {
@@ -58,9 +61,10 @@ class CourtesyMessageUtilsTest {
         timelineUtils = Mockito.mock(TimelineUtils.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
         iOservice = Mockito.mock(IoService.class);
+        mockConfig = mock(PnDeliveryPushConfigs.class);
 
         courtesyMessageUtils = new CourtesyMessageUtils(addressBookService, externalChannelService,
-                timelineService, timelineUtils, notificationUtils, iOservice);
+                timelineService, timelineUtils, notificationUtils, iOservice, mockConfig);
     }
     
     @Test
@@ -69,10 +73,14 @@ class CourtesyMessageUtilsTest {
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
 
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
         final SendMessageResponse.ResultEnum sentCourtesy = SendMessageResponse.ResultEnum.SENT_COURTESY;
-        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(sentCourtesy);
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any())).thenReturn(sentCourtesy);
 
         CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
@@ -91,7 +99,18 @@ class CourtesyMessageUtilsTest {
                 Mockito.eq(0), Mockito.eq(notification), Mockito.eq(courtesyDigitalAddressInt) , Mockito.any(Instant.class),
                 Mockito.anyString(), Mockito.eq(sendMessageResultInt));
 
-        Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+        // viene verificato che viene generato anche l'eventId per il PROBABLE_SCHEDULING_ANALOG_DATE
+        ArgumentCaptor<String> probableAnalogEventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(timelineUtils).buildProbableDateSchedulingAnalogTimelineElement(Mockito.eq(0),
+                Mockito.eq(notification), probableAnalogEventIdArgumentCaptor.capture(), Mockito.any());
+
+        assertThat(probableAnalogEventIdArgumentCaptor.getValue()).isEqualTo(TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(0)
+                .build()));
+
+        // vengono salvati 2 elementi di timeline, PROBABLE_SCHEDULING_ANALOG_DATE e SEND_COURTESY_MESSAGE
+        Mockito.verify(timelineService, times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
     @Test
@@ -102,7 +121,7 @@ class CourtesyMessageUtilsTest {
 
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
-        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(SendMessageResponse.ResultEnum.ERROR_USER_STATUS);
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any())).thenReturn(SendMessageResponse.ResultEnum.ERROR_USER_STATUS);
 
         CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
@@ -114,6 +133,10 @@ class CourtesyMessageUtilsTest {
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+        // viene verificato che viene generato anche l'eventId per il PROBABLE_SCHEDULING_ANALOG_DATE
+        verify(timelineUtils, times(0)).buildProbableDateSchedulingAnalogTimelineElement(Mockito.eq(0),
+                Mockito.eq(notification), Mockito.any(), Mockito.any());
+
 
         //THEN
         Mockito.verify(timelineService,never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
@@ -125,9 +148,13 @@ class CourtesyMessageUtilsTest {
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
 
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
         final SendMessageResponse.ResultEnum sentCourtesy = SendMessageResponse.ResultEnum.SENT_COURTESY;
-        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(sentCourtesy);
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any())).thenReturn(sentCourtesy);
 
         CourtesyDigitalAddressInt courtesyDigitalAddressAppIo = CourtesyDigitalAddressInt.builder()
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
@@ -182,7 +209,18 @@ class CourtesyMessageUtilsTest {
         Assertions.assertEquals(firstEventIdExpected, firstEventIdInTimeline);
         Assertions.assertEquals(secondEventIdExpected, secondEventIdInTimeline);
 
-        Mockito.verify(timelineService, Mockito.times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+        // viene verificato che viene generato anche l'eventId per il PROBABLE_SCHEDULING_ANALOG_DATE
+        ArgumentCaptor<String> probableAnalogEventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(timelineUtils).buildProbableDateSchedulingAnalogTimelineElement(Mockito.eq(0),
+                Mockito.eq(notification), probableAnalogEventIdArgumentCaptor.capture(), Mockito.any());
+
+        assertThat(probableAnalogEventIdArgumentCaptor.getValue()).isEqualTo(TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(0)
+                .build()));
+
+        // vengono inseriti 1 elemento di timeline per PROBABLE_SCHEDULING_ANALOG_DATE e 2 per SEND_COURTESY_MESSAGE
+        Mockito.verify(timelineService, Mockito.times(3)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
     @Test
@@ -219,7 +257,7 @@ class CourtesyMessageUtilsTest {
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
 
-        doThrow(new PnNotFoundException("Not found","","")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        doThrow(new PnNotFoundException("Not found","","")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any());
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
@@ -233,6 +271,10 @@ class CourtesyMessageUtilsTest {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
 
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
@@ -249,7 +291,7 @@ class CourtesyMessageUtilsTest {
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(List.of(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms)));
 
-        doThrow(new PnNotFoundException("Not found","","")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt());
+        doThrow(new PnNotFoundException("Not found","","")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any());
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
@@ -260,7 +302,7 @@ class CourtesyMessageUtilsTest {
         ArgumentCaptor<CourtesyDigitalAddressInt> courtesyDigitalAddressCaptor = ArgumentCaptor.forClass(CourtesyDigitalAddressInt.class);
 
         Mockito.verify(timelineUtils).buildSendCourtesyMessageTimelineElement(
-                Mockito.anyInt(), Mockito.any(NotificationInt.class), courtesyDigitalAddressCaptor.capture(), Mockito.any(), 
+                Mockito.anyInt(), Mockito.any(NotificationInt.class), courtesyDigitalAddressCaptor.capture(), Mockito.any(),
                 eventIdArgumentCaptor.capture(), Mockito.any());
 
         //Viene verificato che l'eventId generato (in particolare per l'index) sia quello aspettato
@@ -275,13 +317,23 @@ class CourtesyMessageUtilsTest {
 
         Assertions.assertEquals(eventIdExpected, eventIdInsertedInTimeline);
 
-        //Viene verificato che l'elemento in timeline inserito sia con address SMS
+        // viene verificato che viene generato anche l'eventId per il PROBABLE_SCHEDULING_ANALOG_DATE
+        ArgumentCaptor<String> probableAnalogEventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(timelineUtils).buildProbableDateSchedulingAnalogTimelineElement(Mockito.eq(0),
+                Mockito.eq(notification), probableAnalogEventIdArgumentCaptor.capture(), Mockito.any());
 
+        assertThat(probableAnalogEventIdArgumentCaptor.getValue()).isEqualTo(TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(0)
+                        .build()));
+
+        //Viene verificato che l'elemento in timeline inserito sia con address SMS
         CourtesyDigitalAddressInt courtesyDigitalAddressInsertedInTimeline = courtesyDigitalAddressCaptor.getValue();
 
         Assertions.assertEquals(courtesyDigitalAddressSms, courtesyDigitalAddressInsertedInTimeline);
 
-        Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+        // viene verificato ceh vengono inseriti 2 elementi in timeline (PROBABLE_SCHEDULING_ANALOG_DATE e SEND_COURTESY_MESSAGE)
+        Mockito.verify(timelineService, times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
     private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {

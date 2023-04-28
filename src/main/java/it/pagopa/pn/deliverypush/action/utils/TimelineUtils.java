@@ -226,6 +226,18 @@ public class TimelineUtils {
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, digitalAddressFeedback.getEventTimestamp(), details, timelineBuilder);
     }
+
+    public TimelineElementInternal buildProbableDateSchedulingAnalogTimelineElement(Integer recIndex, NotificationInt notification,
+                                                                                    String eventId, Instant schedulingAnalogDate) {
+        log.debug("buildProbableDateSchedulingAnalogTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+
+        ProbableDateAnalogWorkflowDetailsInt details = ProbableDateAnalogWorkflowDetailsInt.builder()
+                .recIndex(recIndex)
+                .schedulingAnalogDate(schedulingAnalogDate)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE, eventId, details);
+    }
     
     public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, NotificationInt notification, CourtesyDigitalAddressInt address, 
                                                                            Instant sendDate, String eventId, IoSendMessageResultInt ioSendMessageResult) {
@@ -1039,6 +1051,16 @@ public class TimelineUtils {
         }
         
         return true;
+    }
+
+    public Optional<TimelineElementInternal> getProbableSchedulingDateAnalogWorkflowElement(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        return timelineService.getTimelineElement(iun, elementId);
     }
 
     private Optional<TimelineElementInternal> getNotificationView(String iun, Integer recIndex) {

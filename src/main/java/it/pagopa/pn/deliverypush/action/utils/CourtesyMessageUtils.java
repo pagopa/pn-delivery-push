@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -8,12 +9,14 @@ import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.IoService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +28,7 @@ import static it.pagopa.pn.externalregistry.generated.openapi.clients.externalre
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class CourtesyMessageUtils {
     public static final int FIRST_COURTESY_ELEMENT = 0;
 
@@ -34,20 +38,8 @@ public class CourtesyMessageUtils {
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
     private final IoService iOservice;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public CourtesyMessageUtils(AddressBookService addressBookService,
-                                ExternalChannelService externalChannelService,
-                                TimelineService timelineService,
-                                TimelineUtils timelineUtils,
-                                NotificationUtils notificationUtils,
-                                IoService iOservice) {
-        this.addressBookService = addressBookService;
-        this.externalChannelService = externalChannelService;
-        this.timelineService = timelineService;
-        this.timelineUtils = timelineUtils;
-        this.notificationUtils = notificationUtils;
-        this.iOservice = iOservice;
-    }
 
     /**
      * Get recipient addresses and send courtesy messages.
@@ -79,40 +71,21 @@ public class CourtesyMessageUtils {
         try {
             //... Per ogni indirizzo di cortesia ottenuto viene inviata la notifica del messaggio di cortesia
             String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddress.getType());
-            boolean timelineShouldBeSaved = true;
-            IoSendMessageResultInt ioSendMessageResult = null;
-            
+            boolean firstCourtesyMessage = courtesyAddrIndex == 0;
+            Instant schedulingAnalogDate = firstCourtesyMessage ? Instant.now().plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForReadCourtesyMessage()) //5 Days
+                    : null;
+
             switch (courtesyAddress.getType()) {
-                case EMAIL, SMS -> {
-                    log.info("Send courtesy message to externalChannel courtesyType={} - iun={} id={} ", courtesyAddress.getType(), notification.getIun(), recIndex);
-                    externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
-                }
-                case APPIO -> {
-                    // nel caso di IO, il messaggio potrebbe NON essere inviato. Al netto del fatto di eccezioni, che vengono catchate sotto
-                    // ci sono casi in cui non viene inviato perchè l'utente non ha abilitato IO. Quindi in questi casi non viene salvato l'evento di timeline
-                    // NB: anche nel caso di invio di Opt-in, non salvo l'evento in timeline.
-                    log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
-                    SendMessageResponse.ResultEnum result =  iOservice.sendIOMessage(notification, recIndex);
-                    
-                    if(SENT_COURTESY.equals(result) || SENT_OPTIN.equals(result) || NOT_SENT_OPTIN_ALREADY_SENT.equals(result)){
-                        ioSendMessageResult = IoSendMessageResultInt.valueOf(result.getValue());
-                    }else {
-                        timelineShouldBeSaved = false;
-                    }
-                }
+                case EMAIL, SMS ->
+                    courtesyAddrIndex = manageCourtesyMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, eventId, courtesyAddress);
+
+                case APPIO ->
+                        courtesyAddrIndex = manageIOMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, eventId, courtesyAddress);
+
                 default -> handleCourtesyTypeError(notification, recIndex, courtesyAddress);
             }
 
-            if (timelineShouldBeSaved)
-            {
-                addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, Instant.now(), eventId, ioSendMessageResult);
-            }
-            else
-            {
-                log.info("skipping saving courtesy timeline iun={} id={}", notification.getIun(), recIndex);
-            }
 
-            courtesyAddrIndex++;
         } catch (Exception ex) {
             //Se l'invio del messaggio di cortesia fallisce per un qualsiasi motivo il processo non si blocca. Viene fatto catch exception e loggata
             log.error("Exception in send courtesy message, courtesyType={} ex={} - iun={} id={}", courtesyAddress.getType(), ex, notification.getIun(), recIndex);
@@ -150,6 +123,14 @@ public class CourtesyMessageUtils {
         );
     }
 
+    private String getTimelineElementId(Integer recIndex, String iun) {
+        return TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
+                .iun(iun)
+                .recIndex(recIndex)
+                .build()
+        );
+    }
+
 
     public List<SendCourtesyMessageDetailsInt> getSentCourtesyMessagesDetails(String iun, int recIndex){
         // cerco dal DB tutte le timeline relative a iun/recindex che sono di tipo courtesy
@@ -163,4 +144,60 @@ public class CourtesyMessageUtils {
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }
+
+    private Instant retrieveProbableSchedulingAnalogTimeline(String iun, String elementId) {
+        return timelineService.getTimelineElementDetails(iun, elementId, ProbableDateAnalogWorkflowDetailsInt.class)
+                .map(ProbableDateAnalogWorkflowDetailsInt::getSchedulingAnalogDate)
+                .orElseGet(() -> {
+                    log.warn("[{}] ProbableSchedulingDateAnalogWorkflowElement is not present for elementId: {}", iun, elementId);
+                    return null;
+                });
+    }
+
+    private int manageCourtesyMessage(NotificationInt notification, int recIndex, boolean firstCourtesyMessage, Instant schedulingAnalogDate, int courtesyAddrIndex, String eventId, CourtesyDigitalAddressInt courtesyAddress) {
+        log.info("Send courtesy message to externalChannel courtesyType={} - iun={} id={} ", courtesyAddress.getType(), notification.getIun(), recIndex);
+        externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
+        addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, Instant.now(), eventId, null);
+        addProbableSchedulingElementIfFirstMCourtesyMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate);
+
+        return courtesyAddrIndex + 1;
+    }
+
+    private int manageIOMessage(NotificationInt notification, int recIndex, boolean firstCourtesyMessage, Instant schedulingAnalogDate, int courtesyAddrIndex, String eventId, CourtesyDigitalAddressInt courtesyAddress) {
+        // nel caso di IO, il messaggio potrebbe NON essere inviato. Al netto del fatto di eccezioni, che vengono catchate sotto
+        // ci sono casi in cui non viene inviato perchè l'utente non ha abilitato IO. Quindi in questi casi non viene salvato l'evento di timeline
+        // NB: anche nel caso di invio di Opt-in, non salvo l'evento in timeline.
+        log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
+
+        if(! firstCourtesyMessage) {
+            schedulingAnalogDate = retrieveProbableSchedulingAnalogTimeline(notification.getIun(), eventId);
+        }
+
+        SendMessageResponse.ResultEnum result =  iOservice.sendIOMessage(notification, recIndex, schedulingAnalogDate);
+
+        if(SENT_COURTESY.equals(result) || SENT_OPTIN.equals(result) || NOT_SENT_OPTIN_ALREADY_SENT.equals(result)) {
+            IoSendMessageResultInt ioSendMessageResult = IoSendMessageResultInt.valueOf(result.getValue());
+            addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, Instant.now(), eventId, ioSendMessageResult);
+            addProbableSchedulingElementIfFirstMCourtesyMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate);
+
+            return courtesyAddrIndex + 1;
+        }
+
+        else {
+            log.info("skipping saving courtesy timeline iun={} id={}", notification.getIun(), recIndex);
+            return courtesyAddrIndex;
+        }
+    }
+
+    private void addProbableSchedulingElementIfFirstMCourtesyMessage(NotificationInt notification, int recIndex, boolean firstCourtesyMessage, Instant schedulingAnalogDate) {
+        if(firstCourtesyMessage) {
+
+            String timelineElementId = getTimelineElementId(recIndex, notification.getIun());
+            addTimelineElement(
+                    timelineUtils.buildProbableDateSchedulingAnalogTimelineElement(recIndex, notification, timelineElementId, schedulingAnalogDate),
+                    notification
+            );
+        }
+    }
+
 }
