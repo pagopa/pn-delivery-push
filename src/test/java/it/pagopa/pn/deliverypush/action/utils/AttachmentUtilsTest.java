@@ -208,8 +208,8 @@ class AttachmentUtilsTest {
         List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachments(notification, notificationUtils.getRecipientFromIndex(notification, recIndexRecipient1));
         List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachments(notification, notificationUtils.getRecipientFromIndex(notification, recIndexRecipient2));
 
-        Assert.assertEquals(attachmentsRecipient1.size(), 1);
-        Assert.assertEquals(attachmentsRecipient2.size(), 2);
+        Assert.assertEquals(1, attachmentsRecipient1.size());
+        Assert.assertEquals(2, attachmentsRecipient2.size());
         Assert.assertEquals(attachmentsRecipient1.get(0), notification.getDocuments().get(0).getRef().getKey());
         Assert.assertEquals(attachmentsRecipient2.get(0), notification.getDocuments().get(0).getRef().getKey());
         Assert.assertEquals(attachmentsRecipient2.get(1), notification.getRecipients().get(recIndexRecipient2).getPayment().getPagoPaForm().getRef().getKey());
