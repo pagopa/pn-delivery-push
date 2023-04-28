@@ -291,7 +291,8 @@ public class DigitalWorkFlowUtils {
                                                             DigitalMessageReferenceInt digitalMessageReference,
                                                             SendInformation digitalAddressFeedback) {
         
-        int progressIndex = getPreviousTimelineProgress(notification, recIndex, digitalAddressFeedback.getRetryNumber(), digitalAddressFeedback.getDigitalAddressSource()).size() + 1;
+        int progressIndex = getPreviousTimelineProgress(notification, recIndex, digitalAddressFeedback.getRetryNumber(), 
+                digitalAddressFeedback.getIsFirstSendRetry(), digitalAddressFeedback.getDigitalAddressSource()).size() + 1;
 
         addTimelineElement(
                 timelineUtils.buildDigitalProgressFeedbackTimelineElement(
@@ -309,7 +310,7 @@ public class DigitalWorkFlowUtils {
 
 
     public Set<TimelineElementInternal> getPreviousTimelineProgress(NotificationInt notification,
-                                                  int recIndex, int attemptMade, DigitalAddressSourceInt digitalAddressSourceInt){
+                                                  int recIndex, int attemptMade, Boolean isFirstSentRetry, DigitalAddressSourceInt digitalAddressSourceInt){
         // per calcolare il prossimo progressIndex, devo necessariamente recuperare dal DB tutte le timeline relative a iun/recindex/source/tentativo
         String elementIdForSearch = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
@@ -317,6 +318,7 @@ public class DigitalWorkFlowUtils {
                         .recIndex(recIndex)
                         .sentAttemptMade(attemptMade)
                         .source(digitalAddressSourceInt)
+                        .isFirstSendRetry(isFirstSentRetry)
                         .progressIndex(-1)  // passando -1 non verrà inserito nell'id timeline, permettendo la ricerca iniziaper
                         .build()
         );

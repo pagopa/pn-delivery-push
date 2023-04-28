@@ -730,7 +730,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.reset(auditLogEvent);
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(3);
-        Mockito.when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any())).thenReturn(Collections.EMPTY_SET);
+        Mockito.when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(Boolean.class), Mockito.any())).thenReturn(Collections.EMPTY_SET);
 
 
         //WHEN
@@ -813,7 +813,7 @@ class DigitalWorkFlowHandlerTest {
                         .build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any())).thenReturn(
+        Mockito.when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(Boolean.class), Mockito.any())).thenReturn(
                 Set.of(t1, t2, t3, t4));
 
 
