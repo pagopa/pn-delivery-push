@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -1024,7 +1025,34 @@ public class TimelineUtils {
                 .build() );
     }
 
-    public boolean checkNotificationIsAlreadyViewed(String iun, Integer recIndex){
+    public boolean checkNotificationIsViewedOrPaid(String iun, Integer recIndex){
+        log.debug("checkNotificationIsViewedOrPaid - iun={} recIndex={}", iun, recIndex);
+
+        boolean isNotificationViewed = checkIsNotificationViewed(iun, recIndex);
+        
+        if (! isNotificationViewed){
+            log.debug("notification is not viewed need to check if is paid - iun={} recIndex={}", iun, recIndex);
+            return checkIsNotificationPaid(iun);
+        }
+        
+        return true;
+    }
+
+    private boolean checkIsNotificationPaid(String iun) {
+        String elementId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        Set<TimelineElementInternal> notificationPaidElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
+        
+        boolean notificationPaid = notificationPaidElements != null && !notificationPaidElements.isEmpty();
+        log.debug("NotificationPaid value is={}", notificationPaid);
+
+        return notificationPaid;
+    }
+
+    public boolean checkIsPresentNotificationViewCreationRequest(String iun, Integer recIndex){
         log.debug("checkNotificationIsAlreadyViewed - iun={} recIndex={}", iun, recIndex);
         
         Optional<TimelineElementInternal> notificationViewCreationRequestOpt = getNotificationViewCreationRequest(iun, recIndex);
@@ -1041,6 +1069,11 @@ public class TimelineUtils {
         return true;
     }
 
+    private boolean checkIsNotificationViewed(String iun, Integer recIndex) {
+        Optional<TimelineElementInternal> notificationViewTimelineElement = getNotificationView(iun, recIndex);
+        return notificationViewTimelineElement.isPresent();
+    }
+    
     private Optional<TimelineElementInternal> getNotificationView(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()
