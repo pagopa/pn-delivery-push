@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.it;
 import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
@@ -147,6 +148,8 @@ import static org.awaitility.Awaitility.with;
         SendAndUnscheduleNotification.class,
         NotificationPaidHandler.class,
         UUIDCreatorUtils.class,
+        AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
+        AnalogFailureDeliveryCreationResponseHandler.class,
         NotificationPaidTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -228,6 +231,8 @@ class NotificationPaidTestIT {
     
     @Autowired
     private NotificationPaidHandler notificationPaidHandler;
+
+
 
     @BeforeEach
     public void setup() {
