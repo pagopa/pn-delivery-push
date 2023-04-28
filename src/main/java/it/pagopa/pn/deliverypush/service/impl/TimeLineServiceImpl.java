@@ -17,8 +17,10 @@ import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingDateAnalogResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
@@ -35,6 +37,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
 @Service
 @Slf4j
@@ -287,6 +290,28 @@ public class TimeLineServiceImpl implements TimelineService {
                 .recIndex(recIndex)
                 .build();
         return this.timelineDao.getTimelineElement(iun, timelineEventId.buildEventId(eventId)).isPresent();
+    }
+
+    @Override
+    public ProbableSchedulingDateAnalogResponse getSchedulingAnalogDate(String iun, Integer recipientIndex) {
+        String elementId = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
+                .iun(iun)
+                .recIndex(recipientIndex)
+                .build());
+
+        Optional<ProbableSchedulingDateAnalogResponse> details = getTimelineElementDetails(iun, elementId, ProbableSchedulingDateAnalogResponse.class);
+
+        if(details.isPresent()) {
+            return new ProbableSchedulingDateAnalogResponse()
+                    .iun(iun)
+                    .recIndex(recipientIndex)
+                    .schedulingAnalogDate(details.get().getSchedulingAnalogDate());
+        }
+
+        else {
+            String message = String.format("ProbableSchedulingDateAnalog not found for iun: %s, recIndex: %d", iun, recipientIndex);
+            throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+        }
     }
 
     public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,

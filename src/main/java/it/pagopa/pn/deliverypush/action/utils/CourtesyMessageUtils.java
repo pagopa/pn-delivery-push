@@ -170,7 +170,8 @@ public class CourtesyMessageUtils {
         log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
 
         if(! firstCourtesyMessage) {
-            schedulingAnalogDate = retrieveProbableSchedulingAnalogTimeline(notification.getIun(), eventId);
+            String timelineElementIdForProbableAnalog = getTimelineElementId(recIndex, notification.getIun());
+            schedulingAnalogDate = retrieveProbableSchedulingAnalogTimeline(notification.getIun(), timelineElementIdForProbableAnalog);
         }
 
         SendMessageResponse.ResultEnum result =  iOservice.sendIOMessage(notification, recIndex, schedulingAnalogDate);

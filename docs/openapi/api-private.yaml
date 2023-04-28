@@ -81,6 +81,44 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  '/delivery-push-private/scheduling-analog-date/{iun}/{recipientIndex}':
+    get:
+      summary: Restituisce la data di probabile inizio del flusso analogico
+      description: >-
+        Restituisce la data di probabile inizio del flusso analogico
+        per un determinato destinatario di una notifica.
+      tags:
+        - TimelineAndStatus
+      operationId: getSchedulingAnalogDate
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathRecipientIndex'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProbableSchedulingDateAnalogResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Data non trovata
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
   '/delivery-push-private/{iun}/viewed':
     post:
       summary: Notifica che un destinatario ha preso visione di una notifica
@@ -640,5 +678,30 @@ components:
           format: date-time
         notificationViewDate:
           description: data perfezionamento notifica per presa visione se presente
+          type: string
+          format: date-time
+
+    ############################################################################################
+    ###           INFORMAZIONI SULLA PROBABILE DATA DI SCHEDULAZIONE DEL WORKFLOW ANALOGICO  ###
+    ############################################################################################
+    ProbableSchedulingDateAnalogResponse:
+      title: Probabile data di inizio del workflow analogico
+      description: >-
+        Probabile data di inizio del workflow analogico
+      type: object
+      required:
+        - iun
+        - recIndex
+        - schedulingAnalogDate
+      properties:
+        iun:
+          description: iun della notifica
+          type: string
+        recIndex:
+          description: indice del destinatario
+          type: integer
+          format: int32
+        schedulingAnalogDate:
+          description: data di probabile inizio del workflow analogico
           type: string
           format: date-time

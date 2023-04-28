@@ -4,6 +4,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingDateAnalogResponse;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -24,5 +25,7 @@ public interface TimelineService {
     NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt);
 
     boolean isPresentTimeLineElement(String iun, Integer recIndex, TimelineEventId timelineEventId);
+
+    ProbableSchedulingDateAnalogResponse getSchedulingAnalogDate(String iun, Integer recipientIndex);
 
 }

@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
@@ -125,5 +126,67 @@ class PnTimelineControllerTest {
                             Assertions.assertNotNull(problem.getDetail());
                         }
                 );
+    }
+
+    @Test
+    void getSchedulingAnalogDateOk() {
+        String iun = "iun";
+        int recIndex = 0;
+
+        ProbableSchedulingDateAnalogResponse responseExpected = new ProbableSchedulingDateAnalogResponse()
+                .iun(iun)
+                .recIndex(recIndex)
+                .schedulingAnalogDate(Instant.now());
+        Mockito.when(service.getSchedulingAnalogDate(iun, recIndex))
+                .thenReturn( responseExpected );
+
+
+        webTestClient.get()
+                .uri(
+                        uriBuilder ->
+                                uriBuilder
+                                        .path( "/delivery-push-private/scheduling-analog-date/{iun}/{recipientIndex}")
+                                        .build(iun, recIndex)
+                )
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(ProbableSchedulingDateAnalogResponse.class)
+                .consumeWith(response -> {
+                    Assertions.assertEquals(responseExpected, response.getResponseBody());
+                });
+
+        Mockito.verify(service).getSchedulingAnalogDate(iun, recIndex);
+
+    }
+
+    @Test
+    void getSchedulingAnalogDateNotFound() {
+        String iun = "iun";
+        int recIndex = 0;
+
+        Mockito.when(service.getSchedulingAnalogDate(iun, recIndex))
+                .thenThrow( new PnNotFoundException("Not Found", "", ""));
+
+
+        webTestClient.get()
+                .uri(
+                        uriBuilder ->
+                                uriBuilder
+                                        .path( "/delivery-push-private/scheduling-analog-date/{iun}/{recipientIndex}")
+                                        .build(iun, recIndex)
+                )
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .exchange()
+                .expectStatus().is4xxClientError()
+                .expectBody(Problem.class)
+                .consumeWith(response -> {
+                    Problem problem = response.getResponseBody();
+                    assert problem != null;
+                    Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), problem.getStatus());
+                });
+
+        Mockito.verify(service).getSchedulingAnalogDate(iun, recIndex);
+
     }
 }
