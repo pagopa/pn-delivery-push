@@ -331,20 +331,22 @@ class TimelineEventIdBuilderTest {
     }
 
     @Test
-    void buildSSIMPLE_REGISTERED_LETTER_PROGRESSTest() {
-        String timeLineEventIdExpected = "SIMPLE_REGISTERED_LETTER_PROGRESS.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
+    void buildSEND_SIMPLE_REGISTERED_LETTER_PROGRESSTest() {
+        String timeLineEventIdExpected = "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.IDX_1";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
-                .withCategory(TimelineEventId.SIMPLE_REGISTERED_LETTER_PROGRESS.getValue())
+                .withCategory(TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.getValue())
                 .withIun(IUN)
                 .withRecIndex(0)
+                .withProgressIndex(1)
                 .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
 
-        String timeLineEventIdActualFromBuildEvent = TimelineEventId.SIMPLE_REGISTERED_LETTER_PROGRESS.buildEventId(EventId
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.buildEventId(EventId
                 .builder()
                 .iun(IUN)
                 .recIndex(0)
+                .progressIndex(1)
                 .build());
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);

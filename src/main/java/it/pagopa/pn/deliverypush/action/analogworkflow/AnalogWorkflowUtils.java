@@ -142,7 +142,7 @@ public class AnalogWorkflowUtils {
     private Set<TimelineElementInternal> getPreviousTimelineProgressSimpleRegisteredLetter(NotificationInt notification,
                                                                      int recIndex){
         // per calcolare il prossimo progressIndex, devo necessariamente recuperare dal DB tutte le timeline relative a iun/recindex/source/tentativo
-        String elementIdForSearch = TimelineEventId.SIMPLE_REGISTERED_LETTER_PROGRESS.buildEventId(
+        String elementIdForSearch = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)

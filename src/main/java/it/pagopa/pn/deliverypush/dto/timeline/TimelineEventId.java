@@ -170,7 +170,7 @@ public enum TimelineEventId {
         }
     },
 
-    SIMPLE_REGISTERED_LETTER_PROGRESS("SIMPLE_REGISTERED_LETTER_PROGRESS") {
+    SEND_SIMPLE_REGISTERED_LETTER_PROGRESS("SEND_SIMPLE_REGISTERED_LETTER_PROGRESS") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
