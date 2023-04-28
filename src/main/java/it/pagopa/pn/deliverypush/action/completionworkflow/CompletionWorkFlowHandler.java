@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -9,6 +10,8 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -16,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
@@ -60,7 +64,10 @@ public class CompletionWorkFlowHandler {
                     refinementScheduler.scheduleAnalogRefinement(notification, recIndex, completionWorkflowDate, status);
                 }
                 case FAILURE -> {
-                    String legalFactId = analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+                    // recupero la data di generazione dell'AAR, per poterla inserire nell'atto opponibile
+                    Instant aarDate = retrieveAARTimestampFromTimeline(notification.getIun(), recIndex);
+
+                    String legalFactId = analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, status, aarDate);
 
                     TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(notification, recIndex, status, completionWorkflowDate, legalFactId);
                     timelineService.addTimelineElement(timelineElementInternal, notification);
@@ -76,7 +83,31 @@ public class CompletionWorkFlowHandler {
     }
     
     private void handleError(String iun, Integer recIndex, EndWorkflowStatus status) {
-        log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, recIndex);
+        log.error("Specified status {} does not exist. iun={} recIndex={}", status, iun, recIndex);
         throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+    }
+
+    private Instant retrieveAARTimestampFromTimeline(String iun, int recIndex) {
+        log.info("retrieveAARTimestampFromTimeline iun={} recIndex={}", iun, recIndex);
+
+        Optional<TimelineElementInternal> timelineEvent = timelineService.getTimeline(iun, false)
+                .stream().filter(x -> x.getCategory() == TimelineElementCategoryInt.AAR_GENERATION)
+                .filter(x -> {
+                    if (x.getDetails() instanceof AarGenerationDetailsInt aarGenerationDetailsInt){
+                        return aarGenerationDetailsInt.getRecIndex() == recIndex;
+                    }
+                    return false;
+                })
+                .findFirst();
+
+        if (timelineEvent.isPresent()) {
+            log.info("retrieveAARTimestampFromTimeline iun={} recIndex={} aarGenerationTimestamp={}", iun, recIndex, timelineEvent.get().getTimestamp());
+            return timelineEvent.get().getTimestamp();
+        }
+        else
+        {
+            LogUtils.logAlarm(log,"Cannot retrieve AAR generation for iun={} recIndex={}", iun, recIndex);
+            throw new PnInternalException("Cannot retrieve AAR generation for Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+        }
     }
 }
