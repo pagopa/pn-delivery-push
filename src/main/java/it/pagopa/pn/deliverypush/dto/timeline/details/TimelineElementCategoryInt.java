@@ -40,7 +40,8 @@ public enum TimelineElementCategoryInt {
     REQUEST_REFUSED(RequestRefusedDetailsInt.class, TimelineElementCategory.REQUEST_REFUSED.getValue()),
     AAR_CREATION_REQUEST(AarCreationRequestDetailsInt.class, TimelineElementCategory.AAR_CREATION_REQUEST.getValue()),
     AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategory.AAR_GENERATION.getValue()),
-    NOT_HANDLED(NotHandledDetailsInt.class, TimelineElementCategory.NOT_HANDLED.getValue());
+    NOT_HANDLED(NotHandledDetailsInt.class, TimelineElementCategory.NOT_HANDLED.getValue()),
+    SIMPLE_REGISTERED_LETTER_PROGRESS(SimpleRegisteredLetterProgressDetailsInt.class, TimelineElementCategory.SIMPLE_REGISTERED_LETTER_PROGRESS.getValue());
     
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
     private final String value;

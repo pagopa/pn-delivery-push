@@ -191,6 +191,18 @@ public enum TimelineEventId {
         }
     },
 
+    SIMPLE_REGISTERED_LETTER_PROGRESS("SIMPLE_REGISTERED_LETTER_PROGRESS") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .withProgressIndex(eventId.getProgressIndex())
+                    .build();
+        }
+    },
+
     PREPARE_ANALOG_DOMICILE("PREPARE_ANALOG_DOMICILE") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -447,7 +459,13 @@ public enum TimelineEventId {
             }
             else {
                 //per pagamenti PagoPa
-                paymentCode = "PPA" + eventId.getNoticeCode() + eventId.getCreditorTaxId();
+                paymentCode = "PPA";
+                if(eventId.getNoticeCode() != null){
+                    paymentCode += eventId.getNoticeCode();
+                }
+                if(eventId.getCreditorTaxId() != null){
+                    paymentCode += eventId.getCreditorTaxId();
+                }
             }
             return paymentCode;
         }

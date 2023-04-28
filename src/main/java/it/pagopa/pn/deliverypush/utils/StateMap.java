@@ -77,6 +77,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Multi Destinatari
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Multi Destinatari
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Multi Destinatari
+                .withTimelineGoToState(TimelineElementCategoryInt.SIMPLE_REGISTERED_LETTER_PROGRESS, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET) //Multi Destinatari
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
@@ -96,6 +97,7 @@ class StateMap {
                 //STATE UNCHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SIMPLE_REGISTERED_LETTER_PROGRESS, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_REFINEMENT, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
@@ -128,7 +130,8 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
-                .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SIMPLE_REGISTERED_LETTER_PROGRESS, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
@@ -159,6 +162,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SIMPLE_REGISTERED_LETTER_PROGRESS, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
@@ -215,6 +219,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.PAID, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SIMPLE_REGISTERED_LETTER_PROGRESS, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatusInt.PAID, SINGLE_RECIPINET)

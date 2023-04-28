@@ -36,7 +36,7 @@ public class NotificationPaidHandler {
     }
 
     public void handleNotificationPaid(PnDeliveryPaymentEvent.Payload paymentEventPayload) {
-        log.debug("Start handle notification paid: {}", paymentEventPayload);
+        log.info("Start handle notification paid: {}", paymentEventPayload);
         String idF24 = null;
 
         if(paymentEventPayload.getPaymentType().equals(PnDeliveryPaymentEvent.PaymentType.F24)) {

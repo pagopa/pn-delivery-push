@@ -77,8 +77,8 @@ class PaperChannelUtilsTest {
         SendResponse sendResponse = new SendResponse()
                 .amount(10)
                 .foreignState("FR");
-        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  sendResponse, "RN_AR")).thenReturn(timelineElementInternal);
-        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, sendResponse, "RN_AR");
+        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  sendResponse, "RN_AR", "request_id")).thenReturn(timelineElementInternal);
+        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, sendResponse, "RN_AR", "request_id");
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 
@@ -133,10 +133,10 @@ class PaperChannelUtilsTest {
     void getSendRequestId() {
         String iun = "001";
 
-        final String prepareRequestId = "prepare_request_id";
+        final String prepareRequestIdAnalog = "prepare_request_id_analog";
         
         SendAnalogDetailsInt detailsInt = SendAnalogDetailsInt.builder()
-                .prepareRequestId(prepareRequestId)
+                .prepareRequestId(prepareRequestIdAnalog)
                 .build();
         final TimelineElementInternal sendAnalog = TimelineElementInternal.builder()
                 .iun("1")
@@ -159,16 +159,46 @@ class PaperChannelUtilsTest {
                 .details(feedbackDetails)
                 .build();
 
+        final String prepareRequestIdSimpleRegisteredLetter = "prepare_request_id_simple_registered_letter";
+        SimpleRegisteredLetterDetailsInt detailsSimpleRegisteredLetterInt = SimpleRegisteredLetterDetailsInt.builder()
+                .prepareRequestId(prepareRequestIdSimpleRegisteredLetter)
+                .build();
+        final TimelineElementInternal sendSimpleRegisteredLetter = TimelineElementInternal.builder()
+                .iun("2")
+                .elementId("SEND_SIMPLE_REGISTERED_LETTER_DETAILS")
+                .timestamp(Instant.now())
+                .paId("2")
+                .category(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER)
+                .details(detailsSimpleRegisteredLetterInt)
+                .build();
+
+        SimpleRegisteredLetterProgressDetailsInt progressDetails = SimpleRegisteredLetterProgressDetailsInt.builder()
+                .sendRequestId(sendSimpleRegisteredLetter.getElementId())
+                .build();
+        final TimelineElementInternal sendSimpleRegisteredLetterProgress = TimelineElementInternal.builder()
+                .iun("2")
+                .elementId("SIMPLE_REGISTERED_LETTER_PROGRESS")
+                .timestamp(Instant.now())
+                .paId("2")
+                .category(TimelineElementCategoryInt.SIMPLE_REGISTERED_LETTER_PROGRESS)
+                .details(progressDetails)
+                .build();
+
         
         Set<TimelineElementInternal> timeline = new HashSet<>();
         timeline.add(sendAnalog);
         timeline.add(sendAnalogFeedback);
+        timeline.add(sendSimpleRegisteredLetter);
+        timeline.add(sendSimpleRegisteredLetterProgress);
         
         Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
 
-        String sendRequestId = channelUtils.getSendRequestId(iun, prepareRequestId);
+        String sendRequestIdSendAnalog = channelUtils.getSendRequestIdByPrepareRequestId(iun, prepareRequestIdAnalog);
+        String sendRequestIdSendSimpleLetter = channelUtils.getSendRequestIdByPrepareRequestId(iun, prepareRequestIdSimpleRegisteredLetter);
 
-        Assertions.assertEquals(sendRequestId, sendAnalog.getElementId());
+        Assertions.assertEquals(sendRequestIdSendAnalog, sendAnalog.getElementId());
+        Assertions.assertEquals(sendRequestIdSendSimpleLetter, sendSimpleRegisteredLetter.getElementId());
+
     }
 
     @Test
@@ -208,7 +238,7 @@ class PaperChannelUtilsTest {
 
         Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
 
-        String sendRequestId = channelUtils.getSendRequestId(iun, prepareRequestId);
+        String sendRequestId = channelUtils.getSendRequestIdByPrepareRequestId(iun, prepareRequestId);
 
         Assertions.assertNull(sendRequestId);
     }
@@ -237,7 +267,7 @@ class PaperChannelUtilsTest {
 
         Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
 
-        String sendRequestId = channelUtils.getSendRequestId(iun, prepareRequestId);
+        String sendRequestId = channelUtils.getSendRequestIdByPrepareRequestId(iun, prepareRequestId);
 
         Assertions.assertNull(sendRequestId);
     }

@@ -55,7 +55,7 @@ public class NotificationViewedRequestHandler {
     
     private Mono<Void> handleViewNotification(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
         
-        return Mono.fromCallable(() -> timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex))
+        return Mono.fromCallable(() -> timelineUtils.checkIsPresentNotificationViewCreationRequest(iun, recIndex))
             .flatMap( isNotificationAlreadyViewed -> {
                 
                 //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
