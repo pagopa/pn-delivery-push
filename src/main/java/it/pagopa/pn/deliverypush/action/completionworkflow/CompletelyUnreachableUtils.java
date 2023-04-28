@@ -12,6 +12,8 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 @Slf4j
 public class CompletelyUnreachableUtils  {
@@ -30,14 +32,14 @@ public class CompletelyUnreachableUtils  {
         this.notificationUtils = notificationUtils;
     }
 
-    public void handleCompletelyUnreachable(NotificationInt notification, Integer recIndex, String legalFactId, String aarUrl) {
+    public void handleCompletelyUnreachable(NotificationInt notification, Integer recIndex, String legalFactId, Instant legalFactGenerationDate) {
         log.info("HandleCompletelyUnreachable - iun {} id {} ", notification.getIun(), recIndex);
 
         if (!isNotificationAlreadyViewed(notification.getIun(), recIndex)) {
             addPaperNotificationFailed(notification, recIndex);
         }
         addTimelineElement( 
-                timelineUtils.buildCompletelyUnreachableTimelineElement(notification, recIndex, legalFactId, aarUrl),
+                timelineUtils.buildCompletelyUnreachableTimelineElement(notification, recIndex, legalFactId, legalFactGenerationDate),
                 notification);
     }
 

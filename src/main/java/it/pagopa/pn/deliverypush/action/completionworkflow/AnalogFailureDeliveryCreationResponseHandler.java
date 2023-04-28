@@ -6,14 +6,12 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
-import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogFailureWorkflowCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalDeliveryCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -21,7 +19,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
@@ -40,10 +37,6 @@ public class AnalogFailureDeliveryCreationResponseHandler {
         log.info("Start handleAnalogFailureDeliveryCreationResponse - iun={} recIndex={} aarKey={}", iun, recIndex, actionDetails.getKey());
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-
-
-
-
         PnAuditLogEvent logEvent = createAuditLog(notification, recIndex, actionDetails.getKey());
         logEvent.log();
         
@@ -52,9 +45,9 @@ public class AnalogFailureDeliveryCreationResponseHandler {
         if (analogFailureWorkflowCreationRequestDetailsIntOpt.isPresent()) {
             AnalogFailureWorkflowCreationRequestDetailsInt timelineDetails = analogFailureWorkflowCreationRequestDetailsIntOpt.get();
             // recupero la data di generazione dell'AAR, per poterla inserire nell'atto opponibile
-            String aarUrl = retrieveAARUrlFromTimeline(notification.getIun(), recIndex);
+            TimelineElementInternal analogFailureWorkflowTimelineElement = retrieveAnalogFailureWorkflowTimelineElement(notification.getIun(), recIndex);
 
-            completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex, timelineDetails.getLegalFactId(), aarUrl);
+            completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex, timelineDetails.getLegalFactId(), analogFailureWorkflowTimelineElement.getTimestamp());
             refinementScheduler.scheduleAnalogRefinement(notification, recIndex, timelineDetails.getCompletionWorkflowDate(), timelineDetails.getEndWorkflowStatus());
 
         } else {
@@ -71,28 +64,18 @@ public class AnalogFailureDeliveryCreationResponseHandler {
     }
 
 
-    private String retrieveAARUrlFromTimeline(String iun, int recIndex) {
+    private TimelineElementInternal retrieveAnalogFailureWorkflowTimelineElement(String iun, int recIndex) {
         log.info("retrieveAARUrlFromTimeline iun={} recIndex={}", iun, recIndex);
 
-        Optional<TimelineElementInternal> timelineEvent = timelineService.getTimeline(iun, false)
-                .stream().filter(x -> x.getCategory() == TimelineElementCategoryInt.AAR_GENERATION)
-                .filter(x -> {
-                    if (x.getDetails() instanceof AarGenerationDetailsInt aarGenerationDetailsInt){
-                        return aarGenerationDetailsInt.getRecIndex() == recIndex;
-                    }
-                    return false;
-                })
-                .findFirst();
+        Optional<TimelineElementInternal> timelineEvent = timelineService.getTimelineElementForSpecificRecipient(iun, recIndex, TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW);
 
         if (timelineEvent.isPresent()) {
-            String aarUrl = ((AarGenerationDetailsInt)timelineEvent.get().getDetails()).getGeneratedAarUrl();
-            log.info("retrieveAARUrlFromTimeline iun={} recIndex={} aarGenerationUrl={}", iun, recIndex, aarUrl);
-            return aarUrl;
+            return timelineEvent.get();
         }
         else
         {
-            LogUtils.logAlarm(log,"Cannot retrieve AAR generation for iun={} recIndex={}", iun, recIndex);
-            throw new PnInternalException("Cannot retrieve AAR generation for Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+            LogUtils.logAlarm(log,"Cannot retrieve AnalogFailureWorkflow for iun={} recIndex={}", iun, recIndex);
+            throw new PnInternalException("Cannot retrieve AnalogFailureWorkflow for Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
         }
     }
 }

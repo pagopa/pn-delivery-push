@@ -2,6 +2,8 @@ package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import lombok.*;
 
+import java.time.Instant;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -11,7 +13,7 @@ import lombok.*;
 @ToString
 public class CompletelyUnreachableDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
-    private String generatedAarUrl;
+    private Instant legalFactGenerationDate;
 
     public String toLog() {
         return String.format(

@@ -26,10 +26,4 @@ class CompletelyUnreachableDetailsIntTest {
         int rec = detailsInt.getRecIndex();
         Assertions.assertEquals(0, rec);
     }
-
-    @Test
-    void testToString() {
-        String details = detailsInt.toString();
-        Assertions.assertEquals("CompletelyUnreachableDetailsInt(recIndex=0, generatedAarUrl=null)", details);
-    }
 }

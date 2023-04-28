@@ -64,9 +64,11 @@ public class CompletionWorkFlowHandler {
                     refinementScheduler.scheduleAnalogRefinement(notification, recIndex, completionWorkflowDate, status);
                 }
                 case FAILURE -> {
-                    TimelineElementInternal failureAnalogWorkflow = timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex);
+                    AarGenerationDetailsInt aarGenerationDetails = retrieveAARTimelineElement(iun, recIndex);
+                    
+                    TimelineElementInternal failureAnalogWorkflow = timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex, aarGenerationDetails.getGeneratedAarUrl());
                     timelineService.addTimelineElement(failureAnalogWorkflow, notification);
-
+                    
                     String legalFactId = analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, status, failureAnalogWorkflow.getTimestamp());
 
                     TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(notification, recIndex, status, completionWorkflowDate, legalFactId);
@@ -81,7 +83,22 @@ public class CompletionWorkFlowHandler {
             handleError(iun, recIndex, null);
         }
     }
-    
+
+    private AarGenerationDetailsInt retrieveAARTimelineElement(String iun, Integer recIndex) {
+        Optional<AarGenerationDetailsInt> aarGenerationDetailsOpt = timelineService.getTimelineElementDetailForSpecificRecipient(iun, recIndex, false, TimelineElementCategoryInt.AAR_GENERATION, AarGenerationDetailsInt.class);
+        
+        if (aarGenerationDetailsOpt.isPresent()) {
+            log.info("retrieveAARTimestampFromTimeline iun={} recIndex={}", iun, recIndex);
+            return aarGenerationDetailsOpt.get();
+        }
+        else
+        {
+            LogUtils.logAlarm(log,"Cannot retrieve AAR generation for iun={} recIndex={}", iun, recIndex);
+            throw new PnInternalException("Cannot retrieve AAR generation for Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+        }
+    }
+
+
     private void handleError(String iun, Integer recIndex, EndWorkflowStatus status) {
         log.error("Specified status {} does not exist. iun={} recIndex={}", status, iun, recIndex);
         throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);

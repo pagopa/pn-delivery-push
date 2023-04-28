@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.AnalogAddress;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -455,7 +454,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex) {
+    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, String generatedAarUrl) {
         log.debug("buildFailureAnalogWorkflowTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
@@ -465,6 +464,7 @@ public class TimelineUtils {
                         .build());
         AnalogFailureWorkflowDetailsInt details = AnalogFailureWorkflowDetailsInt.builder()
                 .recIndex(recIndex)
+                .generatedAarUrl(generatedAarUrl)
                 .build();
         
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -694,7 +694,7 @@ public class TimelineUtils {
 
     
 
-    public TimelineElementInternal  buildCompletelyUnreachableTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId, String generatedAarUrl) {
+    public TimelineElementInternal  buildCompletelyUnreachableTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId, Instant legalFactGenerationDate) {
         log.debug("buildCompletelyUnreachableTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.COMPLETELY_UNREACHABLE.buildEventId(
@@ -704,7 +704,7 @@ public class TimelineUtils {
                         .build());
         CompletelyUnreachableDetailsInt details = CompletelyUnreachableDetailsInt.builder()
                 .recIndex(recIndex)
-                .generatedAarUrl(generatedAarUrl)
+                .legalFactGenerationDate(legalFactGenerationDate)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
