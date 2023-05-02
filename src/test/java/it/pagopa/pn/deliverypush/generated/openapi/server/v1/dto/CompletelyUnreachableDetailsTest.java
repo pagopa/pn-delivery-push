@@ -27,8 +27,11 @@ class CompletelyUnreachableDetailsTest {
 
     @Test
     void testEquals() {
+        Instant time = Instant.ofEpochSecond(1234567890);
+
         CompletelyUnreachableDetails data = CompletelyUnreachableDetails.builder()
                 .recIndex(1)
+                .legalFactGenerationDate(time)
                 .build();
 
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
