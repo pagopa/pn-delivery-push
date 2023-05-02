@@ -221,7 +221,7 @@ class TimelineUtilsTest {
         String productType ="RN_AR";
         String timelineEventIdExpected = "SEND_SIMPLE_REGISTERED_LETTER#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
-        TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, sendResponse, productType);
+        TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, sendResponse, productType, "request_id");
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
@@ -585,7 +585,7 @@ class TimelineUtilsTest {
         
         Mockito.when(timelineService.getTimelineElement(iun, creationRequestTimelineId)).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
         
-        boolean notificationIsAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
+        boolean notificationIsAlreadyViewed = timelineUtils.checkIsPresentNotificationViewCreationRequest(iun, recIndex);
         
         Assertions.assertTrue(notificationIsAlreadyViewed);
     }
@@ -611,7 +611,7 @@ class TimelineUtilsTest {
 
         Mockito.when(timelineService.getTimelineElement(iun, notificationViewedTimelineId)).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
 
-        boolean notificationIsAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
+        boolean notificationIsAlreadyViewed = timelineUtils.checkIsPresentNotificationViewCreationRequest(iun, recIndex);
 
         Assertions.assertTrue(notificationIsAlreadyViewed);
     }
@@ -637,7 +637,7 @@ class TimelineUtilsTest {
 
         Mockito.when(timelineService.getTimelineElement(iun, notificationViewedTimelineId)).thenReturn(Optional.empty());
 
-        boolean notificationIsAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(iun, recIndex);
+        boolean notificationIsAlreadyViewed = timelineUtils.checkIsPresentNotificationViewCreationRequest(iun, recIndex);
 
         Assertions.assertFalse(notificationIsAlreadyViewed);
     }

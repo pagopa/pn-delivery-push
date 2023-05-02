@@ -97,6 +97,7 @@ public class PaperChannelResponseHandler {
                 .statusDetail(event.getStatusDetail())
                 .deliveryFailureCause(event.getDeliveryFailureCause())
                 .requestId(event.getRequestId())
+                .registeredLetterCode(event.getRegisteredLetterCode())
                 .statusDateTime(event.getStatusDateTime().toInstant())
                 .statusDescription(event.getStatusDescription());
 

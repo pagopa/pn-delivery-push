@@ -36,7 +36,7 @@ public class FailureWorkflowHandler {
             refinementScheduler.scheduleDigitalRefinement(notification, recIndex, legalFactCreationDate, status);
             registeredLetterSender.prepareSimpleRegisteredLetter(notification, recIndex);
         } else {
-            boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
+            boolean isNotificationAlreadyViewed = timelineUtils.checkIsPresentNotificationViewCreationRequest(notification.getIun(), recIndex);
             if (!isNotificationAlreadyViewed) {
                 log.info("Paper message is not handled, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
                 addPaperNotificationNotHandledToTimeline(notification, recIndex);

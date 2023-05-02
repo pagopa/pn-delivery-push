@@ -94,7 +94,8 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
             }
             else
             {
-                int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sendInformation.getRetryNumber(), sendInformation.getDigitalAddressSource()).size() + 1;
+                int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sendInformation.getRetryNumber(), 
+                        sendInformation.getIsFirstSendRetry(), sendInformation.getDigitalAddressSource()).size() + 1;
 
                 log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} attempt={} progressIndex={}", notification.getIun(), recIndex, sendInformation.getRetryNumber(), progressIndex);
 

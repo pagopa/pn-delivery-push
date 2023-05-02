@@ -31,6 +31,7 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
     private Instant notificationDate;
     private List<AttachmentDetailsInt> attachments;
     private String sendRequestId;
+    private String registeredLetterCode;
 
     public String toLog() {
         return String.format(

@@ -9,9 +9,7 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -95,8 +93,8 @@ public class PaperChannelUtils {
     }
 
     public String addSendSimpleRegisteredLetterToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                          SendResponse sendResponse, String productType) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, sendResponse, productType);
+                                                          SendResponse sendResponse, String productType, String prepareRequestId) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, physicalAddress, sendResponse, productType, prepareRequestId);
         addTimelineElement(timelineElementInternal,
                 notification
         );
@@ -152,10 +150,10 @@ public class PaperChannelUtils {
         }
     }
 
-    public String getSendRequestId(String iun, String prepareRequestId) {
+    public String getSendRequestIdByPrepareRequestId(String iun, String prepareRequestId) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, false);
         Optional<String> sendRequestIdOpt =  timeline.stream()
-                .filter(timelineElement -> filterSendAnalogDomicile(timelineElement, prepareRequestId))
+                .filter(timelineElement -> filterSendByPrepareRequestId(timelineElement, prepareRequestId))
                 .map(TimelineElementInternal::getElementId)
                 .findFirst();
         
@@ -167,12 +165,19 @@ public class PaperChannelUtils {
         }
     }
 
-    private boolean filterSendAnalogDomicile(TimelineElementInternal el, String prepareRequestId) {
-        boolean availableAddressCategory = TimelineElementCategoryInt.SEND_ANALOG_DOMICILE.equals(el.getCategory());
-        if (availableAddressCategory) {
-            SendAnalogDetailsInt details = (SendAnalogDetailsInt) el.getDetails();
-            return prepareRequestId.equals(details.getPrepareRequestId());
+    private boolean filterSendByPrepareRequestId(TimelineElementInternal el, String prepareRequestId) {
+        switch(el.getCategory()) {
+            case SEND_SIMPLE_REGISTERED_LETTER -> {
+                SimpleRegisteredLetterDetailsInt details = (SimpleRegisteredLetterDetailsInt) el.getDetails();
+                return prepareRequestId.equals(details.getPrepareRequestId());
+            }
+            case SEND_ANALOG_DOMICILE -> {
+                SendAnalogDetailsInt details = (SendAnalogDetailsInt) el.getDetails();
+                return prepareRequestId.equals(details.getPrepareRequestId());
+            }
+            default -> { return false; }
+
         }
-        return false;
     }
+
 }

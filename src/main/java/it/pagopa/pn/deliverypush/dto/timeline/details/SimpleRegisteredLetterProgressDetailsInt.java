@@ -13,7 +13,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class SimpleRegisteredLetterProgressDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private Instant notificationDate;
     private String deliveryFailureCause;

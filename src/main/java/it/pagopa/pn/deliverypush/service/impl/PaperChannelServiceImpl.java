@@ -77,15 +77,15 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public void prepareAnalogNotificationForSimpleRegisteredLetter(NotificationInt notification,  Integer recIndex) {
         log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
+        boolean isNotificationViewedOrPaid = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
 
-        if(! isNotificationAlreadyViewed){
+        if(! isNotificationViewedOrPaid){
 
             prepareSimpleRegisteredLetter(notification, recIndex);
 
             log.info("Prepare request for registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
         }else {
-            log.info("Notification is already viewed, registered Letter will not be sent to paperChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed or paid, registered Letter will not be sent to paperChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
     }
 
@@ -98,9 +98,9 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public void prepareAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         log.debug("Start prepareAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
+        boolean isNotificationAlreadyViewedOrPaid = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
 
-        if( !isNotificationAlreadyViewed ){
+        if( !isNotificationAlreadyViewedOrPaid ){
             String senderTaxId = notification.getSender().getPaTaxId();
 
             if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( senderTaxId ) ) ){
@@ -113,7 +113,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 paperChannelUtils.addPaperNotificationNotHandledToTimeline(notification, recIndex);
             }
         } else {
-            log.info("Notification is already viewed, paper notification will not be sent to paperChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed or paid, paper notification will not be sent to paperChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
 
     }
@@ -228,10 +228,10 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     }
 
     @Override
-    public String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String requestId, PhysicalAddressInt receiverAddress, String productType){
+    public String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String prepareRequestId, PhysicalAddressInt receiverAddress, String productType){
         log.info("Registered Letter check if send to paperChannel - iun={} id={}", notification.getIun(), recIndex);
         String timelineId = null;
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
+        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed) {
             log.info("Registered Letter sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
@@ -239,15 +239,15 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             // recupero gli allegati
             List<String> attachments = retrieveAttachments(notification, recIndex, isSendNotificationAttachmentsEnabled(NotificationChannelType.SIMPLE_REGISTERED_LETTER));
 
-            PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, requestId, productType, attachments);
+            PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
 
             try {
                 SendResponse sendResponse = paperChannelSendClient.send(
                         new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
-                                receiverAddress, requestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
+                                receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
 
-                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendResponse, productType);
+                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendResponse, productType, prepareRequestId);
                 log.info("Registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
 
@@ -267,7 +267,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     public String sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade,
                                        String prepareRequestId, PhysicalAddressInt receiverAddress, String productType){
         String timelineId = null;
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
+        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed) {
             log.info("Analog notification sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);

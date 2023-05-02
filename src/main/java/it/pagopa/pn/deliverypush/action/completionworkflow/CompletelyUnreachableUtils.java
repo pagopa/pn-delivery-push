@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,18 +33,14 @@ public class CompletelyUnreachableUtils  {
 
     public void handleCompletelyUnreachable(NotificationInt notification, Integer recIndex, String legalFactId, Instant legalFactGenerationDate) {
         log.info("HandleCompletelyUnreachable - iun {} id {} ", notification.getIun(), recIndex);
+        boolean isNotificationViewedOrPaid = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
 
-        if (!isNotificationAlreadyViewed(notification.getIun(), recIndex)) {
+        if (!isNotificationViewedOrPaid) {
             addPaperNotificationFailed(notification, recIndex);
         }
         addTimelineElement( 
                 timelineUtils.buildCompletelyUnreachableTimelineElement(notification, recIndex, legalFactId, legalFactGenerationDate),
                 notification);
-    }
-
-    private boolean isNotificationAlreadyViewed(String iun, Integer recIndex) {
-        //Lo user potrebbe aver visualizzato la notifica tramite canali differenti anche se non raggiunto dai canali 'legali'
-        return timelineService.isPresentTimeLineElement(iun, recIndex, TimelineEventId.NOTIFICATION_VIEWED);
     }
 
     private void addPaperNotificationFailed(NotificationInt notification, Integer recIndex) {
