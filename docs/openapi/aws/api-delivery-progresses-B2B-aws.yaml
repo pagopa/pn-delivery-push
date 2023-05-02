@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: jfo15tV/7UEAvrQT9iIu0Kd3BoOx1932OTCUBCcICDc=
+  version: V+NglZWgUSzhRDHf9/opV2ooKB3k1gUXGksgoTDHwGw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -633,8 +633,6 @@ components:
       description: |
         stato di avanzamento del processo di notifica:`
           * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
-          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
-          * `NORMALIZED_ADDRESS` - Ricezione esito normalizzazione indirizzo
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
