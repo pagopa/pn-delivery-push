@@ -11,7 +11,6 @@
     "SchedulingDaysFailureAnalogRefinement": "4m", 
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "10",
-    "ExternalChannelBaseUrl": "Mock",
     "ExternalChannelDigitalRetryCount": "3",
     "ExternalChannelDigitalRetryDelay": "10m",
     "ExternalChannelDigitalSendNoResponseTimeout": "26h",
