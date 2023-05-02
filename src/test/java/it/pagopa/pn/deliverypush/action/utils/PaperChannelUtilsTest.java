@@ -177,10 +177,10 @@ class PaperChannelUtilsTest {
                 .build();
         final TimelineElementInternal sendSimpleRegisteredLetterProgress = TimelineElementInternal.builder()
                 .iun("2")
-                .elementId("SIMPLE_REGISTERED_LETTER_PROGRESS")
+                .elementId("SEND_SIMPLE_REGISTERED_LETTER_PROGRESS")
                 .timestamp(Instant.now())
                 .paId("2")
-                .category(TimelineElementCategoryInt.SIMPLE_REGISTERED_LETTER_PROGRESS)
+                .category(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS)
                 .details(progressDetails)
                 .build();
 
