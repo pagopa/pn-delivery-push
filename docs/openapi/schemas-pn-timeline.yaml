@@ -667,7 +667,6 @@ components:
         - serviceLevel
         - sentAttemptMade
         - responseStatus
-        - investigation
       properties:
         recIndex:
           type: integer
@@ -681,13 +680,13 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
-        investigation:
-          type: boolean
-          description: E' richiesta investigazione indirizzo fisico alternativo
         newAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          format: date-time
         deliveryFailureCause:
           type: string
           description: >
