@@ -24,9 +24,9 @@ public class AnalogDeliveryFailureWorkflowLegalFactsGenerator {
         this.notificationUtils = notificationUtils;
     }
 
-    public String generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant aarDate) {
+    public String generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant failureWorkflowDate) {
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        return saveLegalFactsService.sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recipient, status, aarDate);
+        return saveLegalFactsService.sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recipient, status, failureWorkflowDate);
     }
 }

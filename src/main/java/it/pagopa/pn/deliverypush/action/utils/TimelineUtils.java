@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.AnalogAddress;
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -491,7 +490,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId) {
+    public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, String generatedAarUrl) {
         log.debug("buildFailureAnalogWorkflowTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
@@ -501,10 +500,11 @@ public class TimelineUtils {
                         .build());
         AnalogFailureWorkflowDetailsInt details = AnalogFailureWorkflowDetailsInt.builder()
                 .recIndex(recIndex)
+                .generatedAarUrl(generatedAarUrl)
                 .build();
         
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds( singleLegalFactId(legalFactId, LegalFactCategoryInt.ANALOG_FAILURE_DELIVERY) );
+                .legalFactsIds( Collections.emptyList() );
 
         return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, elementId,
                 details, timelineBuilder);
@@ -733,7 +733,7 @@ public class TimelineUtils {
 
     
 
-    public TimelineElementInternal  buildCompletelyUnreachableTimelineElement(NotificationInt notification, Integer recIndex) {
+    public TimelineElementInternal  buildCompletelyUnreachableTimelineElement(NotificationInt notification, Integer recIndex, String legalFactId, Instant legalFactGenerationDate) {
         log.debug("buildCompletelyUnreachableTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.COMPLETELY_UNREACHABLE.buildEventId(
@@ -743,9 +743,14 @@ public class TimelineUtils {
                         .build());
         CompletelyUnreachableDetailsInt details = CompletelyUnreachableDetailsInt.builder()
                 .recIndex(recIndex)
+                .legalFactGenerationDate(legalFactGenerationDate)
                 .build();
 
-        return buildTimeline(notification, TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, elementId, details);
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds( singleLegalFactId(legalFactId, LegalFactCategoryInt.ANALOG_FAILURE_DELIVERY) );
+
+        return buildTimeline(notification, TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, elementId,
+                details, timelineBuilder);
     }
 
     public TimelineElementInternal buildScheduleDigitalWorkflowTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptInfo) {

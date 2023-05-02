@@ -28,7 +28,7 @@ public interface SaveLegalFactsService {
             NotificationInt notification,
             NotificationRecipientInt recipient,
             EndWorkflowStatus status,
-            Instant completionWorkflowDate
+            Instant failureWorkflowDate
     );
     
     Mono<String> sendCreationRequestForNotificationViewedLegalFact(

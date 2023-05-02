@@ -17,7 +17,7 @@ import java.util.List;
 @ToString
 public class SendDigitalProgressDetailsInt implements DigitalSendTimelineElementDetails {
     private int recIndex;
-    private LegalDigitalAddressInt digitalAddress;
+    private LegalDigitalAddressInt  digitalAddress;
     private DigitalAddressSourceInt digitalAddressSource;
     private Integer retryNumber;
     private Instant notificationDate;
