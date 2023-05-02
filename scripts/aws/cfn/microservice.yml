@@ -425,7 +425,7 @@ Parameters:
     Description: 'Configuration to enable sending notification attachments'
 
   SafeStorageFileNotFoundRetry:
-    Default: 'false'
+    Default: false
     Type: String
     AllowedValues:
       - true
