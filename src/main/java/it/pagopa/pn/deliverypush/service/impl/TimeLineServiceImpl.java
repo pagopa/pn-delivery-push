@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.*;
 
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
@@ -342,12 +343,9 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public ProbableSchedulingAnalogDateResponse getSchedulingAnalogDate(String iun, Integer recipientIndex) {
-        String elementId = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
-                .iun(iun)
-                .recIndex(recipientIndex)
-                .build());
 
-        Optional<ProbableDateAnalogWorkflowDetailsInt> details = getTimelineElementDetails(iun, elementId, ProbableDateAnalogWorkflowDetailsInt.class);
+        Optional<ProbableDateAnalogWorkflowDetailsInt> details = getTimelineElementDetailForSpecificRecipient(iun,
+                recipientIndex, false, PROBABLE_SCHEDULING_ANALOG_DATE, ProbableDateAnalogWorkflowDetailsInt.class);
 
         if(details.isPresent()) {
             return new ProbableSchedulingAnalogDateResponse()

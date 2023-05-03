@@ -457,8 +457,8 @@ class TimeLineServiceImplTest {
                         .build())
                 .build();
 
-        Mockito.when(timelineDao.getTimelineElement(iun, timelineElementIdExpected))
-                .thenReturn(Optional.of(timelineElementExpected));
+        Mockito.when(timelineDao.getTimeline(iun))
+                .thenReturn(Set.of(timelineElementExpected));
 
         Mockito.when(confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineElementIdExpected))
                 .thenReturn(Optional.empty());
@@ -479,13 +479,8 @@ class TimeLineServiceImplTest {
         final String iun = "iun1";
         final int recIndex = 0;
 
-        String timelineElementIdExpected = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
-                .iun(iun)
-                .recIndex(recIndex)
-                .build());
-
-        Mockito.when(timelineDao.getTimelineElement(iun, timelineElementIdExpected))
-                .thenReturn(Optional.empty());
+        Mockito.when(timelineDao.getTimeline(iun))
+                .thenReturn(Set.of());
 
 
         Assertions.assertThrows(PnNotFoundException.class, () -> timeLineService.getSchedulingAnalogDate(iun, recIndex));
