@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.TimelineAndStatusApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingDateAnalogResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,7 @@ public class PnTimelineController implements TimelineAndStatusApi {
     }
 
     @Override
-    public Mono<ResponseEntity<ProbableSchedulingDateAnalogResponse>> getSchedulingAnalogDate(String iun,
+    public Mono<ResponseEntity<ProbableSchedulingAnalogDateResponse>> getSchedulingAnalogDate(String iun,
                                                                                               Integer recipientIndex,
                                                                                               final ServerWebExchange exchange) {
 

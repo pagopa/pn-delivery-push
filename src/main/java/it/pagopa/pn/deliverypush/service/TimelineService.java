@@ -5,7 +5,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingDateAnalogResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -31,6 +31,6 @@ public interface TimelineService {
 
     boolean isPresentTimeLineElement(String iun, Integer recIndex, TimelineEventId timelineEventId);
 
-    ProbableSchedulingDateAnalogResponse getSchedulingAnalogDate(String iun, Integer recipientIndex);
+    ProbableSchedulingAnalogDateResponse getSchedulingAnalogDate(String iun, Integer recipientIndex);
 
 }

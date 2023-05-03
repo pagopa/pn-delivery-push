@@ -463,7 +463,7 @@ class TimeLineServiceImplTest {
         Mockito.when(confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineElementIdExpected))
                 .thenReturn(Optional.empty());
 
-        ProbableSchedulingDateAnalogResponse schedulingAnalogDateActual = timeLineService.getSchedulingAnalogDate(iun, recIndex);
+        ProbableSchedulingAnalogDateResponse schedulingAnalogDateActual = timeLineService.getSchedulingAnalogDate(iun, recIndex);
 
         assertThat(schedulingAnalogDateActual.getSchedulingAnalogDate())
                 .isEqualTo(((ProbableDateAnalogWorkflowDetailsInt) timelineElementExpected.getDetails()).getSchedulingAnalogDate());

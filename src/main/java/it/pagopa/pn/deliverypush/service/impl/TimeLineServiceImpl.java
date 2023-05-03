@@ -20,7 +20,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingDateAnalogResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
@@ -341,7 +341,7 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
-    public ProbableSchedulingDateAnalogResponse getSchedulingAnalogDate(String iun, Integer recipientIndex) {
+    public ProbableSchedulingAnalogDateResponse getSchedulingAnalogDate(String iun, Integer recipientIndex) {
         String elementId = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(recipientIndex)
@@ -350,7 +350,7 @@ public class TimeLineServiceImpl implements TimelineService {
         Optional<ProbableDateAnalogWorkflowDetailsInt> details = getTimelineElementDetails(iun, elementId, ProbableDateAnalogWorkflowDetailsInt.class);
 
         if(details.isPresent()) {
-            return new ProbableSchedulingDateAnalogResponse()
+            return new ProbableSchedulingAnalogDateResponse()
                     .iun(iun)
                     .recIndex(recipientIndex)
                     .schedulingAnalogDate(details.get().getSchedulingAnalogDate());

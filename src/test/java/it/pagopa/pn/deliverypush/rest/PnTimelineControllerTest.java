@@ -133,7 +133,7 @@ class PnTimelineControllerTest {
         String iun = "iun";
         int recIndex = 0;
 
-        ProbableSchedulingDateAnalogResponse responseExpected = new ProbableSchedulingDateAnalogResponse()
+        ProbableSchedulingAnalogDateResponse responseExpected = new ProbableSchedulingAnalogDateResponse()
                 .iun(iun)
                 .recIndex(recIndex)
                 .schedulingAnalogDate(Instant.now());
@@ -151,7 +151,7 @@ class PnTimelineControllerTest {
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(ProbableSchedulingDateAnalogResponse.class)
+                .expectBody(ProbableSchedulingAnalogDateResponse.class)
                 .consumeWith(response -> {
                     Assertions.assertEquals(responseExpected, response.getResponseBody());
                 });

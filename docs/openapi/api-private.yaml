@@ -83,9 +83,9 @@ paths:
 
   '/delivery-push-private/scheduling-analog-date/{iun}/{recipientIndex}':
     get:
-      summary: Restituisce la data di probabile inizio del flusso analogico
+      summary: Restituisce la data probabile di inizio del flusso analogico
       description: >-
-        Restituisce la data di probabile inizio del flusso analogico
+        Restituisce la data probabile di inizio del flusso analogico
         per un determinato destinatario di una notifica.
       tags:
         - TimelineAndStatus
@@ -99,7 +99,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProbableSchedulingDateAnalogResponse"
+                $ref: "#/components/schemas/ProbableSchedulingAnalogDateResponse"
         '400':
           description: Invalid input
           content:
@@ -684,7 +684,7 @@ components:
     ############################################################################################
     ###           INFORMAZIONI SULLA PROBABILE DATA DI SCHEDULAZIONE DEL WORKFLOW ANALOGICO  ###
     ############################################################################################
-    ProbableSchedulingDateAnalogResponse:
+    ProbableSchedulingAnalogDateResponse:
       title: Probabile data di inizio del workflow analogico
       description: >-
         Probabile data di inizio del workflow analogico
