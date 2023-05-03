@@ -176,8 +176,9 @@ class IoServiceImplTest {
         );
 
         //WHEN
+        Instant schedulingAnalogDate = Instant.now();
         assertThrows(PnInternalException.class, () ->
-                ioService.sendIOMessage(notificationInt, 0, Instant.now())
+                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
         );
     }
 
@@ -206,8 +207,9 @@ class IoServiceImplTest {
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenThrow( new RuntimeException() );
 
         //WHEN
+        Instant schedulingAnalogDate = Instant.now();
         assertThrows(Exception.class, () ->
-                ioService.sendIOMessage(notificationInt, 0, Instant.now())
+                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
         );
     }
 
@@ -236,8 +238,9 @@ class IoServiceImplTest {
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class)))
         .thenThrow(PnHttpResponseException.class);
         //WHEN
+        Instant schedulingAnalogDate = Instant.now();
         assertThrows(PnInternalException.class, () ->
-                ioService.sendIOMessage(notificationInt, 0, Instant.now())
+                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
         );
     }
     

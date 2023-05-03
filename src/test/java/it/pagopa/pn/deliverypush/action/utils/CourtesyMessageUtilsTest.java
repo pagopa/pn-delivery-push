@@ -16,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
@@ -143,7 +144,7 @@ class CourtesyMessageUtilsTest {
     }
 
     @Test
-    void checkAddressesForSendMultiCourtesyMessage() {
+    void checkAddressesForSendMultiCourtesyMessageWithAppIOFirst() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
@@ -218,6 +219,96 @@ class CourtesyMessageUtilsTest {
                 .iun(notification.getIun())
                 .recIndex(0)
                 .build()));
+
+        // vengono inseriti 1 elemento di timeline per PROBABLE_SCHEDULING_ANALOG_DATE e 2 per SEND_COURTESY_MESSAGE
+        Mockito.verify(timelineService, Mockito.times(3)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+    }
+
+    @Test
+    void checkAddressesForSendMultiCourtesyMessageWithAppIONotFirst() {
+        //GIVEN
+        Instant schedulingAnalogDate = Instant.now();
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+        final SendMessageResponse.ResultEnum sentCourtesy = SendMessageResponse.ResultEnum.SENT_COURTESY;
+        Mockito.when(iOservice.sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.eq(schedulingAnalogDate))).thenReturn(sentCourtesy);
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressSms = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
+                .address("indirizzo@test.it")
+                .build();
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressAppIo = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+                .address("indirizzo@test.it")
+                .build();
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(List.of(courtesyDigitalAddressSms, courtesyDigitalAddressAppIo)));
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(List.of(courtesyDigitalAddressSms, courtesyDigitalAddressAppIo)));
+
+        String probableSchedulingAnalogElementIdExpected = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(0)
+                .build());
+
+        Mockito.when(timelineService.getTimelineElementDetails(notification.getIun(), probableSchedulingAnalogElementIdExpected, ProbableDateAnalogWorkflowDetailsInt.class))
+                .thenReturn(Optional.of(ProbableDateAnalogWorkflowDetailsInt.builder().schedulingAnalogDate(schedulingAnalogDate).build()));
+
+        //WHEN
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+
+        //THEN
+        ArgumentCaptor<String> eventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<IoSendMessageResultInt> ioSendMessageResultArgumentCaptor = ArgumentCaptor.forClass(IoSendMessageResultInt.class);
+
+        Mockito.verify(timelineUtils, Mockito.times(2)).buildSendCourtesyMessageTimelineElement(
+                Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(),
+                eventIdArgumentCaptor.capture(), ioSendMessageResultArgumentCaptor.capture());
+
+        //Viene verificato che l'eventId generato (in particolare per l'index) sia quello aspettato
+        List<String> eventIdAllValues = eventIdArgumentCaptor.getAllValues();
+        String firstEventIdInTimeline = eventIdAllValues.get(0);
+        String secondEventIdInTimeline = eventIdAllValues.get(1);
+
+        List<IoSendMessageResultInt> ioMessageResultAllValues = ioSendMessageResultArgumentCaptor.getAllValues();
+        IoSendMessageResultInt firstIoMessageResult = ioMessageResultAllValues.get(0);
+        IoSendMessageResultInt secondIoMessageResult = ioMessageResultAllValues.get(1);
+
+        Assertions.assertNull(firstIoMessageResult);
+        Assertions.assertEquals(secondIoMessageResult, IoSendMessageResultInt.valueOf(sentCourtesy.getValue()));
+
+        String firstEventIdExpected = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(0)
+                .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
+                .build()
+        );
+
+        String secondEventIdExpected = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(0)
+                .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+                .build()
+        );
+
+        Assertions.assertEquals(firstEventIdExpected, firstEventIdInTimeline);
+        Assertions.assertEquals(secondEventIdExpected, secondEventIdInTimeline);
+
+        // viene verificato che viene generato anche l'eventId per il PROBABLE_SCHEDULING_ANALOG_DATE
+        ArgumentCaptor<String> probableAnalogEventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(timelineUtils).buildProbableDateSchedulingAnalogTimelineElement(Mockito.eq(0),
+                Mockito.eq(notification), probableAnalogEventIdArgumentCaptor.capture(), Mockito.any());
+
+        assertThat(probableAnalogEventIdArgumentCaptor.getValue()).isEqualTo(probableSchedulingAnalogElementIdExpected);
 
         // vengono inseriti 1 elemento di timeline per PROBABLE_SCHEDULING_ANALOG_DATE e 2 per SEND_COURTESY_MESSAGE
         Mockito.verify(timelineService, Mockito.times(3)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));

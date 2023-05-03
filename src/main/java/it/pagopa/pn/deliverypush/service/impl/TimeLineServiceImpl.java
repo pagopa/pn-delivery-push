@@ -347,7 +347,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 .recIndex(recipientIndex)
                 .build());
 
-        Optional<ProbableSchedulingDateAnalogResponse> details = getTimelineElementDetails(iun, elementId, ProbableSchedulingDateAnalogResponse.class);
+        Optional<ProbableDateAnalogWorkflowDetailsInt> details = getTimelineElementDetails(iun, elementId, ProbableDateAnalogWorkflowDetailsInt.class);
 
         if(details.isPresent()) {
             return new ProbableSchedulingDateAnalogResponse()
