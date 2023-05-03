@@ -9,8 +9,6 @@ components:
       description: >
         stato di avanzamento del processo di notifica:`
           * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
-          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
-          * `NORMALIZED_ADDRESS` - Ricezione esito normalizzazione indirizzo
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
@@ -33,7 +31,7 @@ components:
           * `ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
-          * `SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
           * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
           * `NOTIFICATION_VIEWED` - Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)
           * `PREPARE_ANALOG_DOMICILE` - Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
@@ -43,16 +41,16 @@ components:
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
           * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Ricezione pagamento della notifica
+          * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
       enum:
         - SENDER_ACK_CREATION_REQUEST
-        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
-        - NORMALIZED_ADDRESS
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
         - GET_ADDRESS
-        - NATIONAL_REGISTRY_CALL
-        - NATIONAL_REGISTRY_RESPONSE
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
         - SCHEDULE_ANALOG_WORKFLOW
         - SCHEDULE_DIGITAL_WORKFLOW
         - PREPARE_DIGITAL_DOMICILE
@@ -69,19 +67,21 @@ components:
         - ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST
         - PREPARE_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER
-        - SIMPLE_REGISTERED_LETTER_PROGRESS
+        - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
         - NOTIFICATION_VIEWED_CREATION_REQUEST
         - NOTIFICATION_VIEWED
         - PREPARE_ANALOG_DOMICILE
         - SEND_ANALOG_DOMICILE
         - SEND_ANALOG_PROGRESS
         - SEND_ANALOG_FEEDBACK
+        - PAYMENT
         - COMPLETELY_UNREACHABLE
         - REQUEST_REFUSED
         - AAR_CREATION_REQUEST
         - AAR_GENERATION
+        - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
-    
+
     TimelineElement:
       type: object
       additionalProperties: false
@@ -164,6 +164,10 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+
 
     AnalogFailureWorkflowCreationRequestDetails:
       type: object
@@ -251,6 +255,10 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        legalFactGenerationDate:
+          type: string
+          description: Data generazione atto opponibile a terzi allegato
+          format: date-time
 
     GetAddressInfoDetails:
       type: object

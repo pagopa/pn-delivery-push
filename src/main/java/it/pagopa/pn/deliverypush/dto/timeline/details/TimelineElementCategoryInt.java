@@ -39,7 +39,7 @@ public enum TimelineElementCategoryInt {
     AAR_CREATION_REQUEST(AarCreationRequestDetailsInt.class, TimelineElementCategory.AAR_CREATION_REQUEST.getValue()),
     AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategory.AAR_GENERATION.getValue()),
     NOT_HANDLED(NotHandledDetailsInt.class, TimelineElementCategory.NOT_HANDLED.getValue()),
-    SIMPLE_REGISTERED_LETTER_PROGRESS(SimpleRegisteredLetterProgressDetailsInt.class, TimelineElementCategory.SIMPLE_REGISTERED_LETTER_PROGRESS.getValue()),
+    SEND_SIMPLE_REGISTERED_LETTER_PROGRESS(SimpleRegisteredLetterProgressDetailsInt.class, TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.getValue()),
     PROBABLE_SCHEDULING_ANALOG_DATE(ProbableDateAnalogWorkflowDetailsInt.class, TimelineElementCategory.PROBABLE_SCHEDULING_ANALOG_DATE.getValue());
     
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;

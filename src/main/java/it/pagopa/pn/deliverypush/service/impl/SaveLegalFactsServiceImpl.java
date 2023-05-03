@@ -131,13 +131,13 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             NotificationInt notification,
             NotificationRecipientInt recipient,
             EndWorkflowStatus status,
-            Instant aarDate
+            Instant failureWorkflowDate
     ) {
         try {
             log.debug("Start sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact - iun={}", notification.getIun());
 
             return this.saveLegalFact(legalFactBuilder.generateAnalogDeliveryFailureWorkflowLegalFact(
-                            notification, recipient, status, aarDate))
+                            notification, recipient, status, failureWorkflowDate))
                     .map( responseUrl -> {
                         log.debug("End sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact - iun={} key={}", notification.getIun(), responseUrl);
                         return responseUrl;

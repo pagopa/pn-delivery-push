@@ -25,10 +25,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 class CompletionWorkFlowHandlerTest {
     @Mock
@@ -168,10 +167,20 @@ class CompletionWorkFlowHandlerTest {
 
         EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
         String legalFactId = "legalFactsId";
-        Mockito.when( analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, endWorkflowStatus, aarDate ) ).thenReturn(legalFactId);
-        final TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().elementId("test").build();
+        Mockito.when( analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, endWorkflowStatus, notificationDate ) ).thenReturn(legalFactId);
+        
+        AarGenerationDetailsInt aarGenerationDetailsInt = AarGenerationDetailsInt.builder()
+                .recIndex(recIndex)
+                .generatedAarUrl("testAArUrl")
+                .build();
+        Mockito.when( timelineService.getTimelineElementDetailForSpecificRecipient(notification.getIun(), recIndex, false, TimelineElementCategoryInt.AAR_GENERATION, AarGenerationDetailsInt.class ) )
+                .thenReturn(Optional.of(aarGenerationDetailsInt));
+        
+        final TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().elementId("test")
+                .timestamp(notificationDate)
+                .build();
+        Mockito.when(timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex, aarGenerationDetailsInt.getGeneratedAarUrl())).thenReturn(timelineElementInternal);
         Mockito.when(timelineUtils.buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(notification, recIndex, endWorkflowStatus, notificationDate, legalFactId)).thenReturn(timelineElementInternal);
-        Mockito.when(timelineService.getTimeline(notification.getIun(), false)).thenReturn(timelineElementInternalList.stream().collect(Collectors.toSet()));
 
 
         //WHEN

@@ -79,6 +79,7 @@ public class TimelineElementDetailsEntity {
 
     @Getter(onMethod=@__({@DynamoDbAttribute("refusalReasons")})) private List<NotificationRefusedErrorEntity> refusalReasons;
     @Getter(onMethod=@__({@DynamoDbAttribute("uncertainPaymentDate")})) private Boolean uncertainPaymentDate;
+    @Getter(onMethod=@__({@DynamoDbAttribute("legalFactGenerationDate")})) private Instant legalFactGenerationDate;
 
     @Getter(onMethod=@__({@DynamoDbAttribute("registeredLetterCode")})) String registeredLetterCode;
 
