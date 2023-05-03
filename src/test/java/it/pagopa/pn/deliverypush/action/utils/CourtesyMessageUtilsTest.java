@@ -207,6 +207,7 @@ class CourtesyMessageUtilsTest {
                 .build()
         );
 
+
         Assertions.assertEquals(firstEventIdExpected, firstEventIdInTimeline);
         Assertions.assertEquals(secondEventIdExpected, secondEventIdInTimeline);
 
