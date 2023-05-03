@@ -165,6 +165,54 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
+    public Optional<TimelineElementInternal> getTimelineElementForSpecificRecipient(String iun, int recIndex, TimelineElementCategoryInt category) {
+        log.debug("getTimelineElementForSpecificRecipient - IUN={} and recIndex={}", iun, recIndex);
+
+        return this.timelineDao.getTimeline(iun)
+                .stream().filter(x -> x.getCategory().equals(category))
+                .filter(x -> {
+
+                    if ( x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails){
+                        return recRelatedTimelineElementDetails.getRecIndex() == recIndex;
+                    }
+                    return false;
+                })
+                .findFirst();
+    }
+
+    @Override
+    public <T> Optional<T> getTimelineElementDetailForSpecificRecipient(String iun, int recIndex, boolean confidentialInfoRequired, TimelineElementCategoryInt category, Class<T> timelineDetailsClass) {
+        log.debug("getTimelineElementDetailForSpecificIndex - IUN={} and recIndex={}", iun, recIndex);
+        
+        Optional<TimelineElementInternal> timelineElementOpt = this.timelineDao.getTimeline(iun)
+                .stream().filter(x -> x.getCategory().equals(category))
+                .filter(x -> {
+                    
+                    if ( timelineDetailsClass.isInstance(x.getDetails()) && x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails){
+                        return recRelatedTimelineElementDetails.getRecIndex() == recIndex;
+                    }
+                    return false;
+                })
+                .findFirst();
+        
+        if (timelineElementOpt.isPresent()) {
+            TimelineElementInternal timelineElement = timelineElementOpt.get();
+
+            if (confidentialInfoRequired) {
+                confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineElement.getElementId()).ifPresent(
+                        confidentialDto -> enrichTimelineElementWithConfidentialInformation(
+                                timelineElement.getDetails(), confidentialDto
+                        )
+                );
+            }
+
+            return Optional.of(timelineDetailsClass.cast(timelineElement.getDetails()));
+        }
+
+        return Optional.empty();
+    }
+    
+    @Override
     public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("GetTimeline - iun={} ", iun);
         Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimeline(iun);

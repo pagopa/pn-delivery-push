@@ -191,7 +191,7 @@ public enum TimelineEventId {
         }
     },
 
-    SIMPLE_REGISTERED_LETTER_PROGRESS("SIMPLE_REGISTERED_LETTER_PROGRESS") {
+    SEND_SIMPLE_REGISTERED_LETTER_PROGRESS("SEND_SIMPLE_REGISTERED_LETTER_PROGRESS") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -283,7 +283,7 @@ public enum TimelineEventId {
     },
 
 
-    ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST("ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST") {
+    COMPLETELY_UNREACHABLE_CREATION_REQUEST("COMPLETELY_UNREACHABLE_CREATION_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()

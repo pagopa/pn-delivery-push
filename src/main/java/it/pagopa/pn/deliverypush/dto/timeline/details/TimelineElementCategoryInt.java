@@ -26,7 +26,7 @@ public enum TimelineElementCategoryInt {
     DIGITAL_FAILURE_WORKFLOW(DigitalFailureWorkflowDetailsInt.class, TimelineElementCategory.DIGITAL_FAILURE_WORKFLOW.getValue()),
     ANALOG_SUCCESS_WORKFLOW(AnalogSuccessWorkflowDetailsInt.class, TimelineElementCategory.ANALOG_SUCCESS_WORKFLOW.getValue()),
     ANALOG_FAILURE_WORKFLOW(AnalogFailureWorkflowDetailsInt.class, TimelineElementCategory.ANALOG_FAILURE_WORKFLOW.getValue()),
-    ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST(AnalogFailureWorkflowCreationRequestDetailsInt.class, TimelineElementCategory.ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST.getValue()),
+    COMPLETELY_UNREACHABLE_CREATION_REQUEST(CompletelyUnreachableCreationRequestDetails.class, TimelineElementCategory.COMPLETELY_UNREACHABLE_CREATION_REQUEST.getValue()),
     PREPARE_SIMPLE_REGISTERED_LETTER(BaseRegisteredLetterDetailsInt.class, TimelineElementCategory.PREPARE_SIMPLE_REGISTERED_LETTER.getValue()),
     SEND_SIMPLE_REGISTERED_LETTER(SimpleRegisteredLetterDetailsInt.class, TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER.getValue()),
     NOTIFICATION_VIEWED_CREATION_REQUEST(NotificationViewedCreationRequestDetailsInt.class, TimelineElementCategory.NOTIFICATION_VIEWED_CREATION_REQUEST.getValue()),
@@ -41,7 +41,7 @@ public enum TimelineElementCategoryInt {
     AAR_CREATION_REQUEST(AarCreationRequestDetailsInt.class, TimelineElementCategory.AAR_CREATION_REQUEST.getValue()),
     AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategory.AAR_GENERATION.getValue()),
     NOT_HANDLED(NotHandledDetailsInt.class, TimelineElementCategory.NOT_HANDLED.getValue()),
-    SIMPLE_REGISTERED_LETTER_PROGRESS(SimpleRegisteredLetterProgressDetailsInt.class, TimelineElementCategory.SIMPLE_REGISTERED_LETTER_PROGRESS.getValue());
+    SEND_SIMPLE_REGISTERED_LETTER_PROGRESS(SimpleRegisteredLetterProgressDetailsInt.class, TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.getValue());
     
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
     private final String value;

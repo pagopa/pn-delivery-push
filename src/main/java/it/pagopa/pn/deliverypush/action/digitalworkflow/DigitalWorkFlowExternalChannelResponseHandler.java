@@ -318,7 +318,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         // calcolare in base al numero di tentativi, devo cercare nella timeline quanti retry ci sono stati
         // e se il numero è minore del conteggio richiesto, deve ritentare, altrimenti no
         // la timeline è filtratra per iun, recindex, source, tentativo, quindi identifica i progress di questa istanza di tentativo
-        Set<TimelineElementInternal> previousTimelineProgress = digitalWorkFlowUtils.getPreviousTimelineProgress(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressSourceInt());
+        Set<TimelineElementInternal> previousTimelineProgress = digitalWorkFlowUtils.getPreviousTimelineProgress(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(),
+                digitalResultInfos.getRetryNumber(), digitalResultInfos.getIsFirstSendRetry(), digitalResultInfos.getDigitalAddressSourceInt());
         // il conteggio viene fatto sul flag "retry" a true, visto che comparirà 1 volta per ogni tentativo fallito
         long count = previousTimelineProgress.stream().filter(x -> x.getDetails() instanceof SendDigitalProgressDetailsInt sendDigitalProgressDetailsInt
                                                                 && sendDigitalProgressDetailsInt.isShouldRetry()).count();

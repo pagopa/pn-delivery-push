@@ -83,31 +83,41 @@ info:
       <details>
         <summary>Eventi di timeline</summary>
         <ul>
+          <li><strong>SENDER_ACK_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage</em></li>
+          <li><strong>VALIDATE_NORMALIZE_ADDRESSES_REQUEST </strong><em>Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica</em></li>
+          <li><strong>NORMALIZED_ADDRESS </strong><em>Ricezione esito normalizzazione indirizzo</em></li>
           <li><strong>REQUEST_ACCEPTED </strong><em>Richiesta di notifica accettata a seguito dei controlli di validazione.</em></li>
+          <li><strong>AAR_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage</em></li>
           <li><strong>SEND_COURTESY_MESSAGE </strong><em>Invio di un messaggio di cortesia.</em></li>
           <li><strong>GET_ADDRESS </strong><em>Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali).</em></li>
-          <li><strong>PUBLIC_REGISTRY_CALL </strong><em>Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.</em></li>
-          <li><strong>PUBLIC_REGISTRY_RESPONSE </strong><em>Ricevuta la risposta dei registri pubblici.</em></li>
-          <li><strong>SCHEDULE_ANALOG_WORKFLOW </strong><em>Inizio del workflow per invio cartaceo.</em></li>
-          <li><strong>SCHEDULE_DIGITAL_WORKFLOW </strong><em>Inizio il workflow per invio digitale (PEC).</em></li>
+          <li><strong>NATIONAL_REGISTRY_CALL </strong><em>Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.</em></li>
+          <li><strong>NATIONAL_REGISTRY_RESPONSE </strong><em>Ricevuta la risposta dei registri pubblici.</em></li>
+          <li><strong>SCHEDULE_ANALOG_WORKFLOW </strong><em>Pianificazione del workflow per invio cartaceo</em></li>
+          <li><strong>SCHEDULE_DIGITAL_WORKFLOW </strong><em>Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.</em></li>
+          <li><strong>PREPARE_DIGITAL_DOMICILE </strong><em>Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.</em></li>
+          <li><strong>SEND_DIGITAL_PROGRESS </strong><em>Tentativo di Invio PEC ad un determinato indirizzo.</em></li>
           <li><strong>SEND_DIGITAL_DOMICILE </strong><em>Invio digitale dell’avviso di notifica</em></li>
-          <li><strong>SEND_DIGITAL_DOMICILE_FEEDBACK </strong><em>Ottenuto esito sull'invio digitale dell’avviso di notifica</em></li>
-          <li><strong>SEND_DIGITAL_FEEDBACK </strong><em>Ottenuto esito del processo di invio digitale</em></li>
+          <li><strong>SEND_DIGITAL_FEEDBACK </strong><em>Ottenuto esito ad un invio digitale</em></li>
           <li><strong>REFINEMENT </strong><em>Perfezionamento per decorrenza termini</em></li>
           <li><strong>SCHEDULE_REFINEMENT </strong><em>Pianificato il perfezionamento per decorrenza termini</em></li>
           <li><strong>DIGITAL_SUCCESS_WORKFLOW </strong><em>Completato con successo il workflow di invio digitale.</em></li>
-          <li><strong>DIGITAL_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio digitale. <strong>NOTA</strong>: in caso di DIGITAL_FAILURE_WORKFLOW piattaforma notifiche invia la AAR (Avviso di Avvenuta Ricezione) tramite raccomandata semplice e la notifica si considera consegnata.</em></li>
+          <li><strong>DIGITAL_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio digitale: <strong>tutti i tentativi di invio ai domicili digitali sono falliti.</strong></em></li>
           <li><strong>ANALOG_SUCCESS_WORKFLOW </strong><em>Completato con successo il workflow di invio cartaceo.</em></li>
-          <li><strong>ANALOG_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio cartaceo. <strong>NOTA</strong>: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE</em></li>
+          <li><strong>ANALOG_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio cartaceo. NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE</em></li>
+          <li><strong>PREPARE_SIMPLE_REGISTERED_LETTER </strong><em>Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel</em></li>
           <li><strong>SEND_SIMPLE_REGISTERED_LETTER </strong><em>Invio di raccomandata semplice</em></li>
-          <li><strong>NOTIFICATION_VIEWED </strong><em>Perfezionamento per presa visione</em></li>
+          <li><strong>SIMPLE_REGISTERED_LETTER_PROGRESS </strong><em>Ricezione informazioni intermedia relative ad una notificazione cartacea semplice</em></li>
+          <li><strong>NOTIFICATION_VIEWED_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage</em></li>
+          <li><strong>NOTIFICATION_VIEWED </strong><em>Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)</em></li>
+          <li><strong>PREPARE_ANALOG_DOMICILE </strong><em>Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel</em></li>
+          <li><strong>SEND_ANALOG_PROGRESS </strong><em>Ricezione informazioni intermedia relative ad una notificazione cartacea</em></li>
+          <li><strong>SEND_ANALOG_FEEDBACK </strong><em>Ricezione esito dell'invio cartaceo.
+            </br>Il valore del campo details.responseStatus contiene l’esito della notifica digitale.Può assumere i valori di OK o KO .</em></li>
           <li><strong>SEND_ANALOG_DOMICILE </strong><em>Invio cartaceo dell’avviso di notifica</em></li>
-          <li><strong>SEND_PAPER_FEEDBACK </strong><em>Ricezione esito dell'invio cartaceo</em></li>
-          <li><strong>PAYMENT </strong><em>Ricezione pagamento della notifica</em></li>
+          <li><strong>COMPLETELY_UNREACHABLE_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo</em></li>
           <li><strong>COMPLETELY_UNREACHABLE </strong><em>Tutti i destinatari risultano irraggiungibili</em></li>
           <li><strong>REQUEST_REFUSED </strong><em>Richiesta di notifica rifiutata per fallimento di validazione.</em></li>
           <li><strong>AAR_GENERATION </strong><em>Generazione dell’AAR (Avviso di Avvenuta Ricezione)</em></li>
-          <li><strong>NOT_HANDLED </strong><em>Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline</em></li>
         </ul>
       </details>
     </br>
@@ -667,8 +677,7 @@ components:
             - TIMELINE
         filterValues:
           description: >-
-            Se non _null_ indica l'elenco degli stati o elementi di timeline che 
-            si vogliono ricevere.
+            rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserire array vuoto [] se non si vuole applicare nessun filtro
           type: array
           items:
             type: string
