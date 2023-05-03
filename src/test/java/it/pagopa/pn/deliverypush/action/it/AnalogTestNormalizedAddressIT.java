@@ -142,12 +142,12 @@ import static org.awaitility.Awaitility.await;
         AddressManagerResponseHandler.class,
         AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
         AnalogFailureDeliveryCreationResponseHandler.class,
-        AnalogTestITNormalizedAddress.SpringTestConfiguration.class
+        AnalogTestNormalizedAddressIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
 @DirtiesContext
-public class AnalogTestITNormalizedAddress {
+class AnalogTestNormalizedAddressIT {
 
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
