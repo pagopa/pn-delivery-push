@@ -8,6 +8,7 @@ import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.mode
 import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeRequest;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
@@ -30,7 +31,7 @@ import static org.mockserver.model.HttpResponse.response;
 @TestPropertySource(properties = {
         "pn.delivery-push.address-manager-base-url=http://localhost:9998",
 })
-class AddressManagerClientImplTest {
+class AddressManagerClientImplTest extends MockAWSObjectsTest {
 
     @Autowired
     private AddressManagerClientImpl client;
