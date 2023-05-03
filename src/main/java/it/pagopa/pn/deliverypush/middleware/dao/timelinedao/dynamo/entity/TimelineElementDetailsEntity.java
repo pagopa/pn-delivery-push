@@ -64,7 +64,7 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("idF24")})) private String idF24;
     @Getter(onMethod=@__({@DynamoDbAttribute("paymentSourceChannel")})) private String paymentSourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingDate")})) private Instant schedulingDate;
-    @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private String ioSendMessageResult;
+    @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private IoSendMessageResultEntity ioSendMessageResult;
     @Getter(onMethod=@__({@DynamoDbAttribute("envelopeWeight")})) private Integer envelopeWeight;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryDetailCode")})) private String deliveryDetailCode;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryFailureCause")})) private String deliveryFailureCause;

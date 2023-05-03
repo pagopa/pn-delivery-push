@@ -13,7 +13,6 @@ class SendAnalogFeedbackDetailsTest {
         details = new SendAnalogFeedbackDetails();
         details.sentAttemptMade(1);
         details.setDeliveryFailureCause("error");
-        details.setInvestigation(Boolean.TRUE);
         details.setNewAddress(PhysicalAddress.builder().address("add").build());
         details.setPhysicalAddress(PhysicalAddress.builder().address("add").build());
         details.setRecIndex(1);
@@ -78,20 +77,6 @@ class SendAnalogFeedbackDetailsTest {
     }
 
     @Test
-    void investigation() {
-        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
-
-        SendAnalogFeedbackDetails actual = details.investigation(Boolean.TRUE);
-
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    void getInvestigation() {
-        Assertions.assertEquals(Boolean.TRUE, details.getInvestigation());
-    }
-
-    @Test
     void newAddress() {
         SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
 
@@ -145,7 +130,6 @@ class SendAnalogFeedbackDetailsTest {
         return SendAnalogFeedbackDetails.builder()
                 .recIndex(1)
                 .deliveryFailureCause("error")
-                .investigation(Boolean.TRUE)
                 .newAddress(PhysicalAddress.builder().address("add").build())
                 .physicalAddress(PhysicalAddress.builder().address("add").build())
                 .serviceLevel(ServiceLevel.REGISTERED_LETTER_890)
