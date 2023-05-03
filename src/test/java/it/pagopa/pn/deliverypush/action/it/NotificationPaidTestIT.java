@@ -22,14 +22,8 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFa
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
-import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationScheduler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdPivaValidator;
+import it.pagopa.pn.deliverypush.action.startworkflow.*;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -150,6 +144,11 @@ import static org.awaitility.Awaitility.with;
         UUIDCreatorUtils.class,
         AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
         AnalogFailureDeliveryCreationResponseHandler.class,
+        AddressValidator.class,
+        AddressManagerServiceImpl.class,
+        AddressManagerClientMock.class,
+        NormalizeAddressHandler.class,
+        AddressManagerResponseHandler.class,
         NotificationPaidTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -227,25 +226,35 @@ class NotificationPaidTestIT {
     private AuditLogService auditLogService;
     
     @Autowired
+    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
+    
+    @Autowired
     private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
     
     @Autowired
     private NotificationPaidHandler notificationPaidHandler;
-
+    
+    @Autowired
+    private AddressManagerClientMock addressManagerClientMock;
+    
 
 
     @BeforeEach
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        safeStorageClientMock.clear();
-        pnDeliveryClientMock.clear();
-        addressBookMock.clear();
-        nationalRegistriesClientMock.clear();
-        timelineDaoMock.clear();
-        paperNotificationFailedDaoMock.clear();
-        pnDataVaultClientMock.clear();
-        documentCreationRequestDaoMock.clear();
+        TestUtils.initializeAllMockClient(
+                safeStorageClientMock,
+                pnDeliveryClientMock,
+                addressBookMock,
+                nationalRegistriesClientMock,
+                timelineDaoMock,
+                paperNotificationFailedDaoMock,
+                pnDataVaultClientMock,
+                pnDataVaultClientReactiveMock,
+                documentCreationRequestDaoMock,
+                addressManagerClientMock
+        );
     }
     
 
