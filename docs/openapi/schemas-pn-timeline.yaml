@@ -945,6 +945,21 @@ components:
           type: string
           description: Codice della raccomandata
 
+    ProbableDateAnalogWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - schedulingAnalogDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        schedulingAnalogDate:
+          type: string
+          format: date-time
+          description: Data probabile di inizio del flusso analogico
+
     SenderAckCreationRequestDetails:
       type: object
       properties:

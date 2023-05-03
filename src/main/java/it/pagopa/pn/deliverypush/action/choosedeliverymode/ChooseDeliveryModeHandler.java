@@ -5,8 +5,6 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
@@ -21,6 +19,8 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.Optional;
+
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
 
 @Component
 @Slf4j
@@ -112,13 +112,8 @@ public class ChooseDeliveryModeHandler {
         String iun = notification.getIun();
         log.debug("Scheduling analog workflow for iun={} id={} ", iun, recIndex);
 
-        String eventId = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .build());
-
-        Instant schedulingDate = timelineService.getTimelineElementDetails(notification.getIun(), eventId, ProbableDateAnalogWorkflowDetailsInt.class )
+        Instant schedulingDate = timelineService.getTimelineElementDetailForSpecificRecipient(notification.getIun(),
+                        recIndex, false, PROBABLE_SCHEDULING_ANALOG_DATE, ProbableDateAnalogWorkflowDetailsInt.class )
                 .map(details -> {
                     log.info("ProbableSchedulingAnalogDate is present, need to schedule analog workflow at={}- iun={} id={} ", details.getSchedulingAnalogDate(), iun, recIndex);
                     return details.getSchedulingAnalogDate();

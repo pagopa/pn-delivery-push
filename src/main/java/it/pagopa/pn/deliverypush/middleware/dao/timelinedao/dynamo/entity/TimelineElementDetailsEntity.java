@@ -83,4 +83,6 @@ public class TimelineElementDetailsEntity {
 
     @Getter(onMethod=@__({@DynamoDbAttribute("registeredLetterCode")})) String registeredLetterCode;
 
+    @Getter(onMethod=@__({@DynamoDbAttribute("schedulingAnalogDate")})) private Instant schedulingAnalogDate;
+
 }

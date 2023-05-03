@@ -80,7 +80,7 @@ public class CourtesyMessageUtils {
                     courtesyAddrIndex = manageCourtesyMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, eventId, courtesyAddress);
 
                 case APPIO ->
-                        courtesyAddrIndex = manageIOMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, eventId, courtesyAddress);
+                    courtesyAddrIndex = manageIOMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, eventId, courtesyAddress);
 
                 default -> handleCourtesyTypeError(notification, recIndex, courtesyAddress);
             }

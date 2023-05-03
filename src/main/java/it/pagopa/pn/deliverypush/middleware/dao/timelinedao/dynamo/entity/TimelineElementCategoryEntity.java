@@ -74,7 +74,9 @@ public enum TimelineElementCategoryEntity {
         
     AAR_GENERATION("AAR_GENERATION"),
 
-    NOT_HANDLED("NOT_HANDLED");
+    NOT_HANDLED("NOT_HANDLED"),
+
+    PROBABLE_SCHEDULING_ANALOG_DATE("PROBABLE_SCHEDULING_ANALOG_DATE");
     
     private final String value;
 
