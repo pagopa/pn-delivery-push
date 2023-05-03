@@ -10,8 +10,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogFailureWorkflowCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.CompletelyUnreachableCreationRequestDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -40,11 +39,11 @@ public class AnalogFailureDeliveryCreationResponseHandler {
         PnAuditLogEvent logEvent = createAuditLog(notification, recIndex, actionDetails.getKey());
         logEvent.log();
         
-        Optional<AnalogFailureWorkflowCreationRequestDetailsInt> analogFailureWorkflowCreationRequestDetailsIntOpt = timelineService.getTimelineElementDetails(iun, actionDetails.getTimelineId(), AnalogFailureWorkflowCreationRequestDetailsInt.class);
+        Optional<CompletelyUnreachableCreationRequestDetails> analogFailureWorkflowCreationRequestDetailsIntOpt = timelineService.getTimelineElementDetails(iun, actionDetails.getTimelineId(), CompletelyUnreachableCreationRequestDetails.class);
 
         if (analogFailureWorkflowCreationRequestDetailsIntOpt.isPresent()) {
-            AnalogFailureWorkflowCreationRequestDetailsInt timelineDetails = analogFailureWorkflowCreationRequestDetailsIntOpt.get();
-            // recupero la data di generazione dell'AAR, per poterla inserire nell'atto opponibile
+            CompletelyUnreachableCreationRequestDetails timelineDetails = analogFailureWorkflowCreationRequestDetailsIntOpt.get();
+            // recupero la data di generazione del DEPOSITO AAR, per poterla inserire nell'atto opponibile
             TimelineElementInternal analogFailureWorkflowTimelineElement = retrieveAnalogFailureWorkflowTimelineElement(notification.getIun(), recIndex);
 
             completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex, timelineDetails.getLegalFactId(), analogFailureWorkflowTimelineElement.getTimestamp());

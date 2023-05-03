@@ -262,7 +262,7 @@ public enum TimelineEventId {
     },
 
 
-    ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST("ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST") {
+    COMPLETELY_UNREACHABLE_CREATION_REQUEST("COMPLETELY_UNREACHABLE_CREATION_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
