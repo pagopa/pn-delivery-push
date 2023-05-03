@@ -104,8 +104,7 @@ info:
           <li><strong>DIGITAL_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio digitale: <strong>tutti i tentativi di invio ai domicili digitali sono falliti.</strong></em></li>
           <li><strong>ANALOG_SUCCESS_WORKFLOW </strong><em>Completato con successo il workflow di invio cartaceo.</em></li>
           <li><strong>ANALOG_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio cartaceo. NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE</em></li>
-          <li><strong>ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo</em></li>
-           <li><strong>PREPARE_SIMPLE_REGISTERED_LETTER </strong><em>Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel</em></li>
+          <li><strong>PREPARE_SIMPLE_REGISTERED_LETTER </strong><em>Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel</em></li>
           <li><strong>SEND_SIMPLE_REGISTERED_LETTER </strong><em>Invio di raccomandata semplice</em></li>
           <li><strong>SIMPLE_REGISTERED_LETTER_PROGRESS </strong><em>Ricezione informazioni intermedia relative ad una notificazione cartacea semplice</em></li>
           <li><strong>NOTIFICATION_VIEWED_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage</em></li>
@@ -115,6 +114,7 @@ info:
           <li><strong>SEND_ANALOG_FEEDBACK </strong><em>Ricezione esito dell'invio cartaceo.
             </br>Il valore del campo details.responseStatus contiene l’esito della notifica digitale.Può assumere i valori di OK o KO .</em></li>
           <li><strong>SEND_ANALOG_DOMICILE </strong><em>Invio cartaceo dell’avviso di notifica</em></li>
+          <li><strong>COMPLETELY_UNREACHABLE_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo</em></li>
           <li><strong>COMPLETELY_UNREACHABLE </strong><em>Tutti i destinatari risultano irraggiungibili</em></li>
           <li><strong>REQUEST_REFUSED </strong><em>Richiesta di notifica rifiutata per fallimento di validazione.</em></li>
           <li><strong>AAR_GENERATION </strong><em>Generazione dell’AAR (Avviso di Avvenuta Ricezione)</em></li>
