@@ -402,7 +402,6 @@ components:
       type: object
       required:
         - recIndex
-        - digitalAddress
         - digitalAddressSource
         - sentAttemptMade
         - lastAttemptDate
@@ -459,7 +458,6 @@ components:
       type: object
       required:
         - recIndex
-        - digitalAddress
         - digitalAddressSource
         - retryNumber
       properties:
