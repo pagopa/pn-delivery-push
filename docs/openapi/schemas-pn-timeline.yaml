@@ -9,6 +9,8 @@ components:
       description: >
         stato di avanzamento del processo di notifica:`
           * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `VALIDATE_NORMALIZE_ADDRESS` - Richiesta di validazione e normalizzazione indirizzi fisici
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
@@ -45,6 +47,8 @@ components:
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
       enum:
         - SENDER_ACK_CREATION_REQUEST
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
         - GET_ADDRESS
@@ -110,6 +114,7 @@ components:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
+        - "$ref": "#/components/schemas/NormalizedAddressDetails"
         - "$ref": "#/components/schemas/NotificationRequestAcceptedDetails"
         - "$ref": "#/components/schemas/AnalogFailureWorkflowDetails"
         - "$ref": "#/components/schemas/AnalogSuccessWorkflowDetails"
@@ -947,6 +952,22 @@ components:
           type: string
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+
+    NormalizedAddressDetails:
+      type: object
+      required:
+        - recIndex
+        - oldAddress
+        - normalizedAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        oldAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        normalizedAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
     DigitalAddressSource:
       type: string

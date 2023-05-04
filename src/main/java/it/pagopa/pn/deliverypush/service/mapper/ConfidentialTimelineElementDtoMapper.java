@@ -103,4 +103,5 @@ public class ConfidentialTimelineElementDtoMapper {
 
         return dtoIntBuilder.build();
     }
+
 }

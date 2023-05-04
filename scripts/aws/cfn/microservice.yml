@@ -227,7 +227,15 @@ Parameters:
   ExternalChannelBaseUrl:
     Type: String
     Description: 'External channel base url'
-
+  
+  AddressManagerBaseUrl:
+    Type: String
+    Description: 'Address manager base url'
+  
+  AddressManagerApiKey:
+    Type: String
+    Description: 'ApiKey to access address manager services'
+    
   SandboxSafeStorageBaseUrl:
     Type: String
     Description: 'Safe storage base url'
@@ -286,7 +294,23 @@ Parameters:
   SafeStorageToDeliveryPushQueueAgeAlarmARN:
     Type: String
     Description: SafeStorage-to-delivery-push queue age alarm ARN
+  
+  AddressManagerToDeliveryPushQueueName:
+    Type: String
+    Description: 'AddressManager-to-delivery-push queue Name'
 
+  AddressManagerToDeliveryPushQueueARN:
+    Type: String
+    Description: 'AddressManager-to-delivery-push queue ARN'
+
+  AddressManagerToDeliveryPushQueueAlarmARN:
+    Type: String
+    Description: AddressManager-to-delivery-push queue alarm ARN
+
+  AddressManagerToDeliveryPushQueueAgeAlarmARN:
+    Type: String
+    Description: AddressManager-to-delivery-push queue age alarm ARN
+  
   DoneActionsQueueAlarmARN:
     Type: String
     Description: delivery push actions queue dlq alarm ARN
@@ -495,7 +519,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -518,7 +542,9 @@ Resources:
         ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
         ContainerEnvEntry50: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
         ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
-
+        ContainerEnvEntry52: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=${AddressManagerApiKey}'
+        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
@@ -556,6 +582,7 @@ Resources:
               - !Ref DoneActionsQueueARN
               - !Ref SafeStorageToDeliveryPushQueueARN
               - !Ref NationalRegistries2DeliveryPushQueueARN
+              - !Ref AddressManagerToDeliveryPushQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -745,6 +772,8 @@ Resources:
             - !Ref ScheduledActionsQueueAgeAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
+            - !Ref AddressManagerToDeliveryPushQueueAlarmARN
+            - !Ref AddressManagerToDeliveryPushQueueAgeAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -753,6 +782,7 @@ Resources:
             - !Ref DoneActionsQueueARN
             - !Ref SafeStorageToDeliveryPushQueueARN
             - !Ref NationalRegistries2DeliveryPushQueueARN
+            - !Ref AddressManagerToDeliveryPushQueueARN
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'

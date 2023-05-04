@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
@@ -39,16 +40,18 @@ public class SchedulerServiceMock implements SchedulerService {
   private final ChooseDeliveryModeHandler chooseDeliveryModeHandler;
   private final DocumentCreationResponseHandler documentCreationResponseHandler;
   private final NotificationValidationActionHandler notificationValidationActionHandler;
-  
+  private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
+
   public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
                               @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
-                              @Lazy AnalogWorkflowHandler analogWorkflowHandler, 
+                              @Lazy AnalogWorkflowHandler analogWorkflowHandler,
                               @Lazy RefinementHandler refinementHandler,
                               @Lazy InstantNowSupplier instantNowSupplier,
                               @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
                               @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
                               @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
-                              @Lazy NotificationValidationActionHandler notificationValidationActionHandler) {
+                              @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
+                              @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest) {
     this.digitalWorkFlowHandler = digitalWorkFlowHandler;
     this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
     this.analogWorkflowHandler = analogWorkflowHandler;
@@ -58,6 +61,7 @@ public class SchedulerServiceMock implements SchedulerService {
     this.chooseDeliveryModeHandler = chooseDeliveryModeHandler;
     this.documentCreationResponseHandler = documentCreationResponseHandler;
     this.notificationValidationActionHandler = notificationValidationActionHandler;
+    this.receivedLegalFactCreationRequest = receivedLegalFactCreationRequest;
   }
 
   @Override
@@ -90,6 +94,8 @@ public class SchedulerServiceMock implements SchedulerService {
                   iun + "_retry_action_" + recIndex);
           case NOTIFICATION_VALIDATION ->
                   notificationValidationActionHandler.validateNotification(iun, (NotificationValidationActionDetails) actionDetails);
+          case SCHEDULE_RECEIVED_LEGALFACT_GENERATION ->
+                  receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(iun);
           default ->
                   log.error("[TEST] actionType not found {}", actionType);
         }
@@ -188,6 +194,11 @@ public class SchedulerServiceMock implements SchedulerService {
   @Override
   public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails) {
     this.scheduleEvent(iun, null, dateToSchedule, actionType, actionDetails);
+  }
+
+  @Override
+  public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType){
+    this.scheduleEvent(iun, null, dateToSchedule, actionType);
   }
 
   @Override

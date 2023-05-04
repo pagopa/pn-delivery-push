@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
@@ -36,7 +37,8 @@ public class ActionHandler {
     private final ChooseDeliveryModeHandler chooseDeliveryModeHandler;
     private final DocumentCreationResponseHandler documentCreationResponseHandler;
     private final NotificationValidationActionHandler notificationValidationActionHandler;
-    
+    private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
+
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
         return message -> {
@@ -194,4 +196,20 @@ public class ActionHandler {
             }
         };
     }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushReceivedLegalFactGeneration() {
+        return message -> {
+            try {
+                log.debug("pnDeliveryPushReceivedLegalFactGeneration, message {}", message);
+                Action action = message.getPayload();
+
+                receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(action.getIun());
+            } catch (Exception ex) {
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+    
 }

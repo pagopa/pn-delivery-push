@@ -1,6 +1,7 @@
-package it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.publicregistry;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries.NationalRegistriesClientImpl;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.api.AddressApi;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.api.AgenziaEntrateApi;
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.*;

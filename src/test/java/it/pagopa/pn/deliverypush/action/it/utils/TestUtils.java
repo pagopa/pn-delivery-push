@@ -3,9 +3,7 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
-import it.pagopa.pn.deliverypush.action.it.mockbean.PaperChannelMock;
-import it.pagopa.pn.deliverypush.action.it.mockbean.SafeStorageClientMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
@@ -667,6 +665,29 @@ public class TestUtils {
         int upperbound = 10000;
         int int_random = rand.nextInt(upperbound);
         return "XX_"+int_random;
+    }
+
+    public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock, 
+                                               PnDeliveryClientMock pnDeliveryClientMock, 
+                                               UserAttributesClientMock userAttributesClientMock, 
+                                               NationalRegistriesClientMock nationalRegistriesClientMock, 
+                                               TimelineDaoMock timelineDaoMock, 
+                                               PaperNotificationFailedDaoMock paperNotificationFailedDaoMock, 
+                                               PnDataVaultClientMock pnDataVaultClientMock, 
+                                               PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock, 
+                                               DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
+                                               AddressManagerClientMock addressManagerClientMock
+    ) {
+        safeStorageClientMock.clear();
+        pnDeliveryClientMock.clear();
+        userAttributesClientMock.clear();
+        nationalRegistriesClientMock.clear();
+        timelineDaoMock.clear();
+        paperNotificationFailedDaoMock.clear();
+        pnDataVaultClientMock.clear();
+        pnDataVaultClientReactiveMock.clear();
+        documentCreationRequestDaoMock.clear();
+        addressManagerClientMock.clear();
     }
     
     @Builder
