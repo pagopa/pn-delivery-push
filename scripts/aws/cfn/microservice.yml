@@ -227,11 +227,7 @@ Parameters:
   ExternalChannelBaseUrl:
     Type: String
     Description: 'External channel base url'
-  
-  AddressManagerBaseUrl:
-    Type: String
-    Description: 'Address manager base url'
-  
+
   AddressManagerApiKey:
     Type: String
     Description: 'ApiKey to access address manager services'
