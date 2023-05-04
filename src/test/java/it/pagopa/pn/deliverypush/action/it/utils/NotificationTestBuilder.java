@@ -42,11 +42,6 @@ public class NotificationTestBuilder {
         return this;
     }
 
-    public NotificationTestBuilder withNotificationRecipient(List<NotificationRecipientInt> recipients) {
-        this.recipients = recipients;
-        return this;
-    }
-
     public NotificationTestBuilder withNotificationRecipients(List<NotificationRecipientInt> recipientCollections) {
         this.recipients = recipientCollections;
         return this;

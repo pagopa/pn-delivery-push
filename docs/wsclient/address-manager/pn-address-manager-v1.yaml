@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  termsOfService: https://termofservice.it
+  x-api-id: api-address-manager-private
+  x-summary: OpenAPI servizio AddressManager ad uso solo interno
+  title: AddressManager
+  description: |-
+    ## Abstract
+    Questo servizio permette di validare, normalizzare e deduplicare indirizzi fisici, nazionali ed internazionali
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: PN software license
+    url: https://www.pn.pagopa.it/LICENSE
+  version: '1.0.0'
+servers:
+  - url: https://api.addressmanager.pagopa.local
+    description: Server url
+tags:
+  - name: NormalizeAddressService
+    description: Operazioni di Normalizzazione Indirizzi
+  - name: DeduplicatesAddressService
+    description: Operazioni di Deduplica e Normalizzazione indirizzi
+paths: 
+ 
+  /address-private/normalize:
+    post: 
+      summary: Richiesta di normalizzazione per una lista di indirizzi
+      description: Servizio Asincrono per la normalizzazione di un indirizzo. La risposta arriva su una specifica coda da configurare #FIXME: Gestire lista?
+      tags:
+        - NormalizeAddressService
+      operationId: normalize
+      parameters: 
+        - $ref: "#/components/parameters/xPagopaAddrManCxId"
+        - $ref: "#/components/parameters/xPagopaAddrManApiKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas-pn-address.yaml#/components/schemas/NormalizeItemsRequest"  
+        required: true
+      responses: 
+        "202":
+          description: Richiesta presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-address.yaml#/components/schemas/AcceptedResponse'
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        "500":
+          description: InternalServerError
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+      callbacks:
+        normalizeResponse:
+          'normalizeResponsePath':
+            put:
+              summary: Evento inoltrato su eventBridge
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        $ref: './schemas-pn-address.yaml#/components/schemas/NormalizeItemsResult'
+                  
+  /address-private/deduplicates:
+    post: 
+      summary: Richiesta di deduplica per una coppia di indirizzi
+      description:  |- 
+            Servizio Sincrono per la deduplica di indirizzi. 
+            I due indirizzi vengono confrontatati e viene restituito il risultato del confronto
+            In caso di disuguaglianza viene restituita anche la versione Normalizzata del secondo
+      tags:
+        - DeduplicatesAddressService
+      operationId: deduplicates
+      parameters: 
+        - $ref: "#/components/parameters/xPagopaAddrManCxId"
+        - $ref: "#/components/parameters/xPagopaAddrManApiKey"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas-pn-address.yaml#/components/schemas/DeduplicatesRequest"
+        required: true
+      responses: 
+        "200":
+          description: Risultato servizio deduplica
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-address.yaml#/components/schemas/DeduplicatesResponse'
+        "400":
+          description:  Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        "500":
+          description: InternalServerError
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        
+
+components: 
+
+  parameters: 
+    xPagopaAddrManCxId:
+      name: "pn-address-manager-cx-id"
+      in: header
+      schema:
+        type: string
+      required: true
+    xPagopaAddrManApiKey:
+      name: x-api-key
+      description: Credenziale di accesso
+      in: header
+      required: true
+      schema:
+        type: string
+  
+  securitySchemes:        # ONLY EXTERNAL
+    ApiKeyAuth:           # ONLY EXTERNAL
+      type: apiKey        # ONLY EXTERNAL
+      in: header          # ONLY EXTERNAL
+      name: x-api-key     # ONLY EXTERNAL
+security:                 # ONLY EXTERNAL
+  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+              

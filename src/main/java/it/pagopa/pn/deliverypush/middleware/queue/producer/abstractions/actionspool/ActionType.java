@@ -16,12 +16,22 @@ public enum ActionType {
               details.getRetryAttempt());
     }
   },
+
+  SCHEDULE_RECEIVED_LEGALFACT_GENERATION(NotHandledDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("schedule_creation_received_iun_%s",
+              action.getIun()
+      );
+    }
+  },
   
   START_RECIPIENT_WORKFLOW(RecipientsWorkflowDetails.class) {
     @Override
     public String buildActionId(Action action) {
-      return String.format("%s_start_recipient_workflow_%d", action.getIun(),
-          action.getRecipientIndex());
+      return String.format("%s_start_recipient_workflow_%d",
+              action.getIun(), 
+              action.getRecipientIndex());
     }
   },
 

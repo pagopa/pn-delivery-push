@@ -233,6 +233,7 @@ public class RecipientMapper {
         physicalAddress.setAddressDetails(internalPhysicalAddress.getAddressDetails());
         physicalAddress.setAt(internalPhysicalAddress.getAt());
         physicalAddress.setMunicipality(internalPhysicalAddress.getMunicipality());
+        physicalAddress.setMunicipalityDetails(internalPhysicalAddress.getMunicipalityDetails());
         physicalAddress.setForeignState(internalPhysicalAddress.getForeignState());
         physicalAddress.setProvince(internalPhysicalAddress.getProvince());
         physicalAddress.setZip(internalPhysicalAddress.getZip());

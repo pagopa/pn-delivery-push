@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.externalclient.publicregistry;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries;
 
 import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.CheckTaxIdOK;
 

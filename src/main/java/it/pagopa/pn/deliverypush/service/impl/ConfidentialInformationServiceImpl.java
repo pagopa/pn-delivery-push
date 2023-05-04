@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
@@ -10,6 +12,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.Pn
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.mapper.ConfidentialTimelineElementDtoMapper;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationRecipientAddressesDtoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -135,5 +138,16 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
                     else 
                         return null;
                 });
+    }
+    
+    @Override
+    public Mono<Void> updateNotificationAddresses(String iun, Boolean normalized, List<NotificationRecipientAddressesDtoInt> listAddressDtoInt){
+        log.debug("Start updateNotificationAddresses - iun={}", iun);
+
+        List<NotificationRecipientAddressesDto> listAddressExt = listAddressDtoInt.stream().map(
+                NotificationRecipientAddressesDtoMapper::internalToExternal
+        ).toList();
+        
+        return pnDataVaultClientReactive.updateNotificationAddressesByIun(iun, normalized, listAddressExt);
     }
 }
