@@ -22,7 +22,8 @@
     "MaxTasksNumber": "1",
     "SendNotificationAttachments": "analog-notification",
     "SafeStorageFileNotFoundRetry": "false",
-    "LandingUrl": "https://www.dev.pn.pagopa.it"
+    "LandingUrl": "https://www.dev.pn.pagopa.it",
+    "AddressManagerBaseUrl": "http://alb.confidential.pn.internal:8080"
   }
 }
 
