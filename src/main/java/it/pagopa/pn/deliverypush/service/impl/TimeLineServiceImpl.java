@@ -23,43 +23,32 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationSta
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.StatusService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationStatusHistoryElementMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementMapper;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.*;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
     private final SchedulerService schedulerService;
+    private final NotificationService notificationService;
 
-    public TimeLineServiceImpl(TimelineDao timelineDao,
-                               StatusUtils statusUtils,
-                               StatusService statusService,
-                               ConfidentialInformationService confidentialInformationService,
-                               SchedulerService schedulerService) {
-        this.timelineDao = timelineDao;
-        this.statusUtils = statusUtils;
-        this.confidentialInformationService = confidentialInformationService;
-        this.statusService = statusService;
-        this.schedulerService = schedulerService;
-    }
 
     @Override
     public void addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
@@ -342,22 +331,31 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     @Override
-    public ProbableSchedulingAnalogDateResponse getSchedulingAnalogDate(String iun, Integer recipientIndex) {
+    public Mono<ProbableSchedulingAnalogDateResponse> getSchedulingAnalogDate(String iun, String recipientId) {
 
-        Optional<ProbableDateAnalogWorkflowDetailsInt> details = getTimelineElementDetailForSpecificRecipient(iun,
-                recipientIndex, false, PROBABLE_SCHEDULING_ANALOG_DATE, ProbableDateAnalogWorkflowDetailsInt.class);
+        return notificationService.getNotificationByIunReactive(iun)
+                .map(notificationRecipientInts -> getRecipientIndex(notificationRecipientInts, recipientId))
+                .map(recIndex -> getTimelineElementDetailForSpecificRecipient(iun, recIndex, false, PROBABLE_SCHEDULING_ANALOG_DATE, ProbableDateAnalogWorkflowDetailsInt.class))
+                .flatMap(optionalDetails -> optionalDetails.map(Mono::just).orElseGet(Mono::empty))
+                .map(details -> new ProbableSchedulingAnalogDateResponse()
+                        .iun(iun)
+                        .recIndex(details.getRecIndex())
+                        .schedulingAnalogDate(details.getSchedulingAnalogDate()))
+                .switchIfEmpty(Mono.error(() -> {
+                    String message = String.format("ProbableSchedulingDateAnalog not found for iun: %s, recipientId: %s", iun, recipientId);
+                    return new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+                }));
 
-        if(details.isPresent()) {
-            return new ProbableSchedulingAnalogDateResponse()
-                    .iun(iun)
-                    .recIndex(recipientIndex)
-                    .schedulingAnalogDate(details.get().getSchedulingAnalogDate());
+    }
+
+    private int getRecipientIndex(NotificationInt notificationInt, String recipientId) {
+        for(int i = 0; i < notificationInt.getRecipients().size(); i++ ) {
+            if(notificationInt.getRecipients().get(i).getInternalId().equals(recipientId)) {
+                return i;
+            }
         }
 
-        else {
-            String message = String.format("ProbableSchedulingDateAnalog not found for iun: %s, recIndex: %d", iun, recipientIndex);
-            throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
-        }
+        throw new PnInternalException(String.format("Recipient %s not found", recipientId), ERROR_CODE_DELIVERYPUSH_NOTFOUND);
     }
 
     public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,

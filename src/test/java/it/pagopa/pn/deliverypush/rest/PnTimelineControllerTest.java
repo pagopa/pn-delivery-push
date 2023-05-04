@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -131,22 +132,22 @@ class PnTimelineControllerTest {
     @Test
     void getSchedulingAnalogDateOk() {
         String iun = "iun";
-        int recIndex = 0;
+        String recipientId = "cxId";
 
         ProbableSchedulingAnalogDateResponse responseExpected = new ProbableSchedulingAnalogDateResponse()
                 .iun(iun)
-                .recIndex(recIndex)
+                .recIndex(0)
                 .schedulingAnalogDate(Instant.now());
-        Mockito.when(service.getSchedulingAnalogDate(iun, recIndex))
-                .thenReturn( responseExpected );
 
+        Mockito.when(service.getSchedulingAnalogDate(iun, recipientId))
+                .thenReturn(Mono.just(responseExpected));
 
         webTestClient.get()
                 .uri(
                         uriBuilder ->
                                 uriBuilder
-                                        .path( "/delivery-push-private/scheduling-analog-date/{iun}/{recipientIndex}")
-                                        .build(iun, recIndex)
+                                        .path( "/delivery-push-private/scheduling-analog-date/{iun}/{recipientId}")
+                                        .build(iun, recipientId)
                 )
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .exchange()
@@ -156,16 +157,16 @@ class PnTimelineControllerTest {
                     Assertions.assertEquals(responseExpected, response.getResponseBody());
                 });
 
-        Mockito.verify(service).getSchedulingAnalogDate(iun, recIndex);
+        Mockito.verify(service).getSchedulingAnalogDate(iun, recipientId);
 
     }
 
     @Test
     void getSchedulingAnalogDateNotFound() {
         String iun = "iun";
-        int recIndex = 0;
+        String recipientId = "cxId";
 
-        Mockito.when(service.getSchedulingAnalogDate(iun, recIndex))
+        Mockito.when(service.getSchedulingAnalogDate(iun, recipientId))
                 .thenThrow( new PnNotFoundException("Not Found", "", ""));
 
 
@@ -173,8 +174,8 @@ class PnTimelineControllerTest {
                 .uri(
                         uriBuilder ->
                                 uriBuilder
-                                        .path( "/delivery-push-private/scheduling-analog-date/{iun}/{recipientIndex}")
-                                        .build(iun, recIndex)
+                                        .path( "/delivery-push-private/scheduling-analog-date/{iun}/{recipientId}")
+                                        .build(iun, recipientId)
                 )
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .exchange()
@@ -186,7 +187,7 @@ class PnTimelineControllerTest {
                     Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), problem.getStatus());
                 });
 
-        Mockito.verify(service).getSchedulingAnalogDate(iun, recIndex);
+        Mockito.verify(service).getSchedulingAnalogDate(iun, recipientId);
 
     }
 }

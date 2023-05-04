@@ -81,7 +81,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/delivery-push-private/scheduling-analog-date/{iun}/{recipientIndex}':
+  '/delivery-push-private/scheduling-analog-date/{iun}/{recipientInternalId}':
     get:
       summary: Restituisce la data probabile di inizio del flusso analogico
       description: >-
@@ -92,7 +92,7 @@ paths:
       operationId: getSchedulingAnalogDate
       parameters:
         - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathRecipientIndex'
+        - $ref: '#/components/parameters/pathRecipientInternalId'
       responses:
         '200':
           description: OK

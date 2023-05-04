@@ -39,10 +39,11 @@ public class PnTimelineController implements TimelineAndStatusApi {
 
     @Override
     public Mono<ResponseEntity<ProbableSchedulingAnalogDateResponse>> getSchedulingAnalogDate(String iun,
-                                                                                              Integer recipientIndex,
+                                                                                              String recipientId,
                                                                                               final ServerWebExchange exchange) {
 
-        return Mono.just(ResponseEntity.ok(timelineService.getSchedulingAnalogDate(iun, recipientIndex)));
+        return timelineService.getSchedulingAnalogDate(iun, recipientId)
+                .map(ResponseEntity::ok);
 
     }
 

@@ -19,13 +19,16 @@ import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -43,15 +46,18 @@ class TimeLineServiceImplTest {
     private ConfidentialInformationService confidentialInformationService;
     private SchedulerService schedulerService;
 
+    private NotificationService notificationService;
+
     @BeforeEach
     void setup() {
         timelineDao = Mockito.mock( TimelineDao.class );
         statusUtils = Mockito.mock( StatusUtils.class );
         statusService = Mockito.mock( StatusService.class );
+
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
-
-        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, statusService, confidentialInformationService, schedulerService);
+        notificationService = Mockito.mock(NotificationService.class);
+        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
     }
 
     @Test
@@ -440,11 +446,11 @@ class TimeLineServiceImplTest {
     @Test
     void getSchedulingAnalogDateOKTest() {
         final String iun = "iun1";
-        final int recIndex = 0;
+        final String recipientId = "cxId";
 
         String timelineElementIdExpected = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
                 .iun(iun)
-                .recIndex(recIndex)
+                .recIndex(0)
                 .build());
 
         TimelineElementInternal timelineElementExpected = TimelineElementInternal.builder()
@@ -457,19 +463,26 @@ class TimeLineServiceImplTest {
                         .build())
                 .build();
 
+        Mockito.when(notificationService.getNotificationByIunReactive(iun))
+                .thenReturn(Mono.just(NotificationInt.builder()
+                        .recipients(List.of(NotificationRecipientInt.builder()
+                                .internalId(recipientId)
+                                .build()))
+                        .build()));
+
         Mockito.when(timelineDao.getTimeline(iun))
                 .thenReturn(Set.of(timelineElementExpected));
 
         Mockito.when(confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineElementIdExpected))
                 .thenReturn(Optional.empty());
 
-        ProbableSchedulingAnalogDateResponse schedulingAnalogDateActual = timeLineService.getSchedulingAnalogDate(iun, recIndex);
+        ProbableSchedulingAnalogDateResponse schedulingAnalogDateActual = timeLineService.getSchedulingAnalogDate(iun, recipientId).block();
 
         assertThat(schedulingAnalogDateActual.getSchedulingAnalogDate())
                 .isEqualTo(((ProbableDateAnalogWorkflowDetailsInt) timelineElementExpected.getDetails()).getSchedulingAnalogDate());
 
         assertThat(schedulingAnalogDateActual.getIun()).isEqualTo(iun);
-        assertThat(schedulingAnalogDateActual.getRecIndex()).isEqualTo(recIndex);
+        assertThat(schedulingAnalogDateActual.getRecIndex()).isZero();
 
 
     }
@@ -477,13 +490,21 @@ class TimeLineServiceImplTest {
     @Test
     void getSchedulingAnalogDateNotFoundTest() {
         final String iun = "iun1";
-        final int recIndex = 0;
+        final String recipientId = "cxId";
+
+        Mockito.when(notificationService.getNotificationByIunReactive(iun))
+                .thenReturn(Mono.just(NotificationInt.builder()
+                        .recipients(List.of(NotificationRecipientInt.builder()
+                                .internalId(recipientId)
+                                .build()))
+                        .build()));
 
         Mockito.when(timelineDao.getTimeline(iun))
                 .thenReturn(Set.of());
 
 
-        Assertions.assertThrows(PnNotFoundException.class, () -> timeLineService.getSchedulingAnalogDate(iun, recIndex));
+        Executable executable = () -> timeLineService.getSchedulingAnalogDate(iun, recipientId).block();
+        Assertions.assertThrows(PnNotFoundException.class, executable);
 
     }
     
