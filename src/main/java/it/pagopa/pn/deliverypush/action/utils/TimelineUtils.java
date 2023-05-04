@@ -1119,16 +1119,6 @@ public class TimelineUtils {
         return notificationViewTimelineElement.isPresent();
     }
 
-    public Optional<TimelineElementInternal> getProbableSchedulingDateAnalogWorkflowElement(String iun, Integer recIndex) {
-        String elementId = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex)
-                        .build());
-
-        return timelineService.getTimelineElement(iun, elementId);
-    }
-
     private Optional<TimelineElementInternal> getNotificationView(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()
