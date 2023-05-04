@@ -45,6 +45,7 @@ components:
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -83,7 +84,8 @@ components:
         - AAR_CREATION_REQUEST
         - AAR_GENERATION
         - NOT_HANDLED
-    
+        - PROBABLE_SCHEDULING_ANALOG_DATE
+
     TimelineElement:
       type: object
       additionalProperties: false
@@ -149,6 +151,7 @@ components:
         - "$ref": "#/components/schemas/NotificationPaidDetails"
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
+        - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -170,7 +173,7 @@ components:
         generatedAarUrl:
           type: string
           description: Chiave per recupero da safe-storage del documento aar
-        
+
 
     CompletelyUnreachableCreationRequestDetails:
       type: object
@@ -944,6 +947,21 @@ components:
         registeredLetterCode:
           type: string
           description: Codice della raccomandata
+
+    ProbableDateAnalogWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - schedulingAnalogDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        schedulingAnalogDate:
+          type: string
+          format: date-time
+          description: Data probabile di inizio del flusso analogico
 
     SenderAckCreationRequestDetails:
       type: object

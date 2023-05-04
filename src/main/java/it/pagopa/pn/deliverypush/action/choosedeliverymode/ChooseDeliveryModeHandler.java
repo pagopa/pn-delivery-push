@@ -1,17 +1,18 @@
 package it.pagopa.pn.deliverypush.action.choosedeliverymode;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -19,29 +20,19 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
+
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class ChooseDeliveryModeHandler {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final SchedulerService schedulerService;
     private final NationalRegistriesService nationalRegistriesService;
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final NotificationService notificationService;
+    private final TimelineService timelineService;
 
-    public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils,
-                                     DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                     SchedulerService schedulerService,
-                                     NationalRegistriesService nationalRegistriesService,
-                                     PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                     NotificationService notificationService) {
-        this.chooseDeliveryUtils = chooseDeliveryUtils;
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
-        this.schedulerService = schedulerService;
-        this.nationalRegistriesService = nationalRegistriesService;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-        this.notificationService = notificationService;
-    }
 
     /**
      * Handle notification type choice (DIGITAL or ANALOG)
@@ -121,19 +112,18 @@ public class ChooseDeliveryModeHandler {
         String iun = notification.getIun();
         log.debug("Scheduling analog workflow for iun={} id={} ", iun, recIndex);
 
-        Optional<SendCourtesyMessageDetailsInt> sendCourtesyMessageDetailsOpt = chooseDeliveryUtils.getFirstSentCourtesyMessage(iun, recIndex);
-        Instant schedulingDate;
+        Instant schedulingDate = timelineService.getTimelineElementDetailForSpecificRecipient(notification.getIun(),
+                        recIndex, false, PROBABLE_SCHEDULING_ANALOG_DATE, ProbableDateAnalogWorkflowDetailsInt.class )
+                .map(details -> {
+                    log.info("ProbableSchedulingAnalogDate is present, need to schedule analog workflow at={}- iun={} id={} ", details.getSchedulingAnalogDate(), iun, recIndex);
+                    return details.getSchedulingAnalogDate();
+                })
+                .orElseGet(() -> {
+                    log.info("Courtesy message is not present, analog workflow can be started now  - iun={} id={} ", iun, recIndex);
+                    return Instant.now();
+                });
 
-        if (sendCourtesyMessageDetailsOpt.isPresent()) {
-            SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
-            Instant sendDate = sendCourtesyMessageDetails.getSendDate();
-            
-            schedulingDate = sendDate.plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForReadCourtesyMessage());//5 Days
-            log.info("Courtesy message is present, need to schedule analog workflow at={} courtesySendDate is {}- iun={} id={} ", schedulingDate, sendDate, iun, recIndex);
-        } else {
-            schedulingDate = Instant.now();
-            log.info("Courtesy message is not present, analog workflow can be started now  - iun={} id={} ", iun, recIndex);
-        }
+
         chooseDeliveryUtils.addScheduleAnalogWorkflowToTimeline(recIndex, notification);
         schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.ANALOG_WORKFLOW);
     }

@@ -669,6 +669,7 @@ components:
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -707,6 +708,7 @@ components:
         - AAR_CREATION_REQUEST
         - AAR_GENERATION
         - NOT_HANDLED
+        - PROBABLE_SCHEDULING_ANALOG_DATE
   responses: {}
   securitySchemes:
     api_key_openapi:

@@ -232,7 +232,19 @@ public class TimelineUtils {
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, digitalAddressFeedback.getEventTimestamp(), details, timelineBuilder);
     }
-    
+
+    public TimelineElementInternal buildProbableDateSchedulingAnalogTimelineElement(Integer recIndex, NotificationInt notification,
+                                                                                    String eventId, Instant schedulingAnalogDate) {
+        log.debug("buildProbableDateSchedulingAnalogTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
+
+        ProbableDateAnalogWorkflowDetailsInt details = ProbableDateAnalogWorkflowDetailsInt.builder()
+                .recIndex(recIndex)
+                .schedulingAnalogDate(schedulingAnalogDate)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE, eventId, details);
+    }
+
     public TimelineElementInternal buildSendCourtesyMessageTimelineElement(Integer recIndex, NotificationInt notification, CourtesyDigitalAddressInt address, 
                                                                            Instant sendDate, String eventId, IoSendMessageResultInt ioSendMessageResult) {
         log.debug("buildSendCourtesyMessageTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
@@ -1062,12 +1074,12 @@ public class TimelineUtils {
         log.debug("checkNotificationIsViewedOrPaid - iun={} recIndex={}", iun, recIndex);
 
         boolean isNotificationViewed = checkIsNotificationViewed(iun, recIndex);
-        
+
         if (! isNotificationViewed){
             log.debug("notification is not viewed need to check if is paid - iun={} recIndex={}", iun, recIndex);
             return checkIsNotificationPaid(iun);
         }
-        
+
         return true;
     }
 
@@ -1078,7 +1090,7 @@ public class TimelineUtils {
                         .build());
 
         Set<TimelineElementInternal> notificationPaidElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
-        
+
         boolean notificationPaid = notificationPaidElements != null && !notificationPaidElements.isEmpty();
         log.debug("NotificationPaid value is={}", notificationPaid);
 
@@ -1106,7 +1118,7 @@ public class TimelineUtils {
         Optional<TimelineElementInternal> notificationViewTimelineElement = getNotificationView(iun, recIndex);
         return notificationViewTimelineElement.isPresent();
     }
-    
+
     private Optional<TimelineElementInternal> getNotificationView(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()

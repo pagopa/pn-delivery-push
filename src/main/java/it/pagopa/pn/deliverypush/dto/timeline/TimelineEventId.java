@@ -64,6 +64,17 @@ public enum TimelineEventId {
         }
 
     },
+
+    PROBABLE_SCHEDULING_ANALOG_DATE("PROBABLE_SCHEDULING_ANALOG_DATE") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
+        }
+    },
     
     GET_ADDRESS("GET_ADDRESS") {
         @Override

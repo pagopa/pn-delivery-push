@@ -118,6 +118,7 @@ info:
           <li><strong>COMPLETELY_UNREACHABLE </strong><em>Tutti i destinatari risultano irraggiungibili</em></li>
           <li><strong>REQUEST_REFUSED </strong><em>Richiesta di notifica rifiutata per fallimento di validazione.</em></li>
           <li><strong>AAR_GENERATION </strong><em>Generazione dell’AAR (Avviso di Avvenuta Ricezione)</em></li>
+          <li><strong>PROBABLE_SCHEDULING_ANALOG_DATE</strong><em>Data probabile di inizio del flusso analogico</em></li>
         </ul>
       </details>
     </br>
