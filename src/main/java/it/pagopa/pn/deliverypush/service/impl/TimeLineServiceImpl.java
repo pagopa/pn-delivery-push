@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
@@ -355,7 +356,7 @@ public class TimeLineServiceImpl implements TimelineService {
             }
         }
 
-        throw new PnInternalException(String.format("Recipient %s not found", recipientId), ERROR_CODE_DELIVERYPUSH_NOTFOUND);
+        throw new PnValidationRecipientIdNotValidException(String.format("Recipient %s not found", recipientId));
     }
 
     public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,

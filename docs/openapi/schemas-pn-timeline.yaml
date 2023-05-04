@@ -151,6 +151,7 @@ components:
         - "$ref": "#/components/schemas/NotificationPaidDetails"
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
+        - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
 
     NotificationRequestAcceptedDetails:
       type: object

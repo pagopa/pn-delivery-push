@@ -82,7 +82,9 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
         NOT_VALID_ADDRESS("NOT_VALID_ADDRESS"),
         
-        SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE");
+        SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE"),
+
+        RECIPIENT_ID_NOT_VALID("RECIPIENT_ID_NOT_VALID");
 
         private final String value;
 
