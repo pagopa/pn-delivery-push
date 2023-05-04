@@ -539,8 +539,9 @@ Resources:
         ContainerEnvEntry50: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
         ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
         ContainerEnvEntry52: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=${AddressManagerApiKey}'
-        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
+        ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
+        ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
+        MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName

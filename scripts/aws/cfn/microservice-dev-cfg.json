@@ -22,8 +22,7 @@
     "MaxTasksNumber": "1",
     "SendNotificationAttachments": "analog-notification",
     "SafeStorageFileNotFoundRetry": "false",
-    "LandingUrl": "https://www.dev.pn.pagopa.it",
-    "AddressManagerApiKey": "-"
+    "LandingUrl": "https://www.dev.pn.pagopa.it"
   }
 }
 
