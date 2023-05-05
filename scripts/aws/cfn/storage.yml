@@ -31,6 +31,10 @@ Parameters:
     Type: String
     Description: 'Where to send Logs'
   
+  LogRetention:
+    Type: Number
+    Default: 14
+
 Resources:
 
   # Legal Facts S3 Storage
@@ -276,6 +280,7 @@ Resources:
       Parameters:
         LogGroupName: !Sub '${ProjectName}-delivery-push'
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
+        LogGroupRetention: !Ref LogRetention
 
 Outputs:
 
