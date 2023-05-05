@@ -196,7 +196,7 @@ components:
       required: true
       schema:
         type: string
-        pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+        pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
         maxLength: 512
   schemas:
     LegalFactCategory:
@@ -212,6 +212,7 @@ components:
         - ANALOG_DELIVERY
         - RECIPIENT_ACCESS
         - PEC_RECEIPT
+        - ANALOG_FAILURE_DELIVERY
     LegalFactsId:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
       type: object
@@ -222,7 +223,7 @@ components:
         key:
           description: Chiave dell'atto opponibile a terzi generato durante il processo di consegna
           type: string
-          pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'

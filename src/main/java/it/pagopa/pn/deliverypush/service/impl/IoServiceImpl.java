@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO;
 import static it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse.ResultEnum.*;
 
@@ -32,12 +34,12 @@ public class IoServiceImpl implements IoService {
     }
 
     @Override
-    public SendMessageResponse.ResultEnum sendIOMessage(NotificationInt notification, int recIndex) {
+    public SendMessageResponse.ResultEnum sendIOMessage(NotificationInt notification, int recIndex, Instant schedulingAnalogDate) {
         log.info("Start send message to App IO - iun={} id={}", notification.getIun(), recIndex);
 
         NotificationRecipientInt recipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
-        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt, recIndex);
+        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt, recIndex, schedulingAnalogDate);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_DA_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
@@ -72,7 +74,7 @@ public class IoServiceImpl implements IoService {
     }
 
     @NotNull
-    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt, int recIndex) {
+    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt, int recIndex, Instant schedulingAnalogDate) {
         SendMessageRequest sendMessageRequest = new SendMessageRequest();
         sendMessageRequest.setAmount(notification.getAmount());
         sendMessageRequest.setDueDate(notification.getPaymentExpirationDate());
@@ -82,9 +84,8 @@ public class IoServiceImpl implements IoService {
         sendMessageRequest.setIun(notification.getIun());
         sendMessageRequest.setRecipientIndex(recIndex);
         sendMessageRequest.setRecipientInternalID(recipientInt.getInternalId());
-        
-        String subject = notification.getSender().getPaDenomination() +"-"+ notification.getSubject();
-        sendMessageRequest.setSubject(subject);
+        sendMessageRequest.setSubject(notification.getSubject());
+        sendMessageRequest.setSchedulingAnalogDate(schedulingAnalogDate);
 
         return sendMessageRequest;
     }

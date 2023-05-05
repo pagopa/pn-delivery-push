@@ -3,14 +3,9 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
-import it.pagopa.pn.deliverypush.action.it.mockbean.PaperChannelMock;
-import it.pagopa.pn.deliverypush.action.it.mockbean.SafeStorageClientMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -259,12 +254,16 @@ public class TestUtils {
 
     public static void checkExternalChannelPecSendFromTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
                                                                DigitalAddressSourceInt addressSource, TimelineService timelineService) {
+        
+        Boolean isFirstRetry = isPossibileCaseToRepeat(addressSource, sendAttemptMade);
+        
         String timelineEventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
                         .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
+                        .isFirstSendRetry(isFirstRetry)
                         .build()
         );
 
@@ -275,12 +274,26 @@ public class TestUtils {
         Assertions.assertEquals( digitalAddress.getAddress(), ((SendDigitalDetailsInt) timelineElement.getDetails()).getDigitalAddress().getAddress() );
     }
 
+    private static boolean isPossibileCaseToRepeat(DigitalAddressSourceInt digitalAddressSource, int sentAttemptMade) {
+        return (DigitalAddressSourceInt.PLATFORM.equals(digitalAddressSource) ||
+                DigitalAddressSourceInt.GENERAL.equals(digitalAddressSource))
+                &&
+                sentAttemptMade == 1;
+    }
+
     public static void checkIsPresentAcceptanceInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
                                                                DigitalAddressSourceInt addressSource, TimelineService timelineService) {
+
+        Boolean isFirstRetry = isPossibileCaseToRepeat(addressSource, sendAttemptMade);
+        checkAcceptance(iun, recIndex, sendAttemptMade, digitalAddress, addressSource, timelineService, isFirstRetry);
+    }
+
+    public static void checkAcceptance(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, TimelineService timelineService, Boolean isFirstRetry) {
         String timelineEventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
+                        .isFirstSendRetry(isFirstRetry)
                         .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
                         .progressIndex(1)
@@ -300,12 +313,20 @@ public class TestUtils {
 
     public static void checkIsPresentDigitalFeedbackInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
                                                                DigitalAddressSourceInt addressSource, TimelineService timelineService, ResponseStatusInt status) {
+
+        Boolean isFirstRetry = isPossibileCaseToRepeat(addressSource, sendAttemptMade);
+
+        checkDigitalFeedback(iun, recIndex, sendAttemptMade, digitalAddress, addressSource, timelineService, status, isFirstRetry);
+    }
+
+    public static void checkDigitalFeedback(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, TimelineService timelineService, ResponseStatusInt status, Boolean isFirstRetry) {
         String timelineEventId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
                         .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
+                        .isFirstSendRetry(isFirstRetry)
                         .build()
         );
 
@@ -320,7 +341,7 @@ public class TestUtils {
         Assertions.assertEquals( digitalAddress.getAddress(), details.getDigitalAddress().getAddress() );
         Assertions.assertEquals(status, details.getResponseStatus());
     }
-    
+
     public synchronized static NotificationStatusInt getNotificationStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils){
         int numberOfRecipient = notification.getRecipients().size();
         Instant notificationCreatedAt = notification.getSentAt();
@@ -358,13 +379,7 @@ public class TestUtils {
     }
     
     public static boolean checkIsPresentRefinement(String iun, Integer recIndex, TimelineService timelineService) {
-        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.REFINEMENT.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recIndex(recIndex)
-                                .build()));
+        Optional<TimelineElementInternal> timelineElementOpt = getRefinement(iun, recIndex, timelineService);
 
         Assertions.assertTrue(timelineElementOpt.isPresent());
         TimelineElementInternal timelineElement = timelineElementOpt.get();
@@ -372,6 +387,16 @@ public class TestUtils {
         Assertions.assertNotNull(detailsInt.getNotificationCost());
         
         return true;
+    }
+
+    public static Optional<TimelineElementInternal> getRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        return timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()));
     }
 
     public static void checkFailureRefinement(String iun,
@@ -640,6 +665,29 @@ public class TestUtils {
         int upperbound = 10000;
         int int_random = rand.nextInt(upperbound);
         return "XX_"+int_random;
+    }
+
+    public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock, 
+                                               PnDeliveryClientMock pnDeliveryClientMock, 
+                                               UserAttributesClientMock userAttributesClientMock, 
+                                               NationalRegistriesClientMock nationalRegistriesClientMock, 
+                                               TimelineDaoMock timelineDaoMock, 
+                                               PaperNotificationFailedDaoMock paperNotificationFailedDaoMock, 
+                                               PnDataVaultClientMock pnDataVaultClientMock, 
+                                               PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock, 
+                                               DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
+                                               AddressManagerClientMock addressManagerClientMock
+    ) {
+        safeStorageClientMock.clear();
+        pnDeliveryClientMock.clear();
+        userAttributesClientMock.clear();
+        nationalRegistriesClientMock.clear();
+        timelineDaoMock.clear();
+        paperNotificationFailedDaoMock.clear();
+        pnDataVaultClientMock.clear();
+        pnDataVaultClientReactiveMock.clear();
+        documentCreationRequestDaoMock.clear();
+        addressManagerClientMock.clear();
     }
     
     @Builder

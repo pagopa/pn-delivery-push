@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
@@ -12,11 +11,11 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,9 +45,9 @@ class ChooseDeliveryModeHandlerTest {
     @Mock
     private ChooseDeliveryModeUtils chooseDeliveryUtils;
     @Mock
-    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    @Mock
     private NotificationService notificationService;
+    @Mock
+    private TimelineService timelineService;
     
     private ChooseDeliveryModeHandler handler;
 
@@ -56,9 +55,8 @@ class ChooseDeliveryModeHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils,
-                digitalWorkFlowHandler, schedulerService,
-                nationalRegistriesService, pnDeliveryPushConfigs, notificationService);
+        handler = new ChooseDeliveryModeHandler(digitalWorkFlowHandler, schedulerService, nationalRegistriesService,
+                chooseDeliveryUtils, notificationService, timelineService);
         notificationUtils= new NotificationUtils();
     }
 
@@ -176,7 +174,7 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertFalse(listIsAvailableCaptorValues.get(1));
 
         Mockito.verify(nationalRegistriesService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
-                Mockito.any(ContactPhaseInt.class), Mockito.anyInt());
+                Mockito.any(ContactPhaseInt.class), Mockito.anyInt(), Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -222,17 +220,8 @@ class ChooseDeliveryModeHandlerTest {
         NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .digitalAddress(null).build();
 
-        Instant courtesyMessageDate = Instant.now();
-        SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = SendCourtesyMessageDetailsInt.builder()
-                .sendDate(courtesyMessageDate)
-                .build();
-
-        Mockito.when(chooseDeliveryUtils.getFirstSentCourtesyMessage(Mockito.anyString(), Mockito.anyInt()))
-                .thenReturn(Optional.of(sendCourtesyMessageDetails));
-
         TimeParams times = new TimeParams();
         times.setWaitingForReadCourtesyMessage(Duration.ofSeconds(1));
-        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         //WHEN
         handler.handleGeneralAddressResponse(response, notification, recIndex);
@@ -263,9 +252,6 @@ class ChooseDeliveryModeHandlerTest {
         
         NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .digitalAddress(null).build();
-        
-        Mockito.when(chooseDeliveryUtils.getFirstSentCourtesyMessage(Mockito.anyString(), Mockito.anyInt()))
-                .thenReturn(Optional.empty());
 
         //WHEN
         handler.handleGeneralAddressResponse(response, notification, recIndex);

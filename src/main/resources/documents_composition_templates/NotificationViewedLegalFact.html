@@ -192,22 +192,6 @@
             <p><strong>${recipient.taxId}</strong></p>
           </div>
         </div>
-        <div class="row">
-          <div class="left-col col-5-10">
-            <p>Domicilio digitale</p>
-          </div>
-          <div class="left-col col-5-10">
-            <p>
-            <strong>
-              <#if recipient.getDigitalDomicile()??>
-                ${recipient.getDigitalDomicile().getAddress()}
-               <#else>
-                non fornito dalla PA
-              </#if>
-            </strong>
-            </p>
-          </div>
-        </div>
       </div>
 
       <#if delegate??>
@@ -251,7 +235,7 @@
 
       <div class="row margin-top-large">
         <div class="left-col col-5-10">
-          <p>Data, ${legalFactCreationDate}</p>
+          <p>&nbsp;</p>
         </div>
         <div class="left-col col-5-10">
           <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>

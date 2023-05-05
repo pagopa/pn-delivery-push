@@ -2,15 +2,14 @@ package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -21,14 +20,8 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFa
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
-import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationScheduler;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.TaxIdPivaValidator;
+import it.pagopa.pn.deliverypush.action.startworkflow.*;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
@@ -53,7 +46,10 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -82,6 +78,7 @@ import static org.awaitility.Awaitility.await;
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
+        AnalogFailureDeliveryCreationResponseHandler.class,
         PaperChannelServiceImpl.class,
         PaperChannelUtils.class,
         PaperChannelResponseHandler.class,
@@ -116,6 +113,7 @@ import static org.awaitility.Awaitility.await;
         AttachmentUtils.class,
         NotificationUtils.class,
         PecDeliveryWorkflowLegalFactsGenerator.class,
+        AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
         RefinementScheduler.class,
         RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,
@@ -143,6 +141,13 @@ import static org.awaitility.Awaitility.await;
         TaxIdPivaValidator.class,
         ReceivedLegalFactCreationRequest.class,
         NotificationValidationScheduler.class,
+        DigitalWorkflowFirstSendRepeatHandler.class,
+        SendAndUnscheduleNotification.class,
+        AddressValidator.class,
+        AddressManagerServiceImpl.class,
+        AddressManagerClientMock.class,
+        NormalizeAddressHandler.class,
+        AddressManagerResponseHandler.class,
         DigitalTestMultiRecipientIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -238,20 +243,29 @@ class DigitalTestMultiRecipientIT {
     @Autowired
     private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
 
+    @Autowired
+    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
+    
+    @Autowired
+    private AddressManagerClientMock addressManagerClientMock;
+
     @BeforeEach
     public void setup() {
 
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-        pnDeliveryClientMock.clear();
-        addressBookMock.clear();
-        nationalRegistriesClientMock.clear();
-        timelineDaoMock.clear();
-        paperNotificationFailedDaoMock.clear();
-        pnDeliveryClientMock.clear();
-        pnDataVaultClientMock.clear();
-        safeStorageClientMock.clear();
-        documentCreationRequestDaoMock.clear();
+        TestUtils.initializeAllMockClient(
+                safeStorageClientMock,
+                pnDeliveryClientMock,
+                addressBookMock,
+                nationalRegistriesClientMock,
+                timelineDaoMock,
+                paperNotificationFailedDaoMock,
+                pnDataVaultClientMock,
+                pnDataVaultClientReactiveMock,
+                documentCreationRequestDaoMock,
+                addressManagerClientMock
+        );
     }
 
     @AfterEach
@@ -476,6 +490,137 @@ class DigitalTestMultiRecipientIT {
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(platformAddress1.getAddress(), iun, recIndex1, sendAttemptMade, platform, ko);
     }
 
+
+
+
+
+    @Test
+    void testtest() { 
+       /* 
+       Secondo recipient
+       - Platform address presente ed entrambi gli invii con fallimento
+       - Special address presente ed entrambi gli invii con fallimento 
+       - General address presente e secondo tentativo ok
+    */
+
+
+        String iun = TestUtils.getRandomIun();
+
+        //Secondo recipient
+        LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
+                .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        LegalDigitalAddressInt digitalDomicile2 = LegalDigitalAddressInt.builder()
+                .address("digitalDomicile2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        LegalDigitalAddressInt pbDigitalAddress2 = LegalDigitalAddressInt.builder()
+                .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        String taxId02 = "TAXID02";
+        NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId02)
+                .withInternalId("ANON_"+taxId02)
+                .withDigitalDomicile(digitalDomicile2)
+                .build();
+
+        List<NotificationRecipientInt> recipients = new ArrayList<>();
+
+        recipients.add(recipient2);
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withIun(iun)
+                .withPaId("paId01")
+                .withNotificationRecipients(recipients)
+                .build();
+
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+
+        pnDeliveryClientMock.addNotification(notification);
+        addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
+        nationalRegistriesClientMock.addDigital(recipient2.getTaxId(), pbDigitalAddress2);
+
+        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        // Viene atteso fino a che non sia presente il REFINEMENT per il secondo recipient
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
+        );
+
+        //Viene verificato il numero di send PEC verso external channel
+        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+
+
+        //CHECK SECONDO RECIPIENT
+
+        //Viene verificata la disponibilità degli indirizzi per il secondo recipient relativi al primo tentativo
+        checkAddressAvailabilitySecondRecipient(iun, recIndex2);
+
+        int sendAttemptMade = 0;
+        //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il platform address e fallito
+        checkPecSendAndDeliveryAttachment(platformAddress2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.KO);
+
+        //Viene verificato per il secondo recipient che il secondo tentativo sia avvenuto con il domicilio digitale e fallito
+        checkPecSendAndDeliveryAttachment(digitalDomicile2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
+
+        //Viene verificato per il secondo recipient che il terzo tentativo sia avvenuto con l'indirizzo generale e fallito
+        checkPecSendAndDeliveryAttachment(pbDigitalAddress2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.GENERAL, ResponseStatusInt.KO);
+
+        sendAttemptMade += 1;
+
+        //Viene verificato per il secondo recipient che il terzo tentativo sia avvenuto con il platform address e fallito
+        checkPecSendAndDeliveryAttachment(platformAddress2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.KO);
+
+        //Viene verificato per il secondo recipient che il quarto tentativo sia avvenuto con il domicilio digitale e fallito
+        checkPecSendAndDeliveryAttachment(digitalDomicile2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
+
+        //Viene verificato per il secondo recipient che il quinto tentativo sia avvenuto con l'indirizzo generale e fallito
+        checkPecSendAndDeliveryAttachment(pbDigitalAddress2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.GENERAL, ResponseStatusInt.OK);
+
+        //Viene verificato per il secondo recipient che il workflow sia abbia avuto successo
+        TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex2, pbDigitalAddress2, timelineService);
+
+
+        //Viene effettuato il check dei legalFacts generati per il secondo recipient
+        EndWorkflowStatus endWorkflowStatus2 = EndWorkflowStatus.SUCCESS;
+        checkGeneratedLegalFacts(recipient2, notification, recIndex2, true, true, false, true, endWorkflowStatus2, 6);
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
     // Il primo destinatario è UNREACHBLE, il secondo è raggiungibile, ma il primo destinatario visualizza la notifica
     // via PN dopo il primo feedback (negativo) di External Channels.
     @Test
@@ -510,6 +655,7 @@ class DigitalTestMultiRecipientIT {
                         .iun(iun)
                         .recIndex(0)
                         .source(DigitalAddressSourceInt.PLATFORM)
+                        .isFirstSendRetry(false)
                         .sentAttemptMade(0)
                         .build()
         );
@@ -1171,6 +1317,7 @@ class DigitalTestMultiRecipientIT {
                         .iun(iun)
                         .recIndex(0)
                         .source(DigitalAddressSourceInt.PLATFORM)
+                        .isFirstSendRetry(false)
                         .sentAttemptMade(0)
                         .build()
         );

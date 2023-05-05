@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,14 +22,13 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,15 +52,19 @@ public class LegalFactGenerator {
     public static final String FIELD_WHEN = "when";
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL = "piattaformaNotificheURL";
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL = "piattaformaNotificheURLLabel";
-    public static final String FIELD_PN_FAQ_URL = "PNFaqURL";
+    public static final String FIELD_PN_FAQ_COMPLETION_MOMENT_URL = "PNFaqCompletionMomentURL";
+    public static final String FIELD_SEND_URL = "PNFaqSendURL";
     public static final String FIELD_END_WORKFLOW_STATUS = "endWorkflowStatus";
     public static final String FIELD_END_WORKFLOW_DATE = "endWorkflowDate";
+    public static final String FIELD_END_WORKFLOW_TIME = "endWorkflowTime";
     public static final String FIELD_LEGALFACT_CREATION_DATE = "legalFactCreationDate";
     public static final String FIELD_QRCODE_QUICK_ACCESS_LINK = "qrCodeQuickAccessLink";
     public static final String FIELD_QUICK_ACCESS_LINK = "quickAccessLink";
     public static final String FIELD_RECIPIENT_TYPE = "recipientType";
     public static final String FIELD_DELEGATE = "delegate";
     public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
+
+    public static final String FIELD_SENDURL = "sendURL";
     public static final String FIELD_LOGO = "logoBase64";
 
     private final DocumentComposition documentComposition;
@@ -70,6 +74,8 @@ public class LegalFactGenerator {
     private final InstantNowSupplier instantNowSupplier;
     private final MVPParameterConsumer mvpParameterConsumer;
     private static final String TEMPLATES_DIR_NAME = "documents_composition_templates";
+
+    private static final String SEND_LOGO_BASE64 =  readLocalImagesInBase64(TEMPLATES_DIR_NAME + "/images/aar-logo-short-small.png");
 
     public LegalFactGenerator(
             DocumentComposition documentComposition,
@@ -173,6 +179,7 @@ public class LegalFactGenerator {
         private String denomination;
         private String taxId;
         private String address;
+        private String addressSource;
         private Instant orderBy;
         private String responseDate;
         private boolean ok;
@@ -194,6 +201,7 @@ public class LegalFactGenerator {
                             recipient.getDenomination(),
                             recipient.getTaxId(),
                             feedbackFromExtChannel.getDigitalAddress().getAddress(),
+                            feedbackFromExtChannel.getDigitalAddressSource() != null ? feedbackFromExtChannel.getDigitalAddressSource().getValue() : null,
                             notificationDate,
                             instantWriter.instantToDate(notificationDate),
                             ResponseStatusInt.OK.equals( sentPecStatus )
@@ -214,6 +222,31 @@ public class LegalFactGenerator {
         
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW,
+                templateModel
+        );
+    }
+
+
+
+    public byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
+                                                                 NotificationRecipientInt recipient,
+                                                                 EndWorkflowStatus status,
+                                                                 Instant failureWorkflowDate) throws IOException {
+
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_IUN, notification.getIun() );
+        templateModel.put(FIELD_END_WORKFLOW_STATUS, status.toString() );
+        templateModel.put(FIELD_END_WORKFLOW_DATE, instantWriter.instantToDate( failureWorkflowDate, true ) );
+        templateModel.put(FIELD_END_WORKFLOW_TIME, instantWriter.instantToTime( failureWorkflowDate ) );
+        templateModel.put(FIELD_RECIPIENT, recipient);
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
+        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
+
+
+        return documentComposition.executePdfTemplate(
+                DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE,
                 templateModel
         );
     }
@@ -265,6 +298,7 @@ public class LegalFactGenerator {
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
+        templateModel.put(FIELD_LOGO, SEND_LOGO_BASE64);
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL,
@@ -276,9 +310,7 @@ public class LegalFactGenerator {
     public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
-        Path filePath = Paths.get(TEMPLATES_DIR_NAME + File.separator + "images/aar-logo-short.png");
-        String logoBase64 = readLocalImagesInBase64(filePath.toString());
-        templateModel.put(FIELD_LOGO, logoBase64);
+        templateModel.put(FIELD_LOGO, SEND_LOGO_BASE64);
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC,
@@ -328,15 +360,13 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(recipient) );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel(recipient) );
-        templateModel.put(FIELD_PN_FAQ_URL, this.getFAQAccessLink());
+        templateModel.put(FIELD_PN_FAQ_COMPLETION_MOMENT_URL, this.getFAQCompletionMomentAccessLink());
+        templateModel.put(FIELD_SEND_URL, this.getFAQSendURL());
         templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getAccessUrlLabel(recipient));
-        sb.append("/");
-        sb.append("perfezionamento");
-        templateModel.put(FIELD_PERFEZIONAMENTO, sb.toString());
+        String sb = this.getAccessUrlLabel(recipient) + "/perfezionamento";
+        templateModel.put(FIELD_PERFEZIONAMENTO, sb);
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
         log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
@@ -368,7 +398,15 @@ public class LegalFactGenerator {
     }
 
     private String getFAQAccessLink() {
-        return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
+        return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + "/" + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
+    }
+
+    private String getFAQCompletionMomentAccessLink() {
+        return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqCompletionMomentHash();
+    }
+
+    private String getFAQSendURL() {
+        return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqSendHash();
     }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
@@ -382,25 +420,14 @@ public class LegalFactGenerator {
                 : pnDeliveryPushConfigs.getWebapp().getDirectAccessUrlTemplateLegal();
     }
 
-    private String readLocalImagesInBase64(String path) {
-        String encodedBase64 = null;
-        InputStream ioStream = this.getClass()
-                .getClassLoader()
-                .getResourceAsStream(path);
-
-        if (ioStream == null) {
-            IllegalArgumentException e = new IllegalArgumentException(path + " is not found");
-            e.printStackTrace();
-        } else {
-            try {
-                byte[] bytes = IOUtils.toByteArray(ioStream);
-                encodedBase64 = new String(Base64.getEncoder().encodeToString(bytes));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+     private static String readLocalImagesInBase64(String classPath) {
+        try (InputStream ioStream = new ClassPathResource(classPath).getInputStream()) {
+            byte[] bytes = IOUtils.toByteArray(ioStream);
+            return Base64.getEncoder().encodeToString(bytes);
+        } catch (Exception e) {
+            throw new PnReadFileException("error during file conversion", e);
         }
-        return encodedBase64;
-    }
 
+    }
 }
 

@@ -64,10 +64,13 @@ class CompletelyUnreachableUtilsTest {
                 .recipientId(recipient.getInternalId())
                 .build();
 
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), 1)).thenReturn(Boolean.TRUE);
         Mockito.when(timelineService.isPresentTimeLineElement(notification.getIun(), 1, TimelineEventId.NOTIFICATION_VIEWED)).thenReturn(Boolean.TRUE);
-        Mockito.when(timelineUtils.buildCompletelyUnreachableTimelineElement(notification, 1)).thenReturn(t1);
+        Instant legalFactGenerationDate = Instant.now();
+        
+        Mockito.when(timelineUtils.buildCompletelyUnreachableTimelineElement(notification, 1, "legal1", legalFactGenerationDate)).thenReturn(t1);
 
-        unreachableUtils.handleCompletelyUnreachable(notification, 1);
+        unreachableUtils.handleCompletelyUnreachable(notification, 1, "legal1", legalFactGenerationDate);
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(t1, notification);
         Mockito.verify(paperNotificationFailedService, Mockito.times(0)).addPaperNotificationFailed(notificationFailed);
     }
@@ -87,9 +90,11 @@ class CompletelyUnreachableUtilsTest {
                 .build();
         Mockito.when(timelineService.isPresentTimeLineElement(notification.getIun(), 1, TimelineEventId.NOTIFICATION_VIEWED)).thenReturn(Boolean.FALSE);
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, 1)).thenReturn(recipient);
-        Mockito.when(timelineUtils.buildCompletelyUnreachableTimelineElement(notification, 1)).thenReturn(t1);
+        Instant legalFactGenerationDate = Instant.now();
 
-        unreachableUtils.handleCompletelyUnreachable(notification, 1);
+        Mockito.when(timelineUtils.buildCompletelyUnreachableTimelineElement(notification, 1, "legal1", legalFactGenerationDate)).thenReturn(t1);
+
+        unreachableUtils.handleCompletelyUnreachable(notification, 1, "legal1", legalFactGenerationDate);
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(t1, notification);
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).addPaperNotificationFailed(notificationFailed);

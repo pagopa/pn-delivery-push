@@ -7,9 +7,8 @@ import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
@@ -54,22 +53,18 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
      * Messaggio con valore legale (PEC)
      * Tramite il sendAlreadyInProgress indica se è il primo tentativo, o se invece è un ritentativo breve
      *  @param notification notitica
-     * @param digitalAddress indirizzo
-     * @param addressSource sorgente
      * @param recIndex indice destinatario
-     * @param sentAttemptMade tentativo
      * @param sendAlreadyInProgress indica se l'invio è già stato eseguito e si sta eseguendo un ritentativo
+     * @param sendInformation contiene le informazione relative alla send (indirizzo, sorgente, tentativo ...)
      * @return eventId relativo al SEND_DIGITAL_DOMICILE
      */
     @Override
     public String sendDigitalNotification(NotificationInt notification,
-                                          LegalDigitalAddressInt digitalAddress,
-                                          DigitalAddressSourceInt addressSource,
                                           Integer recIndex,
-                                          int sentAttemptMade,
-                                          boolean sendAlreadyInProgress
+                                          boolean sendAlreadyInProgress,
+                                          SendInformation sendInformation
     ) {
-        PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), digitalAddress, recIndex);
+        PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), sendInformation.getDigitalAddress(), recIndex);
 
         try {
             DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
@@ -77,42 +72,59 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
             String eventId;
             if (!sendAlreadyInProgress)
             {
-                log.debug("Start sendDigitalNotification - iun={} recipientIndex={} attempt={}", notification.getIun(), recIndex, sentAttemptMade);
+                log.info("Start sendDigitalNotification - iun={} recipientIndex={} attempt={} addressSource={}", notification.getIun(), recIndex, sendInformation.getRetryNumber(), sendInformation.getDigitalAddressSource());
 
                 eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                         EventId.builder()
                                 .iun(notification.getIun())
                                 .recIndex(recIndex)
-                                .source(addressSource)
-                                .sentAttemptMade(sentAttemptMade)
+                                .source(sendInformation.getDigitalAddressSource())
+                                .sentAttemptMade(sendInformation.getRetryNumber())
+                                .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
                                 .build()
                 );
-                externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, digitalAddress, eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
-                externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
+                externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, sendInformation.getDigitalAddress(), eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
+                
+                externalChannelUtils.addSendDigitalNotificationToTimeline(
+                        notification,
+                        recIndex,
+                        sendInformation,
+                        eventId
+                );
             }
             else
             {
-                int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, addressSource).size() + 1;
+                int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sendInformation.getRetryNumber(), 
+                        sendInformation.getIsFirstSendRetry(), sendInformation.getDigitalAddressSource()).size() + 1;
 
-                log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} attempt={} progressIndex={}", notification.getIun(), recIndex, sentAttemptMade, progressIndex);
+                log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} attempt={} progressIndex={}", notification.getIun(), recIndex, sendInformation.getRetryNumber(), progressIndex);
 
                 eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                         EventId.builder()
                                 .iun(notification.getIun())
                                 .recIndex(recIndex)
-                                .source(addressSource)
-                                .sentAttemptMade(sentAttemptMade)
+                                .source(sendInformation.getDigitalAddressSource())
+                                .sentAttemptMade(sendInformation.getRetryNumber())
                                 .progressIndex(progressIndex)
+                                .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
                                 .build()
                 );
 
-            externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, digitalAddress, eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
+            externalChannel.sendLegalNotification(
+                    notification,
+                    digitalParameters.recipientFromIndex,
+                    sendInformation.getDigitalAddress(), 
+                    eventId, 
+                    digitalParameters.aarKey, 
+                    digitalParameters.quickAccessToken);
 
-                DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
-                        .retryNumber(sentAttemptMade)
+                SendInformation digitalAddressFeedback = SendInformation.builder()
+                        .retryNumber(sendInformation.getRetryNumber())
                         .eventTimestamp(Instant.now())
-                        .digitalAddressSource(addressSource)
-                        .digitalAddress(digitalAddress)
+                        .digitalAddressSource(sendInformation.getDigitalAddressSource())
+                        .digitalAddress(sendInformation.getDigitalAddress())
+                        .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
+                        .relatedFeedbackTimelineId(sendInformation.getRelatedFeedbackTimelineId())
                         .build();
 
                 digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
@@ -121,8 +133,8 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                         recIndex,
                         false,
                         null,
-                        digitalAddressFeedback);
-
+                        digitalAddressFeedback
+                );
             }
 
             logEvent.generateSuccess("successful sent eventId={}", eventId).log();

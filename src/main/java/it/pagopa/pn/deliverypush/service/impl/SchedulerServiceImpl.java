@@ -26,6 +26,11 @@ public class SchedulerServiceImpl implements SchedulerService {
         this.webhooksPool = webhooksPool;
         this.clock = clock;
     }
+
+    @Override
+    public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType) {
+        this.scheduleEvent(iun, null, dateToSchedule, actionType, null, null);
+    }
     
     @Override
     public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails){

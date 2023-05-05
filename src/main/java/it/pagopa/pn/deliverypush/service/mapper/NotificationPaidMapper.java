@@ -16,6 +16,7 @@ public class NotificationPaidMapper {
                 .creditorTaxId(paymentEvent.getCreditorTaxId())
                 .noticeCode(paymentEvent.getNoticeCode())
                 .paymentDate(paymentEvent.getPaymentDate())
+                .uncertainPaymentDate(paymentEvent.isUncertainPaymentDate())
                 .paymentType(NotificationPaidInt.PaymentTypeInt.valueOf(paymentEvent.getPaymentType().getValue()))
                 .amount(paymentEvent.getAmount())
                 .paymentSourceChannel(paymentEvent.getPaymentSourceChannel())

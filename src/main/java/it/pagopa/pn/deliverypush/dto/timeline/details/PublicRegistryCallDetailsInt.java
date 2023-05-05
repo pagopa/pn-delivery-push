@@ -17,7 +17,8 @@ public class PublicRegistryCallDetailsInt implements RecipientRelatedTimelineEle
     private ContactPhaseInt contactPhase;
     private int sentAttemptMade;
     private Instant sendDate;
-
+    private String relatedFeedbackTimelineId;
+    
     public String toLog() {
         return String.format(
                 "recIndex=%d",

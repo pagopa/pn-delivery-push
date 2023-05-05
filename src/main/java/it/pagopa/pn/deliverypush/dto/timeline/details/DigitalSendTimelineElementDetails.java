@@ -15,4 +15,8 @@ public interface DigitalSendTimelineElementDetails extends DigitalAddressRelated
 
     Integer getRetryNumber();
     void setRetryNumber(Integer retryNumber);
+    
+    Boolean getIsFirstSendRetry();
+
+    String getRelatedFeedbackTimelineId();
 }

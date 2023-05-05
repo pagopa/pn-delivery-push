@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -19,32 +20,28 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class DigitalWorkFlowUtils {
     private final TimelineService timelineService;
     private final AddressBookService addressBookService;
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
+
     
-    public DigitalWorkFlowUtils(TimelineService timelineService, AddressBookService addressBookService, TimelineUtils timelineUtils, NotificationUtils notificationUtils) {
-        this.timelineService = timelineService;
-        this.addressBookService = addressBookService;
-        this.timelineUtils = timelineUtils;
-        this.notificationUtils = notificationUtils;
-    }
 
     public DigitalAddressInfoSentAttempt getNextAddressInfo(String iun, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
         log.debug("Start getNextAddressInfo - iun {} id {}", iun, recIndex);
@@ -273,14 +270,14 @@ public class DigitalWorkFlowUtils {
     public String addDigitalFeedbackTimelineElement(
                                                   String digitalDomicileTimeLineId,
                                                   NotificationInt notification,
-                                                  ResponseStatusInt status, 
-                                                  List<String> errors,
+                                                  ResponseStatusInt status,
                                                   int recIndex,
-                                                  DigitalMessageReferenceInt digitalMessageReference,
-                                                  DigitalAddressFeedback digitalAddressInfo
+                                                  ExtChannelDigitalSentResponseInt extChannelDigitalSentResponseInt,
+                                                  SendInformation digitalAddressInfo,
+                                                  Boolean isFirstSentRetry
                                                   ) {
         TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalFeedbackTimelineElement(
-                digitalDomicileTimeLineId,notification, status, errors, recIndex, digitalMessageReference, digitalAddressInfo
+                digitalDomicileTimeLineId,notification, status, recIndex, extChannelDigitalSentResponseInt, digitalAddressInfo, isFirstSentRetry
         );
         addTimelineElement(timelineElementInternal, notification);
 
@@ -292,9 +289,10 @@ public class DigitalWorkFlowUtils {
                                                             int recIndex, 
                                                             boolean shouldRetry,
                                                             DigitalMessageReferenceInt digitalMessageReference,
-                                                            DigitalAddressFeedback digitalAddressFeedback) {
+                                                            SendInformation digitalAddressFeedback) {
         
-        int progressIndex = getPreviousTimelineProgress(notification, recIndex, digitalAddressFeedback.getRetryNumber(), digitalAddressFeedback.getDigitalAddressSource()).size() + 1;
+        int progressIndex = getPreviousTimelineProgress(notification, recIndex, digitalAddressFeedback.getRetryNumber(), 
+                digitalAddressFeedback.getIsFirstSendRetry(), digitalAddressFeedback.getDigitalAddressSource()).size() + 1;
 
         addTimelineElement(
                 timelineUtils.buildDigitalProgressFeedbackTimelineElement(
@@ -312,7 +310,7 @@ public class DigitalWorkFlowUtils {
 
 
     public Set<TimelineElementInternal> getPreviousTimelineProgress(NotificationInt notification,
-                                                  int recIndex, int attemptMade, DigitalAddressSourceInt digitalAddressSourceInt){
+                                                  int recIndex, int attemptMade, Boolean isFirstSentRetry, DigitalAddressSourceInt digitalAddressSourceInt){
         // per calcolare il prossimo progressIndex, devo necessariamente recuperare dal DB tutte le timeline relative a iun/recindex/source/tentativo
         String elementIdForSearch = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
@@ -320,11 +318,13 @@ public class DigitalWorkFlowUtils {
                         .recIndex(recIndex)
                         .sentAttemptMade(attemptMade)
                         .source(digitalAddressSourceInt)
+                        .isFirstSendRetry(isFirstSentRetry)
                         .progressIndex(-1)  // passando -1 non verrà inserito nell'id timeline, permettendo la ricerca iniziaper
                         .build()
         );
         return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false);
     }
+    
 
     private String addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         String timelineId = element.getElementId();

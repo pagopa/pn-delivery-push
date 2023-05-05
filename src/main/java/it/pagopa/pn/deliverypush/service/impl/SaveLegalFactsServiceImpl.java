@@ -125,6 +125,28 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
         }
     }
+
+
+    public String sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(
+            NotificationInt notification,
+            NotificationRecipientInt recipient,
+            EndWorkflowStatus status,
+            Instant failureWorkflowDate
+    ) {
+        try {
+            log.debug("Start sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact - iun={}", notification.getIun());
+
+            return this.saveLegalFact(legalFactBuilder.generateAnalogDeliveryFailureWorkflowLegalFact(
+                            notification, recipient, status, failureWorkflowDate))
+                    .map( responseUrl -> {
+                        log.debug("End sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact - iun={} key={}", notification.getIun(), responseUrl);
+                        return responseUrl;
+                    }).block();
+        } catch (Exception exc) {
+            String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "ANALOG_FAILURE_DELIVERY", notification.getIun(), recipient.getTaxId());
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
+        }
+    }
     
     public Mono<String> sendCreationRequestForNotificationViewedLegalFact(
             NotificationInt notification,

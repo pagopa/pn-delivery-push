@@ -6,7 +6,11 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 
 public interface NationalRegistriesService {
 
-    void sendRequestForGetDigitalGeneralAddress(NotificationInt notification, Integer recIndex, ContactPhaseInt contactPhase, int sentAttemptMade);
+    void sendRequestForGetDigitalGeneralAddress(NotificationInt notification,
+                                                Integer recIndex, 
+                                                ContactPhaseInt contactPhase,
+                                                int sentAttemptMade,
+                                                String relatedFeedbackTimelineId);
 
     CheckTaxIdOKInt checkTaxId(String taxId);
 }

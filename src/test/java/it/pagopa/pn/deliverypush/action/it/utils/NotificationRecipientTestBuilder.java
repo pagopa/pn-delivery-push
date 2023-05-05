@@ -65,6 +65,20 @@ public class NotificationRecipientTestBuilder {
             internalId = "ANON_"+taxId;
         }
 
+        if(physicalAddress == null){
+            physicalAddress = PhysicalAddressInt.builder()
+                    .address("Test.address")
+                    .at("Test.at")
+                    .zip("Test.zip")
+                    .foreignState("Test.foreignState")
+                    .municipality("Test.municipality")
+                    .addressDetails("Test.addressDetails")
+                    .municipalityDetails("Test.municipalityDetails")
+                    .province("Test.province")
+                    .foreignState("Test.foreignState")
+                    .build();
+        }
+        
         String denomination = "Name_and_surname_of_" + taxId;
         if(physicalAddress != null){
             physicalAddress.setFullname(denomination);

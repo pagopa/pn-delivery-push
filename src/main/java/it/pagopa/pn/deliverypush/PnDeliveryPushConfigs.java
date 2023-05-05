@@ -82,6 +82,10 @@ public class PnDeliveryPushConfigs {
 
     private String nationalRegistriesBaseUrl;
 
+    private String addressManagerBaseUrl;
+
+    private String addressManagerApiKey;
+    
     private Duration[] validationRetryIntervals;
     
     @Data
@@ -104,6 +108,8 @@ public class PnDeliveryPushConfigs {
         private String safeStorageEvents;
 
         private String nationalRegistriesEvents;
+
+        private String addressManagerEvents;
     }
 
     @Data
@@ -164,6 +170,8 @@ public class PnDeliveryPushConfigs {
         private String directAccessUrlTemplatePhysical;
         private String directAccessUrlTemplateLegal;
         private String faqUrlTemplateSuffix;
+        private String faqCompletionMomentHash;
+        private String faqSendHash;
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
    }
@@ -211,5 +219,7 @@ public class PnDeliveryPushConfigs {
     }
 
     private String sendNotificationAttachments;
+
+    private boolean safeStorageFileNotFoundRetry;
 
 }

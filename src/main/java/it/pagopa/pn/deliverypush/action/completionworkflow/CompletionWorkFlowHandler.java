@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.LogUtils;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -8,6 +10,8 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -15,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
@@ -22,11 +27,11 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @AllArgsConstructor
 @Slf4j
 public class CompletionWorkFlowHandler {
-    private final CompletelyUnreachableUtils completelyUnreachableUtils;
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
     private final RefinementScheduler refinementScheduler;
     private final PecDeliveryWorkflowLegalFactsGenerator pecDeliveryWorkflowLegalFactsGenerator;
+    private final AnalogDeliveryFailureWorkflowLegalFactsGenerator analogDeliveryFailureWorkflowLegalFactsGenerator;
     private final DocumentCreationRequestService documentCreationRequestService;
 
     /**
@@ -59,9 +64,18 @@ public class CompletionWorkFlowHandler {
                     refinementScheduler.scheduleAnalogRefinement(notification, recIndex, completionWorkflowDate, status);
                 }
                 case FAILURE -> {
-                    timelineService.addTimelineElement(timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex), notification);
-                    completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex);
-                    refinementScheduler.scheduleAnalogRefinement(notification, recIndex, completionWorkflowDate, status);
+                    AarGenerationDetailsInt aarGenerationDetails = retrieveAARTimelineElement(iun, recIndex);
+                    
+                    TimelineElementInternal failureAnalogWorkflow = timelineUtils.buildFailureAnalogWorkflowTimelineElement(notification, recIndex, aarGenerationDetails.getGeneratedAarUrl());
+                    timelineService.addTimelineElement(failureAnalogWorkflow, notification);
+                    
+                    String legalFactId = analogDeliveryFailureWorkflowLegalFactsGenerator.generateAndSendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact(notification, recIndex, status, failureAnalogWorkflow.getTimestamp());
+
+                    TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogDeliveryFailedLegalFactCreationRequestTimelineElement(notification, recIndex, status, completionWorkflowDate, legalFactId);
+                    timelineService.addTimelineElement(timelineElementInternal, notification);
+
+                    //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
+                    documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), recIndex, DocumentCreationTypeInt.ANALOG_FAILURE_DELIVERY, timelineElementInternal.getElementId());
                 }
                 default -> handleError(iun, recIndex, status);
             }
@@ -69,9 +83,25 @@ public class CompletionWorkFlowHandler {
             handleError(iun, recIndex, null);
         }
     }
-    
+
+    private AarGenerationDetailsInt retrieveAARTimelineElement(String iun, Integer recIndex) {
+        Optional<AarGenerationDetailsInt> aarGenerationDetailsOpt = timelineService.getTimelineElementDetailForSpecificRecipient(iun, recIndex, false, TimelineElementCategoryInt.AAR_GENERATION, AarGenerationDetailsInt.class);
+        
+        if (aarGenerationDetailsOpt.isPresent()) {
+            log.info("retrieveAARTimestampFromTimeline iun={} recIndex={}", iun, recIndex);
+            return aarGenerationDetailsOpt.get();
+        }
+        else
+        {
+            LogUtils.logAlarm(log,"Cannot retrieve AAR generation for iun={} recIndex={}", iun, recIndex);
+            throw new PnInternalException("Cannot retrieve AAR generation for Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+        }
+    }
+
+
     private void handleError(String iun, Integer recIndex, EndWorkflowStatus status) {
-        log.error("Specified status {} does not exist. Iun {}, id {}", status, iun, recIndex);
+        log.error("Specified status {} does not exist. iun={} recIndex={}", status, iun, recIndex);
         throw new PnInternalException("Specified status " + status + " does not exist. Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
     }
+
 }

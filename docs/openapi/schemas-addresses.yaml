@@ -21,7 +21,6 @@ components:
       required:
         - address
         - municipality
-        - zip
       properties:
         at:
           type: string
@@ -34,7 +33,7 @@ components:
           description: Seconda riga dell'indirizzo fisico
         zip:
           type: string
-          description: Codice di avviamento postale
+          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
         municipality:
           type: string
           description: Comune in cui l'indirizzo si trova

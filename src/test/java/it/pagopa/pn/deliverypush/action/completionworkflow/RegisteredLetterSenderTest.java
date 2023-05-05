@@ -60,7 +60,10 @@ class RegisteredLetterSenderTest {
     @ExtendWith(MockitoExtension.class)
     void sendSimpleRegisteredLetterWithoutPhysicalAddress() {
         //GIVEN
-        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+        NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                .taxId("testIdRecipient")
+                .denomination("Nome Cognome/Ragione Sociale")
+                .payment(null)
                 .build();
 
         NotificationInt notification = NotificationTestBuilder.builder()

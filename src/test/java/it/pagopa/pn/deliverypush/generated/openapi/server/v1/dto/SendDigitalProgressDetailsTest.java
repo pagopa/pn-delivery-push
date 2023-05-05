@@ -19,7 +19,8 @@ class SendDigitalProgressDetailsTest {
         details.setDigitalAddress(DigitalAddress.builder().address("add").build());
         details.setSendingReceipts(Collections.singletonList(SendingReceipt.builder().id("001").build()));
         details.setDigitalAddressSource(DigitalAddressSource.GENERAL);
-        details.setEventCode("001");
+        details.setDeliveryDetailCode("001");
+        details.setDeliveryFailureCause("C1");
         details.setRetryNumber(1);
         details.setShouldRetry(Boolean.TRUE);
         details.setNotificationDate(instant);
@@ -43,14 +44,14 @@ class SendDigitalProgressDetailsTest {
     void eventCode() {
         SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.eventCode("001");
+        SendDigitalProgressDetails actual = details.deliveryDetailCode("001");
 
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void getEventCode() {
-        Assertions.assertEquals("001", details.getEventCode());
+        Assertions.assertEquals("001", details.getDeliveryDetailCode());
     }
 
     @Test
@@ -152,7 +153,8 @@ class SendDigitalProgressDetailsTest {
     void testToString() {
         String data = "class SendDigitalProgressDetails {\n" +
                 "    recIndex: 1\n" +
-                "    eventCode: 001\n" +
+                "    deliveryFailureCause: C1\n" +
+                "    deliveryDetailCode: 001\n" +
                 "    shouldRetry: true\n" +
                 "    digitalAddress: class DigitalAddress {\n" +
                 "        type: null\n" +
@@ -179,7 +181,8 @@ class SendDigitalProgressDetailsTest {
                 .sendingReceipts(Collections.singletonList(SendingReceipt.builder().id("001").build()))
                 .digitalAddress(DigitalAddress.builder().address("add").build())
                 .digitalAddressSource(DigitalAddressSource.GENERAL)
-                .eventCode("001")
+                .deliveryDetailCode("001")
+                .deliveryFailureCause("C1")
                 .shouldRetry(Boolean.TRUE)
                 .notificationDate(instant)
                 .build();

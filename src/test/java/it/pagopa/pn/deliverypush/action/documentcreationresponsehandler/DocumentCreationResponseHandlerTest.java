@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.documentcreationresponsehandler;
 
+import it.pagopa.pn.deliverypush.action.completionworkflow.AnalogFailureDeliveryCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.DigitalDeliveryCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
@@ -26,12 +27,14 @@ class DocumentCreationResponseHandlerTest {
     private NotificationViewLegalFactCreationResponseHandler notificationViewLegalFactCreationResponseHandler;
     @Mock
     private DigitalDeliveryCreationResponseHandler digitalDeliveryCreationResponseHandler;
+    @Mock
+    private AnalogFailureDeliveryCreationResponseHandler analogFailureDeliveryCreationResponseHandler;
 
     private DocumentCreationResponseHandler handler;
 
     @BeforeEach
     public void setup() {
-        handler = new DocumentCreationResponseHandler(receivedLegalFactHandler, aarCreationResponseHandler, notificationViewLegalFactCreationResponseHandler, digitalDeliveryCreationResponseHandler);
+        handler = new DocumentCreationResponseHandler(receivedLegalFactHandler, aarCreationResponseHandler, notificationViewLegalFactCreationResponseHandler, digitalDeliveryCreationResponseHandler, analogFailureDeliveryCreationResponseHandler);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -87,6 +90,26 @@ class DocumentCreationResponseHandlerTest {
         //THEN
         Mockito.verify(digitalDeliveryCreationResponseHandler).handleDigitalDeliveryCreationResponse(iun, recIndex, details);
     }
+
+
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void handleResponseReceivedANALOG_FAILURE_DELIVERY() {
+        //GIVEN
+        String iun = "testIun";
+        Integer recIndex = 0;
+        DocumentCreationResponseActionDetails details = DocumentCreationResponseActionDetails.builder()
+                .key("legalFactId")
+                .documentCreationType(DocumentCreationTypeInt.ANALOG_FAILURE_DELIVERY)
+                .build();
+
+        //WHEN
+        handler.handleResponseReceived(iun, recIndex, details);
+
+        //THEN
+        Mockito.verify(analogFailureDeliveryCreationResponseHandler).handleAnalogFailureDeliveryCreationResponse(iun, recIndex, details);
+    }
+
 
     @ExtendWith(SpringExtension.class)
     @Test

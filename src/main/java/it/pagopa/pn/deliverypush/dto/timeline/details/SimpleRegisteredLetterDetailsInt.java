@@ -18,14 +18,17 @@ public class SimpleRegisteredLetterDetailsInt extends BaseRegisteredLetterDetail
     private Integer numberOfPages;
     private Integer envelopeWeight;
 
+    protected String prepareRequestId;
+
     @Override
     public String toLog() {
         return String.format(
-                "recIndex=%d physicalAddress=%s analogCost=%d productType=%s",
+                "recIndex=%d physicalAddress=%s analogCost=%d productType=%s prepareRequestId=%s",
                 recIndex,
                 AuditLogUtils.SENSITIVE,
                 analogCost,
-                productType
+                productType,
+                prepareRequestId
         );
     }
 }

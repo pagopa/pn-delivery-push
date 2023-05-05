@@ -17,45 +17,39 @@ import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
-import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.StatusService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationStatusHistoryElementMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementMapper;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.*;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
     private final SchedulerService schedulerService;
+    private final NotificationService notificationService;
 
-    public TimeLineServiceImpl(TimelineDao timelineDao,
-                               StatusUtils statusUtils,
-                               StatusService statusService,
-                               ConfidentialInformationService confidentialInformationService,
-                               SchedulerService schedulerService) {
-        this.timelineDao = timelineDao;
-        this.statusUtils = statusUtils;
-        this.confidentialInformationService = confidentialInformationService;
-        this.statusService = statusService;
-        this.schedulerService = schedulerService;
-    }
 
     @Override
     public void addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
@@ -115,7 +109,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 "Add timeline element: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s TIMESTAMP=%s",
                 dto.getCategory(),
                 dto.getIun(),
-                dto.getDetails().toLog(),
+                dto.getDetails() != null ? dto.getDetails().toLog() : null,
                 dto.getElementId(),
                 dto.getTimestamp()
         );
@@ -164,6 +158,54 @@ public class TimeLineServiceImpl implements TimelineService {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<TimelineElementInternal> getTimelineElementForSpecificRecipient(String iun, int recIndex, TimelineElementCategoryInt category) {
+        log.debug("getTimelineElementForSpecificRecipient - IUN={} and recIndex={}", iun, recIndex);
+
+        return this.timelineDao.getTimeline(iun)
+                .stream().filter(x -> x.getCategory().equals(category))
+                .filter(x -> {
+
+                    if ( x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails){
+                        return recRelatedTimelineElementDetails.getRecIndex() == recIndex;
+                    }
+                    return false;
+                })
+                .findFirst();
+    }
+
+    @Override
+    public <T> Optional<T> getTimelineElementDetailForSpecificRecipient(String iun, int recIndex, boolean confidentialInfoRequired, TimelineElementCategoryInt category, Class<T> timelineDetailsClass) {
+        log.debug("getTimelineElementDetailForSpecificIndex - IUN={} and recIndex={}", iun, recIndex);
+        
+        Optional<TimelineElementInternal> timelineElementOpt = this.timelineDao.getTimeline(iun)
+                .stream().filter(x -> x.getCategory().equals(category))
+                .filter(x -> {
+                    
+                    if ( timelineDetailsClass.isInstance(x.getDetails()) && x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails){
+                        return recRelatedTimelineElementDetails.getRecIndex() == recIndex;
+                    }
+                    return false;
+                })
+                .findFirst();
+        
+        if (timelineElementOpt.isPresent()) {
+            TimelineElementInternal timelineElement = timelineElementOpt.get();
+
+            if (confidentialInfoRequired) {
+                confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineElement.getElementId()).ifPresent(
+                        confidentialDto -> enrichTimelineElementWithConfidentialInformation(
+                                timelineElement.getDetails(), confidentialDto
+                        )
+                );
+            }
+
+            return Optional.of(timelineDetailsClass.cast(timelineElement.getDetails()));
+        }
+
+        return Optional.empty();
+    }
+    
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("GetTimeline - iun={} ", iun);
@@ -287,6 +329,34 @@ public class TimeLineServiceImpl implements TimelineService {
                 .recIndex(recIndex)
                 .build();
         return this.timelineDao.getTimelineElement(iun, timelineEventId.buildEventId(eventId)).isPresent();
+    }
+
+    @Override
+    public Mono<ProbableSchedulingAnalogDateResponse> getSchedulingAnalogDate(String iun, String recipientId) {
+
+        return notificationService.getNotificationByIunReactive(iun)
+                .map(notificationRecipientInts -> getRecipientIndex(notificationRecipientInts, recipientId))
+                .map(recIndex -> getTimelineElementDetailForSpecificRecipient(iun, recIndex, false, PROBABLE_SCHEDULING_ANALOG_DATE, ProbableDateAnalogWorkflowDetailsInt.class))
+                .flatMap(optionalDetails -> optionalDetails.map(Mono::just).orElseGet(Mono::empty))
+                .map(details -> new ProbableSchedulingAnalogDateResponse()
+                        .iun(iun)
+                        .recIndex(details.getRecIndex())
+                        .schedulingAnalogDate(details.getSchedulingAnalogDate()))
+                .switchIfEmpty(Mono.error(() -> {
+                    String message = String.format("ProbableSchedulingDateAnalog not found for iun: %s, recipientId: %s", iun, recipientId);
+                    return new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+                }));
+
+    }
+
+    private int getRecipientIndex(NotificationInt notificationInt, String recipientId) {
+        for(int i = 0; i < notificationInt.getRecipients().size(); i++ ) {
+            if(notificationInt.getRecipients().get(i).getInternalId().equals(recipientId)) {
+                return i;
+            }
+        }
+
+        throw new PnValidationRecipientIdNotValidException(String.format("Recipient %s not found", recipientId));
     }
 
     public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,

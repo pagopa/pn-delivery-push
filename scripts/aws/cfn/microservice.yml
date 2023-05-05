@@ -224,10 +224,14 @@ Parameters:
     Type: String
     Description: 'ARN of alarm topic'
 
+  AddressManagerBaseUrl:
+    Type: String
+    Description: 'Address manager base url'
+
   ExternalChannelBaseUrl:
     Type: String
     Description: 'External channel base url'
-
+    
   SandboxSafeStorageBaseUrl:
     Type: String
     Description: 'Safe storage base url'
@@ -286,7 +290,23 @@ Parameters:
   SafeStorageToDeliveryPushQueueAgeAlarmARN:
     Type: String
     Description: SafeStorage-to-delivery-push queue age alarm ARN
+  
+  AddressManagerToDeliveryPushQueueName:
+    Type: String
+    Description: 'AddressManager-to-delivery-push queue Name'
 
+  AddressManagerToDeliveryPushQueueARN:
+    Type: String
+    Description: 'AddressManager-to-delivery-push queue ARN'
+
+  AddressManagerToDeliveryPushQueueAlarmARN:
+    Type: String
+    Description: AddressManager-to-delivery-push queue alarm ARN
+
+  AddressManagerToDeliveryPushQueueAgeAlarmARN:
+    Type: String
+    Description: AddressManager-to-delivery-push queue age alarm ARN
+  
   DoneActionsQueueAlarmARN:
     Type: String
     Description: delivery push actions queue dlq alarm ARN
@@ -424,6 +444,18 @@ Parameters:
     Type: String
     Description: 'Configuration to enable sending notification attachments'
 
+  SafeStorageFileNotFoundRetry:
+    Default: false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    Description: 'Enables retry of the notification validation in case of SafeStorage 404 error'
+
+  LandingUrl:
+    Type: String
+    Description: 'SEND landing URL'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -483,7 +515,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -502,6 +534,14 @@ Resources:
         ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
         ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
         ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_SENDNOTIFICATIONATTACHMENTS=${SendNotificationAttachments}'
+        ContainerEnvEntry48: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
+        ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
+        ContainerEnvEntry50: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
+        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
+        ContainerEnvEntry52: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
+        ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
+        ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
+        MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
@@ -539,6 +579,7 @@ Resources:
               - !Ref DoneActionsQueueARN
               - !Ref SafeStorageToDeliveryPushQueueARN
               - !Ref NationalRegistries2DeliveryPushQueueARN
+              - !Ref AddressManagerToDeliveryPushQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -728,6 +769,8 @@ Resources:
             - !Ref ScheduledActionsQueueAgeAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
+            - !Ref AddressManagerToDeliveryPushQueueAlarmARN
+            - !Ref AddressManagerToDeliveryPushQueueAgeAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -736,6 +779,7 @@ Resources:
             - !Ref DoneActionsQueueARN
             - !Ref SafeStorageToDeliveryPushQueueARN
             - !Ref NationalRegistries2DeliveryPushQueueARN
+            - !Ref AddressManagerToDeliveryPushQueueARN
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'

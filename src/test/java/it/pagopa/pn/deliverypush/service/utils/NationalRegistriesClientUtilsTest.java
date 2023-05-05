@@ -57,9 +57,9 @@ class NationalRegistriesClientUtilsTest {
 
         NotificationInt notification = buildNotificationInt("001");
 
-        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, 1, ContactPhaseInt.CHOOSE_DELIVERY, 1, "001", DeliveryModeInt.DIGITAL);
+        publicRegistryUtils.addPublicRegistryCallToTimeline(notification, 1, ContactPhaseInt.CHOOSE_DELIVERY, 1, "001", DeliveryModeInt.DIGITAL, null);
 
-        Mockito.verify(timelineUtils, Mockito.times(1)).buildPublicRegistryCallTimelineElement(notification, 1, "001", DeliveryModeInt.DIGITAL, ContactPhaseInt.CHOOSE_DELIVERY, 1);
+        Mockito.verify(timelineUtils, Mockito.times(1)).buildPublicRegistryCallTimelineElement(notification, 1, "001", DeliveryModeInt.DIGITAL, ContactPhaseInt.CHOOSE_DELIVERY, 1, null);
     }
 
     @Test

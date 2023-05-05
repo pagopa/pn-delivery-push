@@ -27,7 +27,8 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("contactPhase")})) private ContactPhaseEntity contactPhase;
     @Getter(onMethod=@__({@DynamoDbAttribute("sentAttemptMade")})) private Integer sentAttemptMade;
     @Getter(onMethod=@__({@DynamoDbAttribute("sendDate")})) private Instant sendDate;
-    @Getter(onMethod=@__({@DynamoDbAttribute("errors")})) private List<String> errors = null;
+    @Getter(onMethod=@__({@DynamoDbAttribute("errors")})) private List<String> errors;
+    @Getter(onMethod=@__({@DynamoDbAttribute("numberOfRecipients")})) private Integer numberOfRecipients;
     @Getter(onMethod=@__({@DynamoDbAttribute("lastAttemptDate")})) private Instant lastAttemptDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("retryNumber")})) private Integer retryNumber;
     @Getter(onMethod=@__({@DynamoDbAttribute("downstreamId")})) private DownstreamIdEntity downstreamId;
@@ -63,16 +64,25 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("idF24")})) private String idF24;
     @Getter(onMethod=@__({@DynamoDbAttribute("paymentSourceChannel")})) private String paymentSourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingDate")})) private Instant schedulingDate;
-    @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private String ioSendMessageResult;
+    @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private IoSendMessageResultEntity ioSendMessageResult;
     @Getter(onMethod=@__({@DynamoDbAttribute("envelopeWeight")})) private Integer envelopeWeight;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryDetailCode")})) private String deliveryDetailCode;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryFailureCause")})) private String deliveryFailureCause;
     @Getter(onMethod=@__({@DynamoDbAttribute("attachments")})) private List<AttachmentDetailsEntity> attachments;
     @Getter(onMethod=@__({@DynamoDbAttribute("prepareRequestId")})) String prepareRequestId;
     @Getter(onMethod=@__({@DynamoDbAttribute("sendRequestId")})) String sendRequestId;
-
+    @Getter(onMethod=@__({@DynamoDbAttribute("isFirstSendRetry")})) Boolean isFirstSendRetry;
+    @Getter(onMethod=@__({@DynamoDbAttribute("relatedFeedbackTimelineId")})) String relatedFeedbackTimelineId;
     @Getter(onMethod=@__({@DynamoDbAttribute("nextDigitalAddressSource")}))  DigitalAddressSourceEntity nextDigitalAddressSource;
     @Getter(onMethod=@__({@DynamoDbAttribute("nextSourceAttemptsMade")}))  int nextSourceAttemptsMade;
     @Getter(onMethod=@__({@DynamoDbAttribute("nextLastAttemptMadeForSource")}))  Instant nextLastAttemptMadeForSource;
+
+    @Getter(onMethod=@__({@DynamoDbAttribute("refusalReasons")})) private List<NotificationRefusedErrorEntity> refusalReasons;
+    @Getter(onMethod=@__({@DynamoDbAttribute("uncertainPaymentDate")})) private Boolean uncertainPaymentDate;
+    @Getter(onMethod=@__({@DynamoDbAttribute("legalFactGenerationDate")})) private Instant legalFactGenerationDate;
+
+    @Getter(onMethod=@__({@DynamoDbAttribute("registeredLetterCode")})) String registeredLetterCode;
+
+    @Getter(onMethod=@__({@DynamoDbAttribute("schedulingAnalogDate")})) private Instant schedulingAnalogDate;
 
 }

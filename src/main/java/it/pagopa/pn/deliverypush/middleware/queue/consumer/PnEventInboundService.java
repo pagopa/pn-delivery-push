@@ -36,12 +36,14 @@ public class PnEventInboundService {
     private final String externalChannelEventQueueName;
     private final String safeStorageEventQueueName;
     private final String nationalRegistriesEventQueueName;
-
+    private final String addressManagerEventQueueName;
+    
     public PnEventInboundService(EventHandler eventHandler, PnDeliveryPushConfigs cfg) {
         this.eventHandler = eventHandler;
         this.externalChannelEventQueueName = cfg.getTopics().getFromExternalChannel();
         this.safeStorageEventQueueName = cfg.getTopics().getSafeStorageEvents();
         this.nationalRegistriesEventQueueName = cfg.getTopics().getNationalRegistriesEvents();
+        this.addressManagerEventQueueName = cfg.getTopics().getAddressManagerEvents();
     }
 
     @Bean
@@ -73,6 +75,7 @@ public class PnEventInboundService {
 
     private String handleMessage(Message<?> message) {
         //Viene ricevuto un nuovo evento da una queue
+        //TODO Questo log è da eliminare
         log.debug("Received message from customRouter {}", message);
 
         String eventType = (String) message.getHeaders().get("eventType");
@@ -121,6 +124,9 @@ public class PnEventInboundService {
         }
         else if(Objects.equals(queueName, nationalRegistriesEventQueueName)) {
             eventType = "NR_GATEWAY_RESPONSE";
+        }
+        else if(Objects.equals(queueName, addressManagerEventQueueName)) {
+            eventType = "ADDRESS_MANAGER_EVENTS";
         }
         else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());

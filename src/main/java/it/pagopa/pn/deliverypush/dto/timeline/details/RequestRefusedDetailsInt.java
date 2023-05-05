@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import lombok.*;
 
 import java.util.List;
@@ -12,12 +13,14 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 public class RequestRefusedDetailsInt implements TimelineElementDetailsInt {
-    private List<String> errors;
+    private List<NotificationRefusedErrorInt> refusalReasons;
+    private Integer numberOfRecipients;
+    private Integer notificationCost;
 
     public String toLog() {
         return String.format(
                 "errors=%s",
-                errors
+                refusalReasons
         );
     }
 }

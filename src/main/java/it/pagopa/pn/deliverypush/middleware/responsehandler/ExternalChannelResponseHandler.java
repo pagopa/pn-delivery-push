@@ -50,8 +50,8 @@ public class ExternalChannelResponseHandler {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
 
             ExtChannelDigitalSentResponseInt digitalSentResponseInt = mapExternalToInternal(event, iun);
-            log.info("Received ExternalChannel legal message event for requestId={} - status={} details={} eventCode={} generatedMessage={} eventTimestamp={}",
-                    digitalSentResponseInt.getRequestId(), digitalSentResponseInt.getStatus(), digitalSentResponseInt.getEventDetails(), digitalSentResponseInt.getEventCode(),
+            log.info("Received ExternalChannel legal message event status={} and eventCode={} - iun={} requestId={} details={} generatedMessage={} eventTimestamp={}",
+                    digitalSentResponseInt.getStatus(), digitalSentResponseInt.getEventCode(), iun, digitalSentResponseInt.getRequestId(), digitalSentResponseInt.getEventDetails(),
                     digitalSentResponseInt.getGeneratedMessage(), digitalSentResponseInt.getEventTimestamp());
             
             digitalWorkFlowExternalChannelResponseHandler.handleExternalChannelResponse(digitalSentResponseInt);
