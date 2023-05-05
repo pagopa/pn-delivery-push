@@ -284,6 +284,7 @@ info:
     se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati
     gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br>
     Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br>
+    <font color="red"><strong>Nella prima versione di Piattaforma Notifiche non verrà implementata la segregazione dei gruppi e pertanto le informazioni presenti all'interno di uno stream saranno accessibili a tutte le apiKey della stessa PA; Si evidenzia comunque che gli eventi esposti dalle stream sono anonimizzati e non contengono informazioni personali o sensibili dei soggetti impattati dagli eventi.</font></strong></br>
     <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__ </font> 
 
     </br>
