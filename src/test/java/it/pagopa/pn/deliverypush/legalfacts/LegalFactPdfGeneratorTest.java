@@ -118,6 +118,7 @@ class LegalFactPdfGeneratorTest {
 		DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
 				.denomination("Mario Rossi")
 				.taxId("RSSMRA80A01H501U")
+				.delegateType(RecipientTypeInt.PF)
 				.build();
 		Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
 
