@@ -98,7 +98,7 @@ class LegalFactPdfGeneratorTest {
 		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationReceivedLegalFact(buildNotification())));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
-	
+
 	@Test 
 	void generateNotificationViewedLegalFactTest() throws IOException {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
@@ -393,6 +393,7 @@ class LegalFactPdfGeneratorTest {
 	private List<NotificationRecipientInt> buildRecipients() {
 		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
 				.taxId("CDCFSC11R99X001Z")
+				.recipientType(RecipientTypeInt.PF)
 				.denomination("Galileo Bruno")
 				.digitalDomicile(LegalDigitalAddressInt.builder()
 						.address("test@dominioPec.it")
@@ -417,6 +418,7 @@ class LegalFactPdfGeneratorTest {
 	private List<NotificationRecipientInt> buildRecipientsWithSpecialChar() {
 		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
 				.taxId("CDCFSC11R99X001Z")
+				.recipientType(RecipientTypeInt.PF)
 				.denomination("Galileo Brunè <h1>ciao</h1>")
 				.digitalDomicile(LegalDigitalAddressInt.builder()
 						.address("test@dominioàPec.it")
