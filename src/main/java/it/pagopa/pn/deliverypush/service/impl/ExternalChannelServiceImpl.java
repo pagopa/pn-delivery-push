@@ -140,7 +140,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
             logEvent.generateSuccess("successful sent eventId={}", eventId).log();
             return eventId;
         } catch (Exception e) {
-            logEvent.generateFailure("Error in sendDigitalNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex).log();
+            logEvent.generateFailure("Error in sendDigitalNotification, iun={} id={}", notification.getIun(), recIndex, e).log();
             throw e;
         }
     }
@@ -163,7 +163,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                 digitalParameters.quickAccessToken);
             logEvent.generateSuccess().log();
         } catch (Exception e) {
-            logEvent.generateFailure("Error in sendCourtesyNotification, error={} iun={} id={}", e.getMessage(), notification.getIun(), recIndex).log();
+            logEvent.generateFailure("Error in sendCourtesyNotification, iun={} id={}", notification.getIun(), recIndex, e).log();
             throw e;
         }
     }

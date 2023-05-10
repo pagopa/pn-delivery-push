@@ -64,7 +64,7 @@ public class IoServiceImpl implements IoService {
           }
 
         } catch (Exception ex){
-            logEvent.generateFailure("Error in sendIoMessage, exception={}", ex).log();
+            logEvent.generateFailure("Error in sendIoMessage", ex).log();
             throw ex;
         }
     }

@@ -80,7 +80,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                     // la key è la legalfactid
                     safeStorageService.getFile(legalfactId, false)
                             .onErrorResume( exc -> {
-                                    logEvent.generateFailure("Exception in getLegalFactMetadata exc={}", exc).log();
+                                    logEvent.generateFailure("Exception in getLegalFactMetadata", exc).log();
                                         return Mono.error(exc);
                                     }
                             )
@@ -158,7 +158,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             
             return legalFacts;
         } catch (Exception exc) {
-            logEvent.generateFailure("Exception in getLegalFact exc={}", exc).log();
+            logEvent.generateFailure("Exception in getLegalFact", exc).log();
             throw exc;
         }
     }

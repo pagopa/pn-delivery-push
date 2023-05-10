@@ -70,7 +70,7 @@ public class NotificationViewLegalFactCreationResponseHandler {
             }
 
         } catch (Exception ex){
-            recipientAccessLegalFactAuditLog.generateFailure( "Saving legalFact FAILURE type={} fileKey={} iun={} recIndex={} ex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, actionDetails.getKey(), iun, recIndex, ex).log();
+            recipientAccessLegalFactAuditLog.generateFailure( "Saving legalFact FAILURE type={} fileKey={} iun={} recIndex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, actionDetails.getKey(), iun, recIndex, ex).log();
             throw ex;
         }
     }

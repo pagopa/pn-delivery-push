@@ -36,7 +36,7 @@ public class SuccessWorkflowHandler {
             timelineService.addTimelineElement(timelineUtils.buildSuccessDigitalWorkflowTimelineElement(notification, recIndex, digitalAddress, legalFactId), notification);
             logEvent.generateSuccess().log();
         }catch (Exception ex){
-            logEvent.generateFailure("Error in buildSuccessDigitalWorkflowTimelineElement legalFactId={} - iun={} recIndex={} exc=", legalFactId, notification.getIun(), recIndex, ex).log();
+            logEvent.generateFailure("Error in buildSuccessDigitalWorkflowTimelineElement legalFactId={} - iun={} recIndex={}", legalFactId, notification.getIun(), recIndex, ex).log();
             throw ex;
         }
     }

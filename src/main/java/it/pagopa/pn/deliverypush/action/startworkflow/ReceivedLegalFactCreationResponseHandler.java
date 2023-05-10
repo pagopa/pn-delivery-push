@@ -49,7 +49,7 @@ public class ReceivedLegalFactCreationResponseHandler {
 
             log.debug("End handleReceivedLegalFactCreationResponse - iun={}", notification.getIun());
         }catch (Exception ex){
-            logEvent.generateFailure("Saving legalFact FAILURE type={} fileKey={} iun={} ex={}", LegalFactCategoryInt.SENDER_ACK, legalFactId, iun, ex).log();
+            logEvent.generateFailure("Saving legalFact FAILURE type={} fileKey={} iun={}", LegalFactCategoryInt.SENDER_ACK, legalFactId, iun, ex).log();
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, LegalFactCategoryInt.SENDER_ACK, iun, "N/A");
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, ex);
         }
