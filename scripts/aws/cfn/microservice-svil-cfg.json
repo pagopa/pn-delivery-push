@@ -18,9 +18,9 @@
     "TimeToAddInNonVisibilityTimeCase": "10m",
     "IsMvpDefaultValue": "false",
     "RetentionAttachmentDaysAfterRefinement": "120",
-    "ValidationRetryIntervals": "10s, 1m, 1m, 5m, 1h, -1s",
+    "ValidationRetryIntervals": "10s, 1m, 1m, 5m",
     "SendNotificationAttachments": "analog-notification",
-    "SafeStorageFileNotFoundRetry": "false",
+    "SafeStorageFileNotFoundRetry": "true",
     "LandingUrl": "https://www.svil.pn.pagopa.it",
     "AddressManagerBaseUrl": "http://alb.confidential.pn.internal:8080"
   }
