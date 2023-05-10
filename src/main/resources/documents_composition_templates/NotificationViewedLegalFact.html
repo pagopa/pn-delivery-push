@@ -186,7 +186,11 @@
         </div>
         <div class="row">
           <div class="left-col col-5-10">
-            <p>C. F.</p>
+            <#if recipient.recipientType == "PF">
+              <p>C. F.</p>
+            <#else>
+              <p>P. IVA</p>
+            </#if>
           </div>
           <div class="left-col col-5-10">
             <p><strong>${recipient.taxId}</strong></p>
@@ -211,7 +215,11 @@
           </div>
           <div class="row">
             <div class="left-col col-5-10">
-              <p>C. F.</p>
+              <#if delegate.delegateType == "PF">
+                <p>C. F.</p>
+              <#else>
+                <p>P. IVA</p>
+              </#if>
             </div>
             <div class="left-col col-5-10">
               <p><strong>${delegate.taxId}</strong></p>

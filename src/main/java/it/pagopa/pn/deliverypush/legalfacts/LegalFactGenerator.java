@@ -178,6 +178,7 @@ public class LegalFactGenerator {
     public static class PecDeliveryInfo {
         private String denomination;
         private String taxId;
+        private RecipientTypeInt recipientType;
         private String address;
         private String addressSource;
         private Instant orderBy;
@@ -200,6 +201,7 @@ public class LegalFactGenerator {
                     return new PecDeliveryInfo(
                             recipient.getDenomination(),
                             recipient.getTaxId(),
+                            recipient.getRecipientType(),
                             feedbackFromExtChannel.getDigitalAddress().getAddress(),
                             feedbackFromExtChannel.getDigitalAddressSource() != null ? feedbackFromExtChannel.getDigitalAddressSource().getValue() : null,
                             notificationDate,
