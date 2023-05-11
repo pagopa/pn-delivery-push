@@ -139,7 +139,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
             auditLogEvent.generateSuccess("Prepare invoked timelineId={}", timelineId).log();
         } catch (Exception exc) {
-            auditLogEvent.generateFailure("failed prepare exc={}", exc).log();
+            auditLogEvent.generateFailure("failed prepare", exc).log();
             throw exc;
         }
     }
@@ -200,7 +200,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             String timelineId = paperChannelUtils.addPrepareAnalogNotificationToTimeline(notification, receiverAddress, recIndex, relatedEventId, sentAttemptMade, eventId, discoveredAddress);
             auditLogEvent.generateSuccess("Prepare invoked timelineId={}", timelineId).log();
         } catch (Exception exc) {
-            auditLogEvent.generateFailure("failed prepare exc={}", exc).log();
+            auditLogEvent.generateFailure("failed prepare", exc).log();
             throw exc;
         }
     }
@@ -252,7 +252,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
 
             } catch (Exception exc) {
-                auditLogEvent.generateFailure("failed send exc={}", exc).log();
+                auditLogEvent.generateFailure("failed send", exc).log();
                 throw exc;
             }
         }
@@ -304,7 +304,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
 
             } catch (Exception exc) {
-                auditLogEvent.generateFailure("failed send exc={}", exc).log();
+                auditLogEvent.generateFailure("failed send", exc).log();
                 throw exc;
             }
         }

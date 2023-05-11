@@ -87,7 +87,7 @@ public class NotificationViewedRequestHandler {
                                             return Mono.empty();
                                         }
                                     })
-                            ).doOnError( err -> logEvent.generateFailure("Exception in View notification ex={} - iun={} id={}", err, iun, recIndex).log());
+                            ).doOnError( err -> logEvent.generateFailure("Exception in View notification iun={} id={}", iun, recIndex, err).log());
                 } else {
                     log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
                     return Mono.empty();

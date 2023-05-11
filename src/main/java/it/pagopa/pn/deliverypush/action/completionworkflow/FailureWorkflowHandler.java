@@ -51,7 +51,7 @@ public class FailureWorkflowHandler {
             timelineService.addTimelineElement(timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId, legalFactCreationDate), notification);
             logEvent.generateSuccess().log();
         }catch (Exception ex){
-            logEvent.generateFailure("Error in buildFailureDigitalWorkflowTimelineElement legalFactId={} - iun={} recIndex={} exc=", legalFactId, notification.getIun(), recIndex, ex).log();
+            logEvent.generateFailure("Error in buildFailureDigitalWorkflowTimelineElement legalFactId={} - iun={} recIndex={}", legalFactId, notification.getIun(), recIndex, ex).log();
             throw ex;
         }
     }

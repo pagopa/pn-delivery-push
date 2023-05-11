@@ -72,7 +72,7 @@ public class AarCreationResponseHandler {
                 throw new PnInternalException("AarCreationRequestDetails timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
             }
         } catch (Exception ex){
-            logEvent.generateFailure("Saving AAR FAILURE fileKey={} iun={} recIndex={} ex={}", actionDetails.getKey(), iun, recIndex, ex).log();
+            logEvent.generateFailure("Saving AAR FAILURE fileKey={} iun={} recIndex={}", actionDetails.getKey(), iun, recIndex, ex).log();
             throw ex;
         }
     }
