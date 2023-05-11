@@ -41,9 +41,9 @@ public class {{classname}} {{#parent}}extends {{{.}}}{{/parent}}{{^parent}}{{#ha
   @JacksonXmlProperty({{#isXmlAttribute}}isAttribute = true, {{/isXmlAttribute}}{{#xmlNamespace}}namespace="{{.}}", {{/xmlNamespace}}localName = "{{xmlName}}{{^xmlName}}{{baseName}}{{/xmlName}}")
   {{/withXml}}
   {{/jackson}}
-  {{#vendorExtensions.x-pn-fieldannotations}}
+  {{#vendorExtensions.x-field-extra-annotation}}
   {{{.}}}
-  {{/vendorExtensions.x-pn-fieldannotations}}
+  {{/vendorExtensions.x-field-extra-annotation}}
   {{#gson}}
   @SerializedName("{{baseName}}")
   {{/gson}}
