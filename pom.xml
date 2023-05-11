@@ -241,6 +241,7 @@
 							<typeMappings>
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<basePackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1</basePackage>
 								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto</modelPackage>
@@ -280,6 +281,7 @@
 							<modelNameSuffix />
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<basePackage>it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1</basePackage>
 								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto</modelPackage>
@@ -315,6 +317,7 @@
 							<typeMappings>
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery.api</apiPackage>
 								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery.model</modelPackage>
@@ -345,6 +348,7 @@
 							<typeMappings>
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery-reactive.api</apiPackage>
 								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.delivery.model</modelPackage>
@@ -376,6 +380,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.datavault.generated.openapi.clients.datavault.api</apiPackage>
 								<modelPackage>it.pagopa.pn.datavault.generated.openapi.clients.datavault.model</modelPackage>
@@ -385,7 +390,7 @@
 								<openApiNullable>false</openApiNullable>
 								<useAbstractionForFiles>true</useAbstractionForFiles>
 								<useBeanValidation>false</useBeanValidation>
-								<additionalModelTypeAnnotations>@lombok.Builder(toBuilder = true); @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+								<additionalModelTypeAnnotations>@lombok.Builder(toBuilder = true); @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
 							</configOptions>
 						</configuration>
 					</execution>
@@ -404,6 +409,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.datavault.generated.openapi.clients.datavault-reactive.api</apiPackage>
 								<modelPackage>it.pagopa.pn.datavault.generated.openapi.clients.datavault.model</modelPackage>
@@ -435,6 +441,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.api</apiPackage>
 								<modelPackage>it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model</modelPackage>
@@ -461,6 +468,7 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api</apiPackage>
 								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model</modelPackage>
@@ -490,6 +498,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage-reactive.api</apiPackage>
 								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model</modelPackage>
@@ -521,6 +530,7 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api</apiPackage>
 								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model</modelPackage>
@@ -550,6 +560,7 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.api</apiPackage>
 								<modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model</modelPackage>
@@ -579,6 +590,7 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.mandate.generated.openapi.clients.mandate.api</apiPackage>
 								<modelPackage>it.pagopa.pn.mandate.generated.openapi.clients.mandate.model</modelPackage>
@@ -608,6 +620,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.api</apiPackage>
 								<modelPackage>it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model</modelPackage>
@@ -634,6 +647,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.api</apiPackage>
 								<modelPackage>it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model</modelPackage>
@@ -663,6 +677,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.api</apiPackage>
 								<modelPackage>it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model</modelPackage>

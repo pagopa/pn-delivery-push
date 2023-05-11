@@ -7,6 +7,7 @@ components:
       - address
       - type
       type: object
+      x-pn-fieldannotations: "@lombok.ToString.Exclude"
       properties:
         type:
           type: string
@@ -18,6 +19,7 @@ components:
 
     PhysicalAddress:
       type: object
+      x-pn-fieldannotations: "@lombok.ToString.Exclude"
       required:
         - address
         - municipality

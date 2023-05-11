@@ -77,7 +77,7 @@ components:
         - SEND_ANALOG_DOMICILE
         - SEND_ANALOG_PROGRESS
         - SEND_ANALOG_FEEDBACK
-        - PAYMENT
+        - PAYMENT@lombok.ToString.Exclude
         - COMPLETELY_UNREACHABLE
         - COMPLETELY_UNREACHABLE_CREATION_REQUEST
         - REQUEST_REFUSED
@@ -177,6 +177,7 @@ components:
 
     CompletelyUnreachableCreationRequestDetails:
       type: object
+      x-java-class-annotation: '@ToString(callSuper=true, includeFieldNames=false)'
       required:
         - recIndex
       properties:
@@ -1054,12 +1055,14 @@ components:
         internalId:
           type: string
         taxId:
+          x-pn-fieldannotations: "@lombok.ToString.Exclude"
           type: string
         operatorUuid:
           type: string
         mandateId:
           type: string
         denomination:
+          x-pn-fieldannotations: "@lombok.ToString.Exclude"
           type: string
         delegateType:
           $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
