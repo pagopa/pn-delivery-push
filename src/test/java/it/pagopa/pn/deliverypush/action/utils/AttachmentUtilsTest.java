@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
+import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -210,9 +211,9 @@ class AttachmentUtilsTest {
 
         Assert.assertEquals(1, attachmentsRecipient1.size());
         Assert.assertEquals(2, attachmentsRecipient2.size());
-        Assert.assertEquals(attachmentsRecipient1.get(0), notification.getDocuments().get(0).getRef().getKey());
-        Assert.assertEquals(attachmentsRecipient2.get(0), notification.getDocuments().get(0).getRef().getKey());
-        Assert.assertEquals(attachmentsRecipient2.get(1), notification.getRecipients().get(recIndexRecipient2).getPayment().getPagoPaForm().getRef().getKey());
+        Assert.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
+        Assert.assertEquals(attachmentsRecipient2.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
+        Assert.assertEquals(attachmentsRecipient2.get(1), FileUtils.getKeyWithStoragePrefix(notification.getRecipients().get(recIndexRecipient2).getPayment().getPagoPaForm().getRef().getKey()));
     }
 
     private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {

@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
+import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -164,6 +165,6 @@ public class AttachmentUtils {
     }
 
     public List<String> getNotificationAttachments(NotificationInt notification, NotificationRecipientInt recipient) {
-        return getAllAttachmentByRecipient(notification, recipient).stream().map(attachment -> attachment.getRef().getKey()).toList();
+        return getAllAttachmentByRecipient(notification, recipient).stream().map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey())).toList();
     }
 }
