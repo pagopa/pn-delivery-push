@@ -31,6 +31,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
@@ -553,6 +554,12 @@ public class TestUtils {
                 legalFactGenerator,
                 generatedLegalFactsInfo.isPecDeliveryWorkflowLegalFactsGenerated()
         );
+
+        TestUtils.checkCompletelyUnreachableLegalFactsGeneration(notification,
+                recipient,
+                endWorkflowStatus,
+                legalFactGenerator,
+                generatedLegalFactsInfo.isNotificationCompletelyUnreachableLegalFactGenerated());
     }
 
     private static int getTimes(boolean itWasGenerated) {
@@ -633,6 +640,25 @@ public class TestUtils {
         }
     }
 
+
+    private static void checkCompletelyUnreachableLegalFactsGeneration(NotificationInt notification,
+                                                                     NotificationRecipientInt recipient,
+                                                                     EndWorkflowStatus endWorkflowStatus,
+                                                                     LegalFactGenerator legalFactGenerator,
+                                                                     boolean itWasGenerated
+    ) {
+        int times = getTimes(itWasGenerated);
+
+
+        try {
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateAnalogDeliveryFailureWorkflowLegalFact(Mockito.eq(notification),
+                    Mockito.eq(recipient), Mockito.eq(endWorkflowStatus), Mockito.any(Instant.class));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     public static NotificationInt getNotification() {
         return NotificationInt.builder()
                 .iun("IUN_01")
@@ -697,6 +723,7 @@ public class TestUtils {
         boolean notificationAARGenerated;
         boolean notificationViewedLegalFactGenerated;
         boolean pecDeliveryWorkflowLegalFactsGenerated;
+        boolean notificationCompletelyUnreachableLegalFactGenerated;
     }
 
     @Builder

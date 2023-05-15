@@ -172,7 +172,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                     digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getEventDetails(), timelineId).log();
 
         } catch (Exception e) {
-            logEvent.generateFailure("Error handleNotSuccessfulSending exc={}", e).log();
+            logEvent.generateFailure("Error handleNotSuccessfulSending", e).log();
            throw e;
         }
     }
@@ -241,7 +241,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             }
             
         } catch (Exception e) {
-            logEvent.generateFailure("Error handleSuccessfulSending exc={}", e).log();
+            logEvent.generateFailure("Error handleSuccessfulSending", e).log();
             throw e;
         }
     }

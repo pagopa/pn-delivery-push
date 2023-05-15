@@ -83,7 +83,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
                 logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
             } catch (Exception ex) {
-                logEvent.generateFailure("Exception in addTimelineElement, ex={}", ex).log();
+                logEvent.generateFailure("Exception in addTimelineElement", ex).log();
                 throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED, ex);
             }
 

@@ -206,7 +206,11 @@
 
         <div class="row">
             <div class="left-col col-5-10">
-                <p>Codice Fiscale</p>
+                <#if recipient.recipientType == "PF">
+                    <p>Codice Fiscale</p>
+                <#else>
+                    <p>Partita IVA</p>
+                </#if>
             </div>
             <div class="left-col col-5-10">
                 <p><strong>${recipient.taxId}</strong></p>

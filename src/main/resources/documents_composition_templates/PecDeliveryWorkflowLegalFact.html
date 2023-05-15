@@ -186,7 +186,11 @@
 
         <div class="row">
           <div class="left-col col-5-10">
-            <p>C. F.</p>
+            <#if delivery.recipientType == "PF">
+              <p>C. F.</p>
+            <#else>
+              <p>P. IVA</p>
+            </#if>
           </div>
           <div class="left-col col-5-10">
             <p><strong>${delivery.taxId}</strong></p>

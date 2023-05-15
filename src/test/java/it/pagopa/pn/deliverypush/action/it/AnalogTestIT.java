@@ -367,6 +367,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(true)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
         
         TestUtils.checkGeneratedLegalFacts(
@@ -484,6 +485,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(true)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -629,6 +631,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -637,7 +640,7 @@ class AnalogTestIT {
                 recIndex,
                 0,
                 generatedLegalFactsInfo,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
                 timelineService,
                 null
@@ -729,6 +732,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -908,6 +912,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -916,7 +921,7 @@ class AnalogTestIT {
                 recIndex1,
                 0,
                 generatedLegalFactsInfo,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
                 timelineService,
                 null
@@ -928,6 +933,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -936,7 +942,7 @@ class AnalogTestIT {
                 recIndex2,
                 0,
                 generatedLegalFactsInfo2,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
                 timelineService,
                 null
@@ -1119,6 +1125,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1139,6 +1146,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1147,7 +1155,7 @@ class AnalogTestIT {
                 recIndex2,
                 0,
                 generatedLegalFactsInfo2,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
                 timelineService,
                 null
@@ -1319,6 +1327,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1327,7 +1336,7 @@ class AnalogTestIT {
                 rec1Index,
                 0,
                 generatedLegalFactsInfo,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
                 timelineService,
                 null
@@ -1339,6 +1348,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1547,6 +1557,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1555,7 +1566,7 @@ class AnalogTestIT {
                 rec1Index,
                 0,
                 generatedLegalFactsInfo,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
                 timelineService,
                 null
@@ -1567,6 +1578,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(

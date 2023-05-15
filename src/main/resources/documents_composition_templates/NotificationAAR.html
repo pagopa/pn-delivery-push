@@ -308,11 +308,11 @@
       <div id="main__disclaimer">
         Ricevi questo avviso di avvenuta ricezione in qualità di
         <#if recipient.recipientType == "PF">
-          privato cittadino
+          privato cittadino con Codice Fiscale
         <#else>
-          persona giuridica
+          persona giuridica con Partita IVA
         </#if>
-        con Codice Fiscale ${recipient.taxId}.
+         ${recipient.taxId}.
       </div>
       <div id="main__content">
         Hai ricevuto su SEND - Servizio Notifiche Digitali una notifica da parte di <strong>${notification.sender.paDenomination}</strong>.

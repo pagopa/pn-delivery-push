@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -290,7 +291,7 @@ class HtmlSanitizerTest {
 
     @Test
     void sanitizeDigitalNotificationWorkflowTemplateWithNoHTMlElement() {
-        Object templateModel = getTemplateModelForDigitalNotificationWorkflow(null);
+        Object templateModel = getTemplateModelForDigitalNotificationWorkflow(null, RecipientTypeInt.PF);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat(sanitizedTemplateModel).isEqualTo(templateModel);
@@ -299,7 +300,7 @@ class HtmlSanitizerTest {
     @Test
     void sanitizeDigitalNotificationWorkflowTemplateWithImgHTMlElement() {
         String customDenomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
-        Map<?, ?> templateModel = getTemplateModelForDigitalNotificationWorkflow(customDenomination);
+        Map<?, ?> templateModel = getTemplateModelForDigitalNotificationWorkflow(customDenomination, RecipientTypeInt.PF);
         List<PecDeliveryInfo> deliveryInfosActual = (List<PecDeliveryInfo>) templateModel.get(FIELD_DELIVERIES);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
@@ -487,18 +488,19 @@ class HtmlSanitizerTest {
         return templateModel;
     }
 
-    private Map<String, Object> getTemplateModelForDigitalNotificationWorkflow(String denomination) {
+    private Map<String, Object> getTemplateModelForDigitalNotificationWorkflow(String denomination, RecipientTypeInt recipientType) {
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_SEND_DATE_NO_TIME, Instant.now().toString());
         templateModel.put(FIELD_IUN, UUID.randomUUID().toString());
-        templateModel.put(FIELD_DELIVERIES, Collections.singletonList(buildPecDeliveryInfo(denomination)));
+        templateModel.put(FIELD_DELIVERIES, Collections.singletonList(buildPecDeliveryInfo(denomination, recipientType)));
         return templateModel;
     }
 
-    private PecDeliveryInfo buildPecDeliveryInfo(String denomination) {
+    private PecDeliveryInfo buildPecDeliveryInfo(String denomination, RecipientTypeInt recipientType) {
         return new PecDeliveryInfo(
                 denomination,
                 UUID.randomUUID().toString(),
+                recipientType,
                 "digital address",
                 "digital address source",
                 Instant.now(),

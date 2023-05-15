@@ -81,7 +81,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
                 handlePrepareKOUNREACHABLE(response, notification, timelineElementInternal, recIndex, requestId, auditLogEvent);
             }
         } catch (Exception exc) {
-            auditLogEvent.generateFailure("Unexpected error exc=", exc).log();
+            auditLogEvent.generateFailure("Unexpected error", exc).log();
             throw exc;
         }
     }
@@ -227,7 +227,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
             logEvent.generateSuccess("generated success timelineid={}", timelineId).log();
         } catch (Exception e) {
-            logEvent.generateFailure("Error handling execute response ex={}", e).log();
+            logEvent.generateFailure("Error handling execute response", e).log();
             throw  e;
         }
     }
@@ -248,7 +248,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             logEvent.generateWarning("Analog notification failed with failure cause {} generated failure timelineid={}", response.getDeliveryFailureCause(), timelineId).log();
 
         } catch (Exception e) {
-            logEvent.generateFailure("Error handling execute response ex={}", e).log();
+            logEvent.generateFailure("Error handling execute response", e).log();
             throw  e;
         }
     }
