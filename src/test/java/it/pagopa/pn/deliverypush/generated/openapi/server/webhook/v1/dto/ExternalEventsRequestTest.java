@@ -10,7 +10,7 @@ class ExternalEventsRequestTest {
 
     private ExternalEventsRequest eventsRequest;
 
-    @BeforeEach
+    @BeforeEach 
     void setUp() {
         eventsRequest = new ExternalEventsRequest();
         eventsRequest.setEvents(Collections.singletonList(ExternalEvent.builder().payment(PaymentEvent.builder().iun("001").build()).build()));
