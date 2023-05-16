@@ -55,14 +55,8 @@ public class AttachmentUtils {
         }
 
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
-            if(recipient.getPayment() != null ){
-
-                if(recipient.getPayment().getPagoPaForm() != null){
+            if(recipient.getPayment() != null && (recipient.getPayment().getPagoPaForm() != null)){
                     callback.accept(recipient.getPayment().getPagoPaForm());
-                }
-                if(recipient.getPayment().getF24flatRate() != null){
-                    callback.accept(recipient.getPayment().getF24flatRate());
-                }
 
             }
         }
@@ -73,14 +67,8 @@ public class AttachmentUtils {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
 
         notification.getRecipients().forEach( recipient -> {
-            if(recipient.getPayment() != null ){
-
-                if(recipient.getPayment().getPagoPaForm() != null){
+            if(recipient.getPayment() != null && (recipient.getPayment().getPagoPaForm() != null)){
                     notificationDocuments.add(recipient.getPayment().getPagoPaForm());
-                }
-                if(recipient.getPayment().getF24flatRate() != null){
-                    notificationDocuments.add(recipient.getPayment().getF24flatRate());
-                }
             }
         });
         
@@ -151,14 +139,8 @@ public class AttachmentUtils {
     {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
 
-        if(recipient.getPayment() != null ){
-
-            if(recipient.getPayment().getPagoPaForm() != null){
+        if(recipient.getPayment() != null && (recipient.getPayment().getPagoPaForm() != null)){
                 notificationDocuments.add(recipient.getPayment().getPagoPaForm());
-            }
-            if(recipient.getPayment().getF24flatRate() != null){
-                notificationDocuments.add(recipient.getPayment().getF24flatRate());
-            }
         }
 
         return notificationDocuments;

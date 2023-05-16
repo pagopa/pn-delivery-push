@@ -135,16 +135,6 @@ public class LegalFactGenerator {
                 if ( pagoPaForm != null ) {
                     digests.add( FileUtils.convertBase64toHexUppercase(pagoPaForm.getDigests().getSha256()) );
                 }
-
-                NotificationDocumentInt flatRateF24 = recipientPayment.getF24flatRate();
-                if ( flatRateF24 != null ) {
-                    digests.add( FileUtils.convertBase64toHexUppercase(flatRateF24.getDigests().getSha256()) );
-                }
-
-                NotificationDocumentInt f24Standard = recipientPayment.getF24standard();
-                if ( f24Standard != null ) {
-                    digests.add( FileUtils.convertBase64toHexUppercase(f24Standard.getDigests().getSha256()) );
-                }
                 
             }
         }

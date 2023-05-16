@@ -61,13 +61,13 @@ class AttachmentUtilsTest {
         resp2.setChecksum( "c2hhMjU2X2RvYzAx" );
 
         FileDownloadResponseInt resp3 = new FileDownloadResponseInt();
-        resp3.setKey("keyf24flatrate");
-        resp3.setChecksum( "a2V5ZjI0ZmxhdHJhdGU=" );
+        resp3.setKey("keyPagoPaForm");
+        resp3.setChecksum( "a2V5UGFnb1BhRm9ybQ==" );
 
         //Mockito.doNothing().when(validator).checkPreloadedDigests(Mockito.anyString(), Mockito.any( NotificationDocumentInt.Digests.class), Mockito.any( NotificationDocumentInt.Digests.class));
         Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", true)).thenReturn(Mono.just(resp1));
         Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", true)).thenReturn(Mono.just(resp2));
-        Mockito.when(safeStorageService.getFile( "keyf24flatrate", true)).thenReturn(Mono.just(resp3));
+        Mockito.when(safeStorageService.getFile( "keyPagoPaForm", true)).thenReturn(Mono.just(resp3));
 
         //WHEN
         attachmentUtils.validateAttachment(notification);
@@ -241,12 +241,12 @@ class AttachmentUtilsTest {
                                 .build()
                 )
                 .withPayment(NotificationPaymentInfoInt.builder()
-                        .f24flatRate(NotificationDocumentInt.builder()
+                        .pagoPaForm(NotificationDocumentInt.builder()
                                 .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("keyf24flatrate")
+                                        .key("keyPagoPaForm")
                                         .build())
                                 .digests( NotificationDocumentInt.Digests.builder()
-                                        .sha256( Base64Utils.encodeToString("keyf24flatrate".getBytes()) )
+                                        .sha256( Base64Utils.encodeToString("keyPagoPaForm".getBytes()) )
                                         .build() )
                                 .build())
                         .build())

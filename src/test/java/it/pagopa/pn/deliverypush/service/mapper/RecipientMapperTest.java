@@ -71,20 +71,6 @@ class RecipientMapperTest {
                                         .versionToken("002")
                                         .build())
                                 .build())
-                        .f24flatRate(NotificationDocumentInt.builder()
-                                .digests(NotificationDocumentInt.Digests.builder().sha256("001").build())
-                                .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("001")
-                                        .versionToken("002")
-                                        .build())
-                                .build())
-                        .f24standard(NotificationDocumentInt.builder()
-                                .digests(NotificationDocumentInt.Digests.builder().sha256("001").build())
-                                .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("001")
-                                        .versionToken("002")
-                                        .build())
-                                .build())
                         .build())
                 .build();
     }
@@ -130,8 +116,6 @@ class RecipientMapperTest {
         paymentInfo.setNoticeCode("001");
         paymentInfo.setCreditorTaxId("002");
         paymentInfo.setPagoPaForm(pagoPaForm);
-        paymentInfo.setF24flatRate(f24FlatRate);
-        paymentInfo.setF24standard(f24Standard);
         
         NotificationRecipient recipient = new NotificationRecipient();
         recipient.setRecipientType(RecipientTypeEnum.PF);
