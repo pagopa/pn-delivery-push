@@ -55,7 +55,7 @@ public class AttachmentUtils {
         }
 
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
-            if(recipient.getPayment() != null && (recipient.getPayment().getPagoPaForm() != null)){
+            if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
                     callback.accept(recipient.getPayment().getPagoPaForm());
 
             }
@@ -67,7 +67,7 @@ public class AttachmentUtils {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
 
         notification.getRecipients().forEach( recipient -> {
-            if(recipient.getPayment() != null && (recipient.getPayment().getPagoPaForm() != null)){
+            if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
                     notificationDocuments.add(recipient.getPayment().getPagoPaForm());
             }
         });
@@ -139,7 +139,7 @@ public class AttachmentUtils {
     {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
 
-        if(recipient.getPayment() != null && (recipient.getPayment().getPagoPaForm() != null)){
+        if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
                 notificationDocuments.add(recipient.getPayment().getPagoPaForm());
         }
 

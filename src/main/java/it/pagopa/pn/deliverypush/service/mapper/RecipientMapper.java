@@ -35,22 +35,20 @@ public class RecipientMapper {
         }
 
         NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-        if(physicalAddress != null){
-            notificationRecIntBuilder
-                    .physicalAddress(
-                            PhysicalAddressInt.builder()
-                                    .fullname(recipient.getDenomination())
-                                    .at(physicalAddress.getAt())
-                                    .address(physicalAddress.getAddress())
-                                    .addressDetails(physicalAddress.getAddressDetails())
-                                    .foreignState(physicalAddress.getForeignState())
-                                    .municipality(physicalAddress.getMunicipality())
-                                    .municipalityDetails(physicalAddress.getMunicipalityDetails())
-                                    .province(physicalAddress.getProvince())
-                                    .zip(physicalAddress.getZip())
-                                    .build()
-                    );
-        }
+        notificationRecIntBuilder
+                .physicalAddress(
+                        PhysicalAddressInt.builder()
+                                .fullname(recipient.getDenomination())
+                                .at(physicalAddress.getAt())
+                                .address(physicalAddress.getAddress())
+                                .addressDetails(physicalAddress.getAddressDetails())
+                                .foreignState(physicalAddress.getForeignState())
+                                .municipality(physicalAddress.getMunicipality())
+                                .municipalityDetails(physicalAddress.getMunicipalityDetails())
+                                .province(physicalAddress.getProvince())
+                                .zip(physicalAddress.getZip())
+                                .build()
+                );
 
         it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationPaymentInfo payment = recipient.getPayment();
 
