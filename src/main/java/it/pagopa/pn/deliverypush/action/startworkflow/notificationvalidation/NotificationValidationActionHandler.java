@@ -135,7 +135,7 @@ public class NotificationValidationActionHandler {
             Instant schedulingDate = Instant.now();
             log.info("Scheduling received legalFact generation, schedulingDate={} - iun={}", schedulingDate, iun);
             schedulerService.scheduleEvent(iun, schedulingDate, ActionType.SCHEDULE_RECEIVED_LEGALFACT_GENERATION);
-
+            logEvent.generateSuccess().log();
         } catch (PnValidationNotValidAddressException ex){
             logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), ex).log();
             handleValidationError(notification, ex);
