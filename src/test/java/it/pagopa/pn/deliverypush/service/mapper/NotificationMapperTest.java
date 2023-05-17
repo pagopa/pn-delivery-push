@@ -66,6 +66,11 @@ class NotificationMapperTest {
                                                .address("address")
                                                .type(NotificationDigitalAddress.TypeEnum.PEC)
                                )
+                               .physicalAddress(
+                                       new NotificationPhysicalAddress()
+                                               .address("physicalAddress")
+                                               .municipality("municipality")
+                               )
                 ))
                 .documents(Arrays.asList(
                         new NotificationDocument()

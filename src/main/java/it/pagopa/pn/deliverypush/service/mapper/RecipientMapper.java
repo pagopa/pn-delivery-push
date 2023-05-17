@@ -35,22 +35,20 @@ public class RecipientMapper {
         }
 
         NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-        if(physicalAddress != null){
-            notificationRecIntBuilder
-                    .physicalAddress(
-                            PhysicalAddressInt.builder()
-                                    .fullname(recipient.getDenomination())
-                                    .at(physicalAddress.getAt())
-                                    .address(physicalAddress.getAddress())
-                                    .addressDetails(physicalAddress.getAddressDetails())
-                                    .foreignState(physicalAddress.getForeignState())
-                                    .municipality(physicalAddress.getMunicipality())
-                                    .municipalityDetails(physicalAddress.getMunicipalityDetails())
-                                    .province(physicalAddress.getProvince())
-                                    .zip(physicalAddress.getZip())
-                                    .build()
-                    );
-        }
+        notificationRecIntBuilder
+                .physicalAddress(
+                        PhysicalAddressInt.builder()
+                                .fullname(recipient.getDenomination())
+                                .at(physicalAddress.getAt())
+                                .address(physicalAddress.getAddress())
+                                .addressDetails(physicalAddress.getAddressDetails())
+                                .foreignState(physicalAddress.getForeignState())
+                                .municipality(physicalAddress.getMunicipality())
+                                .municipalityDetails(physicalAddress.getMunicipalityDetails())
+                                .province(physicalAddress.getProvince())
+                                .zip(physicalAddress.getZip())
+                                .build()
+                );
 
         it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationPaymentInfo payment = recipient.getPayment();
 
@@ -75,44 +73,6 @@ public class RecipientMapper {
                                 )
                                 .build()
                 );
-            }
-
-            if(payment.getF24flatRate() != null){
-                paymentInfoBuilder
-                        .f24flatRate(
-                                NotificationDocumentInt.builder()
-                                        .digests(
-                                                NotificationDocumentInt.Digests.builder()
-                                                        .sha256(payment.getF24flatRate().getDigests().getSha256())
-                                                        .build()
-                                        )
-                                        .ref(
-                                                NotificationDocumentInt.Ref.builder()
-                                                        .key(payment.getF24flatRate().getRef().getKey())
-                                                        .versionToken(payment.getF24flatRate().getRef().getVersionToken())
-                                                        .build()
-                                        )
-                                        .build()
-                        );
-            }
-
-            if(payment.getF24standard() != null){
-                paymentInfoBuilder
-                        .f24standard(
-                                NotificationDocumentInt.builder()
-                                        .digests(
-                                                NotificationDocumentInt.Digests.builder()
-                                                        .sha256(payment.getF24standard().getDigests().getSha256())
-                                                        .build()
-                                        )
-                                        .ref(
-                                                NotificationDocumentInt.Ref.builder()
-                                                        .key(payment.getF24standard().getRef().getKey())
-                                                        .versionToken(payment.getF24standard().getRef().getVersionToken())
-                                                        .build()
-                                        )
-                                        .build()
-                        );
             }
 
 
@@ -184,41 +144,6 @@ public class RecipientMapper {
             pagoPaForm.setRef(ref);
         }
         payment.setPagoPaForm(pagoPaForm);
-
-        NotificationPaymentAttachment f24flatRate = null;
-        if (paymentInternal.getF24flatRate() != null){
-            NotificationDocumentInt f24FlatRateInternal = paymentInternal.getF24flatRate();
-
-            f24flatRate = new NotificationPaymentAttachment();
-
-            NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
-            digests.setSha256(f24FlatRateInternal.getDigests().getSha256());
-            f24flatRate.setDigests(digests);
-
-            NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
-            ref.setKey(f24FlatRateInternal.getRef().getKey());
-            ref.setVersionToken(f24FlatRateInternal.getRef().getVersionToken());
-            f24flatRate.setRef(ref);
-        }
-
-        NotificationPaymentAttachment f24Standard = null;
-        if (paymentInternal.getF24standard() != null){
-            NotificationDocumentInt f24StandardInternal = paymentInternal.getF24standard();
-
-            f24Standard = new NotificationPaymentAttachment();
-
-            NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
-            digests.setSha256(f24StandardInternal.getDigests().getSha256());
-            f24Standard.setDigests(digests);
-
-            NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
-            ref.setKey(f24StandardInternal.getRef().getKey());
-            ref.setVersionToken(f24StandardInternal.getRef().getVersionToken());
-            f24Standard.setRef(ref);
-        }
-        
-        payment.setF24flatRate(f24Standard);
-        payment.setF24standard(f24Standard);
         payment.setNoticeCode(paymentInternal.getNoticeCode());
         payment.setCreditorTaxId(paymentInternal.getCreditorTaxId());
         

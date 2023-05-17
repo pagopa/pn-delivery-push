@@ -13,6 +13,4 @@ public class NotificationPaymentInfoInt {
     private String creditorTaxId;
 
     private NotificationDocumentInt pagoPaForm;
-    private NotificationDocumentInt f24flatRate;
-    private NotificationDocumentInt f24standard;
 }
