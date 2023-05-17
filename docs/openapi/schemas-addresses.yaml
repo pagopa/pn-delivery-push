@@ -7,7 +7,7 @@ components:
       - address
       - type
       type: object
-      x-field-extra-annotation: "@lombok.ToString.Exclude"
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       properties:
         type:
           type: string
@@ -19,7 +19,7 @@ components:
 
     PhysicalAddress:
       type: object
-      x-field-extra-annotation: "@lombok.ToString.Exclude"
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       required:
         - address
         - municipality
