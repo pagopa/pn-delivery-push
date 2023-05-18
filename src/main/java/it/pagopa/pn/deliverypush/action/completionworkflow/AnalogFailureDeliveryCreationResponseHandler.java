@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -15,7 +14,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -24,7 +23,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 
 @Component
 @AllArgsConstructor
-@Slf4j
+@CustomLog
 public class AnalogFailureDeliveryCreationResponseHandler {
     private final CompletelyUnreachableUtils completelyUnreachableUtils;
     private final NotificationService notificationService;
@@ -73,7 +72,7 @@ public class AnalogFailureDeliveryCreationResponseHandler {
         }
         else
         {
-            LogUtils.logAlarm(log,"Cannot retrieve AnalogFailureWorkflow for iun={} recIndex={}", iun, recIndex);
+            log.fatal("Cannot retrieve AnalogFailureWorkflow for iun={} recIndex={}", iun, recIndex);
             throw new PnInternalException("Cannot retrieve AnalogFailureWorkflow for Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
         }
     }

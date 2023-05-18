@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action.startworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -14,7 +13,7 @@ import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ import java.util.List;
 
 @Component
 @AllArgsConstructor
-@Slf4j
+@CustomLog
 public class NormalizeAddressHandler {
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
@@ -60,7 +59,7 @@ public class NormalizeAddressHandler {
                 notification.getRecipients().size(),
                 notification.getIun()
         );
-        LogUtils.logAlarm(log, errorMsg);
+        log.fatal(errorMsg);
         throw new PnInternalException(errorMsg, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NORMALIZE_ADDRESS_ERROR);
     }
 

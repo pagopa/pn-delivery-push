@@ -5,7 +5,6 @@ import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.mode
 import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeItemsRequest;
 import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeRequest;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
@@ -13,7 +12,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.addressmanag
 import it.pagopa.pn.deliverypush.service.AddressManagerService;
 import it.pagopa.pn.deliverypush.service.mapper.AddressManagerMapper;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -21,7 +20,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
+@CustomLog
 @AllArgsConstructor
 @Service
 public class AddressManagerServiceImpl implements AddressManagerService {
@@ -78,7 +77,7 @@ public class AddressManagerServiceImpl implements AddressManagerService {
                 recIndex,
                 correlationId
         );
-        LogUtils.logAlarm(log, errorMsg);
+        log.fatal(errorMsg);
         throw new PnInternalException(errorMsg, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_PHYSICAL_ADDRESS_NOT_PRESENT);
     }
 }
