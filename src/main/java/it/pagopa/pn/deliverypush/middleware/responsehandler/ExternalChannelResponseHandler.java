@@ -10,13 +10,15 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReference
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
-import lombok.extern.slf4j.Slf4j;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
+import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATEFAILED;
 
 @Component
-@Slf4j
+@CustomLog
 public class ExternalChannelResponseHandler {
     public static final String EXCEPTION_LEGAL_UPDATE = "Exception legalUpdate";
     public static final String COURTESY_UPDATE_FAILED = "Courtesy update failed";
@@ -48,13 +50,18 @@ public class ExternalChannelResponseHandler {
     private void legalUpdate(LegalMessageSentDetails event) {
         try {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
-
-            ExtChannelDigitalSentResponseInt digitalSentResponseInt = mapExternalToInternal(event, iun);
-            log.info("Received ExternalChannel legal message event status={} and eventCode={} - iun={} requestId={} details={} generatedMessage={} eventTimestamp={}",
-                    digitalSentResponseInt.getStatus(), digitalSentResponseInt.getEventCode(), iun, digitalSentResponseInt.getRequestId(), digitalSentResponseInt.getEventDetails(),
-                    digitalSentResponseInt.getGeneratedMessage(), digitalSentResponseInt.getEventTimestamp());
+            addMdcFilter(iun, event.getRequestId());
             
-            digitalWorkFlowExternalChannelResponseHandler.handleExternalChannelResponse(digitalSentResponseInt);
+            log.logStartingProcess(ExternalChannelService.DIGITAL_LEGAL_PROCESS_NAME);
+            
+            ExtChannelDigitalSentResponseInt digitalSentResponse = mapExternalToInternal(event, iun);
+            log.debug("Received ExternalChannel legal message event: status={} and eventCode={} - iun={} requestId={} details={} generatedMessage={} eventTimestamp={}",
+                    digitalSentResponse.getStatus(), digitalSentResponse.getEventCode(), iun, digitalSentResponse.getRequestId(), digitalSentResponse.getEventDetails(),
+                    digitalSentResponse.getGeneratedMessage(), digitalSentResponse.getEventTimestamp());
+            
+            digitalWorkFlowExternalChannelResponseHandler.handleExternalChannelResponse(digitalSentResponse);
+
+            log.logEndingProcess(ExternalChannelService.DIGITAL_LEGAL_PROCESS_NAME);
         } catch (PnInternalException e) {
             log.error(EXCEPTION_LEGAL_UPDATE, e);
             throw e;
@@ -101,6 +108,11 @@ public class ExternalChannelResponseHandler {
     private void handleError(SingleStatusUpdate response) {
         log.error("None event specified in extchannelevent event={}", response);
         throw new PnInternalException("None event specified, invalid event update received from external-channel", ERROR_CODE_DELIVERYPUSH_UPDATEFAILED);
+    }
+
+    private static void addMdcFilter(String iun, String correlationId) {
+        HandleEventUtils.addIunToMdc(iun);
+        HandleEventUtils.addCorrelationIdToMdc(correlationId);
     }
 
 }

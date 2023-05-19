@@ -24,6 +24,7 @@ import java.util.List;
 @AllArgsConstructor
 @Service
 public class AddressManagerServiceImpl implements AddressManagerService {
+
     private final AddressManagerClient addressManagerClient;
     private final NotificationUtils notificationUtils;
     
@@ -61,7 +62,7 @@ public class AddressManagerServiceImpl implements AddressManagerService {
             
         });
         
-        log.debug("Normalize itemRequest created with size={} - iun={} corrId={}", normalizeRequestList != null ? normalizeRequestList.size() : null, notification.getIun(), correlationId);
+        log.debug("Normalize itemRequest created with size={} - iun={} corrId={}",  normalizeRequestList.size(), notification.getIun(), correlationId);
 
         NormalizeItemsRequest normalizeItemsRequest = new NormalizeItemsRequest();
         normalizeItemsRequest.setRequestItems(normalizeRequestList);

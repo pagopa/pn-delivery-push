@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.MDCWebFilter;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionEventType;
@@ -59,19 +60,15 @@ public class PnEventInboundService {
     }
 
     private void setTraceId(Message<?> message) {
-        //TODO Qui inserirei a priori lo UUID.randomUUID() per settare il trace_id, successivamente appena ottenuto lo iun verrà settato
         MessageHeaders messageHeaders = message.getHeaders();
 
-        String traceId = "";
-
-        if (messageHeaders.containsKey("iun"))
-            traceId = messageHeaders.get("iun", String.class);
-        else if (messageHeaders.containsKey("aws_messageId"))
-            traceId = messageHeaders.get("aws_messageId", String.class);
-        else
-            traceId = "trace_id:" + UUID.randomUUID().toString();
-
+        String traceId = "trace_id:" + UUID.randomUUID();
         MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, traceId);
+
+        if (messageHeaders.containsKey("aws_messageId")){
+            String awsMessageId = messageHeaders.get("aws_messageId", String.class);
+            MDC.put(MDCUtils.MDC_PN_CTX_MESSAGE_ID, awsMessageId);
+        }
     }
 
     private String handleMessage(Message<?> message) {

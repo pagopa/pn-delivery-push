@@ -7,7 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 @Configuration
-@Slf4j
+@CustomLog
 public class NotificationViewedEventHandler {
     private final NotificationViewedRequestHandler notificationViewedRequestHandler;
 
@@ -27,6 +27,8 @@ public class NotificationViewedEventHandler {
 
     @Bean
     public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
+        final String processName = "NOTIFICATION PAID EVENT";
+
         return message -> {
             try {
                 log.debug("Handle message from {} with content {}", PnDeliveryClient.CLIENT_NAME, message);
@@ -38,12 +40,16 @@ public class NotificationViewedEventHandler {
 
                 String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
                 int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
+                HandleEventUtils.addIunAndRecIndexToMdc(iun, recipientIndex);
+
+                log.logStartingProcess(processName);
+
                 Instant viewedDate = pnDeliveryNewNotificationEvent.getHeader().getCreatedAt();
                 NotificationViewDelegateInfo delegateBasicInfo = pnDeliveryNewNotificationEvent.getPayload().getDelegateInfo();
-                log.info("pnDeliveryNotificationViewedEventConsumer - iun {} id={} delegateBasicInfo={} viewedDate={}", iun, recipientIndex, viewedDate, delegateBasicInfo);
-
                 DelegateInfoInt delegateInfo = mapExternalToInternal(delegateBasicInfo);
                 notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recipientIndex, delegateInfo, viewedDate);
+
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;

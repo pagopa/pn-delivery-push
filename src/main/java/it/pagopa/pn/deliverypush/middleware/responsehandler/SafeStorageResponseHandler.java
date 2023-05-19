@@ -4,12 +4,14 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
+import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -18,18 +20,19 @@ import java.util.Optional;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST;
 
 @Component
-@Slf4j
+@CustomLog
 @AllArgsConstructor
 public class SafeStorageResponseHandler {
     private final DocumentCreationRequestService service;
     private final SchedulerService schedulerService;
 
     public void handleSafeStorageResponse(FileDownloadResponse response) {
-        log.info("Start handleSafeStorageResponse response={}", response);
 
         String keyWithPrefix = FileUtils.getKeyWithStoragePrefix(response.getKey());
-        log.info("keyWithPrefix to search is={}", keyWithPrefix);
+        HandleEventUtils.addCorrelationIdToMdc(keyWithPrefix);
+        log.logStartingProcess(SafeStorageService.CREATE_FILE_PROCESS);
 
+        log.debug("keyWithPrefix to search is={}", keyWithPrefix);
         Optional<DocumentCreationRequest> documentCreationRequestOpt = service.getDocumentCreationRequest(keyWithPrefix);
 
         if(documentCreationRequestOpt.isPresent()){
@@ -43,6 +46,8 @@ public class SafeStorageResponseHandler {
             log.error(error);
             throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
         }
+
+        log.logEndingProcess(SafeStorageService.CREATE_FILE_PROCESS);
     }
     
     private void scheduleHandleDocumentCreationResponse(DocumentCreationRequest request) {
