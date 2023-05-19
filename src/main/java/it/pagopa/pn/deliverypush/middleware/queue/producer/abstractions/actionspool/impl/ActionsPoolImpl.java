@@ -8,7 +8,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActio
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.service.ActionService;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import net.javacrumbs.shedlock.core.LockAssert;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Slf4j
+@CustomLog
 public class ActionsPoolImpl implements ActionsPool {
 
     public static final String TIMESLOT_PATTERN = "yyyy-MM-dd'T'HH:mm";
@@ -99,11 +99,18 @@ public class ActionsPoolImpl implements ActionsPool {
     @Scheduled( fixedDelay = 10 * 1000L )
     @SchedulerLock(name = "actionPoll", lockAtMostFor = "1m", lockAtLeastFor = "30s")
     protected void pollForFutureActions() {
+        try {
+            LockAssert.assertLocked();
+            handleActionPool();
+        }catch (Exception ex){
+            log.fatal("Exception in actionPool", ex);
+        }
+    }
+
+    private void handleActionPool() {
         // To assert that the lock is held (prevents misconfiguration errors)
         Instant start = Instant.now();
         
-        LockAssert.assertLocked();
-
         Optional<Instant> savedLastPollTime = lastFutureActionPoolExecutionTimeDao.getLastPollTime();
 
         Instant lastPollExecuted;
@@ -116,11 +123,11 @@ public class ActionsPoolImpl implements ActionsPool {
             }
         }
         log.debug("Action pool start poll {}", lastPollExecuted);
-        
-        
+
+
         Instant now = clock.instant();
         List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, now);
-        
+
         for ( String timeSlot: uncheckedTimeSlots) {
             List<Action> actionList = actionService.findActionsByTimeSlot(timeSlot);
             
