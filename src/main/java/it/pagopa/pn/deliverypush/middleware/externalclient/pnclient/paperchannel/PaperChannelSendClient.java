@@ -4,6 +4,10 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchanne
 import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
 
 public interface PaperChannelSendClient {
+    String CLIENT_NAME = "PN-PAPER-CHANNEL";
+    String PREPARE_ANALOG_NOTIFICATION = "PREPARE_ANALOG_NOTIFICATION";
+    String SEND_ANALOG_NOTIFICATION = "SEND_ANALOG_NOTIFICATION";
+
 
     /**
      * Esegue la prepare dell'invio di una notifica cartacea. La prepare è sempre asincrona.

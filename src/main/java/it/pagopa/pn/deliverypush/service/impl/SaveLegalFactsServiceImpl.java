@@ -88,11 +88,11 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
 
     public String sendCreationRequestForNotificationReceivedLegalFact(NotificationInt notification) {
         try {
-            log.info("Start sendCreationRequestForNotificationReceivedLegalFact - iun={}", notification.getIun());
+            log.debug("Start sendCreationRequestForNotificationReceivedLegalFact - iun={}", notification.getIun());
             
             return this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification))
                     .map( responseUrl -> {
-                        log.info("sendCreationRequestForNotificationReceivedLegalFact completed with fileKey={} - iun={}", responseUrl, notification.getIun());
+                        log.debug("sendCreationRequestForNotificationReceivedLegalFact completed with fileKey={} - iun={}", responseUrl, notification.getIun());
                         return responseUrl;
                     }).block();
             

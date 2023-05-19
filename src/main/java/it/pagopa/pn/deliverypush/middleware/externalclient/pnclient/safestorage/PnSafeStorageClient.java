@@ -8,6 +8,9 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequ
 import reactor.core.publisher.Mono;
 
 public interface PnSafeStorageClient {
+    String CLIENT_NAME = "PN-SAFE-STORAGE";
+    String FILE_CREATION = "FILE_CREATION";
+
     String SAFE_STORAGE_URL_PREFIX = "safestorage://";
 
     String SAFE_STORAGE_DOCUMENT_TYPE_AAR = "PN_AAR";

@@ -5,6 +5,9 @@ import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.mode
 import reactor.core.publisher.Mono;
 
 public interface AddressManagerClient {
+    String CLIENT_NAME = "PN-ADDRESS-MANAGER";
+    String NORMALIZE_ADDRESS_PROCESS_NAME = "VALIDATE_AND_NORMALIZE_ADDRESS";
+
     Mono<AcceptedResponse> normalizeAddresses(NormalizeItemsRequest normalizeItemsRequest);
 }
  

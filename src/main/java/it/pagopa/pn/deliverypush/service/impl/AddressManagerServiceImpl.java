@@ -28,7 +28,7 @@ public class AddressManagerServiceImpl implements AddressManagerService {
     private final NotificationUtils notificationUtils;
     
     public Mono<AcceptedResponse> normalizeAddresses(NotificationInt notification, String correlationId){
-        log.info("Start get normalizeAddress - iun={}", notification.getIun());
+        log.debug("Start normalize and validate address - iun={}", notification.getIun());
         
         NormalizeItemsRequest normalizeItemsRequest = getRequest(notification, correlationId);
         return addressManagerClient.normalizeAddresses(normalizeItemsRequest);

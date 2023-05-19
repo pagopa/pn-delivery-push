@@ -47,7 +47,7 @@ public class NotificationValidationActionHandler {
     private final PnDeliveryPushConfigs cfg;
 
     public void validateNotification(String iun, NotificationValidationActionDetails details){
-        log.info("Start validateNotification - iun={}", iun);
+        log.debug("Start validateNotification - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         PnAuditLogEvent logEvent = generateAuditLog(notification, FIRST_VALIDATION_STEP);
@@ -96,7 +96,7 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(NotificationInt notification, int validationStep) {
-        return auditLogService.buildAuditLogEvent(notification.getIun(), PnAuditLogEventType.AUD_NT_VALID, "Notification validation step={}, iun={}", validationStep, notification.getIun());
+        return auditLogService.buildAuditLogEvent(notification.getIun(), PnAuditLogEventType.AUD_NT_VALID, "Notification validation step={} of 2, iun={}", validationStep, notification.getIun());
     }
 
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
@@ -130,11 +130,12 @@ public class NotificationValidationActionHandler {
             addressValidator.handleAddressValidation(iun, normalizeItemsResult);
             normalizeAddressHandler.handleNormalizedAddressResponse(notification, normalizeItemsResult);
             
-            log.info("Notification validated successfully - iun={}", iun);
+            log.debug("Notification validated successfully - iun={}", iun);
             
             Instant schedulingDate = Instant.now();
-            log.info("Scheduling received legalFact generation, schedulingDate={} - iun={}", schedulingDate, iun);
+            log.debug("Scheduling received legalFact generation, schedulingDate={} - iun={}", schedulingDate, iun);
             schedulerService.scheduleEvent(iun, schedulingDate, ActionType.SCHEDULE_RECEIVED_LEGALFACT_GENERATION);
+
             logEvent.generateSuccess().log();
         } catch (PnValidationNotValidAddressException ex){
             logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), ex).log();

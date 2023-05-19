@@ -5,6 +5,8 @@ import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.mode
 import java.util.List;
 
 public interface UserAttributesClient {
+    String CLIENT_NAME = "PN-USER-ATTRIBUTES";
+
     List<LegalDigitalAddress> getLegalAddressBySender(String internalId, String senderId);
 
     List<CourtesyDigitalAddress> getCourtesyAddressBySender(String internalId, String senderId);

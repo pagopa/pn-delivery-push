@@ -5,6 +5,7 @@ import it.pagopa.pn.api.dto.events.PnDeliveryNotificationViewedEvent;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +29,7 @@ public class NotificationViewedEventHandler {
     public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
         return message -> {
             try {
-                log.debug("Notification viewed event received, message {}", message);
+                log.debug("Handle message from {} with content {}", PnDeliveryClient.CLIENT_NAME, message);
 
                 PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
                         .payload(message.getPayload())

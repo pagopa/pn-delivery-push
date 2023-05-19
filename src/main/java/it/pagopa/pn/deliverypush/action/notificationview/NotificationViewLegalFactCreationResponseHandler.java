@@ -65,12 +65,12 @@ public class NotificationViewLegalFactCreationResponseHandler {
                 recipientAccessLegalFactAuditLog.generateSuccess().log();
 
             } else {
-                log.error("handleAarCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
-                throw new PnInternalException("AarCreationRequestDetails timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
+                log.error("handleLegalFactCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
+                throw new PnInternalException("handleLegalFactCreationResponse timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
             }
 
         } catch (Exception ex){
-            recipientAccessLegalFactAuditLog.generateFailure( "Saving legalFact FAILURE type={} fileKey={} iun={} recIndex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, actionDetails.getKey(), iun, recIndex, ex).log();
+            recipientAccessLegalFactAuditLog.generateFailure( "Saving legalFact FAILURE type={} fileKey={} iun={} recIndex={} ex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, actionDetails.getKey(), iun, recIndex, ex).log();
             throw ex;
         }
     }

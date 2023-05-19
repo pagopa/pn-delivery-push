@@ -29,8 +29,8 @@ public class NormalizeAddressHandler {
     private final ConfidentialInformationService confidentialInformationService;
     
     public void handleNormalizedAddressResponse(NotificationInt notification, NormalizeItemsResultInt normalizeItemsResult){
-        log.info("Start handleNormalizedAddressResponse - iun={}", notification.getIun());
-        
+        log.debug("Start handleNormalizedAddressResponse - iun={}", notification.getIun());
+
         List<NotificationRecipientAddressesDtoInt> listNormalizedAddress = new ArrayList<>();
         
         normalizeItemsResult.getResultItems().forEach( result ->{
@@ -48,8 +48,8 @@ public class NormalizeAddressHandler {
         } else {
             handleError(notification, listNormalizedAddress);
         }
-        
-        log.debug("End handleNormalizedAddressResponse - iun={}", notification.getIun());
+
+        log.info("Ending validate and normalize address Process - iun={}", notification.getIun());
     }
 
     private static void handleError(NotificationInt notification, List<NotificationRecipientAddressesDtoInt> listNormalizedAddress) {

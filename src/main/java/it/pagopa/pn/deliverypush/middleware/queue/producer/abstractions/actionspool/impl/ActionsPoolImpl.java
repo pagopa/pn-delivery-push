@@ -142,7 +142,7 @@ public class ActionsPoolImpl implements ActionsPool {
 
     private void scheduleOne( Action action, String timeSlot) {
         try {
-            log.info("Scheduling action {}", action );
+            log.debug("Scheduling action {}", action );
             addToActionsQueue( action );
             actionService.unSchedule( action, timeSlot );
         }

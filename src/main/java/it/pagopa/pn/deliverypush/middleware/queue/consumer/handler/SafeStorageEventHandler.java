@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,8 @@ public class SafeStorageEventHandler {
     @Bean
     public Consumer<Message<FileDownloadResponse>> pnSafeStorageEventInboundConsumer() {
         return message -> {
-            log.info("SafeStorage event received, message {}", message);
+            log.debug("Handle message from {} with content {}", PnSafeStorageClient.CLIENT_NAME, message);
+
             FileDownloadResponse response = message.getPayload();
             
             if(SAFE_STORAGE_DOCUMENT_TYPE_AAR.equals(response.getDocumentType()) ||

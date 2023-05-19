@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries.NationalRegistriesClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.utils.NationalRegistriesMessageUtil;
@@ -21,12 +22,12 @@ import java.util.function.Consumer;
 public class NationalRegistriesEventHandler {
     private final NationalRegistriesResponseHandler nationalRegistriesResponseHandler;
 
-
     @Bean
     public Consumer<Message<AddressSQSMessage>> pnNationalRegistriesEventInboundConsumer() {
         return message -> {
             try {
-                log.info("National registries event received, message {}", message);
+                log.debug("Handle message from {} with content {}", NationalRegistriesClient.CLIENT_NAME, message);
+
                 List<AddressSQSMessageDigitalAddress> digitalAddresses = message.getPayload().getDigitalAddress();
                 String correlationId = message.getPayload().getCorrelationId();
                 NationalRegistriesResponse response = NationalRegistriesMessageUtil.buildPublicRegistryResponse(correlationId, digitalAddresses);

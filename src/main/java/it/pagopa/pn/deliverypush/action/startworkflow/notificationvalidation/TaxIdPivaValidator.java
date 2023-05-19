@@ -17,24 +17,24 @@ public class TaxIdPivaValidator {
     private final NotificationUtils notificationUtils;
     
     public void validateTaxIdPiva(NotificationInt notification){
-        log.debug("Start validateTaxId - iun={} ", notification.getIun());
+        log.info("Starting validateTaxIdPiva Process - iun={}", notification.getIun());
 
         notification.getRecipients().forEach( recipient -> {
             int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-            log.info("Start taxIdValidation - iun={} id={}", notification.getIun(), recIndex);
+            log.debug("Start taxIdValidation for specific recipient - iun={} id={}", notification.getIun(), recIndex);
             
             CheckTaxIdOKInt response = nationalRegistriesService.checkTaxId(recipient.getTaxId());
             if (Boolean.FALSE.equals(response.getIsValid()) ){
-                log.info("TaxId is not valid - iun={} id={}", notification.getIun(), recIndex);
+                log.debug("TaxId is not valid - iun={} id={}", notification.getIun(), recIndex);
                 
                 throw new PnValidationTaxIdNotValidException(
                         response.getErrorCode()
                 );
             }
 
-            log.info("TaxId is valid - iun={} id={}", notification.getIun(), recIndex);
+            log.debug("TaxId is valid - iun={} id={}", notification.getIun(), recIndex);
         });
 
-        log.debug("End validateTaxId - iun={} ", notification.getIun());
+        log.info("Ending validateTaxIdPiva Process - iun={}", notification.getIun());
     }
 }

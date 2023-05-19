@@ -4,5 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotifi
 import reactor.core.publisher.Mono;
 
 public interface PnDeliveryClientReactive {
+    String CLIENT_NAME = "PN-DELIVERY";
+
     Mono<SentNotification> getSentNotification(String iun);
 }

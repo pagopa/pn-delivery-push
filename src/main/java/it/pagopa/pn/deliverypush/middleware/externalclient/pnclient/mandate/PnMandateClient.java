@@ -6,6 +6,7 @@ import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMand
 import java.util.List;
 
 public interface PnMandateClient {
+    String CLIENT_NAME = "PN-MANDATE";
 
     List<InternalMandateDto> listMandatesByDelegate(String delegated,
                                                     String mandateId,

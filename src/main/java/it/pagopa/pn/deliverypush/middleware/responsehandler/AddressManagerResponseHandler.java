@@ -19,7 +19,7 @@ public class AddressManagerResponseHandler {
     public void handleResponseReceived( NormalizeItemsResult response ) {
         String iun = timelineUtils.getIunFromTimelineId(response.getCorrelationId());
 
-        log.info("handleResponseReceived from addressManager correlationId={} - iun={}", response.getCorrelationId(), iun);
+        log.debug("handleResponseReceived from addressManager correlationId={} - iun={}", response.getCorrelationId(), iun);
         
         NormalizeItemsResultInt normalizeItemsResult = AddressManagerMapper.externalToInternal(response);
 

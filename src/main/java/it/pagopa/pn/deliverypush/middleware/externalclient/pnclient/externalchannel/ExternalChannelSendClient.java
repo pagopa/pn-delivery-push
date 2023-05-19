@@ -7,6 +7,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 
 public interface ExternalChannelSendClient {
+    String CLIENT_NAME = "PN-EXTERNAL-CHANNEL";
+    String NOTIFICATION_REQUEST = "NOTIFICATION_REQUEST";
+
 
     void sendLegalNotification(NotificationInt notificationInt,
                                NotificationRecipientInt recipientInt,

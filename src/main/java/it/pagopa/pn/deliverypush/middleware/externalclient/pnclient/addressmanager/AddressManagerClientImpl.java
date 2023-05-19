@@ -34,8 +34,10 @@ public class AddressManagerClientImpl extends CommonBaseClient implements Addres
 
     @Override
     public Mono<AcceptedResponse> normalizeAddresses(NormalizeItemsRequest normalizeItemsRequest) {
+        log.info("Invoking external service {} for validate and normalize address. Need to wait Async response, correlationId={}", serviceName, normalizeItemsRequest.getCorrelationId()) ;
+                
         return normalizeAddressServiceApi.normalize(PN_ADDRESS_MANAGER_CX_ID_VALUE, cfg.getAddressManagerApiKey(), normalizeItemsRequest)
-                .doOnSuccess( res -> log.info("NormalizeAddresses completed correlationId={}", normalizeItemsRequest.getCorrelationId()));
+                .doOnSuccess( res -> log.debug("NormalizeAddresses sync response received. Waiting for async response - correlationId={}", normalizeItemsRequest.getCorrelationId()));
     }
     
 }

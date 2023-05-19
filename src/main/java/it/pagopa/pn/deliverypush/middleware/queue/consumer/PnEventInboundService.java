@@ -59,6 +59,7 @@ public class PnEventInboundService {
     }
 
     private void setTraceId(Message<?> message) {
+        //TODO Qui inserirei a priori lo UUID.randomUUID() per settare il trace_id, successivamente appena ottenuto lo iun verrà settato
         MessageHeaders messageHeaders = message.getHeaders();
 
         String traceId = "";
@@ -74,12 +75,9 @@ public class PnEventInboundService {
     }
 
     private String handleMessage(Message<?> message) {
-        //Viene ricevuto un nuovo evento da una queue
-        //TODO Questo log è da eliminare
-        log.debug("Received message from customRouter {}", message);
-
         String eventType = (String) message.getHeaders().get("eventType");
-        log.debug("Received message from customRouter with eventType={}", eventType);
+        String iun = (String) message.getHeaders().get("iun");
+        log.debug("Received message from customRouter with eventType={} - iun={}", eventType, iun);
 
         if (eventType != null) {
             //Se l'event type e valorizzato ...
@@ -110,6 +108,9 @@ public class PnEventInboundService {
         if (!StringUtils.hasText(handlerName)) {
             log.error("undefined handler for eventType={}", eventType);
         }
+
+        log.debug("Handler for eventType={} is {} - iun={}", eventType, handlerName, iun);
+
         return handlerName;
     }
 
