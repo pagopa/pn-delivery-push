@@ -8,8 +8,6 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseI
 import reactor.core.publisher.Mono;
 
 public interface SafeStorageService {
-    String CREATE_FILE_PROCESS = "CREATE FILE";
-    
     Mono<FileDownloadResponseInt> getFile(String fileKey, Boolean metadataOnly) ;
     
     Mono<FileCreationResponseInt> createAndUploadContent(FileCreationWithContentRequest fileCreationRequest);

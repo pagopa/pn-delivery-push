@@ -5,8 +5,8 @@ import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendRe
 
 public interface PaperChannelSendClient {
     String CLIENT_NAME = "PN-PAPER-CHANNEL";
-    String PREPARE_ANALOG_NOTIFICATION = "PREPARE_ANALOG_NOTIFICATION";
-    String SEND_ANALOG_NOTIFICATION = "SEND_ANALOG_NOTIFICATION";
+    String PREPARE_ANALOG_NOTIFICATION = "PREPARE ANALOG NOTIFICATION";
+    String SEND_ANALOG_NOTIFICATION = "SEND ANALOG NOTIFICATION";
 
 
     /**

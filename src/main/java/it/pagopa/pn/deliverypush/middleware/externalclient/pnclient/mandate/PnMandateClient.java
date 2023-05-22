@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface PnMandateClient {
     String CLIENT_NAME = "PN-MANDATE";
-
+    String GET_MANDATES_BY_DELEGATE = "GET MANDATES BY DELEGATE";
+    
     List<InternalMandateDto> listMandatesByDelegate(String delegated,
                                                     String mandateId,
                                                     CxTypeAuthFleet cxType,

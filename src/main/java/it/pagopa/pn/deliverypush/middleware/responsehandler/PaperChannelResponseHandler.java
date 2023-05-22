@@ -13,8 +13,8 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.PrepareEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
-import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
@@ -55,17 +55,20 @@ public class PaperChannelResponseHandler {
         try {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
             addMdcFilter(iun, event.getRequestId());
+            log.info("Async response received from service {} for {} with correlationId={}",
+                    PaperChannelSendClient.CLIENT_NAME, PaperChannelSendClient.PREPARE_ANALOG_NOTIFICATION, event.getRequestId());
 
-            log.logStartingProcess(PaperChannelService.PREPARE_ANALOG_NOTIFICATION);
+            final String processName = PaperChannelSendClient.PREPARE_ANALOG_NOTIFICATION + " response handler";
+            log.logStartingProcess(processName);
 
             PrepareEventInt analogSentResponseInt = mapExternalToInternal(iun, event);
 
-            log.info("Received PaperChannel prepare paper message event for requestId={} - status={} details={} receiverAddress={}",
+            log.debug("Received PaperChannel prepare paper message event for requestId={} - status={} details={} receiverAddress={}",
                     analogSentResponseInt.getRequestId(), analogSentResponseInt.getStatusCode(), analogSentResponseInt.getStatusDetail(), (analogSentResponseInt.getReceiverAddress()==null?"":LogUtils.maskGeneric(analogSentResponseInt.getReceiverAddress().getAddress())));
 
             analogWorkflowPaperChannelResponseHandler.paperChannelPrepareResponseHandler(analogSentResponseInt);
             
-            log.logEndingProcess(PaperChannelService.PREPARE_ANALOG_NOTIFICATION);
+            log.logEndingProcess(processName);
 
         } catch (PnRuntimeException e) {
             log.error(EXCEPTION_PREPARE_UPDATE, e);
@@ -80,15 +83,18 @@ public class PaperChannelResponseHandler {
         try {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
             addMdcFilter(iun, event.getRequestId());
+            log.info("Async response received from service {} for {} with correlationId={}",
+                    PaperChannelSendClient.CLIENT_NAME, PaperChannelSendClient.SEND_ANALOG_NOTIFICATION, event.getRequestId());
 
-            log.logStartingProcess(PaperChannelService.SEND_ANALOG_NOTIFICATION);
+            final String processName = PaperChannelSendClient.SEND_ANALOG_NOTIFICATION + " response handler";
+            log.logStartingProcess(processName);
 
             SendEventInt analogSentResponseInt = mapExternalToInternal(iun, event);
             log.info("Received PaperChannel send paper message event for requestId={} - status={} details={} discovAddress={}",
                     analogSentResponseInt.getRequestId(), analogSentResponseInt.getStatusCode(), analogSentResponseInt.getStatusDetail(), (analogSentResponseInt.getDiscoveredAddress()==null?"":LogUtils.maskGeneric(analogSentResponseInt.getDiscoveredAddress().getAddress())));
 
             analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(analogSentResponseInt);
-            log.logEndingProcess(PaperChannelService.SEND_ANALOG_NOTIFICATION);
+            log.logEndingProcess(processName);
         } catch (PnRuntimeException e) {
             log.error(EXCEPTION_SEND_UPDATE, e);
             throw e;

@@ -6,7 +6,7 @@ import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.api.
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.api.LegalApi;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
 import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-@Slf4j
+@CustomLog
 @Component
 public class UserAttributesClientImpl implements UserAttributesClient {
     private final CourtesyApi courtesyApi;
@@ -29,24 +29,17 @@ public class UserAttributesClientImpl implements UserAttributesClient {
     
     @Override
     public List<LegalDigitalAddress> getLegalAddressBySender(String recipientId, String senderId) {
-        log.debug("Start getPlatformDigitalAddress for senderId {}", senderId);
-        
+        log.logInvokingExternalService(CLIENT_NAME, GET_DIGITAL_PLATFORM_ADDRESS);
+
         ResponseEntity<List<LegalDigitalAddress>> resp = legalApi.getLegalAddressBySenderWithHttpInfo(recipientId, senderId);
-        
-        log.debug("Response to getPlatformDigitalAddress for senderId={} recipientId={}, have status code {}", senderId, recipientId, resp.getStatusCode());
-        
         return resp.getBody();
     }
 
     @Override
     public List<CourtesyDigitalAddress> getCourtesyAddressBySender(String recipientId, String senderId) {
-
-        log.debug("Start getCourtesyAddress for senderId {}", senderId);
-
+        log.logInvokingExternalService(CLIENT_NAME, GET_COURTESY_ADDRESS);
+        
         ResponseEntity<List<CourtesyDigitalAddress>> resp = courtesyApi.getCourtesyAddressBySenderWithHttpInfo(recipientId, senderId);
-
-        log.debug("Response to getCourtesyAddress for senderId={} recipientId={}, have status code {}", senderId, recipientId, resp.getStatusCode());
-
         return resp.getBody();
     }
 }

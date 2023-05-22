@@ -4,10 +4,10 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
-import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.AllArgsConstructor;
@@ -27,12 +27,14 @@ public class SafeStorageResponseHandler {
     private final SchedulerService schedulerService;
 
     public void handleSafeStorageResponse(FileDownloadResponse response) {
-
         String keyWithPrefix = FileUtils.getKeyWithStoragePrefix(response.getKey());
         HandleEventUtils.addCorrelationIdToMdc(keyWithPrefix);
-        log.logStartingProcess(SafeStorageService.CREATE_FILE_PROCESS);
+        log.info("Async response received from service {} for {} with correlationId={}",
+                PnSafeStorageClient.CLIENT_NAME, PnSafeStorageClient.UPLOAD_FILE_CONTENT, keyWithPrefix);
 
-        log.debug("keyWithPrefix to search is={}", keyWithPrefix);
+        final String processName = PnSafeStorageClient.UPLOAD_FILE_CONTENT + " response handler";
+        log.logStartingProcess(processName);
+
         Optional<DocumentCreationRequest> documentCreationRequestOpt = service.getDocumentCreationRequest(keyWithPrefix);
 
         if(documentCreationRequestOpt.isPresent()){
@@ -47,7 +49,7 @@ public class SafeStorageResponseHandler {
             throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
         }
 
-        log.logEndingProcess(SafeStorageService.CREATE_FILE_PROCESS);
+        log.logEndingProcess(processName);
     }
     
     private void scheduleHandleDocumentCreationResponse(DocumentCreationRequest request) {

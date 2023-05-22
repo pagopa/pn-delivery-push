@@ -5,14 +5,14 @@ import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotifi
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.api.InternalOnlyApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 
 @Component
-@Slf4j
+@CustomLog
 public class PnDeliveryClientReactiveImpl extends CommonBaseClient implements PnDeliveryClientReactive{
     private InternalOnlyApi pnDeliveryApi;
     private final PnDeliveryPushConfigs cfg;
@@ -30,6 +30,9 @@ public class PnDeliveryClientReactiveImpl extends CommonBaseClient implements Pn
     
     @Override
     public Mono<SentNotification> getSentNotification(String iun) {
-        return pnDeliveryApi.getSentNotificationPrivate(iun);
+        log.logInvokingExternalService(CLIENT_NAME, GET_NOTIFICATION);
+        
+        return pnDeliveryApi.getSentNotificationPrivate(iun)
+                .doOnSuccess(res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, GET_NOTIFICATION));
     }
 }

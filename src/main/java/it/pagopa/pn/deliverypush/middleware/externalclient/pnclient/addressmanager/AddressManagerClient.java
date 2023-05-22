@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 public interface AddressManagerClient {
     String CLIENT_NAME = "PN-ADDRESS-MANAGER";
-    String NORMALIZE_ADDRESS_PROCESS_NAME = "VALIDATE_AND_NORMALIZE_ADDRESS";
+    String NORMALIZE_ADDRESS_PROCESS_NAME = "VALIDATE AND NORMALIZE ADDRESS";
 
     Mono<AcceptedResponse> normalizeAddresses(NormalizeItemsRequest normalizeItemsRequest);
 }

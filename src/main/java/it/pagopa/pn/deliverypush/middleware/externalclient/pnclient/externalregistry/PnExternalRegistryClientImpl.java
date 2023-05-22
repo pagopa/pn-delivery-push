@@ -5,14 +5,14 @@ import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.api.SendIoMessageApi;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageRequest;
 import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 
-@Slf4j
+@CustomLog
 @Component
 public class PnExternalRegistryClientImpl implements PnExternalRegistryClient{
     private final SendIoMessageApi sendIoMessageApi;
@@ -25,11 +25,10 @@ public class PnExternalRegistryClientImpl implements PnExternalRegistryClient{
     
     @Override
     public SendMessageResponse sendIOMessage(SendMessageRequest sendMessageRequest) {
-
+        log.logInvokingExternalService(CLIENT_NAME, SEND_IO_MESSAGE);
+        
         ResponseEntity<SendMessageResponse> resp;
-        log.info("Start sendIOMessage - iun={}", sendMessageRequest.getIun());
         resp = sendIoMessageApi.sendIOMessageWithHttpInfo(sendMessageRequest);
-        log.info("Response sendIOMessage - iun={}", sendMessageRequest.getIun());
 
         return resp.getBody();
     }

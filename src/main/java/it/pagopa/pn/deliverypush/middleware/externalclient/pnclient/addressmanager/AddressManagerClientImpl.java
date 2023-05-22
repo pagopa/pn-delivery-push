@@ -6,14 +6,14 @@ import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.mode
 import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeItemsRequest;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 
 @Component
-@Slf4j
+@CustomLog
 public class AddressManagerClientImpl extends CommonBaseClient implements AddressManagerClient {
     protected static final String PN_ADDRESS_MANAGER_CX_ID_VALUE = "pn-delivery-push";
 
@@ -34,8 +34,8 @@ public class AddressManagerClientImpl extends CommonBaseClient implements Addres
 
     @Override
     public Mono<AcceptedResponse> normalizeAddresses(NormalizeItemsRequest normalizeItemsRequest) {
-        return normalizeAddressServiceApi.normalize(PN_ADDRESS_MANAGER_CX_ID_VALUE, cfg.getAddressManagerApiKey(), normalizeItemsRequest)
-                .doOnSuccess( res -> log.info("NormalizeAddresses completed correlationId={}", normalizeItemsRequest.getCorrelationId()));
+        log.logInvokingAsyncExternalService(CLIENT_NAME, NORMALIZE_ADDRESS_PROCESS_NAME, normalizeItemsRequest.getCorrelationId());
+        return normalizeAddressServiceApi.normalize(PN_ADDRESS_MANAGER_CX_ID_VALUE, cfg.getAddressManagerApiKey(), normalizeItemsRequest);
     }
     
 }

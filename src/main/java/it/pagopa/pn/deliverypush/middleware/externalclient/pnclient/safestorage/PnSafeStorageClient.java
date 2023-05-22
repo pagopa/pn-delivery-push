@@ -9,7 +9,10 @@ import reactor.core.publisher.Mono;
 
 public interface PnSafeStorageClient {
     String CLIENT_NAME = "PN-SAFE-STORAGE";
-    String FILE_CREATION = "FILE_CREATION";
+    String GET_FILE = "GET FILE";
+    String CREATE_FILE = "FILE CREATION";
+    String UPDATE_FILE_METADATA = "UPDATE FILE METADATA";
+    String UPLOAD_FILE_CONTENT = "UPLOAD FILE CONTENT";
 
     String SAFE_STORAGE_URL_PREFIX = "safestorage://";
 

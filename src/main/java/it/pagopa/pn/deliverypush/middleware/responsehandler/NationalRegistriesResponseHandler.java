@@ -9,8 +9,8 @@ import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesRespon
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries.NationalRegistriesClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
-import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import lombok.CustomLog;
@@ -50,8 +50,12 @@ public class NationalRegistriesResponseHandler {
         String iun = timelineUtils.getIunFromTimelineId(correlationId);
         addMdcFilter(iun, correlationId);
 
-        log.logStartingProcess(NationalRegistriesService.GET_DIGITAL_GENERAL_ADDRESS);
+        log.info("Async response received from service {} for {} with correlationId={}",
+                NationalRegistriesClient.CLIENT_NAME, NationalRegistriesClient.GET_DIGITAL_GENERAL_ADDRESS, correlationId);
 
+        final String processName = NationalRegistriesClient.GET_DIGITAL_GENERAL_ADDRESS + " response handler";
+        log.logStartingProcess(processName);
+        
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         log.debug("Notification successfully obtained  - iun={}", notification.getIun());
 
@@ -63,7 +67,7 @@ public class NationalRegistriesResponseHandler {
 
         handleSpecificContactPhase(response, correlationId, iun, notification, publicRegistryCallDetails, recIndex);
 
-        log.logEndingProcess(NationalRegistriesService.GET_DIGITAL_GENERAL_ADDRESS);
+        log.logEndingProcess(processName);
     }
 
     private void handleSpecificContactPhase(NationalRegistriesResponse response, String correlationId, String iun, 

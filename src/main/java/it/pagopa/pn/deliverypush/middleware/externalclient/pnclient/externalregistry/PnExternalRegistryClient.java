@@ -5,6 +5,7 @@ import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.
 
 public interface PnExternalRegistryClient {
     String CLIENT_NAME = "PN-EXTERNAL-REGISTRIES";
-
+    String SEND_IO_MESSAGE = "SEND MESSAGE TO IO";
+    
     SendMessageResponse sendIOMessage(SendMessageRequest sendMessageRequest);
 }

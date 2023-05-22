@@ -9,7 +9,7 @@ import it.pagopa.pn.datavault.generated.openapi.clients.datavault_reactive.api.N
 import it.pagopa.pn.datavault.generated.openapi.clients.datavault_reactive.api.RecipientsApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Component
-@Slf4j
+@CustomLog
 public class PnDataVaultClientReactiveImpl extends CommonBaseClient implements PnDataVaultClientReactive {
     private final RecipientsApi recipientsApi;
     private final NotificationsApi notificationApi;
@@ -40,21 +40,20 @@ public class PnDataVaultClientReactiveImpl extends CommonBaseClient implements P
             backoff = @Backoff(random = true, delay = 500, maxDelay = 1000, multiplier = 2)
     )
     public Flux<BaseRecipientDto> getRecipientsDenominationByInternalId(List<String> listInternalId) {
-        log.debug("Start call getRecipientDenominationByInternalId - listInternalId={}", listInternalId);
+        log.logInvokingExternalService(CLIENT_NAME, GET_RECIPIENT_DENOMINATION);
 
         return recipientsApi.getRecipientDenominationByInternalId(listInternalId)
-            .onErrorResume( err -> {
-                log.error("Exception invoking getRecipientDenominationByInternalId with internalId list={} err ",listInternalId, err);
-                return Mono.error(new PnInternalException("Exception invoking getRecipientDenominationByInternalId ", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, err));
-            });
+                .onErrorResume( err -> {
+                    log.error("Exception invoking getRecipientDenominationByInternalId with internalId list={} err ",listInternalId, err);
+                    return Mono.error(new PnInternalException("Exception invoking getRecipientDenominationByInternalId ", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, err));
+                });
     }
 
     @Override
     public Mono<Void> updateNotificationAddressesByIun(String iun, Boolean normalized, List<NotificationRecipientAddressesDto> list) {
-        log.debug("Start call getNotificationTimelineByIunWithHttpInfo - iun={}", iun);
-
+        log.logInvokingExternalService(CLIENT_NAME, UPDATE_NOTIFICATION_ADDRESS);
+        
         return notificationApi.updateNotificationAddressesByIun(iun, normalized, list)
-                .doOnSuccess( res -> log.debug("Response updateNotificationAddressesByIun - iun={}", iun));
-
+                .doOnSuccess( res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, UPDATE_NOTIFICATION_ADDRESS));
     }
 }

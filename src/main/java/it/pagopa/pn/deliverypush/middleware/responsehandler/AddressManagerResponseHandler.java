@@ -4,8 +4,8 @@ import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.mode
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.addressmanager.AddressManagerClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
-import it.pagopa.pn.deliverypush.service.AddressManagerService;
 import it.pagopa.pn.deliverypush.service.mapper.AddressManagerMapper;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
@@ -23,12 +23,15 @@ public class AddressManagerResponseHandler {
         String iun = timelineUtils.getIunFromTimelineId(response.getCorrelationId());
         addMdcFilter(iun, response.getCorrelationId());
 
-        log.logStartingProcess(AddressManagerService.VALIDATE_AND_NORMALIZE_ADDRESS_PROCESS_NAME);
+        log.info("Async response received from service {} for {} with correlationId={}",
+                AddressManagerClient.CLIENT_NAME, AddressManagerClient.NORMALIZE_ADDRESS_PROCESS_NAME, response.getCorrelationId());
+        final String processName = AddressManagerClient.NORMALIZE_ADDRESS_PROCESS_NAME + " response handler";
+        log.logStartingProcess(processName);
         
         NormalizeItemsResultInt normalizeItemsResult = AddressManagerMapper.externalToInternal(response);
         notificationValidationActionHandler.handleValidateAndNormalizeAddressResponse(iun, normalizeItemsResult);
 
-        log.logEndingProcess(AddressManagerService.VALIDATE_AND_NORMALIZE_ADDRESS_PROCESS_NAME);
+        log.logEndingProcess(processName);
     }
 
     private static void addMdcFilter(String iun, String correlationId) {

@@ -10,8 +10,8 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReference
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
-import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
@@ -51,8 +51,11 @@ public class ExternalChannelResponseHandler {
         try {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
             addMdcFilter(iun, event.getRequestId());
-            
-            log.logStartingProcess(ExternalChannelService.DIGITAL_LEGAL_PROCESS_NAME);
+
+            log.info("Async response received from service {} for {} with correlationId={}",
+                    ExternalChannelSendClient.CLIENT_NAME, ExternalChannelSendClient.LEGAL_NOTIFICATION_REQUEST, event.getRequestId());
+            final String processName = ExternalChannelSendClient.LEGAL_NOTIFICATION_REQUEST + " response handler";
+            log.logStartingProcess(processName);
             
             ExtChannelDigitalSentResponseInt digitalSentResponse = mapExternalToInternal(event, iun);
             log.debug("Received ExternalChannel legal message event: status={} and eventCode={} - iun={} requestId={} details={} generatedMessage={} eventTimestamp={}",
@@ -61,7 +64,7 @@ public class ExternalChannelResponseHandler {
             
             digitalWorkFlowExternalChannelResponseHandler.handleExternalChannelResponse(digitalSentResponse);
 
-            log.logEndingProcess(ExternalChannelService.DIGITAL_LEGAL_PROCESS_NAME);
+            log.logEndingProcess(processName);
         } catch (PnInternalException e) {
             log.error(EXCEPTION_LEGAL_UPDATE, e);
             throw e;
@@ -95,7 +98,15 @@ public class ExternalChannelResponseHandler {
     private void courtesyUpdate(CourtesyMessageProgressEvent event) {
         try {
             // per ora non è previsto nulla
-            log.info("Received ExternalChannel courtesy message event for requestId={} - status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
+            log.info("Async response received from service {} for {} with correlationId={}",
+                    ExternalChannelSendClient.CLIENT_NAME, ExternalChannelSendClient.COURTESY_NOTIFICATION_REQUEST, event.getRequestId());
+
+            final String processName = ExternalChannelSendClient.COURTESY_NOTIFICATION_REQUEST + " response handler";
+            log.logStartingProcess(processName);
+
+            log.info("Courtesy message handled successFully - requestId={} status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
+
+            log.logEndingProcess(processName);
         } catch (PnInternalException e) {
             log.error(COURTESY_UPDATE_FAILED, e);
             throw e;
