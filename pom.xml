@@ -226,7 +226,7 @@
 							<modelNameSuffix />
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
 							<configOptions>
 								<basePackage>${project.groupId}.deliverypush.generated.openapi.server.v1</basePackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.server.v1.dto</modelPackage>
@@ -263,7 +263,7 @@
 							<typeMappings>
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
 							<configOptions>
 								<basePackage>${project.groupId}.deliverypush.generated.openapi.server.v1</basePackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.server.v1.dto</modelPackage>
@@ -304,7 +304,7 @@
 							<modelNameSuffix />
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
 							<configOptions>
 								<basePackage>${project.groupId}.deliverypush.generated.openapi.server.webhook.v1</basePackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.server.webhook.v1.dto</modelPackage>
@@ -340,7 +340,7 @@
 							<typeMappings>
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.delivery.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.delivery.model</modelPackage>
@@ -370,7 +370,7 @@
 							<typeMappings>
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.delivery-reactive.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.delivery.model</modelPackage>
@@ -402,7 +402,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.datavault.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.datavault.model</modelPackage>
@@ -412,7 +412,7 @@
 								<openApiNullable>false</openApiNullable>
 								<useAbstractionForFiles>true</useAbstractionForFiles>
 								<useBeanValidation>false</useBeanValidation>
-								<additionalModelTypeAnnotations>@lombok.Builder(toBuilder = true); @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+								<additionalModelTypeAnnotations>@lombok.Builder(toBuilder = true); @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
 							</configOptions>
 						</configuration>
 					</execution>
@@ -432,7 +432,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.datavault-reactive.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.datavault.model</modelPackage>
@@ -445,7 +445,7 @@
 								<reactive>true</reactive>
 								<skipDefaultInterface>false</skipDefaultInterface>
 								<useTags>true</useTags>
-								<additionalModelTypeAnnotations>@lombok.Builder(toBuilder = true); @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+								<additionalModelTypeAnnotations>@lombok.Builder(toBuilder = true); @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
 
 							</configOptions>
 						</configuration>
@@ -466,7 +466,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.userattributes.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.userattributes.model</modelPackage>
@@ -493,7 +493,7 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.safestorage.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.safestorage.model</modelPackage>
@@ -520,7 +520,7 @@
 							<library>webclient</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.safestorage-reactive.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.safestorage.model</modelPackage>
@@ -552,7 +552,7 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalchannel.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalchannel.model</modelPackage>
@@ -580,7 +580,7 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.paperchannel.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.paperchannel.model</modelPackage>
@@ -608,7 +608,7 @@
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.mandate.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.mandate.model</modelPackage>
@@ -638,7 +638,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalregistry.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalregistry.model</modelPackage>
@@ -667,7 +667,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.nationalregistries.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.nationalregistries.model</modelPackage>
@@ -698,7 +698,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.addressmanager.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.addressmanager.model</modelPackage>
