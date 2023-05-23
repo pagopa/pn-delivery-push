@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes;
 
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.LegalDigitalAddress;
 import java.util.List;
 
 public interface UserAttributesClient {

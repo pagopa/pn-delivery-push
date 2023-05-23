@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.ApiClient;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.api.CourtesyApi;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.api.LegalApi;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.api.CourtesyApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.api.LegalApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.LegalDigitalAddress;
 import lombok.CustomLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;

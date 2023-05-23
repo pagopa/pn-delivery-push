@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.AcceptedResponse;
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.AnalogAddress;
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeItemsRequest;
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.AcceptedResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.AnalogAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.NormalizeItemsRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.NormalizeRequest;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;

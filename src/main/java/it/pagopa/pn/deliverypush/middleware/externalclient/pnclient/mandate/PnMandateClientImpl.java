@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate;
 
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.ApiClient;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.api.MandatePrivateServiceApi;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.api.MandatePrivateServiceApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.CxTypeAuthFleet;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.InternalMandateDto;
 import lombok.CustomLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;

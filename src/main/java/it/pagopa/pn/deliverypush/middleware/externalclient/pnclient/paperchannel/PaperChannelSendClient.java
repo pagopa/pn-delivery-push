@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel;
 
 
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 
 public interface PaperChannelSendClient {
     String CLIENT_NAME = "PN-PAPER-CHANNEL";

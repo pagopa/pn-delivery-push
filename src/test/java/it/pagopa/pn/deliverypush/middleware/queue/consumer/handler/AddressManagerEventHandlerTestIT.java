@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.AnalogAddress;
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeItemsResult;
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeResult;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.AnalogAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.NormalizeItemsResult;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.NormalizeResult;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.AddressManagerResponseHandler;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;

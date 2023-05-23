@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;

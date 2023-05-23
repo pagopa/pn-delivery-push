@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery_reactive.api.InternalOnlyApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery_reactive.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery_reactive.api.InternalOnlyApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.CustomLog;
 import org.springframework.stereotype.Component;

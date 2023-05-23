@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.api.InternalOnlyApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.api.InternalOnlyApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

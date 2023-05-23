@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.InternalMandateDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

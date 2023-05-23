@@ -3,10 +3,10 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalreg
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.ApiClient;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.api.AddressApi;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.api.AgenziaEntrateApi;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AddressApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AgenziaEntrateApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.*;
 import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 

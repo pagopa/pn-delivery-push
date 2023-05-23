@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.addressmanager;
 
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.ApiClient;
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.api.NormalizeAddressServiceApi;
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.AcceptedResponse;
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.NormalizeItemsRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.api.NormalizeAddressServiceApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.AcceptedResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.NormalizeItemsRequest;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.CustomLog;

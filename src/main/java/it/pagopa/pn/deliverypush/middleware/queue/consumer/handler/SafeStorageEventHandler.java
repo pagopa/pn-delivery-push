@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import lombok.AllArgsConstructor;

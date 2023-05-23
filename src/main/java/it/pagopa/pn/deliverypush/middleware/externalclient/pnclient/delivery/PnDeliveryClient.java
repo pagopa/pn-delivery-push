@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import java.util.Map;
 
 public interface PnDeliveryClient {

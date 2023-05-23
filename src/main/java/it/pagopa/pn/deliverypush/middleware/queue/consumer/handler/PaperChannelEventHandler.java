@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.PaperChannelUpdate;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.PaperChannelUpdate;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;

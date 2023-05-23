@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalCourtesyMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalLegalMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.PaperMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalCourtesyMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalLegalMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;

@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.api.PaperMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.api.PaperMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.*;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.CustomLog;

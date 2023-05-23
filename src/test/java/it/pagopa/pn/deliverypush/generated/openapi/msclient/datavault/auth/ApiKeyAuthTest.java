@@ -1,4 +1,4 @@
-package it.pagopa.pn.datavault.generated.openapi.clients.datavault.auth;
+package it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.auth;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

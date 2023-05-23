@@ -2,14 +2,14 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.api.FileDownloadApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.api.FileMetadataUpdateApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.api.FileUploadApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileDownloadApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileMetadataUpdateApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileUploadApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;

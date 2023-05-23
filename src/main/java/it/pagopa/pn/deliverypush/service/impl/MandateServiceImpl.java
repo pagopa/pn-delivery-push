@@ -5,7 +5,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate.PnMandateClient;
 import it.pagopa.pn.deliverypush.service.MandateService;
 import it.pagopa.pn.deliverypush.service.mapper.MandateDtoMapper;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.InternalMandateDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +34,7 @@ public class MandateServiceImpl implements MandateService {
                 .toList();
     }
 
-    private it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.CxTypeAuthFleet convertToMandateCxType(CxTypeAuthFleet cxType) {
-        return it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.CxTypeAuthFleet.valueOf(cxType.getValue());
+    private it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.CxTypeAuthFleet convertToMandateCxType(CxTypeAuthFleet cxType) {
+        return it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.CxTypeAuthFleet.valueOf(cxType.getValue());
     }
 }

@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries;
 
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.CheckTaxIdOK;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.CheckTaxIdOK;
 
 public interface NationalRegistriesClient {
     String CLIENT_NAME = "PN-NATIONAL-REGISTRIES";

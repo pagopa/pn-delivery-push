@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.CourtesyMessageProgressEvent;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.CourtesyMessageProgressEvent;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;

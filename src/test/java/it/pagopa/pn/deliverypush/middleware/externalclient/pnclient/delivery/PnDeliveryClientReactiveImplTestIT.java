@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;

@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.DigitalMessageReference;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.LegalMessageSentDetails;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.ProgressEventCategory;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalMessageReference;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.ProgressEventCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;

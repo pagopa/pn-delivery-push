@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregi
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.CheckTaxIdOK;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.CheckTaxIdOK;
 import org.junit.jupiter.api.Assertions;
 
 import java.time.Duration;

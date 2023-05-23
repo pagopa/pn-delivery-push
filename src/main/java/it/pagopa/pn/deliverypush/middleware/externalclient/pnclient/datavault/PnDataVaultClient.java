@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
 
 import java.util.List;
 

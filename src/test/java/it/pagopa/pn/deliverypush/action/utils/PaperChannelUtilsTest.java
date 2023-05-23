@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;

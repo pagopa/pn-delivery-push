@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;

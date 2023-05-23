@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.ApiClient;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.api.NotificationsApi;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AddressDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.api.NotificationsApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AddressDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

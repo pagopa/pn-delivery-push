@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationRecipient.RecipientTypeEnum;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipient.RecipientTypeEnum;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.NotificationRecipientAddressesDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

@@ -2,11 +2,11 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault_reactive.ApiClient;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault_reactive.api.NotificationsApi;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault_reactive.api.RecipientsApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.NotificationRecipientAddressesDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault_reactive.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault_reactive.api.NotificationsApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault_reactive.api.RecipientsApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import lombok.CustomLog;

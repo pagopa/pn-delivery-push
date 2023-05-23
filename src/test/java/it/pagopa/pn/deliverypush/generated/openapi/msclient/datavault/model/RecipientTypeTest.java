@@ -1,4 +1,4 @@
-package it.pagopa.pn.datavault.generated.openapi.clients.datavault.model;
+package it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
