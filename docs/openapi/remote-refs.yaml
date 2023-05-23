@@ -23,13 +23,13 @@ components:
     ###                     PARAMETRI NOTIFICA                                               ###
     ############################################################################################
     IUN:
-      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/83e3e791a5bb6043e69de8c310b76058c481db4e/docs/openapi/schemas-pn-notification.yaml#/components/schemas/IUN"
+      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/53f77f4c3e2127518678815c213be472a8f84cae/docs/openapi/schemas-pn-notification.yaml#/components/schemas/IUN"
     NotificationFeePolicy:
-      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/83e3e791a5bb6043e69de8c310b76058c481db4e/docs/openapi/schemas-pn-notification.yaml#/components/schemas/NotificationFeePolicy"
+      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/53f77f4c3e2127518678815c213be472a8f84cae/docs/openapi/schemas-pn-notification.yaml#/components/schemas/NotificationFeePolicy"
     PaTaxId:
-      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/83e3e791a5bb6043e69de8c310b76058c481db4e/docs/openapi/schemas-pn-notification.yaml#/components/schemas/paTaxId"
+      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/53f77f4c3e2127518678815c213be472a8f84cae/docs/openapi/schemas-pn-notification.yaml#/components/schemas/paTaxId"
     NoticeCode:
-      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/83e3e791a5bb6043e69de8c310b76058c481db4e/docs/openapi/schemas-pn-notification.yaml#/components/schemas/noticeCode"
+      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/53f77f4c3e2127518678815c213be472a8f84cae/docs/openapi/schemas-pn-notification.yaml#/components/schemas/noticeCode"
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-ERROR                                  ###
     ############################################################################################
