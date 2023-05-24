@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush;
+package it.pagopa.pn.deliverypush.config;
 
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;

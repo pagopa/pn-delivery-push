@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.api.CourtesyApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.api.LegalApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyChannelType;

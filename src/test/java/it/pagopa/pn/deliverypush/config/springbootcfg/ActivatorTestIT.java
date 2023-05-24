@@ -1,23 +1,29 @@
-package it.pagopa.pn.deliverypush.springbootcfg;
+package it.pagopa.pn.deliverypush.config.springbootcfg;
 
 import it.pagopa.pn.commons.abstractions.impl.AbstractCachedSsmParameterConsumer;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
+import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.config.springbootcfg.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import software.amazon.awssdk.services.ssm.SsmClient;
 
-class ActivatorTest {
-    @Mock
+@SpringBootTest
+@Import(LocalStackTestConfig.class)
+class ActivatorTestIT {
+    @Autowired
     private AwsConfigs awsConfigs;
-    @Mock
+    @Autowired
     private AbstractCachedSsmParameterConsumer abstractCachedSsmParameterConsumer;
-    @Mock
+    @Autowired
     private SsmClient ssmClient;
-    @Mock
+    @Autowired
     private ExceptionHelper exceptionHelper;
-
+    
     @Test
     void activatorTest(){
         Assertions.assertDoesNotThrow( ()  -> {
@@ -30,4 +36,5 @@ class ActivatorTest {
             new PnResponseEntityExceptionHandlerActivation(exceptionHelper);
         });
     }
+    
 }

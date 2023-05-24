@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.config.msclient;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.ApiClient;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.api.InternalOnlyApi;
 import org.springframework.beans.factory.annotation.Qualifier;

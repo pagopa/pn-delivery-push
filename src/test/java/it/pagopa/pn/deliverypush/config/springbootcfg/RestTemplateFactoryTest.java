@@ -1,6 +1,7 @@
-package it.pagopa.pn.deliverypush.springbootcfg;
+package it.pagopa.pn.deliverypush.config.springbootcfg;
 
 import it.pagopa.pn.commons.pnclients.RestTemplateRetryable;
+import it.pagopa.pn.deliverypush.config.springbootcfg.RestTemplateFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
