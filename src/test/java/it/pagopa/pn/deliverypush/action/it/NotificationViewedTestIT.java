@@ -1,8 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
@@ -39,9 +37,10 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -63,7 +62,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
@@ -122,7 +124,7 @@ import static org.mockito.ArgumentMatchers.eq;
         MVPParameterConsumer.class,
         NotificationCost.class,
         ViewNotification.class,
-        PnDeliveryClientReactiveImpl.class,
+        PnDeliveryClientReactiveMock.class,
         PnDataVaultClientReactiveMock.class,
         DocumentCreationRequestServiceImpl.class,
         DocumentCreationRequestDaoMock.class,
@@ -384,7 +386,7 @@ class NotificationViewedTestIT {
         ConsoleAppenderCustom.checkLogs();
     }
 
-    @Disabled
+    @Disabled("fail only in build fase")
     void notificationViewed(){
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()

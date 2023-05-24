@@ -1,28 +1,20 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.ApiClient;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.api.InternalOnlyApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import lombok.CustomLog;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
 @CustomLog
+@RequiredArgsConstructor
 @Component
 public class PnDeliveryClientImpl implements PnDeliveryClient{
     private final InternalOnlyApi pnDeliveryApi;
-
-    public PnDeliveryClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
-        ApiClient newApiClient = new ApiClient(restTemplate);
-        newApiClient.setBasePath(cfg.getDeliveryBaseUrl());
-        this.pnDeliveryApi = new InternalOnlyApi( newApiClient );
-    }
     
     @Override
     public void updateStatus(RequestUpdateStatusDto dto) {

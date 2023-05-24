@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush;
+package it.pagopa.pn.deliverypush.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

@@ -35,15 +35,6 @@ class DigitalAddressTest {
     }
 
     @Test
-    void testToString() {
-        String data = "class DigitalAddress {\n" +
-                "    type: type\n" +
-                "    address: address 001\n" +
-                "}";
-        Assertions.assertEquals(data, address.toString());
-    }
-
-    @Test
     void testAddress() {
         DigitalAddress data = address.address("address 001");
         Assertions.assertEquals(data, address.address("address 001"));

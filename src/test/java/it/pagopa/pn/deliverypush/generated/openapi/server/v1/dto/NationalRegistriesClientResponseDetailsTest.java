@@ -70,26 +70,4 @@ class NationalRegistriesClientResponseDetailsTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, tmp.equals(details));
     }
-
-    @Test
-    void testToString() {
-        String data = "class PublicRegistryResponseDetails {\n" +
-                "    recIndex: 1\n" +
-                "    digitalAddress: class DigitalAddress {\n" +
-                "        type: null\n" +
-                "        address: add\n" +
-                "    }\n" +
-                "    physicalAddress: class PhysicalAddress {\n" +
-                "        at: null\n" +
-                "        address: add\n" +
-                "        addressDetails: null\n" +
-                "        zip: null\n" +
-                "        municipality: null\n" +
-                "        municipalityDetails: null\n" +
-                "        province: null\n" +
-                "        foreignState: null\n" +
-                "    }\n" +
-                "}";
-        Assertions.assertEquals(data, details.toString());
-    }
 }

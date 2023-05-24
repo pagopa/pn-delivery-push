@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.AddressManagerResponseHandler;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,6 +15,7 @@ import org.springframework.cloud.function.context.test.FunctionalSpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.function.Consumer;
 

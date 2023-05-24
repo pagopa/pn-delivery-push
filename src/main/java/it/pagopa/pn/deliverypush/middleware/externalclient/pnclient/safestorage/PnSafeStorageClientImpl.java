@@ -2,18 +2,17 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.ApiClient;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileDownloadApi;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileMetadataUpdateApi;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileUploadApi;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileDownloadApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileMetadataUpdateApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileUploadApi;
 import lombok.CustomLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
@@ -40,18 +39,17 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
     private final FileUploadApi fileUploadApi;
     private final FileMetadataUpdateApi fileMetadataUpdateApi;
     private final RestTemplate restTemplate;
-
     private final PnDeliveryPushConfigs cfg;
 
     public PnSafeStorageClientImpl(PnDeliveryPushConfigs cfg,
-                                   @Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate) {
+                                   @Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate,
+                                   FileUploadApi fileUploadApi,
+                                   FileDownloadApi fileDownloadApi,
+                                   FileMetadataUpdateApi fileMetadataUpdateApi) {
         this.cfg = cfg;
-        
-        ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()) );
-        newApiClient.setBasePath( this.cfg.getSafeStorageBaseUrl() );
-        this.fileUploadApi =new FileUploadApi( newApiClient );
-        this.fileDownloadApi = new FileDownloadApi( newApiClient );
-        this.fileMetadataUpdateApi =new FileMetadataUpdateApi( newApiClient );
+        this.fileUploadApi = fileUploadApi;
+        this.fileDownloadApi = fileDownloadApi;
+        this.fileMetadataUpdateApi = fileMetadataUpdateApi;
         this.restTemplate = restTemplate;
     }
 

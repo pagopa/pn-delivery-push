@@ -2,14 +2,13 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.NotificationRecipientAddressesDto;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault_reactive.ApiClient;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault_reactive.api.NotificationsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault_reactive.api.RecipientsApi;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -19,19 +18,11 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 @CustomLog
 public class PnDataVaultClientReactiveImpl extends CommonBaseClient implements PnDataVaultClientReactive {
     private final RecipientsApi recipientsApi;
     private final NotificationsApi notificationApi;
-
-    public PnDataVaultClientReactiveImpl(PnDeliveryPushConfigs cfg) {
-        
-        ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()) );
-        newApiClient.setBasePath( cfg.getDataVaultBaseUrl() );
-
-        this.recipientsApi = new RecipientsApi( newApiClient );
-        this.notificationApi = new NotificationsApi(newApiClient);
-    }
 
     @Override
     @Retryable(

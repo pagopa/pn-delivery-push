@@ -1,45 +1,21 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.ApiClient;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.*;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.CustomLog;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.time.OffsetDateTime;
 
 @Component
+@RequiredArgsConstructor
 @CustomLog
 public class PaperChannelSendClientImpl implements PaperChannelSendClient {
     public static final String PRINT_TYPE_BN_FRONTE_RETRO = "BN_FRONTE_RETRO";
-    private final PnDeliveryPushConfigs cfg;
-    private final RestTemplate restTemplate;
-    private PaperMessagesApi paperMessagesApi;
-
-    public PaperChannelSendClientImpl(@Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
-        this.cfg = cfg;
-        this.restTemplate = restTemplate;
-    }
-
-    @PostConstruct
-    public void init(){
-        this.paperMessagesApi = new PaperMessagesApi(newApiClient());
-    }
-
-    private ApiClient newApiClient()
-    {
-
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getPaperChannelBaseUrl());
-        return apiClient;
-    }
-
-
+    private final PaperMessagesApi paperMessagesApi;
+    
     @Override
     public void prepare(PaperChannelPrepareRequest paperChannelPrepareRequest) {
         log.logInvokingAsyncExternalService(CLIENT_NAME, PREPARE_ANALOG_NOTIFICATION, paperChannelPrepareRequest.getRequestId());

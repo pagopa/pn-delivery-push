@@ -1,10 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.ApiClient;
+import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.api.NotificationsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AddressDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -42,16 +39,7 @@ class PnDataVaultClientImplTest {
 
     @BeforeEach
     void setup() {
-        cfg = mock(PnDeliveryPushConfigs.class);
-        Mockito.when(cfg.getDataVaultBaseUrl()).thenReturn("http://localhost:8080");
-        Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
-//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
-
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getDataVaultBaseUrl());
-
-        pnDataVaultNotificationApi = new NotificationsApi(apiClient);
-        client = new PnDataVaultClientImpl(restTemplate, cfg);
+        client = new PnDataVaultClientImpl(pnDataVaultNotificationApi);
     }
 
     @Test

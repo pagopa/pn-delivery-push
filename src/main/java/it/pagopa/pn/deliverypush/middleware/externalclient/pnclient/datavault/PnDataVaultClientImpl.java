@@ -1,27 +1,19 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.ApiClient;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.api.NotificationsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import lombok.CustomLog;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 @CustomLog
 @Component
+@RequiredArgsConstructor
 public class PnDataVaultClientImpl implements PnDataVaultClient{
     private final NotificationsApi pnDataVaultNotificationApi;
-    
-    public PnDataVaultClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
-        ApiClient newApiClient = new ApiClient(restTemplate);
-        newApiClient.setBasePath(cfg.getDataVaultBaseUrl());
-        this.pnDataVaultNotificationApi = new NotificationsApi( newApiClient );
-    }
     
     public void updateNotificationTimelineByIunAndTimelineElementId(String iun, ConfidentialTimelineElementDto dto){
         log.logInvokingExternalService(CLIENT_NAME, UPDATE_TIMELINE_ELEMENT_CONF_INFORMATION);

@@ -37,7 +37,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
@@ -121,7 +120,7 @@ import static org.awaitility.Awaitility.with;
         MVPParameterConsumer.class,
         NotificationCost.class,
         ViewNotification.class,
-        PnDeliveryClientReactiveImpl.class,
+        PnDeliveryClientReactiveMock.class,
         PnDataVaultClientReactiveMock.class,
         DocumentCreationRequestServiceImpl.class,
         DocumentCreationRequestDaoMock.class,

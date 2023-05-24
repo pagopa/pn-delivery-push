@@ -2,39 +2,24 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalreg
 
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.commons.utils.LogUtils;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.ApiClient;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AddressApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AgenziaEntrateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.*;
 import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 
 @Component
+@RequiredArgsConstructor
 @CustomLog
 public class NationalRegistriesClientImpl extends CommonBaseClient implements NationalRegistriesClient {
 
     public static final String PN_NATIONAL_REGISTRIES_CX_ID_VALUE = "pn-delivery-push";
-
-    private final PnDeliveryPushConfigs cfg;
-
-    private AddressApi addressApi;
-    private AgenziaEntrateApi agenziaEntrateApi;
     
-    public NationalRegistriesClientImpl(PnDeliveryPushConfigs cfg) {
-        this.cfg = cfg;
-    }
-
-    @PostConstruct
-    public void init() {
-        ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()) );
-        newApiClient.setBasePath( this.cfg.getNationalRegistriesBaseUrl() );
-        addressApi = new AddressApi(newApiClient);
-        agenziaEntrateApi = new AgenziaEntrateApi(newApiClient);
-    }
+    private final AddressApi addressApi;
+    private final AgenziaEntrateApi agenziaEntrateApi;
 
     @Override
     public void sendRequestForGetDigitalAddress(String taxId, String recipientType, String correlationId) {
@@ -64,13 +49,5 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
         
         return agenziaEntrateApi.checkTaxId(checkTaxIdRequestBody)
                 .block();
-    }
-
-    public void setAddressApi(AddressApi addressApi) {
-        this.addressApi = addressApi;
-    }
-
-    public void setAgenziaEntrateApi(AgenziaEntrateApi agenziaEntrateApi) {
-        this.agenziaEntrateApi = agenziaEntrateApi;
     }
 }

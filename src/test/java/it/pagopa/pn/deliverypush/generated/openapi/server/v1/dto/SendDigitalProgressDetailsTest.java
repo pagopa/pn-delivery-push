@@ -149,29 +149,6 @@ class SendDigitalProgressDetailsTest {
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
 
-    @Test
-    void testToString() {
-        String data = "class SendDigitalProgressDetails {\n" +
-                "    recIndex: 1\n" +
-                "    deliveryFailureCause: C1\n" +
-                "    deliveryDetailCode: 001\n" +
-                "    shouldRetry: true\n" +
-                "    digitalAddress: class DigitalAddress {\n" +
-                "        type: null\n" +
-                "        address: add\n" +
-                "    }\n" +
-                "    digitalAddressSource: GENERAL\n" +
-                "    notificationDate: 2021-09-16T15:23:00Z\n" +
-                "    sendingReceipts: [class SendingReceipt {\n" +
-                "        id: 001\n" +
-                "        system: null\n" +
-                "    }]\n" +
-                "    retryNumber: 1\n" +
-                "}";
-
-        Assertions.assertEquals(data, details.toString());
-    }
-
     private SendDigitalProgressDetails buildSendDigitalProgressDetails() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
 

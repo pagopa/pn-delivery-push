@@ -1,26 +1,23 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.ApiClient;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalCourtesyMessagesApi;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalLegalMessagesApi;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalCourtesyMailRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalCourtesySmsRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalNotificationRequest;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalCourtesyMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalLegalMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalCourtesyMailRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalCourtesySmsRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalNotificationRequest;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import lombok.CustomLog;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -28,42 +25,17 @@ import java.util.List;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
+@RequiredArgsConstructor
 @CustomLog
 public class ExternalChannelSendClientImpl implements ExternalChannelSendClient {
 
     private static final String EVENT_TYPE_LEGAL = "LEGAL";
     private static final String EVENT_TYPE_COURTESY = "COURTESY";
 
-
-    public static final String PRINT_TYPE_BN_FRONTE_RETRO = "BN_FRONTE_RETRO";
     private final PnDeliveryPushConfigs cfg;
-    private final RestTemplate restTemplate;
-    private DigitalLegalMessagesApi digitalLegalMessagesApi;
-    private DigitalCourtesyMessagesApi digitalCourtesyMessagesApi;
+    private final DigitalLegalMessagesApi digitalLegalMessagesApi;
+    private final DigitalCourtesyMessagesApi digitalCourtesyMessagesApi;
     private final LegalFactGenerator legalFactGenerator;
-
-    public ExternalChannelSendClientImpl(@Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate,
-                                         PnDeliveryPushConfigs cfg,
-                                         LegalFactGenerator legalFactGenerator) {
-        this.legalFactGenerator = legalFactGenerator;
-        this.cfg = cfg;
-        this.restTemplate = restTemplate;
-    }
-
-    @PostConstruct
-    public void init(){
-        this.digitalLegalMessagesApi = new DigitalLegalMessagesApi(newApiClient());
-        this.digitalCourtesyMessagesApi = new DigitalCourtesyMessagesApi(newApiClient());
-    }
-
-    private ApiClient newApiClient()
-    {
-
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
-        return apiClient;
-    }
-
 
     @Override
     public void sendLegalNotification(NotificationInt notificationInt,

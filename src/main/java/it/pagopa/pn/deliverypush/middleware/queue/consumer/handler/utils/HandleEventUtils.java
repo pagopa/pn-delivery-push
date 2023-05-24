@@ -57,7 +57,7 @@ public class HandleEventUtils {
     }
 
     public static void addIunToMdc(String iun) {
-        MDC.put(MDCUtils.MDC_PN_CTX_IUN, iun);
+        MDC.put(MDCUtils.MDC_PN_IUN_KEY, iun);
     }
 
     public static void addRecIndexToMdc(int recIndex) {

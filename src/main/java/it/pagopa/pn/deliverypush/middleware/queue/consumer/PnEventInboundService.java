@@ -8,7 +8,6 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.MDCWebFilter;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionEventType;
@@ -52,28 +51,40 @@ public class PnEventInboundService {
         return new MessageRoutingCallback() {
             @Override
             public FunctionRoutingResult routingResult(Message<?> message) {
-                setTraceId(message);
+                setMdc(message);
                 return new FunctionRoutingResult(handleMessage(message));
             }
         };
     }
 
-    private void setTraceId(Message<?> message) {
+    private void setMdc(Message<?> message) {
         MessageHeaders messageHeaders = message.getHeaders();
-
-        String traceId = "trace_id:" + UUID.randomUUID();
-        MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, traceId);
-
+        MDCUtils.clearMDCKeys();
+        
         if (messageHeaders.containsKey("aws_messageId")){
             String awsMessageId = messageHeaders.get("aws_messageId", String.class);
             MDC.put(MDCUtils.MDC_PN_CTX_MESSAGE_ID, awsMessageId);
         }
+        
+        if (messageHeaders.containsKey("X-Amzn-Trace-Id")){
+            String traceId = messageHeaders.get("X-Amzn-Trace-Id", String.class);
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, traceId);
+        } else {
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, String.valueOf(UUID.randomUUID()));
+        }
+
+        String iun = (String) message.getHeaders().get("iun");
+        if(iun != null){
+            MDC.put(MDCUtils.MDC_PN_IUN_KEY, iun);
+        }
     }
 
     private String handleMessage(Message<?> message) {
+        log.debug("Received message from customRouter with header={}", message.getHeaders());
+
         String eventType = (String) message.getHeaders().get("eventType");
         String iun = (String) message.getHeaders().get("iun");
-        log.debug("Received message from customRouter with eventType={} - iun={}", eventType, iun);
+        log.debug("message have eventType={} - iun={}", eventType, iun);
 
         if (eventType != null) {
             //Se l'event type e valorizzato ...

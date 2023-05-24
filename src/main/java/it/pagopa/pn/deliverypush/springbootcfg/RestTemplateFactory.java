@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,6 +22,7 @@ public class RestTemplateFactory {
 
 
     @Bean
+    @Primary
     @Qualifier("withOffsetDateTimeFormatter")
     public RestTemplate restTemplateWithOffsetDateTimeFormatter(@Value("${pn.commons.retry.max-attempts}") int retryMaxAttempts, @Value("${pn.commons.connection-timeout-millis}") int connectionTimeout) {
         // Override del comportamento di serializzazione delle date
