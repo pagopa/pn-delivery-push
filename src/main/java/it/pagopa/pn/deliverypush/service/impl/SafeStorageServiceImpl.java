@@ -35,6 +35,7 @@ public class SafeStorageServiceImpl implements SafeStorageService {
                     log.debug("Response getFile from SafeStorage: {}", fileDownloadResponse);
                     MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
                 })
+                .doOnError(err -> MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY))
                 .map(this::getFileDownloadResponseInt);
     }
 
@@ -95,6 +96,7 @@ public class SafeStorageServiceImpl implements SafeStorageService {
                 })
                 .onErrorResume( err ->{
                     log.error("Cannot update metadata ", err);
+                    MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
                     return Mono.error(new PnInternalException("Cannot update metadata", ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, err));
                 })
                 .map( res -> UpdateFileMetadataResponseInt.builder()

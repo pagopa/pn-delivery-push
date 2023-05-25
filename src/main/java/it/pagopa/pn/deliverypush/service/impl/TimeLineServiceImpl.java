@@ -90,11 +90,13 @@ public class TimeLineServiceImpl implements TimelineService {
                 
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
             } catch (Exception ex) {
+                MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
                 logEvent.generateFailure("Exception in addTimelineElement", ex).log();
                 throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED, ex);
             }
 
         } else {
+            MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
             logEvent.generateFailure("Try to update Timeline and Status for non existing iun={}", dto.getIun());
             throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
         }

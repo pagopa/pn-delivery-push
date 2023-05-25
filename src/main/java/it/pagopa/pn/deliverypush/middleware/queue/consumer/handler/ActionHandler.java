@@ -206,7 +206,10 @@ public class ActionHandler {
                 log.logStartingProcess(action.getType().toString());
                 webhookActionsEventHandler.handleEvent(action);
                 log.logEndingProcess(action.getType().toString());
+
+                MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
             } catch (Exception ex) {
+                MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -230,6 +233,7 @@ public class ActionHandler {
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
             } catch (Exception ex) {
+                MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }

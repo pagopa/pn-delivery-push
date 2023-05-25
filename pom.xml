@@ -631,7 +631,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-external-registries/3ced99ecd74ae2e7bc98ed1330b5ddcf3a90873c/docs/openapi/pn-io-message-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-external-registries/7eb17aae8cc15e852768ec43fd4f2e383ccd5b46/docs/openapi/pn-io-message-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
