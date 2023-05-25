@@ -3,10 +3,10 @@
 <head>
     <title>Hai ricevuto una notifica</title>
     <!--[if !mso]>
-<!-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!--
+
 	<![endif]-->
+
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="author" content="SEND - Servizio Notifiche Digitali">
@@ -130,6 +130,10 @@
         text-decoration: none;
       }
 
+      .logosend {
+                width: 116px;
+            }
+
       @media (prefers-color-scheme: dark) {
         body {
           background-color: #212327;
@@ -188,11 +192,9 @@
                                             <tbody>
                                             <!-- logo SEND -->
                                             <tr>
-                                                <td align="left" style="font-size:0px;word-break:break-word;width:1px">
-                                                    <div style="font-family:Titillium Web, Arial;font-size:13px;line-height:1;text-align:left;color:#000000;">
-                                                        <mj-raw>
-                                                            <img src="data:image/png;base64,${logoBase64}" alt="Logo SEND" class="logosend" width="116" align="left" style="display:block;width:116px;">
-                                                        </mj-raw>
+                                                <td align="left" class="text" style="font-size: 0px;word-break: break-word;">
+                                                    <div style="font-family: Titillium Web, Arial;font-size: 13px;font-weight: bold;line-height: 1;text-align: left;color: #000000;margin: 32px 0">
+                                                        <h1 style="font-size: 32px;line-height: 40px;">Logo di SEND - Servizio Notifiche Digitali</h1>
                                                     </div>
                                                 </td>
                                                 <td align="left" class="text" style="font-size:0px;word-break:break-word;">
@@ -215,8 +217,8 @@
                                                         <p>Ciao,</p>
                                                         <p>Hai ricevuto su SEND - Servizio Notifiche Digitali una notifica da parte di <strong>${notification.sender.paDenomination}</strong> con Codice IUN <strong>${notification.iun}</strong>. Una notifica è una <strong>comunicazione a valore legale</strong> composta da una avviso di avvenuta ricezione e da uno o più documenti.</p>
                                                         <!-- Perfezionamento Notifica -->
-                                                        <p>Hai fino a 120 dalla <a href="${PNFaqCompletionMomentURL}" class="link" style="color: #0073E6">data di perfezionamento</a> della notifica per <strong>visualizzare i documenti</strong>.</p>
-                                                        <a title="Visualizza documenti" class="button" href="${piattaformaNotificheURL}">Visualizza documenti</a>
+                                                        <p>Hai fino a 120 giorni dalla <a href="${PNFaqCompletionMomentURL}" class="link" style="color: #0073E6">data di perfezionamento</a> della notifica per <strong>visualizzare i documenti</strong>.</p>
+                                                        <a title="Visualizza documenti" class="button" href="${piattaformaNotificheURL}" style="color: #FFFFFF;">Visualizza documenti</a>
                                                         <!--  Avviso su PEC -->
                                                         <p>Se non hai una PEC e visualizzi i documenti entro 5 giorni (120 ore) dall’invio del messaggio, non riceverai l'avviso di avvenuta ricezione tramite raccomandata.</p>
                                                         <p style="font-size: 14px"><a href="${PNFaqSendURL}" class="link" style="color: #0073E6">SEND</a> è uno strumento che rende l'invio di notifiche da parte della Pubblica Amministrazione più sicuro, efficiente ed economico. <a title="Servizio Notifiche Digitali" class="link" href="https://notifichedigitali.pagopa.it" style="color: #0073E6">Scopri di più</a></p>

@@ -146,6 +146,10 @@
         text-decoration: none;
       }
 
+      .logosend {
+                width: 116px;
+            }
+
       @media (prefers-color-scheme: dark) {
         body {
           background-color: #212327;
@@ -164,6 +168,7 @@
           color: #94c4f4 !important; /* Primary Light in HSL - L = +25 */
         }
       }
+
     </style>
     <meta name="color-scheme" content="light dark" />
     <meta name="supported-color-schemes" content="light dark" />
@@ -203,11 +208,9 @@
                                             <tbody>
                                             <!-- logo SEND -->
                                             <tr>
-                                                <td align="left" style="font-size: 0px;word-break: break-word;">
-                                                    <div style="font-size: 13px;line-height: 1;text-align: left;">
-                                                        <mj-raw>
-                                                            <img src="data:image/png;base64,${logoBase64}" alt="Logo SEND" class="logosend" width="116" align="left" style="display: block; width: 116px"/>
-                                                        </mj-raw>
+                                                <td align="left" class="text" style="font-size: 0px;word-break: break-word;">
+                                                    <div style="font-family: Titillium Web, Arial;font-size: 13px;font-weight: bold;line-height: 1;text-align: left;color: #000000;margin: 32px 0">
+                                                        <h1 style="font-size: 32px;line-height: 40px;">Logo di SEND - Servizio Notifiche Digitali</h1>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -226,7 +229,7 @@
                                                         <p>Hai ricevuto su SEND - Servizio Notifiche Digitali una notifica da parte di <strong>${notification.sender.paDenomination}</strong>. Una notifica è una <strong>comunicazione a valore legale</strong> composta da un avviso di avvenuta ricezione e da uno o più documenti.</p>
                                                         <!-- Perfezionamento Notifica -->
                                                         <p>Hai fino a 120 giorni dalla <a href="${PNFaqCompletionMomentURL}" class="link" style="color: #0073E6">data di perfezionamento</a> della notifica per <strong>visualizzare i documenti</strong>.</p>
-                                                        <a title="Visualizza i documenti" href="${quickAccessLink}" class="button">Visualizza i documenti</a>
+                                                        <a title="Visualizza i documenti" href="${quickAccessLink}" class="button" style="color: #FFFFFF;">Visualizza i documenti</a>
                                                         <p><strong>Preferisci ritirali in Ufficio Postale?</strong> Segui le indicazioni che trovi nell'allegato.</p>
                                                         <p style="font-family: Titillium Web, Arial;font-weight: 400;font-size: 14px;">
                                                             Ricevi questo avviso di avvenuta ricezione in qualità di persona ${recipientType} con Codice Fiscale ${recipient.taxId}. SEND è uno strumento che rende l'invio di notifiche da parte della Pubblica Amministrazione più sicuro, efficiente ed economico. <a title="Scopri di più" class="link" style="color: #0073e6" href="${PNFaqSendURL}">Scopri di più</a>
