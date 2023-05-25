@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalreg
 
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.commons.utils.LogUtils;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AddressApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AgenziaEntrateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.*;
@@ -31,10 +32,11 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
                 .referenceRequestDate(LocalDate.now().toString()) //YYYY-MM-DD
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
 
-
-        addressApi.getAddresses(recipientType, new AddressRequestBody().filter(addressRequestBodyFilter), PN_NATIONAL_REGISTRIES_CX_ID_VALUE)
-                .doOnError(throwable -> log.error(String.format("Error calling getAddresses with taxId: %s, correlationId: %s", LogUtils.maskTaxId(taxId), correlationId), throwable))
-                .block();
+        MDCUtils.addMDCToContextAndExecute(
+                addressApi.getAddresses(recipientType, new AddressRequestBody().filter(addressRequestBodyFilter), PN_NATIONAL_REGISTRIES_CX_ID_VALUE)
+                        .doOnError(throwable -> log.error(String.format("Error calling getAddresses with taxId: %s, correlationId: %s", LogUtils.maskTaxId(taxId), correlationId), throwable))
+        ).block();
+        
     }
 
     @Override
@@ -46,8 +48,9 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
                     new CheckTaxIdRequestBodyFilter()
                             .taxId(taxId)
                 );
-        
-        return agenziaEntrateApi.checkTaxId(checkTaxIdRequestBody)
-                .block();
+
+        return MDCUtils.addMDCToContextAndExecute(
+                agenziaEntrateApi.checkTaxId(checkTaxIdRequestBody)
+        ).block();
     }
 }
