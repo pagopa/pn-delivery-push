@@ -219,12 +219,16 @@ public class ActionHandler {
             try {
                 log.debug("Handle action pnDeliveryPushDocumentCreationResponseConsumer, with content {}", message);
                 Action action = message.getPayload();
+                DocumentCreationResponseActionDetails details = (DocumentCreationResponseActionDetails) action.getDetails();
+                MDC.put(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY, details.getKey());
+
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
-                DocumentCreationResponseActionDetails details = (DocumentCreationResponseActionDetails) action.getDetails();
                 log.logStartingProcess(action.getType().toString());
                 documentCreationResponseHandler.handleResponseReceived(action.getIun(), action.getRecipientIndex(), details );
                 log.logEndingProcess(action.getType().toString());
+
+                MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
