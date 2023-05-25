@@ -36,10 +36,6 @@
         font-weight: 400;
       }
 
-      .container {
-        position: relative;
-      }
-
       .strong {
         font-weight: 700;
       }
@@ -144,38 +140,12 @@
         padding: .9mm 2.5mm;
       }
 
-      /* VIEW ONLINE BOX */
-      #view-online-box {
-        margin: 5mm 10mm 0mm 10mm;
-        width: 190mm;
-        height: 33.3mm;
+      .row {
+        margin: 10mm 10mm 0mm 10mm;
       }
 
-      .section-list {
-        position: absolute;
-        left: 7mm;
-        width: 90mm;
-      }
-
-      .section-list ol {
-        margin-top: 2mm;
-        line-height: 4.6mm;
-      }
-
-      .section-list li {
-        margin-top: 2.3mm;
-      }
-
-      .section-list ul li {
-        margin-top: 0mm;
-      }
-
-      #io-notifications {
-        margin-top: 3mm;
-        position: absolute;
-        left: 98mm;
-        width: 92mm;
-        height: 18mm;
+      .relative-box {
+        position: relative;
       }
 
       .rounded-box {
@@ -183,9 +153,59 @@
         border-radius: 5px;
       }
 
+      .section-list {
+        padding-left: 1mm;
+      }
+
+      .section-list ol {
+        position: relative;
+        left: 7mm;
+        margin: 2mm 0;
+        line-height: 4.6mm;
+      }
+
+      .section-list li {
+        margin-top: 2.3mm;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* VIEW ONLINE BOX */
+      #view-online-box {
+        position: absolute;
+        margin-top: 2mm;
+        width: 90mm;
+      }
+      /* END VIEW ONLINE BOX */
+
+      /* DESCRIPTION BOX */
+      #description-box {
+        margin-top: 2mm;
+        position: absolute;
+        width: 90mm;
+        padding: 1.75mm 2.5mm;
+        line-height: 4.6mm;
+        right: 0mm;
+      }
+      /* END DESCRIPTION BOX */
+
+      /* IO NOTIFICATIONS BOX */
+      #io-notifications {
+        position: absolute;
+        width: 90mm;
+      }
+
+      #io-notifications .rounded-box {
+        height: 22mm;
+        margin: 2mm 0;
+      }
+
       #io-notifications__image {
         position: absolute;
-        top: 4mm;
+        top: 6mm;
         left: 3mm;
         height: 10mm;
       }
@@ -194,87 +214,17 @@
         position: absolute;
         top: 2mm;
         left: 12.8mm;
-        width: 78mm;
+        width: 75mm;
       }
-
-      /* POST OFFICE BOX */
-      #post-office-box {
-        position: absolute;
-        left: 10mm;
-        width: 91.5mm;
-        height: 84.5mm;
-      }
-
-      #post-office-box .section-list {
-        position: relative;
-        width: 80mm;
-      }
-
-      ul {
-        line-height: 18px;
-        margin-left: 3mm;
-      }
-
-      ul li {
-        list-style-type: none;
-        position: relative;
-      }
-
-      ul li::before {
-        position: absolute;
-        content: '';
-        background-color: black;
-        width: 3.1px;
-        height: 3.4px;
-        left: -3mm;
-        top: 2.5mm;
-      }
-
-      #post-office-disclaimer {
-        position: relative;
-        top: 6mm;
-        left: 3mm;
-        width: 90mm;
-        height: 30mm;
-      }
-
-      #description-box {
-        position: absolute;
-        top: 83.2mm;
-        height: 22.8mm;
-        width: 91.4mm;
-        padding: 1.75mm 2.5mm;
-        line-height: 4.6mm;
-      }
+      /* END NOTIFICATIONS BOX */
 
       /* MANDATE BOX */
       #mandate-box {
         position: absolute;
-        left: 108mm;
-        width: 92mm;
+        right: 0;
+        width: 90mm;
       }
-
-      #mandate-content {
-        padding: 3.2mm;
-        padding-right: 0;
-      }
-
-      #mandate-content .paragraph {
-        margin-top: 2.8mm;
-      }
-
-      #mandate-content .paragraph2 {
-        margin-top: 4mm;
-      }
-
-      .paragraph2 ul {
-        line-height: 5mm;
-      }
-
-      .form-element {
-        padding-bottom: .5mm;
-        border-bottom: 1px solid black;
-      }
+      /* END MANDATE BOX */
     </style>
   </head>
   <body>
@@ -306,119 +256,68 @@
         ${notification.subject}
       </div>
       <div id="main__disclaimer">
-        Ricevi questo avviso di avvenuta ricezione in qualità di
+        Ricevi questa notifica da parte di ${notification.sender.paDenomination} in qualità di
         <#if recipient.recipientType == "PF">
-          privato cittadino con Codice Fiscale
+        privato cittadino con Codice Fiscale
         <#else>
-          persona giuridica con Partita IVA
-        </#if>
-         ${recipient.taxId}.
+        persona giuridica con Partita IVA
+      </#if>
+      ${recipient.taxId}.
       </div>
       <div id="main__content">
-        Hai ricevuto su SEND - Servizio Notifiche Digitali una notifica da parte di <strong>${notification.sender.paDenomination}</strong>.
         Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti.
-        Hai fino a 120 giorni dalla data di perfezionamento della notifica per visualizzarli online o ritirarli in Ufficio Postale.<br />
-        Per conoscere la data di perfezionamento, vai su <strong>${PNFaqCompletionMomentURL}</strong>
       </div>
     </div>
 
-    <div id="view-online-box">
-      <div class="heading ten-px">Visualizzali online - gratis</div>
-      <div class="container">
-        <div class="section-list">
-          <ol>
-            <li>Inquadra il codice QR o vai su <strong>${piattaformaNotificheURLLabel}</strong></li>
-            <li>Accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
-            <li>Visualizza i documenti notificati</li>
-          </ol>
-        </div>
-        <div id="io-notifications" class="rounded-box">
-          <img id="io-notifications__image" src="images/io-on-light.png" />
-          <div id="io-notifications__content">
-            Ricevi le prossime notifiche in digitale. Scarica l’app IO sul tuo
-            dispositivo e attiva il servizio “Notifiche digitali” di SEND.
+    <div class="row">
+      <div class="heading ten-px">Come visualizzare i documenti online</div>
+      <div class="relative-box" style="height: 52mm;">
+        <div id="view-online-box">
+          <div class="section-list">
+            Se hai ricevuto questo avviso di avvenuta ricezione tramite raccomandata, la visualizzazione online dei documenti è facoltativa. Se l’hai ricevuto in digitale, è obbligatoria. Per farlo:
+            <ol>
+              <li>Inquadra il codice QR o vai su SEND all'indirizzo <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong></li>
+              <li>Accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
+              <li>Visualizza i documenti della notifica</li>
+            </ol>
+            I documenti sono disponibili online per 120 giorni dalla data di perfezionamento della notifica. Per conoscerla, vai su <strong>${PNFaqCompletionMomentURL}</strong>
           </div>
         </div>
-      </div>
-    </div>
-
-    
-    <div class="container">
-      <div id="post-office-box">
-        <div class="heading ten-px">
-          Ritirali in ufficio postale - a pagamento
-        </div>
-        <div class="section-list">
-          <ol>
-            <li>
-              Vai in qualsiasi Ufficio Postale e richiedi il servizio “Stampa
-              notifica”
-            </li>
-            <li>
-              Allo sportello, mostra:
-              <ul>
-                <li><strong>questo avviso</strong></li>
-                <li>un tuo <strong>documento di riconoscimento</strong></li>
-                <li>
-                  il tuo <strong>Codice Fiscale</strong> o
-                  <strong>Partita IVA</strong>
-                </li>
-                <#if recipient.recipientType != "PF">
-                  <li>
-                    se hai ricevuto la notifica in qualità di persona giuridica, <strong>un documento che attesti il tuo ruolo di legale rappresentante</strong>
-                  </li>
-                </#if>
-              </ul>
-            </li>
-            <li>Paga il corrispettivo e ritira i documenti notificati</li>
-          </ol>
-        </div>
-        <div id="post-office-disclaimer">
-          Puoi consultare i termini e le condizioni del servizio “Stampa Notifica” su <strong>poste.it</strong> e in Ufficio Postale.
-        </div>
-    
         <div id="description-box" class="rounded-box">
-          <strong>Cos’è SEND?</strong> È uno strumento che rende
+          <strong>Cos’è SEND?</strong> Send è uno strumento che rende
           l’invio di notifiche da parte della Pubblica Amministrazione sicuro,
           efficiente ed economico. Per saperne di più e per ricevere assistenza,
-          visita il sito <strong>${piattaformaNotificheURLLabel}</strong>
+          visita il sito <strong><a href="${sendURL}">${sendURL}</a></strong>
         </div>
       </div>
+    </div>
 
-      <div id="mandate-box">
-        <div class="heading ten-px">Vuoi delegare qualcuno al ritiro?</div>
-        <div id="mandate-content">
-          Io, ${recipient.denomination} ${recipient.taxId}, delego
-          <div class="form-element paragraph">Nome</div>
-          <div class="form-element paragraph">Cognome</div>
-          <div class="form-element paragraph">Codice Fiscale</div>
-          <div class="paragraph">
-            a ritirare in Ufficio Postale i documenti notificati.
+    <div class="row">
+      <div class="relative-box">
+        <div id="io-notifications">
+          <div class="heading ten-px">
+            Ricevi le prossime notifiche in digitale
           </div>
-          <div class="form-element paragraph">Firma</div>
-          <div>
-            <div class="paragraph2">
-              Allo sportello, il delegato dovrà mostrare:
+          <div class="rounded-box relative-box">
+            <img id="io-notifications__image" src="images/io-on-light.png" />
+            <div id="io-notifications__content">
+              Scarica l’app IO e attiva il servizio Notifiche digitali di SEND.
+              Se riceverai nuove notifiche, potrai visualizzare i documenti e pagare eventuali spese direttamente dal tuo dispositivo.
             </div>
-            <ul>
-              <li>
-                <strong>questo avviso</strong> con la delega compilata e firmata
-              </li>
-              <li>un suo <strong>documento di riconoscimento</strong></li>
-              <li>
-                il suo <strong>Codice Fiscale</strong> o
-                <strong>Partita IVA</strong>
-              </li>
-              <li>
-                <strong>una copia o l’originale</strong> del tuo Codice Fiscale e
-                di un tuo documento di riconoscimento
-              </li>
-              <#if recipient.recipientType != "PF">
-                <li>
-                  se hai ricevuto la notifica in qualità di persona giuridica, <strong>un documento che attesti il tuo ruolo di legale rappresentante</strong>
-                </li>
-              </#if>
-            </ul>
+          </div>
+          In alternativa, vai su SEND all’indirizzo <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e indica i recapiti digitali con cui vuoi ricevere le prossime notifiche e comunicazioni.
+        </div>
+        <div id="mandate-box">
+          <div class="heading ten-px">
+            Delega qualcuno a ricevere le tue notifiche
+          </div>
+          <div class="section-list">
+            <ol>
+              <li>Vai su <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
+              <li>Seleziona “Deleghe” dal menu a sinistra</li>
+              <li>Premi “Aggiungi una delega” e inserisci i dati della persona che vuoi delegare</li>
+              <li>Questa dovrà accedere con SPID o CIE e accettare la richiesta di delega. A partire da quel momento, riceverà su SEND le notifiche destinate a te</li>
+            </ol>
           </div>
         </div>
       </div>

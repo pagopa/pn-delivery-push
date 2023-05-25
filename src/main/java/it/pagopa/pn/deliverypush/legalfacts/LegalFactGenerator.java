@@ -356,6 +356,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_SEND_URL, this.getFAQSendURL());
         templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
+        templateModel.put(FIELD_SENDURL, this.getAccessLink());
 
         String sb = this.getAccessUrlLabel(recipient) + "/perfezionamento";
         templateModel.put(FIELD_PERFEZIONAMENTO, sb);
@@ -387,6 +388,10 @@ public class LegalFactGenerator {
 
         log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, quickAccessToken );
         return templateUrl + '=' + quickAccessToken;
+    }
+
+    private String getAccessLink() {
+        return pnDeliveryPushConfigs.getWebapp().getLandingUrl();
     }
 
     private String getFAQAccessLink() {
