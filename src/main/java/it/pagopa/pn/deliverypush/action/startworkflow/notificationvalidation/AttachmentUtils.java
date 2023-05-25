@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -77,7 +79,11 @@ public class AttachmentUtils {
 
     private void checkAttachment(NotificationDocumentInt attachment) {
         NotificationDocumentInt.Ref ref = attachment.getRef();
-        FileDownloadResponseInt fd = safeStorageService.getFile(ref.getKey(),true).block();
+
+        FileDownloadResponseInt fd = MDCUtils.addMDCToContextAndExecute(
+                safeStorageService.getFile(ref.getKey(),true)
+        ).block();
+        
 
         if(fd != null){
             String attachmentKey = fd.getKey();
@@ -100,10 +106,12 @@ public class AttachmentUtils {
         NotificationDocumentInt.Ref ref = attachment.getRef();
         final String ATTACHED_STATUS = "ATTACHED";
         log.debug( "changeAttachmentStatusToAttached begin changing status for attachment with key={}", ref.getKey());
+
+        MDCUtils.addMDCToContextAndExecute(
+                updateFileMetadata(ref.getKey(), ATTACHED_STATUS, null)
+                        .doOnSuccess( res -> log.info( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey()))
+        ).block();
         
-        updateFileMetadata(ref.getKey(), ATTACHED_STATUS, null)
-                .doOnSuccess( res -> log.info( "changeAttachmentStatusToAttached changed status for attachment with key={}", ref.getKey()))
-                .block();
     }
 
     private Mono<Void> changeAttachmentRetention(NotificationDocumentInt attachment, int retentionUntilDays) {
