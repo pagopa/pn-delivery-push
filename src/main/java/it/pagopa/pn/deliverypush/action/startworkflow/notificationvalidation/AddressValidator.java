@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @CustomLog
 public class AddressValidator {
-    private final String VALIDATE_ADDRESS_PROCESS = "Address validation";
+    private static final String VALIDATE_ADDRESS_PROCESS = "Address validation";
 
     private final AddressManagerService addressManagerService;
     private final TimelineUtils timelineUtils;
