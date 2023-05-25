@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
@@ -57,7 +58,10 @@ public class NotificationValidationActionHandler {
             taxIdPivaValidator.validateTaxIdPiva(notification);
 
             //La validazione dell'indirizzo è async
-            addressValidator.requestValidateAndNormalizeAddresses(notification).block();
+            MDCUtils.addMDCToContextAndExecute(
+                    addressValidator.requestValidateAndNormalizeAddresses(notification)
+            ).block();
+
 
             logEvent.generateSuccess().log();
         } catch (PnValidationFileNotFoundException ex){

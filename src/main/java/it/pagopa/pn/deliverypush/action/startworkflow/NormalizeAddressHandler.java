@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.startworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -44,7 +45,11 @@ public class NormalizeAddressHandler {
         
         if( listNormalizedAddress.size() == notification.getRecipients().size() ){
             log.debug("Update confidential information with normalize address- iun={}", notification.getIun());
-            confidentialInformationService.updateNotificationAddresses(notification.getIun(), true, listNormalizedAddress).block();
+
+            MDCUtils.addMDCToContextAndExecute(
+                    confidentialInformationService.updateNotificationAddresses(notification.getIun(), true, listNormalizedAddress)
+            ).block();
+            
         } else {
             handleError(notification, listNormalizedAddress);
         }
