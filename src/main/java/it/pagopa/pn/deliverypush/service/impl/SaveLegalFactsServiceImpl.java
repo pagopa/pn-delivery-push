@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -66,19 +67,22 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             fileCreationRequest.setDocumentType(PN_AAR);
             fileCreationRequest.setStatus(SAVED);
             fileCreationRequest.setContent(pdfByte);
-            
-            return safeStorageService.createAndUploadContent(fileCreationRequest).map( fileCreationResponse ->{
-                        PdfInfo pdfInfo = PdfInfo.builder()
-                                .key(FileUtils.getKeyWithStoragePrefix(fileCreationResponse.getKey()))
-                                .numberOfPages(numberOfPages)
-                                .build();
 
-                        log.debug("End sendCreationRequestForAAR - iun={} key={}", notification.getIun(), fileCreationResponse);
-                        
-                        return pdfInfo;
-                    }
+
+            return MDCUtils.addMDCToContextAndExecute(
+                 safeStorageService.createAndUploadContent(fileCreationRequest).map( fileCreationResponse ->{
+                            PdfInfo pdfInfo = PdfInfo.builder()
+                                    .key(FileUtils.getKeyWithStoragePrefix(fileCreationResponse.getKey()))
+                                    .numberOfPages(numberOfPages)
+                                    .build();
+    
+                            log.debug("End sendCreationRequestForAAR - iun={} key={}", notification.getIun(), fileCreationResponse);
+    
+                            return pdfInfo;
+                        }
+                )
             ).block();
-
+            
         } catch (Exception exc) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "AAR", notification.getIun(), "N/A");
             log.error("Exception in sendCreationRequestForAAR ex=", exc);
@@ -89,12 +93,14 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     public String sendCreationRequestForNotificationReceivedLegalFact(NotificationInt notification) {
         try {
             log.debug("Start sendCreationRequestForNotificationReceivedLegalFact - iun={}", notification.getIun());
-            
-            return this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification))
-                    .map( responseUrl -> {
-                        log.debug("sendCreationRequestForNotificationReceivedLegalFact completed with fileKey={} - iun={}", responseUrl, notification.getIun());
-                        return responseUrl;
-                    }).block();
+
+            return MDCUtils.addMDCToContextAndExecute(
+                    this.saveLegalFact(legalFactBuilder.generateNotificationReceivedLegalFact(notification))
+                            .map( responseUrl -> {
+                                log.debug("sendCreationRequestForNotificationReceivedLegalFact completed with fileKey={} - iun={}", responseUrl, notification.getIun());
+                                return responseUrl;
+                            })
+            ).block();
             
         } catch (Exception exc) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "REQUEST_ACCEPTED", notification.getIun(), "N/A");
@@ -114,12 +120,14 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         try {
             log.debug("Start sendCreationRequestForPecDeliveryWorkflowLegalFact - iun={}", notification.getIun());
 
-            return this.saveLegalFact(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
-                            listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate))
-                    .map( responseUrl -> {
-                        log.debug("End sendCreationRequestForPecDeliveryWorkflowLegalFact - iun={} key={}", notification.getIun(), responseUrl);
-                        return responseUrl;
-                    }).block();
+            return MDCUtils.addMDCToContextAndExecute(
+                    this.saveLegalFact(legalFactBuilder.generatePecDeliveryWorkflowLegalFact(
+                                    listFeedbackFromExtChannel, notification, recipient, status, completionWorkflowDate))
+                            .map( responseUrl -> {
+                                log.debug("End sendCreationRequestForPecDeliveryWorkflowLegalFact - iun={} key={}", notification.getIun(), responseUrl);
+                                return responseUrl;
+                            })
+            ).block();
         } catch (Exception exc) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "DIGITAL_DELIVERY", notification.getIun(), recipient.getTaxId());
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
@@ -136,12 +144,15 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         try {
             log.debug("Start sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact - iun={}", notification.getIun());
 
-            return this.saveLegalFact(legalFactBuilder.generateAnalogDeliveryFailureWorkflowLegalFact(
-                            notification, recipient, status, failureWorkflowDate))
-                    .map( responseUrl -> {
-                        log.debug("End sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact - iun={} key={}", notification.getIun(), responseUrl);
-                        return responseUrl;
-                    }).block();
+
+            return MDCUtils.addMDCToContextAndExecute(
+                    this.saveLegalFact(legalFactBuilder.generateAnalogDeliveryFailureWorkflowLegalFact(
+                                    notification, recipient, status, failureWorkflowDate))
+                            .map( responseUrl -> {
+                                log.debug("End sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFact - iun={} key={}", notification.getIun(), responseUrl);
+                                return responseUrl;
+                            })
+            ).block();
         } catch (Exception exc) {
             String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "ANALOG_FAILURE_DELIVERY", notification.getIun(), recipient.getTaxId());
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
