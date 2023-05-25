@@ -3,15 +3,18 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.MDCUtils;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
+import it.pagopa.pn.deliverypush.exceptions.PnFileNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,8 +28,9 @@ import java.util.function.Consumer;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
 
 @Component
-@Slf4j
+@CustomLog
 public class AttachmentUtils {
+    private final String VALIDATE_ATTACHMENT_PROCESS = "Validate attachment";
     private final SafeStorageService safeStorageService;
 
     public AttachmentUtils(SafeStorageService safeStorageService) {
@@ -34,7 +38,9 @@ public class AttachmentUtils {
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
+        log.logChecking(VALIDATE_ATTACHMENT_PROCESS);
         forEachAttachment(notification, this::checkAttachment);
+        log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, true);
     }
 
     public void changeAttachmentsStatusToAttached(NotificationInt notification ) {
@@ -82,24 +88,37 @@ public class AttachmentUtils {
 
         FileDownloadResponseInt fd = MDCUtils.addMDCToContextAndExecute(
                 safeStorageService.getFile(ref.getKey(),true)
+                        .onErrorResume(PnFileNotFoundException.class, ex -> handleNotFoundError(ex))
         ).block();
-        
 
         if(fd != null){
             String attachmentKey = fd.getKey();
             log.debug( "Check preload digest for attachment with key={}", attachmentKey);
             if ( !attachment.getDigests().getSha256().equals( fd.getChecksum() )) {
-                throw new PnValidationNotMatchingShaException(
-                        "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
-                                + " actual="+ fd.getChecksum() 
-                );
+                final String errorDetail = "Validation failed, different sha256 expected=" + attachment.getDigests().getSha256()
+                        + " actual=" + fd.getChecksum();
+                log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, errorDetail);
+                
+                throw new PnValidationNotMatchingShaException(errorDetail);
             }
-        } else{
-            throw new PnValidationNotMatchingShaException(
-                    "Validation failed, different sha256 expected="+ attachment.getDigests().getSha256()
-                            + " actual="+ null 
-            );
+        } else {
+            final String errorDetail = "Validation failed, different sha256 expected=" + attachment.getDigests().getSha256()
+                    + " actual=" + null;
+            log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, errorDetail);
+            
+            throw new PnValidationNotMatchingShaException(errorDetail);
         }
+    }
+
+    @NotNull
+    private Mono<FileDownloadResponseInt> handleNotFoundError(PnFileNotFoundException ex) {
+        log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, ex.getMessage());
+        return Mono.error(
+                new PnValidationFileNotFoundException(
+                        ex.getMessage(),
+                        ex.getCause()
+                )
+        );
     }
 
     private void changeAttachmentStatusToAttached(NotificationDocumentInt attachment) {

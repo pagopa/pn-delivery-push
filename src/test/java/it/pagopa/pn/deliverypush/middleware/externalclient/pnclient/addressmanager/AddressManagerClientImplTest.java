@@ -9,6 +9,8 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendDigitalDetails;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
@@ -38,6 +40,20 @@ class AddressManagerClientImplTest extends MockAWSObjectsTest {
 
     private static ClientAndServer mockServer;
 
+    @Test
+    void prova(){
+
+        SendDigitalDetails sendDigitalDetails =
+                SendDigitalDetails.builder()
+                        .digitalAddress(DigitalAddress.builder()
+                                .address("prova")
+                                .build())
+                        .recIndex(1)
+                        .build();
+
+        System.out.println("questo è sendDigitalDetails " +sendDigitalDetails);
+    }
+    
     @Test
     void normalizeAddresses() throws JsonProcessingException {
         mockServer = startClientAndServer(9998);

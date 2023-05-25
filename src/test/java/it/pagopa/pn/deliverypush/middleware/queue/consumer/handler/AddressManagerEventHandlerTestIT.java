@@ -1,12 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
+import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.AnalogAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.NormalizeItemsResult;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.NormalizeResult;
-import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.AddressManagerResponseHandler;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -15,7 +14,6 @@ import org.springframework.cloud.function.context.test.FunctionalSpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.function.Consumer;
 
@@ -50,6 +48,8 @@ class AddressManagerEventHandlerTestIT {
         pnNationalRegistriesEventInboundConsumer.accept(message);
         Mockito.verify(handler).handleResponseReceived(Mockito.any());
     }
+    
+
 
 
 }

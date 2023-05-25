@@ -72,6 +72,7 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERYPUSH_READ_FILE_ERROR = "PN_DELIVERYPUSH_READ_FILE_ERROR";
     public static final String ERROR_CODE_DELIVERYPUSH_NORMALIZE_ADDRESS_ERROR = "PN_DELIVERYPUSH_NORMALIZE_ADDRESS_ERROR";
     public static final String ERROR_CODE_DELIVERYPUSH_PHYSICAL_ADDRESS_NOT_PRESENT = "PN_DELIVERYPUSH_PHYSICAL_ADDRESS_NOT_PRESENT";
+    public static final String ERROR_CODE_DELIVERYPUSH_FILE_NOT_FOUND = "PN_DELIVERYPUSH_FILE_NOT_FOUND";
 
     public enum NotificationRefusedErrorCodeInt {
         FILE_NOTFOUND("FILE_NOTFOUND"),

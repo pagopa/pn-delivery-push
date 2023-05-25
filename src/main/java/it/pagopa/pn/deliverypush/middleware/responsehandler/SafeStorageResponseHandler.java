@@ -1,9 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
@@ -33,23 +33,29 @@ public class SafeStorageResponseHandler {
                 PnSafeStorageClient.CLIENT_NAME, PnSafeStorageClient.UPLOAD_FILE_CONTENT, keyWithPrefix);
 
         final String processName = PnSafeStorageClient.UPLOAD_FILE_CONTENT + " response handler";
-        log.logStartingProcess(processName);
+        try {
+            log.logStartingProcess(processName);
 
-        Optional<DocumentCreationRequest> documentCreationRequestOpt = service.getDocumentCreationRequest(keyWithPrefix);
+            Optional<DocumentCreationRequest> documentCreationRequestOpt = service.getDocumentCreationRequest(keyWithPrefix);
 
-        if(documentCreationRequestOpt.isPresent()){
-            DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
-            log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
+            if(documentCreationRequestOpt.isPresent()){
+                DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
+                log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
 
-            //Effettuando lo scheduling dell'evento siamo sicuri che l'evento verrà gestito una sola volta, dal momento che lo scheduling è in  putIfAbsent
-            scheduleHandleDocumentCreationResponse(creationRequest);
-        } else {
-            String error = String.format("There isn't saved DocumentCreationRequest for fileKey=%s and documentType=%s", keyWithPrefix, response.getDocumentType());
-            log.error(error);
-            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
+                //Effettuando lo scheduling dell'evento siamo sicuri che l'evento verrà gestito una sola volta, dal momento che lo scheduling è in  putIfAbsent
+                scheduleHandleDocumentCreationResponse(creationRequest);
+            } else {
+                String error = String.format("There isn't saved DocumentCreationRequest for fileKey=%s and documentType=%s", keyWithPrefix, response.getDocumentType());
+                log.error(error);
+                throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
+            }
+
+            log.logEndingProcess(processName);
+        }catch (Exception ex){
+            log.logEndingProcess(processName, false, ex.getMessage());
+            throw ex;
         }
 
-        log.logEndingProcess(processName);
     }
     
     private void scheduleHandleDocumentCreationResponse(DocumentCreationRequest request) {

@@ -5,7 +5,7 @@ import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnFileNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
@@ -68,9 +68,10 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
                         log.error("File not found from safeStorage fileKey={} error={}", finalFileKey, error);
                         String errorDetail = "Allegato non trovato. fileKey=" + finalFileKey;
                         return Mono.error(
-                                new PnValidationFileNotFoundException(
+                                new PnFileNotFoundException(
                                         errorDetail,
-                                        error)
+                                        error      
+                                )
                         );
                     }
                     

@@ -44,16 +44,19 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
+        final String processName = "START RECIPIENT WORKFLOW";
+        
         return message -> {
             try {
                 log.debug("Handle action pnDeliveryPushStartRecipientWorkflow, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(action.getIun(), action.getRecipientIndex(), (RecipientsWorkflowDetails) action.getDetails());
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -62,16 +65,19 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushChooseDeliveryMode() {
+        final String processName = "CHOOSE DELIVERY MODE";
+        
         return message -> {
             try {
                 log.debug("Handle action pnDeliveryPushChooseDeliveryMode, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(action.getIun(), action.getRecipientIndex());
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -80,16 +86,19 @@ public class ActionHandler {
     
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
+        final String processName = "START ANALOG WORKFLOW";
+        
         return message -> {
             try {
                 log.debug("Handle action pnDeliveryPushAnalogWorkflowConsumer, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 analogWorkflowHandler.startAnalogWorkflow(action.getIun(), action.getRecipientIndex());
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -98,6 +107,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushRefinementConsumer() {
+        final String processName = "HANDLE REFINEMENT";
         
         return message -> {
             try {
@@ -105,10 +115,11 @@ public class ActionHandler {
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 refinementHandler.handleRefinement(action.getIun(), action.getRecipientIndex());
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -117,16 +128,19 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushDigitalNextActionConsumer() {
+        final String processName = "SCHEDULED NEXT WORKFLOW ACTION";
+        
         return message -> {
             try {
                 log.debug("Handle action pnDeliveryPushDigitalNextActionConsumer, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -136,6 +150,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushDigitalNextExecuteConsumer() {
+        final String processName = "START NEXT WORKFLOW ACTION";
         
         return message -> {
             try {
@@ -143,10 +158,11 @@ public class ActionHandler {
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 digitalWorkFlowHandler.startNextWorkFlowActionExecute(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -156,6 +172,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushDigitalRetryActionConsumer() {
+        final String processName = "SCHEDULED RETRY WORKFLOW";
         
         return message -> {
             try {
@@ -163,10 +180,11 @@ public class ActionHandler {
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -175,6 +193,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushElapsedExternalChannelNoResponseTimeoutActionConsumer() {
+        final String processName = "EXTERNAL CHANNEL NO RESPONSE TIMEOUT ACTION";
         
         return message -> {
             try {
@@ -182,10 +201,11 @@ public class ActionHandler {
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -194,7 +214,8 @@ public class ActionHandler {
     
     @Bean
     public Consumer<Message<WebhookAction>> pnDeliveryPushWebhookActionConsumer() {
-
+        final String processName = "WEBHOOK ACTION";
+        
         return message -> {
             try {
                 MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
@@ -203,12 +224,13 @@ public class ActionHandler {
                 WebhookAction action = message.getPayload();
                 HandleEventUtils.addIunToMdc(action.getIun());
 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 webhookActionsEventHandler.handleEvent(action);
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
@@ -218,6 +240,8 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushDocumentCreationResponseConsumer() {
+        final String processName = "DOCUMENT CREATION RESPONSE";
+        
         return message -> {
             try {
                 log.debug("Handle action pnDeliveryPushDocumentCreationResponseConsumer, with content {}", message);
@@ -227,12 +251,13 @@ public class ActionHandler {
 
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 documentCreationResponseHandler.handleResponseReceived(action.getIun(), action.getRecipientIndex(), details );
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
@@ -242,6 +267,8 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushNotificationValidation() {
+        final String processName = "NOTIFICATION VALIDATION";
+        
         return message -> {
             try {
                 log.debug("Handle action pnDeliveryPushNotificationValidation, with content {}", message);
@@ -250,10 +277,11 @@ public class ActionHandler {
                 
                 NotificationValidationActionDetails details = (NotificationValidationActionDetails) action.getDetails();
                 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 notificationValidationActionHandler.validateNotification(action.getIun(), details );
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
@@ -262,16 +290,19 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushReceivedLegalFactGeneration() {
+        final String processName = "SAVE NOTIFICATION RECEIVED LEGALFACT";
+        
         return message -> {
             try {
                 log.debug("Handle action pnDeliveryPushReceivedLegalFactGeneration, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
 
-                log.logStartingProcess(action.getType().toString());
+                log.logStartingProcess(processName);
                 receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(action.getIun());
-                log.logEndingProcess(action.getType().toString());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }

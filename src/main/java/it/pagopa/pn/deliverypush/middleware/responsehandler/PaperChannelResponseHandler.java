@@ -52,13 +52,14 @@ public class PaperChannelResponseHandler {
     }
 
     private void prepareUpdate(PrepareEvent event) {
-        try {
-            String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
-            addMdcFilter(iun, event.getRequestId());
-            log.info("Async response received from service {} for {} with correlationId={}",
-                    PaperChannelSendClient.CLIENT_NAME, PaperChannelSendClient.PREPARE_ANALOG_NOTIFICATION, event.getRequestId());
+        String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+        addMdcFilter(iun, event.getRequestId());
+        log.info("Async response received from service {} for {} with correlationId={}",
+                PaperChannelSendClient.CLIENT_NAME, PaperChannelSendClient.PREPARE_ANALOG_NOTIFICATION, event.getRequestId());
 
-            final String processName = PaperChannelSendClient.PREPARE_ANALOG_NOTIFICATION + " response handler";
+        final String processName = PaperChannelSendClient.PREPARE_ANALOG_NOTIFICATION + " response handler";
+        
+        try {
             log.logStartingProcess(processName);
 
             PrepareEventInt analogSentResponseInt = mapExternalToInternal(iun, event);
@@ -71,22 +72,26 @@ public class PaperChannelResponseHandler {
             log.logEndingProcess(processName);
 
         } catch (PnRuntimeException e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_PREPARE_UPDATE, e);
             throw e;
         } catch (Exception e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_PREPARE_UPDATE, e);
             throw new PnInternalException("Paper update failed", ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED, e);
         }
     }
 
     private void sendUpdate(SendEvent event) {
-        try {
-            String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
-            addMdcFilter(iun, event.getRequestId());
-            log.info("Async response received from service {} for {} with correlationId={}",
-                    PaperChannelSendClient.CLIENT_NAME, PaperChannelSendClient.SEND_ANALOG_NOTIFICATION, event.getRequestId());
+        
+        String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+        addMdcFilter(iun, event.getRequestId());
+        log.info("Async response received from service {} for {} with correlationId={}",
+                PaperChannelSendClient.CLIENT_NAME, PaperChannelSendClient.SEND_ANALOG_NOTIFICATION, event.getRequestId());
 
-            final String processName = PaperChannelSendClient.SEND_ANALOG_NOTIFICATION + " response handler";
+        final String processName = PaperChannelSendClient.SEND_ANALOG_NOTIFICATION + " response handler";
+        
+        try {
             log.logStartingProcess(processName);
 
             SendEventInt analogSentResponseInt = mapExternalToInternal(iun, event);
@@ -96,9 +101,11 @@ public class PaperChannelResponseHandler {
             analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(analogSentResponseInt);
             log.logEndingProcess(processName);
         } catch (PnRuntimeException e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_SEND_UPDATE, e);
             throw e;
         } catch (Exception e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_SEND_UPDATE, e);
             throw new PnInternalException("Paper update failed", ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED, e);
         }

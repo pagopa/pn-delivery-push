@@ -48,15 +48,16 @@ public class ExternalChannelResponseHandler {
 
 
     private void legalUpdate(LegalMessageSentDetails event) {
-        try {
             String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
             addMdcFilter(iun, event.getRequestId());
 
             log.info("Async response received from service {} for {} with correlationId={}",
                     ExternalChannelSendClient.CLIENT_NAME, ExternalChannelSendClient.LEGAL_NOTIFICATION_REQUEST, event.getRequestId());
             final String processName = ExternalChannelSendClient.LEGAL_NOTIFICATION_REQUEST + " response handler";
-            log.logStartingProcess(processName);
             
+        try {
+            log.logStartingProcess(processName);
+
             ExtChannelDigitalSentResponseInt digitalSentResponse = mapExternalToInternal(event, iun);
             log.debug("Received ExternalChannel legal message event: status={} and eventCode={} - iun={} requestId={} details={} generatedMessage={} eventTimestamp={}",
                     digitalSentResponse.getStatus(), digitalSentResponse.getEventCode(), iun, digitalSentResponse.getRequestId(), digitalSentResponse.getEventDetails(),
@@ -66,9 +67,11 @@ public class ExternalChannelResponseHandler {
 
             log.logEndingProcess(processName);
         } catch (PnInternalException e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_LEGAL_UPDATE, e);
             throw e;
         } catch (Exception e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_LEGAL_UPDATE, e);
             throw new PnInternalException("Legal update failed", ERROR_CODE_DELIVERYPUSH_UPDATEFAILED, e);
         }
@@ -96,21 +99,23 @@ public class ExternalChannelResponseHandler {
     }
 
     private void courtesyUpdate(CourtesyMessageProgressEvent event) {
-        try {
             // per ora non è previsto nulla
             log.info("Async response received from service {} for {} with correlationId={}",
                     ExternalChannelSendClient.CLIENT_NAME, ExternalChannelSendClient.COURTESY_NOTIFICATION_REQUEST, event.getRequestId());
 
             final String processName = ExternalChannelSendClient.COURTESY_NOTIFICATION_REQUEST + " response handler";
             log.logStartingProcess(processName);
-
+        try {
+            //Al momento non è presente una logica da prevedere poi...
             log.info("Courtesy message handled successFully - requestId={} status={} details={} eventcode={}", event.getRequestId(), event.getStatus(), event.getEventDetails(), event.getEventCode());
 
             log.logEndingProcess(processName);
         } catch (PnInternalException e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(COURTESY_UPDATE_FAILED, e);
             throw e;
         } catch (Exception e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(COURTESY_UPDATE_FAILED, e);
             throw new PnInternalException(COURTESY_UPDATE_FAILED, ERROR_CODE_DELIVERYPUSH_UPDATEFAILED, e);
         }

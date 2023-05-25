@@ -26,12 +26,17 @@ public class AddressManagerResponseHandler {
         log.info("Async response received from service {} for {} with correlationId={}",
                 AddressManagerClient.CLIENT_NAME, AddressManagerClient.NORMALIZE_ADDRESS_PROCESS_NAME, response.getCorrelationId());
         final String processName = AddressManagerClient.NORMALIZE_ADDRESS_PROCESS_NAME + " response handler";
-        log.logStartingProcess(processName);
         
-        NormalizeItemsResultInt normalizeItemsResult = AddressManagerMapper.externalToInternal(response);
-        notificationValidationActionHandler.handleValidateAndNormalizeAddressResponse(iun, normalizeItemsResult);
-
-        log.logEndingProcess(processName);
+        try {
+            log.logStartingProcess(processName);
+            NormalizeItemsResultInt normalizeItemsResult = AddressManagerMapper.externalToInternal(response);
+            notificationValidationActionHandler.handleValidateAndNormalizeAddressResponse(iun, normalizeItemsResult);
+            log.logEndingProcess(processName);
+        } catch (Exception ex){
+            log.logEndingProcess(processName, false, ex.getMessage());
+            throw ex;
+        }
+        
     }
 
     private static void addMdcFilter(String iun, String correlationId) {

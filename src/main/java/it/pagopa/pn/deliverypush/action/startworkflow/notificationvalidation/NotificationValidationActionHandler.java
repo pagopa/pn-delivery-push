@@ -4,10 +4,10 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.MDCUtils;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
@@ -20,7 +20,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ import java.util.Objects;
 
 @Component
 @AllArgsConstructor
-@Slf4j
+@CustomLog
 public class NotificationValidationActionHandler {
     private static final int FIRST_VALIDATION_STEP = 1;
     private static final int SECOND_VALIDATION_STEP = 2;
@@ -52,7 +52,7 @@ public class NotificationValidationActionHandler {
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         PnAuditLogEvent logEvent = generateAuditLog(notification, FIRST_VALIDATION_STEP);
-
+        
         try {
             attachmentUtils.validateAttachment(notification);
             taxIdPivaValidator.validateTaxIdPiva(notification);
@@ -63,7 +63,7 @@ public class NotificationValidationActionHandler {
             ).block();
 
 
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess().log(); 
         } catch (PnValidationFileNotFoundException ex){
             if(cfg.isSafeStorageFileNotFoundRetry())
                 logEvent.generateWarning("Validation need to be rescheduled - iun={} ex={}", notification.getIun(), ex).log();
@@ -125,7 +125,6 @@ public class NotificationValidationActionHandler {
     }
 
     public void handleValidateAndNormalizeAddressResponse(String iun, NormalizeItemsResultInt normalizeItemsResult){
-        log.info("handleValidateAndNormalizeAddressResponse - iun {}", iun);
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         PnAuditLogEvent logEvent = generateAuditLog(notification, SECOND_VALIDATION_STEP);

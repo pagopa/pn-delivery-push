@@ -40,6 +40,7 @@ public class NewNotificationEventHandler {
                 startWorkflowHandler.startWorkflow(iun);
                 log.logEndingProcess(processName);
             }catch (Exception ex){
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }

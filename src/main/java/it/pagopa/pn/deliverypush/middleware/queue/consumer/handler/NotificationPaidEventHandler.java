@@ -34,6 +34,7 @@ public class NotificationPaidEventHandler {
                 notificationPaidHandler.handleNotificationPaid(message.getPayload());
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }

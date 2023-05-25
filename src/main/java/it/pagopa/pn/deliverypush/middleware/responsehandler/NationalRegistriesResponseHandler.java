@@ -56,18 +56,23 @@ public class NationalRegistriesResponseHandler {
         final String processName = NationalRegistriesClient.GET_DIGITAL_GENERAL_ADDRESS + " response handler";
         log.logStartingProcess(processName);
         
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-        log.debug("Notification successfully obtained  - iun={}", notification.getIun());
+        try {
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
+            log.debug("Notification successfully obtained  - iun={}", notification.getIun());
 
-        //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
-        PublicRegistryCallDetailsInt publicRegistryCallDetails = publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId);
-        Integer recIndex = publicRegistryCallDetails.getRecIndex();
+            //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
+            PublicRegistryCallDetailsInt publicRegistryCallDetails = publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId);
+            Integer recIndex = publicRegistryCallDetails.getRecIndex();
 
-        publicRegistryUtils.addPublicRegistryResponseToTimeline(notification, recIndex, response);
+            publicRegistryUtils.addPublicRegistryResponseToTimeline(notification, recIndex, response);
 
-        handleSpecificContactPhase(response, correlationId, iun, notification, publicRegistryCallDetails, recIndex);
+            handleSpecificContactPhase(response, correlationId, iun, notification, publicRegistryCallDetails, recIndex);
 
-        log.logEndingProcess(processName);
+            log.logEndingProcess(processName);
+        } catch (Exception ex){
+            log.logEndingProcess(processName, false, ex.getMessage());
+            throw ex;
+        }
     }
 
     private void handleSpecificContactPhase(NationalRegistriesResponse response, String correlationId, String iun, 
