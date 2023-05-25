@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage;
 
+import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
@@ -8,7 +9,7 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequ
 import reactor.core.publisher.Mono;
 
 public interface PnSafeStorageClient {
-    String CLIENT_NAME = "PN-SAFE-STORAGE";
+    String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_SAFE_STORAGE;
     String GET_FILE = "GET FILE";
     String CREATE_FILE = "FILE CREATION";
     String UPDATE_FILE_METADATA = "UPDATE FILE METADATA";

@@ -32,6 +32,7 @@ public class PnDataVaultClientReactiveImpl extends CommonBaseClient implements P
     )
     public Flux<BaseRecipientDto> getRecipientsDenominationByInternalId(List<String> listInternalId) {
         log.logInvokingExternalService(CLIENT_NAME, GET_RECIPIENT_DENOMINATION);
+        log.debug("Start call getRecipientDenominationByInternalId - listInternalId={}", listInternalId);
 
         return recipientsApi.getRecipientDenominationByInternalId(listInternalId)
                 .onErrorResume( err -> {
@@ -43,7 +44,7 @@ public class PnDataVaultClientReactiveImpl extends CommonBaseClient implements P
     @Override
     public Mono<Void> updateNotificationAddressesByIun(String iun, Boolean normalized, List<NotificationRecipientAddressesDto> list) {
         log.logInvokingExternalService(CLIENT_NAME, UPDATE_NOTIFICATION_ADDRESS);
-        
+
         return notificationApi.updateNotificationAddressesByIun(iun, normalized, list)
                 .doOnSuccess( res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, UPDATE_NOTIFICATION_ADDRESS));
     }

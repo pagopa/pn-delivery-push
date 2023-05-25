@@ -1,10 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel;
 
 
+import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 
 public interface PaperChannelSendClient {
-    String CLIENT_NAME = "PN-PAPER-CHANNEL";
+    String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_PAPER_CHANNEL;
     String PREPARE_ANALOG_NOTIFICATION = "PREPARE ANALOG NOTIFICATION";
     String SEND_ANALOG_NOTIFICATION = "SEND ANALOG NOTIFICATION";
 
