@@ -30,7 +30,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Component
 @CustomLog
 public class AttachmentUtils {
-    private final String VALIDATE_ATTACHMENT_PROCESS = "Validate attachment";
+    private static final String VALIDATE_ATTACHMENT_PROCESS = "Validate attachment";
     private final SafeStorageService safeStorageService;
 
     public AttachmentUtils(SafeStorageService safeStorageService) {
@@ -88,7 +88,7 @@ public class AttachmentUtils {
 
         FileDownloadResponseInt fd = MDCUtils.addMDCToContextAndExecute(
                 safeStorageService.getFile(ref.getKey(),true)
-                        .onErrorResume(PnFileNotFoundException.class, ex -> handleNotFoundError(ex))
+                        .onErrorResume(PnFileNotFoundException.class, this::handleNotFoundError)
         ).block();
 
         if(fd != null){

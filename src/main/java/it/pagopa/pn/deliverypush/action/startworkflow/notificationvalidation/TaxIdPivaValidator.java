@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @CustomLog
 public class TaxIdPivaValidator {
-    private final String VALIDATE_TAX_ID_PROCESS = "Validate taxId";
+    private static final String VALIDATE_TAXID_PROCESS = "Validate taxId";
 
     private final NationalRegistriesService nationalRegistriesService;
     private final NotificationUtils notificationUtils;
     
     public void validateTaxIdPiva(NotificationInt notification){
-        log.logChecking(VALIDATE_TAX_ID_PROCESS);
+        log.logChecking(VALIDATE_TAXID_PROCESS);
 
         notification.getRecipients().forEach( recipient -> {
             int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
@@ -28,7 +28,7 @@ public class TaxIdPivaValidator {
             CheckTaxIdOKInt response = nationalRegistriesService.checkTaxId(recipient.getTaxId());
             if (Boolean.FALSE.equals(response.getIsValid()) ){
                 log.debug("TaxId is not valid - iun={} id={}", notification.getIun(), recIndex);
-                log.logCheckingOutcome(VALIDATE_TAX_ID_PROCESS, false, response.getErrorCode());
+                log.logCheckingOutcome(VALIDATE_TAXID_PROCESS, false, response.getErrorCode());
 
                 throw new PnValidationTaxIdNotValidException(response.getErrorCode());
             }
@@ -36,6 +36,6 @@ public class TaxIdPivaValidator {
             log.debug("TaxId is valid - iun={} id={}", notification.getIun(), recIndex);
         });
 
-        log.logCheckingOutcome(VALIDATE_TAX_ID_PROCESS, true);
+        log.logCheckingOutcome(VALIDATE_TAXID_PROCESS, true);
     }
 }
