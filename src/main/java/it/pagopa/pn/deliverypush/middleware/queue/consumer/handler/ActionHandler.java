@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
@@ -16,8 +17,10 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.utils.MdcKey;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
+import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -194,6 +197,8 @@ public class ActionHandler {
 
         return message -> {
             try {
+                MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
+
                 log.debug("Handle action pnDeliveryPushWebhookActionConsumer, with content {}", message);log.debug("pnDeliveryPushWebhookActionConsumer, message={}", message);
                 WebhookAction action = message.getPayload();
                 HandleEventUtils.addIunToMdc(action.getIun());
