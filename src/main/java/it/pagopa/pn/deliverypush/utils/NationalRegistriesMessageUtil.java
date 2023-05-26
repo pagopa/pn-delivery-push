@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.AddressSQSMessageDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.AddressSQSMessageDigitalAddress;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;

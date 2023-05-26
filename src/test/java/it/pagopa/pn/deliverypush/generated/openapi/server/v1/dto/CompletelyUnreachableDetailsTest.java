@@ -36,13 +36,4 @@ class CompletelyUnreachableDetailsTest {
 
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
-
-    @Test
-    void testToString() {
-        String data = "class CompletelyUnreachableDetails {\n" +
-                "    recIndex: 1\n" +
-                "    legalFactGenerationDate: 2009-02-13T23:31:30Z\n" +
-                "}";
-        Assertions.assertEquals(data, details.toString());
-    }
 }

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationRecipient.RecipientTypeEnum;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipient.RecipientTypeEnum;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -21,7 +21,7 @@ public class RecipientMapper {
                 .internalId(recipient.getInternalId())
                 .denomination(recipient.getDenomination())
                 .recipientType(RecipientTypeInt.valueOf(recipient.getRecipientType().name()));
-                it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationDigitalAddress digitalDomicile = recipient.getDigitalDomicile();
+                it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationDigitalAddress digitalDomicile = recipient.getDigitalDomicile();
         if(digitalDomicile != null){
             LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE typeEnum = LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.valueOf(digitalDomicile.getType().name());
 
@@ -50,7 +50,7 @@ public class RecipientMapper {
                                 .build()
                 );
 
-        it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationPaymentInfo payment = recipient.getPayment();
+        it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationPaymentInfo payment = recipient.getPayment();
 
         if(payment != null){
             NotificationPaymentInfoInt.NotificationPaymentInfoIntBuilder paymentInfoBuilder = NotificationPaymentInfoInt.builder()

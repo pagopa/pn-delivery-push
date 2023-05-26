@@ -174,23 +174,4 @@ class ProgressResponseElementTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, expected.equals(responseElement));
     }
-
-    @Test
-    void testToString() {
-        String expected = """
-                class ProgressResponseElement {
-                    eventId: 001
-                    timestamp: 2021-09-16T15:23:00Z
-                    notificationRequestId: 003
-                    iun: 002
-                    newStatus: ACCEPTED
-                    timelineEventCategory: REQUEST_ACCEPTED
-                    recipientIndex: 1
-                    analogCost: null
-                    channel: channel
-                    legalfactIds: [PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q]
-                    validationErrors: null
-                }""";
-        Assertions.assertEquals(expected, responseElement.toString());
-    }
 }

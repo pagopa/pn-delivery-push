@@ -1,51 +1,26 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel;
 
 import it.pagopa.pn.commons.utils.LogUtils;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.api.PaperMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.*;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.api.PaperMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.*;
+import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.time.OffsetDateTime;
 
 @Component
-@Slf4j
+@RequiredArgsConstructor
+@CustomLog
 public class PaperChannelSendClientImpl implements PaperChannelSendClient {
-
-
     public static final String PRINT_TYPE_BN_FRONTE_RETRO = "BN_FRONTE_RETRO";
-    private final PnDeliveryPushConfigs cfg;
-    private final RestTemplate restTemplate;
-    private PaperMessagesApi paperMessagesApi;
-
-    public PaperChannelSendClientImpl(@Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
-        this.cfg = cfg;
-        this.restTemplate = restTemplate;
-    }
-
-    @PostConstruct
-    public void init(){
-        this.paperMessagesApi = new PaperMessagesApi(newApiClient());
-    }
-
-    private ApiClient newApiClient()
-    {
-
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getPaperChannelBaseUrl());
-        return apiClient;
-    }
-
-
+    private final PaperMessagesApi paperMessagesApi;
+    
     @Override
     public void prepare(PaperChannelPrepareRequest paperChannelPrepareRequest) {
-        log.info("[enter] prepare iun={} address={} recipient={} requestId={} attachments={} relatedRequestId={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress()==null?"null":paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments(), paperChannelPrepareRequest.getRelatedRequestId());
+        log.logInvokingAsyncExternalService(CLIENT_NAME, PREPARE_ANALOG_NOTIFICATION, paperChannelPrepareRequest.getRequestId());
+        log.debug("[enter] prepare iun={} address={} recipient={} requestId={} attachments={} relatedRequestId={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress()==null?"null":paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments(), paperChannelPrepareRequest.getRelatedRequestId());
 
         PrepareRequest prepareRequest = new PrepareRequest();
         prepareRequest.setRequestId(paperChannelPrepareRequest.getRequestId());
@@ -62,13 +37,13 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
 
         paperMessagesApi.sendPaperPrepareRequest(paperChannelPrepareRequest.getRequestId(), prepareRequest);
 
-        log.info("[exit] prepare iun={}  address={} recipient={} requestId={} attachments={} relatedRequestId={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress()==null?"null":paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments(), paperChannelPrepareRequest.getRelatedRequestId());
+        log.debug("[exit] prepare iun={}  address={} recipient={} requestId={} attachments={} relatedRequestId={}", paperChannelPrepareRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelPrepareRequest.getPaAddress()==null?"null":paperChannelPrepareRequest.getPaAddress().getAddress()), LogUtils.maskGeneric(paperChannelPrepareRequest.getRecipientInt().getDenomination()), paperChannelPrepareRequest.getRequestId(), paperChannelPrepareRequest.getAttachments(), paperChannelPrepareRequest.getRelatedRequestId());
     }
-
 
     @Override
     public SendResponse send(PaperChannelSendRequest paperChannelSendRequest) {
-        log.info("[enter] send iun={} address={} recipient={} requestId={} attachments={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments());
+        log.logInvokingAsyncExternalService(CLIENT_NAME, SEND_ANALOG_NOTIFICATION, paperChannelSendRequest.getRequestId());
+        log.debug("[enter] send iun={} address={} recipient={} requestId={} attachments={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments());
 
         SendRequest sendRequest = new SendRequest();
         sendRequest.setIun(paperChannelSendRequest.getNotificationInt().getIun());
@@ -83,11 +58,9 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         sendRequest.setSenderAddress(mapInternalToExternal(paperChannelSendRequest.getSenderAddress()));
         sendRequest.setRequestPaId(paperChannelSendRequest.getNotificationInt().getSender().getPaTaxId());
         sendRequest.setClientRequestTimeStamp(OffsetDateTime.now());
-
-
+        
         SendResponse response = paperMessagesApi.sendPaperSendRequest(paperChannelSendRequest.getRequestId(), sendRequest);
-    
-        log.info("[exit] send iun={} address={} recipient={} requestId={} attachments={} amount={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments(), response.getAmount());
+        log.debug("[exit] send iun={} address={} recipient={} requestId={} attachments={} amount={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments(), response.getAmount());
         return response;
     }
 

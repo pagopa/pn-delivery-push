@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.addressmanager.generated.openapi.clients.addressmanager.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.*;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.addressmanager.AddressManagerClient;

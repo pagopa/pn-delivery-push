@@ -2,19 +2,18 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.api.FileDownloadApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.api.FileMetadataUpdateApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage_reactive.api.FileUploadApi;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
-import lombok.extern.slf4j.Slf4j;
+import it.pagopa.pn.deliverypush.exceptions.PnFileNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileDownloadApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileMetadataUpdateApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileUploadApi;
+import lombok.CustomLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -34,33 +33,34 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 @Component
-@Slf4j
+@CustomLog
 public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeStorageClient {
     private final FileDownloadApi fileDownloadApi;
     private final FileUploadApi fileUploadApi;
     private final FileMetadataUpdateApi fileMetadataUpdateApi;
     private final RestTemplate restTemplate;
-
     private final PnDeliveryPushConfigs cfg;
 
     public PnSafeStorageClientImpl(PnDeliveryPushConfigs cfg,
-                                   @Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate) {
+                                   @Qualifier("withOffsetDateTimeFormatter") RestTemplate restTemplate,
+                                   FileUploadApi fileUploadApi,
+                                   FileDownloadApi fileDownloadApi,
+                                   FileMetadataUpdateApi fileMetadataUpdateApi) {
         this.cfg = cfg;
-        
-        ApiClient newApiClient = new ApiClient( initWebClient(ApiClient.buildWebClientBuilder()) );
-        newApiClient.setBasePath( this.cfg.getSafeStorageBaseUrl() );
-        this.fileUploadApi =new FileUploadApi( newApiClient );
-        this.fileDownloadApi = new FileDownloadApi( newApiClient );
-        this.fileMetadataUpdateApi =new FileMetadataUpdateApi( newApiClient );
+        this.fileUploadApi = fileUploadApi;
+        this.fileDownloadApi = fileDownloadApi;
+        this.fileMetadataUpdateApi = fileMetadataUpdateApi;
         this.restTemplate = restTemplate;
     }
 
     @Override
     public Mono<FileDownloadResponse> getFile(String fileKey, Boolean metadataOnly) {
-        log.debug("Start call getFile - fileKey={} metadataOnly={}", fileKey, metadataOnly);
+        log.logInvokingExternalService(CLIENT_NAME, GET_FILE);
+
         fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
         String finalFileKey = fileKey;
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly )
+                .doOnSuccess( res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, GET_FILE))
                 .onErrorResume( WebClientResponseException.class, error ->{
                     log.error("Exception in call getFile fileKey={} error={}", finalFileKey, error);
 
@@ -68,9 +68,10 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
                         log.error("File not found from safeStorage fileKey={} error={}", finalFileKey, error);
                         String errorDetail = "Allegato non trovato. fileKey=" + finalFileKey;
                         return Mono.error(
-                                new PnValidationFileNotFoundException(
+                                new PnFileNotFoundException(
                                         errorDetail,
-                                        error)
+                                        error      
+                                )
                         );
                     }
                     
@@ -80,10 +81,9 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
 
     @Override
     public Mono<FileCreationResponse> createFile(FileCreationWithContentRequest fileCreationRequest, String sha256) {
-        log.debug("Start call createFile - documentType={} filesize={} sha256={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length, sha256);
+        log.logInvokingExternalService(CLIENT_NAME, CREATE_FILE);
 
         return fileUploadApi.createFile( this.cfg.getSafeStorageCxId(),"SHA-256", sha256,  fileCreationRequest )
-                .doOnSuccess( res ->  log.debug("File creation success - documentType={} filesize={} sha256={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length, sha256))
                 .doOnError( res -> log.error("File creation error - documentType={} filesize={} sha256={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length, sha256));
     }
 
@@ -94,10 +94,9 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
             backoff = @Backoff(random = true, delay = 500, maxDelay = 1000, multiplier = 2)
     )
     public Mono<OperationResultCodeResponse> updateFileMetadata(String fileKey, UpdateFileMetadataRequest request) {
-        log.debug("Start call updateFileMetadata - fileKey={} request={}", fileKey, request);
+        log.logInvokingExternalService(CLIENT_NAME, UPDATE_FILE_METADATA);
 
         return fileMetadataUpdateApi.updateFileMetadata( fileKey, this.cfg.getSafeStorageCxIdUpdatemetadata(), request )
-                .doOnSuccess( res -> log.debug("End call updateFileMetadata, updated metadata file with key={}", fileKey))
                 .onErrorResume( err -> {
                     log.error("Exception invoking updateFileMetadata fileKey={} err ",fileKey, err);
                     return Mono.error(new PnInternalException("Exception invoking updateFileMetadata", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, err));
@@ -107,8 +106,8 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
     @Override
     public void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256) {
         try {
-            log.info("Start upload content - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
-            
+            log.logInvokingAsyncExternalService(CLIENT_NAME, UPLOAD_FILE_CONTENT, fileCreationResponse.getKey());
+
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
             headers.add("Content-type", fileCreationRequest.getContentType());
             headers.add("x-amz-checksum-sha256", sha256);
@@ -125,7 +124,7 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
             {
                 throw new PnInternalException("File upload failed", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR);
             }
-            log.info("End upload content - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
+
         } catch (PnInternalException ee)
         {
             log.error("uploadContent PnInternalException uploading file", ee);

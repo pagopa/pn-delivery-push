@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.startworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.utils.LogUtils;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -14,7 +14,7 @@ import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import java.util.List;
 
 @Component
 @AllArgsConstructor
-@Slf4j
+@CustomLog
 public class NormalizeAddressHandler {
     private final TimelineService timelineService;
     private final NotificationUtils notificationUtils;
@@ -30,8 +30,8 @@ public class NormalizeAddressHandler {
     private final ConfidentialInformationService confidentialInformationService;
     
     public void handleNormalizedAddressResponse(NotificationInt notification, NormalizeItemsResultInt normalizeItemsResult){
-        log.info("Start handleNormalizedAddressResponse - iun={}", notification.getIun());
-        
+        log.debug("Start handleNormalizedAddressResponse - iun={}", notification.getIun());
+
         List<NotificationRecipientAddressesDtoInt> listNormalizedAddress = new ArrayList<>();
         
         normalizeItemsResult.getResultItems().forEach( result ->{
@@ -45,12 +45,16 @@ public class NormalizeAddressHandler {
         
         if( listNormalizedAddress.size() == notification.getRecipients().size() ){
             log.debug("Update confidential information with normalize address- iun={}", notification.getIun());
-            confidentialInformationService.updateNotificationAddresses(notification.getIun(), true, listNormalizedAddress).block();
+
+            MDCUtils.addMDCToContextAndExecute(
+                    confidentialInformationService.updateNotificationAddresses(notification.getIun(), true, listNormalizedAddress)
+            ).block();
+            
         } else {
             handleError(notification, listNormalizedAddress);
         }
-        
-        log.debug("End handleNormalizedAddressResponse - iun={}", notification.getIun());
+
+        log.info("Ending validate and normalize address Process - iun={}", notification.getIun());
     }
 
     private static void handleError(NotificationInt notification, List<NotificationRecipientAddressesDtoInt> listNormalizedAddress) {
@@ -60,7 +64,7 @@ public class NormalizeAddressHandler {
                 notification.getRecipients().size(),
                 notification.getIun()
         );
-        LogUtils.logAlarm(log, errorMsg);
+        log.fatal(errorMsg);
         throw new PnInternalException(errorMsg, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NORMALIZE_ADDRESS_ERROR);
     }
 

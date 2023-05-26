@@ -35,12 +35,15 @@ public class PnDocumentsController implements DocumentsApi, DocumentsWebApi {
             String documentId,
             final ServerWebExchange exchange
     ) {
-        log.info("[enter] getDocuments iun={} recipientInternalId={} documentType={} documentId={}", iun, recipientInternalId, documentType, documentId);
+        log.info("Starting getDocuments Process - iun={} recipientInternalId={} documentType={} documentId={}", iun, recipientInternalId, documentType, documentId);
+
         return getDocumentService.getDocumentMetadata(iun, documentType, documentId, recipientInternalId)
                 .map(response -> {
                     HttpHeaders responseHeaders = new HttpHeaders();
                     responseHeaders.set(HEADER_RETRY_AFTER,
                             "" + response.getRetryAfter());
+
+                    log.info("Ending getDocuments Process - iun={} recipientInternalId={} documentType={} documentId={}", iun, recipientInternalId, documentType, documentId);
 
                     return ResponseEntity
                             .ok()

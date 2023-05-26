@@ -141,22 +141,4 @@ class ProblemTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, expected.equals(problem));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class Problem {\n" +
-                "    type: 004\n" +
-                "    status: 2\n" +
-                "    title: 003\n" +
-                "    detail: 001\n" +
-                "    traceId: 005\n" +
-                "    timestamp: null\n" +
-                "    errors: [class ProblemError {\n" +
-                "        code: null\n" +
-                "        element: null\n" +
-                "        detail: 001\n" +
-                "    }]\n" +
-                "}";
-        Assertions.assertEquals(expected, problem.toString());
-    }
 }

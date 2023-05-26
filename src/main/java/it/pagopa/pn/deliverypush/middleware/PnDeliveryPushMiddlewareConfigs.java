@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.action.sqs.SqsActionProducer;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.webhook.sqs.SqsWebhookProducer;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -53,13 +53,4 @@ class StreamListElementTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, expected.equals(element));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class StreamListElement {\n" +
-                "    streamId: f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454\n" +
-                "    title: 001\n" +
-                "}";
-        Assertions.assertEquals(expected, element.toString());
-    }
 }

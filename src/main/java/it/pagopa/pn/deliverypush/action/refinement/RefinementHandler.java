@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.refinement;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -34,20 +35,23 @@ public class RefinementHandler {
         if( !isNotificationViewedOrPaid ){
             log.info("Handle refinement - iun {} id {}", iun, recIndex);
             NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+            MDCUtils.addMDCToContextAndExecute(
+                notificationProcessCostService.getPagoPaNotificationBaseCost()
+                        .doOnSuccess( notificationCost -> log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex))
+                        .flatMap( res ->
+                                attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList()
+                                        .then(Mono.just(res))
+                        )
+                        .flatMap( notificationCost ->
+                                Mono.fromCallable( () -> timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost))
+                                        .flatMap( timelineElementInternal ->
+                                                Mono.fromRunnable( () -> addTimelineElement(timelineElementInternal, notification))
+                                                        .doOnSuccess( res -> log.info( "addTimelineElement OK {}", notification.getIun()))
+                                        )
+                        )
+            ).block();
             
-            notificationProcessCostService.getPagoPaNotificationBaseCost()
-                    .doOnSuccess( notificationCost -> log.debug("Notification cost is {} - iun {} id {}",notificationCost, iun, recIndex))
-                    .flatMap( res ->
-                            attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList()
-                                    .then(Mono.just(res))
-                    )
-                    .flatMap( notificationCost ->
-                        Mono.fromCallable( () -> timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost))
-                                .flatMap( timelineElementInternal ->
-                                        Mono.fromRunnable( () -> addTimelineElement(timelineElementInternal, notification))
-                                                .doOnSuccess( res -> log.info( "addTimelineElement OK {}", notification.getIun()))
-                                )
-                    ).block();
         } else {
             log.info("Notification is already viewed or paid, refinement will not start - iun={} id={}", iun, recIndex);
         }

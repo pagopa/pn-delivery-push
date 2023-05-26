@@ -6,35 +6,36 @@ import it.pagopa.pn.deliverypush.dto.nationalregistries.CheckTaxIdOKInt;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationTaxIdNotValidException;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
-@Slf4j
+@CustomLog
 public class TaxIdPivaValidator {
+    private static final String VALIDATE_TAXID_PROCESS = "Validate taxId";
+
     private final NationalRegistriesService nationalRegistriesService;
     private final NotificationUtils notificationUtils;
     
     public void validateTaxIdPiva(NotificationInt notification){
-        log.debug("Start validateTaxId - iun={} ", notification.getIun());
+        log.logChecking(VALIDATE_TAXID_PROCESS);
 
         notification.getRecipients().forEach( recipient -> {
             int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-            log.info("Start taxIdValidation - iun={} id={}", notification.getIun(), recIndex);
+            log.debug("Start taxIdValidation for specific recipient - iun={} id={}", notification.getIun(), recIndex);
             
             CheckTaxIdOKInt response = nationalRegistriesService.checkTaxId(recipient.getTaxId());
             if (Boolean.FALSE.equals(response.getIsValid()) ){
-                log.info("TaxId is not valid - iun={} id={}", notification.getIun(), recIndex);
-                
-                throw new PnValidationTaxIdNotValidException(
-                        response.getErrorCode()
-                );
+                log.debug("TaxId is not valid - iun={} id={}", notification.getIun(), recIndex);
+                log.logCheckingOutcome(VALIDATE_TAXID_PROCESS, false, response.getErrorCode());
+
+                throw new PnValidationTaxIdNotValidException(response.getErrorCode());
             }
 
-            log.info("TaxId is valid - iun={} id={}", notification.getIun(), recIndex);
+            log.debug("TaxId is valid - iun={} id={}", notification.getIun(), recIndex);
         });
 
-        log.debug("End validateTaxId - iun={} ", notification.getIun());
+        log.logCheckingOutcome(VALIDATE_TAXID_PROCESS, true);
     }
 }

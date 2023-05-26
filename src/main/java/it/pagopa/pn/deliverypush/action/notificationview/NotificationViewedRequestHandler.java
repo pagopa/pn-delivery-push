@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.notificationview;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -45,7 +46,9 @@ public class NotificationViewedRequestHandler {
     
     //La richiesta proviene da delivery (La visualizzazione potrebbe essere da parte del delegato o da parte del destinatario)
     public void handleViewNotificationDelivery(String iun, Integer recIndex, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
-        handleViewNotification(iun, recIndex, null, delegateInfo, eventTimestamp).block();
+        MDCUtils.addMDCToContextAndExecute(
+                handleViewNotification(iun, recIndex, null, delegateInfo, eventTimestamp)
+        ).block();
     }
 
     //La richiesta proviene da RADD, visualizzazione da parte del destinatario 

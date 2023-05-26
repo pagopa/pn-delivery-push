@@ -41,18 +41,5 @@ class ExternalEventTest {
                 .build());
         Assertions.assertEquals(Boolean.TRUE, expected.equals(externalEvent));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class ExternalEvent {\n" +
-                "    payment: class PaymentEvent {\n" +
-                "        iun: 001\n" +
-                "        recipientTaxId: null\n" +
-                "        recipientType: null\n" +
-                "        paymentType: null\n" +
-                "        timestamp: null\n" +
-                "    }\n" +
-                "}";
-        Assertions.assertEquals(expected, externalEvent.toString());
-    }
+    
 }

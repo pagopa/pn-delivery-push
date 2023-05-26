@@ -1,28 +1,26 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.ApiClient;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.api.CourtesyApi;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.api.LegalApi;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyChannelType;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalChannelType;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.api.CourtesyApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.api.LegalApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyChannelType;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.LegalChannelType;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.LegalDigitalAddress;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.Collections;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
 
 class UserAttributesClientImplTest {
 
@@ -42,21 +40,11 @@ class UserAttributesClientImplTest {
 
     @BeforeEach
     void setup() {
-        cfg = mock(PnDeliveryPushConfigs.class);
-        Mockito.when(cfg.getUserAttributesBaseUrl()).thenReturn("http://localhost:8080");
-
-        restTemplate = Mockito.mock(RestTemplate.class);
-//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getUserAttributesBaseUrl());
-
-        this.courtesyApi = new CourtesyApi(apiClient);
-        this.legalApi = new LegalApi(apiClient);
-
-        client = new UserAttributesClientImpl(restTemplate, cfg);
+        client = new UserAttributesClientImpl(courtesyApi, legalApi);
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void getLegalAddressBySender() {
         LegalDigitalAddress legalDigitalAddress = new LegalDigitalAddress();
         legalDigitalAddress.setValue("indirizzo@prova.com");
@@ -77,6 +65,7 @@ class UserAttributesClientImplTest {
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void getCourtesyAddressBySender() {
 
         CourtesyDigitalAddress courtesyDigitalAddress = new CourtesyDigitalAddress();

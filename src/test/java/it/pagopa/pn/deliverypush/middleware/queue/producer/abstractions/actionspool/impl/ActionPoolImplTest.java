@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actions
 
 import it.pagopa.pn.api.dto.events.MomProducer;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.service.ActionService;

@@ -8,8 +8,8 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.MDCWebFilter;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionEventType;
 import lombok.extern.slf4j.Slf4j;
@@ -51,35 +51,40 @@ public class PnEventInboundService {
         return new MessageRoutingCallback() {
             @Override
             public FunctionRoutingResult routingResult(Message<?> message) {
-                setTraceId(message);
+                setMdc(message);
                 return new FunctionRoutingResult(handleMessage(message));
             }
         };
-
     }
 
-    private void setTraceId(Message<?> message) {
+    private void setMdc(Message<?> message) {
         MessageHeaders messageHeaders = message.getHeaders();
+        MDCUtils.clearMDCKeys();
+        
+        if (messageHeaders.containsKey("aws_messageId")){
+            String awsMessageId = messageHeaders.get("aws_messageId", String.class);
+            MDC.put(MDCUtils.MDC_PN_CTX_MESSAGE_ID, awsMessageId);
+        }
+        
+        if (messageHeaders.containsKey("X-Amzn-Trace-Id")){
+            String traceId = messageHeaders.get("X-Amzn-Trace-Id", String.class);
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, traceId);
+        } else {
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, String.valueOf(UUID.randomUUID()));
+        }
 
-        String traceId = "";
-
-        if (messageHeaders.containsKey("iun"))
-            traceId = messageHeaders.get("iun", String.class);
-        else if (messageHeaders.containsKey("aws_messageId"))
-            traceId = messageHeaders.get("aws_messageId", String.class);
-        else
-            traceId = "trace_id:" + UUID.randomUUID().toString();
-
-        MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, traceId);
+        String iun = (String) message.getHeaders().get("iun");
+        if(iun != null){
+            MDC.put(MDCUtils.MDC_PN_IUN_KEY, iun);
+        }
     }
 
     private String handleMessage(Message<?> message) {
-        //Viene ricevuto un nuovo evento da una queue
-        //TODO Questo log è da eliminare
-        log.debug("Received message from customRouter {}", message);
+        log.debug("Received message from customRouter with header={}", message.getHeaders());
 
         String eventType = (String) message.getHeaders().get("eventType");
-        log.debug("Received message from customRouter with eventType={}", eventType);
+        String iun = (String) message.getHeaders().get("iun");
+        log.debug("message have eventType={} - iun={}", eventType, iun);
 
         if (eventType != null) {
             //Se l'event type e valorizzato ...
@@ -110,6 +115,9 @@ public class PnEventInboundService {
         if (!StringUtils.hasText(handlerName)) {
             log.error("undefined handler for eventType={}", eventType);
         }
+
+        log.debug("Handler for eventType={} is {} - iun={}", eventType, handlerName, iun);
+
         return handlerName;
     }
 

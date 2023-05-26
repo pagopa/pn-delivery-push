@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AddressDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AnalogDomicile;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AddressDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AnalogDomicile;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;

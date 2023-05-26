@@ -9,14 +9,16 @@ import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException
 import it.pagopa.pn.deliverypush.service.AddressManagerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
 @AllArgsConstructor
-@Slf4j
+@CustomLog
 public class AddressValidator {
+    private static final String VALIDATE_ADDRESS_PROCESS = "Address validation";
+
     private final AddressManagerService addressManagerService;
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
@@ -43,6 +45,8 @@ public class AddressValidator {
     }
 
     public void handleAddressValidation(String iun, NormalizeItemsResultInt normalizeItemsResult){
+        log.logChecking(VALIDATE_ADDRESS_PROCESS);
+
         normalizeItemsResult.getResultItems().forEach( normalizeResult ->{
             if(normalizeResult.getError() != null){
 
@@ -52,11 +56,14 @@ public class AddressValidator {
                         iun,
                         normalizeResult.getId()
                 );
-                
+
+                log.logCheckingOutcome(VALIDATE_ADDRESS_PROCESS, false, errorMessage);
+
                 log.warn(errorMessage);
                 throw new PnValidationNotValidAddressException(errorMessage);
             }
         });
-        
+
+        log.logCheckingOutcome(VALIDATE_ADDRESS_PROCESS, true);
     }
 }

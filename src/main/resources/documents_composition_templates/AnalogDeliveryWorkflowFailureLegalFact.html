@@ -165,7 +165,9 @@
       <h3 id="subject">Deposito avviso di avvenuta ricezione</h3>
 
       <p class="paragraph">
-        Con riferimento alla notifica avente IUN ${iun}, ai sensi dell’art. 26, comma 7, del D.L. 76/2020, essendo risultato il destinatario ${recipient.denomination} <#if recipient.recipientType == "PF">CF:<#else>P.IVA:</#if> ${recipient.taxId}, irreperibile per cause diverse dalla temporanea assenza o dal rifiuto proprio o delle altre persone alle quali può essere consegnato il plico contenente l’avviso di avvenuta ricezione della relativa notifica, in data ${endWorkflowDate} alle ore ${endWorkflowTime} l’avviso di avvenuta ricezione è stato depositato dal Gestore sulla Piattaforma e reso disponibile al destinatario.
+        Con riferimento alla notifica avente IUN ${iun}, ai sensi dell’art. 26, comma 7, del D.L. 76/2020, essendo risultato il destinatario ${recipient.denomination}
+        <br><#if recipient.recipientType == "PF">CF:<#else>P.IVA:</#if> ${recipient.taxId}, irreperibile per cause diverse dalla temporanea assenza o dal rifiuto proprio o delle altre persone alle quali può essere consegnato il plico contenente
+        <br>l’avviso di avvenuta ricezione della relativa notifica, in data ${endWorkflowDate} alle ore ${endWorkflowTime} <br> l’avviso di avvenuta ricezione è stato depositato dal Gestore sulla Piattaforma e reso disponibile al destinatario.
       </p>
       <p class="paragraph">
           Ai sensi dell’art. 26, comma 7, del D.L. 76/2020 la notifica si perfeziona nel decimo giorno successivo alla data del deposito sulla piattaforma come sopra riportata, salvo che il destinatario o suo delegato abbia acceduto alla notifica tramite la piattaforma in data e ora  antecedente rispetto alla scadenza di tale termine.

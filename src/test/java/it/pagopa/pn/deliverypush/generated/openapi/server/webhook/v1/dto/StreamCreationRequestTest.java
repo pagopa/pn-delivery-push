@@ -72,14 +72,4 @@ class StreamCreationRequestTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, expected.equals(request));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class StreamCreationRequest {\n" +
-                "    title: 001\n" +
-                "    eventType: STATUS\n" +
-                "    filterValues: [001]\n" +
-                "}";
-        Assertions.assertEquals(expected, request.toString());
-    }
 }

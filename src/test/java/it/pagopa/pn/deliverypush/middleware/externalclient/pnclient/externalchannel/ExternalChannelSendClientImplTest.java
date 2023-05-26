@@ -1,10 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalCourtesyMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalLegalMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.PaperMessagesApi;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -12,17 +8,21 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalCourtesyMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalLegalMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -61,24 +61,14 @@ class ExternalChannelSendClientImplTest {
         this.cfg = mock(PnDeliveryPushConfigs.class);
         Mockito.when(cfg.getExternalChannelBaseUrl()).thenReturn("http://localhost:8080");
         Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
-
-        restTemplate = Mockito.mock(RestTemplate.class);
-//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
-
-        digitalLegalMessagesApi = new DigitalLegalMessagesApi(apiClient);
-        digitalCourtesyMessagesApi = new DigitalCourtesyMessagesApi(apiClient);
-        paperMessagesApi = new PaperMessagesApi(apiClient);
-        legalFactGenerator = Mockito.mock(LegalFactGenerator.class);
-
-        client = new ExternalChannelSendClientImpl(restTemplate, cfg, legalFactGenerator);
-        client.init();
+        
+        client = new ExternalChannelSendClientImpl(cfg, digitalLegalMessagesApi, digitalCourtesyMessagesApi, legalFactGenerator);
     }
 
 
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void sendLegalNotification() {
         NotificationInt notificationInt = buildNotification();
         NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
@@ -94,6 +84,7 @@ class ExternalChannelSendClientImplTest {
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void sendCourtesyNotificationEmail() {
         NotificationInt notificationInt = buildNotification();
         NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
@@ -112,6 +103,7 @@ class ExternalChannelSendClientImplTest {
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void sendCourtesyNotificationSms() {
         NotificationInt notificationInt = buildNotification();
         NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
@@ -130,6 +122,7 @@ class ExternalChannelSendClientImplTest {
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void sendLegalNotificationPEC() {
 
         //Given

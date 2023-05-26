@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AddressDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AnalogDomicile;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AddressDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AnalogDomicile;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
 
 public class ConfidentialTimelineElementDtoMapper {
     private ConfidentialTimelineElementDtoMapper() {

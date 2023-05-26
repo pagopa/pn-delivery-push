@@ -9,16 +9,18 @@ import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesRespon
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries.NationalRegistriesClient;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONTACTPHASENOTFOUND;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_DELIVERYNOTFOUND;
 
 @Component
-@Slf4j
+@CustomLog
 public class NationalRegistriesResponseHandler {
     private final ChooseDeliveryModeHandler chooseDeliveryHandler;
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
@@ -44,24 +46,41 @@ public class NationalRegistriesResponseHandler {
      * @param response public registry response
      */
     public void handleResponse(NationalRegistriesResponse response) {
-
         String correlationId = response.getCorrelationId();
-        //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
         String iun = timelineUtils.getIunFromTimelineId(correlationId);
-        log.info("Handle public registry response -  iun {} correlationId {}", iun, response.getCorrelationId());
+        addMdcFilter(iun, correlationId);
 
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-        log.debug("Notification successfully obtained  - iun={}", notification.getIun());
+        log.info("Async response received from service {} for {} with correlationId={}",
+                NationalRegistriesClient.CLIENT_NAME, NationalRegistriesClient.GET_DIGITAL_GENERAL_ADDRESS, correlationId);
 
-        //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
-        PublicRegistryCallDetailsInt publicRegistryCallDetails = publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId);
-        Integer recIndex = publicRegistryCallDetails.getRecIndex();
+        final String processName = NationalRegistriesClient.GET_DIGITAL_GENERAL_ADDRESS + " response handler";
+        log.logStartingProcess(processName);
+        
+        try {
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
+            log.debug("Notification successfully obtained  - iun={}", notification.getIun());
 
-        publicRegistryUtils.addPublicRegistryResponseToTimeline(notification, recIndex, response);
+            //Viene ottenuto l'oggetto di timeline creato in fase d'invio notifica al public registry
+            PublicRegistryCallDetailsInt publicRegistryCallDetails = publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId);
+            Integer recIndex = publicRegistryCallDetails.getRecIndex();
 
-        log.info("public registry response is in contactPhase {} iun {} id {} ", publicRegistryCallDetails.getContactPhase(), iun, recIndex);
+            publicRegistryUtils.addPublicRegistryResponseToTimeline(notification, recIndex, response);
 
+            handleSpecificContactPhase(response, correlationId, iun, notification, publicRegistryCallDetails, recIndex);
+
+            log.logEndingProcess(processName);
+        } catch (Exception ex){
+            log.logEndingProcess(processName, false, ex.getMessage());
+            throw ex;
+        }
+    }
+
+    private void handleSpecificContactPhase(NationalRegistriesResponse response, String correlationId, String iun, 
+                                            NotificationInt notification, PublicRegistryCallDetailsInt publicRegistryCallDetails,
+                                            Integer recIndex) {
         ContactPhaseInt contactPhase = publicRegistryCallDetails.getContactPhase();
+        log.info("public registry response is in contactPhase {} iun {} id {} ", contactPhase, iun, recIndex);
+
         //In base alla fase di contatto, inserita in timeline al momento dell'invio, viene scelto il percorso da prendere
         if (contactPhase != null) {
             switch (contactPhase) {
@@ -76,7 +95,6 @@ public class NationalRegistriesResponseHandler {
         } else {
             handleContactPhaseError(correlationId, publicRegistryCallDetails);
         }
-
     }
 
     private void handleContactPhaseError(String correlationId, PublicRegistryCallDetailsInt publicRegistryCallDetails) {
@@ -107,5 +125,10 @@ public class NationalRegistriesResponseHandler {
     private void handleDeliveryModeError(String iun, DeliveryModeInt deliveryMode, Integer recIndex) {
         log.error("Specified deliveryMode {} does not exist - iun {} id {}", deliveryMode, iun, recIndex);
         throw new PnInternalException("Specified deliveryMode " + deliveryMode + " does not exist - iun " + iun + " id " + recIndex, ERROR_CODE_DELIVERYPUSH_DELIVERYNOTFOUND);
+    }
+
+    private static void addMdcFilter(String iun, String correlationId) {
+        HandleEventUtils.addIunToMdc(iun);
+        HandleEventUtils.addCorrelationIdToMdc(correlationId);
     }
 }

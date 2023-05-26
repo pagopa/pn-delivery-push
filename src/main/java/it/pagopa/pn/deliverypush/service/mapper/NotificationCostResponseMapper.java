@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationCostResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationCostResponse;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.NotificationCostResponseInt;
 
 public class NotificationCostResponseMapper {

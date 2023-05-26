@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.ext.paperchannel;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

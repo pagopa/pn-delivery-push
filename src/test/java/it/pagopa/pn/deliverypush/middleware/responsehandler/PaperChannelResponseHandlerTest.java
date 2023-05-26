@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.*;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
