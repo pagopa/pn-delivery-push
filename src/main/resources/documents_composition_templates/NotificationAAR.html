@@ -32,12 +32,13 @@
 
       body {
         font-family: "Titillium Web", sans-serif;
-        font-size: 12px; /* equivalent to 9px on figma */
         font-weight: 400;
+        font-size: 13.26px;
+        line-height: 18.6px;
       }
 
       .strong {
-        font-weight: 700;
+        font-weight: bold;
       }
 
       /* font equivalence */
@@ -52,9 +53,6 @@
       }
       .ten-px {
         font-size: 13.3px;
-      }
-      .eleven-px {
-        font-size: 14.7px;
       }
 
       /* logo-box style */
@@ -118,17 +116,15 @@
       }
 
       #main__subject {
-        line-height: 19px;
+        line-height: 26.5px;
         padding-top: 0mm;
+        font-size: 22.54px;
       }
 
       #main__disclaimer {
         margin-top: 1.8mm;
-      }
-
-      #main__content {
-        margin-top: 2mm;
-        line-height: 4.6mm;
+        line-height: 18.6px;
+        font-size: 13.26px;
       }
 
       .heading {
@@ -141,7 +137,7 @@
       }
 
       .row {
-        margin: 10mm 10mm 0mm 10mm;
+        margin: 37.13px 8.5mm 0mm 37.13px;
       }
 
       .relative-box {
@@ -151,17 +147,17 @@
       .rounded-box {
         border: 1px solid black;
         border-radius: 5px;
+        font-size: 11.93px;
+        line.height: 17.2px;
       }
 
       .section-list {
-        padding-left: 1mm;
+        padding-left: 5.3px;
       }
 
       .section-list ol {
-        position: relative;
-        left: 7mm;
+        padding-left: 7mm;
         margin: 2mm 0;
-        line-height: 4.6mm;
       }
 
       .section-list li {
@@ -185,9 +181,8 @@
       #description-box {
         margin-top: 2mm;
         position: absolute;
-        width: 90mm;
+        width: 323.56px;
         padding: 1.75mm 2.5mm;
-        line-height: 4.6mm;
         right: 0mm;
       }
       /* END DESCRIPTION BOX */
@@ -199,7 +194,7 @@
       }
 
       #io-notifications .rounded-box {
-        height: 22mm;
+        height: 24mm;
         margin: 2mm 0;
       }
 
@@ -216,13 +211,17 @@
         left: 12.8mm;
         width: 75mm;
       }
+
+      #io-notifications__description {
+        padding-left: 5.3px;
+      }
       /* END NOTIFICATIONS BOX */
 
       /* MANDATE BOX */
       #mandate-box {
         position: absolute;
         right: 0;
-        width: 90mm;
+        width: 323.56px;
       }
       /* END MANDATE BOX */
     </style>
@@ -252,7 +251,7 @@
     </div>
 
     <div id="main">
-      <div id="main__subject" class="eleven-px strong">
+      <div id="main__subject" class="strong">
         ${notification.subject}
       </div>
       <div id="main__disclaimer">
@@ -261,17 +260,15 @@
         privato cittadino con Codice Fiscale
         <#else>
         persona giuridica con Partita IVA
-      </#if>
-      ${recipient.taxId}.
-      </div>
-      <div id="main__content">
+        </#if>
+        ${recipient.taxId}.<br />
         Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti.
       </div>
     </div>
 
     <div class="row">
       <div class="heading ten-px">Come visualizzare i documenti online</div>
-      <div class="relative-box" style="height: 52mm;">
+      <div class="relative-box" style="height: 70mm;">
         <div id="view-online-box">
           <div class="section-list">
             Se hai ricevuto questo avviso di avvenuta ricezione tramite raccomandata, la visualizzazione online dei documenti è facoltativa. Se l’hai ricevuto in digitale, è obbligatoria. Per farlo:
@@ -280,20 +277,20 @@
               <li>Accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
               <li>Visualizza i documenti della notifica</li>
             </ol>
-            I documenti sono disponibili online per 120 giorni dalla data di perfezionamento della notifica. Per conoscerla, vai su <strong>${PNFaqCompletionMomentURL}</strong>
+            I documenti sono disponibili online per 120 giorni dalla data di perfezionamento della notifica. Per conoscerla, vai su <strong><a href="${PNFaqCompletionMomentURL}">${PNFaqCompletionMomentURLLabel}</a></strong>
           </div>
         </div>
         <div id="description-box" class="rounded-box">
-          <strong>Cos’è SEND?</strong> Send è uno strumento che rende
+          <strong>Cos’è SEND?</strong><br/> È uno strumento che rende
           l’invio di notifiche da parte della Pubblica Amministrazione sicuro,
           efficiente ed economico. Per saperne di più e per ricevere assistenza,
-          visita il sito <strong><a href="${sendURL}">${sendURL}</a></strong>
+          visita il sito <strong><a href="${sendURL}">${sendURLLAbel}</a></strong>
         </div>
       </div>
     </div>
 
     <div class="row">
-      <div class="relative-box">
+      <div class="relative-box" style="height: 70mm;">
         <div id="io-notifications">
           <div class="heading ten-px">
             Ricevi le prossime notifiche in digitale
@@ -305,7 +302,9 @@
               Se riceverai nuove notifiche, potrai visualizzare i documenti e pagare eventuali spese direttamente dal tuo dispositivo.
             </div>
           </div>
-          In alternativa, vai su SEND all’indirizzo <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e indica i recapiti digitali con cui vuoi ricevere le prossime notifiche e comunicazioni.
+          <div id="io-notifications__description">
+            In alternativa, vai su SEND all’indirizzo <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e indica i recapiti digitali con cui vuoi ricevere le prossime notifiche e comunicazioni.
+          </div>
         </div>
         <div id="mandate-box">
           <div class="heading ten-px">
@@ -316,7 +315,7 @@
               <li>Vai su <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
               <li>Seleziona “Deleghe” dal menu a sinistra</li>
               <li>Premi “Aggiungi una delega” e inserisci i dati della persona che vuoi delegare</li>
-              <li>Questa dovrà accedere con SPID o CIE e accettare la richiesta di delega. A partire da quel momento, riceverà su SEND le notifiche destinate a te</li>
+              <li>Questa dovrà accedere a SEND con SPID o CIE e accettare la richiesta di delega. A partire da quel momento, riceverà su SEND le notifiche destinate a te</li>
             </ol>
           </div>
         </div>
