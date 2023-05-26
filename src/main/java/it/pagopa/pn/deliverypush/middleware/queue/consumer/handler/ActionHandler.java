@@ -273,7 +273,7 @@ public class ActionHandler {
             try {
                 log.debug("Handle action pnDeliveryPushNotificationValidation, with content {}", message);
                 Action action = message.getPayload();
-                HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
+                HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
                 
                 NotificationValidationActionDetails details = (NotificationValidationActionDetails) action.getDetails();
                 
