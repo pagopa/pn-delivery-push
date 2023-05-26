@@ -660,7 +660,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-national-registries/develop/docs/openapi/PNT2Y-OpenAPI3_PN-NationalRegistries.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-national-registries/dd1d0f250ca7bc69000e7b17726a5a729d383d8f/docs/openapi/PNT2Y-OpenAPI3_PN-NationalRegistries.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>webclient</library>
 							<generateApiTests>false</generateApiTests>
