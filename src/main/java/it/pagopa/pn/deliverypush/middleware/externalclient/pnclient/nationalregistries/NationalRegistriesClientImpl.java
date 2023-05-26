@@ -37,7 +37,7 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
                         .doOnError(throwable -> log.error(String.format("Error calling getAddresses with taxId: %s, correlationId: %s", LogUtils.maskTaxId(taxId), correlationId), throwable))
         ).block();
         
-    }
+    } 
 
     @Override
     public CheckTaxIdOK checkTaxId(String taxId) {
