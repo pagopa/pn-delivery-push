@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.SingleStatusUpdate;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.SingleStatusUpdate;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +24,8 @@ public class ExtChannelEventHandlerNew {
     public Consumer<Message<SingleStatusUpdate>> pnExtChannelEventInboundConsumer() {
         return message -> {
             try {
-                log.info("External channel event received NEW, message {}", message);
-
+                log.debug("Handle message from {} with content {}", ExternalChannelSendClient.CLIENT_NAME, message);
+                
                 SingleStatusUpdate singleStatusUpdate = message.getPayload();
                 externalChannelResponseHandler.extChannelResponseReceiver(singleStatusUpdate);
             } catch (Exception ex) {

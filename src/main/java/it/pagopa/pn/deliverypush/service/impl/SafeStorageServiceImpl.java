@@ -1,12 +1,14 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
@@ -26,8 +28,14 @@ public class SafeStorageServiceImpl implements SafeStorageService {
 
     @Override
     public Mono<FileDownloadResponseInt> getFile(String fileKey, Boolean metadataOnly) {
+        MDC.put(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY, fileKey);
+
         return safeStorageClient.getFile(fileKey, metadataOnly)
-                .doOnSuccess(fileDownloadResponse -> log.debug("Response getFile from SafeStorage: {}", fileDownloadResponse))
+                .doOnSuccess(fileDownloadResponse -> {
+                    log.debug("Response getFile from SafeStorage: {}", fileDownloadResponse);
+                    MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
+                })
+                .doOnError(err -> MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY))
                 .map(this::getFileDownloadResponseInt);
     }
 
@@ -52,38 +60,43 @@ public class SafeStorageServiceImpl implements SafeStorageService {
     
     @Override
     public Mono<FileCreationResponseInt> createAndUploadContent(FileCreationWithContentRequest fileCreationRequest) {
-            log.info("Start createAndUploadFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
+        log.info("Start createAndUploadFile - documentType={} filesize={}", fileCreationRequest.getDocumentType(), fileCreationRequest.getContent().length);
 
-            String sha256 = computeSha256(fileCreationRequest.getContent());
+        String sha256 = computeSha256(fileCreationRequest.getContent());
 
-            return safeStorageClient.createFile(fileCreationRequest, sha256)
-                    .onErrorResume( Exception.class, exception ->{
-                        log.error("Cannot create file ", exception);
-                        return Mono.error(new PnInternalException("Cannot create file", ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR, exception));
-                    })
-                    .flatMap(fileCreationResponse -> 
-                        Mono.fromRunnable(() -> safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, sha256))
-                                .thenReturn(fileCreationResponse)
-                                .map(fileCreationResponse2 ->{
-                                    FileCreationResponseInt fileCreationResponseInt = FileCreationResponseInt.builder()
-                                            .key(fileCreationResponse2.getKey())
-                                            .build();
+        return safeStorageClient.createFile(fileCreationRequest, sha256)
+                .onErrorResume( Exception.class, exception ->{
+                    log.error("Cannot create file ", exception);
+                    return Mono.error(new PnInternalException("Cannot create file", ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR, exception));
+                })
+                .flatMap(fileCreationResponse -> 
+                    Mono.fromRunnable(() -> safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, sha256))
+                            .thenReturn(fileCreationResponse)
+                            .map(fileCreationResponse2 ->{
+                                FileCreationResponseInt fileCreationResponseInt = FileCreationResponseInt.builder()
+                                        .key(fileCreationResponse2.getKey())
+                                        .build();
 
-                                    log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponseInt.getKey(), sha256);
+                                log.info("createAndUploadContent file uploaded successfully key={} sha256={}", fileCreationResponseInt.getKey(), sha256);
 
-                                    return fileCreationResponseInt;
-                                })
-                    );
+                                return fileCreationResponseInt;
+                            })
+                );
     }
     
     @Override
     public Mono<UpdateFileMetadataResponseInt> updateFileMetadata(String fileKey, UpdateFileMetadataRequest updateFileMetadataRequest) {
+        MDC.put(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY, fileKey);
         log.debug("Start call updateFileMetadata - fileKey={} updateFileMetadataRequest={}", fileKey, updateFileMetadataRequest);
 
         return safeStorageClient.updateFileMetadata(fileKey, updateFileMetadataRequest)
-                .doOnSuccess( res -> log.info("updateFileMetadata file ok key={} updateFileMetadataResponseInt={}", fileKey, updateFileMetadataRequest))
+                .doOnSuccess( res -> {
+                    MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
+                    log.debug("updateFileMetadata file ok key={} updateFileMetadataResponseInt={}", fileKey, updateFileMetadataRequest);
+                })
                 .onErrorResume( err ->{
                     log.error("Cannot update metadata ", err);
+                    MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
                     return Mono.error(new PnInternalException("Cannot update metadata", ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, err));
                 })
                 .map( res -> UpdateFileMetadataResponseInt.builder()

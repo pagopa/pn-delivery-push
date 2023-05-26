@@ -1054,12 +1054,14 @@ components:
         internalId:
           type: string
         taxId:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           type: string
         operatorUuid:
           type: string
         mandateId:
           type: string
         denomination:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           type: string
         delegateType:
           $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'

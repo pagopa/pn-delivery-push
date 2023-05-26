@@ -3,24 +3,26 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.utils.LogUtils;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.AnalogAddress;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.PaperChannelUpdate;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.PrepareEvent;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendEvent;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.AnalogAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.PaperChannelUpdate;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.PrepareEvent;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendEvent;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.PrepareEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
-import lombok.extern.slf4j.Slf4j;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED;
 
 
 @Component
-@Slf4j
+@CustomLog
 public class PaperChannelResponseHandler {
 
     public static final String EXCEPTION_PREPARE_UPDATE = "Exception PrepareUpdate";
@@ -50,40 +52,60 @@ public class PaperChannelResponseHandler {
     }
 
     private void prepareUpdate(PrepareEvent event) {
+        String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+        addMdcFilter(iun, event.getRequestId());
+        log.info("Async response received from service {} for {} with correlationId={}",
+                PaperChannelSendClient.CLIENT_NAME, PaperChannelSendClient.PREPARE_ANALOG_NOTIFICATION, event.getRequestId());
+
+        final String processName = PaperChannelSendClient.PREPARE_ANALOG_NOTIFICATION + " response handler";
+        
         try {
-            String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+            log.logStartingProcess(processName);
 
             PrepareEventInt analogSentResponseInt = mapExternalToInternal(iun, event);
 
-            log.info("Received PaperChannel prepare paper message event for requestId={} - status={} details={} receiverAddress={}",
+            log.debug("Received PaperChannel prepare paper message event for requestId={} - status={} details={} receiverAddress={}",
                     analogSentResponseInt.getRequestId(), analogSentResponseInt.getStatusCode(), analogSentResponseInt.getStatusDetail(), (analogSentResponseInt.getReceiverAddress()==null?"":LogUtils.maskGeneric(analogSentResponseInt.getReceiverAddress().getAddress())));
 
             analogWorkflowPaperChannelResponseHandler.paperChannelPrepareResponseHandler(analogSentResponseInt);
+            
+            log.logEndingProcess(processName);
+
         } catch (PnRuntimeException e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_PREPARE_UPDATE, e);
             throw e;
         } catch (Exception e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_PREPARE_UPDATE, e);
             throw new PnInternalException("Paper update failed", ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED, e);
         }
-
     }
 
-
     private void sendUpdate(SendEvent event) {
+        
+        String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+        addMdcFilter(iun, event.getRequestId());
+        log.info("Async response received from service {} for {} with correlationId={}",
+                PaperChannelSendClient.CLIENT_NAME, PaperChannelSendClient.SEND_ANALOG_NOTIFICATION, event.getRequestId());
+
+        final String processName = PaperChannelSendClient.SEND_ANALOG_NOTIFICATION + " response handler";
+        
         try {
-            String iun = timelineUtils.getIunFromTimelineId(event.getRequestId());
+            log.logStartingProcess(processName);
 
             SendEventInt analogSentResponseInt = mapExternalToInternal(iun, event);
-
             log.info("Received PaperChannel send paper message event for requestId={} - status={} details={} discovAddress={}",
                     analogSentResponseInt.getRequestId(), analogSentResponseInt.getStatusCode(), analogSentResponseInt.getStatusDetail(), (analogSentResponseInt.getDiscoveredAddress()==null?"":LogUtils.maskGeneric(analogSentResponseInt.getDiscoveredAddress().getAddress())));
 
             analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(analogSentResponseInt);
+            log.logEndingProcess(processName);
         } catch (PnRuntimeException e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_SEND_UPDATE, e);
             throw e;
         } catch (Exception e) {
+            log.logEndingProcess(processName, false, e.getMessage());
             log.error(EXCEPTION_SEND_UPDATE, e);
             throw new PnInternalException("Paper update failed", ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED, e);
         }
@@ -172,5 +194,9 @@ public class PaperChannelResponseHandler {
         throw new PnInternalException("None event specified, invalid event update received from paper-channel", ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
     }
 
+    private static void addMdcFilter(String iun, String correlationId) {
+        HandleEventUtils.addIunToMdc(iun);
+        HandleEventUtils.addCorrelationIdToMdc(correlationId);
+    }
 }
 

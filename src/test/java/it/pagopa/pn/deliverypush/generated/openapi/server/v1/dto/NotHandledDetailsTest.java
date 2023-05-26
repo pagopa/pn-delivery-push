@@ -41,14 +41,4 @@ class NotHandledDetailsTest {
 
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
-
-    @Test
-    void testToString() {
-        String data = "class NotHandledDetails {\n" +
-                "    recIndex: 1\n" +
-                "    reasonCode: code\n" +
-                "    reason: reason\n" +
-                "}";
-        Assertions.assertEquals(data, details.toString());
-    }
 }

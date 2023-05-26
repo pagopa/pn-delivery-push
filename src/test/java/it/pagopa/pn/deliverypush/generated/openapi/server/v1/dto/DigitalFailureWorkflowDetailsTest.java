@@ -27,13 +27,4 @@ class DigitalFailureWorkflowDetailsTest {
 
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
-
-    @Test
-    void testToString() {
-        String data = "class DigitalFailureWorkflowDetails {\n" +
-                "    recIndex: 1\n" +
-                "}";
-
-        Assertions.assertEquals(data, details.toString());
-    }
 }

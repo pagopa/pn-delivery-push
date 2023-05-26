@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
@@ -146,18 +147,20 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
             Integer recIndex = simpleRegisteredLetterDetails.getRecIndex();
-
+            HandleEventUtils.addRecIndexToMdc(recIndex);
+            
             final String prepareRequestId = timelineElementInternal.getElementId();
             String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
 
             handleStatusProgressSimpleRegisteredLetter(response, simpleRegisteredLetterDetails, notification, recIndex, response.getAttachments(), sendRequestId);
-
         }
         else if (timelineElementInternal.getDetails() instanceof BaseAnalogDetailsInt sendPaperDetails){
 
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
             Integer recIndex = sendPaperDetails.getRecIndex();
+            HandleEventUtils.addRecIndexToMdc(recIndex);
+            
             ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
 
             final String prepareRequestId = timelineElementInternal.getElementId();

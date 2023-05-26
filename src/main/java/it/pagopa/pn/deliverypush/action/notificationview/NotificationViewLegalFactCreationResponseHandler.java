@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -54,23 +55,25 @@ public class NotificationViewLegalFactCreationResponseHandler {
 
                 RaddInfo raddInfo = getRaddInfo(timelineDetails);
                 
-                notificationCost.getNotificationCost(notification, recIndex)
-                        .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
-                        .flatMap(responseCost -> {
-                            Integer cost = responseCost.orElse(null);
-                            return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, timelineDetails.getEventTimestamp(),
-                                    timelineDetails.getLegalFactId(), cost, timelineDetails.getDelegateInfo());
-                        }).block();
+                MDCUtils.addMDCToContextAndExecute(
+                        notificationCost.getNotificationCost(notification, recIndex)
+                                .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
+                                .flatMap(responseCost -> {
+                                    Integer cost = responseCost.orElse(null);
+                                    return addTimelineAndDeletePaperNotificationFailed(notification, recIndex, raddInfo, timelineDetails.getEventTimestamp(),
+                                            timelineDetails.getLegalFactId(), cost, timelineDetails.getDelegateInfo());
+                                })
+                ).block();
                 
                 recipientAccessLegalFactAuditLog.generateSuccess().log();
 
             } else {
-                log.error("handleAarCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
-                throw new PnInternalException("AarCreationRequestDetails timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
+                log.error("handleLegalFactCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
+                throw new PnInternalException("handleLegalFactCreationResponse timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
             }
 
         } catch (Exception ex){
-            recipientAccessLegalFactAuditLog.generateFailure( "Saving legalFact FAILURE type={} fileKey={} iun={} recIndex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, actionDetails.getKey(), iun, recIndex, ex).log();
+            recipientAccessLegalFactAuditLog.generateFailure( "Saving legalFact FAILURE type={} fileKey={} iun={} recIndex={} ex={}", LegalFactCategoryInt.RECIPIENT_ACCESS, actionDetails.getKey(), iun, recIndex, ex).log();
             throw ex;
         }
     }

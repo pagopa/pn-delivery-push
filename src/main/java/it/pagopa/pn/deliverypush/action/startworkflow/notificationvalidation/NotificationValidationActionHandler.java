@@ -3,10 +3,11 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
@@ -19,7 +20,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +31,7 @@ import java.util.Objects;
 
 @Component
 @AllArgsConstructor
-@Slf4j
+@CustomLog
 public class NotificationValidationActionHandler {
     private static final int FIRST_VALIDATION_STEP = 1;
     private static final int SECOND_VALIDATION_STEP = 2;
@@ -47,19 +48,22 @@ public class NotificationValidationActionHandler {
     private final PnDeliveryPushConfigs cfg;
 
     public void validateNotification(String iun, NotificationValidationActionDetails details){
-        log.info("Start validateNotification - iun={}", iun);
+        log.debug("Start validateNotification - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         PnAuditLogEvent logEvent = generateAuditLog(notification, FIRST_VALIDATION_STEP);
-
+        
         try {
             attachmentUtils.validateAttachment(notification);
             taxIdPivaValidator.validateTaxIdPiva(notification);
 
             //La validazione dell'indirizzo è async
-            addressValidator.requestValidateAndNormalizeAddresses(notification).block();
+            MDCUtils.addMDCToContextAndExecute(
+                    addressValidator.requestValidateAndNormalizeAddresses(notification)
+            ).block();
 
-            logEvent.generateSuccess().log();
+
+            logEvent.generateSuccess().log(); 
         } catch (PnValidationFileNotFoundException ex){
             if(cfg.isSafeStorageFileNotFoundRetry())
                 logEvent.generateWarning("Validation need to be rescheduled - iun={} ex={}", notification.getIun(), ex).log();
@@ -96,7 +100,7 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(NotificationInt notification, int validationStep) {
-        return auditLogService.buildAuditLogEvent(notification.getIun(), PnAuditLogEventType.AUD_NT_VALID, "Notification validation step={}, iun={}", validationStep, notification.getIun());
+        return auditLogService.buildAuditLogEvent(notification.getIun(), PnAuditLogEventType.AUD_NT_VALID, "Notification validation step={} of 2, iun={}", validationStep, notification.getIun());
     }
 
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
@@ -121,7 +125,6 @@ public class NotificationValidationActionHandler {
     }
 
     public void handleValidateAndNormalizeAddressResponse(String iun, NormalizeItemsResultInt normalizeItemsResult){
-        log.info("handleValidateAndNormalizeAddressResponse - iun {}", iun);
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
         PnAuditLogEvent logEvent = generateAuditLog(notification, SECOND_VALIDATION_STEP);
@@ -130,11 +133,12 @@ public class NotificationValidationActionHandler {
             addressValidator.handleAddressValidation(iun, normalizeItemsResult);
             normalizeAddressHandler.handleNormalizedAddressResponse(notification, normalizeItemsResult);
             
-            log.info("Notification validated successfully - iun={}", iun);
+            log.debug("Notification validated successfully - iun={}", iun);
             
             Instant schedulingDate = Instant.now();
-            log.info("Scheduling received legalFact generation, schedulingDate={} - iun={}", schedulingDate, iun);
+            log.debug("Scheduling received legalFact generation, schedulingDate={} - iun={}", schedulingDate, iun);
             schedulerService.scheduleEvent(iun, schedulingDate, ActionType.SCHEDULE_RECEIVED_LEGALFACT_GENERATION);
+
             logEvent.generateSuccess().log();
         } catch (PnValidationNotValidAddressException ex){
             logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), ex).log();

@@ -33,12 +33,5 @@ class ScheduleAnalogWorkflowDetailsTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, tmp.equals(details));
     }
-
-    @Test
-    void testToString() {
-        String data = "class ScheduleAnalogWorkflowDetails {\n" +
-                "    recIndex: 1\n" +
-                "}";
-        Assertions.assertEquals(data, details.toString());
-    }
+    
 }

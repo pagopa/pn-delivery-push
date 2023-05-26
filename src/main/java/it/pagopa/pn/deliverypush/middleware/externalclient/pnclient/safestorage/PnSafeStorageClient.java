@@ -1,13 +1,20 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.OperationResultCodeResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.UpdateFileMetadataRequest;
+import it.pagopa.pn.commons.log.PnLogger;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import reactor.core.publisher.Mono;
 
 public interface PnSafeStorageClient {
+    String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_SAFE_STORAGE;
+    String GET_FILE = "GET FILE";
+    String CREATE_FILE = "FILE CREATION";
+    String UPDATE_FILE_METADATA = "UPDATE FILE METADATA";
+    String UPLOAD_FILE_CONTENT = "UPLOAD FILE CONTENT";
+
     String SAFE_STORAGE_URL_PREFIX = "safestorage://";
 
     String SAFE_STORAGE_DOCUMENT_TYPE_AAR = "PN_AAR";

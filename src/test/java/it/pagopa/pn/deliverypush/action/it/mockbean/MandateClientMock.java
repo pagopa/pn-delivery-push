@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate.PnMandateClient;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.CxTypeAuthFleet;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.InternalMandateDto;
 
 import java.util.List;
 

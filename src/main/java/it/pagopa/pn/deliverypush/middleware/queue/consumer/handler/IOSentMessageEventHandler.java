@@ -2,8 +2,9 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.api.dto.events.PnExtRegistryIOSentMessageEvent;
 import it.pagopa.pn.deliverypush.action.iosentmessage.IOSentMessageHandler;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -12,7 +13,7 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 @Configuration
-@Slf4j
+@CustomLog
 public class IOSentMessageEventHandler {
     private final IOSentMessageHandler ioSentMessageHandler;
 
@@ -22,24 +23,27 @@ public class IOSentMessageEventHandler {
 
     @Bean
     public Consumer<Message<PnExtRegistryIOSentMessageEvent.Payload>> pnExtRegistryIOSentMessageConsumer() {
+        final String processName = "IO SENT MESSAGE EVENT";
+
         return message -> {
             try {
-                log.debug("IOSentMessage event received, message {}", message);
-
-                PnExtRegistryIOSentMessageEvent notificationPaidEvent = PnExtRegistryIOSentMessageEvent.builder()
+                log.debug("Handle message from {} with content {}", PnExternalRegistryClient.CLIENT_NAME, message);
+                
+                PnExtRegistryIOSentMessageEvent ioSentMessageEvent = PnExtRegistryIOSentMessageEvent.builder()
                         .payload(message.getPayload())
                         .header(HandleEventUtils.mapStandardEventHeader(message.getHeaders()))
                         .build();
                 
-                Instant eventDate = notificationPaidEvent.getPayload().getSendDate();
-                int recIndex = notificationPaidEvent.getPayload().getRecIndex();
-                String internalId =notificationPaidEvent.getPayload().getInternalId();
-                String iun =notificationPaidEvent.getPayload().getIun();
-                
-                log.info("pnExtRegistryIOSentMessageConsumer - eventDate={} iun={} recIndex={} internalId={}", eventDate, iun, recIndex, internalId);
+                Instant eventDate = ioSentMessageEvent.getPayload().getSendDate();
+                int recIndex = ioSentMessageEvent.getPayload().getRecIndex();
+                String iun =ioSentMessageEvent.getPayload().getIun();
+                HandleEventUtils.addIunAndRecIndexToMdc(iun, recIndex);
 
+                log.logStartingProcess(processName);
                 ioSentMessageHandler.handleIOSentMessage(iun, recIndex, eventDate);
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
