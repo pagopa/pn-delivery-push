@@ -10,7 +10,7 @@ import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
         AddressRequestBodyFilter addressRequestBodyFilter = new AddressRequestBodyFilter()
                 .taxId(taxId)
                 .correlationId(correlationId)
-                .referenceRequestDate(LocalDate.now().toString()) //YYYY-MM-DD
+                .referenceRequestDate(LocalDateTime.now().toString()) //YYYY-MM-DD
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
 
         MDCUtils.addMDCToContextAndExecute(
