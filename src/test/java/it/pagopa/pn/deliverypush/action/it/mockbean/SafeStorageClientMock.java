@@ -20,7 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.awaitility.Awaitility.await;
@@ -120,6 +122,21 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
     public void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256) {
         log.info("[TEST] Upload content Mock - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
 
+    }
+
+    @Override
+    public byte[] downloadPieceOfContent(String url, long maxSize) {
+        byte[] res = new byte[8];
+        res[0] = 0x25;
+        res[1] = 0x50;
+        res[2] = 0x44;
+        res[3] = 0x46;
+        res[4] = 0x2D;
+        res[5] = 0x2D;
+        res[6] = 0x2D;
+        res[7] = 0x2D;
+
+        return res;
     }
 
     public void writeFile(String fileKey, LegalFactCategoryInt legalFactCategory, String testName){

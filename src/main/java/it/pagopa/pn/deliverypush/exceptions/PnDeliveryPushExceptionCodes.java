@@ -79,6 +79,10 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
         FILE_SHA_ERROR( "FILE_SHA_ERROR"),
 
+        FILE_PDF_INVALID_ERROR( "FILE_PDF_INVALID_ERROR"),
+
+        FILE_PDF_TOOBIG_ERROR( "FILE_PDF_TOOBIG_ERROR"),
+
         TAXID_NOT_VALID("TAXID_NOT_VALID"),
 
         NOT_VALID_ADDRESS("NOT_VALID_ADDRESS"),

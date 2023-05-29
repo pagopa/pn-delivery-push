@@ -28,5 +28,15 @@ public interface PnSafeStorageClient {
     Mono<OperationResultCodeResponse> updateFileMetadata(String fileKey, UpdateFileMetadataRequest request);
 
     void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256);
- 
+
+    /**
+     * Scarica una parte (o tutto) il contenuto di un file
+     * E' obbligatorio passare la dimensione richiesta, per rendere evidente che il metodo può essere usato per scaricare solo una parte di file
+     *
+     * @param url da scaricare
+     * @param maxSize dimensione massima richiesta, -1 per scaricare tutto il file
+     * @return array di dati
+     */
+    byte[] downloadPieceOfContent(String url, long maxSize);
+
 }

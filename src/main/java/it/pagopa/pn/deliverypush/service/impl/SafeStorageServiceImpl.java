@@ -106,7 +106,24 @@ public class SafeStorageServiceImpl implements SafeStorageService {
                             .build()
                 );
     }
-    
+
+    @Override
+    public Mono<byte[]> downloadPieceOfContent(String fileKey, String url, long maxSize) {
+        MDC.put(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY, fileKey);
+        log.debug("Start call downloadPieceOfContent - fileKey={} url={} maxSize={}", fileKey, url, maxSize);
+
+        return Mono.fromSupplier(() ->  safeStorageClient.downloadPieceOfContent(url, maxSize))
+                .doOnSuccess( res -> {
+                    MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
+                    log.debug("downloadPieceOfContent file ok key={} url={} read size={}", fileKey, url, res);
+                })
+                .onErrorResume( err ->{
+                    log.error("Cannot download content ", err);
+                    MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
+                    return Mono.error(new PnInternalException("Cannot update metadata", ERROR_CODE_DELIVERYPUSH_READ_FILE_ERROR, err));
+                });
+    }
+
     private String computeSha256( byte[] content ) {
 
         try{

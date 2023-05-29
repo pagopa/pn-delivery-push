@@ -7,6 +7,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.util.unit.DataSize;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -87,6 +88,10 @@ public class PnDeliveryPushConfigs {
     private String addressManagerApiKey;
     
     private Duration[] validationRetryIntervals;
+
+    private DataSize checkPdfSize;
+
+    private boolean checkPdfValidEnabled;
     
     @Data
     public static class Topics {
