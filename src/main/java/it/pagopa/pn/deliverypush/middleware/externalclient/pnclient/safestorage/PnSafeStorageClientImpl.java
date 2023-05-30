@@ -30,7 +30,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.URI;
+import java.net.URL;
 
 @Component
 @CustomLog
@@ -134,6 +137,33 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
         {
             log.error("uploadContent Exception uploading file", ee);
             throw new PnInternalException("Exception uploading file", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPLOADFILEERROR, ee);
+        }
+    }
+
+    /**
+     * Scarica una parte (o tutto) il contenuto di un file
+     * E' obbligatorio passare la dimensione richiesta, per rendere evidente che il metodo può essere usato per scaricare solo una parte di file
+     *
+     * @param url da scaricare
+     * @param maxSize dimensione massima richiesta, -1 per scaricare tutto il file
+     * @return array di dati
+     */
+    public byte[] downloadPieceOfContent(String url, long maxSize) {
+        long readSize = 0;
+        try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+             ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
+            byte[] dataBuffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                fileOutputStream.write(dataBuffer, 0, bytesRead);
+                readSize += bytesRead;
+                if (maxSize > 0 && readSize > maxSize)
+                    break;
+            }
+            return fileOutputStream.toByteArray();
+        } catch (Exception e) {
+            log.error("Cannot read file content", e);
+            throw new PnInternalException("cannot download content", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_READ_FILE_ERROR, e);
         }
     }
 
