@@ -98,5 +98,26 @@ class PnSafeStorageClientImplTestRestTemplateIT {
         safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, "sha");
         Assertions.assertDoesNotThrow(() -> safeStorageClient.uploadContent (fileCreationRequest, fileCreationResponse,"sha"));
     }
-    
+
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void downloadPieceOfContent() {
+        //Given
+        String fileKey = "abcd";
+        String sha256 = "base64Sha256";
+        String path = "/fileuploadid123123123";
+        String fileUrl = "http://localhost:9998" + path;
+
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path))
+                .respond(response()
+                        .withStatusCode(200));
+
+
+        Assertions.assertDoesNotThrow(() -> safeStorageClient.downloadPieceOfContent (fileUrl,128));
+    }
 }

@@ -13,4 +13,6 @@ public interface SafeStorageService {
     Mono<FileCreationResponseInt> createAndUploadContent(FileCreationWithContentRequest fileCreationRequest);
 
     Mono<UpdateFileMetadataResponseInt> updateFileMetadata(String fileKey, UpdateFileMetadataRequest updateFileMetadataRequest);
+
+    Mono<byte[]> downloadPieceOfContent(String fileKey, String url, long maxSize);
 }

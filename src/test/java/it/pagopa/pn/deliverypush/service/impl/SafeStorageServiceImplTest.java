@@ -104,4 +104,25 @@ class SafeStorageServiceImplTest {
 
         Assertions.assertThrows( PnInternalException.class, mono::block);
     }
+
+
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void downloadPieceOfContent() {
+        //GIVEN
+
+
+        Mockito.when(safeStorageClient.downloadPieceOfContent(Mockito.anyString(), Mockito.anyLong()))
+                .thenReturn(new byte[0]);
+
+        //WHEN
+        Mono<byte[]> responseMono = safeStorageService.downloadPieceOfContent("test", "https://someurl", 128);
+
+        //THEN
+        Assertions.assertNotNull(responseMono);
+        byte[] response = responseMono.block();
+        Assertions.assertNotNull(response);
+
+    }
 }

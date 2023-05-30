@@ -3,19 +3,19 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
-import it.pagopa.pn.deliverypush.exceptions.PnFileNotFoundException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
+import it.pagopa.pn.deliverypush.exceptions.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.unit.DataSize;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -32,9 +32,11 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class AttachmentUtils {
     private static final String VALIDATE_ATTACHMENT_PROCESS = "Validate attachment";
     private final SafeStorageService safeStorageService;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public AttachmentUtils(SafeStorageService safeStorageService) {
+    public AttachmentUtils(SafeStorageService safeStorageService, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.safeStorageService = safeStorageService;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
@@ -87,7 +89,7 @@ public class AttachmentUtils {
         NotificationDocumentInt.Ref ref = attachment.getRef();
 
         FileDownloadResponseInt fd = MDCUtils.addMDCToContextAndExecute(
-                safeStorageService.getFile(ref.getKey(),true)
+                safeStorageService.getFile(ref.getKey(),false)
                         .onErrorResume(PnFileNotFoundException.class, this::handleNotFoundError)
         ).block();
 
@@ -101,6 +103,31 @@ public class AttachmentUtils {
                 
                 throw new PnValidationNotMatchingShaException(errorDetail);
             }
+
+            // check della size, con -1 si intende disabilitata
+            if ( !pnDeliveryPushConfigs.getCheckPdfSize().isNegative() && pnDeliveryPushConfigs.getCheckPdfSize().toBytes() < fd.getContentLength().longValue() ) {
+                final String errorDetail = "Validation failed, file too big, max expected=" +  pnDeliveryPushConfigs.getCheckPdfSize()
+                        + "  actual=" + DataSize.ofBytes(fd.getContentLength().longValue());
+                log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, errorDetail);
+
+                throw new PnValidationPDFTooBigValidException(errorDetail);
+            }
+
+            // check del contenuto del documento, che sia un PDF
+            if (pnDeliveryPushConfigs.isCheckPdfValidEnabled()) {
+                // scarico una porzione di pdf (per fare il check per ora, mi interessa controllare che inizi per %PDF-)
+                byte[] pieceOfPdf = this.safeStorageService.downloadPieceOfContent(fd.getKey(), fd.getDownload().getUrl(), 1024).block();
+
+                if ( !checkIsPDF(pieceOfPdf) )
+                {
+                    final String errorDetail = "Validation failed, file pdf check failed";
+                    log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, errorDetail);
+
+                    throw new PnValidationPDFNotValidException(errorDetail);
+                }
+            }
+
+
         } else {
             final String errorDetail = "Validation failed, different sha256 expected=" + attachment.getDigests().getSha256()
                     + " actual=" + null;
@@ -109,6 +136,7 @@ public class AttachmentUtils {
             throw new PnValidationNotMatchingShaException(errorDetail);
         }
     }
+
 
     @NotNull
     private Mono<FileDownloadResponseInt> handleNotFoundError(PnFileNotFoundException ex) {
@@ -175,5 +203,18 @@ public class AttachmentUtils {
 
     public List<String> getNotificationAttachments(NotificationInt notification, NotificationRecipientInt recipient) {
         return getAllAttachmentByRecipient(notification, recipient).stream().map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey())).toList();
+    }
+
+    private boolean checkIsPDF(byte[] data)
+    {
+        if (data == null || data.length < 4)
+            return false;
+
+        // check header
+        return data[0] == 0x25 && // %
+                data[1] == 0x50 && // P
+                data[2] == 0x44 && // D
+                data[3] == 0x46 && // F
+                data[4] == 0x2D;   // -
     }
 }

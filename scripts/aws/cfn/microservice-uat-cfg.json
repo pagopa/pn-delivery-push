@@ -22,6 +22,8 @@
     "SendNotificationAttachments": "analog-notification",
     "SafeStorageFileNotFoundRetry": "false",
     "LandingUrl": "https://www.svil.pn.pagopa.it",
+    "MaxPdfAllowedSize": "200MB",
+    "EnableCheckPdfContent": "true",
     "IsLollipopActive": "false"
   }
 }

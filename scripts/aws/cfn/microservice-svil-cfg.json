@@ -23,6 +23,8 @@
     "SafeStorageFileNotFoundRetry": "true",
     "LandingUrl": "https://www.svil.pn.pagopa.it",
     "AddressManagerBaseUrl": "http://alb.confidential.pn.internal:8080",
+    "MaxPdfAllowedSize": "200MB",
+    "EnableCheckPdfContent": "true",
     "IsLollipopActive": "false"
   }
 }

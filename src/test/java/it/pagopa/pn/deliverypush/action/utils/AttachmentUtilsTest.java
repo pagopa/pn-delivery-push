@@ -2,7 +2,8 @@ package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -21,9 +22,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.unit.DataSize;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
@@ -39,10 +42,13 @@ class AttachmentUtilsTest {
 
     private NotificationUtils notificationUtils;
 
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+
     @BeforeEach
     public void setup() {
         safeStorageService = Mockito.mock(SafeStorageService.class);
-        attachmentUtils = new AttachmentUtils(safeStorageService);
+        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        attachmentUtils = new AttachmentUtils(safeStorageService, pnDeliveryPushConfigs);
         notificationUtils = Mockito.mock(NotificationUtils.class);
     }
 
@@ -65,9 +71,11 @@ class AttachmentUtilsTest {
         resp3.setChecksum( "a2V5UGFnb1BhRm9ybQ==" );
 
         //Mockito.doNothing().when(validator).checkPreloadedDigests(Mockito.anyString(), Mockito.any( NotificationDocumentInt.Digests.class), Mockito.any( NotificationDocumentInt.Digests.class));
-        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", true)).thenReturn(Mono.just(resp1));
-        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", true)).thenReturn(Mono.just(resp2));
-        Mockito.when(safeStorageService.getFile( "keyPagoPaForm", true)).thenReturn(Mono.just(resp3));
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", false)).thenReturn(Mono.just(resp1));
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", false)).thenReturn(Mono.just(resp2));
+        Mockito.when(safeStorageService.getFile( "keyPagoPaForm", false)).thenReturn(Mono.just(resp3));
+        Mockito.when(pnDeliveryPushConfigs.getCheckPdfSize()).thenReturn(DataSize.ofBytes(-1));
+
 
         //WHEN
         attachmentUtils.validateAttachment(notification);
@@ -107,6 +115,96 @@ class AttachmentUtilsTest {
         //THEN
         assertThrows(PnNotFoundException.class, () -> attachmentUtils.validateAttachment(notification));
     }
+
+
+    @Test
+    void validateAttachmentFailTooBig() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        FileDownloadResponseInt resp = new FileDownloadResponseInt();
+        resp.setKey("abcd");
+        resp.setChecksum( "c2hhMjU2X2RvYzAw" );
+        resp.setContentLength(BigDecimal.valueOf(100000));
+
+        Mockito.when(pnDeliveryPushConfigs.getCheckPdfSize()).thenReturn(DataSize.ofBytes(100));
+        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(Mono.just(resp));
+
+        //THEN
+        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
+    }
+
+
+    @Test
+    void validateAttachmentFailBadFile() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        FileDownloadResponseInt resp = new FileDownloadResponseInt();
+        resp.setKey("abcd");
+        resp.setChecksum( "c2hhMjU2X2RvYzAw" );
+        resp.setContentLength(BigDecimal.valueOf(99));
+        resp.setDownload(FileDownloadInfoInt.builder()
+                .url("https://fileurl")
+                .build());
+
+
+        Mockito.when(pnDeliveryPushConfigs.getCheckPdfSize()).thenReturn(DataSize.ofBytes(100));
+        Mockito.when(pnDeliveryPushConfigs.isCheckPdfValidEnabled()).thenReturn(true);
+        Mockito.when(safeStorageService.getFile(Mockito.any(), Mockito.anyBoolean())).thenReturn(Mono.just(resp));
+        Mockito.when(safeStorageService.downloadPieceOfContent(Mockito.anyString(), Mockito.anyString(), Mockito.anyLong())).thenReturn(downloadPieceOfContent(false));
+
+        //THEN
+        assertThrows(PnValidationException.class, () -> attachmentUtils.validateAttachment(notification));
+    }
+
+    @Test
+    void validateAttachmentOkFile() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        FileDownloadResponseInt resp = new FileDownloadResponseInt();
+        resp.setKey("abcd");
+        resp.setChecksum( "c2hhMjU2X2RvYzAw" );
+        resp.setContentLength(BigDecimal.valueOf(99));
+        resp.setDownload(FileDownloadInfoInt.builder()
+                .url("https://fileurl")
+                .build());
+
+        FileDownloadResponseInt resp2 = new FileDownloadResponseInt();
+        resp2.setKey("abcd");
+        resp2.setChecksum( "c2hhMjU2X2RvYzAx" );
+        resp2.setContentLength(BigDecimal.valueOf(99));
+        resp2.setDownload(FileDownloadInfoInt.builder()
+                .url("https://fileurl")
+                .build());
+
+        FileDownloadResponseInt resp3 = new FileDownloadResponseInt();
+        resp3.setKey("keyPagoPaForm");
+        resp3.setChecksum( "a2V5UGFnb1BhRm9ybQ==" );
+        resp3.setContentLength(BigDecimal.valueOf(99));
+        resp3.setDownload(FileDownloadInfoInt.builder()
+                .url("https://fileurl")
+                .build());
+
+        Mockito.when(pnDeliveryPushConfigs.getCheckPdfSize()).thenReturn(DataSize.ofBytes(100));
+        Mockito.when(pnDeliveryPushConfigs.isCheckPdfValidEnabled()).thenReturn(true);
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", false)).thenReturn(Mono.just(resp));
+        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", false)).thenReturn(Mono.just(resp2));
+        Mockito.when(safeStorageService.getFile( "keyPagoPaForm", false)).thenReturn(Mono.just(resp3));
+        Mockito.when(safeStorageService.downloadPieceOfContent(Mockito.anyString(), Mockito.anyString(), Mockito.anyLong())).thenReturn(downloadPieceOfContent(true));
+
+        //THEN
+        attachmentUtils.validateAttachment(notification);
+
+
+        //THEN
+        Mockito.verify(safeStorageService, Mockito.times(2)).getFile(Mockito.any(), Mockito.anyBoolean());
+    }
+
     
     @Test
     void changeAttachmentsStatusToAttached() {
@@ -336,5 +434,22 @@ class AttachmentUtilsTest {
                 .build();
 
         return notification;
+    }
+
+    public Mono<byte[]> downloadPieceOfContent(boolean isPdf) {
+        byte[] res = new byte[8];
+        res[0] = 0x25;
+        res[1] = 0x50;
+        res[2] = 0x44;
+        res[3] = 0x46;
+        res[4] = 0x2D;
+        res[5] = 0x2D;
+        res[6] = 0x2D;
+        res[7] = 0x2D;
+
+        if (!isPdf)
+            res[1] = 0x2D;
+
+        return Mono.just(res);
     }
 }

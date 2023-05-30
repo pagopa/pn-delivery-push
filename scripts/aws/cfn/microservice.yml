@@ -235,7 +235,15 @@ Parameters:
   SandboxSafeStorageBaseUrl:
     Type: String
     Description: 'Safe storage base url'
-  
+
+  MaxPdfAllowedSize:
+    Type: String
+    Description: 'Max pdf allowed size, -1 for disable check'
+
+  EnableCheckPdfContent:
+    Type: String
+    Description: 'Enable pdf content check'
+
   Version:
     Type: String
     Description: 'Keep track of used projects commitIds'
@@ -546,7 +554,9 @@ Resources:
         ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
         ContainerEnvEntry52: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
         ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
-        ContainerEnvEntry54: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
+        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
+        ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
+        ContainerEnvEntry56: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
