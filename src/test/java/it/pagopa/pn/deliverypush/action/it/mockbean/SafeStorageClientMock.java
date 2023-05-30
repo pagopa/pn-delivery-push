@@ -49,13 +49,23 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
         FileCreationWithContentRequest fileCreationWithContentRequest = savedFileMap.get(fileKey);
         
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType(fileCreationWithContentRequest.getContentType());
+        fileDownloadResponse.setContentType(fileCreationWithContentRequest.getContentType().replace(TestUtils.TOO_BIG, ""));
         fileDownloadResponse.setContentLength(new BigDecimal(0));
+        if (fileCreationWithContentRequest.getContentType().contains(TestUtils.TOO_BIG)) {
+            fileDownloadResponse.setContentType(fileCreationWithContentRequest.getContentType().replace(TestUtils.TOO_BIG, ""));
+            fileDownloadResponse.setContentLength(new BigDecimal(Long.MAX_VALUE));
+        }
         fileDownloadResponse.setChecksum(Base64Utils.encodeToString( fileCreationWithContentRequest.getContent() ));
         fileDownloadResponse.setKey(fileKey);
 
         FileDownloadInfo downloadInfo = new FileDownloadInfo();
         downloadInfo.setUrl("https://www.url.qualcosa.it");
+
+        if (fileCreationWithContentRequest.getContentType().contains(TestUtils.NOT_A_PDF)) {
+            fileDownloadResponse.setContentType(fileCreationWithContentRequest.getContentType().replace(TestUtils.NOT_A_PDF, ""));
+            downloadInfo.setUrl("https://www.url.qualcosa.it/" + TestUtils.NOT_A_PDF);
+        }
+
         downloadInfo.setRetryAfter(new BigDecimal(0));
         fileDownloadResponse.setDownload(downloadInfo);
         
@@ -126,15 +136,32 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
 
     @Override
     public byte[] downloadPieceOfContent(String url, long maxSize) {
+
         byte[] res = new byte[8];
-        res[0] = 0x25;
-        res[1] = 0x50;
-        res[2] = 0x44;
-        res[3] = 0x46;
-        res[4] = 0x2D;
-        res[5] = 0x2D;
-        res[6] = 0x2D;
-        res[7] = 0x2D;
+        if (url.contains(TestUtils.NOT_A_PDF))
+        {
+            res[0] = 0x2D;
+            res[1] = 0x2D;
+            res[2] = 0x2D;
+            res[3] = 0x2D;
+            res[4] = 0x2D;
+            res[5] = 0x2D;
+            res[6] = 0x2D;
+            res[7] = 0x2D;
+        }
+        else
+        {
+            // sequenza %PDF-
+            res[0] = 0x25;
+            res[1] = 0x50;
+            res[2] = 0x44;
+            res[3] = 0x46;
+            res[4] = 0x2D;
+            res[5] = 0x2D;
+            res[6] = 0x2D;
+            res[7] = 0x2D;
+        }
+
 
         return res;
     }
