@@ -89,7 +89,7 @@ public class AttachmentUtils {
         NotificationDocumentInt.Ref ref = attachment.getRef();
 
         FileDownloadResponseInt fd = MDCUtils.addMDCToContextAndExecute(
-                safeStorageService.getFile(ref.getKey(),true)
+                safeStorageService.getFile(ref.getKey(),false)
                         .onErrorResume(PnFileNotFoundException.class, this::handleNotFoundError)
         ).block();
 
