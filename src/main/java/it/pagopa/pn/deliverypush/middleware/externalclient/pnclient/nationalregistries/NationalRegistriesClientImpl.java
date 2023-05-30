@@ -10,7 +10,7 @@ import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
@@ -29,15 +29,15 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
         AddressRequestBodyFilter addressRequestBodyFilter = new AddressRequestBodyFilter()
                 .taxId(taxId)
                 .correlationId(correlationId)
-                .referenceRequestDate(LocalDate.now().toString()) //YYYY-MM-DD
+                .referenceRequestDate(Instant.now())
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
-
+        
         MDCUtils.addMDCToContextAndExecute(
                 addressApi.getAddresses(recipientType, new AddressRequestBody().filter(addressRequestBodyFilter), PN_NATIONAL_REGISTRIES_CX_ID_VALUE)
                         .doOnError(throwable -> log.error(String.format("Error calling getAddresses with taxId: %s, correlationId: %s", LogUtils.maskTaxId(taxId), correlationId), throwable))
         ).block();
-        
-    } 
+
+    }
 
     @Override
     public CheckTaxIdOK checkTaxId(String taxId) {
