@@ -102,7 +102,7 @@ class ExternalChannelUtilsTest {
         int recIndex = 0;
         String aarKey = channelUtils.getAarKey(testIun, recIndex);
 
-        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl().replace(SAFE_STORAGE_URL_PREFIX, ""), aarKey);
+        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl(), aarKey);
     }
 
     @Test
