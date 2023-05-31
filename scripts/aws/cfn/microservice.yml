@@ -470,6 +470,10 @@ Parameters:
     Type: String
     Description: 'SEND landing URL'
 
+  LogAlarmStrategy:
+    Type: String
+    Default: 'FATAL'
+    
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -570,6 +574,7 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
         AlbSecurityGroup: !Ref AlbSecurityGroup
         EcsLogGroup: !Ref EcsLogGroup
+        LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
   # Grant operational rights to PN-Delivery-push microservice microservice
   DeliveryPushMicroserviceTaskManagedPolicy:
