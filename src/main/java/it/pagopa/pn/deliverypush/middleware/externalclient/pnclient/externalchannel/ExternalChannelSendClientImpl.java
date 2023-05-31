@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.mode
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalCourtesySmsRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalNotificationRequest;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -98,7 +99,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
             digitalNotificationRequestDto.setMessageText(mailBody);
             digitalNotificationRequestDto.setSubjectText(mailSubj);
-            digitalNotificationRequestDto.setAttachmentUrls(List.of(aarKey));
+            digitalNotificationRequestDto.setAttachmentUrls(List.of(FileUtils.getKeyWithStoragePrefix(aarKey)));
 
             if (StringUtils.hasText(cfg.getExternalchannelSenderPec()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderPec());
@@ -138,7 +139,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setMessageContentType(DigitalCourtesyMailRequest.MessageContentTypeEnum.HTML);
             digitalNotificationRequestDto.setMessageText(mailbody);
             digitalNotificationRequestDto.setSubjectText(mailsubj);
-            digitalNotificationRequestDto.setAttachmentUrls(List.of(aarKey));
+            digitalNotificationRequestDto.setAttachmentUrls(List.of(FileUtils.getKeyWithStoragePrefix(aarKey)));
             if (StringUtils.hasText(cfg.getExternalchannelSenderEmail()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderEmail());
 

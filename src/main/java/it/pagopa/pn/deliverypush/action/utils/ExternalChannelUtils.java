@@ -70,10 +70,12 @@ public class ExternalChannelUtils {
 
         if (aarDetailsOpt.isPresent()) {
             String fileKey = aarDetailsOpt.get().getGeneratedAarUrl();
+            /*
+            #ECP
             if(fileKey != null){
                 // elimino eventuale prefisso di safestorage
                 fileKey = fileKey.replace(SAFE_STORAGE_URL_PREFIX, "");
-            }
+            }*/
             return fileKey;
         } else {
             log.error("There isn't AAR timeline element - iun {} eventId {}", iun, eventId);
