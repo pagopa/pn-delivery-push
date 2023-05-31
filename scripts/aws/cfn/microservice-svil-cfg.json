@@ -24,6 +24,7 @@
     "LandingUrl": "https://www.svil.pn.pagopa.it",
     "AddressManagerBaseUrl": "http://alb.confidential.pn.internal:8080",
     "MaxPdfAllowedSize": "200MB",
-    "EnableCheckPdfContent": "true"
+    "EnableCheckPdfContent": "true",
+    "IsLollipopActive": "false"
   }
 }

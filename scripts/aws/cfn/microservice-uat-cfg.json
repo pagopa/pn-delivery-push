@@ -23,6 +23,7 @@
     "SafeStorageFileNotFoundRetry": "false",
     "LandingUrl": "https://www.svil.pn.pagopa.it",
     "MaxPdfAllowedSize": "200MB",
-    "EnableCheckPdfContent": "true"
+    "EnableCheckPdfContent": "true",
+    "IsLollipopActive": "false"
   }
 }

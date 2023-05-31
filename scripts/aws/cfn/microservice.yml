@@ -279,6 +279,12 @@ Parameters:
     Description: 'default value to return if paTaxId not present in parameter store'
     AllowedValues: [ true, false ]
 
+  IsLollipopActive:
+    Type: String
+    Description: 'lollipop authorization activation flag'
+    AllowedValues: [ true, false ]
+    Default: "false"
+
   RetentionAttachmentDaysAfterRefinement:
     Type: String
     Description: 'Number of days after which an attachment can be deleted from the effective date (viewing or expiration of time)'
@@ -550,6 +556,7 @@ Resources:
         ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
         ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
         ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
+        ContainerEnvEntry56: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
