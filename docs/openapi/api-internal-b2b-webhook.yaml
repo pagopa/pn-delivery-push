@@ -617,11 +617,11 @@ components:
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxTypeAuthFleet:                                                                                                                                            # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'  # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'  # NO EXTERNAL
     cxIdAuthFleet:                                                                                                                                              # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'    # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'    # NO EXTERNAL
     uidAuthFleet:                                                                                                                                               # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/c9c82e5d702ad98f61c456c591ce57c9571ce2fd/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'     # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'     # NO EXTERNAL
 
 
     ############################################################################################
