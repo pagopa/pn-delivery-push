@@ -474,6 +474,9 @@ Parameters:
     Type: String
     Default: 'FATAL'
     
+  QueueMetricsAutoscalingAlarmWeight:
+    Type: Number
+    Default: 1
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -492,7 +495,7 @@ Resources:
         HealthCheckInterval: !Ref HealthCheckInterval
         HealthyThresholdCount: !Ref HealthyThresholdCount
         UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
-        AutoscalingStrategy: REST-API
+        AutoscalingStrategy: CUSTOM
         AutoscalingThreshold: !Ref AutoscalingThreshold
         AutoscalingCheckPeriod: !Ref AutoscalingCheckPeriod
         MinTasksNumber: !Ref MinTasksNumber
@@ -805,3 +808,110 @@ Resources:
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
+
+  #### Alarm for custom metric Autoscaling
+  AlarmCustomAutoscaling:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "${ProjectName}-delivery-push-autoscaling-custom"
+      AlarmDescription: "Trigger scaling based on custom metric"
+      DatapointsToAlarm: !Ref AutoscalingDataPointN
+      ComparisonOperator: "GreaterThanThreshold"
+      Metrics:
+        - Id: m1
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "AddressManagerToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m2
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "DeliveryPushInputsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m3
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "ExternalChannelsOutputsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False          
+        - Id: m4
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "NationalRegistries2DeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False          
+        - Id: m5
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "SafeStorageToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False                    
+        - Id: m6
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "ScheduledActionsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False       
+        - Id: m7
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: TargetGroup
+                  Value: !GetAtt DeliveryPushMicroservice.Outputs.TargetGroupName
+              Namespace: "AWS/ApplicationELB"
+              MetricName: "RequestCountPerTarget"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Sum
+          ReturnData: False                                        
+        - Id: m8
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: TargetGroup
+                  Value: !GetAtt DeliveryPushMicroservice.Outputs.TargetGroupName
+              Namespace: "AWS/ApplicationELB"
+              MetricName: "HealthyHostCount"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False             
+        - Id: e1
+          Expression: !Sub m7+${QueueMetricsAutoscalingAlarmWeight}*(m1+m2+m3+m4+m5+m6)/m8
+          Label: !Sub "${ProjectName}-delivery-push-autoscale-custom-metric"
+      EvaluationPeriods: !Ref AutoscalingDataPointM
+      Threshold: !Ref AutoscalingThreshold
+      AlarmActions:
+        - !GetAtt DeliveryPushMicroservice.Outputs.ScaleUpPolicy
+      OKActions:
+        - !GetAtt DeliveryPushMicroservice.Outputs.ScaleDownPolicy
