@@ -818,7 +818,7 @@ Resources:
       AlarmName: !Sub "${ProjectName}-delivery-push-autoscaling-custom"
       AlarmDescription: "Trigger scaling based on custom metric"
       DatapointsToAlarm: !Ref AutoscalingDataPointN
-      ComparisonOperator: "GreaterThanThreshold"
+      ComparisonOperator: "GreaterThanOrEqualToThreshold"
       Metrics:
         - Id: m1
           MetricStat:
@@ -909,10 +909,10 @@ Resources:
             Stat: Average
           ReturnData: False             
         - Id: e1
-          Expression: !Sub m7+${QueueMetricsAutoscalingAlarmWeight}*(m1+m2+m3+m4+m5+m6)/m8
+          Expression: !Sub "IF(m8==0 || (m7+${QueueMetricsAutoscalingAlarmWeight}*(m1+m2+m3+m4+m5+m6)/m8)>${AutoscalingThreshold}, 1, 0)"
           Label: !Sub "${ProjectName}-delivery-push-autoscale-custom-metric"
       EvaluationPeriods: !Ref AutoscalingDataPointM
-      Threshold: !Ref AutoscalingThreshold
+      Threshold: 1 # the threshold has been moved into the e1 formula
       AlarmActions:
         - !GetAtt DeliveryPushMicroservice.Outputs.ScaleUpPolicy
       OKActions:
