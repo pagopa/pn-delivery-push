@@ -476,7 +476,9 @@ Parameters:
     
   QueueMetricsAutoscalingAlarmWeight:
     Type: Number
-    Default: 1
+    Default: 0
+    Description: Weight to assign to queue number of visible messages metric
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
