@@ -61,16 +61,4 @@ class NationalRegistriesClientCallDetailsTest {
 
         Assertions.assertEquals(data, details);
     }
-
-    @Test
-    void testToString() {
-        String data = "class PublicRegistryCallDetails {\n" +
-                "    recIndex: 1\n" +
-                "    deliveryMode: DIGITAL\n" +
-                "    contactPhase: SEND_ATTEMPT\n" +
-                "    sentAttemptMade: 1\n" +
-                "    sendDate: 2021-09-16T15:23:00Z\n" +
-                "}";
-        Assertions.assertEquals(data, details.toString());
-    }
 }

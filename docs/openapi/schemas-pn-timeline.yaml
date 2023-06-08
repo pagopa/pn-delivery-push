@@ -1054,12 +1054,14 @@ components:
         internalId:
           type: string
         taxId:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           type: string
         operatorUuid:
           type: string
         mandateId:
           type: string
         denomination:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           type: string
         delegateType:
           $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
@@ -1102,5 +1104,9 @@ components:
               - FILE_SHA_ERROR
               - TAXID_NOT_VALID
               - SERVICE_UNAVAILABLE
+              - FILE_PDF_INVALID_ERROR
+              - FILE_PDF_TOOBIG_ERROR
+              - NOT_VALID_ADDRESS
+              - RECIPIENT_ID_NOT_VALID
         detail:
           type: string

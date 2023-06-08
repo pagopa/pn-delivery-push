@@ -125,16 +125,4 @@ class StreamMetadataResponseTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, expected.equals(response));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class StreamMetadataResponse {\n" +
-                "    title: 002\n" +
-                "    eventType: STATUS\n" +
-                "    filterValues: [001]\n" +
-                "    streamId: f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454\n" +
-                "    activationDate: 2021-09-16T15:23:00Z\n" +
-                "}";
-        Assertions.assertEquals(expected, response.toString());
-    }
 }

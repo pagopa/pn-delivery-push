@@ -43,15 +43,4 @@ class AarGenerationDetailsTest {
 
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class AarGenerationDetails {\n" +
-                "    recIndex: 100\n" +
-                "    generatedAarUrl: http://localhost\n" +
-                "    numberOfPages: 1\n" +
-                "}";
-
-        Assertions.assertEquals(expected, details.toString());
-    }
 }

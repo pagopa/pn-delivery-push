@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.ActionEntity;
 import lombok.extern.slf4j.Slf4j;

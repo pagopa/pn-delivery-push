@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -75,7 +75,7 @@ public class StatusServiceImpl implements StatusService {
 
     private RequestUpdateStatusDto getRequestUpdateStatusDto(String iun, NotificationStatusInt nextState, Instant timeStamp) {
         return new RequestUpdateStatusDto()
-                .nextStatus(it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationStatus.valueOf(nextState.name()))
+                .nextStatus(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationStatus.valueOf(nextState.name()))
                 .iun(iun)
                 .timestamp(timeStamp);
     }

@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.*;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
@@ -20,7 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.awaitility.Awaitility.await;
@@ -47,13 +49,23 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
         FileCreationWithContentRequest fileCreationWithContentRequest = savedFileMap.get(fileKey);
         
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setContentType(fileCreationWithContentRequest.getContentType());
+        fileDownloadResponse.setContentType(fileCreationWithContentRequest.getContentType().replace(TestUtils.TOO_BIG, ""));
         fileDownloadResponse.setContentLength(new BigDecimal(0));
+        if (fileCreationWithContentRequest.getContentType().contains(TestUtils.TOO_BIG)) {
+            fileDownloadResponse.setContentType(fileCreationWithContentRequest.getContentType().replace(TestUtils.TOO_BIG, ""));
+            fileDownloadResponse.setContentLength(new BigDecimal(Long.MAX_VALUE));
+        }
         fileDownloadResponse.setChecksum(Base64Utils.encodeToString( fileCreationWithContentRequest.getContent() ));
         fileDownloadResponse.setKey(fileKey);
 
         FileDownloadInfo downloadInfo = new FileDownloadInfo();
         downloadInfo.setUrl("https://www.url.qualcosa.it");
+
+        if (fileCreationWithContentRequest.getContentType().contains(TestUtils.NOT_A_PDF)) {
+            fileDownloadResponse.setContentType(fileCreationWithContentRequest.getContentType().replace(TestUtils.NOT_A_PDF, ""));
+            downloadInfo.setUrl("https://www.url.qualcosa.it/" + TestUtils.NOT_A_PDF);
+        }
+
         downloadInfo.setRetryAfter(new BigDecimal(0));
         fileDownloadResponse.setDownload(downloadInfo);
         
@@ -120,6 +132,38 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
     public void uploadContent(FileCreationWithContentRequest fileCreationRequest, FileCreationResponse fileCreationResponse, String sha256) {
         log.info("[TEST] Upload content Mock - key={} uploadUrl={}", fileCreationResponse.getKey(), fileCreationResponse.getUploadUrl());
 
+    }
+
+    @Override
+    public byte[] downloadPieceOfContent(String url, long maxSize) {
+
+        byte[] res = new byte[8];
+        if (url.contains(TestUtils.NOT_A_PDF))
+        {
+            res[0] = 0x2D;
+            res[1] = 0x2D;
+            res[2] = 0x2D;
+            res[3] = 0x2D;
+            res[4] = 0x2D;
+            res[5] = 0x2D;
+            res[6] = 0x2D;
+            res[7] = 0x2D;
+        }
+        else
+        {
+            // sequenza %PDF-
+            res[0] = 0x25;
+            res[1] = 0x50;
+            res[2] = 0x44;
+            res[3] = 0x46;
+            res[4] = 0x2D;
+            res[5] = 0x2D;
+            res[6] = 0x2D;
+            res[7] = 0x2D;
+        }
+
+
+        return res;
     }
 
     public void writeFile(String fileKey, LegalFactCategoryInt legalFactCategory, String testName){

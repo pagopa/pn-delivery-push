@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.dto.address.SendInformation;
@@ -16,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -66,6 +67,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             //Nota qui dovrebbe essere sempre un caso di sendDigital o digitalProgress
             if (timelineElement.getDetails() instanceof DigitalSendTimelineElementDetails sendDigitalDetailsInt)
             {
+                HandleEventUtils.addRecIndexToMdc(sendDigitalDetailsInt.getRecIndex());
+                
                 digitalResultInfos.setRecIndex(sendDigitalDetailsInt.getRecIndex());
                 digitalResultInfos.setRetryNumber(sendDigitalDetailsInt.getRetryNumber());
                 digitalResultInfos.setDigitalAddressInt(sendDigitalDetailsInt.getDigitalAddress());

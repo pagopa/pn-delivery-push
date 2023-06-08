@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
@@ -31,7 +31,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactiveImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
@@ -112,7 +111,7 @@ import static org.awaitility.Awaitility.await;
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
         MVPParameterConsumer.class,
-        PnDeliveryClientReactiveImpl.class,
+        PnDeliveryClientReactiveMock.class,
         PnDataVaultClientReactiveMock.class,
         DocumentCreationRequestServiceImpl.class,
         DocumentCreationRequestDaoMock.class,
@@ -398,6 +397,122 @@ class ValidationTestIT {
 
         pnDeliveryClientMock.addNotification(notification);
         
+        String iun = notification.getIun();
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        //WHEN the workflow start
+        startWorkflowHandler.startWorkflow(iun);
+
+        //THEN
+        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+                //Check worfklow is failed
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REQUEST_REFUSED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .build())).isPresent()
+                )
+        );
+
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(NotificationRecipientInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString()
+        );
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
+
+        ConsoleAppenderCustom.checkLogs();
+    }
+
+
+
+    @Test
+    void fileTooBig() {
+        // GIVEN
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01")
+                .withPhysicalAddress(PhysicalAddressBuilder.builder()
+                        .withAddress("Via Nuova_" + AddressManagerClientMock.ADDRESS_MANAGER_TO_NORMALIZE)
+                        .build())
+                .build();
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        TestUtils.firstFileUploadFromNotificationTooBig(listDocumentWithContent, safeStorageClientMock);
+
+        pnDeliveryClientMock.addNotification(notification);
+
+        String iun = notification.getIun();
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        //WHEN the workflow start
+        startWorkflowHandler.startWorkflow(iun);
+
+        //THEN
+        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+                //Check worfklow is failed
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REQUEST_REFUSED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .build())).isPresent()
+                )
+        );
+
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(NotificationRecipientInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString()
+        );
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
+
+        ConsoleAppenderCustom.checkLogs();
+    }
+
+
+
+    @Test
+    void fileNotValidPDF() {
+        // GIVEN
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01")
+                .withPhysicalAddress(PhysicalAddressBuilder.builder()
+                        .withAddress("Via Nuova_" + AddressManagerClientMock.ADDRESS_MANAGER_TO_NORMALIZE)
+                        .build())
+                .build();
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        TestUtils.firstFileUploadFromNotificationNotAPDF(listDocumentWithContent, safeStorageClientMock);
+
+        pnDeliveryClientMock.addNotification(notification);
+
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 

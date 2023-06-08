@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhook
 
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.service.WebhookService;
@@ -38,18 +39,23 @@ public class WebhookActionsEventHandler {
 
     private void doHandlePurgeEvent(WebhookAction evt) {
         log.debug("[enter] doHandlePurgeEvent evt={}", evt);
-        webhookService
-            .purgeEvents(evt.getStreamId(), evt.getEventId(), evt.getType() == WebhookEventType.PURGE_STREAM_OLDER_THAN)
-                .block();
+
+        MDCUtils.addMDCToContextAndExecute(
+            webhookService
+                    .purgeEvents(evt.getStreamId(), evt.getEventId(), evt.getType() == WebhookEventType.PURGE_STREAM_OLDER_THAN)
+        ).block();
+        
         log.debug("[exit] doHandlePurgeEvent evt={}", evt);
     }
 
     private void doHandleRegisterEvent(WebhookAction evt) {
         log.debug("[enter] doHandleRegisterEvent evt={}", evt);
 
-        webhookService
-            .saveEvent(evt.getPaId(), evt.getTimelineId(), evt.getIun())
-                .block();
+        MDCUtils.addMDCToContextAndExecute(
+            webhookService
+                    .saveEvent(evt.getPaId(), evt.getTimelineId(), evt.getIun())
+        ).block();
+        
         log.debug("[exit] doHandleRegisterEvent evt={}", evt);
     }
 

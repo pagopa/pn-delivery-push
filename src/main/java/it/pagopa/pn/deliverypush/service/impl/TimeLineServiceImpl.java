@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -27,9 +28,11 @@ import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationStatusHistoryElementMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementMapper;
+import it.pagopa.pn.deliverypush.utils.MdcKey;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -53,6 +56,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
     @Override
     public void addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
+        MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.TIMELINE_KEY);
+        
         log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 
@@ -82,12 +87,16 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
                 logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
+                
+                MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
             } catch (Exception ex) {
+                MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
                 logEvent.generateFailure("Exception in addTimelineElement", ex).log();
                 throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED, ex);
             }
 
         } else {
+            MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
             logEvent.generateFailure("Try to update Timeline and Status for non existing iun={}", dto.getIun());
             throw new PnInternalException("Try to update Timeline and Status for non existing iun " + dto.getIun(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
         }

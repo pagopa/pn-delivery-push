@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.legalfacts;
 import com.amazonaws.util.IOUtils;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.utils.FileUtils;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -53,6 +53,7 @@ public class LegalFactGenerator {
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL = "piattaformaNotificheURL";
     public static final String FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL = "piattaformaNotificheURLLabel";
     public static final String FIELD_PN_FAQ_COMPLETION_MOMENT_URL = "PNFaqCompletionMomentURL";
+    public static final String FIELD_PN_FAQ_COMPLETION_MOMENT_URL_LABEL = "PNFaqCompletionMomentURLLabel";
     public static final String FIELD_SEND_URL = "PNFaqSendURL";
     public static final String FIELD_END_WORKFLOW_STATUS = "endWorkflowStatus";
     public static final String FIELD_END_WORKFLOW_DATE = "endWorkflowDate";
@@ -65,6 +66,7 @@ public class LegalFactGenerator {
     public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
 
     public static final String FIELD_SENDURL = "sendURL";
+    public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
     public static final String FIELD_LOGO = "logoBase64";
 
     private final DocumentComposition documentComposition;
@@ -353,9 +355,12 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(recipient) );
         templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel(recipient) );
         templateModel.put(FIELD_PN_FAQ_COMPLETION_MOMENT_URL, this.getFAQCompletionMomentAccessLink());
+        templateModel.put(FIELD_PN_FAQ_COMPLETION_MOMENT_URL_LABEL, this.getFAQCompletionMomentAccessLinkLabel());
         templateModel.put(FIELD_SEND_URL, this.getFAQSendURL());
         templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
+        templateModel.put(FIELD_SENDURL, this.getAccessLink());
+        templateModel.put(FIELD_SENDURL_LABEL, this.getAccessLinkLabel());
 
         String sb = this.getAccessUrlLabel(recipient) + "/perfezionamento";
         templateModel.put(FIELD_PERFEZIONAMENTO, sb);
@@ -389,12 +394,29 @@ public class LegalFactGenerator {
         return templateUrl + '=' + quickAccessToken;
     }
 
+    private String getAccessLink() {
+        return pnDeliveryPushConfigs.getWebapp().getLandingUrl();
+    }
+
+    private String getAccessLinkLabel() {
+        try {
+            return new URL(pnDeliveryPushConfigs.getWebapp().getLandingUrl()).getHost();
+        } catch (MalformedURLException e) {
+            log.warn("cannot get host", e);
+            return pnDeliveryPushConfigs.getWebapp().getLandingUrl();
+        }
+    }
+
     private String getFAQAccessLink() {
         return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + "/" + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
     }
 
     private String getFAQCompletionMomentAccessLink() {
         return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqCompletionMomentHash();
+    }
+
+    private String getFAQCompletionMomentAccessLinkLabel() {
+        return this.getAccessLinkLabel() + '#' + pnDeliveryPushConfigs.getWebapp().getFaqCompletionMomentHash();
     }
 
     private String getFAQSendURL() {

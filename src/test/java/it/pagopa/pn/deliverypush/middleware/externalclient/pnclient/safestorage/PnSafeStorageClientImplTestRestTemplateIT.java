@@ -1,8 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileDownloadApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileMetadataUpdateApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileUploadApi;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -17,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 
-import static org.mockito.Mockito.mock;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -43,13 +45,20 @@ class PnSafeStorageClientImplTestRestTemplateIT {
     @Mock
     private PnDeliveryPushConfigs cfg;
 
+    @Mock
+    private FileDownloadApi fileDownloadApi;
+    
+    @Mock
+    private FileUploadApi fileUploadApi;
+    
+    @Mock
+    private FileMetadataUpdateApi fileMetadataUpdateApi;
+    
     private PnSafeStorageClientImpl safeStorageClient;
-
+    
     @BeforeEach
     void setup() {
-        this.cfg = mock(PnDeliveryPushConfigs.class);
-        Mockito.when(cfg.getSafeStorageBaseUrl()).thenReturn("http://localhost:8080");
-        this.safeStorageClient = new PnSafeStorageClientImpl(cfg, restTemplate);
+        this.safeStorageClient = new PnSafeStorageClientImpl(cfg, restTemplate, fileUploadApi, fileDownloadApi, fileMetadataUpdateApi);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -89,5 +98,26 @@ class PnSafeStorageClientImplTestRestTemplateIT {
         safeStorageClient.uploadContent(fileCreationRequest, fileCreationResponse, "sha");
         Assertions.assertDoesNotThrow(() -> safeStorageClient.uploadContent (fileCreationRequest, fileCreationResponse,"sha"));
     }
-    
+
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void downloadPieceOfContent() {
+        //Given
+        String fileKey = "abcd";
+        String sha256 = "base64Sha256";
+        String path = "/fileuploadid123123123";
+        String fileUrl = "http://localhost:9998" + path;
+
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path))
+                .respond(response()
+                        .withStatusCode(200));
+
+
+        Assertions.assertDoesNotThrow(() -> safeStorageClient.downloadPieceOfContent (fileUrl,128));
+    }
 }

@@ -1,10 +1,14 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.api.EventsApi;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.api.StreamsApi;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ExternalEventsRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElement;
 import it.pagopa.pn.deliverypush.service.WebhookService;
+import it.pagopa.pn.deliverypush.utils.MdcKey;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,17 +30,22 @@ public class PnWebhookEventsController implements EventsApi {
     @Override
     public Mono<ResponseEntity<Flux<ProgressResponseElement>>> consumeEventStream(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, String lastEventId, ServerWebExchange exchange) {
         log.info("[enter] getEventStream xPagopaPnCxId={} uuid={} lastEventID={}", xPagopaPnCxId, streamId.toString(), lastEventId);
-        return webhookService.consumeEventStream(xPagopaPnCxId, streamId, lastEventId)
-                .map(r -> {
-                    HttpHeaders responseHeaders = new HttpHeaders();
-                    responseHeaders.set(HEADER_RETRY_AFTER,
-                            ""+r.getRetryAfter());
+        MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
 
-                    return ResponseEntity
-                            .ok()
-                            .headers(responseHeaders)
-                            .body(Flux.fromIterable(r.getProgressResponseElementList()));
-                });
+        return MDCUtils.addMDCToContextAndExecute(
+                webhookService.consumeEventStream(xPagopaPnCxId, streamId, lastEventId)
+                        .map(r -> {
+                            HttpHeaders responseHeaders = new HttpHeaders();
+                            responseHeaders.set(HEADER_RETRY_AFTER,
+                                    ""+r.getRetryAfter());
+
+                            return ResponseEntity
+                                    .ok()
+                                    .headers(responseHeaders)
+                                    .body(Flux.fromIterable(r.getProgressResponseElementList()));
+                        })
+        );
+
     }
 
     @Override

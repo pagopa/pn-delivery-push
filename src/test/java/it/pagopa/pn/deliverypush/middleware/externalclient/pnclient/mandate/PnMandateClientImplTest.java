@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate;
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.service.impl.MandateServiceImpl;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.InternalMandateDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class PnMandateClientImplTest {
         dto.setDelegate("001");
         listMandateDto.add(dto);
 
-        it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.CxTypeAuthFleet mandateCxType = it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.CxTypeAuthFleet.PF;
+        it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.CxTypeAuthFleet mandateCxType = it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.CxTypeAuthFleet.PF;
         Mockito.when(mandateClient.listMandatesByDelegate("001", "001", mandateCxType, null))
                 .thenReturn(listMandateDto);
 

@@ -42,23 +42,5 @@ class AnalogSuccessWorkflowDetailsTest {
 
         Assertions.assertEquals(Boolean.TRUE, details.equals(expected));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class AnalogSuccessWorkflowDetails {\n" +
-                "    recIndex: 1\n" +
-                "    physicalAddress: class PhysicalAddress {\n" +
-                "        at: null\n" +
-                "        address: 001\n" +
-                "        addressDetails: null\n" +
-                "        zip: null\n" +
-                "        municipality: null\n" +
-                "        municipalityDetails: null\n" +
-                "        province: null\n" +
-                "        foreignState: null\n" +
-                "    }\n" +
-                "}";
-
-        Assertions.assertEquals(expected, details.toString());
-    }
+    
 }

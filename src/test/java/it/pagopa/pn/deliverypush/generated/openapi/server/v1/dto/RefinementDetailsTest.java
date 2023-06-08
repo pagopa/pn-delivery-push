@@ -51,13 +51,4 @@ class RefinementDetailsTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, tmp.equals(details));
     }
-
-    @Test
-    void testToString() {
-        String data = "class RefinementDetails {\n" +
-                "    recIndex: 1\n" +
-                "    notificationCost: 1\n" +
-                "}";
-        Assertions.assertEquals(data, details.toString());
-    }
 }

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.FutureActionEntityDao;
@@ -28,7 +28,6 @@ import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledExcepti
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j

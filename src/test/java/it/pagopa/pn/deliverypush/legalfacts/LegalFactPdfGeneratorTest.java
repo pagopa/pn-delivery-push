@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
@@ -22,7 +22,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Base64Utils;
 
@@ -72,7 +70,7 @@ class LegalFactPdfGeneratorTest {
 		pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://www.dev.pn.pagopa.it");
 		pnDeliveryPushConfigs.getWebapp().setFaqSendHash("send-cosa-e");
 		pnDeliveryPushConfigs.getWebapp().setFaqCompletionMomentHash("perfezionamento-quando");
-		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.it");
+		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.cittadino.it");
 		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://notifichedigitali.legal.it");
 		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("aar");
 		pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());

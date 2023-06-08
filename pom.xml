@@ -16,20 +16,20 @@
 		<connection>${git.conn}</connection>
 		<developerConnection>${git.devConn}</developerConnection>
 		<url>${git.url}</url>
-		<tag>HEAD</tag>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 	<properties>
 		<jacoco.min.line.cover.ratio>0.70</jacoco.min.line.cover.ratio>
 	</properties>
 
 	<dependencies>
-
+		
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-model</artifactId>
 			<version>2.1.0-SNAPSHOT</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-commons</artifactId>
@@ -79,16 +79,16 @@
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>com.google.zxing</groupId>
-			<artifactId>core</artifactId>
-			<version>3.4.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.zxing</groupId>
-			<artifactId>javase</artifactId>
-			<version>3.4.0</version>
-		</dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.4.0</version>
+        </dependency>		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -203,11 +203,11 @@
 					</excludes>
 				</configuration>
 			</plugin>
-
+			
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>5.4.0</version>
+				<version>5.4.0</version> 
 				<executions>
 					<!-- OPEN API PRIVATE PN-DELIVERY-PUSH-->
 					<execution>
@@ -245,7 +245,7 @@
 							</configOptions>
 						</configuration>
 					</execution>
-
+					
 					<!-- OPEN API PN-DELIVERY-PUSH-->
 					<execution>
 						<phase>generate-resources</phase>
@@ -323,7 +323,7 @@
 							</configOptions>
 						</configuration>
 					</execution>
-
+					
 					<!-- OPEN API CLIENT PN-DELIVERY -->
 					<execution>
 						<phase>generate-resources</phase>
@@ -386,7 +386,7 @@
 							</configOptions>
 						</configuration>
 					</execution>
-
+					
 					<!-- OPEN API CLIENT PN-DATA-VAULT -->
 					<execution>
 						<phase>generate-resources</phase>
@@ -621,7 +621,7 @@
 							</configOptions>
 						</configuration>
 					</execution>
-
+					
 
 					<!-- OPEN API CLIENT PN-EXTERNAL-REGISTRY -->
 					<execution>
@@ -651,7 +651,7 @@
 							</configOptions>
 						</configuration>
 					</execution>
-
+					
 					<!-- OPEN API CLIENT PN-NATIONAL-REGISTRIES REACTIVE-->
 					<execution>
 						<phase>generate-resources</phase>
@@ -714,9 +714,9 @@
 							</configOptions>
 						</configuration>
 					</execution>
-
+					
 				</executions>
-
+				
 			</plugin>
 		</plugins>
 	</build>

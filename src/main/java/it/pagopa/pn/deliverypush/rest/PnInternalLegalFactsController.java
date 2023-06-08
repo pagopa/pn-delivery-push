@@ -36,8 +36,10 @@ public class PnInternalLegalFactsController implements LegalFactsPrivateApi {
             CxTypeAuthFleet xPagopaPnCxType,
             List<String> xPagopaPnCxGroups,
             ServerWebExchange exchange) {
+        log.info("Starting getLegalFact (private) Process");
 
         return getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, recipientInternalId, mandateId, xPagopaPnCxType, xPagopaPnCxGroups)
+                .doOnSuccess(res -> log.info("Starting getLegalFact (private) Process"))
                 .map(response -> ResponseEntity.ok().body(response));
     }
 
@@ -49,6 +51,7 @@ public class PnInternalLegalFactsController implements LegalFactsPrivateApi {
             CxTypeAuthFleet cxType,
             List<String> cxGroups,
             ServerWebExchange exchange) {
+        log.info("Starting getNotificationLegalFacts (private) Process");
 
         return Mono.fromSupplier(() -> {
             log.debug("Start getNotificationLegalFactsPrivate - iun={} recipientInternalId={}", iun, recipientInternalId);

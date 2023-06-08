@@ -1,15 +1,17 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -18,31 +20,42 @@ import java.util.Optional;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST;
 
 @Component
-@Slf4j
+@CustomLog
 @AllArgsConstructor
 public class SafeStorageResponseHandler {
     private final DocumentCreationRequestService service;
     private final SchedulerService schedulerService;
 
     public void handleSafeStorageResponse(FileDownloadResponse response) {
-        log.info("Start handleSafeStorageResponse response={}", response);
-
         String keyWithPrefix = FileUtils.getKeyWithStoragePrefix(response.getKey());
-        log.info("keyWithPrefix to search is={}", keyWithPrefix);
+        HandleEventUtils.addCorrelationIdToMdc(keyWithPrefix);
+        log.info("Async response received from service {} for {} with correlationId={}",
+                PnSafeStorageClient.CLIENT_NAME, PnSafeStorageClient.UPLOAD_FILE_CONTENT, keyWithPrefix);
 
-        Optional<DocumentCreationRequest> documentCreationRequestOpt = service.getDocumentCreationRequest(keyWithPrefix);
+        final String processName = PnSafeStorageClient.UPLOAD_FILE_CONTENT + " response handler";
+        try {
+            log.logStartingProcess(processName);
 
-        if(documentCreationRequestOpt.isPresent()){
-            DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
-            log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
+            Optional<DocumentCreationRequest> documentCreationRequestOpt = service.getDocumentCreationRequest(keyWithPrefix);
 
-            //Effettuando lo scheduling dell'evento siamo sicuri che l'evento verrà gestito una sola volta, dal momento che lo scheduling è in  putIfAbsent
-            scheduleHandleDocumentCreationResponse(creationRequest);
-        } else {
-            String error = String.format("There isn't saved DocumentCreationRequest for fileKey=%s and documentType=%s", keyWithPrefix, response.getDocumentType());
-            log.error(error);
-            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
+            if(documentCreationRequestOpt.isPresent()){
+                DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
+                log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
+
+                //Effettuando lo scheduling dell'evento siamo sicuri che l'evento verrà gestito una sola volta, dal momento che lo scheduling è in  putIfAbsent
+                scheduleHandleDocumentCreationResponse(creationRequest);
+            } else {
+                String error = String.format("There isn't saved DocumentCreationRequest for fileKey=%s and documentType=%s", keyWithPrefix, response.getDocumentType());
+                log.error(error);
+                throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_NO_DOCUMENT_CREATION_REQUEST);
+            }
+
+            log.logEndingProcess(processName);
+        }catch (Exception ex){
+            log.logEndingProcess(processName, false, ex.getMessage());
+            throw ex;
         }
+
     }
     
     private void scheduleHandleDocumentCreationResponse(DocumentCreationRequest request) {

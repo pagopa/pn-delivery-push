@@ -2,8 +2,8 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchanne
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.ProductTypeEnum;
-import it.pagopa.pn.delivery.generated.openapi.clients.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ProductTypeEnum;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;

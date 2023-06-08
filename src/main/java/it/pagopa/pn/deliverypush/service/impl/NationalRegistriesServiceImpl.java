@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries.NationalRegistriesClient;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
-import it.pagopa.pn.nationalregistries.generated.openapi.clients.nationalregistries.model.CheckTaxIdOK;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.CheckTaxIdOK;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

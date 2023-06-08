@@ -1,12 +1,15 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.api.StreamsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
 import it.pagopa.pn.deliverypush.service.WebhookService;
+import it.pagopa.pn.deliverypush.utils.MdcKey;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
@@ -25,23 +28,35 @@ public class PnWebhookStreamsController implements StreamsApi {
 
     @Override
     public Mono<ResponseEntity<StreamMetadataResponse>> createEventStream(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, Mono<StreamCreationRequest> streamCreationRequest, ServerWebExchange exchange) {
+        MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
         log.info("[enter] createEventStream xPagopaPnCxId={}", xPagopaPnCxId);
-        return webhookService.createEventStream(xPagopaPnCxId, streamCreationRequest)
-                .map(ResponseEntity::ok);
+
+        return MDCUtils.addMDCToContextAndExecute(
+                webhookService.createEventStream(xPagopaPnCxId, streamCreationRequest)
+                        .map(ResponseEntity::ok)
+        );
     }
 
     @Override
     public Mono<ResponseEntity<Void>> deleteEventStream(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, ServerWebExchange exchange) {
+        MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
         log.info("[enter] deleteEventStream xPagopaPnCxId={} uuid={}", xPagopaPnCxId, streamId.toString());
-        return webhookService.deleteEventStream(xPagopaPnCxId, streamId)
-                .then(Mono.just(ResponseEntity.noContent().build()));
+
+        return MDCUtils.addMDCToContextAndExecute(
+                webhookService.deleteEventStream(xPagopaPnCxId, streamId)
+                        .then(Mono.just(ResponseEntity.noContent().build()))
+        );
     }
 
     @Override
     public Mono<ResponseEntity<StreamMetadataResponse>> getEventStream(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, ServerWebExchange exchange) {
+        MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
         log.info("[enter] getEventStream xPagopaPnCxId={} uuid={}", xPagopaPnCxId, streamId.toString());
-        return webhookService.getEventStream(xPagopaPnCxId, streamId)
-                .map(ResponseEntity::ok);
+
+        return MDCUtils.addMDCToContextAndExecute(
+                webhookService.getEventStream(xPagopaPnCxId, streamId)
+                        .map(ResponseEntity::ok)
+        );
     }
 
     @Override
@@ -52,8 +67,12 @@ public class PnWebhookStreamsController implements StreamsApi {
 
     @Override
     public Mono<ResponseEntity<StreamMetadataResponse>> updateEventStream(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, Mono<StreamCreationRequest> streamCreationRequest, ServerWebExchange exchange) {
+        MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
         log.info("[enter] updateEventStream xPagopaPnCxId={} uuid={}", xPagopaPnCxId, streamId.toString());
-        return webhookService.updateEventStream(xPagopaPnCxId, streamId, streamCreationRequest)
-                .map(ResponseEntity::ok);
+
+        return MDCUtils.addMDCToContextAndExecute(
+                webhookService.updateEventStream(xPagopaPnCxId, streamId, streamCreationRequest)
+                        .map(ResponseEntity::ok)
+        );
     }
 }

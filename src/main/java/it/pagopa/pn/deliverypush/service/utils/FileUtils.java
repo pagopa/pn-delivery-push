@@ -37,6 +37,9 @@ public class FileUtils {
 
     @NotNull
     public static String getKeyWithStoragePrefix(String key) {
+        if(key.startsWith(SAFE_STORAGE_URL_PREFIX)){
+            return key;
+        }
         return SAFE_STORAGE_URL_PREFIX + key;
     }
 }

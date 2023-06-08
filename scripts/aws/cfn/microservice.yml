@@ -235,7 +235,15 @@ Parameters:
   SandboxSafeStorageBaseUrl:
     Type: String
     Description: 'Safe storage base url'
-  
+
+  MaxPdfAllowedSize:
+    Type: String
+    Description: 'Max pdf allowed size, -1 for disable check'
+
+  EnableCheckPdfContent:
+    Type: String
+    Description: 'Enable pdf content check'
+
   Version:
     Type: String
     Description: 'Keep track of used projects commitIds'
@@ -270,6 +278,12 @@ Parameters:
     Type: String
     Description: 'default value to return if paTaxId not present in parameter store'
     AllowedValues: [ true, false ]
+
+  IsLollipopActive:
+    Type: String
+    Description: 'lollipop authorization activation flag'
+    AllowedValues: [ true, false ]
+    Default: "false"
 
   RetentionAttachmentDaysAfterRefinement:
     Type: String
@@ -456,6 +470,10 @@ Parameters:
     Type: String
     Description: 'SEND landing URL'
 
+  LogAlarmStrategy:
+    Type: String
+    Default: 'FATAL'
+    
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -526,7 +544,7 @@ Resources:
         ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
         ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
-        ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIME=${TimeToAddInNonVisibilityTimeCase}'
+        ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIMECASE=${TimeToAddInNonVisibilityTimeCase}'
         ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_RETENTION_ATTACHMENT_DAYS_AFTER_REFINEMENT=${RetentionAttachmentDaysAfterRefinement}'
         ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_TOPICS_SAFESTORAGEEVENTS=${SafeStorageToDeliveryPushQueueName}'
         ContainerEnvEntry43: !Sub 'PN_DELIVERYPUSH_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
@@ -540,6 +558,9 @@ Resources:
         ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
         ContainerEnvEntry52: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
         ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
+        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
+        ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
+        ContainerEnvEntry56: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -553,6 +574,7 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
         AlbSecurityGroup: !Ref AlbSecurityGroup
         EcsLogGroup: !Ref EcsLogGroup
+        LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
   # Grant operational rights to PN-Delivery-push microservice microservice
   DeliveryPushMicroserviceTaskManagedPolicy:

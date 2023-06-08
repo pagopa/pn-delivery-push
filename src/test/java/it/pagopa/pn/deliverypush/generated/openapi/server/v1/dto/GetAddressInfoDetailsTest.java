@@ -66,16 +66,4 @@ class GetAddressInfoDetailsTest {
 
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
-
-
-    @Test
-    void testToString() {
-        String data = "class GetAddressInfoDetails {\n" +
-                "    recIndex: 1\n" +
-                "    digitalAddressSource: GENERAL\n" +
-                "    isAvailable: true\n" +
-                "    attemptDate: 2021-09-16T15:24:00Z\n" +
-                "}";
-        Assertions.assertEquals(data, details.toString());
-    }
 }

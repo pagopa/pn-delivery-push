@@ -10,7 +10,7 @@ import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;

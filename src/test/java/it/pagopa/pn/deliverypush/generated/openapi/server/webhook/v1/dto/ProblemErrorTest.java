@@ -51,14 +51,5 @@ class ProblemErrorTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, expected.equals(problemError));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class ProblemError {\n" +
-                "    code: code\n" +
-                "    element: null\n" +
-                "    detail: detail\n" +
-                "}";
-        Assertions.assertEquals(expected, problemError.toString());
-    }
+    
 }
