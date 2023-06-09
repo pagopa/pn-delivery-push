@@ -74,10 +74,10 @@ public class TimelineDaoMock implements TimelineDao {
 
         log.debug("[TEST] Add timeline element {}", dto);
 
-        if(getTimelineElement(dto.getIun(), dto.getElementId()).isPresent()){
+/*        if(getTimelineElement(dto.getIun(), dto.getElementId()).isPresent()){
             log.error("TimelineElement is already present timelineElementId={}",dto.getElementId());
             throw new RuntimeException("TimelineElement is already present");
-        }
+        }*/
         
         timelineList.add(dto);
     }
