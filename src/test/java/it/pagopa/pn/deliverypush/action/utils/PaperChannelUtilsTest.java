@@ -75,8 +75,7 @@ class PaperChannelUtilsTest {
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
         SendResponse sendResponse = new SendResponse()
-                .amount(10)
-                .foreignState("FR");
+                .amount(10);
         Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  sendResponse, "RN_AR", "request_id")).thenReturn(timelineElementInternal);
         channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, sendResponse, "RN_AR", "request_id");
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
@@ -90,8 +89,7 @@ class PaperChannelUtilsTest {
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
         SendResponse sendResponse = new SendResponse()
-                .amount(10)
-                .foreignState("FR");
+                .amount(10);
         
         AnalogDtoInt analogDtoInfo = AnalogDtoInt.builder()
                 .sentAttemptMade(0)

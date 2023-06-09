@@ -215,8 +215,7 @@ class TimelineUtilsTest {
         PhysicalAddressInt address = buildPhysicalAddressInt();
         String eventId = "001";
         SendResponse sendResponse = new SendResponse()
-                .amount(10)
-                .foreignState("FR");
+                .amount(10);
 
         String productType ="RN_AR";
         String timelineEventIdExpected = "SEND_SIMPLE_REGISTERED_LETTER#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
@@ -265,8 +264,7 @@ class TimelineUtilsTest {
         String relatedRequestId = null;
         int sentAttemptMade = 1;
         SendResponse sendResponse = new SendResponse()
-                .amount(10)
-                .foreignState("FR");
+                .amount(10);
 
         String productType ="RN_AR";
         String timelineEventIdExpected = "SEND_ANALOG_DOMICILE#IUN_Example_IUN_1234_Test#RECINDEX_1#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
