@@ -55,6 +55,7 @@ components:
             Timestamp della richiesta in UTC
         receiverDigitalAddress:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude"
           description: >-
             Indirizzo PEC del destinatario (o in genere recapito digitale certificato a valore legale). 
             L’indirizzo si assume valido ed attivo: i servizi erogatori non eseguono ulteriori validazioni sullo stesso.
@@ -62,6 +63,7 @@ components:
             In caso di comunicazioni a più destinatari saranno richieste più comunicazioni (in questo modo avremo un requestId univoco per ogni comunicazione/evento/pec).
         messageText:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude"
           description: >-
             Testo del corpo della comunicazione digitale.  
             Può essere a discrezione del chiamante in plain text od html (un campo ad hoc che discrimini il formato è opportuno?).
