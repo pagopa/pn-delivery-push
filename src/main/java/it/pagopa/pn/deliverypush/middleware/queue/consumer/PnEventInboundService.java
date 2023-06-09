@@ -80,11 +80,10 @@ public class PnEventInboundService {
     }
 
     private String handleMessage(Message<?> message) {
-        log.debug("Received message from customRouter with header={}", message.getHeaders());
-
         String eventType = (String) message.getHeaders().get("eventType");
+        log.debug("Received message from customRouter with eventType={}", eventType);
+
         String iun = (String) message.getHeaders().get("iun");
-        log.debug("message have eventType={} - iun={}", eventType, iun);
 
         if (eventType != null) {
             //Se l'event type e valorizzato ...
