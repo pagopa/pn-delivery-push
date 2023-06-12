@@ -86,8 +86,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
         return new SendResponse()
                 .amount(100)
                 .numberOfPages(1)
-                .envelopeWeight(100)
-                .zip("80078");
+                .envelopeWeight(100);
     }
 
 
