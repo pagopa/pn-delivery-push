@@ -67,12 +67,12 @@ class LegalFactPdfGeneratorTest {
 		InstantNowSupplier instantNowSupplier = new InstantNowSupplier();
 		pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
 		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq");
-		pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://www.dev.pn.pagopa.it");
+		pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://notifichedigitali.pagopa.it/");
 		pnDeliveryPushConfigs.getWebapp().setFaqSendHash("send-cosa-e");
-		pnDeliveryPushConfigs.getWebapp().setFaqCompletionMomentHash("perfezionamento-quando");
-		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.cittadino.it");
-		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://notifichedigitali.legal.it");
-		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("aar");
+		pnDeliveryPushConfigs.getWebapp().setFaqCompletionMomentHash("perfezionamento");
+		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://cittadini.dev.notifichedigitali.it/");
+		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://imprese.dev.notifichedigitali.it/");
+		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("?aar");
 		pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
 		pnDeliveryPushConfigs.getPaperChannel().setSenderAddress( new PnDeliveryPushConfigs.SenderAddress());
 		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");

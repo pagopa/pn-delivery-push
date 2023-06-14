@@ -1,8 +1,8 @@
 {
   "Parameters" : {
     "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/develop/addresses/",
-    "PhysicalPersonPortalUrl": "https://portale.dev.pn.pagopa.it/",
-    "LegalPersonPortalUrl": "https://portale-pg.dev.pn.pagopa.it/",
+    "PhysicalPersonPortalUrl": "https://cittadini.dev.notifichedigitali.it/",
+    "LegalPersonPortalUrl": "https://imprese.dev.notifichedigitali.it/",
     "WaitingForReadCourtesyMessage": "2m",
     "SecondNotificationWorkflowWaitingTime": "3m",
     "SchedulingDaysSuccessDigitalRefinement": "3m",
@@ -22,7 +22,7 @@
     "MaxTasksNumber": "1",
     "SendNotificationAttachments": "analog-notification",
     "SafeStorageFileNotFoundRetry": "false",
-    "LandingUrl": "https://www.dev.pn.pagopa.it",
+    "LandingUrl": "https://www.dev.notifichedigitali.it/",
     "AddressManagerBaseUrl": "http://alb.confidential.pn.internal:8080",
     "IsLollipopActive": "false",
     "CpuValue": "2048",

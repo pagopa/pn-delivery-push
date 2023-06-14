@@ -361,9 +361,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
         templateModel.put(FIELD_SENDURL, this.getAccessLink());
         templateModel.put(FIELD_SENDURL_LABEL, this.getAccessLinkLabel());
-
-        String sb = this.getAccessUrlLabel(recipient) + "/perfezionamento";
-        templateModel.put(FIELD_PERFEZIONAMENTO, sb);
+        templateModel.put(FIELD_PERFEZIONAMENTO, this.getPerfezionamentoLink());
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
         log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
@@ -394,6 +392,10 @@ public class LegalFactGenerator {
         return templateUrl + '=' + quickAccessToken;
     }
 
+    private String getPerfezionamentoLink() {
+        return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + "perfezionamento";
+    }
+
     private String getAccessLink() {
         return pnDeliveryPushConfigs.getWebapp().getLandingUrl();
     }
@@ -408,7 +410,7 @@ public class LegalFactGenerator {
     }
 
     private String getFAQAccessLink() {
-        return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + "/" + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
+        return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
     }
 
     private String getFAQCompletionMomentAccessLink() {
