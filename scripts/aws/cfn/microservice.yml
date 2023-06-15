@@ -909,7 +909,7 @@ Resources:
             Stat: Average
           ReturnData: False             
         - Id: e1
-          Expression: !Sub "IF(m8==0, ${AutoscalingThreshold}+1, m7+${QueueMetricsAutoscalingAlarmWeight}*(m1+m2+m3+m4+m5+m6)/m8)"
+          Expression: !Sub "IF(IF(m8==0, ${AutoscalingThreshold}+1, ${QueueMetricsAutoscalingAlarmWeight}*(m1+m2+m3+m4+m5+m6)/m8)<m7, m7, IF(m8==0, ${AutoscalingThreshold}+1, ${QueueMetricsAutoscalingAlarmWeight}*(m1+m2+m3+m4+m5+m6)/m8))"
           Label: !Sub "${ProjectName}-delivery-push-autoscale-custom-metric"
       EvaluationPeriods: !Ref AutoscalingDataPointM
       Threshold: !Ref AutoscalingThreshold
