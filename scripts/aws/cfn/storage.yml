@@ -171,6 +171,13 @@ Resources:
           KeyType: "HASH"
         - AttributeName: "actionId"
           KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: "iun-index"
+          KeySchema:
+            - AttributeName: "iun"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
