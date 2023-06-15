@@ -21,7 +21,7 @@
     "ValidationRetryIntervals": "10s, 1m, 1m, 5m, 1h, -1s",
     "MinTasksNumber": "2",
     "MaxTasksNumber": "11",
-    "AutoscalingThreshold": 3600,
+    "AutoscalingThreshold": "3600",
     "SendNotificationAttachments": "analog-notification",
     "SafeStorageFileNotFoundRetry": "false",
     "LandingUrl": "https://www.dev.notifichedigitali.it/",
