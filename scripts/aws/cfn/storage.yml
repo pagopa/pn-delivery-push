@@ -166,6 +166,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "actionId"
           AttributeType: "S"
+        - AttributeName: "iun"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "timeSlot"
           KeyType: "HASH"
