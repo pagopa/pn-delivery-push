@@ -92,6 +92,7 @@ public class PnDeliveryPushConfigs {
     private DataSize checkPdfSize;
 
     private boolean checkPdfValidEnabled;
+    private Duration actionTtl;
     
     @Data
     public static class Topics {

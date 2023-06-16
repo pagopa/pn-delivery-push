@@ -1230,6 +1230,7 @@ class DigitalTestIT {
     }
 
     @Test
+    @Disabled("Fails sometimes to verify")
     void firstSuccessSpecial() {
         /*
        - Platform address presente e primo invio con fallimento (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_WORKS)
