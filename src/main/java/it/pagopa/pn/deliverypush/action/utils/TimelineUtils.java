@@ -620,6 +620,7 @@ public class TimelineUtils {
                 .newAddress(sendEventInt.getDiscoveredAddress())
                 .deliveryDetailCode(sendEventInt.getStatusDetail())
                 .notificationDate(sendEventInt.getStatusDateTime())
+                .deliveryFailureCause(sendEventInt.getDeliveryFailureCause())
                 .responseStatus(ResponseStatusInt.OK)
                 .attachments(attachments)
                 .sendRequestId(sendRequestId)
