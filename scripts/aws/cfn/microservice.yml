@@ -725,7 +725,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery--push-web'
         IntendedUsage: WEB 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: 6000
+        Limit: 600000
 
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
