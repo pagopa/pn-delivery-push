@@ -669,6 +669,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-push-b2b'
         IntendedUsage: B2B 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
+        Limit: 600000
 
   # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
   DeliveryProgressMicroservicePublicAPI:
@@ -696,6 +697,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-progress-b2b'
         IntendedUsage: B2B 
         APIGatewayARNs: !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.APIGatewayARN
+        Limit: 600000
 
   # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
   DeliveryPushMicroservicePublicWebAPI:
@@ -752,6 +754,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-push-io'
         IntendedUsage: IO 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
+        Limit: 600000
   
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
