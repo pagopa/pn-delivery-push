@@ -22,7 +22,7 @@
     "MinTasksNumber": "2",
     "MaxTasksNumber": "7",
     "AutoscalingThreshold": "650",
-    "QueueMetricsAutoscalingAlarmWeight": "0.11",
+    "ConsumedQueueMessagePerMinute": "3000",
     "SendNotificationAttachments": "analog-notification",
     "SafeStorageFileNotFoundRetry": "false",
     "LandingUrl": "https://www.dev.notifichedigitali.it/",
