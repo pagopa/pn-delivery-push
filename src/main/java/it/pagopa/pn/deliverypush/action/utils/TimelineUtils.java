@@ -1084,7 +1084,7 @@ public class TimelineUtils {
         return true;
     }
 
-    private boolean checkIsNotificationPaid(String iun) {
+    public boolean checkIsNotificationPaid(String iun) {
         String elementId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
                 EventId.builder()
                         .iun(iun)

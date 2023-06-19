@@ -121,7 +121,8 @@ class PaperChannelServiceImplTest {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString())).thenReturn(false);
         Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
@@ -146,7 +147,8 @@ class PaperChannelServiceImplTest {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString())).thenReturn(false);
         Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
@@ -194,7 +196,8 @@ class PaperChannelServiceImplTest {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString())).thenReturn(false);
         Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
@@ -247,7 +250,8 @@ class PaperChannelServiceImplTest {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString())).thenReturn(false);
         Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
@@ -297,7 +301,26 @@ class PaperChannelServiceImplTest {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+
+        // WHEN
+        paperChannelService.prepareAnalogNotification(notificationInt, 0, 0);
+
+        // THEN
+        Mockito.verify(paperChannelSendClient, Mockito.never()).prepare(Mockito.any());
+    }
+
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void prepareAnalogNotificationAlreadyPaid() {
+        //GIVEN
+        NotificationInt notificationInt = newNotification("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString())).thenReturn(true);
 
         // WHEN
         paperChannelService.prepareAnalogNotification(notificationInt, 0, 0);
@@ -370,7 +393,8 @@ class PaperChannelServiceImplTest {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString())).thenReturn(false);
         Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
@@ -405,7 +429,28 @@ class PaperChannelServiceImplTest {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+
+        // WHEN
+        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
+
+        // THEN
+        Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
+    }
+
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendAnalogNotificationAlreadyPaid() {
+        //GIVEN
+        PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
+
+        NotificationInt notificationInt = newNotification("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString())).thenReturn(true);
 
         // WHEN
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
@@ -508,7 +553,8 @@ class PaperChannelServiceImplTest {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString())).thenReturn(false);
         Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
@@ -536,7 +582,8 @@ class PaperChannelServiceImplTest {
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString())).thenReturn(false);
         Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);

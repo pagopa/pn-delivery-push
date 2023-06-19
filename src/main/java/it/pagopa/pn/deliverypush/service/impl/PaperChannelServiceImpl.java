@@ -25,7 +25,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -33,7 +33,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
+@CustomLog
 @Service
 public class PaperChannelServiceImpl implements PaperChannelService {
     private final PaperChannelUtils paperChannelUtils;
@@ -98,7 +98,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public void prepareAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         log.debug("Start prepareAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
-        boolean isNotificationAlreadyViewedOrPaid = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
+        boolean isNotificationAlreadyViewedOrPaid = checkIsNotificationViewedOrPaid(notification.getIun(), recIndex);
 
         if( !isNotificationAlreadyViewedOrPaid ){
             String senderTaxId = notification.getSender().getPaTaxId();
@@ -115,7 +115,25 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         } else {
             log.info("Notification is already viewed or paid, paper notification will not be sent to paperChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
         }
+    }
 
+    private boolean checkIsNotificationViewedOrPaid(String iun, Integer recIndex) {
+        boolean isNotificationAlreadyViewed = timelineUtils.checkIsNotificationViewed(iun, recIndex);
+        boolean isNotificationAlreadyPaid = false;
+
+        if ( !isNotificationAlreadyViewed ) {
+            isNotificationAlreadyPaid = timelineUtils.checkIsNotificationPaid(iun);
+            if (isNotificationAlreadyPaid) {
+                // è un caso anomalo: la notifica non è stata visualizzata, ma è stata pagata.
+                // va segnalato perchè è un caso "strano", non si capisce come abbia fatto l'utente a pagarla senza riceverla
+                // cmq, non è il caso di fatal, perchè non serve venga svegliato il repereibile. Quando sarà disponibile
+                // un'allarmistica light, questo è un caso da mettere come allarme light
+                // TODO mettere come alarm LIGHT
+                log.error("Notification is PAID but not VIEWED, should check how! iun={} recIndex={}", iun, recIndex);
+            }
+        }
+
+        return  isNotificationAlreadyViewed || isNotificationAlreadyPaid;
     }
 
     private void prepareSimpleRegisteredLetter(NotificationInt notification, Integer recIndex) {
@@ -267,7 +285,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     public String sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade,
                                        String prepareRequestId, PhysicalAddressInt receiverAddress, String productType){
         String timelineId = null;
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
+        boolean isNotificationAlreadyViewed = checkIsNotificationViewedOrPaid(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed) {
             log.info("Analog notification sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
