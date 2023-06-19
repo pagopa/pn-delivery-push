@@ -64,7 +64,7 @@ class CompletelyUnreachableUtilsTest {
                 .recipientId(recipient.getInternalId())
                 .build();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), 1)).thenReturn(Boolean.TRUE);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(notification.getIun(), 1)).thenReturn(Boolean.TRUE);
         Mockito.when(timelineService.isPresentTimeLineElement(notification.getIun(), 1, TimelineEventId.NOTIFICATION_VIEWED)).thenReturn(Boolean.TRUE);
         Instant legalFactGenerationDate = Instant.now();
         

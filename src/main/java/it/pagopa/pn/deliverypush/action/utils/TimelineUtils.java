@@ -1115,7 +1115,7 @@ public class TimelineUtils {
         return true;
     }
 
-    private boolean checkIsNotificationViewed(String iun, Integer recIndex) {
+    public boolean checkIsNotificationViewed(String iun, Integer recIndex) {
         Optional<TimelineElementInternal> notificationViewTimelineElement = getNotificationView(iun, recIndex);
         return notificationViewTimelineElement.isPresent();
     }
