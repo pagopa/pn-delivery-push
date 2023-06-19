@@ -923,7 +923,7 @@ Resources:
           Expression: "IF( code<http, http, code )"
           Label: !Sub "${ProjectName}-delivery-push-autoscale-custom-metric"
       EvaluationPeriods: !Ref AutoscalingDataPointM
-      Threshold: !Ref AutoscalingThreshold
+      Threshold: 60
       AlarmActions:
         - !GetAtt DeliveryPushMicroservice.Outputs.ScaleUpPolicy
       OKActions:
