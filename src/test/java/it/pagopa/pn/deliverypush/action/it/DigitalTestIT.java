@@ -259,6 +259,7 @@ class DigitalTestIT {
     public void setup() {
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        ConsoleAppenderCustom.initializeLog();
         
         TestUtils.initializeAllMockClient(
                 safeStorageClientMock,
