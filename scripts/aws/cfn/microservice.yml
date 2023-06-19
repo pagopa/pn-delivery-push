@@ -283,7 +283,7 @@ Parameters:
     Type: String
     Description: 'lollipop authorization activation flag'
     AllowedValues: [ true, false ]
-    Default: "false"
+    Default: false
 
   RetentionAttachmentDaysAfterRefinement:
     Type: String
@@ -474,7 +474,7 @@ Parameters:
     Type: String
     Default: 'FATAL'
     
-  QueueMetricsAutoscalingAlarmWeight:
+  ConsumedQueueMessagePerMinute:
     Type: Number
     Default: 0
     Description: Weight to assign to queue number of visible messages metric
@@ -910,13 +910,28 @@ Resources:
               MetricName: "HealthyHostCount"
             Period: !Ref AutoscalingCheckPeriod
             Stat: Average
-          ReturnData: False             
+          ReturnData: False        
+        - Id: code
+          Expression: !Sub "IF(m8==0, 101, (100*(m1+m2+m3+m4+m5+m6)) / (${ConsumedQueueMessagePerMinute} * m8) )"
+          Label: !Sub "${ProjectName}-delivery-push-queue-custom-metric"
+          ReturnData: False
+        - Id: http
+          Expression: !Sub "(100 * m7) / ${AutoscalingThreshold}"
+          Label: !Sub "${ProjectName}-delivery-push-http-custom-metric"
+          ReturnData: False
         - Id: e1
-          Expression: !Sub "IF(IF(m8==0, ${AutoscalingThreshold}+1, ${QueueMetricsAutoscalingAlarmWeight}*(m1+m2+m3+m4+m5+m6)/m8)<m7, m7, IF(m8==0, ${AutoscalingThreshold}+1, ${QueueMetricsAutoscalingAlarmWeight}*(m1+m2+m3+m4+m5+m6)/m8))"
+          Expression: "IF( code<http, http, code )"
           Label: !Sub "${ProjectName}-delivery-push-autoscale-custom-metric"
       EvaluationPeriods: !Ref AutoscalingDataPointM
-      Threshold: !Ref AutoscalingThreshold
+      Threshold: 60
       AlarmActions:
         - !GetAtt DeliveryPushMicroservice.Outputs.ScaleUpPolicy
       OKActions:
         - !GetAtt DeliveryPushMicroservice.Outputs.ScaleDownPolicy
+
+Outputs:
+
+  # 
+  Version:
+    Value: !Ref Version
+
