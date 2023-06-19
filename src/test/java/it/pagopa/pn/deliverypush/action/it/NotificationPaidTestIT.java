@@ -459,7 +459,7 @@ class NotificationPaidTestIT {
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
 
-        ConsoleAppenderCustom.checkLogs();
+        ConsoleAppenderCustom.checkLogs("Notification is PAID but not VIEWED, should check how!");
     }
 
     private PnDeliveryPaymentEvent.Payload simulateNotificationPaid(String iun, int recIndex, String timelineIdToWait) {
