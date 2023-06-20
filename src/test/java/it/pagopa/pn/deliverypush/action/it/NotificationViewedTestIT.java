@@ -118,6 +118,7 @@ import static org.mockito.ArgumentMatchers.eq;
         RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
+        TimelineCounterDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
@@ -191,6 +192,9 @@ class NotificationViewedTestIT {
     
     @Autowired
     private TimelineDaoMock timelineDaoMock;
+
+    @Autowired
+    private TimelineCounterDaoMock timelineCounterDaoMock;
 
     @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;

@@ -117,6 +117,7 @@ import static org.awaitility.Awaitility.await;
         RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
+        TimelineCounterDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
@@ -202,6 +203,9 @@ class DigitalTestMultiRecipientIT {
 
     @Autowired
     private TimelineDaoMock timelineDaoMock;
+
+    @Autowired
+    private TimelineCounterDaoMock timelineCounterDaoMock;
 
     @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;

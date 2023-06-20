@@ -24,6 +24,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHis
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationStatusHistoryElementMapper;
@@ -47,6 +48,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @RequiredArgsConstructor
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
+    private final TimelineCounterEntityDao timelineCounterEntityDao;
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
@@ -145,6 +147,10 @@ public class TimeLineServiceImpl implements TimelineService {
             return Optional.of(timelineElementInt);
         }
         return Optional.empty();
+    }
+
+    public Long retrieveAndIncrementCounterForTimelineEvent(String timelineId) {
+        return this.timelineCounterEntityDao.getCounter(timelineId).getCounter();
     }
 
     @Override

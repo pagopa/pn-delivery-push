@@ -17,7 +17,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineCounterEntity;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -40,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TimeLineServiceImplTest {
     private TimelineDao timelineDao;
+    private TimelineCounterEntityDao timelineCounterDao;
     private StatusUtils statusUtils;
     private TimeLineServiceImpl timeLineService;
     private StatusService statusService;
@@ -51,13 +54,14 @@ class TimeLineServiceImplTest {
     @BeforeEach
     void setup() {
         timelineDao = Mockito.mock( TimelineDao.class );
+        timelineCounterDao = Mockito.mock( TimelineCounterEntityDao.class );
         statusUtils = Mockito.mock( StatusUtils.class );
         statusService = Mockito.mock( StatusService.class );
 
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
         notificationService = Mockito.mock(NotificationService.class);
-        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
+        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
     }
 
     @Test
@@ -506,6 +510,23 @@ class TimeLineServiceImplTest {
         Executable executable = () -> timeLineService.getSchedulingAnalogDate(iun, recipientId).block();
         Assertions.assertThrows(PnNotFoundException.class, executable);
 
+    }
+
+
+    @Test
+    void retrieveAndIncrementCounterForTimelineEventTest() {
+        final String timelineid = "iun1";
+        TimelineCounterEntity timelineCounterEntity = new TimelineCounterEntity();
+        timelineCounterEntity.setTimelineElementId(timelineid);
+        timelineCounterEntity.setCounter(5L);
+
+        Mockito.when(timelineCounterDao.getCounter(timelineid))
+                .thenReturn(timelineCounterEntity);
+
+
+        Long r = timeLineService.retrieveAndIncrementCounterForTimelineEvent(timelineid);
+        Assertions.assertNotNull(r);
+        Assertions.assertEquals(5L, r);
     }
     
     private TimelineElementInternal getSpecificElementFromList(List<TimelineElementInternal> listElement, String timelineId){
