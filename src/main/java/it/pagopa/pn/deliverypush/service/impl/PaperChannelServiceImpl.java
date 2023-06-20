@@ -77,9 +77,9 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public void prepareAnalogNotificationForSimpleRegisteredLetter(NotificationInt notification,  Integer recIndex) {
         log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
-        boolean isNotificationViewedOrPaid = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
+        boolean isNotificationAlreadyViewed = checkIsNotificationViewedOrPaid(notification.getIun(), recIndex);
 
-        if(! isNotificationViewedOrPaid){
+        if(! isNotificationAlreadyViewed){
 
             prepareSimpleRegisteredLetter(notification, recIndex);
 
@@ -249,7 +249,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     public String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String prepareRequestId, PhysicalAddressInt receiverAddress, String productType){
         log.info("Registered Letter check if send to paperChannel - iun={} id={}", notification.getIun(), recIndex);
         String timelineId = null;
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
+        boolean isNotificationAlreadyViewed = checkIsNotificationViewedOrPaid(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed) {
             log.info("Registered Letter sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
