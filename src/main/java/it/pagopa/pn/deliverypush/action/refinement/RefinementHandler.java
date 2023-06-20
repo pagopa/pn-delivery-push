@@ -29,10 +29,10 @@ public class RefinementHandler {
 
     public void handleRefinement(String iun, Integer recIndex) {
         log.info("Start HandleRefinement - iun {} id {}", iun, recIndex);
-        boolean isNotificationViewedOrPaid = timelineUtils.checkNotificationIsViewedOrPaid(iun, recIndex);
+        boolean isNotificationViewed = timelineUtils.checkIsNotificationViewed(iun, recIndex);
 
         //Se la notifica è già stata visualizzata non viene perfezionata per decorrenza termini in quanto è già stata perfezionata per presa visione
-        if( !isNotificationViewedOrPaid ){
+        if( !isNotificationViewed ){
             log.info("Handle refinement - iun {} id {}", iun, recIndex);
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 

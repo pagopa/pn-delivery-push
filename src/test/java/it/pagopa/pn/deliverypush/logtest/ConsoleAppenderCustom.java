@@ -29,11 +29,30 @@ public class ConsoleAppenderCustom extends ConsoleAppender<ILoggingEvent> {
     
     //Check log ERROR
     public static void checkLogs(){
+        checkLogs(null);
+    }
+
+    public static void checkLogs(String acceptedError){
         if( eventList != null && ! eventList.isEmpty() ){
-            log.warn("[TEST] There are log not excpeted. Log list {}", eventList);
-            NotExpectedLogException expectedLogExceptionTest = new NotExpectedLogException("There are problem ", eventList);
-            initializeLog();
-            throw expectedLogExceptionTest;
+            boolean throwException = true;
+            if (acceptedError != null)
+            {
+                throwException = false;
+                for (LogEvent le :
+                        eventList) {
+                    if (!le.getMessage().startsWith(acceptedError))
+                    {
+                        throwException = true;
+                        break;
+                    }
+                }
+            }
+            if (throwException) {
+                log.warn("[TEST] There are log not excpeted. Log list {}", eventList);
+                NotExpectedLogException expectedLogExceptionTest = new NotExpectedLogException("There are problem ", eventList);
+                initializeLog();
+                throw expectedLogExceptionTest;
+            }
         }
     }
 

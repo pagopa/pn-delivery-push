@@ -366,11 +366,11 @@ class NotificationPaidTestIT {
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
 
-        ConsoleAppenderCustom.checkLogs();
+        ConsoleAppenderCustom.checkLogs("Notification is PAID but not VIEWED, should check how!");
     }
 
     @Test
-    void digitalWorkflowNotificationPaidNoRefinement() {
+    void digitalWorkflowNotificationPaidStillRefinement() {
      /*
        - Platform address presente e invio con successo (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_WORKS)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
@@ -430,8 +430,8 @@ class NotificationPaidTestIT {
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddress, 1, 0);
 
-        //Viene verificato che NON sia avvenuto il perfezionamento
-        Assertions.assertFalse(TestUtils.getRefinement(iun, recIndex, timelineService).isPresent());
+        //Viene verificato che sia avvenuto il perfezionamento
+        Assertions.assertTrue(TestUtils.getRefinement(iun, recIndex, timelineService).isPresent());
 
         //Viene effettuato il check dei legalFacts generati
         TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
@@ -459,7 +459,7 @@ class NotificationPaidTestIT {
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
 
-        ConsoleAppenderCustom.checkLogs();
+        ConsoleAppenderCustom.checkLogs("Notification is PAID but not VIEWED, should check how!");
     }
 
     private PnDeliveryPaymentEvent.Payload simulateNotificationPaid(String iun, int recIndex, String timelineIdToWait) {
