@@ -906,6 +906,8 @@ Resources:
               Dimensions:
                 - Name: TargetGroup
                   Value: !GetAtt DeliveryPushMicroservice.Outputs.TargetGroupName
+                - Name: LoadBalancer
+                  Value: "app/EcsA-20230409091221502000000003/cd4575e85956994c"
               Namespace: "AWS/ApplicationELB"
               MetricName: "HealthyHostCount"
             Period: !Ref AutoscalingCheckPeriod
