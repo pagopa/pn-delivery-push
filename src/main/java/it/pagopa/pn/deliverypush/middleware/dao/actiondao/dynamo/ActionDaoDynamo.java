@@ -25,6 +25,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhanced
 import software.amazon.awssdk.services.dynamodb.model.CancellationReason;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,7 +39,8 @@ public class ActionDaoDynamo implements ActionDao {
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private final DynamoDbTable<ActionEntity> dynamoDbTableAction;
     private final DynamoDbTable<FutureActionEntity> dynamoDbTableFutureAction;
-
+    private final Duration actionTtl;
+    
     public ActionDaoDynamo(ActionEntityDao actionEntityDao,
                            FutureActionEntityDao futureActionEntityDao,
                            DynamoDbEnhancedClient dynamoDbEnhancedClient,
@@ -48,19 +50,19 @@ public class ActionDaoDynamo implements ActionDao {
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.dynamoDbTableAction = dynamoDbEnhancedClient.table(  pnDeliveryPushConfigs.getActionDao().getTableName(), TableSchema.fromClass(ActionEntity.class));
         this.dynamoDbTableFutureAction = dynamoDbEnhancedClient.table( pnDeliveryPushConfigs.getFutureActionDao().getTableName(), TableSchema.fromClass(FutureActionEntity.class));
-
+        this.actionTtl = pnDeliveryPushConfigs.getActionTtl();
     }
 
     @Override
     public void addAction(Action action, String timeSlot) {
-        actionEntityDao.put(DtoToEntityActionMapper.dtoToEntity(action));
+        actionEntityDao.put(DtoToEntityActionMapper.dtoToEntity(action, actionTtl));
         futureActionEntityDao.put(DtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
     }
 
     @Override
     public void addActionIfAbsent(Action action, String timeSlot) {
         try {
-            TransactPutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = actionEntityDao.preparePutIfAbsent(DtoToEntityActionMapper.dtoToEntity(action));
+            TransactPutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = actionEntityDao.preparePutIfAbsent(DtoToEntityActionMapper.dtoToEntity(action, actionTtl));
             TransactPutItemEnhancedRequest<FutureActionEntity> putItemEnhancedRequestFuture = futureActionEntityDao.preparePut(DtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
             TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
                     .addPutItem(dynamoDbTableAction,  putItemEnhancedRequest)

@@ -151,6 +151,9 @@ Resources:
         - AttributeName: "actionId"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
