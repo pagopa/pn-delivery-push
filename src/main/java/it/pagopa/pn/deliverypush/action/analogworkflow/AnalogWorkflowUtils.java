@@ -81,18 +81,18 @@ public class AnalogWorkflowUtils {
     }
 
 
-    public void addAnalogProgressAttemptToTimeline(NotificationInt notification, int recIndex, List<AttachmentDetailsInt> attachments,
+    public void addAnalogProgressAttemptToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
                                                    BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
-        int progressIndex = getPreviousTimelineProgressAnalog(notification, recIndex, sendPaperDetails.getSentAttemptMade()).size() + 1;
+        int progressIndex = timelineService.retrieveAndIncrementCounterForTimelineEvent(sendRequestId).intValue();
 
         addTimelineElement(
                 timelineUtils.buildAnalogProgressTimelineElement(notification, attachments, progressIndex, sendPaperDetails, sendEventInt, sendRequestId),
                 notification);
     }
 
-    public void addSimpleRegisteredLetterProgressToTimeline(NotificationInt notification, Integer recIndex, List<AttachmentDetailsInt> attachments,
+    public void addSimpleRegisteredLetterProgressToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
                                                                    BaseRegisteredLetterDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
-        int progressIndex = getPreviousTimelineProgressSimpleRegisteredLetter(notification, recIndex).size() + 1;
+        int progressIndex = timelineService.retrieveAndIncrementCounterForTimelineEvent(sendRequestId).intValue();
 
         addTimelineElement(
                 timelineUtils.buildSimpleRegisteredLetterProgressTimelineElement(notification, attachments, progressIndex, sendPaperDetails, sendEventInt, sendRequestId),
@@ -124,31 +124,4 @@ public class AnalogWorkflowUtils {
         return notificationRecipient.getPhysicalAddress();
     }
 
-
-    private Set<TimelineElementInternal> getPreviousTimelineProgressAnalog(NotificationInt notification,
-                                                                    int recIndex, int attemptMade){
-        // per calcolare il prossimo progressIndex, devo necessariamente recuperare dal DB tutte le timeline relative a iun/recindex/source/tentativo
-        String elementIdForSearch = TimelineEventId.SEND_ANALOG_PROGRESS.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .sentAttemptMade(attemptMade)
-                        .progressIndex(-1)  // passando -1 non verrà inserito nell'id timeline, permettendo la ricerca iniziaper
-                        .build()
-        );
-        return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false);
-    }
-
-    private Set<TimelineElementInternal> getPreviousTimelineProgressSimpleRegisteredLetter(NotificationInt notification,
-                                                                     int recIndex){
-        // per calcolare il prossimo progressIndex, devo necessariamente recuperare dal DB tutte le timeline relative a iun/recindex/source/tentativo
-        String elementIdForSearch = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .progressIndex(-1)  // passando -1 non verrà inserito nell'id timeline, permettendo la ricerca iniziaper
-                        .build()
-        );
-        return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false);
-    }
 }

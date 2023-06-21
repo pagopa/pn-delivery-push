@@ -152,7 +152,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             final String prepareRequestId = timelineElementInternal.getElementId();
             String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
 
-            handleStatusProgressSimpleRegisteredLetter(response, simpleRegisteredLetterDetails, notification, recIndex, response.getAttachments(), sendRequestId);
+            handleStatusProgressSimpleRegisteredLetter(response, simpleRegisteredLetterDetails, notification, response.getAttachments(), sendRequestId);
         }
         else if (timelineElementInternal.getDetails() instanceof BaseAnalogDetailsInt sendPaperDetails){
 
@@ -169,7 +169,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             if (status!= null) {
                 switch (status) {
                     case PROGRESS -> 
-                            handleStatusProgress(response, sendPaperDetails, notification, recIndex, response.getAttachments(), sendRequestId);
+                            handleStatusProgress(response, sendPaperDetails, notification, response.getAttachments(), sendRequestId);
                     case OK ->
                             handleStatusOK(response, sendPaperDetails, notification, recIndex, response.getAttachments(), sendRequestId);
                     case KO -> 
@@ -188,12 +188,10 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     private void handleStatusProgressSimpleRegisteredLetter(SendEventInt response,
                                                             BaseRegisteredLetterDetailsInt sendPaperDetails,
                                                             NotificationInt notification,
-                                                            Integer recIndex,
                                                             List<AttachmentDetailsInt> attachments,
                                                             String sendRequestId) {
         analogWorkflowUtils.addSimpleRegisteredLetterProgressToTimeline(
                 notification,
-                recIndex,
                 attachments,
                 sendPaperDetails,
                 response,
@@ -202,13 +200,11 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
     private void handleStatusProgress(SendEventInt response,
                                       BaseAnalogDetailsInt sendPaperDetails,
-                                      NotificationInt notification, 
-                                      Integer recIndex, 
+                                      NotificationInt notification,
                                       List<AttachmentDetailsInt> attachments,
                                       String sendRequestId) {
         analogWorkflowUtils.addAnalogProgressAttemptToTimeline(
                 notification,
-                recIndex, 
                 attachments,
                 sendPaperDetails,
                 response,

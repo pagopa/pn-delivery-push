@@ -115,12 +115,14 @@ public class WebhookServiceImpl implements WebhookService {
                 .map(res -> {
                     List<ProgressResponseElement> eventList = res.getEvents().stream().map(ProgressResponseElementMapper::internalToExternal).sorted(Comparator.comparing(ProgressResponseElement::getEventId)).toList();
 
-                    log.info("consumeEventStream requestEventId={} streamId={} size={} returnedlastEventId={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"));
+                    int currentRetryAfter = res.getLastEventIdRead() == null ? retryAfter : 0;
+
+                    log.info("consumeEventStream requestEventId={} streamId={} size={} returnedlastEventId={} retryAfter={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"), currentRetryAfter);
                     // schedulo la pulizia per gli eventi precedenti a quello richiesto
                     schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventId, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM_OLDER_THAN);
                     // ritorno gli eventi successivi all'evento di buffer, FILTRANDO quello con lastEventId visto che l'ho sicuramente già ritornato
                     return ProgressResponseElementDto.builder()
-                            .retryAfter(res.getLastEventIdRead() == null ? retryAfter : 0)
+                            .retryAfter(currentRetryAfter)
                             .progressResponseElementList(eventList)
                             .build();
                 });

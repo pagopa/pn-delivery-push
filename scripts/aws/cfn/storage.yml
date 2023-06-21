@@ -279,7 +279,21 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
-  
+
+
+  TimelinesCounterTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-TimelinesCounters'
+      AttributeDefinitions:
+        - AttributeName: "timelineElementId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "timelineElementId"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
+
   PnDeliveryPushLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -391,6 +405,14 @@ Outputs:
   DocumentCreationRequestTableArn:
     Description: ARN of dynamodb table containing Document creation request to storage
     Value: !Sub '${DocumentCreationRequestTable.Arn}'
+
+
+  TimelinesCounterTableName:
+    Description: Name of dynamodb used by application to access the key-value store of CounterTable
+    Value: !Ref TimelinesCounterTable
+  TimelinesCounterTableArn:
+    Description: ARN Dynamo Name used by application to access the key-value store of CounterTable
+    Value: !Sub '${TimelinesCounterTable.Arn}'
 
   # Log group exports
   EcsLogGroup:

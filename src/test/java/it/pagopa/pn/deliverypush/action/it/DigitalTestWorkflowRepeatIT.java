@@ -114,6 +114,7 @@ import static org.awaitility.Awaitility.await;
         RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
+        TimelineCounterDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
@@ -148,7 +149,7 @@ import static org.awaitility.Awaitility.await;
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class DigitalTestWorkflowRepeatIT { 
     
     @TestConfiguration
@@ -201,6 +202,9 @@ class DigitalTestWorkflowRepeatIT {
     private TimelineDaoMock timelineDaoMock;
 
     @Autowired
+    private TimelineCounterDaoMock timelineCounterDaoMock;
+
+    @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
 
     @Autowired
@@ -249,6 +253,7 @@ class DigitalTestWorkflowRepeatIT {
     public void setup() {
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        ConsoleAppenderCustom.initializeLog();
 
         TestUtils.initializeAllMockClient(
                 safeStorageClientMock,

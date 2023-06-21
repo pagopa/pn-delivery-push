@@ -107,6 +107,7 @@ import static org.awaitility.Awaitility.await;
         AttachmentUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
+        TimelineCounterDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
@@ -182,6 +183,9 @@ class ValidationTestIT {
     private TimelineDaoMock timelineDaoMock;
 
     @Autowired
+    private TimelineCounterDaoMock timelineCounterDaoMock;
+
+    @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
 
     @Autowired
@@ -218,6 +222,7 @@ class ValidationTestIT {
     public void setup() {
         //Mock for get current date
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        ConsoleAppenderCustom.initializeLog();
 
         TestUtils.initializeAllMockClient(
                 safeStorageClientMock,

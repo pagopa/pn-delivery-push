@@ -62,7 +62,7 @@ class RefinementHandlerTest {
         NotificationInt notification = getNotificationWithPhysicalAddress();
 
         when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
-        when(timelineUtils.checkNotificationIsViewedOrPaid(iun, recIndex)).thenReturn(Boolean.FALSE);
+        when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
         when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
         when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
@@ -82,7 +82,7 @@ class RefinementHandlerTest {
         Integer recIndex = 1;
         NotificationInt notification = getNotificationWithPhysicalAddress();
 
-        when(timelineUtils.checkNotificationIsViewedOrPaid(iun, recIndex)).thenReturn(Boolean.FALSE);
+        when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
         when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
 

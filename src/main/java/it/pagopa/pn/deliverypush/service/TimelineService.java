@@ -16,6 +16,8 @@ public interface TimelineService {
 
     void addTimelineElement(TimelineElementInternal element, NotificationInt notification);
 
+    Long retrieveAndIncrementCounterForTimelineEvent(String timelineId) ;
+
     Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId);
 
     <T> Optional<T> getTimelineElementDetails(String iun, String timelineId, Class<T> timelineDetailsClass);
