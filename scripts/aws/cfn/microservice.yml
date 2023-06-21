@@ -156,6 +156,14 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing timelines'
 
+  TimelinesCounterTableName:
+    Type: String
+    Description: Name of dynamodb used by application to access the key-value store of CounterTable
+
+  TimelinesCounterTableArn:
+    Type: String
+    Description: ARN Dynamo Name used by application to access the key-value store of CounterTable
+
   PaperNotificationFailedDynamoTableName:
     Type: String
     Description: 'Name of dynamodb table containing unreacheble notifications recipients'
@@ -566,6 +574,7 @@ Resources:
         ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
         ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
         ContainerEnvEntry56: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
+        ContainerEnvEntry57: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -615,6 +624,7 @@ Resources:
             Resource:
               - !Sub "${TimelinesDynamoTableArn}"
               - !Sub "${ActionDynamoTableArn}"
+              - !Sub "${TimelinesCounterTableArn}"
           - Effect: Allow
             Action:
               - 'ssm:GetParameter'
@@ -765,7 +775,8 @@ Resources:
         DashboardName: !Sub "${ProjectName}-delivery-push"
         DynamoDBTableNames: !Join 
           - ',' 
-          - - !Ref TimelinesDynamoTableName 
+          - - !Ref TimelinesDynamoTableName
+            - !Ref TimelinesCounterTableName
             - !Ref PaperNotificationFailedDynamoTableName
             - !Ref ActionDynamoTableName
             - !Ref FutureActionDynamoTableName

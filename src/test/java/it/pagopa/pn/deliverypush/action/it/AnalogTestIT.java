@@ -121,6 +121,7 @@ import static org.awaitility.Awaitility.with;
         RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
+        TimelineCounterDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
@@ -207,6 +208,9 @@ class AnalogTestIT {
     private TimelineDaoMock timelineDaoMock;
 
     @Autowired
+    private TimelineCounterDaoMock timelineCounterDaoMock;
+
+    @Autowired
     private NotificationUtils notificationUtils;
 
     @Autowired
@@ -239,6 +243,8 @@ class AnalogTestIT {
     @BeforeEach
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        ConsoleAppenderCustom.initializeLog();
+
 
         TestUtils.initializeAllMockClient(
                 safeStorageClientMock,

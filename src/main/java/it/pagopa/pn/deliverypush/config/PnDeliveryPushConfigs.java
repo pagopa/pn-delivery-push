@@ -61,6 +61,8 @@ public class PnDeliveryPushConfigs {
 
     private TimelineDao timelineDao;
 
+    private TimelinecounterDao timelinecounterDao;
+
     private FailedNotificationDao failedNotificationDao;
 
     private ActionDao actionDao;
@@ -183,6 +185,12 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class TimelineDao {
+        private String tableName;
+    }
+
+
+    @Data
+    public static class TimelinecounterDao {
         private String tableName;
     }
 

@@ -107,6 +107,7 @@ import static org.awaitility.Awaitility.await;
         AttachmentUtils.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
+        TimelineCounterDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
@@ -180,6 +181,9 @@ class ValidationTestIT {
 
     @Autowired
     private TimelineDaoMock timelineDaoMock;
+
+    @Autowired
+    private TimelineCounterDaoMock timelineCounterDaoMock;
 
     @Autowired
     private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
