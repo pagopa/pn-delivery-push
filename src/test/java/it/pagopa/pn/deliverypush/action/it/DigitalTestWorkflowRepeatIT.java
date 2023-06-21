@@ -149,7 +149,7 @@ import static org.awaitility.Awaitility.await;
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class DigitalTestWorkflowRepeatIT { 
     
     @TestConfiguration
@@ -253,6 +253,7 @@ class DigitalTestWorkflowRepeatIT {
     public void setup() {
         
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        ConsoleAppenderCustom.initializeLog();
 
         TestUtils.initializeAllMockClient(
                 safeStorageClientMock,
