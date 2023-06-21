@@ -218,6 +218,7 @@ class ValidationTestIT {
     public void setup() {
         //Mock for get current date
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        ConsoleAppenderCustom.initializeLog();
 
         TestUtils.initializeAllMockClient(
                 safeStorageClientMock,

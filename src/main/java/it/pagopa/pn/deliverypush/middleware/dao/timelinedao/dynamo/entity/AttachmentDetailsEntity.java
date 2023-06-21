@@ -13,6 +13,7 @@ import java.time.Instant;
 @Setter
 @EqualsAndHashCode
 @DynamoDbBean
+@ToString
 public class AttachmentDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("id")}))  private String id;
     @Getter(onMethod=@__({@DynamoDbAttribute("documentType")}))  private String documentType;

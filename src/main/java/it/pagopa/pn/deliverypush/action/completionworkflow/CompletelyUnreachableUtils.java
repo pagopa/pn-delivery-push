@@ -33,9 +33,10 @@ public class CompletelyUnreachableUtils  {
 
     public void handleCompletelyUnreachable(NotificationInt notification, Integer recIndex, String legalFactId, Instant legalFactGenerationDate) {
         log.info("HandleCompletelyUnreachable - iun {} id {} ", notification.getIun(), recIndex);
-        boolean isNotificationViewedOrPaid = timelineUtils.checkNotificationIsViewedOrPaid(notification.getIun(), recIndex);
+        boolean isNotificationViewed = timelineUtils.checkIsNotificationViewed(notification.getIun(), recIndex);
 
-        if (!isNotificationViewedOrPaid) {
+        // solo nel caso di notifica visualizzata, non serve inserire il record di paper notification failed
+        if (!isNotificationViewed) {
             addPaperNotificationFailed(notification, recIndex);
         }
         addTimelineElement( 
