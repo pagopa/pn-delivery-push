@@ -317,7 +317,7 @@ public class LegalFactGenerator {
     public String generateNotificationAARSubject(NotificationInt notification) {
 
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_NOTIFICATION, notification);
 
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_SUBJECT,
