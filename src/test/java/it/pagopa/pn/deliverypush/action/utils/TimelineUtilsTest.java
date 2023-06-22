@@ -583,7 +583,7 @@ class TimelineUtilsTest {
         
         Mockito.when(timelineService.getTimelineElement(iun, creationRequestTimelineId)).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
         
-        boolean notificationIsAlreadyViewed = timelineUtils.checkIsPresentNotificationViewCreationRequest(iun, recIndex);
+        boolean notificationIsAlreadyViewed = timelineUtils.checkIsNotificationViewed(iun, recIndex);
         
         Assertions.assertTrue(notificationIsAlreadyViewed);
     }
@@ -609,7 +609,7 @@ class TimelineUtilsTest {
 
         Mockito.when(timelineService.getTimelineElement(iun, notificationViewedTimelineId)).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
 
-        boolean notificationIsAlreadyViewed = timelineUtils.checkIsPresentNotificationViewCreationRequest(iun, recIndex);
+        boolean notificationIsAlreadyViewed = timelineUtils.checkIsNotificationViewed(iun, recIndex);
 
         Assertions.assertTrue(notificationIsAlreadyViewed);
     }
@@ -635,7 +635,7 @@ class TimelineUtilsTest {
 
         Mockito.when(timelineService.getTimelineElement(iun, notificationViewedTimelineId)).thenReturn(Optional.empty());
 
-        boolean notificationIsAlreadyViewed = timelineUtils.checkIsPresentNotificationViewCreationRequest(iun, recIndex);
+        boolean notificationIsAlreadyViewed = timelineUtils.checkIsNotificationViewed(iun, recIndex);
 
         Assertions.assertFalse(notificationIsAlreadyViewed);
     }

@@ -148,7 +148,7 @@ class FailureWorkflowHandlerTest {
         Mockito.when(logEvent.generateSuccess()).thenReturn(Mockito.mock(PnAuditLogEvent.class));
 
         Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
-        Mockito.when(timelineUtils.checkIsPresentNotificationViewCreationRequest(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
         final TimelineElementInternal notHandledElement = TimelineElementInternal.builder().build();
         Mockito.when(timelineUtils.buildNotHandledTimelineElement(notification,
@@ -192,7 +192,7 @@ class FailureWorkflowHandlerTest {
         Mockito.when(logEvent.generateSuccess()).thenReturn(Mockito.mock(PnAuditLogEvent.class));
 
         Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
-        Mockito.when(timelineUtils.checkIsPresentNotificationViewCreationRequest(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
         
         //WHEN
         handler.handleFailureWorkflow(notification, recIndex, logEvent, details);
