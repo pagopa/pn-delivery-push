@@ -60,7 +60,7 @@ public class StatusUtils {
                                                                       Instant notificationCreatedAt) {
         //La timeline ricevuta in ingresso è relativa a tutta la notifica e non al singolo recipient
         List<TimelineElementInternal> timelineByTimestampSorted = timelineElementList.stream()
-                .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
+                .sorted(Comparator.naturalOrder())
                 .toList();
     
         List<NotificationStatusHistoryElementInt> timelineHistory = new ArrayList<>();
