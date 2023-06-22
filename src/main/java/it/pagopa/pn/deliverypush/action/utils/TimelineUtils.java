@@ -1097,10 +1097,10 @@ public class TimelineUtils {
 
         return notificationPaid;
     }
-
-    public boolean checkIsPresentNotificationViewCreationRequest(String iun, Integer recIndex){
+    
+    public boolean checkIsNotificationViewed(String iun, Integer recIndex) {
         log.debug("checkNotificationIsAlreadyViewed - iun={} recIndex={}", iun, recIndex);
-        
+
         Optional<TimelineElementInternal> notificationViewCreationRequestOpt = getNotificationViewCreationRequest(iun, recIndex);
 
         if(notificationViewCreationRequestOpt.isEmpty()){
@@ -1111,13 +1111,8 @@ public class TimelineUtils {
 
             return notificationViewOpt.isPresent();
         }
-        
-        return true;
-    }
 
-    public boolean checkIsNotificationViewed(String iun, Integer recIndex) {
-        Optional<TimelineElementInternal> notificationViewTimelineElement = getNotificationView(iun, recIndex);
-        return notificationViewTimelineElement.isPresent();
+        return true;
     }
 
     private Optional<TimelineElementInternal> getNotificationView(String iun, Integer recIndex) {
