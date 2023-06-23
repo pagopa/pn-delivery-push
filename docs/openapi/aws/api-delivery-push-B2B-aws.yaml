@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: NrF0bSTe8xo9lbNRhzhh4XO4gybWXfYi40HxEt7IPtQ=
+  version: dIP9ZP58L8pUk0bYVzcgYkS4mibsNAZ9dvtF4imeQs0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -164,6 +164,89 @@ paths:
         requestParameters:
           integration.request.path.iun: method.request.path.iun
           integration.request.path.legalFactType: method.request.path.legalFactType
+          integration.request.path.legalFactId: method.request.path.legalFactId
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /{iun}/legal-facts/{legalFactId}:
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi <br/> L'unico valore
+        ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getLegalFactById
+      parameters:
+        - $ref: '#/components/parameters/lollipopOriginalUrl'
+        - $ref: '#/components/parameters/lollipopOriginalMethod'
+        - $ref: '#/components/parameters/lollipopPublicKey'
+        - $ref: '#/components/parameters/lollipopAssertionRef'
+        - $ref: '#/components/parameters/lollipopAssertionType'
+        - $ref: '#/components/parameters/lollipopAuthJwt'
+        - $ref: '#/components/parameters/lollipopUserId'
+        - $ref: '#/components/parameters/lollipopSignatureInput'
+        - $ref: '#/components/parameters/lollipopSignature'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/legal-facts/{legalFactId}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.legalFactId: method.request.path.legalFactId
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /{iun}/legal-facts/{legalFactId} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/legal-facts/{legalFactId}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
           integration.request.path.legalFactId: method.request.path.legalFactId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK

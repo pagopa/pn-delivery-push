@@ -113,7 +113,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     @NotNull
     private LegalFactDownloadMetadataResponse generateResponse(String iun, LegalFactCategory legalFactType, String legalfactId, FileDownloadResponseInt fileDownloadResponse) {
         LegalFactDownloadMetadataResponse response = new LegalFactDownloadMetadataResponse();
-        response.setFilename( FileUtils.buildFileName(iun, legalFactType.getValue(), legalfactId, fileDownloadResponse.getContentType()));
+        response.setFilename( FileUtils.buildFileName(iun, legalFactType==null?null:legalFactType.getValue(), legalfactId, fileDownloadResponse.getContentType()));
         response.setContentLength(fileDownloadResponse.getContentLength());
         response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
         response.setUrl(fileDownloadResponse.getDownload().getUrl());

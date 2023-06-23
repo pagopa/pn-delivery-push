@@ -142,6 +142,58 @@ paths:
             application/problem+json: 
               schema: 
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+  '/delivery-push/{iun}/legal-facts/{legalFactId}':
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getLegalFactById
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+#        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
   '/delivery-push/{iun}/document/{documentType}':
     get:
