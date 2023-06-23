@@ -151,9 +151,18 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "actionId"
           AttributeType: "S"
+        - AttributeName: "iun"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "actionId"
           KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: "iun-index"
+          KeySchema:
+            - AttributeName: "iun"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
       TimeToLiveSpecification:
         AttributeName: "ttl"
