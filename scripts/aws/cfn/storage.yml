@@ -78,6 +78,8 @@ Resources:
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_push_actions'
         AlarmSNSTopicName: !Ref AlarmSNSTopicName        
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
         DelaySeconds: 1
 
   DoneActionsQueue:
@@ -89,6 +91,8 @@ Resources:
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_push_actions_done'
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
         DelaySeconds: 1
 
   # Notification Timeline DynamoDB Table
