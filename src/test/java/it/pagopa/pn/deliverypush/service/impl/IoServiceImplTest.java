@@ -76,6 +76,46 @@ class IoServiceImplTest {
     }
 
     @Test
+    void sendIOMessageLongPA() {
+        //GIVEN
+
+        NotificationInt notificationInt = NotificationTestBuilder.builder()
+                .withIun("IUN")
+                .withPaId("1234567890123456789012345678901234567890123456789012345678901234567890")
+                .withNotificationRecipient(
+                        NotificationRecipientTestBuilder.builder()
+                                .withTaxId("taxId")
+                                .withPayment(
+                                        NotificationPaymentInfoInt.builder()
+                                                .creditorTaxId("cred")
+                                                .noticeCode("notice")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(
+                notificationInt.getRecipients().get(0)
+        );
+
+        final SendMessageResponse.ResultEnum sentCourtesy = SendMessageResponse.ResultEnum.SENT_COURTESY;
+        Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
+                new SendMessageResponse()
+                        .id("1871")
+                        .result(sentCourtesy)
+        );
+
+        //WHEN
+        SendMessageResponse.ResultEnum res = null;
+
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
+
+        assertEquals(sentCourtesy, res);
+    }
+
+    @Test
     void sendIOMessageNotSent() {
         //GIVEN
 
