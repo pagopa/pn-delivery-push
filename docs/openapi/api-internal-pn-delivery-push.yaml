@@ -142,7 +142,7 @@ paths:
             application/problem+json: 
               schema: 
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-  '/delivery-push/{iun}/legal-facts/{legalFactId}':
+  '/delivery-push/{iun}/download/legal-facts/{legalFactId}':
     get:
       summary: Singolo atto opponibile a terzi
       description: >-

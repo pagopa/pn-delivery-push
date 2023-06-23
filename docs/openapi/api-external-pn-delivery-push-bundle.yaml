@@ -119,7 +119,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/legal-facts/{legalFactId}:
+  /delivery-push/{iun}/download/legal-facts/{legalFactId}:
     get:
       summary: Singolo atto opponibile a terzi
       description: Permette di scaricare un atto opponibile a terzi <br/> L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`

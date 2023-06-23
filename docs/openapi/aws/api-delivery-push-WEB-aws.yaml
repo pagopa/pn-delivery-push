@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: faCV9QvhVskow/hrIc+N19ll540nTavYqitH9OWvE2Q=
+  version: rCjhj9ZRaMIbvCg8buN0TlrRJCKmAPAWiUqzrNQwVrM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -167,7 +167,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /{iun}/legal-facts/{legalFactId}:
+  /{iun}/download/legal-facts/{legalFactId}:
     get:
       summary: Singolo atto opponibile a terzi
       description: >-
@@ -218,7 +218,7 @@ paths:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/legal-facts/{legalFactId}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/download/legal-facts/{legalFactId}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -236,10 +236,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /{iun}/legal-facts/{legalFactId} API CORS
+      operationId: Options for /{iun}/download/legal-facts/{legalFactId} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/legal-facts/{legalFactId}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/{iun}/download/legal-facts/{legalFactId}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:

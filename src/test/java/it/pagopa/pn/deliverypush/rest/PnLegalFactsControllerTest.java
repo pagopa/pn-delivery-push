@@ -113,7 +113,7 @@ class PnLegalFactsControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + IUN + "/legal-facts/" + legalFactsId)
+                                .path("/delivery-push/" + IUN + "/download/legal-facts/" + legalFactsId)
                                 .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
@@ -144,7 +144,7 @@ class PnLegalFactsControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + IUN + "/legal-facts/" + legalFactsId)
+                                .path("/delivery-push/" + IUN + "/download/legal-facts/" + legalFactsId)
                                 .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
@@ -182,7 +182,7 @@ class PnLegalFactsControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + IUN + "/legal-facts/" + legalFactsId)
+                                .path("/delivery-push/" + IUN + "/download/legal-facts/" + legalFactsId)
                                 .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
