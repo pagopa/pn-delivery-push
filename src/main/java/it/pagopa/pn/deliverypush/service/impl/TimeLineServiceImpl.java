@@ -323,6 +323,7 @@ public class TimeLineServiceImpl implements TimelineService {
                                                        NotificationStatusInt currentStatus) {
 
         List<TimelineElement> timelineList = timelineElements.stream()
+                .sorted(Comparator.naturalOrder())
                 .map(TimelineElementMapper::internalToExternal)
                 .toList();
 
