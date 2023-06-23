@@ -36,6 +36,21 @@ public class PnLegalFactsController implements LegalFactsApi {
         return getLegalFactService.getLegalFactMetadata(iun, legalFactType, legalFactId, xPagopaPnCxId, (mandateId != null ? mandateId.toString() : null), xPagopaPnCxType, xPagopaPnCxGroups)
                 .map(response -> ResponseEntity.ok().body(response));
     }
+
+
+    @Override
+    public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFactById(
+            String xPagopaPnUid,
+            CxTypeAuthFleet xPagopaPnCxType,
+            String xPagopaPnCxId,
+            String iun,
+            String legalFactId,
+            List<String> xPagopaPnCxGroups,
+            UUID mandateId,
+            ServerWebExchange exchange) {
+        return getLegalFactService.getLegalFactMetadata(iun, null, legalFactId, xPagopaPnCxId, (mandateId != null ? mandateId.toString() : null), xPagopaPnCxType, xPagopaPnCxGroups)
+                .map(response -> ResponseEntity.ok().body(response));
+    }
     
     @Override
     public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFacts(
