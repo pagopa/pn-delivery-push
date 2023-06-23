@@ -30,7 +30,7 @@ public class FileUtils {
         }
 
         return iun.replaceAll("[^a-zA-Z0-9]", "")
-                + "_" + fileType
+                + (fileType==null?"":("_" + fileType))
                 + "_" + fileId.replace(SAFE_STORAGE_URL_PREFIX, "").replaceAll("[^a-zA-Z0-9]", "")
                 + "." + extension;
     }
