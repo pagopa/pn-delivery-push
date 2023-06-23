@@ -34,6 +34,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -115,7 +116,7 @@ class TimeLineServiceImplTest {
         Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
                 .thenReturn(setTimelineElement);
 
-        TimelineElementInternal newElement = getSendPaperFeedbackTimelineElement(iun, elementId);
+        TimelineElementInternal newElement = getSendPaperFeedbackTimelineElement(iun, elementId, Instant.now());
 
         Mockito.doThrow(new PnInternalException("error", "test")).when(statusService).checkAndUpdateStatus(Mockito.any(TimelineElementInternal.class), Mockito.anySet(), Mockito.any(NotificationInt.class));
 
@@ -311,7 +312,7 @@ class TimeLineServiceImplTest {
         String timelineId2 = "idTimeline2";
         TimelineElementInternal sendDigitalConfInf = getSendDigitalTimelineElement(iun, timelineId2);
         String timelineId3 = "idTimeline3";
-        TimelineElementInternal sendPaperFeedbackConfInf = getSendPaperFeedbackTimelineElement(iun, timelineId3);
+        TimelineElementInternal sendPaperFeedbackConfInf = getSendPaperFeedbackTimelineElement(iun, timelineId3, Instant.now());
 
         List<TimelineElementInternal> timelineElementList = new ArrayList<>();
         timelineElementList.add(scheduleAnalogNoConfInf);
@@ -444,6 +445,84 @@ class TimeLineServiceImplTest {
         SendAnalogDetailsInt details = (SendAnalogDetailsInt) elementInt.getDetails();
         Assertions.assertEquals( firstElementReturned.getDetails().getRecIndex(), details.getRecIndex());
         Assertions.assertEquals( firstElementReturned.getDetails().getPhysicalAddress().getAddress(), details.getPhysicalAddress().getAddress() );
+
+    }
+
+
+    @Test
+    void getTimelineAndStatusHistoryOrder() {
+        //GIVEN
+        String iun = "iun";
+        int numberOfRecipients1 = 1;
+        Instant notificationCreatedAt = Instant.now();
+        NotificationStatusInt currentStatus = NotificationStatusInt.DELIVERING;
+
+        String elementId1 = "elementId1";
+        Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
+        Instant t = Instant.EPOCH.plus(1, ChronoUnit.DAYS);
+        TimelineElementInternal elementInternalFeedback = getSendPaperFeedbackTimelineElement(iun, elementId1+"FEEDBACK", t);
+        setTimelineElement.add(elementInternalFeedback);
+        TimelineElementInternal elementInternalProg = getSendPaperProgressTimelineElement(iun, elementId1+"PROGRESS", t);
+        setTimelineElement.add(elementInternalProg);
+        Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
+                .thenReturn(setTimelineElement);
+
+        Instant activeFromInValidation = Instant.now();
+
+        NotificationStatusHistoryElementInt inValidationElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.IN_VALIDATION)
+                .activeFrom(activeFromInValidation)
+                .build();
+
+        Instant activeFromAccepted = activeFromInValidation.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElementInt acceptedElementElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
+                .activeFrom(activeFromAccepted)
+                .build();
+
+        Instant activeFromDelivering = activeFromAccepted.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElementInt deliveringElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.DELIVERING)
+                .activeFrom(activeFromDelivering)
+                .build();
+
+        List<NotificationStatusHistoryElementInt> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
+
+        Mockito.when(
+                statusUtils.getStatusHistory(Mockito.anySet() ,Mockito.anyInt(), Mockito.any(Instant.class))
+        ).thenReturn(notificationStatusHistoryElements);
+
+        Mockito.when(
+                statusUtils.getCurrentStatus( Mockito.anyList() )
+        ).thenReturn(currentStatus);
+
+        //WHEN
+        NotificationHistoryResponse notificationHistoryResponse = timeLineService.getTimelineAndStatusHistory(iun, numberOfRecipients1, notificationCreatedAt);
+
+        //THEN
+
+        //Viene verificato che il numero di elementi restituiti sia 2, dunque che sia stato eliminato l'elemento con category "IN VALIDATION"
+        Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
+
+        NotificationStatusHistoryElement firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
+        Assertions.assertEquals(acceptedElementElement.getStatus(), NotificationStatusInt.valueOf(firstElement.getStatus().getValue()) );
+        Assertions.assertEquals(inValidationElement.getActiveFrom(), firstElement.getActiveFrom());
+
+        NotificationStatusHistoryElement secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
+        Assertions.assertEquals(deliveringElement.getStatus(), NotificationStatusInt.valueOf(secondElement.getStatus().getValue()));
+        Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
+
+        //Verifica timeline
+        List<TimelineElementInternal> timelineElementList = new ArrayList<>(setTimelineElement);
+
+        Assertions.assertEquals(timelineElementList.size() , notificationHistoryResponse.getTimeline().size());
+
+        TimelineElement firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
+
+        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
+        Assertions.assertEquals( elementInternalProg.getElementId(), firstElementReturned.getElementId() );
 
     }
 
@@ -597,8 +676,22 @@ class TimeLineServiceImplTest {
                 .details( details )
                 .build();
     }
+
+    private TimelineElementInternal getSendPaperProgressTimelineElement(String iun, String elementId, Instant timestamp) {
+        SendAnalogProgressDetailsInt details =  SendAnalogProgressDetailsInt.builder()
+                .recIndex(0)
+                .deliveryDetailCode("CON080")
+                .build();
+        return TimelineElementInternal.builder()
+                .elementId(elementId)
+                .iun(iun)
+                .category(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS)
+                .timestamp(timestamp)
+                .details( details )
+                .build();
+    }
     
-    private TimelineElementInternal getSendPaperFeedbackTimelineElement(String iun, String elementId) {
+    private TimelineElementInternal getSendPaperFeedbackTimelineElement(String iun, String elementId, Instant timestamp) {
          SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
                 .newAddress(
                         PhysicalAddressInt.builder()
@@ -613,6 +706,8 @@ class TimeLineServiceImplTest {
         return TimelineElementInternal.builder()
                 .elementId(elementId)
                 .iun(iun)
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .timestamp(timestamp)
                 .details( details )
                 .build();
     }
