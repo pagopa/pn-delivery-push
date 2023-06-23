@@ -630,6 +630,13 @@ Resources:
             Resource:
               - !Sub "${TimelinesDynamoTableArn}"
               - !Sub "${ActionDynamoTableArn}"
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:UpdateItem
+            Resource:
               - !Sub "${TimelinesCounterTableArn}"
           - Effect: Allow
             Action:
