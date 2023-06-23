@@ -78,6 +78,8 @@ Resources:
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_push_actions'
         AlarmSNSTopicName: !Ref AlarmSNSTopicName        
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
         DelaySeconds: 1
 
   DoneActionsQueue:
@@ -89,6 +91,8 @@ Resources:
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_push_actions_done'
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
         DelaySeconds: 1
 
   # Notification Timeline DynamoDB Table
@@ -147,9 +151,18 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "actionId"
           AttributeType: "S"
+        - AttributeName: "iun"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "actionId"
           KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: "iun-index"
+          KeySchema:
+            - AttributeName: "iun"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
       TimeToLiveSpecification:
         AttributeName: "ttl"

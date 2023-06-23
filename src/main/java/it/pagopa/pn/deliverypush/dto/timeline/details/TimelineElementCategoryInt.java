@@ -17,7 +17,7 @@ public enum TimelineElementCategoryInt {
     SCHEDULE_DIGITAL_WORKFLOW(ScheduleDigitalWorkflowDetailsInt.class, TimelineElementCategory.SCHEDULE_DIGITAL_WORKFLOW.getValue()),
     PREPARE_DIGITAL_DOMICILE(PrepareDigitalDetailsInt.class, TimelineElementCategory.PREPARE_DIGITAL_DOMICILE.getValue()),
     SEND_DIGITAL_DOMICILE(SendDigitalDetailsInt.class, TimelineElementCategory.SEND_DIGITAL_DOMICILE.getValue()),
-    SEND_DIGITAL_FEEDBACK(SendDigitalFeedbackDetailsInt.class, TimelineElementCategory.SEND_DIGITAL_FEEDBACK.getValue()),
+    SEND_DIGITAL_FEEDBACK(SendDigitalFeedbackDetailsInt.class, TimelineElementCategory.SEND_DIGITAL_FEEDBACK.getValue(), TimelineElementCategoryInt.PRIORITY_AFTER),
     SEND_DIGITAL_PROGRESS(SendDigitalProgressDetailsInt.class, TimelineElementCategory.SEND_DIGITAL_PROGRESS.getValue()),
     REFINEMENT(RefinementDetailsInt.class, TimelineElementCategory.REFINEMENT.getValue()),
     SCHEDULE_REFINEMENT(ScheduleRefinementDetailsInt.class, TimelineElementCategory.SCHEDULE_REFINEMENT.getValue()),
@@ -34,7 +34,7 @@ public enum TimelineElementCategoryInt {
     PREPARE_ANALOG_DOMICILE(BaseAnalogDetailsInt.class, TimelineElementCategory.PREPARE_ANALOG_DOMICILE.getValue()),
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategory.SEND_ANALOG_DOMICILE.getValue()),
     SEND_ANALOG_PROGRESS(SendAnalogProgressDetailsInt.class, TimelineElementCategory.SEND_ANALOG_PROGRESS.getValue()),
-    SEND_ANALOG_FEEDBACK(SendAnalogFeedbackDetailsInt.class, TimelineElementCategory.SEND_ANALOG_FEEDBACK.getValue()),
+    SEND_ANALOG_FEEDBACK(SendAnalogFeedbackDetailsInt.class, TimelineElementCategory.SEND_ANALOG_FEEDBACK.getValue(), TimelineElementCategoryInt.PRIORITY_AFTER),
     PAYMENT(NotificationPaidDetailsInt.class, TimelineElementCategory.PAYMENT.getValue()),
     COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategory.COMPLETELY_UNREACHABLE.getValue()),
     REQUEST_REFUSED(RequestRefusedDetailsInt.class, TimelineElementCategory.REQUEST_REFUSED.getValue()),
@@ -46,13 +46,24 @@ public enum TimelineElementCategoryInt {
     
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
     private final String value;
+    private final int priority;
+
+
+    public static final int PRIORITY_BEFORE = 10;
+    public static final int PRIORITY_AFTER = 20;
     
     TimelineElementCategoryInt(Class<? extends TimelineElementDetailsInt> detailsJavaClass, String value) {
+        this(detailsJavaClass, value, PRIORITY_BEFORE);
+    }
+
+
+    TimelineElementCategoryInt(Class<? extends TimelineElementDetailsInt> detailsJavaClass, String value, int priority) {
         if(! this.name().equals(value)){
             throw new IllegalArgumentException("Value " +value+" must be equals to enum name "+this.name());
         }
         this.detailsJavaClass = detailsJavaClass;
         this.value = value;
+        this.priority = priority;
     }
     
     public Class<? extends TimelineElementDetailsInt> getDetailsJavaClass() {

@@ -487,6 +487,12 @@ Parameters:
     Default: 0
     Description: Weight to assign to queue number of visible messages metric
 
+
+  ApplicationLoadBalancerMetricsDimensionName:
+    Type: String
+    Default: ''
+    Description: Application load balancer dimension name
+    
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -624,6 +630,13 @@ Resources:
             Resource:
               - !Sub "${TimelinesDynamoTableArn}"
               - !Sub "${ActionDynamoTableArn}"
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:UpdateItem
+            Resource:
               - !Sub "${TimelinesCounterTableArn}"
           - Effect: Allow
             Action:
@@ -918,7 +931,7 @@ Resources:
                 - Name: TargetGroup
                   Value: !GetAtt DeliveryPushMicroservice.Outputs.TargetGroupName
                 - Name: LoadBalancer
-                  Value: "app/EcsA-20230409091221502000000003/cd4575e85956994c"
+                  Value: !Ref ApplicationLoadBalancerMetricsDimensionName
               Namespace: "AWS/ApplicationELB"
               MetricName: "HealthyHostCount"
             Period: !Ref AutoscalingCheckPeriod
