@@ -90,8 +90,8 @@ info:
           <li><strong>AAR_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage</em></li>
           <li><strong>SEND_COURTESY_MESSAGE </strong><em>Invio di un messaggio di cortesia.</em></li>
           <li><strong>GET_ADDRESS </strong><em>Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali).</em></li>
-          <li><strong>NATIONAL_REGISTRY_CALL </strong><em>Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.</em></li>
-          <li><strong>NATIONAL_REGISTRY_RESPONSE </strong><em>Ricevuta la risposta dei registri pubblici.</em></li>
+          <li><strong>PUBLIC_REGISTRY_CALL </strong><em>Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.</em></li>
+          <li><strong>PUBLIC_REGISTRY_RESPONSE </strong><em>Ricevuta la risposta dei registri pubblici.</em></li>
           <li><strong>SCHEDULE_ANALOG_WORKFLOW </strong><em>Pianificazione del workflow per invio cartaceo</em></li>
           <li><strong>SCHEDULE_DIGITAL_WORKFLOW </strong><em>Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.</em></li>
           <li><strong>PREPARE_DIGITAL_DOMICILE </strong><em>Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.</em></li>
