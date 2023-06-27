@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
+
 @Component
 @Slf4j
 public class TimelineUtils {
@@ -926,7 +928,7 @@ public class TimelineUtils {
 
         return buildTimeline(
                 notification,
-                TimelineElementCategoryInt.PAYMENT,
+                PAYMENT,
                 elementId,
                 notificationPaidInt.getPaymentDate(),
                 details, 
@@ -1078,24 +1080,37 @@ public class TimelineUtils {
 
         if (! isNotificationViewed){
             log.debug("notification is not viewed need to check if is paid - iun={} recIndex={}", iun, recIndex);
-            return checkIsNotificationPaid(iun);
+            return checkIsNotificationPaid(iun, recIndex);
         }
 
         return true;
     }
 
-    public boolean checkIsNotificationPaid(String iun) {
+    public boolean checkIsNotificationPaid(String iun, Integer recIndex) {
+        boolean isNotificationPaid = false;
+        
         String elementId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .build());
-
+        
         Set<TimelineElementInternal> notificationPaidElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
+        
+        if(notificationPaidElements != null){
+            Optional<TimelineElementInternal> notificationPaidOpt = notificationPaidElements.stream().filter( element ->{
+                        if(PAYMENT.equals(element.getCategory())){
+                            NotificationPaidDetailsInt details = (NotificationPaidDetailsInt) element.getDetails();
+                            return recIndex.equals(details.getRecIndex());
+                        }
+                        return false;
+                    }
+            ).findFirst();
 
-        boolean notificationPaid = notificationPaidElements != null && !notificationPaidElements.isEmpty();
-        log.debug("NotificationPaid value is={}", notificationPaid);
-
-        return notificationPaid;
+            isNotificationPaid = notificationPaidOpt.isPresent();
+            log.debug("NotificationPaid value is={}", isNotificationPaid);
+        }
+        
+        return isNotificationPaid;
     }
     
     public boolean checkIsNotificationViewed(String iun, Integer recIndex) {
