@@ -639,6 +639,149 @@ class TimelineUtilsTest {
 
         Assertions.assertFalse(notificationIsAlreadyViewed);
     }
+
+    @Test
+    void checkIsNotificationNotPaidNull() {
+        String iun = "testIun";
+        Integer recIndex = 0;
+
+        Set<TimelineElementInternal> setTimelineElement = null;
+        Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.anyString(), Mockito.eq(false))).thenReturn(setTimelineElement);
+        
+        boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
+        Assertions.assertFalse(isNotificationPaid);
+    }
+
+    @Test
+    void checkIsNotificationNotPaid() {
+        String iun = "testIun";
+        Integer recIndex = 0;
+
+        Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.anyString(), Mockito.eq(false))).thenReturn(new HashSet<>());
+
+        boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
+        Assertions.assertFalse(isNotificationPaid);
+    }
+
+    @Test
+    void checkIsNotificationNotPaidWithElements() {
+        String iun = "testIun";
+        Integer recIndex = 0;
+
+        Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW)
+                .elementId("test")
+                .build();
+        setTimelineElement.add(timelineElementInternal);
+        
+        Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.eq("test1"), Mockito.eq(false))).thenReturn(setTimelineElement);
+
+        boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
+        Assertions.assertFalse(isNotificationPaid);
+    }
+
+    @Test
+    void checkIsNotificationPaid() {
+        String iun = "testIun";
+        Integer recIndex = 0;
+
+        Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
+
+        String timelineEventId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.PAYMENT)
+                .elementId(timelineEventId)
+                .details(NotificationPaidDetailsInt.builder()
+                        .recIndex(recIndex)
+                        .build())
+                .build();
+        
+        setTimelineElement.add(timelineElementInternal);
+        
+        Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.eq(timelineEventId), Mockito.eq(false))).thenReturn(setTimelineElement);
+
+        boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
+        Assertions.assertTrue(isNotificationPaid);
+    }
+
+    @Test
+    void checkIsNotificationPaidDifferentRecipient() {
+        String iun = "testIun";
+        Integer recIndex = 1;
+
+        Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
+
+        String timelineEventId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.PAYMENT)
+                .elementId(timelineEventId)
+                .details(NotificationPaidDetailsInt.builder()
+                        .recIndex(0)
+                        .build())
+                .build();
+
+        TimelineElementInternal timelineElementInternal2 = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .elementId("timelineEventId2")
+                .details(AarGenerationDetailsInt.builder()
+                        .recIndex(recIndex)
+                        .build())
+                .build();
+        
+        setTimelineElement.add(timelineElementInternal);
+        setTimelineElement.add(timelineElementInternal2);
+        
+        Mockito.when(timelineService.getTimelineByIunTimelineId(iun, timelineEventId, false)).thenReturn(setTimelineElement);
+
+        boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
+        Assertions.assertFalse(isNotificationPaid);
+    }
+
+    @Test
+    void checkIsNotificationPaidSameRecipient() {
+        String iun = "testIun";
+        Integer recIndex = 0;
+
+        Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
+
+        String timelineEventId = TimelineEventId.NOTIFICATION_PAID.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.PAYMENT)
+                .elementId(timelineEventId)
+                .details(NotificationPaidDetailsInt.builder()
+                        .recIndex(recIndex)
+                        .build())
+                .build();
+
+        TimelineElementInternal timelineElementInternal2 = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .elementId("timelineEventId2")
+                .details(AarGenerationDetailsInt.builder()
+                        .recIndex(recIndex)
+                        .build())
+                .build();
+
+        setTimelineElement.add(timelineElementInternal);
+        setTimelineElement.add(timelineElementInternal2);
+
+        Mockito.when(timelineService.getTimelineByIunTimelineId(iun, timelineEventId, false)).thenReturn(setTimelineElement);
+
+        boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
+        Assertions.assertTrue(isNotificationPaid);
+    }
     
     private NotificationSenderInt createSender() {
         return NotificationSenderInt.builder()

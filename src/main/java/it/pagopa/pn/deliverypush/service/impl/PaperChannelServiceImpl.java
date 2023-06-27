@@ -122,7 +122,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         boolean isNotificationAlreadyPaid = false;
 
         if ( !isNotificationAlreadyViewed ) {
-            isNotificationAlreadyPaid = timelineUtils.checkIsNotificationPaid(iun);
+            isNotificationAlreadyPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
             if (isNotificationAlreadyPaid) {
                 // è un caso anomalo: la notifica non è stata visualizzata, ma è stata pagata.
                 // va segnalato perchè è un caso "strano", non si capisce come abbia fatto l'utente a pagarla senza riceverla
