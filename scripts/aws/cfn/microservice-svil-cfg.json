@@ -25,6 +25,7 @@
     "AddressManagerBaseUrl": "http://alb.confidential.pn.internal:8080",
     "MaxPdfAllowedSize": "200MB",
     "EnableCheckPdfContent": "true",
-    "IsLollipopActive": "false"
+    "IsLollipopActive": "false",
+    "CheckCfEnabled": "false"
   }
 }

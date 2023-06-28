@@ -24,6 +24,7 @@
     "LandingUrl": "https://www.dev.notifichedigitali.it/",
     "MaxPdfAllowedSize": "200MB",
     "EnableCheckPdfContent": "true",
-    "IsLollipopActive": "false"
+    "IsLollipopActive": "false",
+    "CheckCfEnabled": "false"
   }
 }
