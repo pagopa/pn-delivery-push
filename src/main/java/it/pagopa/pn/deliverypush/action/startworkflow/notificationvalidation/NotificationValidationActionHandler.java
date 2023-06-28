@@ -56,7 +56,7 @@ public class NotificationValidationActionHandler {
         try {
             attachmentUtils.validateAttachment(notification);
             
-            if(cfg.isCheckPdfValidEnabled()){
+            if(cfg.isCheckCfEnabled()){
                 taxIdPivaValidator.validateTaxIdPiva(notification);
             } else {
                 log.info("TaxId validation skipped - iun={}", iun);
@@ -104,7 +104,13 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(NotificationInt notification, int validationStep) {
-        return auditLogService.buildAuditLogEvent(notification.getIun(), PnAuditLogEventType.AUD_NT_VALID, "Notification validation step={} of 2, iun={}", validationStep, notification.getIun());
+        return auditLogService.buildAuditLogEvent(
+                notification.getIun(),
+                PnAuditLogEventType.AUD_NT_VALID,
+                "Notification validation step={} of 2, iun={}",
+                validationStep,
+                notification.getIun()
+        );
     }
 
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {

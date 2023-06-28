@@ -65,6 +65,9 @@ class NotificationValidationActionHandlerTest {
     @Test
     void validateNotificationOK() {
         //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+
         NotificationInt notification = TestUtils.getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -86,12 +89,17 @@ class NotificationValidationActionHandlerTest {
         //THEN
         Mockito.verify(attachmentUtils).validateAttachment(notification);
         Mockito.verify(auditLogEvent).generateSuccess();
+        Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), Mockito.any());
+
     }
     
     @ExtendWith(SpringExtension.class)
     @Test
     void validateNotificationKONotFound_isSafeStorageFileNotFoundRetry_true() {
         //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+
         NotificationInt notification = TestUtils.getNotification();
         Mockito.when(cfg.isSafeStorageFileNotFoundRetry())
                 .thenReturn(true);
@@ -126,6 +134,8 @@ class NotificationValidationActionHandlerTest {
     @Test
     void validateNotificationKONotFound_isSafeStorageFileNotFoundRetry_false() {
         //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
         NotificationInt notification = TestUtils.getNotification();
         Mockito.when(cfg.isSafeStorageFileNotFoundRetry())
                 .thenReturn(false);
@@ -160,6 +170,9 @@ class NotificationValidationActionHandlerTest {
     @Test
     void validateNotificationKOFileShaError() {
         //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+
         NotificationInt notification = TestUtils.getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -185,17 +198,21 @@ class NotificationValidationActionHandlerTest {
         Mockito.verify(addressValidator, Mockito.never()).requestValidateAndNormalizeAddresses(notification);
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
         Mockito.verify(auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
+        Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), Mockito.any());
     }
 
     @ExtendWith(SpringExtension.class)
     @Test
     void validateNotificationKOTaxIdNotValid() {
         //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+
         NotificationInt notification = TestUtils.getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        doThrow(new PnValidationTaxIdNotValidException("detail")).when(attachmentUtils).validateAttachment(notification);
-
+        doThrow(new PnValidationTaxIdNotValidException("detail")).when(taxIdPivaValidator).validateTaxIdPiva(notification);
+        
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(1)
                 .build();
@@ -216,12 +233,54 @@ class NotificationValidationActionHandlerTest {
         Mockito.verify(addressValidator, Mockito.never()).requestValidateAndNormalizeAddresses(notification);
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
         Mockito.verify(auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
+        Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), Mockito.any());
+    }
+
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void validateNotificationTaxIdSkipped() {
+        //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(false);
+
+        NotificationInt notification = TestUtils.getNotification();
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+
+        NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
+                .retryAttempt(1)
+                .build();
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
+        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
+                .thenReturn(timelineElementInternal);
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(auditLogEvent);
+
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
+        Mockito.when(addressValidator.requestValidateAndNormalizeAddresses(notification)).thenReturn(Mono.empty());
+
+        //WHEN
+        handler.validateNotification(notification.getIun(), details);
+
+        //THEN
+        Mockito.verify(addressValidator).requestValidateAndNormalizeAddresses(notification);
+        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(taxIdPivaValidator, Mockito.never()).validateTaxIdPiva(notification);
+        Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), Mockito.any());
     }
     
     @ExtendWith(SpringExtension.class)
     @Test
     void validateNotificationErrorCheckRetry() {
         //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+
         NotificationInt notification = TestUtils.getNotification();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
