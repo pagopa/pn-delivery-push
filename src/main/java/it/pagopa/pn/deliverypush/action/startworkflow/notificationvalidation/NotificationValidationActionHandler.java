@@ -55,13 +55,17 @@ public class NotificationValidationActionHandler {
         
         try {
             attachmentUtils.validateAttachment(notification);
-            taxIdPivaValidator.validateTaxIdPiva(notification);
+            
+            if(cfg.isCheckPdfValidEnabled()){
+                taxIdPivaValidator.validateTaxIdPiva(notification);
+            } else {
+                log.info("TaxId validation skipped - iun={}", iun);
+            }
 
             //La validazione dell'indirizzo è async
             MDCUtils.addMDCToContextAndExecute(
                     addressValidator.requestValidateAndNormalizeAddresses(notification)
             ).block();
-
 
             logEvent.generateSuccess().log(); 
         } catch (PnValidationFileNotFoundException ex){

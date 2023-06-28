@@ -251,7 +251,11 @@ Parameters:
   EnableCheckPdfContent:
     Type: String
     Description: 'Enable pdf content check'
-
+  
+  CheckCfEnabled:
+    Type: String
+    Description: 'Enable check cf'
+    
   Version:
     Type: String
     Description: 'Keep track of used projects commitIds'
@@ -487,7 +491,6 @@ Parameters:
     Default: 0
     Description: Weight to assign to queue number of visible messages metric
 
-
   ApplicationLoadBalancerMetricsDimensionName:
     Type: String
     Default: ''
@@ -581,6 +584,7 @@ Resources:
         ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
         ContainerEnvEntry56: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         ContainerEnvEntry57: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
+        ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
