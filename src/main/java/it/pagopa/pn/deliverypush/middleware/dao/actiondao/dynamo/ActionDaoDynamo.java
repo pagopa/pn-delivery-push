@@ -76,13 +76,17 @@ public class ActionDaoDynamo implements ActionDao {
                      ex.cancellationReasons()) {
                     if (StringUtils.hasText(cr.code()) && cr.code().equals("ConditionalCheckFailed"))
                     {
-                        log.warn("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId={}", action.getActionId());
-                        return;
+                        log.warn("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId={} cancellationReason is {}", action.getActionId(), cr);
+                    } else {
+                        log.warn("TransactionCanceledException have cancellation reason but is not ConditionalCheckFailed, cancellationReason is {} actionId={}", cr, action.getActionId());
+                        throw ex;
                     }
                 }
             }
-            else
+            else {
+                log.warn("TransactionCanceledException haven't cancellation reason, actionId={} throw exception", action.getActionId(), ex);
                 throw ex;
+            }
         }
     }
 
