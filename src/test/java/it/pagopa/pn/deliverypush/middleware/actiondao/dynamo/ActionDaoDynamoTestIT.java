@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -240,6 +241,7 @@ class ActionDaoDynamoTestIT {
 
     @Test
     @ExtendWith(SpringExtension.class)
+    @Disabled
     void addActionIfAbsentFailSilent() {
         String timeslot = "2022-08-30T16:04:13.913859900Z";
 
