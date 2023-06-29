@@ -58,8 +58,6 @@ public class NotificationValidationActionHandler {
             
             if(cfg.isCheckCfEnabled()){
                 taxIdPivaValidator.validateTaxIdPiva(notification);
-            } else {
-                log.info("TaxId validation skipped - iun={}", iun);
             }
 
             //La validazione dell'indirizzo è async
@@ -104,12 +102,17 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(NotificationInt notification, int validationStep) {
+        String message = "Notification validation step {} of 2.";
+
+        if(! cfg.isCheckCfEnabled()){
+            message += " TaxId validation will be skipped";
+        }
+
         return auditLogService.buildAuditLogEvent(
                 notification.getIun(),
                 PnAuditLogEventType.AUD_NT_VALID,
-                "Notification validation step={} of 2, iun={}",
-                validationStep,
-                notification.getIun()
+                message,
+                validationStep
         );
     }
 
