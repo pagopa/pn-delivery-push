@@ -95,6 +95,7 @@ public class PnDeliveryPushConfigs {
 
     private boolean checkPdfValidEnabled;
     private Duration actionTtl;
+    private boolean checkCfEnabled;
     
     @Data
     public static class Topics {

@@ -55,13 +55,15 @@ public class NotificationValidationActionHandler {
         
         try {
             attachmentUtils.validateAttachment(notification);
-            taxIdPivaValidator.validateTaxIdPiva(notification);
+            
+            if(cfg.isCheckCfEnabled()){
+                taxIdPivaValidator.validateTaxIdPiva(notification);
+            }
 
             //La validazione dell'indirizzo è async
             MDCUtils.addMDCToContextAndExecute(
                     addressValidator.requestValidateAndNormalizeAddresses(notification)
             ).block();
-
 
             logEvent.generateSuccess().log(); 
         } catch (PnValidationFileNotFoundException ex){
@@ -100,7 +102,18 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(NotificationInt notification, int validationStep) {
-        return auditLogService.buildAuditLogEvent(notification.getIun(), PnAuditLogEventType.AUD_NT_VALID, "Notification validation step={} of 2, iun={}", validationStep, notification.getIun());
+        String message = "Notification validation step {} of 2.";
+
+        if(! cfg.isCheckCfEnabled()){
+            message += " TaxId validation will be skipped";
+        }
+
+        return auditLogService.buildAuditLogEvent(
+                notification.getIun(),
+                PnAuditLogEventType.AUD_NT_VALID,
+                message,
+                validationStep
+        );
     }
 
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {

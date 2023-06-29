@@ -31,7 +31,8 @@
     "CpuValue": "2048",
     "MemoryAmount": "4GB",
     "MaxPdfAllowedSize": "200MB",
-    "EnableCheckPdfContent": "true"
+    "EnableCheckPdfContent": "true",
+    "CheckCfEnabled": "false"
   }
 }
 
