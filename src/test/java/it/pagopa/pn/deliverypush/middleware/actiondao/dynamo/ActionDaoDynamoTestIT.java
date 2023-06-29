@@ -276,7 +276,7 @@ class ActionDaoDynamoTestIT {
 
         // JUnit assertions
         List<ILoggingEvent> logsList = listAppender.list;
-        assertEquals("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId=Test_addIfAbsentFailSilent_iun01_digital_workflow_e_1_timelineid_", logsList.get(0)
+        assertEquals("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId=Test_addIfAbsentFailSilent_iun01_digital_workflow_e_1_timelineid_ cancellationReason is CancellationReason(Code=ConditionalCheckFailed, Message=The conditional request failed)", logsList.get(0)
                 .getFormattedMessage());
         assertEquals(Level.WARN, logsList.get(0)
                 .getLevel());
