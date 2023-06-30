@@ -1,5 +1,6 @@
 <html>
 	<head>
+    <meta name="author" content="SEND - Servizio Notifiche Digitali" />
     <style type="text/css" media="all">
       @font-face {
         font-family: 'Montserrat';
@@ -138,10 +139,12 @@
 	</head>
 	<body>
       <div class="container">
-        
         <div id="header" class="row">
           <div class="left-col">
             <img src="images/pn-logo-header.png" />
+          </div>
+          <div class="right-col">
+            <img src="images/send-logo.png" />
           </div>
         </div>
 			<!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
@@ -165,7 +168,9 @@
       </#if>
 
       <p class="paragraph">
-        Ai sensi dell'art. 26, comma 11, del decreto-legge 76/2020 s.m.i., la PagoPA S.p.A. nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26, con ogni valore legale per l'opponibilità a terzi, ATTESTA CHE:
+        Ai sensi dell'art. 26, comma 11, del decreto-legge 76/2020 s.m.i., la PagoPA S.p.A. nella sua qualità di gestore
+        ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26 (anche nota come SEND - Servizio
+        Notifiche Digitali), con ogni valore legale per l'opponibilità a terzi, ATTESTA CHE:
       </p>
 
       <p class="paragraph">
@@ -185,7 +190,11 @@
 
         <div class="row">
           <div class="left-col col-5-10">
-            <p>C. F.</p>
+            <#if delivery.recipientType == "PF">
+              <p>C. F.</p>
+            <#else>
+              <p>P. IVA</p>
+            </#if>
           </div>
           <div class="left-col col-5-10">
             <p><strong>${delivery.taxId}</strong></p>
@@ -205,14 +214,33 @@
           </div>
         </div>
 
+        <div class="row">
+          <div class="left-col col-5-10">
+            <p>Tipologia di domicilio digitale</p>
+          </div>
+          <div class="left-col col-5-10">
+            <p><#if delivery.addressSource??>
+              <#if delivery.addressSource == "PLATFORM">
+                <strong>Domicilio di Piattaforma ex art.26, comma 5 lettera c del D.L. 76/2020</strong>
+                <#elseif delivery.addressSource == "SPECIAL">
+                <strong>Domicilio eletto presso la Pubblica Amministrazione mittente ex art.26, comma 5 lettera b del D.L. 76/2020</strong>
+                <#elseif delivery.addressSource == "GENERAL">
+                <strong>Domicilio generale inserito nei registri pubblici ex art.26, comma 5 lettera a del D.L. 76/2020</strong>
+              </#if>
+              <#else>
+              non presente
+            </#if></p>
+          </div>
+        </div>
+
       </div>
       <#if delivery.ok>
       <div class="paragraph">
-        il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data <strong>${delivery.responseDate}</strong>.
+        il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data <br/><strong>${delivery.responseDate}</strong> al domicilio digitale indicato immediatamente sopra la presente data.
       </div>
       <#else>
       <div class="paragraph">
-        in data <strong>${delivery.responseDate}</strong> è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale già indicato.
+        in data <strong>${delivery.responseDate}</strong> è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale indicato immediatamente sopra la presente data.
       </div>
     </#if>
 
@@ -226,7 +254,7 @@
     
     <div class="row margin-top-large">
       <div class="left-col col-5-10">
-        <p>Data, ${legalFactCreationDate}</p>
+        <p>&nbsp;</p>
       </div>
       <div class="left-col col-5-10">
         <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>

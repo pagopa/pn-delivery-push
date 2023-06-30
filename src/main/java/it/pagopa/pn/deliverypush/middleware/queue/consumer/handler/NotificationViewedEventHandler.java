@@ -1,9 +1,14 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
+import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.api.dto.events.PnDeliveryNotificationViewedEvent;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -12,7 +17,7 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 @Configuration
-@Slf4j
+@CustomLog
 public class NotificationViewedEventHandler {
     private final NotificationViewedRequestHandler notificationViewedRequestHandler;
 
@@ -22,9 +27,11 @@ public class NotificationViewedEventHandler {
 
     @Bean
     public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
+        final String processName = "NOTIFICATION PAID EVENT";
+
         return message -> {
             try {
-                log.debug("Notification viewed event received, message {}", message);
+                log.debug("Handle message from {} with content {}", PnDeliveryClient.CLIENT_NAME, message);
 
                 PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
                         .payload(message.getPayload())
@@ -33,14 +40,37 @@ public class NotificationViewedEventHandler {
 
                 String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
                 int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
-                Instant viewedDate = pnDeliveryNewNotificationEvent.getHeader().getCreatedAt();
-                log.info("pnDeliveryNotificationViewedEventConsumer - iun {} id={} viewedDate={}", iun, recipientIndex, viewedDate );
+                HandleEventUtils.addIunAndRecIndexToMdc(iun, recipientIndex);
 
-                notificationViewedRequestHandler.handleViewNotification(iun, recipientIndex, viewedDate);
+                log.logStartingProcess(processName);
+
+                Instant viewedDate = pnDeliveryNewNotificationEvent.getHeader().getCreatedAt();
+                NotificationViewDelegateInfo delegateBasicInfo = pnDeliveryNewNotificationEvent.getPayload().getDelegateInfo();
+                DelegateInfoInt delegateInfo = mapExternalToInternal(delegateBasicInfo);
+                notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recipientIndex, delegateInfo, viewedDate);
+
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
         };
+    }
+
+    @Nullable
+    private DelegateInfoInt mapExternalToInternal(NotificationViewDelegateInfo notificationViewDelegateInfo) {
+        DelegateInfoInt delegateInfo = null;
+
+        if(notificationViewDelegateInfo != null){
+            delegateInfo = DelegateInfoInt.builder()
+                    .internalId(notificationViewDelegateInfo.getInternalId())
+                    .operatorUuid(notificationViewDelegateInfo.getOperatorUuid())
+                    .mandateId(notificationViewDelegateInfo.getMandateId())
+                    .delegateType(RecipientTypeInt.valueOf(notificationViewDelegateInfo.getDelegateType().getValue()))
+                    .build();
+        }
+
+        return delegateInfo;
     }
 }

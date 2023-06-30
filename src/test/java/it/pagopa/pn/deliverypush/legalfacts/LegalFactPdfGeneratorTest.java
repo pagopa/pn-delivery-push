@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -18,11 +20,16 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Base64Utils;
 
 import java.io.File;
@@ -43,30 +50,39 @@ class LegalFactPdfGeneratorTest {
 	private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
 	private static final Path TEST_DIR_PATH = Paths.get(TEST_DIR_NAME);
 
-	private DocumentComposition documentComposition;
-	private CustomInstantWriter instantWriter;
-	private PhysicalAddressWriter physicalAddressWriter;
-	private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-	private LegalFactGenerator pdfUtils;
-	private InstantNowSupplier instantNowSupplier;
+	@Mock
+	private MVPParameterConsumer mvpParameterConsumer;
 
+	private LegalFactGenerator pdfUtils;
+	
 	@BeforeEach
 	public void setup() throws IOException {
 		Configuration freemarker = new Configuration(new Version(2,3,0)); //Version is a final class
 		HtmlSanitizer htmlSanitizer = new HtmlSanitizer(buildObjectMapper(), HtmlSanitizer.SanitizeMode.ESCAPING);
-		documentComposition = new DocumentComposition(freemarker, htmlSanitizer);
-		
-		instantWriter = new CustomInstantWriter();
-		physicalAddressWriter = new PhysicalAddressWriter();
-		pnDeliveryPushConfigs = new PnDeliveryPushConfigs();
-		instantNowSupplier = new InstantNowSupplier();
-		pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
-		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplate("https://notifichedigitali.it/faq");
-		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplate("https://notifichedigitali.it/iun=%s");
-		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPfTemplate("http://localhost:8090/notifica?aar=%s");
-		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailPgTemplate("http://localhost:8090/notifica?aar=%s");
+		DocumentComposition documentComposition = new DocumentComposition(freemarker, htmlSanitizer);
 
-		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier);
+		CustomInstantWriter instantWriter = new CustomInstantWriter();
+		PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
+		PnDeliveryPushConfigs pnDeliveryPushConfigs = new PnDeliveryPushConfigs();
+		InstantNowSupplier instantNowSupplier = new InstantNowSupplier();
+		pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
+		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq");
+		pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://notifichedigitali.pagopa.it/");
+		pnDeliveryPushConfigs.getWebapp().setFaqSendHash("send-cosa-e");
+		pnDeliveryPushConfigs.getWebapp().setFaqCompletionMomentHash("perfezionamento");
+		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://cittadini.dev.notifichedigitali.it/");
+		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://imprese.dev.notifichedigitali.it/");
+		pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("?aar");
+		pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
+		pnDeliveryPushConfigs.getPaperChannel().setSenderAddress( new PnDeliveryPushConfigs.SenderAddress());
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setAddress("Via Sardegna n. 38");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setZipcode("00187");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setCity("Roma");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setPr("Roma");
+		pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setCountry("Italia");
+
+		pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, mvpParameterConsumer);
 
 		//create target test folder, if not exists
 		if (Files.notExists(TEST_DIR_PATH)) { 
@@ -80,7 +96,7 @@ class LegalFactPdfGeneratorTest {
 		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationReceivedLegalFact(buildNotification())));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
-	
+
 	@Test 
 	void generateNotificationViewedLegalFactTest() throws IOException {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
@@ -88,7 +104,38 @@ class LegalFactPdfGeneratorTest {
 		NotificationRecipientInt recipient = buildRecipients().get(0);
 		Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
 		
-		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, notificationViewedDate)));
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, null, notificationViewedDate)));
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
+
+	@Test
+	void generateNotificationDelegateViewedLegalFactTest() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_DelegateViewedLegalFact.pdf");
+		String iun = "iun1234Test_Viewed";
+		NotificationRecipientInt recipient = buildRecipients().get(0);
+		DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
+				.denomination("Mario Rossi")
+				.taxId("RSSMRA80A01H501U")
+				.delegateType(RecipientTypeInt.PF)
+				.build();
+		Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
+
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient, delegateInfo, notificationViewedDate)));
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
+
+	@Test
+	void generateAnalogDeliveryFailureWorkflowLegalFact() {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+		List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList( ResponseStatusInt.OK);
+		NotificationInt notification = buildNotification();
+		NotificationRecipientInt recipient = buildRecipients().get(0);
+		EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+		Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+		Assertions.assertDoesNotThrow(() -> {
+			return Files.write(filePath, pdfUtils.generateAnalogDeliveryFailureWorkflowLegalFact( notification, recipient, endWorkflowStatus, sentDate));
+		});
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 	
@@ -140,36 +187,77 @@ class LegalFactPdfGeneratorTest {
 		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateFileCompliance("PDF file name whitout extension", "test signature", Instant.now())));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
-	
-	@Test 
-	void generateNotificationAARTest() throws IOException {	
+
+	@Test
+	@ExtendWith(SpringExtension.class)
+	void generateNotificationAARTest() throws IOException {
+		Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
+
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
 		NotificationInt notificationInt = buildNotification();
-		NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test").build();
-		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));
+		String quickAccessToken = "test";
+		NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType( RecipientTypeInt.PF ).build();
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+	}
+	
+	@Test
+	@ExtendWith(SpringExtension.class)
+	void generateNotificationAARMVPTest() throws IOException {
+		Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
+		
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAARMVP.pdf");
+		NotificationInt notificationInt = buildNotification();
+		String quickAccessToken = "test";
+		NotificationRecipientInt recipient = notificationInt.getRecipients().get(0);
+		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
-	@Test 
-    void generateNotificationAARPGTest() throws IOException { 
-        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+
+	@Test
+	@ExtendWith(SpringExtension.class)
+    void generateNotificationAARPGTest() throws IOException {
+		Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
+
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+
         NotificationInt notificationInt = buildNotification();
-        NotificationRecipientInt  recipient = notificationInt.getRecipients().get(0).toBuilder().quickAccessLinkToken("test")
-            .recipientType(RecipientTypeInt.PG).build();
-        Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient)));
+		String quickAccessToken = "test";
+		NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType( RecipientTypeInt.PF ).build();
+        Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
         System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
     }
-
-	
 	
 	@Test
-	void generateNotificationAAREmailTest() throws IOException {
+	void generateNotificationAAREmailTest() {
 		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+		String quickAccesstoken = "quickaccesstoken123";
 
 		Assertions.assertDoesNotThrow(() -> {
-					String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt);
+					String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt, quickAccesstoken);
+					PrintWriter out = new PrintWriter(filePath.toString());
+					out.println(element);
+					out.close();
+					System.out.println("element "+element);
+				}
+		);
+
+		System.out.print("*** AAR PEC BODY successfully created");
+	}
+
+
+	@Test
+	void generateNotificationAAREmailTest_Legal() throws IOException {
+		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+		NotificationInt notificationInt = buildNotification();
+		NotificationRecipientInt recipient = buildRecipientsLegalWithSpecialChar().get(0);
+		String quickAccesstoken = "quickaccesstoken123";
+
+		Assertions.assertDoesNotThrow(() -> {
+					String element = pdfUtils.generateNotificationAARBody(notificationInt, recipient, quickAccesstoken);
 					PrintWriter out = new PrintWriter(filePath.toString());
 					out.println(element);
 
@@ -186,11 +274,13 @@ class LegalFactPdfGeneratorTest {
 
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+		String quickAccessToken = "test";
 
 		Assertions.assertDoesNotThrow(() -> {
-					String element = pdfUtils.generateNotificationAARPECBody(notificationInt, notificationRecipientInt);
+					String element = pdfUtils.generateNotificationAARPECBody(notificationInt, notificationRecipientInt, quickAccessToken);
 					PrintWriter out = new PrintWriter(filePath.toString());
 					out.println(element);
+					out.close();
 		
 					System.out.println("element "+element);
 				}
@@ -201,8 +291,9 @@ class LegalFactPdfGeneratorTest {
 	void generateNotificationAAREMAILTest() {
 		NotificationInt notificationInt = buildNotification();
 		NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+		String quickAccesstoken = "quickaccesstoken123";
 
-		Assertions.assertDoesNotThrow(() -> pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt));
+		Assertions.assertDoesNotThrow(() -> pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt, quickAccesstoken));
 
 		System.out.print("*** AAR EMAIL BODY successfully created");
 	}
@@ -240,6 +331,7 @@ class LegalFactPdfGeneratorTest {
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.address("prova@test.com")
 						.build())
+				.digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
 				.responseStatus(ResponseStatusInt.KO)
 				.notificationDate(Instant.now().minus(10, ChronoUnit.MINUTES))
 				.build();
@@ -250,6 +342,18 @@ class LegalFactPdfGeneratorTest {
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.address("pçroà2@test.com")
 						.build())
+				.digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+				.responseStatus(status)
+				.notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
+				.build();
+
+		SendDigitalFeedbackDetailsInt sdf3 = SendDigitalFeedbackDetailsInt.builder()
+				.recIndex( 0 )
+				.digitalAddress(LegalDigitalAddressInt.builder()
+						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+						.address("pçroà3@test.com")
+						.build())
+				.digitalAddressSource(DigitalAddressSourceInt.GENERAL)
 				.responseStatus(status)
 				.notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
 				.build();
@@ -257,6 +361,7 @@ class LegalFactPdfGeneratorTest {
 		List<SendDigitalFeedbackDetailsInt> result = new ArrayList<SendDigitalFeedbackDetailsInt>();
 		result.add(sdf);
 		result.add(sdf2);
+		result.add(sdf3);
 		return result;
 	}
 
@@ -287,12 +392,14 @@ class LegalFactPdfGeneratorTest {
 	private List<NotificationRecipientInt> buildRecipients() {
 		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
 				.taxId("CDCFSC11R99X001Z")
+				.recipientType(RecipientTypeInt.PF)
 				.denomination("Galileo Bruno")
 				.digitalDomicile(LegalDigitalAddressInt.builder()
 						.address("test@dominioPec.it")
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.build())
 				.physicalAddress(new PhysicalAddressInt(
+						"Galileo Bruno",
 						"Palazzo dell'Inquisizione",
 						"corso Italia 666",
 						"Piano Terra (piatta)",
@@ -310,12 +417,40 @@ class LegalFactPdfGeneratorTest {
 	private List<NotificationRecipientInt> buildRecipientsWithSpecialChar() {
 		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
 				.taxId("CDCFSC11R99X001Z")
+				.recipientType(RecipientTypeInt.PF)
 				.denomination("Galileo Brunè <h1>ciao</h1>")
 				.digitalDomicile(LegalDigitalAddressInt.builder()
 						.address("test@dominioàPec.it")
 						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
 						.build())
 				.physicalAddress(new PhysicalAddressInt(
+						"Galileo Bruno",
+						"Palazzò dell'Inquisizionß",
+						"corso Italia 666",
+						"Pianô Terra (piatta)",
+						"00100",
+						"Roma",
+						null,
+						"RM",
+						"IT"
+				))
+				.build();
+
+		return Collections.singletonList( rec1 );
+	}
+
+
+	private List<NotificationRecipientInt> buildRecipientsLegalWithSpecialChar() {
+		NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
+				.taxId("CDCFSC11R99X001Z")
+				.recipientType(RecipientTypeInt.PG)
+				.denomination("Galileo Brunè <h1>ciao</h1>")
+				.digitalDomicile(LegalDigitalAddressInt.builder()
+						.address("test@dominioàPec.it")
+						.type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+						.build())
+				.physicalAddress(new PhysicalAddressInt(
+						"Galileo Bruno",
 						"Palazzò dell'Inquisizionß",
 						"corso Italia 666",
 						"Pianô Terra (piatta)",

@@ -1,352 +1,326 @@
 <html>
-	<head>
-	<style type="text/css" media="all">
-    @font-face {
-      font-family: 'Titillium Web';
-      src: url(fonts/Titillium_Web/TitilliumWeb-Regular.ttf);
-      font-weight: normal;
-      font-style: normal;
-    }
-    @font-face {
-      font-family: 'Titillium Web';
-      src: url(fonts/Titillium_Web/TitilliumWeb-Bold.ttf);
-      font-weight: bold;
-      font-style: normal;
-    }
-
-    @page {
-      size: A4;
-      margin: 25mm 0mm 10mm 0mm;
-
-      @top-left {
-        content: element(header); 
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="SEND - Servizio Notifiche Digitali">
+    <title>Avviso di Avvenuta Ricezione</title>
+    <style type="text/css" media="all">
+      @font-face {
+        font-family: "Titillium Web";
+        src: url(fonts/Titillium_Web/TitilliumWeb-Regular.ttf) format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Titillium Web";
+        src: url(fonts/Titillium_Web/TitilliumWeb-Bold.ttf) format('truetype');
+        font-weight: bold;
+        font-style: normal;
       }
 
-      @bottom-center { 
-        content: element(footer);
+      @page {
+        size: A4;
+        background-color: white;
+        margin: 0mm;
       }
-    }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        text-indent: 0 !important;
+      }
 
-    body {
-      font-size: 16px;
-      font-family: "Titillium Web", sans-serif;
-      font-weight: 400;
-    }
+      body {
+        font-family: "Titillium Web", sans-serif;
+        font-weight: 400;
+        font-size: 13.26px;
+        line-height: 18.6px;
+      }
 
-    p {
-      margin: 0;
-      padding: 0;
-      line-height: 1.5em;
-    }
+      .strong {
+        font-weight: bold;
+      }
 
-    a {
-      color: inherit;
-    }
+      /* font equivalence */
+      .seven-px {
+        font-size: 9.3px;
+      }
+      .eight-px {
+        font-size: 10.7px;
+      }
+      .nine-px {
+        font-size: 12px;
+      }
+      .ten-px {
+        font-size: 13.3px;
+      }
 
-    #header {
-      position: running(header);
-      font-size: 14px;
-      margin-top: 5mm;
-      padding: 0mm 10mm;
-    }
+      /* logo-box style */
+      #logo-box {
+        position: relative;
+        top: 14mm;
+        left: 8mm;
+        width: 65mm;
+        height: 23mm;
+      }
 
-    #header h2 {
-      font-size: 18.5px;
-    }
+      #logo-box__logo {
+        position: absolute;
+        width: 23mm;
+      }
 
-    #header img {
-      height: 32px;
-      /* 85x25 */
-    }
+      #logo-box__subtitle {
+        position: absolute;
+        left: 24.7mm;
+        top: -.1mm;
+        width: 40mm;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #616161;
+      }
 
-    #footer {
-      position: running(footer);
-      font-size: 8px;
-      color: #475A6D;
-      border-top: 1px solid #E3E7EB;
-      padding-top: 3mm;
-      margin-bottom: 10mm;
-    }
+      /* QR */
+      #qr-iun-code {
+        position: absolute;
+        top: 22.9mm;
+        left: 114.7mm;
+        width: 50mm;
+        height: 15mm;
+        line-height: 8px;
+        z-index: 1000;
+      }
 
-    #footer p {
-      margin: 0;
-      padding: 0;
-      line-height: 1em;
-    }
+      #qr-code {
+        position: absolute;
+        height: 42mm;
+        width: 42mm;
+        right: 6mm; /* qr has a 4mm white frame around its visible area */
+        top: 6mm;
+      }
 
-    #footer img {
-      width: 45px;
-      height: 45px;
-    }
+      #recipient-addr-box {
+        text-transform: uppercase;
+        position: absolute;
+        top: 63mm;
+        left: 100mm;
+        width: 100mm;
+        height: 24mm;
+        padding: .3mm 5.6mm;
+        line-height: 14.6px;
+      }
 
-    .container {
-      margin: 0 10mm;
-    }
+      #main {
+        margin: 72.8mm 10mm 0mm 10mm;
+        width: 190mm;
+        padding: 0 2.5mm;
+      }
 
-    .row {
-      width: 100%;
-    }
-    .row::after {
-      content: "";
-      display: block;
-      clear: both;
-    }
+      #main__subject {
+        line-height: 26.5px;
+        padding-top: 0mm;
+        font-size: 22.54px;
+        word-wrap: break-word;
+      }
 
-    .left-col {
-      float: left;
-    }
+      #main__disclaimer {
+        margin-top: 1.8mm;
+        line-height: 18.6px;
+        font-size: 13.26px;
+      }
 
-    .right-col {
-      float: right;
-    }
+      .heading {
+        width: 100%;
+        height: 7mm;
+        background-color: #ececec;
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: .9mm 2.5mm;
+      }
 
-    .col-1-10 { width: 10%; }
-    .col-2-10 { width: 20%; }
-    .col-3-10 { width: 30%; }
-    .col-4-10 { width: 40%; }
-    .col-5-10 { width: 50%; }
-    .col-6-10 { width: 60%; }
-    .col-7-10 { width: 70%; }
-    .col-8-10 { width: 80%; }
-    .col-9-10 { width: 90%; }
+      .row {
+        margin: 30px 37.13px 0mm 37.13px;
+      }
 
-    .col-9-20 { width: 45%; }
-    .col-11-20 { width: 55%; }
+      .relative-box {
+        position: relative;
+      }
 
-    .margin-top-small { margin-top: 5mm; }
-    .margin-top-medium { margin-top: 10mm; }
-    .margin-top-large { margin-top: 15mm; }
+      .rounded-box {
+        border: 1px solid black;
+        border-radius: 5px;
+        font-size: 11.93px;
+        line.height: 17.2px;
+      }
 
-    .margin-y-small { margin: 5mm 0; }
-    .margin-y-medium { margin: 10mm 0; }
-    
+      .section-list {
+        padding-left: 5.3px;
+      }
 
-    .right {
-      text-align: right;
-    }
+      .section-list ol {
+        padding-left: 7mm;
+        margin: 2mm 0;
+      }
 
-    #subject {
-      font-size: 21px;
-      margin: 7mm 0;
-      margin-top: 4mm;
-    }
+      .section-list li {
+        margin-top: 2.3mm;
+      }
 
-    .paragraph {
-      margin: 7mm 0;
-      /* text-align: justify;
-      text-justify: inter-word; */
-    }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
 
-    .rounded-box {
-      border: 1px solid #000;
-      border-radius: 4px;
-      padding: 7mm 5mm;
-    }
+      /* VIEW ONLINE BOX */
+      #view-online-box {
+        position: absolute;
+        margin-top: 2mm;
+        width: 90mm;
+      }
+      /* END VIEW ONLINE BOX */
 
-    .rounded-box__header {
-      font-size: 16px;
-    }
+      /* DESCRIPTION BOX */
+      #description-box {
+        margin-top: 2mm;
+        position: absolute;
+        width: 323.56px;
+        padding: 1.75mm 2.5mm;
+        right: 0mm;
+      }
+      /* END DESCRIPTION BOX */
 
-    .box-img {
-      margin-top: 5px;
-      text-align: center;
-    }
+      /* IO NOTIFICATIONS BOX */
+      #io-notifications {
+        position: absolute;
+        width: 90mm;
+      }
 
-    .box-img img {
-      height: 45px;
-    }
+      #io-notifications .rounded-box {
+        height: 24mm;
+        margin: 2mm 0;
+      }
 
-    #piggy {
-      height: 60px;
-    }
+      #io-notifications__image {
+        position: absolute;
+        top: 6mm;
+        left: 3mm;
+        height: 10mm;
+      }
 
-    #recipient-name {
-      font-size: 18px;
-      font-weight: 700;
-    }
-    #recipient-address {
-      font-weight: 400;
-    }
-    .u-recipient-data {
-      margin: 12mm 0 12mm 5mm;
-    }
+      #io-notifications__content {
+        position: absolute;
+        top: 2mm;
+        left: 12.8mm;
+        width: 75mm;
+      }
 
-    .disclaimer-img {
-      width: 3%;
-    }
+      #io-notifications__description {
+        padding-left: 5.3px;
+      }
+      /* END NOTIFICATIONS BOX */
 
-    .disclaimer-img img {
-      height: 15px;
-    }
-
-    .disclaimer-content {
-      width: 97%;
-      font-size: 10.5px;
-      padding-top: 4px;
-    }
-
-    .online {
-      background-color: #ECECEC;
-      text-transform: uppercase;
-      font-size: 13px;
-      font-weight: bold;
-      padding: 5px;
-      padding-left: 10mm;
-    }
-
-    .instructions-list-row {
-      margin-bottom: 8mm;
-      display: table;
-      width: 100%;
-    }
-    
-    .instructions-list-counter {
-      width: 10%;
-      display: table-cell;
-      vertical-align: middle;
-      text-align: right;
-      padding-right: 5mm;
-    }
-
-    .instructions-list-counter h4 {
-      display: inline-block;
-      font-size: 33px;
-      font-weight: 500;
-    }
-
-    
-    .instructions-list-elem {
-      width: 90%;
-      display: table-cell;
-      vertical-align: middle;
-      padding-right: 5mm;
-    }
-
-    .instructions-list-elem p {
-      display: inline-block;
-    }
-
-    .page-break-before {
-      page-break-before: always;
-    }
-
-    .page-break-after {
-      page-break-after: always;
-    }
-	</style>
-	</head>
-	<body>
-		<div class="container">
-
-			<div id="header" class="row">
-        <div class="left-col">
-          <h2>Piattaforma Notifiche</h2>
-        </div>
-        <div class="right-col">
-          <img src="images/pn-logo-header.png" />
-        </div>
+      /* MANDATE BOX */
+      #mandate-box {
+        position: absolute;
+        right: 0;
+        width: 323.56px;
+      }
+      /* END MANDATE BOX */
+    </style>
+  </head>
+  <body>
+    <div id="logo-box">
+      <img id="logo-box__logo" src="./images/aar-logo.png" />
+      <div id="logo-box__subtitle" class="seven-px">
+        Avviso di avvenuta ricezione
       </div>
+    </div>
 
-			<div class="row">
-        <div class="right-col col-5-10">
-          <div class="u-recipient-data">
-            <p id="recipient-address">
-              <#if addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, recipient.denomination, '<br/>')??>
-                ${addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress, "<strong>"+recipient.denomination+"</strong>", '<br/>')}
-              <#else>
-                <#if recipient.denomination??>
-                ${recipient.denomination}
-                <#else>
-                indirizzo non presente
-                </#if>
-              </#if>
-            </p>
+    <div id="qr-iun-code" class="eight-px">
+      <div class="strong">Codice univoco:</div>
+      <br />${notification.iun}
+    </div>
+
+    <img id="qr-code" src="${qrCodeQuickAccessLink}" />
+
+    <div id="recipient-addr-box">
+      <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+    </div>
+
+    <div id="main">
+      <div id="main__subject" class="strong">
+        ${notification.subject}
+      </div>
+      <div id="main__disclaimer">
+        Ricevi questa notifica da parte di ${notification.sender.paDenomination} in qualità di
+        <#if recipient.recipientType == "PF">
+        privato cittadino con Codice Fiscale
+        <#else>
+        persona giuridica con Partita IVA
+        </#if>
+        ${recipient.taxId}.<br />
+        Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti.
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="heading ten-px">Come visualizzare i documenti online</div>
+      <div class="relative-box" style="height: 65mm;">
+        <div id="view-online-box">
+          <div class="section-list">
+            Se hai ricevuto questo avviso di avvenuta ricezione tramite raccomandata, la visualizzazione online dei documenti è facoltativa. Se l’hai ricevuto in digitale, è obbligatoria. Per farlo:
+            <ol>
+              <li>Inquadra il codice QR o vai su SEND all'indirizzo <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong></li>
+              <li>Accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
+              <li>Visualizza i documenti della notifica</li>
+            </ol>
+            I documenti sono disponibili online per 120 giorni dalla data di perfezionamento della notifica. Per conoscerla, vai su <strong><a href="${perfezionamentoURL}">${perfezionamentoURL}</a></strong>
           </div>
         </div>
-      </div>
-
-      <h3 id="subject">Avviso di notifica del ${sendDateNoTime}</h3>
-      
-      <div class="paragraph">
-        Gentile ${recipient.denomination},<br />
-        hai ricevuto una notifica su Piattaforma
-        Notifiche con oggetto <strong>${notification.subject}</strong> e
-        Codice IUN <strong>${notification.iun}</strong>. Puoi accedere agli atti della
-        notifica online o in un qualsiasi Ufficio Postale.
-      </div>
-
-			<div class="row">
-        <div class="left-col disclaimer-img">
-          <img src="images/info.png" />
-        </div>
-        <div class="left-col disclaimer-content">
-          <span>Puoi accedere agli atti della notifica entro <strong>120 giorni dalla data di perfezionamento</strong>. Oltre questo termine, dovrai rivolgerti al mittente.</span><br />
-          <span>Per maggiori informazioni sul perfezionamento delle notifiche, vai su <a href="https://pn.pagopa.it/faq/perfezionamento">pn.pagopa.it/faq/perfezionamento</a></span>
-        </div>
-      </div>
-
-			<div class="row rounded-box margin-y-medium">
-        <div class="left-col col-1-10 box-img">
-          <img src="images/question.png" />
-        </div>
-        <div class="left-col col-9-10">
-          <h3 class="rounded-box__header">Cos’è Piattaforma Notifiche?</h3>
-          <p>Piattaforma Notifiche è un nuovo strumento che rende la notifica degli atti della Pubblica Amministrazione più sicura, efficiente ed economica. Istituita ai sensi dei decreti legge<br/> 76/2020 e 77/2021, sostituisce tutte le iniziative precendenti.</p>
+        <div id="description-box" class="rounded-box">
+          <strong>Cos’è SEND?</strong><br/> È uno strumento che rende
+          l’invio di notifiche da parte della Pubblica Amministrazione sicuro,
+          efficiente ed economico. Per saperne di più e per ricevere assistenza,
+          visita il sito <strong><a href="${sendURL}">${sendURLLAbel}</a></strong>
         </div>
       </div>
     </div>
-    <div class="online">
-      Online
-    </div>
-    <div class="container">
 
-			<div class="row margin-top-medium">
-        <div class="row left-col col-11-20">
-
-          <div class="instructions-list-row">
-            <div class="instructions-list-counter">
-              <h4>1.</h4>
-            </div>
-            <div class="instructions-list-elem">
-              <p>Vai all’indirizzo <a href="https://pn.pagopa.it">pn.pagopa.it</a></p>
+    <div class="row">
+      <div class="relative-box" style="height: 65mm;">
+        <div id="io-notifications">
+          <div class="heading ten-px">
+            Ricevi le prossime notifiche in digitale
+          </div>
+          <div class="rounded-box relative-box">
+            <img id="io-notifications__image" src="images/io-on-light.png" />
+            <div id="io-notifications__content">
+              Scarica l’app IO e attiva il servizio Notifiche digitali di SEND.
+              Se riceverai nuove notifiche, potrai visualizzare i documenti e pagare eventuali spese direttamente dal tuo dispositivo.
             </div>
           </div>
-          
-          <div class="instructions-list-row">
-            <div class="instructions-list-counter">
-              <h4>2.</h4>
-            </div>
-            <div class="instructions-list-elem">
-              <p>Entra con identità digitale SPID o Carta di Identità Elettronica (CIE) 3.0</p>
-            </div>
-          </div>
-          
-          <div class="instructions-list-row">
-            <div class="instructions-list-counter">
-              <h4>3.</h4>
-            </div>
-            <div class="instructions-list-elem">
-              <p>Seleziona “Notifiche” dal menu laterale</p>
-            </div>
+          <div id="io-notifications__description">
+            In alternativa, vai su SEND all’indirizzo <br> <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e indica i recapiti digitali con cui vuoi ricevere le prossime notifiche e comunicazioni.
           </div>
         </div>
-
-        <div class="row left-col col-9-20 rounded-box margin-top-small">
-          <div class="left-col col-2-10 box-img">
-            <img src="images/piggybank.png" id="piggy" />
+        <div id="mandate-box">
+          <div class="heading ten-px">
+            Delega qualcuno a ricevere le tue notifiche
           </div>
-          <div class="left-col col-8-10">
-            <p>Per <strong>ricevere le notifiche solo per via digitale e risparmiare sui costi di invio</strong>, vai alla sezione “I tuoi dati” e associa un recapito legale</p>            
+          <div class="section-list">
+            <ol>
+              <li>Vai su <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
+              <li>Seleziona “Deleghe”</li>
+              <li>Premi “Aggiungi una delega” e inserisci i dati della persona che vuoi delegare</li>
+              <li>Questa dovrà accedere a SEND con SPID o CIE e accettare la richiesta di delega. A partire da quel momento, riceverà su SEND le notifiche destinate a te</li>
+            </ol>
           </div>
         </div>
       </div>
-
-		</div>
-	</body>
+    </div>
+  </body>
 </html>

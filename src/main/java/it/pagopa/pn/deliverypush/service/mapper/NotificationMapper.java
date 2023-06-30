@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +10,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class NotificationMapper {
@@ -113,12 +112,12 @@ public class NotificationMapper {
         }
 
         List<NotificationRecipient> recipients = notification.getRecipients().stream()
-                .map(RecipientMapper::internalToExternal).collect(Collectors.toList());
+                .map(RecipientMapper::internalToExternal).toList();
 
         sentNotification.setRecipients(recipients);
 
         List<NotificationDocument> documents = notification.getDocuments().stream().map(
-                NotificationMapper::getNotificationDocument).collect(Collectors.toList());
+                NotificationMapper::getNotificationDocument).toList();
 
         sentNotification.setDocuments(documents);
 

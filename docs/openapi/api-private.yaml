@@ -1,0 +1,707 @@
+openapi: 3.0.3
+info:
+  termsOfService: https://termofservice.it
+  title: OpenAPI servizi ad uso solo interno
+  x-summary: OpenAPI servizi ad uso solo interno
+  x-api-id: api-private
+  description: >-
+    API accessibili solo da microservizi interni
+  version: '1.0.0'
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080 #TODO Valorizzare correttamente url api private\
+    description: Generated server url
+    x-sandbox: true
+tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
+  - name: TimelineAndStatus
+    description: >-
+      Invocazioni per aggiornare lo stato della notifica
+  - name: LegalFactsPrivate
+    description: >-
+      Recupero degli atti opponibili a terzi generati per una notifica (api private)
+  - name: Documents
+    description: >-
+      Recupero dei documenti correlati ad una notificazione
+  - name: NotificationProcessCost
+    description: >-
+      Restituisce il costo dell'intero processo di notificazione per un singolo destinatario
+
+paths:
+  '/status':
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
+  '/delivery-push-private/{iun}/history':
+    get:
+      summary: Storico eventi notifica
+      description: >-
+        Legge e restituisce la timeline di una notifica, il suo stato e la storia dei 
+        suoi cambiamenti di stato.
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - TimelineAndStatus
+      operationId: getNotificationHistory
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathNumberOfRecipients'
+        - $ref: '#/components/parameters/pathCreatedAt'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationHistoryResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push-private/scheduling-analog-date/{iun}/{recipientInternalId}':
+    get:
+      summary: Restituisce la data probabile di inizio del flusso analogico
+      description: >-
+        Restituisce la data probabile di inizio del flusso analogico
+        per un determinato destinatario di una notifica.
+      tags:
+        - TimelineAndStatus
+      operationId: getSchedulingAnalogDate
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathRecipientInternalId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProbableSchedulingAnalogDateResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Data non trovata
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push-private/{iun}/viewed':
+    post:
+      summary: Notifica che un destinatario ha preso visione di una notifica
+      description: >-
+        Metodo utilizzato da microservizi interni per notificare che un destinatario
+        ha preso visione di una notifica-
+      tags:
+        - EventComunication
+      operationId: notifyNotificationViewed
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestNotificationViewedDto"
+        required: true
+      responses:
+        '200':
+          description: |
+            OK. Allo stato attuale il contenuto della risposta non ha valore informativo 
+            basta il fatto che lo status sia 200 per indicare che l'operazione è andata 
+            a buon fine.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseNotificationViewedDto"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: IUN or recipient not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+
+  '/delivery-push-private/{recipientInternalId}/paper-notification-failed':
+    get:
+      summary: Restituisce le notifiche non consegnate per uno specifico destinatario
+      description: >-
+        Metodo utilizzato da microservizi interni per ottenere tutte le notifiche di uno specifico destinatario
+        per le quali non è stata possibile la consegna  (irreperibile totale).
+      tags:
+        - paperNotificationFailed
+      operationId: paperNotificationFailed
+      parameters:
+        - $ref: '#/components/parameters/pathRecipientInternalId'
+        - $ref: '#/components/parameters/getAAR'
+      responses:
+        '200':
+          description: |
+            DTO contenente gli identificativi delle notifiche non consegnate per lo specifico destinatario.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaperNotificationFailedList"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: recipientInternalId not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push-private/{iun}/legal-facts':
+    get:
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi
+        registrati durante il processo di notifica.
+        <br/>
+        Il parametro recipientInternalId deve essere l'internalId del destinatario
+      tags:
+        - LegalFactsPrivate
+      operationId: getNotificationLegalFactsPrivate
+      parameters:
+        - $ref: '#/components/parameters/recipientInternalId'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
+        - $ref: '#/components/parameters/xPagoPaPnCxGroups'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactList"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push-private/{iun}/legal-facts/{legalFactType}/{legalFactId}':
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi
+        <br/>
+        Il parametro recipientInternalId deve essere l'internalId del destinatario
+      tags:
+        - LegalFactsPrivate
+      operationId: getLegalFactPrivate
+      parameters:
+        - $ref: '#/components/parameters/recipientInternalId'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactType'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
+        - $ref: '#/components/parameters/xPagoPaPnCxGroups'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push-private/{iun}/document/{documentType}':
+    get:
+      summary: Restituisce il singolo documento identificato dalla documentKey
+      description: >-
+        Permette di scaricare un documento correlato alla notificazione
+      tags:
+        - Documents
+      operationId: getDocuments
+      parameters:
+        - $ref: '#/components/parameters/recipientInternalId'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentType'
+        - $ref: '#/components/parameters/queryDocumentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentDownloadMetadataResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push-private/{iun}/notification-process-cost/{recipientIndex}':
+    get:
+      summary: Restituisce il costo di notificazione per destinatario 
+      description: >-
+        Restituisce il costo dell'intero processo di notificazione per un singolo destinatario
+      tags:
+        - NotificationProcessCost
+      operationId: NotificationProcessCost
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathRecipientIndex'
+        - $ref: '#/components/parameters/queryNotificationFeePolicy'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationProcessCostResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                
+components:
+  parameters:
+
+    xPagoPaPnCxType:
+      name: x-pagopa-pn-cx-type
+      in: query
+      description: cx-type (PF, PG, PA)
+      schema:
+        $ref: '#/components/schemas/cxTypeAuthFleet'
+
+    xPagoPaPnCxGroups:
+      name: x-pagopa-pn-cx-groups
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+
+    ############################################################################################
+    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
+    ############################################################################################
+    pathIun:
+      description: >-
+        Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+
+    pathNumberOfRecipients:
+      description: >-
+        Numero recipient notifica
+      name: numberOfRecipients
+      in: query
+      required: true
+      schema:
+        type: integer
+        format: int32
+
+    pathCreatedAt:
+      description: >-
+        Data creazione notifica
+      name: createdAt
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+
+    pathRecipientInternalId:
+      description: >-
+        Identificativo anonimizzato del destinatario
+      name: recipientInternalId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    getAAR:
+      description: >-
+        Tale parametro definisce se si richiede in risposta l'avviso avvenuta ricezione generato per la notifica o meno
+      name: getAAR
+      in: query
+      required: true
+      schema:
+        type: boolean
+
+    ############################################################################################
+    ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
+    ############################################################################################
+    pathLegalFactType:
+      description: >-
+        Categoria dell'atto opponbile a terzi
+      name: legalFactType
+      in: path
+      required: true
+      schema:
+        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategory'
+
+    pathLegalFactId:
+      description: >-
+        Identificativo dell'atto opponbile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    legalFactsSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
+
+    recipientInternalId:
+      description: >-
+        Identificativo anonimizzato del destinatario
+      name: recipientInternalId
+      in: query
+      required: true
+      schema:
+        type: string
+
+    ############################################################################################
+    ###          PARAMETRI RICERCA DOCUMENTI CORRELATI ALLA NOTIFICATIONE                    ###
+    ############################################################################################
+    pathDocumentType:
+      description: >-
+        Categoria documento
+      name: documentType
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/DocumentCategory'
+
+    queryDocumentId:
+      description: >-
+        Identificativo del documento
+      name: documentId
+      in: query
+      required: true
+      schema:
+        type: string
+        pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
+        maxLength: 512
+
+    ############################################################################################
+    ###            PARAMETRI DI RICERCA PER IL COSTO PROCESSO NOTIFICAZIONE                  ###
+    ############################################################################################
+    pathRecipientIndex:
+      description: >-
+        Indice destinatario all'interno della notifica
+      name: recipientIndex
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32            
+
+    queryNotificationFeePolicy:
+      description: >-
+        Politica di addebitamento costi
+      name: notificationFeePolicy
+      in: query
+      required: true
+      schema:
+        $ref: 'remote-refs.yaml#/components/schemas/NotificationFeePolicy'
+        
+  schemas:
+
+    cxTypeAuthFleet:
+      type: string
+      enum:
+        - PG
+        - PF
+        - PA
+
+    ############################################################################################
+    ###           COMUNICAZIONE DELLA NOTIFICHE DI DESTINATARI NON RAGGIUNGIBILI            ###
+    ############################################################################################
+
+    PaperNotificationFailedList:
+      title: Elenco notifiche non consegnate
+      description: Elenco delle notifiche non consegnate
+      type: array
+      items:
+        $ref: '#/components/schemas/ResponsePaperNotificationFailedDto'
+
+    ResponsePaperNotificationFailedDto:
+      type: object
+      required:
+        - iun
+        - recipientInternalId
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco della Notifica
+        recipientInternalId:
+          type: string
+          description: Identificativo anonimizzato del destinatario
+        aarUrl:
+          type: string
+          description: Url dell' avviso avvenuta ricezione
+
+        ############################################################################################
+        ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA                         ###
+        ############################################################################################
+
+    NotificationHistoryResponse:
+      type: object
+      properties:
+        notificationStatus:
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+        notificationStatusHistory:
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
+        timeline:
+          description: >-
+            elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
+          type: array
+          items:
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
+
+
+    ############################################################################################
+    ###                 COMUNICAZIONE DELLA VISUALIZZAZIONE DI UNA NOTIFICA                  ###
+    ############################################################################################
+
+    RequestNotificationViewedDto:
+      type: object
+      required:
+        - recipientType
+        - recipientInternalId
+        - raddType
+        - raddBusinessTransactionId
+        - raddBusinessTransactionClosingDate
+      properties:
+        recipientType:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
+        recipientInternalId:
+          type: string
+          description: identificativo anonimizzato del destinatario
+        raddType:
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddType'
+        raddBusinessTransactionId:
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddTransactionId'
+        raddBusinessTransactionDate:
+          type: string
+          format: date-time
+          description: Data in cui è stata eseguita la transazione
+
+    ResponseNotificationViewedDto:
+      type: object
+      required:
+        - iun
+      properties:
+        iun:
+          $ref: "./remote-refs.yaml#/components/schemas/IUN"
+
+
+    ############################################################################################
+    ###                     DOCUMENTI CORRELATI ALLA NOTIFICA                                ###
+    ############################################################################################
+
+    DocumentDownloadMetadataResponse:
+      title: Url e metadati per il download di un documento correlato alla notifica
+      description: >-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentLength
+      properties:
+        filename:
+          type: string
+        contentLength:
+          type: number
+          format: decimal32
+          example: 54092
+          description: dmensione, in byte, del contenuto.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere il 
+            contenuto del documento. Presente solo se il documento è pronto per il download.
+        retryAfter:
+          type: number
+          format: decimal32
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia scaricabile.
+
+    DocumentCategory:
+      title: Tipi di documenti
+      description: >-
+        Tipologie di documenti
+      type: string
+      enum:
+        - AAR
+          
+          
+    ############################################################################################
+    ###                              COSTO NOTIFICAZIONE                                     ###
+    ############################################################################################
+
+    NotificationProcessCostResponse:
+      title: costo del processo di notificazione
+      description: >-
+        Contiene il costo del processo di notificazione e l'eventuale data di perfezionamento della notifica
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          description: costo notificazione in euro cents
+          example: '200'
+          type: integer
+          format: int32
+        refinementDate:
+          description: data perfezionamento notifica per decorrenza termini se presente
+          type: string
+          format: date-time
+        notificationViewDate:
+          description: data perfezionamento notifica per presa visione se presente
+          type: string
+          format: date-time
+
+    ############################################################################################
+    ###           INFORMAZIONI SULLA PROBABILE DATA DI SCHEDULAZIONE DEL WORKFLOW ANALOGICO  ###
+    ############################################################################################
+    ProbableSchedulingAnalogDateResponse:
+      title: Probabile data di inizio del workflow analogico
+      description: >-
+        Probabile data di inizio del workflow analogico
+      type: object
+      required:
+        - iun
+        - recIndex
+        - schedulingAnalogDate
+      properties:
+        iun:
+          description: iun della notifica
+          type: string
+        recIndex:
+          description: indice del destinatario
+          type: integer
+          format: int32
+        schedulingAnalogDate:
+          description: data di probabile inizio del workflow analogico
+          type: string
+          format: date-time

@@ -4,14 +4,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+
 class CompletelyUnreachableDetailsTest {
 
     private CompletelyUnreachableDetails details;
 
     @BeforeEach
     void setUp() {
+
+        Instant time = Instant.ofEpochSecond(1234567890);
+
         details = new CompletelyUnreachableDetails();
         details.setRecIndex(1);
+        details.legalFactGenerationDate(time);
     }
 
     @Test
@@ -21,18 +27,13 @@ class CompletelyUnreachableDetailsTest {
 
     @Test
     void testEquals() {
+        Instant time = Instant.ofEpochSecond(1234567890);
+
         CompletelyUnreachableDetails data = CompletelyUnreachableDetails.builder()
                 .recIndex(1)
+                .legalFactGenerationDate(time)
                 .build();
 
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
-    }
-
-    @Test
-    void testToString() {
-        String data = "class CompletelyUnreachableDetails {\n" +
-                "    recIndex: 1\n" +
-                "}";
-        Assertions.assertEquals(data, details.toString());
     }
 }

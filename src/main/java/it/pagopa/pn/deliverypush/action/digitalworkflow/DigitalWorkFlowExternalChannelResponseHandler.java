@@ -1,24 +1,27 @@
 package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +33,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_SENDDIGITALTIMELINEEVENTNOTFOUND;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class DigitalWorkFlowExternalChannelResponseHandler { 
  
@@ -39,20 +43,9 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
     private final CompletionWorkFlowHandler completionWorkflow; 
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
-
-    public DigitalWorkFlowExternalChannelResponseHandler(NotificationService notificationService,
-                                                         SchedulerService schedulerService,
-                                                         DigitalWorkFlowUtils digitalWorkFlowUtils,
-                                                         CompletionWorkFlowHandler completionWorkflow,
-                                                         PnDeliveryPushConfigs pnDeliveryPushConfigs, DigitalWorkFlowHandler digitalWorkFlowHandler) {
-        this.notificationService = notificationService;
-        this.schedulerService = schedulerService;
-        this.digitalWorkFlowUtils = digitalWorkFlowUtils;
-        this.completionWorkflow = completionWorkflow;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
-    }
- 
+    private final AuditLogService auditLogService;
+    private final SendAndUnscheduleNotification sendAndUnscheduleNotification;
+    
 
     /**
      * Callback nel caso di evento ricevuto da ext-channel
@@ -70,13 +63,18 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos = new DigitalWorkFlowHandler.DigitalResultInfos();
             digitalResultInfos.setResponse(response);
             digitalResultInfos.setTimelineElementInternal(timelineElement);
-            if (timelineElement.getDetails() instanceof DigitalSendTimelineElementDetails)
+            
+            //Nota qui dovrebbe essere sempre un caso di sendDigital o digitalProgress
+            if (timelineElement.getDetails() instanceof DigitalSendTimelineElementDetails sendDigitalDetailsInt)
             {
-                DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.getDetails();
-                digitalResultInfos.setRecIndex(sendDigitalProgressDetailsInt.getRecIndex());
-                digitalResultInfos.setRetryNumber(sendDigitalProgressDetailsInt.getRetryNumber());
-                digitalResultInfos.setDigitalAddressInt(sendDigitalProgressDetailsInt.getDigitalAddress());
-                digitalResultInfos.setDigitalAddressSourceInt(sendDigitalProgressDetailsInt.getDigitalAddressSource());
+                HandleEventUtils.addRecIndexToMdc(sendDigitalDetailsInt.getRecIndex());
+                
+                digitalResultInfos.setRecIndex(sendDigitalDetailsInt.getRecIndex());
+                digitalResultInfos.setRetryNumber(sendDigitalDetailsInt.getRetryNumber());
+                digitalResultInfos.setDigitalAddressInt(sendDigitalDetailsInt.getDigitalAddress());
+                digitalResultInfos.setDigitalAddressSourceInt(sendDigitalDetailsInt.getDigitalAddressSource());
+                digitalResultInfos.setIsFirstSendRetry(sendDigitalDetailsInt.getIsFirstSendRetry());
+                digitalResultInfos.setRelatedFeedbackTimelineElement(sendDigitalDetailsInt.getRelatedFeedbackTimelineId());
             }
 
             digitalResultInfos.setNotification(notificationService.getNotificationByIun(iun));
@@ -96,34 +94,25 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         log.debug("Start handleExternalChannelResponseByStatus with status={} eventCode={} - iun={} requestId={}", digitalResultInfos.getStatus(), digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getResponse().getRequestId());
 
         switch (digitalResultInfos.getStatus()) {
-            case PROGRESS:
-                handleStatusProgress(digitalResultInfos, false);
-                break;
-            case OK:
-                handleSuccessfulSending(digitalResultInfos);
-                break;
-            case KO:
-                handleNotSuccessfulSending(digitalResultInfos);
-                break;
-            case PROGRESS_WITH_RETRY:
-                handleStatusProgressWithRetry(digitalResultInfos);
-                break;
-            default:
+            case PROGRESS -> handleStatusProgress(digitalResultInfos, false);
+            case OK -> handleSuccessfulSending(digitalResultInfos);
+            case KO -> handleNotSuccessfulSending(digitalResultInfos);
+            case PROGRESS_WITH_RETRY -> handleStatusProgressWithRetry(digitalResultInfos);
+            default -> {
                 log.error("Status {} is not handled - iun={} id={}", digitalResultInfos.getStatus(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
-                throw new PnInternalException("Status "+ digitalResultInfos.getStatus() +" is not handled - iun="+ digitalResultInfos.getNotification().getIun() +" id="+ digitalResultInfos.getRecIndex(), ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);
+                throw new PnInternalException("Status " + digitalResultInfos.getStatus() + " is not handled - iun=" + digitalResultInfos.getNotification().getIun() + " id=" + digitalResultInfos.getRecIndex(), ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);
+            }
         }
     }
 
-    private PnAuditLogEvent buildAuditLog(  DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos ){
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+    private PnAuditLogEvent buildAuditLog(  DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos){
+        DigitalMessageReferenceInt digitalMessageReference = digitalResultInfos.getResponse().getGeneratedMessage();
+        String attachments = (digitalMessageReference!=null && digitalMessageReference.getLocation()!=null)?digitalMessageReference.getLocation():"";
 
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_CHECK, "Digital workflow Ext channel response for source {} retryNumber={} status={} eventCode={} - iun={} id={}",
-                        digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getStatus(), digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex())
-                .iun(digitalResultInfos.getNotification().getIun())
-                .build();
-        logEvent.log();
-        return logEvent;
+        return auditLogService.buildAuditLogEvent(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(),
+                PnAuditLogEventType.AUD_DD_RECEIVE,"Digital workflow Ext channel response for source {} retryNumber={} status={} eventCode={} attachments={}",
+                digitalResultInfos.getDigitalAddressSourceInt(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getStatus(),
+                digitalResultInfos.getResponse().getEventCode() , attachments);
     }
 
     void handleNotSuccessfulSending(DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos) {
@@ -131,73 +120,133 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
         PnAuditLogEvent logEvent =buildAuditLog( digitalResultInfos );
 
-        logEvent.generateFailure("Notification failed with eventCode={} eventDetails={}",
-                digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getEventDetails()).log();
+        try {
+            log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
 
-        log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
+            // unschedulo eventuale timer programmato di invio
+            sendAndUnscheduleNotification.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
-        // unschedulo eventuale timer programmato di invio
-        digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
-
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
-                .retryNumber(digitalResultInfos.getRetryNumber())
-                .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
-                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
-                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
-                .build();
+            SendInformation digitalAddressFeedback = SendInformation.builder()
+                    .retryNumber(digitalResultInfos.getRetryNumber())
+                    .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
+                    .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                    .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                    .build();
         
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
-                digitalResultInfos.getNotification(),
-                digitalResultInfos.getStatus(),
-                digitalResultInfos.getResponse().getEventDetails() == null ? new ArrayList<>() : List.of(digitalResultInfos.getResponse().getEventDetails()),
-                digitalResultInfos.getRecIndex(),
-                digitalResultInfos.getResponse().getGeneratedMessage(),
-                digitalAddressFeedback
-        );
+           String timelineId = digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                   digitalResultInfos.getTimelineElementInternal()==null?"":digitalResultInfos.getTimelineElementInternal().getElementId(), 
+                   digitalResultInfos.getNotification(), 
+                   digitalResultInfos.getStatus(), 
+                   digitalResultInfos.getRecIndex(), 
+                   digitalResultInfos.getResponse(), 
+                   digitalAddressFeedback, 
+                   digitalResultInfos.getIsFirstSendRetry()
+            );
 
-        digitalWorkFlowHandler.nextWorkflowStep( digitalResultInfos );
+            if(digitalResultInfos.getIsFirstSendRetry() != null && digitalResultInfos.getIsFirstSendRetry()){
+                //Si tratta della response al primo invio degli eventuali due invii (relativi al secondo ciclo di notifica),
+                // c'è da fare un ulteriore tentativo all'indirizzo recuperato da Banca dati se disponibile
+                DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
+                        .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                        .lastAttemptDate(digitalResultInfos.getTimelineElementInternal().getTimestamp())
+                        .sentAttemptMade(digitalResultInfos.getRetryNumber())
+                        .relatedFeedbackTimelineId(timelineId)
+                        .build();
+                NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+                digitalWorkFlowHandler.checkAndSendNotification(notification, digitalResultInfos.getRecIndex(), addressInfo);
+            } else {
+                //devo verificare se si tratta del secondo tentativo relativo al secondo ciclo di notifica per una determinata source
+                if(digitalResultInfos.getRelatedFeedbackTimelineElement() != null){
+                    //verifico se il primo tentativo è andato a buon fine ed eventualmente completo il workflow con successo
+                    boolean completedWorkflowSuccess = digitalWorkFlowHandler.checkFirstAttemptAndCompleteWorkflow(
+                            digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), digitalResultInfos.getRelatedFeedbackTimelineElement(), iun);
+                    if(! completedWorkflowSuccess){
+                        //Se il primo tentativo NON è andato a buon fine si passa al prossimo step del workflow
+                        digitalWorkFlowHandler.nextWorkflowStep( digitalResultInfos );
+                    }
+                } else {
+                    //sono nella risposta negativa di un tentativo classico
+                    digitalWorkFlowHandler.nextWorkflowStep( digitalResultInfos );
+                }
+            }
+            
+            logEvent.generateWarning("Digital notification failed with eventCode={} eventDetails={} timelineId={}",
+                    digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getEventDetails(), timelineId).log();
+
+        } catch (Exception e) {
+            logEvent.generateFailure("Error handleNotSuccessfulSending", e).log();
+           throw e;
+        }
     }
-
-
+    
     private void handleSuccessfulSending( DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos ) {
         String iun = digitalResultInfos.getNotification().getIun();
 
         log.info("Start handleSuccessfulSending with eventCode={} generatedMessage={} - iun={} id={}",  digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getResponse().getEventCode(),  iun, digitalResultInfos.getRecIndex());
         PnAuditLogEvent logEvent = buildAuditLog( digitalResultInfos );
 
-        //AVVENUTA CONSEGNA
+        try {
+            //AVVENUTA CONSEGNA
 
-        logEvent.generateSuccess().log();
+            // unschedulo eventuale timer programmato di invio
+            sendAndUnscheduleNotification.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
-        // unschedulo eventuale timer programmato di invio
-        digitalWorkFlowHandler.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
-
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+            SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(digitalResultInfos.getRetryNumber())
                 .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
                 .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
                 .digitalAddress(digitalResultInfos.getDigitalAddressInt())
                 .build();
         
-        digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+            String sendDigitalFeedbackTimelineId = digitalWorkFlowUtils.addDigitalFeedbackTimelineElement(
+                digitalResultInfos.getTimelineElementInternal()==null?"":digitalResultInfos.getTimelineElementInternal().getElementId(),
                 digitalResultInfos.getNotification(),
                 digitalResultInfos.getStatus(),
-                Collections.emptyList(),
                 digitalResultInfos.getRecIndex(),
-                digitalResultInfos.getResponse().getGeneratedMessage(),
-                digitalAddressFeedback
-        );
+                    digitalResultInfos.getResponse(),
+                digitalAddressFeedback,
+                    digitalResultInfos.getIsFirstSendRetry()
+            );
 
-        log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
+            log.info("Notification sent successfully, starting completion workflow - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
+            
+            if(digitalResultInfos.getIsFirstSendRetry() != null && digitalResultInfos.getIsFirstSendRetry()){
+                log.info("Is response for firstSendRetry - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
+                //Si tratta della response al primo invio degli eventuali due invii (relativi al secondo ciclo di notifica),
+                // c'è da fare un ulteriore tentativo all'indirizzo recuperato da Banca dati se disponibile
+                DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
+                        .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                        .lastAttemptDate(digitalResultInfos.getTimelineElementInternal().getTimestamp())
+                        .sentAttemptMade(digitalResultInfos.getRetryNumber())
+                        .relatedFeedbackTimelineId(sendDigitalFeedbackTimelineId)
+                        .build();
+                NotificationInt notification = notificationService.getNotificationByIun(iun);
+                
+                digitalWorkFlowHandler.checkAndSendNotification(notification, digitalResultInfos.getRecIndex(), addressInfo);
+                logEvent.generateSuccess("Pec sent successfully, but need to sent another PEC if address is available").log();
+            } else {
+                log.info("Is not response for firstSendRetry - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
 
-        //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-        completionWorkflow.completionDigitalWorkflow(
-                digitalResultInfos.getNotification(),
-                digitalResultInfos.getRecIndex(),
-                digitalResultInfos.getResponse().getEventTimestamp(),
-                digitalResultInfos.getDigitalAddressInt(),
-                EndWorkflowStatus.SUCCESS
-        );
+                //Se si tratta di un feedback classico, piuttosto che il feedaback al secondo tentativo del secondo ciclo d'invii per una source, porto la notifica in accettata
+                //perchè sono sicuro che almeno questo feedback è positivo, non mi interessa dunque di controllare il primo feedback
+                
+                //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
+                String timelineId = completionWorkflow.completionDigitalWorkflow(
+                        digitalResultInfos.getNotification(),
+                        digitalResultInfos.getRecIndex(),
+                        digitalResultInfos.getResponse().getEventTimestamp(),
+                        digitalResultInfos.getDigitalAddressInt(),
+                        EndWorkflowStatus.SUCCESS
+                );
+
+                logEvent.generateSuccess("Pec sent successfully, completion workflow timelineId={}", timelineId).log();
+            }
+            
+        } catch (Exception e) {
+            logEvent.generateFailure("Error handleSuccessfulSending", e).log();
+            throw e;
+        }
     }
 
     void handleStatusProgress(DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos, boolean shouldRetry) {
@@ -206,11 +255,13 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         log.info("Received PROGRESS response with eventCode={}  GeneratedMessage is {} - iun={} id={}",
                 digitalResultInfos.getResponse().getEventCode(), digitalResultInfos.getResponse().getGeneratedMessage(), digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
         
-        DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+        SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(digitalResultInfos.getRetryNumber())
                 .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
                 .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
                 .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                .isFirstSendRetry(digitalResultInfos.getIsFirstSendRetry())
+                .relatedFeedbackTimelineId(digitalResultInfos.getRelatedFeedbackTimelineElement())
                 .build();
         
         digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
@@ -235,15 +286,22 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             handleStatusProgress(digitalResultInfos, true);
 
             // unschedulo eventuale timer programmato di invio
-            digitalWorkFlowHandler.unscheduleTimeoutAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+            sendAndUnscheduleNotification.unscheduleTimeoutAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
 
             // è richiesto di ritentare, schedulo un nuovo evento in coda e aggiunto un evento di progress nella timeline
-            restartWorkflowAfterRetryTime(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), DigitalAddressInfoSentAttempt.builder()
-                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
-                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
-                .lastAttemptDate(digitalResultInfos.getResponse().getEventTimestamp()==null? Instant.now():digitalResultInfos.getResponse().getEventTimestamp())
-                .sentAttemptMade(digitalResultInfos.getRetryNumber())
-                .build(), digitalResultInfos.getTimelineElementInternal());
+            final DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
+                    .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                    .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
+                    .lastAttemptDate(digitalResultInfos.getResponse().getEventTimestamp() == null ? Instant.now() : digitalResultInfos.getResponse().getEventTimestamp())
+                    .sentAttemptMade(digitalResultInfos.getRetryNumber())
+                    .build();
+            
+            restartWorkflowAfterRetryTime(
+                    digitalResultInfos.getNotification(),
+                    digitalResultInfos.getRecIndex(),
+                    addressInfo, 
+                    digitalResultInfos.getTimelineElementInternal()
+            );
         }
         else
         {
@@ -263,10 +321,11 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         // calcolare in base al numero di tentativi, devo cercare nella timeline quanti retry ci sono stati
         // e se il numero è minore del conteggio richiesto, deve ritentare, altrimenti no
         // la timeline è filtratra per iun, recindex, source, tentativo, quindi identifica i progress di questa istanza di tentativo
-        Set<TimelineElementInternal> previousTimelineProgress = digitalWorkFlowUtils.getPreviousTimelineProgress(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(), digitalResultInfos.getRetryNumber(), digitalResultInfos.getDigitalAddressSourceInt());
+        Set<TimelineElementInternal> previousTimelineProgress = digitalWorkFlowUtils.getPreviousTimelineProgress(digitalResultInfos.getNotification(), digitalResultInfos.getRecIndex(),
+                digitalResultInfos.getRetryNumber(), digitalResultInfos.getIsFirstSendRetry(), digitalResultInfos.getDigitalAddressSourceInt());
         // il conteggio viene fatto sul flag "retry" a true, visto che comparirà 1 volta per ogni tentativo fallito
-        long count = previousTimelineProgress.stream().filter(x -> x.getDetails() instanceof SendDigitalProgressDetailsInt
-                                                                && ((SendDigitalProgressDetailsInt)x.getDetails()).isShouldRetry()).count();
+        long count = previousTimelineProgress.stream().filter(x -> x.getDetails() instanceof SendDigitalProgressDetailsInt sendDigitalProgressDetailsInt
+                                                                && sendDigitalProgressDetailsInt.isShouldRetry()).count();
         return (count < configCount);
     }
 

@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
@@ -8,17 +9,16 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.IoService;
-import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageRequest;
-import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
 
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.time.Instant;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class IoServiceImplTest {
     private IoService ioService;
@@ -59,22 +59,60 @@ class IoServiceImplTest {
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(
                 notificationInt.getRecipients().get(0)
         );
-        
+
+        final SendMessageResponse.ResultEnum sentCourtesy = SendMessageResponse.ResultEnum.SENT_COURTESY;
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(
                         new SendMessageResponse()
                                 .id("1871")
-                                .result(SendMessageResponse.ResultEnum.SENT_COURTESY)
-                ))
+                                .result(sentCourtesy)
         );
 
         //WHEN
-        AtomicBoolean res = new AtomicBoolean(false);
-        assertDoesNotThrow(() -> {
-                    res.set(ioService.sendIOMessage(notificationInt, 0));
-                });
+        SendMessageResponse.ResultEnum res = null;
+        
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
 
-        assertTrue(res.get());
+        assertEquals(sentCourtesy, res);
+    }
+
+    @Test
+    void sendIOMessageLongPA() {
+        //GIVEN
+
+        NotificationInt notificationInt = NotificationTestBuilder.builder()
+                .withIun("IUN")
+                .withPaId("1234567890123456789012345678901234567890123456789012345678901234567890")
+                .withNotificationRecipient(
+                        NotificationRecipientTestBuilder.builder()
+                                .withTaxId("taxId")
+                                .withPayment(
+                                        NotificationPaymentInfoInt.builder()
+                                                .creditorTaxId("cred")
+                                                .noticeCode("notice")
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
+
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(
+                notificationInt.getRecipients().get(0)
+        );
+
+        final SendMessageResponse.ResultEnum sentCourtesy = SendMessageResponse.ResultEnum.SENT_COURTESY;
+        Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
+                new SendMessageResponse()
+                        .id("1871")
+                        .result(sentCourtesy)
+        );
+
+        //WHEN
+        SendMessageResponse.ResultEnum res = null;
+
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
+
+        assertEquals(sentCourtesy, res);
     }
 
     @Test
@@ -100,21 +138,17 @@ class IoServiceImplTest {
                 notificationInt.getRecipients().get(0)
         );
 
+        final SendMessageResponse.ResultEnum notSentAppioUnavailable = SendMessageResponse.ResultEnum.NOT_SENT_APPIO_UNAVAILABLE;
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(
                         new SendMessageResponse()
                                 .id("1871")
-                                .result(SendMessageResponse.ResultEnum.NOT_SENT_APPIO_UNAVAILABLE)
-                ))
+                                .result(notSentAppioUnavailable)
         );
 
         //WHEN
-        AtomicBoolean res = new AtomicBoolean(false);
-        assertDoesNotThrow(() -> {
-            res.set(ioService.sendIOMessage(notificationInt, 0));
-        });
-
-        assertFalse(res.get());
+        SendMessageResponse.ResultEnum res = null;
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
+        assertEquals(notSentAppioUnavailable, res);
     }
 
     @Test
@@ -140,21 +174,17 @@ class IoServiceImplTest {
                 notificationInt.getRecipients().get(0)
         );
 
+        final SendMessageResponse.ResultEnum sentOptin = SendMessageResponse.ResultEnum.SENT_OPTIN;
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(
                         new SendMessageResponse()
                                 .id("1871")
-                                .result(SendMessageResponse.ResultEnum.SENT_OPTIN)
-                ))
+                                .result(sentOptin)
         );
 
         //WHEN
-        AtomicBoolean res = new AtomicBoolean(false);
-        assertDoesNotThrow(() -> {
-            res.set(ioService.sendIOMessage(notificationInt, 0));
-        });
-
-        assertFalse(res.get());
+        SendMessageResponse.ResultEnum res = null;
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
+        assertEquals(sentOptin, res);
     }
 
     @Test
@@ -180,16 +210,15 @@ class IoServiceImplTest {
         );
 
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.of(
                         new SendMessageResponse()
                                 .id("1871")
                                 .result(SendMessageResponse.ResultEnum.ERROR_USER_STATUS)
-                ))
         );
 
         //WHEN
+        Instant schedulingAnalogDate = Instant.now();
         assertThrows(PnInternalException.class, () ->
-                ioService.sendIOMessage(notificationInt, 0)
+                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
         );
     }
 
@@ -218,8 +247,9 @@ class IoServiceImplTest {
         Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenThrow( new RuntimeException() );
 
         //WHEN
+        Instant schedulingAnalogDate = Instant.now();
         assertThrows(Exception.class, () ->
-                ioService.sendIOMessage(notificationInt, 0)
+                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
         );
     }
 
@@ -245,12 +275,12 @@ class IoServiceImplTest {
                 notificationInt.getRecipients().get(0)
         );
 
-        Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class))).thenReturn(
-                ResponseEntity.of(Optional.empty())
-        );
+        Mockito.when( pnExternalRegistryClient.sendIOMessage(Mockito.any(SendMessageRequest.class)))
+        .thenThrow(PnHttpResponseException.class);
         //WHEN
+        Instant schedulingAnalogDate = Instant.now();
         assertThrows(PnInternalException.class, () ->
-                ioService.sendIOMessage(notificationInt, 0)
+                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
         );
     }
     

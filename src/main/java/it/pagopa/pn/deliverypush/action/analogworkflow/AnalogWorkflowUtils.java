@@ -7,9 +7,13 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -21,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_FEEDBACKNOTFOUND;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
 
 @Component
 @Slf4j
@@ -36,19 +39,6 @@ public class AnalogWorkflowUtils {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationUtils = notificationUtils;
-    }
-
-    public SendAnalogDetailsInt getSendAnalogNotificationDetails(String iun, String eventId) {
-
-        Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, SendAnalogDetailsInt.class);
-
-        if (sendPaperDetailsOpt.isPresent()) {
-            return sendPaperDetailsOpt.get();
-        } else {
-            String error = String.format("There isn't timeline element -iun=%s requestId=%s", iun, eventId);
-            log.error(error);
-            throw new PnInternalException(error, ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
-        }
     }
 
     /**
@@ -72,7 +62,7 @@ public class AnalogWorkflowUtils {
     }
 
     private boolean filterLastAttemptDateInTimeline(TimelineElementInternal el, Integer recIndex) {
-        boolean availableAddressCategory = TimelineElementCategoryInt.SEND_PAPER_FEEDBACK.equals(el.getCategory());
+        boolean availableAddressCategory = TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK.equals(el.getCategory());
         if (availableAddressCategory) {
             SendAnalogFeedbackDetailsInt details = (SendAnalogFeedbackDetailsInt) el.getDetails();
             return recIndex.equals(details.getRecIndex());
@@ -80,11 +70,49 @@ public class AnalogWorkflowUtils {
         return false;
     }
 
-    public void addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<LegalFactsIdInt> attachmentKeys,
-                                                  PhysicalAddressInt newAddress, List<String> errors, SendAnalogDetailsInt sendPaperDetails) {
-        addTimelineElement(
-                timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachmentKeys, newAddress, errors, sendPaperDetails),
+    public String addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
+                                                  BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt, sendRequestId);
+
+        addTimelineElement(timelineElementInternal,
                 notification);
+
+        return timelineElementInternal.getElementId();
+    }
+
+
+    public void addAnalogProgressAttemptToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
+                                                   BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
+        int progressIndex = timelineService.retrieveAndIncrementCounterForTimelineEvent(sendRequestId).intValue();
+
+        addTimelineElement(
+                timelineUtils.buildAnalogProgressTimelineElement(notification, attachments, progressIndex, sendPaperDetails, sendEventInt, sendRequestId),
+                notification);
+    }
+
+    public void addSimpleRegisteredLetterProgressToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
+                                                                   BaseRegisteredLetterDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
+        int progressIndex = timelineService.retrieveAndIncrementCounterForTimelineEvent(sendRequestId).intValue();
+
+        addTimelineElement(
+                timelineUtils.buildSimpleRegisteredLetterProgressTimelineElement(notification, attachments, progressIndex, sendPaperDetails, sendEventInt, sendRequestId),
+                notification);
+    }
+
+    public String addAnalogSuccessAttemptToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
+                                                    BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogSuccessAttemptTimelineElement(
+                notification,
+                attachments,
+                sendPaperDetails,
+                sendEventInt,
+                sendRequestId
+        );
+
+        addTimelineElement(timelineElementInternal,
+                notification);
+
+        return timelineElementInternal.getElementId();
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
@@ -95,4 +123,5 @@ public class AnalogWorkflowUtils {
         NotificationRecipientInt notificationRecipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
         return notificationRecipient.getPhysicalAddress();
     }
+
 }

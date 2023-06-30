@@ -43,7 +43,6 @@ class SmartMapperTest {
                         .address("testAddress@gmail.com")
                         .build())
                 .retryNumber(0)
-                .investigation(true)
                 .build();
 
         SendDigitalDetailsInt details = SmartMapper.mapToClass(timelineElementDetails, SendDigitalDetailsInt.class);

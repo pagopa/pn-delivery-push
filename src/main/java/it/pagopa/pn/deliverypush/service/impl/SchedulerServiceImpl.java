@@ -28,6 +28,16 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
+    public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType) {
+        this.scheduleEvent(iun, null, dateToSchedule, actionType, null, null);
+    }
+    
+    @Override
+    public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails){
+        this.scheduleEvent(iun, null, dateToSchedule, actionType, null, actionDetails);
+    }
+    
+    @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails) {
         this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, actionDetails);
     }
@@ -36,10 +46,12 @@ public class SchedulerServiceImpl implements SchedulerService {
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
         this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, null);
     }
-
-
+    
     @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, ActionDetails actionDetails) {
+        log.info("Schedule {} in schedulingDate={} - iun={}", actionType, dateToSchedule, iun);
+        log.debug("ScheduleEvent iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
+
         Action action = Action.builder()
                 .iun(iun)
                 .recipientIndex(recIndex)

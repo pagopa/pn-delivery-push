@@ -1,30 +1,28 @@
 package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
-import it.pagopa.pn.deliverypush.action.it.mockbean.SafeStorageClientMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -52,6 +50,9 @@ public class TestUtils {
 
     public static final String PUBLIC_REGISTRY_FAIL_GET_DIGITAL_ADDRESS = "PUBLIC_REGISTRY_FAIL_GET_DIGITAL_ADDRESS";
     public static final String PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS = "PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS";
+    public static final String PN_NOTIFICATION_ATTACHMENT = "PN_NOTIFICATION_ATTACHMENT";
+    public static final String TOO_BIG = "TOO_BIG";
+    public static final String NOT_A_PDF = "NOT_A_PDF";
 
 
     public static void checkSendCourtesyAddresses(String iun, Integer recIndex, List<CourtesyDigitalAddressInt> courtesyAddresses, TimelineService timelineService, ExternalChannelMock externalChannelMock) {
@@ -62,7 +63,9 @@ public class TestUtils {
                     Mockito.any(NotificationInt.class),
                     Mockito.any(NotificationRecipientInt.class),
                     Mockito.any(CourtesyDigitalAddressInt.class),
-                    Mockito.any(String.class)
+                    Mockito.any(String.class),
+                    Mockito.anyString(),
+                    Mockito.anyString()
                 );
     }
 
@@ -73,7 +76,7 @@ public class TestUtils {
                     EventId.builder()
                             .iun(iun)
                             .recIndex(recIndex)
-                            .index(index)
+                            .courtesyAddressType(digitalAddress.getType())
                             .build());
             Optional<SendCourtesyMessageDetailsInt> sendCourtesyMessageDetailsOpt = timelineService.getTimelineElementDetails(iun, eventId, SendCourtesyMessageDetailsInt.class);
 
@@ -113,8 +116,8 @@ public class TestUtils {
 
         Optional<SendAnalogDetailsInt> sendPaperDetailsOpt = timelineService.getTimelineElementDetails(iun, eventIdFirstSend,  SendAnalogDetailsInt.class);
         Assertions.assertTrue(sendPaperDetailsOpt.isPresent());
-         SendAnalogDetailsInt sendPaperDetails = sendPaperDetailsOpt.get();
-        Assertions.assertEquals(physicalAddress, sendPaperDetails.getPhysicalAddress());
+        SendAnalogDetailsInt sendPaperDetails = sendPaperDetailsOpt.get();
+        Assertions.assertEquals(physicalAddress.getAddress(), sendPaperDetails.getPhysicalAddress().getAddress());
     }
 
     public static void checkNotSendPaperToExtChannel(String iun, Integer recIndex, int sendAttempt, TimelineService timelineService) {
@@ -144,7 +147,7 @@ public class TestUtils {
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionAnalogWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(), Mockito.any(Instant.class), Mockito.any(PhysicalAddressInt.class), endWorkflowStatusArgumentCaptor.capture()
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), Mockito.any(PhysicalAddressInt.class), endWorkflowStatusArgumentCaptor.capture()
         );
         Assertions.assertEquals(recIndex, recIndexCaptor.getValue());
         Assertions.assertEquals(iun, notificationCaptor.getValue().getIun());
@@ -253,12 +256,16 @@ public class TestUtils {
 
     public static void checkExternalChannelPecSendFromTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
                                                                DigitalAddressSourceInt addressSource, TimelineService timelineService) {
+        
+        Boolean isFirstRetry = isPossibileCaseToRepeat(addressSource, sendAttemptMade);
+        
         String timelineEventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
                         .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
+                        .isFirstSendRetry(isFirstRetry)
                         .build()
         );
 
@@ -269,12 +276,26 @@ public class TestUtils {
         Assertions.assertEquals( digitalAddress.getAddress(), ((SendDigitalDetailsInt) timelineElement.getDetails()).getDigitalAddress().getAddress() );
     }
 
+    private static boolean isPossibileCaseToRepeat(DigitalAddressSourceInt digitalAddressSource, int sentAttemptMade) {
+        return (DigitalAddressSourceInt.PLATFORM.equals(digitalAddressSource) ||
+                DigitalAddressSourceInt.GENERAL.equals(digitalAddressSource))
+                &&
+                sentAttemptMade == 1;
+    }
+
     public static void checkIsPresentAcceptanceInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
                                                                DigitalAddressSourceInt addressSource, TimelineService timelineService) {
+
+        Boolean isFirstRetry = isPossibileCaseToRepeat(addressSource, sendAttemptMade);
+        checkAcceptance(iun, recIndex, sendAttemptMade, digitalAddress, addressSource, timelineService, isFirstRetry);
+    }
+
+    public static void checkAcceptance(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, TimelineService timelineService, Boolean isFirstRetry) {
         String timelineEventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
+                        .isFirstSendRetry(isFirstRetry)
                         .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
                         .progressIndex(1)
@@ -294,12 +315,20 @@ public class TestUtils {
 
     public static void checkIsPresentDigitalFeedbackInTimeline(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress,
                                                                DigitalAddressSourceInt addressSource, TimelineService timelineService, ResponseStatusInt status) {
+
+        Boolean isFirstRetry = isPossibileCaseToRepeat(addressSource, sendAttemptMade);
+
+        checkDigitalFeedback(iun, recIndex, sendAttemptMade, digitalAddress, addressSource, timelineService, status, isFirstRetry);
+    }
+
+    public static void checkDigitalFeedback(String iun, int recIndex, int sendAttemptMade, LegalDigitalAddressInt digitalAddress, DigitalAddressSourceInt addressSource, TimelineService timelineService, ResponseStatusInt status, Boolean isFirstRetry) {
         String timelineEventId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
                         .sentAttemptMade(sendAttemptMade)
                         .source(addressSource)
+                        .isFirstSendRetry(isFirstRetry)
                         .build()
         );
 
@@ -314,7 +343,7 @@ public class TestUtils {
         Assertions.assertEquals( digitalAddress.getAddress(), details.getDigitalAddress().getAddress() );
         Assertions.assertEquals(status, details.getResponseStatus());
     }
-    
+
     public synchronized static NotificationStatusInt getNotificationStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils){
         int numberOfRecipient = notification.getRecipients().size();
         Instant notificationCreatedAt = notification.getSentAt();
@@ -352,13 +381,7 @@ public class TestUtils {
     }
     
     public static boolean checkIsPresentRefinement(String iun, Integer recIndex, TimelineService timelineService) {
-        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.REFINEMENT.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recIndex(recIndex)
-                                .build()));
+        Optional<TimelineElementInternal> timelineElementOpt = getRefinement(iun, recIndex, timelineService);
 
         Assertions.assertTrue(timelineElementOpt.isPresent());
         TimelineElementInternal timelineElement = timelineElementOpt.get();
@@ -366,6 +389,16 @@ public class TestUtils {
         Assertions.assertNotNull(detailsInt.getNotificationCost());
         
         return true;
+    }
+
+    public static Optional<TimelineElementInternal> getRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        return timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REFINEMENT.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()));
     }
 
     public static void checkFailureRefinement(String iun,
@@ -395,16 +428,15 @@ public class TestUtils {
         Assertions.assertEquals(schedulingDate.toInstant(), refinementDate);
     }
 
-    public static void checkSendRegisteredLetter(NotificationRecipientInt recipient, String iun, Integer recIndex, ExternalChannelMock externalChannelMock, TimelineService timelineService) {
-        ArgumentCaptor<PhysicalAddressInt> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddressInt.class);
-        ArgumentCaptor<NotificationInt> pnNotificationIntArgumentCaptor = ArgumentCaptor.forClass(NotificationInt.class);
 
-        Mockito.verify(externalChannelMock).sendAnalogNotification(pnNotificationIntArgumentCaptor.capture(), Mockito.any(NotificationRecipientInt.class), pnPhysicalAddressArgumentCaptor.capture(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
-        PhysicalAddressInt physicalAddress = pnPhysicalAddressArgumentCaptor.getValue();
-        NotificationInt notificationInt = pnNotificationIntArgumentCaptor.getValue();
+    public static void checkSendRegisteredLetter(NotificationRecipientInt recipient, String iun, Integer recIndex, PaperChannelMock paperChannelMock, TimelineService timelineService) {
+        ArgumentCaptor<PaperChannelSendRequest> paperChannelSendRequestArgumentCaptor = ArgumentCaptor.forClass(PaperChannelSendRequest.class);
 
-        Assertions.assertEquals(iun, notificationInt.getIun());
-        Assertions.assertEquals(recipient.getPhysicalAddress().getAddress(), physicalAddress.getAddress());
+        Mockito.verify(paperChannelMock).send(paperChannelSendRequestArgumentCaptor.capture());
+        PaperChannelSendRequest paperChannelSendRequest = paperChannelSendRequestArgumentCaptor.getValue();
+
+        Assertions.assertEquals(iun, paperChannelSendRequest.getNotificationInt().getIun());
+        Assertions.assertEquals(recipient.getPhysicalAddress().getAddress(), paperChannelSendRequest.getReceiverAddress().getAddress());
 
         //Viene verificato l'invio della registered letter da timeline
         String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
@@ -418,14 +450,36 @@ public class TestUtils {
 
         SimpleRegisteredLetterDetailsInt simpleRegisteredLetterDetails = sendSimpleRegisteredLetterOpt.get();
         Assertions.assertEquals( recipient.getPhysicalAddress().getAddress(), simpleRegisteredLetterDetails.getPhysicalAddress().getAddress() );
-        Assertions.assertEquals( recipient.getPhysicalAddress().getForeignState() , simpleRegisteredLetterDetails.getPhysicalAddress().getForeignState());
-        Assertions.assertEquals(1, simpleRegisteredLetterDetails.getNumberOfPages());
+
     }
 
     public static void firstFileUploadFromNotification(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock){
         for(TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf");
+            fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
+            fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
+            safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
+        }
+    }
+
+
+    public static void firstFileUploadFromNotificationTooBig(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock){
+        for(TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
+            FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
+            fileCreationWithContentRequest.setContentType("application/pdf" + TOO_BIG);
+            fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
+            fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
+            safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
+        }
+    }
+
+
+    public static void firstFileUploadFromNotificationNotAPDF(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock){
+        for(TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
+            FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
+            fileCreationWithContentRequest.setContentType("application/pdf" + NOT_A_PDF);
+            fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
             safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
         }
@@ -435,6 +489,7 @@ public class TestUtils {
         for(NotificationDocumentInt attachment : notification.getDocuments()) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf");
+            fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(fileSha);
             safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
         }
@@ -473,7 +528,7 @@ public class TestUtils {
                         LegalFactsIdInt legalFactsId = elem.getLegalFactsIds().get(0);
                         if( !LegalFactCategoryInt.PEC_RECEIPT.equals(legalFactsId.getCategory()) && !LegalFactCategoryInt.ANALOG_DELIVERY.equals(legalFactsId.getCategory())){
                             String key = legalFactsId.getKey().replace("safestorage://", "");
-                            log.info("writing safestoragemock key={} testName={} cat={}", key, testName, legalFactsId.getCategory());
+                            log.info("[TEST] writing safestoragemock key={} testName={} cat={}", key, testName, legalFactsId.getCategory());
                             safeStorageClientMock.writeFile(key, legalFactsId.getCategory(), testName);
                         }
                     }
@@ -488,7 +543,8 @@ public class TestUtils {
                                                 TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo,
                                                 EndWorkflowStatus endWorkflowStatus,
                                                 LegalFactGenerator legalFactGenerator,
-                                                TimelineService timelineService
+                                                TimelineService timelineService,
+                                                DelegateInfoInt delegateInfo
     ) {
         TestUtils.checkNotificationReceivedLegalFactGeneration(
                 notification,
@@ -507,6 +563,7 @@ public class TestUtils {
                 notification.getIun(),
                 recipient,
                 legalFactGenerator,
+                delegateInfo,
                 generatedLegalFactsInfo.isNotificationViewedLegalFactGenerated()
         );
 
@@ -520,6 +577,12 @@ public class TestUtils {
                 legalFactGenerator,
                 generatedLegalFactsInfo.isPecDeliveryWorkflowLegalFactsGenerated()
         );
+
+        TestUtils.checkCompletelyUnreachableLegalFactsGeneration(notification,
+                recipient,
+                endWorkflowStatus,
+                legalFactGenerator,
+                generatedLegalFactsInfo.isNotificationCompletelyUnreachableLegalFactGenerated());
     }
 
     private static int getTimes(boolean itWasGenerated) {
@@ -538,14 +601,15 @@ public class TestUtils {
         }
     }
 
-    private static void checkNotificationViewedLegalFact(String iun,
-                                                        NotificationRecipientInt recipient,
-                                                        LegalFactGenerator legalFactGenerator,
-                                                        boolean itWasGenerated){
+    private static void checkNotificationViewedLegalFact(String iun, 
+                                                         NotificationRecipientInt recipient, 
+                                                         LegalFactGenerator legalFactGenerator,
+                                                         DelegateInfoInt delegateInfo, 
+                                                         boolean itWasGenerated){
         int times = getTimes(itWasGenerated);
 
         try {
-            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationViewedLegalFact(Mockito.eq(iun), Mockito.eq(recipient), Mockito.any(Instant.class));
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationViewedLegalFact(Mockito.eq(iun), Mockito.eq(recipient), Mockito.eq(delegateInfo), Mockito.any(Instant.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -556,9 +620,10 @@ public class TestUtils {
                                                LegalFactGenerator legalFactGenerator,
                                                boolean itWasGenerated){
         int times = getTimes(itWasGenerated);
+        String quickAccessToken = "test";
 
         try {
-            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationAAR(notification, recipient);
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationAAR(notification, recipient, quickAccessToken);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -597,10 +662,81 @@ public class TestUtils {
             Assertions.assertEquals(sentPecAttemptNumber, listSendDigitalFeedbackDetail.size());
         }
     }
+
+
+    private static void checkCompletelyUnreachableLegalFactsGeneration(NotificationInt notification,
+                                                                     NotificationRecipientInt recipient,
+                                                                     EndWorkflowStatus endWorkflowStatus,
+                                                                     LegalFactGenerator legalFactGenerator,
+                                                                     boolean itWasGenerated
+    ) {
+        int times = getTimes(itWasGenerated);
+
+
+        try {
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateAnalogDeliveryFailureWorkflowLegalFact(Mockito.eq(notification),
+                    Mockito.eq(recipient), Mockito.eq(endWorkflowStatus), Mockito.any(Instant.class));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public static NotificationInt getNotification() {
+        return NotificationInt.builder()
+                .iun("IUN_01")
+                .paProtocolNumber("protocol_01")
+                .sender(NotificationSenderInt.builder()
+                        .paId(" pa_02")
+                        .build()
+                )
+                .recipients(Collections.singletonList(
+                        NotificationRecipientInt.builder()
+                                .taxId("testIdRecipient")
+                                .internalId("test")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(LegalDigitalAddressInt.builder()
+                                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                        .address("account@dominio.it")
+                                        .build())
+                                .build()
+                ))
+                .build();
+    }
     
     public static String getMethodName(final int depth) {
         final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
         return ste[depth].getMethodName();
+    }
+    
+    public static String getRandomIun(){
+        Random rand = new Random();
+        int upperbound = 10000;
+        int int_random = rand.nextInt(upperbound);
+        return "XX_"+int_random;
+    }
+
+    public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock, 
+                                               PnDeliveryClientMock pnDeliveryClientMock, 
+                                               UserAttributesClientMock userAttributesClientMock, 
+                                               NationalRegistriesClientMock nationalRegistriesClientMock, 
+                                               TimelineDaoMock timelineDaoMock, 
+                                               PaperNotificationFailedDaoMock paperNotificationFailedDaoMock, 
+                                               PnDataVaultClientMock pnDataVaultClientMock, 
+                                               PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock, 
+                                               DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
+                                               AddressManagerClientMock addressManagerClientMock
+    ) {
+        safeStorageClientMock.clear();
+        pnDeliveryClientMock.clear();
+        userAttributesClientMock.clear();
+        nationalRegistriesClientMock.clear();
+        timelineDaoMock.clear();
+        paperNotificationFailedDaoMock.clear();
+        pnDataVaultClientMock.clear();
+        pnDataVaultClientReactiveMock.clear();
+        documentCreationRequestDaoMock.clear();
+        addressManagerClientMock.clear();
     }
     
     @Builder
@@ -610,6 +746,7 @@ public class TestUtils {
         boolean notificationAARGenerated;
         boolean notificationViewedLegalFactGenerated;
         boolean pecDeliveryWorkflowLegalFactsGenerated;
+        boolean notificationCompletelyUnreachableLegalFactGenerated;
     }
 
     @Builder

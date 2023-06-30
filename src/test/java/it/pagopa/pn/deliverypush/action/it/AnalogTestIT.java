@@ -1,29 +1,29 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
+import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.utils.AarUtils;
-import it.pagopa.pn.deliverypush.action.startworkflow.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.*;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
+import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
@@ -36,13 +36,15 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.PublicRegistryResponseHandler;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
+import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -51,12 +53,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -75,18 +77,23 @@ import static org.awaitility.Awaitility.with;
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
         StartWorkflowForRecipientHandler.class,
-        PnAuditLogBuilder.class,
         AnalogWorkflowHandler.class,
         ChooseDeliveryModeHandler.class,
         DigitalWorkFlowHandler.class,
         DigitalWorkFlowExternalChannelResponseHandler.class,
+        AnalogFailureDeliveryCreationResponseHandler.class,
         CompletionWorkFlowHandler.class,
-        PublicRegistryResponseHandler.class,
+        NationalRegistriesResponseHandler.class,
         ExternalChannelResponseHandler.class,
-        PublicRegistryServiceImpl.class,
+        PaperChannelServiceImpl.class,
+        PaperChannelUtils.class,
+        PaperChannelResponseHandler.class,
+        AnalogWorkflowPaperChannelResponseHandler.class,
+        NationalRegistriesServiceImpl.class,
+        AuditLogServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
-        NotificationCostServiceImpl.class,
+        NotificationProcessCostServiceImpl.class,
         SafeStorageServiceImpl.class,
         RefinementHandler.class,
         NotificationViewedRequestHandler.class,
@@ -109,25 +116,48 @@ import static org.awaitility.Awaitility.with;
         AttachmentUtils.class,
         StatusUtils.class,
         PecDeliveryWorkflowLegalFactsGenerator.class,
+        AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
         RefinementScheduler.class,
         RegisteredLetterSender.class,
         PaperNotificationFailedDaoMock.class,
         TimelineDaoMock.class,
+        TimelineCounterDaoMock.class,
         ExternalChannelMock.class,
         PaperNotificationFailedDaoMock.class,
         PnDataVaultClientMock.class,
-        PnDeliveryPushConfigs.class,
         MVPParameterConsumer.class,
         NotificationCost.class,
         ViewNotification.class,
+        PnDataVaultClientReactiveMock.class,
+        PnDeliveryClientReactiveMock.class,
+        DocumentCreationRequestServiceImpl.class,
+        DocumentCreationRequestDaoMock.class,
+        SafeStorageResponseHandler.class,
+        DocumentCreationResponseHandler.class,
+        ReceivedLegalFactCreationResponseHandler.class,
+        ScheduleRecipientWorkflow.class,
+        AarCreationResponseHandler.class,
+        NotificationViewLegalFactCreationResponseHandler.class,
+        DigitalDeliveryCreationResponseHandler.class,
+        FailureWorkflowHandler.class,
+        SuccessWorkflowHandler.class,
+        NotificationValidationActionHandler.class,
+        TaxIdPivaValidator.class,
+        ReceivedLegalFactCreationRequest.class,
+        NotificationValidationScheduler.class,
+        DigitalWorkflowFirstSendRepeatHandler.class,
+        SendAndUnscheduleNotification.class,
+        AddressValidator.class,
+        AddressManagerServiceImpl.class,
+        AddressManagerClientMock.class,
+        NormalizeAddressHandler.class,
+        AddressManagerResponseHandler.class,
         AnalogTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
+@DirtiesContext
 class AnalogTestIT {
-
-    public static final long WAITING_TIME = 10000;
-
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
         public SpringTestConfiguration() {
@@ -142,10 +172,19 @@ class AnalogTestIT {
     private ExternalChannelMock externalChannelMock;
 
     @SpyBean
+    private PaperChannelMock paperChannelMock;
+
+    @SpyBean
     private CompletionWorkFlowHandler completionWorkflow;
 
     @Autowired
     private StartWorkflowHandler startWorkflowHandler;
+
+    @Autowired
+    private PaperChannelResponseHandler paperChannelResponseHandler;
+
+    @Autowired
+    private AnalogWorkflowPaperChannelResponseHandler analogWorkflowPaperChannelResponseHandler;
 
     @Autowired
     private TimelineService timelineService;
@@ -163,10 +202,13 @@ class AnalogTestIT {
     private UserAttributesClientMock addressBookMock;
 
     @Autowired
-    private PublicRegistryMock publicRegistryMock;
+    private NationalRegistriesClientMock nationalRegistriesClientMock;
     
     @Autowired
     private TimelineDaoMock timelineDaoMock;
+
+    @Autowired
+    private TimelineCounterDaoMock timelineCounterDaoMock;
 
     @Autowired
     private NotificationUtils notificationUtils;
@@ -178,21 +220,48 @@ class AnalogTestIT {
     private PnDataVaultClientMock pnDataVaultClientMock;
     
     @Autowired
+    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
+
+    @Autowired
+    private PaperChannelService paperChannelService;
+
+    @Autowired
+    private PaperChannelUtils paperChannelUtils;
+
+    @Autowired
     private StatusUtils statusUtils;
+
+    @Autowired
+    private AuditLogService auditLogService;
+
+    @Autowired
+    private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
+    
+    @Autowired
+    private AddressManagerClientMock addressManagerClientMock;
     
     @BeforeEach
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        ConsoleAppenderCustom.initializeLog();
 
-        safeStorageClientMock.clear();
-        pnDeliveryClientMock.clear();
-        addressBookMock.clear();
-        publicRegistryMock.clear();
-        timelineDaoMock.clear();
-        paperNotificationFailedDaoMock.clear();
-        pnDataVaultClientMock.clear();
+
+        TestUtils.initializeAllMockClient(
+                safeStorageClientMock,
+                pnDeliveryClientMock,
+                addressBookMock,
+                nationalRegistriesClientMock,
+                timelineDaoMock,
+                paperNotificationFailedDaoMock,
+                pnDataVaultClientMock,
+                pnDataVaultClientReactiveMock,
+                documentCreationRequestDaoMock,
+                addressManagerClientMock
+        );
     }
-    
+
+
+
     @Test
     void notificationViewedPaPhysicalAddressSend() {
  /*
@@ -210,13 +279,13 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();;
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
-        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(EventId.builder()
+        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
-                .sentAttemptMade(1)
+                .sentAttemptMade(0)
                 .build()
         );
 
@@ -252,20 +321,20 @@ class AnalogTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
         
-        String timelineId = TimelineEventId.PUBLIC_REGISTRY_RESPONSE.buildEventId(
-                TimelineEventId.PUBLIC_REGISTRY_CALL.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recIndex(recIndex)
-                                .deliveryMode(DeliveryModeInt.ANALOG)
-                                .contactPhase(ContactPhaseInt.SEND_ATTEMPT)
-                                .sentAttemptMade(1)
-                                .build()
-                )
+        String timelineId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build()
         );
 
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
         await().untilAsserted(() -> 
+                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
+        );
+
+        // aspetto ulteriori 200ms
+        await().pollDelay(Duration.ofMillis(200)).untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
         );
         
@@ -280,13 +349,7 @@ class AnalogTestIT {
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
 
-        ArgumentCaptor<PhysicalAddressInt> pnPhysicalAddressArgumentCaptor = ArgumentCaptor.forClass(PhysicalAddressInt.class);
-
-        Mockito.verify(externalChannelMock, Mockito.times(1)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), pnPhysicalAddressArgumentCaptor.capture(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
-
-
-        PhysicalAddressInt pnExtChnPaperEvent = pnPhysicalAddressArgumentCaptor.getValue();
-        Assertions.assertEquals(paPhysicalAddress.getAddress(), pnExtChnPaperEvent.getAddress());
+        Mockito.verify(paperChannelMock, Mockito.times(1)).send(Mockito.any(PaperChannelSendRequest.class));
 
         //Viene verificato che la notifica sia stata visualizzata e che il costo sia valorizzato
         Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
@@ -309,6 +372,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(true)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
         
         TestUtils.checkGeneratedLegalFacts(
@@ -319,12 +383,15 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -348,7 +415,7 @@ class AnalogTestIT {
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
-                .index(0)
+                .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build()
         );
 
@@ -406,7 +473,7 @@ class AnalogTestIT {
 
         //Viene verificata l'assenza degli invii verso external channel
         TestUtils.checkNotSendPaperToExtChannel(iun, recIndex, 0, timelineService);
-        Mockito.verify(externalChannelMock, Mockito.times(0)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
         //Viene verificato che la notifica sia stata visualizzata
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -423,6 +490,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(true)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -433,12 +501,15 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs("Notification is PAID but not VIEWED, should check how!");
     }
 
     @Test
@@ -451,7 +522,7 @@ class AnalogTestIT {
        - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
        - Pa physical address presente con struttura indirizzo che porta al fallimento dell'invio tramite external channel (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR)
          e invio di una seconda notifica (all'indirizzo ottenuto dall'investigazione) con successivo fallimento (ottenuto concatenando all'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_FAIL) 
-       - Public Registry Indirizzo fisico non trovato (Ottenuto non valorizzando nessun indirizzo fisico per il recipient in PUB_REGISTRY_PHYSICAL)
+
      */
 
         PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
@@ -471,7 +542,6 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -493,6 +563,11 @@ class AnalogTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
+/*        try {
+            Thread.sleep(100000000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }*/
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
@@ -511,8 +586,9 @@ class AnalogTestIT {
         //Viene verificata la presenza del secondo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dal postino
         //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
         
-        //Viene verificato l'effettivo invio delle due notifiche verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        //Viene verificato l'effettivo invio delle due notifiche verso paperChannel
+        Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(Mockito.any(PaperChannelPrepareRequest.class));
+        Mockito.verify(paperChannelMock, Mockito.times(2)).send(Mockito.any(PaperChannelSendRequest.class));
 
         String eventIdFirstSend = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                 EventId.builder()
@@ -526,8 +602,6 @@ class AnalogTestIT {
 
         SendAnalogDetailsInt sendPaperDetails = sendPaperDetailsOpt.get();
         Assertions.assertEquals( paPhysicalAddress.getAddress() , sendPaperDetails.getPhysicalAddress().getAddress() );
-        Assertions.assertEquals( paPhysicalAddress.getForeignState() , sendPaperDetails.getPhysicalAddress().getForeignState());
-        Assertions.assertEquals(1, sendPaperDetails.getNumberOfPages());
 
         //Viene verificato che il workflow sia fallito
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -562,6 +636,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -570,35 +645,39 @@ class AnalogTestIT {
                 recIndex,
                 0,
                 generatedLegalFactsInfo,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
-    void publicRegistryAddressFailInvestigationAddressSuccessTest() {
+    void publicSendFailSecondSendSuccessTest() {
   /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
        - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
        
-       - Pa physical address NON presente (Ottenuto NON valorizzando physicalAddress del recipient della notifica)
+       - Pa physical address presente (Ottenuto valorizzando physicalAddress del recipient della notifica)
        - Public Registry indirizzo trovato ma restituisce un indirizzo che fallirà nell'invio di external channel (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR)
          con invio di una seconda notifica (all'indirizzo ottenuto dall'investigazione) con successo (ottenuto concatenando all'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_OK)
 ì    */
 
-        PhysicalAddressInt publicRegistryAddress = PhysicalAddressBuilder.builder()
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest")
                 .withTaxId("TAXID01")
+                .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
         String fileDoc = "sha256_doc00";
@@ -607,7 +686,6 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
@@ -616,8 +694,6 @@ class AnalogTestIT {
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
-
-        publicRegistryMock.addPhysical(recipient.getTaxId(), publicRegistryAddress);
 
         String iun = notification.getIun();
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
@@ -638,8 +714,8 @@ class AnalogTestIT {
         TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
-        //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito da publicRegistry
-        TestUtils.checkSendPaperToExtChannel(iun, recIndex, publicRegistryAddress, 0, timelineService);
+        //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito da pa
+        TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress1, 0, timelineService);
 
         /*
         Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dall'investigazione
@@ -647,7 +723,8 @@ class AnalogTestIT {
         */
 
         //Vengono verificati il numero di send verso external channel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+        Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(Mockito.any(PaperChannelPrepareRequest.class));
+        Mockito.verify(paperChannelMock, Mockito.times(2)).send(Mockito.any(PaperChannelSendRequest.class));
 
         TestUtils.checkSuccessAnalogWorkflow(iun, recIndex, timelineService, completionWorkflow);
 
@@ -660,6 +737,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -670,12 +748,15 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
     @Test
@@ -740,9 +821,8 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
-                .withNotificationRecipient( List.of(recipient1, recipient2) )
+                .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -758,10 +838,27 @@ class AnalogTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        // Viene atteso fino a che per i due recipient non si vada in refinement
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex1)
+                                        .build())).isPresent())
         );
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex2)
+                                        .build())).isPresent())
+        );
+
         
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress per il recipient1
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, recIndex1, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
@@ -771,7 +868,14 @@ class AnalogTestIT {
 
         //Viene verificato l'effettivo invio del messaggio di cortesia verso external channel
         Mockito.verify(externalChannelMock, Mockito.times(listCourtesyAddressRecipient1.size() + listCourtesyAddressRecipient2.size()))
-                .sendCourtesyNotification(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.anyString());
+                .sendCourtesyNotification(
+                        Mockito.any(NotificationInt.class), 
+                        Mockito.any(NotificationRecipientInt.class),
+                        Mockito.any(CourtesyDigitalAddressInt.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString()
+                );
 
         //Viene verificata la presenza degli indirizzi per il primo recipient
         TestUtils.checkGetAddress(iun, recIndex1, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -813,6 +917,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -821,9 +926,10 @@ class AnalogTestIT {
                 recIndex1,
                 0,
                 generatedLegalFactsInfo,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Viene effettuato il check dei legalFacts generati per il secondo recipient
@@ -832,6 +938,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -840,14 +947,17 @@ class AnalogTestIT {
                 recIndex2,
                 0,
                 generatedLegalFactsInfo2,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 
@@ -917,9 +1027,8 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
-                .withNotificationRecipient( List.of(recipient1, recipient2) )
+                .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -938,11 +1047,27 @@ class AnalogTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        // Viene atteso fino a che per entrambi i recipient non sia stato raggiunto il refinement
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex1)
+                                        .build())).isPresent())
         );
-        
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex2)
+                                        .build())).isPresent())
+        );
+
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, recIndex1, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
 
@@ -1005,6 +1130,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1015,7 +1141,8 @@ class AnalogTestIT {
                 generatedLegalFactsInfo,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Viene effettuato il check dei legalFacts generati per il secondo recipient
@@ -1024,6 +1151,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1032,14 +1160,17 @@ class AnalogTestIT {
                 recIndex2,
                 0,
                 generatedLegalFactsInfo2,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 
@@ -1110,9 +1241,8 @@ class AnalogTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
-                .withIun("IUN01")
                 .withPaId("paId01")
-                .withNotificationRecipient( List.of(recipient1, recipient2) )
+                .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -1133,9 +1263,27 @@ class AnalogTestIT {
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(rec1Index)
+                                        .build())).isPresent())
+
         );
-        
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REFINEMENT.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(rec2Index)
+                                        .build())).isPresent())
+
+        );
+
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, rec1Index, listCourtesyAddressRecipient1, timelineService, externalChannelMock);
 
@@ -1149,14 +1297,14 @@ class AnalogTestIT {
         //Viene verificata la presenza del secondo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dal postino
         //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
 
-        //Viene verificato l'effettivo invio delle due notifiche verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(
-                Mockito.any(NotificationInt.class),
-                Mockito.any(NotificationRecipientInt.class),
-                Mockito.any(PhysicalAddressInt.class),
-                Mockito.any(String.class),
-                Mockito.any(PhysicalAddressInt.ANALOG_TYPE.class),
-                Mockito.any(String.class)
+        //Viene verificato l'effettivo invio delle due notifiche verso paperChannel
+        Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(
+                Mockito.any(PaperChannelPrepareRequest.class)
+        );
+
+
+        Mockito.verify(paperChannelMock, Mockito.times(2)).send(
+                Mockito.any(PaperChannelSendRequest.class)
             );
 
         //Viene verificato che il workflow sia fallito
@@ -1177,21 +1325,14 @@ class AnalogTestIT {
                                 .recIndex(rec1Index)
                                 .build())).isPresent());
 
-        //Viene verificato che sia avvenuto il perfezionamento
-        Assertions.assertTrue(timelineService.getTimelineElement(
-                iun,
-                TimelineEventId.REFINEMENT.buildEventId(
-                        EventId.builder()
-                                .iun(iun)
-                                .recIndex(rec1Index)
-                                .build())).isPresent());
-
+        
         //Viene effettuato il check dei legalFacts generati per il primo recipient
         TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
                 .notificationReceivedLegalFactGenerated(true)
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1200,9 +1341,10 @@ class AnalogTestIT {
                 rec1Index,
                 0,
                 generatedLegalFactsInfo,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Viene effettuato il check dei legalFacts generati per il secondo recipient
@@ -1211,6 +1353,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1221,12 +1364,15 @@ class AnalogTestIT {
                 generatedLegalFactsInfo2,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 
@@ -1254,10 +1400,10 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
         
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();
 
         //Simulazione attesa del primo recipient in 
-        String elementIdInWait = TimelineEventId.SEND_PAPER_FEEDBACK.buildEventId(
+        String elementIdInWait = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(0)
@@ -1309,7 +1455,7 @@ class AnalogTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
-                .withNotificationRecipient( List.of(recipient1, recipient2) )
+                .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -1327,8 +1473,36 @@ class AnalogTestIT {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().atMost(Duration.ofSeconds(100)).untilAsserted(() ->
+/*        try {
+            Thread.sleep(1000000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }*/
+        String timelineId1 = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(rec1Index)
+                        .build()
+        );
+
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId1).isPresent())
+        );
+
+        String timelineId2 = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(rec2Index)
+                        .build()
+        );
+
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->
+                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId2).isPresent())
+        );
+        
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
@@ -1345,15 +1519,16 @@ class AnalogTestIT {
         //Viene verificata la presenza del secondo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dal postino
         //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
 
-        //Viene verificato l'effettivo invio delle due notifiche verso externalChannel
-        Mockito.verify(externalChannelMock, Mockito.times(2)).sendAnalogNotification(
-                Mockito.any(NotificationInt.class),
-                Mockito.any(NotificationRecipientInt.class),
-                Mockito.any(PhysicalAddressInt.class),
-                Mockito.any(String.class),
-                Mockito.any(PhysicalAddressInt.ANALOG_TYPE.class),
-                Mockito.any(String.class)
+        //Viene verificato l'effettivo invio delle due notifiche verso paperChannel
+        Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(
+                Mockito.any(PaperChannelPrepareRequest.class)
         );
+
+
+        Mockito.verify(paperChannelMock, Mockito.times(2)).send(
+                Mockito.any(PaperChannelSendRequest.class)
+        );
+
         //Viene verificato che il workflow sia fallito
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
@@ -1387,6 +1562,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(true)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1395,9 +1571,10 @@ class AnalogTestIT {
                 rec1Index,
                 0,
                 generatedLegalFactsInfo,
-                EndWorkflowStatus.SUCCESS,
+                EndWorkflowStatus.FAILURE,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
 
         //Viene effettuato il check dei legalFacts generati per il secondo recipient
@@ -1406,6 +1583,7 @@ class AnalogTestIT {
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(true)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
 
         TestUtils.checkGeneratedLegalFacts(
@@ -1416,12 +1594,15 @@ class AnalogTestIT {
                 generatedLegalFactsInfo2,
                 EndWorkflowStatus.SUCCESS,
                 legalFactGenerator,
-                timelineService
+                timelineService,
+                null
         );
         
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
     }
 
 }

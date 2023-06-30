@@ -6,7 +6,9 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class EntityToDtoFutureActionMapper {
     private EntityToDtoFutureActionMapper(){}
     
@@ -21,8 +23,9 @@ public class EntityToDtoFutureActionMapper {
                 .iun(entity.getIun());
         return builder.build();
     }
-
+    
     private static ActionDetails parseDetailsFromEntity(ActionDetailsEntity entity, ActionType type) {
+      log.info("EntityToDtoFutureActionMapper.parseDetailsFromEntity: {}", entity);
       return SmartMapper.mapToClass(entity, type.getDetailsJavaClass());
     }
 }

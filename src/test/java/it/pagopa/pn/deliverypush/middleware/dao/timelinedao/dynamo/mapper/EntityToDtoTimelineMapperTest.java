@@ -2,18 +2,17 @@ package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RequestRefusedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.*;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.List;
 
 class EntityToDtoTimelineMapperTest {
     private EntityToDtoTimelineMapper mapper;
-
-    @BeforeEach
     
     @Test
     void entityToDtoSendAnalogDomicile() {
@@ -23,6 +22,7 @@ class EntityToDtoTimelineMapperTest {
                 .paId("PaId")
                 .iun("iun")
                 .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .notificationSentAt(Instant.now())
                 .details(
                         TimelineElementDetailsEntity.builder()
                                 .recIndex(0)
@@ -35,20 +35,58 @@ class EntityToDtoTimelineMapperTest {
                                 )
                                 .serviceLevel(ServiceLevelEntity.REGISTERED_LETTER_890)
                                 .sentAttemptMade(0)
-                                .investigation(true)
+                                .relatedRequestId("abc")
+                                .productType("NR_AR")
+                                .analogCost(100)
                                 .build()  
                 )
                 .build();
 
-        TimelineElementInternal internal = mapper.entityToDto(entity);
-        SendAnalogDetailsInt details = (SendAnalogDetailsInt) internal.getDetails();
+        TimelineElementInternal actual = mapper.entityToDto(entity);
+
+        Assertions.assertEquals(entity.getIun(), actual.getIun());
+        Assertions.assertEquals(entity.getTimelineElementId(), actual.getElementId());
+        Assertions.assertEquals(entity.getNotificationSentAt(), actual.getNotificationSentAt());
+        Assertions.assertEquals(entity.getTimestamp(), actual.getTimestamp());
+        Assertions.assertEquals(entity.getPaId(), actual.getPaId());
+        Assertions.assertEquals(entity.getCategory().name(), actual.getCategory().name());
+
+        SendAnalogDetailsInt details = (SendAnalogDetailsInt) actual.getDetails();
         
         Assertions.assertEquals(entity.getDetails().getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(entity.getDetails().getSentAttemptMade(), details.getSentAttemptMade());
-        Assertions.assertEquals(entity.getDetails().getInvestigation(), details.getInvestigation());
+        Assertions.assertEquals(entity.getDetails().getRelatedRequestId(), details.getRelatedRequestId());
         Assertions.assertEquals(entity.getDetails().getServiceLevel().getValue(), details.getServiceLevel().getValue());
+        Assertions.assertEquals(entity.getDetails().getAnalogCost(), details.getAnalogCost());
+        Assertions.assertEquals(entity.getDetails().getProductType(), details.getProductType());
+        Assertions.assertEquals(entity.getDetails().getAnalogCost(), details.getAnalogCost());
         Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getAddress(), details.getPhysicalAddress().getAddress());
         Assertions.assertEquals(entity.getDetails().getPhysicalAddress().getForeignState(), details.getPhysicalAddress().getForeignState());
+    }
+
+    @Test
+    void entityToDtoRefusedError() {
+        mapper = new EntityToDtoTimelineMapper();
+
+        TimelineElementEntity entity = TimelineElementEntity.builder()
+                .paId("PaId")
+                .iun("iun")
+                .category( TimelineElementCategoryEntity.REQUEST_REFUSED )
+                .details( TimelineElementDetailsEntity.builder()
+                        .refusalReasons( List.of( NotificationRefusedErrorEntity.builder()
+                                .errorCode( "FILE_NOTFOUND" )
+                                .detail( "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869" )
+                                .build()
+                                )
+                        )
+                        .build())
+                .build();
+
+        TimelineElementInternal actual = mapper.entityToDto(entity);
+
+        RequestRefusedDetailsInt requestRefusedDetailsInt = (RequestRefusedDetailsInt) actual.getDetails();
+
+        Assertions.assertEquals( entity.getDetails().getRefusalReasons().get( 0 ).getErrorCode(), requestRefusedDetailsInt.getRefusalReasons().get( 0 ).getErrorCode() );
     }
     
     @Test

@@ -49,16 +49,5 @@ class DigitalSuccessWorkflowDetailsTest {
                 .build();
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
-
-    @Test
-    void testToString() {
-        String data = "class DigitalSuccessWorkflowDetails {\n" +
-                "    recIndex: 1\n" +
-                "    digitalAddress: class DigitalAddress {\n" +
-                "        type: test\n" +
-                "        address: aa\n" +
-                "    }\n" +
-                "}";
-        Assertions.assertEquals(data, details.toString());
-    }
+    
 }

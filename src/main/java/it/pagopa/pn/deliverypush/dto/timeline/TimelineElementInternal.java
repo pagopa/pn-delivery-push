@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class TimelineElementInternal {
+public class TimelineElementInternal implements Comparable<TimelineElementInternal> {
     private final String iun;
     private final String elementId;
     private final Instant timestamp;
@@ -24,4 +25,13 @@ public class TimelineElementInternal {
     private final TimelineElementCategoryInt category;
     private final TimelineElementDetailsInt details;
     private StatusInfoInternal statusInfo;
+    private Instant notificationSentAt;
+
+    @Override
+    public int compareTo(@NotNull TimelineElementInternal o) {
+        int order = this.timestamp.compareTo(o.getTimestamp());
+        if (order == 0)
+            order = this.category.getPriority() - o.getCategory().getPriority();
+        return order;
+    }
 }

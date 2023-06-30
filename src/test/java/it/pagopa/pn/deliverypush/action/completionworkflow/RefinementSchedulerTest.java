@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
@@ -48,7 +48,7 @@ class RefinementSchedulerTest {
                 pnDeliveryPushConfigs
         );
     }
-
+ 
     @Test
     @ExtendWith(SpringExtension.class)
     void scheduleDigitalRefinementSuccessNotViewedBeforeNonVisibilityTime() {
@@ -68,13 +68,13 @@ class RefinementSchedulerTest {
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessDigitalRefinement());
 
-        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
         //WHEN
         refinementScheduler.scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.SUCCESS);
         
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
         
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -107,13 +107,13 @@ class RefinementSchedulerTest {
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessDigitalRefinement());
         schedulingDateOk = schedulingDateOk.plus(times.getTimeToAddInNonVisibilityTimeCase());
         
-        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
         //WHEN
         refinementScheduler.scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.SUCCESS);
 
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -139,13 +139,14 @@ class RefinementSchedulerTest {
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessDigitalRefinement());
 
-        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
         //WHEN
         refinementScheduler.scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.SUCCESS);
 
         //THEN
-        Mockito.verify(timelineUtils, Mockito.never()).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils, Mockito.never()).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
         Mockito.verify(scheduler, Mockito.never()).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class), Mockito.any(ActionType.class));
     }
 
@@ -168,13 +169,13 @@ class RefinementSchedulerTest {
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysFailureDigitalRefinement());
 
-        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
         //WHEN
         refinementScheduler.scheduleDigitalRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.FAILURE);
 
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -201,13 +202,13 @@ class RefinementSchedulerTest {
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessAnalogRefinement());
 
-        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
         //WHEN
         refinementScheduler.scheduleAnalogRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.SUCCESS);
 
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));
@@ -233,13 +234,13 @@ class RefinementSchedulerTest {
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysFailureAnalogRefinement());
 
-        Mockito.when(timelineUtils.checkNotificationIsAlreadyViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
         //WHEN
         refinementScheduler.scheduleAnalogRefinement(notification, recIndex, notificationDate, EndWorkflowStatus.FAILURE);
 
         //THEN
-        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex);
+        Mockito.verify(timelineUtils).buildScheduleRefinement(notification, recIndex, schedulingDateOk);
 
         ArgumentCaptor<Instant> schedulingDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(scheduler).scheduleEvent(Mockito.anyString(), Mockito.anyInt(), schedulingDateCaptor.capture(), Mockito.any(ActionType.class));

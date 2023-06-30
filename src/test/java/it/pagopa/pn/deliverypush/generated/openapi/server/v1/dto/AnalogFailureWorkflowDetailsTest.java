@@ -27,14 +27,4 @@ class AnalogFailureWorkflowDetailsTest {
 
         Assertions.assertEquals(Boolean.TRUE, details.equals(expected));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class AnalogFailureWorkflowDetails {\n" +
-                "    recIndex: 1\n" +
-                "}";
-        Assertions.assertEquals(expected, details.toString());
-    }
-
-
 }

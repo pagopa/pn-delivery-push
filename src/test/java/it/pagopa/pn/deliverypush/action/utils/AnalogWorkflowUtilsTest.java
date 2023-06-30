@@ -7,6 +7,8 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -42,33 +44,6 @@ class AnalogWorkflowUtilsTest {
     }
 
     @Test
-    void getSendAnalogNotificationDetails() {
-
-        SendAnalogDetailsInt sendAnalogDetailsInt = SendAnalogDetailsInt.builder().recIndex(0).build();
-        Optional<SendAnalogDetailsInt> optionalSendAnalogDetailsInt = Optional.of(sendAnalogDetailsInt);
-
-        Mockito.when(timelineService.getTimelineElementDetails("1", "1", SendAnalogDetailsInt.class)).thenReturn(optionalSendAnalogDetailsInt);
-
-        SendAnalogDetailsInt sendAnalogDetailsInt1 = analogWorkflowUtils.getSendAnalogNotificationDetails("1", "1");
-
-        Assertions.assertNotNull(sendAnalogDetailsInt1);
-    }
-
-    @Test
-    void getSendAnalogNotificationDetailsFailed() {
-
-        String expectErrorMsg = "PN_DELIVERYPUSH_TIMELINENOTFOUND";
-
-        Mockito.when(timelineService.getTimelineElementDetails("1", "1", SendAnalogDetailsInt.class)).thenReturn(Optional.empty());
-
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            analogWorkflowUtils.getSendAnalogNotificationDetails("1", "1");
-        });
-
-        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
-    }
-
-    @Test
     void getLastTimelineSentFeedbackFailed() {
 
         String expectErrorMsg = "PN_DELIVERYPUSH_FEEDBACKNOTFOUND";
@@ -98,7 +73,7 @@ class AnalogWorkflowUtilsTest {
                         .elementId("1")
                         .timestamp(Instant.now())
                         .paId("1")
-                        .category(TimelineElementCategoryInt.SEND_PAPER_FEEDBACK)
+                        .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
                         .legalFactsIds(legalFactsIds)
                         .details(timelineElementDetailsInt.getDetails())
                         .build()
@@ -126,8 +101,10 @@ class AnalogWorkflowUtilsTest {
     @Test
     void addAnalogFailureAttemptToTimeline() {
         NotificationInt notificationInt = newNotification();
-        List<LegalFactsIdInt> attachmentKeys = new ArrayList<>();
-        attachmentKeys.add(LegalFactsIdInt.builder().key("key").category(LegalFactCategoryInt.SENDER_ACK).build());
+
+        List<AttachmentDetailsInt> attachments = new ArrayList<>();
+        attachments.add(AttachmentDetailsInt.builder().url("key").build());
+
         PhysicalAddressInt newAddress = PhysicalAddressInt.builder().address("test address").build();
         List<String> errors = new ArrayList<>();
 
@@ -139,15 +116,25 @@ class AnalogWorkflowUtilsTest {
                                 .at("at")
                                 .build()
                 )
-                .investigation(true)
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
 
+        SendEventInt sendEventInt = SendEventInt.builder()
+                .statusDateTime(Instant.now())
+                .statusCode("KO")
+                .statusDetail("ABCD")
+                .deliveryFailureCause("M1")
+                .build();
 
-        analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notificationInt, 1, attachmentKeys, newAddress, errors, sendPaperDetails);
+        final String sendRequestId = "send_request_id";
 
-        Mockito.verify(timelineUtils).buildAnalogFailureAttemptTimelineElement(notificationInt, 1, attachmentKeys, newAddress, errors, sendPaperDetails);
+        Mockito.when(timelineUtils.buildAnalogFailureAttemptTimelineElement(
+                Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
+
+        analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notificationInt, 1, attachments, sendPaperDetails,sendEventInt, sendRequestId);
+
+        Mockito.verify(timelineUtils).buildAnalogFailureAttemptTimelineElement(notificationInt, 1, attachments, sendPaperDetails, sendEventInt, sendRequestId);
     }
 
     @ExtendWith(MockitoExtension.class)

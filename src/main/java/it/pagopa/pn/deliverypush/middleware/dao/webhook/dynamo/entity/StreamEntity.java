@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity;
 
 import lombok.Data;
 import lombok.Getter;
-import software.amazon.awssdk.enhanced.dynamodb.extensions.annotations.DynamoDbAtomicCounter;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.UpdateBehavior;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 

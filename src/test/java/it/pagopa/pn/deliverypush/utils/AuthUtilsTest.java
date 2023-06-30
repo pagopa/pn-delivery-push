@@ -6,8 +6,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.service.MandateService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,8 +19,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 class AuthUtilsTest {
+
     private MandateService mandateService;
 
     private AuthUtils authUtils;
@@ -28,7 +33,6 @@ class AuthUtilsTest {
     @BeforeEach
     void setup() {
         mandateService = Mockito.mock(MandateService.class);
-
         authUtils = new AuthUtils(mandateService);
     }
 
@@ -44,7 +48,15 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        assertDoesNotThrow(() -> authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, null));
+        assertDoesNotThrow(() -> authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, null, CxTypeAuthFleet.PF, null));
+    }
+
+    @Test
+    void checkValidAuthorizationForRecipientPG() {
+        String taxId = "taxId";
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
+        NotificationInt notification = getNotification("iun", taxId, taxIdAnon, "paId", Instant.now());
+        assertDoesNotThrow(() -> authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, null, CxTypeAuthFleet.PG, null));
     }
 
     @Test
@@ -60,9 +72,18 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, senderTaxId, null)
+        assertThrows(PnNotFoundException.class, () ->
+                authUtils.checkUserPaAndMandateAuthorization(notification, senderTaxId, null, CxTypeAuthFleet.PF, null)
         );
+    }
+
+    @Test
+    void checkNotValidAuthorizationForRecipientPG() {
+        String taxId = "taxId";
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
+        NotificationInt notification = getNotification("iun", taxId, taxIdAnon, "paId", Instant.now());
+        List<String> groups = List.of("G1");
+        assertThrows(PnNotFoundException.class, () -> authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, null, CxTypeAuthFleet.PG, groups));
     }
 
     @Test
@@ -77,7 +98,7 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        assertDoesNotThrow(() -> authUtils.checkUserAndMandateAuthorization(notification, paId01, null));
+        assertDoesNotThrow(() -> authUtils.checkUserPaAndMandateAuthorization(notification, paId01, null, CxTypeAuthFleet.PF, null));
     }
 
     @Test
@@ -93,8 +114,8 @@ class AuthUtilsTest {
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
 
         //WHEN
-        Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, senderPaId01, null)
+        assertThrows(PnNotFoundException.class, () ->
+                authUtils.checkUserPaAndMandateAuthorization(notification, senderPaId01, null, CxTypeAuthFleet.PF, null)
         );
     }
 
@@ -117,15 +138,37 @@ class AuthUtilsTest {
                 .delegator(taxId)
                 .dateFrom(sentAt.minus(2, ChronoUnit.DAYS))
                 .dateTo(sentAt.plus(2, ChronoUnit.DAYS))
-                .visibilityIds(
-                        Collections.singletonList(paId01)
-                )
+                .visibilityIds(Collections.singletonList(paId01))
                 .build();
 
-        Mockito.when(mandateService.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(mandate));
+        when(mandateService.listMandatesByDelegate(anyString(), anyString(), any(), any()))
+                .thenReturn(List.of(mandate));
 
         //WHEN
-        assertDoesNotThrow(() -> authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId));
+        assertDoesNotThrow(() -> authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId, CxTypeAuthFleet.PF, null));
+    }
+
+    @Test
+    void checkValidAuthorizationForDelegatePG() {
+        String taxId = "taxId";
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
+        Instant sentAt = Instant.now();
+        NotificationInt notification = getNotification("iun", taxId, taxIdAnon, "paId", sentAt);
+
+        String mandateId = "mandateId";
+        MandateDtoInt mandate = MandateDtoInt.builder()
+                .mandateId(mandateId)
+                .delegate("delegate")
+                .delegator(taxId)
+                .dateFrom(sentAt.minus(2, ChronoUnit.DAYS))
+                .dateTo(sentAt.plus(2, ChronoUnit.DAYS))
+                .visibilityIds(Collections.emptyList())
+                .build();
+
+        when(mandateService.listMandatesByDelegate(taxIdAnon, mandateId, CxTypeAuthFleet.PG, null))
+                .thenReturn(List.of(mandate));
+
+        assertDoesNotThrow(() -> authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId, CxTypeAuthFleet.PG, null));
     }
 
     @Test
@@ -147,16 +190,15 @@ class AuthUtilsTest {
                 .delegator(taxId)
                 .dateFrom(sentAt.plus(2, ChronoUnit.DAYS))
                 .dateTo(Instant.now().plus(2, ChronoUnit.DAYS))
-                .visibilityIds(
-                        Collections.singletonList(paId01)
-                )
+                .visibilityIds(Collections.singletonList(paId01))
                 .build();
 
-        Mockito.when(mandateService.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(mandate));
+        when(mandateService.listMandatesByDelegate(anyString(), anyString(), any(), any()))
+                .thenReturn(List.of(mandate));
 
         //WHEN
-        Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId)
+        assertThrows(PnNotFoundException.class, () ->
+                authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId, CxTypeAuthFleet.PF, null)
         );
     }
 
@@ -173,11 +215,12 @@ class AuthUtilsTest {
 
         String mandateId = "mandateId";
 
-        Mockito.when(mandateService.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.emptyList());
+        when(mandateService.listMandatesByDelegate(anyString(), anyString(), any(), any()))
+                .thenReturn(Collections.emptyList());
 
         //WHEN
-        Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId)
+        assertThrows(PnNotFoundException.class, () ->
+                authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId, CxTypeAuthFleet.PF, null)
         );
     }
 
@@ -202,16 +245,15 @@ class AuthUtilsTest {
                 .delegator(taxId)
                 .dateFrom(sentAt.plus(2, ChronoUnit.DAYS))
                 .dateTo(Instant.now().plus(2, ChronoUnit.DAYS))
-                .visibilityIds(
-                        Collections.singletonList(paId02)
-                )
+                .visibilityIds(Collections.singletonList(paId02))
                 .build();
 
-        Mockito.when(mandateService.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(mandate));
+        when(mandateService.listMandatesByDelegate(anyString(), anyString(), any(), any()))
+                .thenReturn(List.of(mandate));
 
         //WHEN
-        Assertions.assertThrows(PnNotFoundException.class, () ->
-                authUtils.checkUserAndMandateAuthorization(notification, taxIdAnon, mandateId)
+        assertThrows(PnNotFoundException.class, () ->
+                authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId, CxTypeAuthFleet.PF, null)
         );
     }
 

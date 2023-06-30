@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 
 class DtoToEntityActionMapperTest {
@@ -15,7 +16,7 @@ class DtoToEntityActionMapperTest {
         Action action = buildAction();
         ActionEntity expected = buildActionEntity();
 
-        ActionEntity actual = DtoToEntityActionMapper.dtoToEntity(action);
+        ActionEntity actual = DtoToEntityActionMapper.dtoToEntity(action, Duration.ZERO);
 
         Assertions.assertEquals(expected, actual);
     }

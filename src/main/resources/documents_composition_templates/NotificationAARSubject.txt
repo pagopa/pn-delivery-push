@@ -1,1 +1,1 @@
-Avviso di notifica del ${sendDateNoTime}
+Hai ricevuto una notifica - IUN: ${notification.iun}

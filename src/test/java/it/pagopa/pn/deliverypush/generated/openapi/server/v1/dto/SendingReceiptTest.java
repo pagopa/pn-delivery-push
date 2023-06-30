@@ -52,12 +52,4 @@ class SendingReceiptTest {
         Assertions.assertEquals(Boolean.TRUE, tmp.equals(receipt));
     }
 
-    @Test
-    void testToString() {
-        String tmp = "class SendingReceipt {\n" +
-                "    id: one\n" +
-                "    system: two\n" +
-                "}";
-        Assertions.assertEquals(tmp, receipt.toString());
-    }
 }

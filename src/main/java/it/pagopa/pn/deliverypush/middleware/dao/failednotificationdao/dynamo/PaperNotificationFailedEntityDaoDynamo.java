@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedEntityDao;
@@ -66,7 +66,7 @@ public class PaperNotificationFailedEntityDaoDynamo extends AbstractDynamoKeyVal
         try {
             table.putItem(request);
         }catch (ConditionalCheckFailedException ex){
-            log.error("Conditional check exception on PaperNotificationFailedEntityDaoDynamo putIfAbsent", ex);
+            log.error("Conditional check exception on DocumentCreationRequestEntityDaoDynamo putIfAbsent", ex);
 
             Map<String, String> keyValues = new HashMap<>();
             keyValues.put("iun", value.getIun());

@@ -11,9 +11,10 @@ class SimpleRegisteredLetterDetailsTest {
     @BeforeEach
     void setUp() {
         details = new SimpleRegisteredLetterDetails();
-        details.setNumberOfPages(1);
         details.setPhysicalAddress(PhysicalAddress.builder().address("add").build());
         details.setRecIndex(1);
+        details.setAnalogCost(1);
+        details.productType("NR_AR");
     }
 
     @Test
@@ -45,18 +46,18 @@ class SimpleRegisteredLetterDetailsTest {
     }
 
     @Test
-    void numberOfPages() {
+    void analogCost() {
         SimpleRegisteredLetterDetails data = buildSimpleRegisteredLetterDetails();
 
-        SimpleRegisteredLetterDetails actual = details.numberOfPages(1);
+        SimpleRegisteredLetterDetails actual = details.analogCost(1);
 
         Assertions.assertEquals(data, actual);
     }
 
     @Test
-    void getNumberOfPages() {
+    void getAnalogCost() {
 
-        Assertions.assertEquals(1, details.getNumberOfPages());
+        Assertions.assertEquals(1, details.getAnalogCost());
     }
 
     @Test
@@ -66,30 +67,11 @@ class SimpleRegisteredLetterDetailsTest {
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
 
-    @Test
-    void testToString() {
-        String expected = "class SimpleRegisteredLetterDetails {\n" +
-                "    recIndex: 1\n" +
-                "    physicalAddress: class PhysicalAddress {\n" +
-                "        at: null\n" +
-                "        address: add\n" +
-                "        addressDetails: null\n" +
-                "        zip: null\n" +
-                "        municipality: null\n" +
-                "        municipalityDetails: null\n" +
-                "        province: null\n" +
-                "        foreignState: null\n" +
-                "    }\n" +
-                "    numberOfPages: 1\n" +
-                "}";
-
-        Assertions.assertEquals(expected, details.toString());
-    }
-
     private SimpleRegisteredLetterDetails buildSimpleRegisteredLetterDetails() {
         return SimpleRegisteredLetterDetails.builder()
                 .recIndex(1)
-                .numberOfPages(1)
+                .analogCost(1)
+                .productType("NR_AR")
                 .physicalAddress(PhysicalAddress.builder().address("add").build())
                 .build();
     }

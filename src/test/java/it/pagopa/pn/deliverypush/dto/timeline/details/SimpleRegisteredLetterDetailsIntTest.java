@@ -14,7 +14,7 @@ class SimpleRegisteredLetterDetailsIntTest {
         detailsInt = SimpleRegisteredLetterDetailsInt.builder()
                 .recIndex(0)
                 .foreignState("001")
-                .numberOfPages(1)
+                .analogCost(100)
                 .physicalAddress(PhysicalAddressInt.builder().addressDetails("000").build())
                 .build();
     }
@@ -22,7 +22,7 @@ class SimpleRegisteredLetterDetailsIntTest {
     @Test
     void toLog() {
         String log = detailsInt.toLog();
-        Assertions.assertEquals("recIndex=0 physicalAddress='Sensitive information'", log);
+        Assertions.assertEquals("recIndex=0 physicalAddress='Sensitive information' analogCost=100 productType=null prepareRequestId=null", log);
     }
 
     @Test
@@ -44,14 +44,9 @@ class SimpleRegisteredLetterDetailsIntTest {
     }
 
     @Test
-    void getNumberOfPages() {
-        int pages = detailsInt.getNumberOfPages();
-        Assertions.assertEquals(1, pages);
+    void getAnalogCost() {
+        Integer cost = detailsInt.getAnalogCost();
+        Assertions.assertEquals(100, cost);
     }
 
-    @Test
-    void testToString() {
-        String details = detailsInt.toString();
-        Assertions.assertEquals("SimpleRegisteredLetterDetailsInt(recIndex=0, physicalAddress=PhysicalAddressInt(at=null, address=null, addressDetails=000, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null), foreignState=001, numberOfPages=1)", details);
-    }
 }

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationRecipient.RecipientTypeEnum;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipient.RecipientTypeEnum;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -39,11 +39,12 @@ class RecipientMapperTest {
     }
 
     private NotificationRecipientInt buildNotificationRecipientInt() {
+        String denomination = "003";
         return NotificationRecipientInt.builder()
                 .recipientType(RecipientTypeInt.PF)
                 .taxId("001")
                 .internalId("002")
-                .denomination("003")
+                .denomination(denomination)
                 .digitalDomicile(
                         LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -51,6 +52,7 @@ class RecipientMapperTest {
                                 .build()
                 )
                 .physicalAddress(PhysicalAddressInt.builder()
+                        .fullname(denomination)
                         .at("003")
                         .address("001")
                         .addressDetails("002")
@@ -63,20 +65,6 @@ class RecipientMapperTest {
                         .noticeCode("001")
                         .creditorTaxId("002")
                         .pagoPaForm(NotificationDocumentInt.builder()
-                                .digests(NotificationDocumentInt.Digests.builder().sha256("001").build())
-                                .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("001")
-                                        .versionToken("002")
-                                        .build())
-                                .build())
-                        .f24flatRate(NotificationDocumentInt.builder()
-                                .digests(NotificationDocumentInt.Digests.builder().sha256("001").build())
-                                .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("001")
-                                        .versionToken("002")
-                                        .build())
-                                .build())
-                        .f24standard(NotificationDocumentInt.builder()
                                 .digests(NotificationDocumentInt.Digests.builder().sha256("001").build())
                                 .ref(NotificationDocumentInt.Ref.builder()
                                         .key("001")
@@ -128,8 +116,6 @@ class RecipientMapperTest {
         paymentInfo.setNoticeCode("001");
         paymentInfo.setCreditorTaxId("002");
         paymentInfo.setPagoPaForm(pagoPaForm);
-        paymentInfo.setF24flatRate(f24FlatRate);
-        paymentInfo.setF24standard(f24Standard);
         
         NotificationRecipient recipient = new NotificationRecipient();
         recipient.setRecipientType(RecipientTypeEnum.PF);

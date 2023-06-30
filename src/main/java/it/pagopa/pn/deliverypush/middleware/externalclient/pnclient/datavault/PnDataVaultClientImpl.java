@@ -1,57 +1,41 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.ApiClient;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.api.NotificationsApi;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.api.NotificationsApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
+import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-@Slf4j
+@CustomLog
 @Component
+@RequiredArgsConstructor
 public class PnDataVaultClientImpl implements PnDataVaultClient{
     private final NotificationsApi pnDataVaultNotificationApi;
-
-    public PnDataVaultClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
-        ApiClient newApiClient = new ApiClient(restTemplate);
-        newApiClient.setBasePath(cfg.getDataVaultBaseUrl());
-        this.pnDataVaultNotificationApi = new NotificationsApi( newApiClient );
-    }
     
-    public ResponseEntity<Void> updateNotificationTimelineByIunAndTimelineElementId(String iun, ConfidentialTimelineElementDto dto){
-        log.debug("Start call updateNotificationTimelineByIunAndTimelineElementId - iun={} timelineElementId={}", iun, dto.getTimelineElementId());
+    public void updateNotificationTimelineByIunAndTimelineElementId(String iun, ConfidentialTimelineElementDto dto){
+        log.logInvokingExternalService(CLIENT_NAME, UPDATE_TIMELINE_ELEMENT_CONF_INFORMATION);
 
-        ResponseEntity<Void> resp = pnDataVaultNotificationApi.updateNotificationTimelineByIunAndTimelineElementIdWithHttpInfo(iun, dto.getTimelineElementId(), dto);
-
-        log.debug("Response updateNotificationTimelineByIunAndTimelineElementId - iun={} timelineElementId={}", iun, dto.getTimelineElementId());
-        
-        return resp;
+        pnDataVaultNotificationApi.updateNotificationTimelineByIunAndTimelineElementIdWithHttpInfo(iun, dto.getTimelineElementId(), dto);
     }
 
-    public ResponseEntity<ConfidentialTimelineElementDto> getNotificationTimelineByIunAndTimelineElementId(String iun, String timelineElementId){
-        log.debug("Start call getNotificationTimelineByIunAndTimelineElementId - iun={} timelineElementId={}", iun, timelineElementId);
+    public ConfidentialTimelineElementDto getNotificationTimelineByIunAndTimelineElementId(String iun, String timelineElementId){
+        log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_CONF_INFORMATION);
 
         ResponseEntity<ConfidentialTimelineElementDto> resp = pnDataVaultNotificationApi.getNotificationTimelineByIunAndTimelineElementIdWithHttpInfo(iun, timelineElementId);
-
-        log.debug("Response getNotificationTimelineByIunAndTimelineElementId - iun={} timelineElementId={}", iun, timelineElementId);
-
-        return resp;
+        
+        return resp.getBody();
     }
 
     @Override
-    public ResponseEntity<List<ConfidentialTimelineElementDto>> getNotificationTimelineByIunWithHttpInfo(String iun) {
-        log.debug("Start call getNotificationTimelineByIunWithHttpInfo - iun={}", iun);
+    public List<ConfidentialTimelineElementDto> getNotificationTimelineByIunWithHttpInfo(String iun) {
+        log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_CONF_INFORMATION);
 
         ResponseEntity<List<ConfidentialTimelineElementDto>> resp = pnDataVaultNotificationApi.getNotificationTimelineByIunWithHttpInfo(iun);
-
-        log.debug("Response getNotificationTimelineByIunWithHttpInfo - iun={}", iun);
-
-        return resp;
+        
+        return resp.getBody();
     }
 
 }

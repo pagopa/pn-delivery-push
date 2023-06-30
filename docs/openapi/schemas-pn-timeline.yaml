@@ -1,0 +1,1112 @@
+
+components:
+  schemas:
+    TimelineElementId:
+      type: string
+    
+    TimelineElementCategory:
+      type: string
+      description: >
+        stato di avanzamento del processo di notifica:`
+          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
+          * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
+          * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
+          * `SCHEDULE_ANALOG_WORKFLOW` - Pianificazione del workflow per invio cartaceo
+          * `SCHEDULE_DIGITAL_WORKFLOW` -Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.
+          * `PREPARE_DIGITAL_DOMICILE` - Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.
+          * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+          * `SEND_DIGITAL_PROGRESS` - Tentativo di Invio PEC ad un determinato indirizzo.
+          * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
+          * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
+          * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
+          * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
+          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo 
+          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
+          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
+          * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
+          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
+          * `NOTIFICATION_VIEWED` - Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)
+          * `PREPARE_ANALOG_DOMICILE` - Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+          * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea
+          * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
+          * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
+          * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Ricezione pagamento della notifica
+          * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+      enum:
+        - SENDER_ACK_CREATION_REQUEST
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
+        - REQUEST_ACCEPTED
+        - SEND_COURTESY_MESSAGE
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
+        - SCHEDULE_ANALOG_WORKFLOW
+        - SCHEDULE_DIGITAL_WORKFLOW
+        - PREPARE_DIGITAL_DOMICILE
+        - SEND_DIGITAL_DOMICILE
+        - SEND_DIGITAL_PROGRESS
+        - SEND_DIGITAL_FEEDBACK
+        - REFINEMENT
+        - SCHEDULE_REFINEMENT
+        - DIGITAL_DELIVERY_CREATION_REQUEST
+        - DIGITAL_SUCCESS_WORKFLOW
+        - DIGITAL_FAILURE_WORKFLOW
+        - ANALOG_SUCCESS_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW
+        - PREPARE_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
+        - NOTIFICATION_VIEWED_CREATION_REQUEST
+        - NOTIFICATION_VIEWED
+        - PREPARE_ANALOG_DOMICILE
+        - SEND_ANALOG_DOMICILE
+        - SEND_ANALOG_PROGRESS
+        - SEND_ANALOG_FEEDBACK
+        - PAYMENT
+        - COMPLETELY_UNREACHABLE
+        - COMPLETELY_UNREACHABLE_CREATION_REQUEST
+        - REQUEST_REFUSED
+        - AAR_CREATION_REQUEST
+        - AAR_GENERATION
+        - NOT_HANDLED
+        - PROBABLE_SCHEDULING_ANALOG_DATE
+
+    TimelineElement:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in 
+            maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          description: Momento in cui avviene l'evento descritto in questo elemento
+            di timeline
+          format: date-time
+        legalFactsIds:
+          type: array
+          items:
+            $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsId"
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
+            Questo elemento
+        category:
+          $ref: '#/components/schemas/TimelineElementCategory'
+        details:
+          $ref: '#/components/schemas/TimelineElementDetails'
+
+    TimelineElementDetails:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
+        - "$ref": "#/components/schemas/NormalizedAddressDetails"
+        - "$ref": "#/components/schemas/NotificationRequestAcceptedDetails"
+        - "$ref": "#/components/schemas/AnalogFailureWorkflowDetails"
+        - "$ref": "#/components/schemas/AnalogSuccessWorkflowDetails"
+        - "$ref": "#/components/schemas/CompletelyUnreachableCreationRequestDetails"
+        - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
+        - "$ref": "#/components/schemas/DigitalDeliveryCreationRequestDetails"
+        - "$ref": "#/components/schemas/DigitalFailureWorkflowDetails"
+        - "$ref": "#/components/schemas/DigitalSuccessWorkflowDetails"
+        - "$ref": "#/components/schemas/GetAddressInfoDetails"
+        - "$ref": "#/components/schemas/NotificationViewedCreationRequestDetails"
+        - "$ref": "#/components/schemas/NotificationViewedDetails"
+        - "$ref": "#/components/schemas/PublicRegistryCallDetails"
+        - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
+        - "$ref": "#/components/schemas/RefinementDetails"
+        - "$ref": "#/components/schemas/RequestRefusedDetails"
+        - "$ref": "#/components/schemas/ScheduleAnalogWorkflowDetails"
+        - "$ref": "#/components/schemas/ScheduleDigitalWorkflowDetails"
+        - "$ref": "#/components/schemas/ScheduleRefinementDetails"
+        - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
+        - "$ref": "#/components/schemas/PrepareDigitalDetails"
+        - "$ref": "#/components/schemas/SendDigitalDetails"
+        - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
+        - "$ref": "#/components/schemas/SendDigitalProgressDetails"
+        - "$ref": "#/components/schemas/BaseAnalogDetails"
+        - "$ref": "#/components/schemas/SendAnalogDetails"
+        - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
+        - "$ref": "#/components/schemas/BaseRegisteredLetterDetails"
+        - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+        - "$ref": "#/components/schemas/AarCreationRequestDetails"
+        - "$ref": "#/components/schemas/AarGenerationDetails"
+        - "$ref": "#/components/schemas/NotHandledDetails"
+        - "$ref": "#/components/schemas/NotificationPaidDetails"
+        - "$ref": "#/components/schemas/SendAnalogProgressDetails"
+        - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
+        - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
+
+    NotificationRequestAcceptedDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+
+    AnalogFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+
+
+    CompletelyUnreachableCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        legalfactId:
+          type: string
+          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+        endWorkflowStatus:
+          $ref: "#/components/schemas/EndWorkflowStatus"
+        completionWorkflowDate:
+          type: string
+          description: Data chiusura workflow
+          format: date-time
+
+    AnalogSuccessWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+
+    DigitalFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+
+    DigitalDeliveryCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+        endWorkflowStatus:
+          $ref: "#/components/schemas/EndWorkflowStatus"
+        completionWorkflowDate:
+          type: string
+          description: Data chiusura workflow
+          format: date-time
+        legalfactId:
+          type: string
+          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+          
+    DigitalSuccessWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+
+    CompletelyUnreachableDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        legalFactGenerationDate:
+          type: string
+          description: Data generazione atto opponibile a terzi allegato
+          format: date-time
+
+    GetAddressInfoDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - isAvailable
+        - attemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        isAvailable:
+          type: boolean
+          description: Disponibilità indirizzo
+        attemptDate:
+          type: string
+          description: Data tentativo
+          format: date-time
+
+    NotificationViewedCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        legalfactId:
+          type: string
+          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+        eventTimestamp:
+          type: string
+          description: Data ricezione richiesta visualizzazione notifica
+          format: date-time
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
+        
+    NotificationViewedDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini
+          example: 1220
+          type: integer
+          format: int64
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
+
+    PublicRegistryCallDetails:
+      type: object
+      required:
+        - recIndex
+        - deliveryMode
+        - contactPhase
+        - sentAttemptMade
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        contactPhase:
+          $ref: '#/components/schemas/ContactPhase'
+        sentAttemptMade:
+          type: integer
+          description: Numero di tentativi di notificazione già effettuati
+          format: int32
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+
+    PublicRegistryResponseDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+
+    RefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per visualizzazione
+          example: 1220
+          type: integer
+          format: int64
+
+    RequestRefusedDetails:
+      type: object
+      properties:
+        refusalReasons:
+          type: array
+          description: Motivazioni che hanno portato al rifiuto della notifica
+          items:
+            $ref: '#/components/schemas/NotificationRefusedError'
+
+    ScheduleAnalogWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+
+    ScheduleDigitalWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - sentAttemptMade
+        - lastAttemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        sentAttemptMade:
+          type: integer
+          format: int32
+        lastAttemptDate:
+          type: string
+          format: date-time
+
+    ScheduleRefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        schedulingDate:
+          type: string
+          format: date-time
+
+    SendCourtesyMessageDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+        sendDate:
+          type: string
+          description: data invio messaggio di cortesia
+          format: date-time
+        ioSendMessageResult:
+          $ref: '#/components/schemas/IoSendMessageResult'
+
+    PrepareDigitalDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - retryNumber
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        attemptDate:
+          type: string
+          description: data tentativo precedente
+          format: date-time
+        nextDigitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        nextSourceAttemptsMade:
+          type: integer
+          description: numero del prossimo tentativo da effettuare
+          format: int32
+        nextLastAttemptMadeForSource:
+          type: string
+          description: data tentativo precedente per prossimo source
+          format: date-time
+
+    SendDigitalDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - retryNumber
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+
+    SendDigitalProgressDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        deliveryFailureCause:
+          description: Codice errore, opzionale
+          type: string
+        deliveryDetailCode:
+          type: string
+          description: Vedi deliveryDetailCode in SendDigitalFeedbackDetails
+        shouldRetry:
+          type: boolean
+          description: indica se il progress ha dato luogo ad un ritentativo
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+
+    SendDigitalFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - responseStatus
+        - notificationDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        deliveryFailureCause:
+          description: Codice errore, vuoto in caso di successo
+          type: string
+        deliveryDetailCode:
+          type: string
+          description: >
+            Stato - Codice relativo all'evento - Descrizione:
+              - PROGRESS   C000 = PREACCETTAZIONE
+              - PROGRESS   C001 = ACCETTAZIONE
+              - PROGRESS   C005 = PRESA_IN_CARICO
+              - PROGRESS   C007 = PREAVVISO_ERRORE_CONSEGNA
+              - PROGRESS   DP00 = RE-INVIO PEC CAUSA FALLIMENTO TEMPORANEO
+              - PROGRESS   DP10 = TIMEOUT RICEZIONE RISULTATO
+              - ERROR      C002 = NON_ACCETTAZIONE
+              - ERROR      C004 = ERRORE_CONSEGNA
+              - ERROR      C006 = RILEVAZIONE_VIRUS
+              - ERROR      C008 = ERRORE_COMUNICAZIONE_SERVER_PEC
+              - ERROR      C009 = ERRORE_DOMINIO_PEC_NON_VALIDO
+              - ERROR      C010 = ERROR_INVIO_PEC
+              - OK         C003 = AVVENUTA_CONSEGNA
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+
+    BaseAnalogDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        relatedRequestId:
+          type: string
+          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
+
+    SendAnalogDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        relatedRequestId:
+          type: string
+          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
+        productType:
+          type: string
+          description: >
+            Tipo di invio cartaceo effettivamente inviato
+              - __AR__: Raccomandata nazionale Andata e Ritorno
+              - __890__: Recapito a norma della legge 890/1982
+              - __RIR__: Raccomandata internazionale Andata e Ritorno
+        analogCost:
+          type: integer
+          description: costo in eurocent dell'invio
+          format: int32
+        numberOfPages:
+          type: integer
+          description: numero delle pagina che compongono la spedizione cartacea
+          format: int32
+        envelopeWeight:
+          type: integer
+          description: peso in grammi della busta
+          format: int32
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
+
+    SendAnalogFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - responseStatus
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        newAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          format: date-time
+        deliveryFailureCause:
+          type: string
+          description: >
+            __Motivazione di mancata consegna__ obbligatorie negli stati di mancata consegna
+              - __M01__ destinatario irreperibile
+              - __M02__ destinatario deceduto
+              - __M03__ destinatario sconosciuto
+              - __M04__ destinatario trasferito
+              - __M05__ invio rifiutato
+              - __M06__ indirizzo inesatto
+              - __M07__ indirizzo inesistente
+              - __M08__ indirizzo insufficiente
+              - __F01__ - in caso di furto
+              - __F02__ - in caso di smarrimento
+              - __F03__ - in caso di deterioramento
+        deliveryDetailCode:
+          type: string
+          description: >
+            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] - statusDescription
+              - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
+              - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECRS002F__- [RS] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECRS003C__- [RS] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRS004C__- [RS] - [OK] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRS005C__- [RS] - [OK] - Compiuta giacenza - Fascicolo Chiuso
+              - __RECRS006__- [RS] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECRN001C__- [AR] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRN002C__- [AR] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECRN002F__- [AR] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECRN003C__- [AR] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRN004C__- [AR] - [KO] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRN005C__- [AR] - [OK] - Compiuta giacenza - Fascicolo Chiuso
+              - __RECRN006__- [AR] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECAG001C__- [890] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECAG002C__- [890] - [OK] - Consegnato a persona abilitata - Fascicolo Chiuso
+              - __RECAG003C__- [890] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECAG003F__- [890] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECAG004__- [890] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECAG005C__- [890] - [OK | PROGRESS] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECAG006C__- [890] - [OK | PROGRESS] - Consegna a persona abilitata presso Punti di Giacenza - Fas. Ch.
+              - __RECAG007C__- [890] - [KO | PROGRESS] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECAG008C__- [890] - [PROGRESS] - Compiuta giacenza - Fascicolo Chiuso
+              - __PNAG012__- [890] - [KO] - Distacco d'ufficio 23L - Fascicolo Chiuso
+              - __RECRI003C__- [RIR] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRI004C__- [RIR] - [KO] - Non Consegnato - fascicolo Chiuso
+              - __RECRI005__- [RIR] - [PROGRESS] - Furto/Smarrimento/deterioramento
+              - __RECRSI003C__- [RIS] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRSI004C__- [RIS] - [KO] - Non Consegnato - fascicolo Chiuso
+              - __RECRSI005__- [RIS] - [PROGRESS] - Furto/Smarrimento/deterioramento
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
+        registeredLetterCode:
+          type: string
+          description: Codice della raccomandata
+          
+
+    BaseRegisteredLetterDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+
+
+    SimpleRegisteredLetterDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        productType:
+          type: string
+          description: >
+            Tipo di invio cartaceo effettivamente inviato
+              - __RS__: Raccomandata nazionale Semplice (per Avviso di mancato Recapito)
+              - __RIS__: Raccomandata internazionale Semplice
+        analogCost:
+          type: integer
+          description: costo in eurocent dell'invio
+          format: int32
+        numberOfPages:
+          type: integer
+          description: numero delle pagina che compongono la spedizione cartacea
+          format: int32
+        envelopeWeight:
+          type: integer
+          description: peso in grammi della busta
+          format: int32
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
+
+    AarCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - aarKey
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        aarKey:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
+          format: int32
+    
+    AarGenerationDetails:
+      type: object
+      required:
+        - recIndex
+        - generatedAarUrl
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
+          format: int32
+
+    NotHandledDetails:
+      type: object
+      required:
+        - recIndex
+        - reasonCode
+        - reason
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        reasonCode:
+          type: string
+          description: Codice motivazione casistica non gestita
+        reason:
+          type: string
+          description: Motivazione casistica non gestita
+
+    NotificationPaidDetails:
+      type: object
+      required:
+        - recIndex
+        - recipientType
+        - paymentSourceChannel
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        recipientType:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
+        amount:
+          type: integer
+          description: Importo di pagamento in eurocent
+          format: int32
+        creditorTaxId:
+          $ref: 'remote-refs.yaml#/components/schemas/PaTaxId'
+        noticeCode:
+          $ref: 'remote-refs.yaml#/components/schemas/NoticeCode'
+        idF24:
+          type: string
+          description: un UUID che identifica un pagamento f24
+        paymentSourceChannel:
+          type: string
+          description: Canale sorgente della richiesta di pagamento
+        uncertainPaymentDate:
+          type: boolean
+          description: Indica se la data di pagamento é certa
+
+    SendAnalogProgressDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        notificationDate:
+          type: string
+          format: date-time
+        deliveryFailureCause:
+          type: string
+          description: Vedi deliveryFailureCause in SendAnalogFeedbackDetails
+        deliveryDetailCode:
+          type: string
+          description: Vedi deliveryDetailCode in SendAnalogFeedbackDetails
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
+        registeredLetterCode:
+          type: string
+          description: Codice della raccomandata
+
+    SimpleRegisteredLetterProgressDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        notificationDate:
+          type: string
+          format: date-time
+        deliveryFailureCause:
+          type: string
+          description: Vedi deliveryFailureCause in SendAnalogFeedbackDetails
+        deliveryDetailCode:
+          type: string
+          description: Vedi deliveryDetailCode in SendAnalogFeedbackDetails
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
+        registeredLetterCode:
+          type: string
+          description: Codice della raccomandata
+
+    ProbableDateAnalogWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - schedulingAnalogDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        schedulingAnalogDate:
+          type: string
+          format: date-time
+          description: Data probabile di inizio del flusso analogico
+
+    SenderAckCreationRequestDetails:
+      type: object
+      properties:
+        legalFactId:
+          type: string
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+
+    NormalizedAddressDetails:
+      type: object
+      required:
+        - recIndex
+        - oldAddress
+        - normalizedAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        oldAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        normalizedAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+
+    DigitalAddressSource:
+      type: string
+      description: sorgente indirizzo di invio della notifica
+      enum:
+        - PLATFORM
+        - SPECIAL
+        - GENERAL
+
+    ServiceLevel:
+      type: string
+      description: Livello Servizio
+      enum:
+        - AR_REGISTERED_LETTER
+        - REGISTERED_LETTER_890
+          
+    ResponseStatus:
+      type: string
+      description: stato risposta ricevuta da externalChannel
+      enum:
+        - OK
+        - KO
+    
+    ContactPhase:
+      type: string
+      description: Fase in cui è avvenuta la richiesta
+      enum:
+        - CHOOSE_DELIVERY
+        - SEND_ATTEMPT
+
+    DeliveryMode:
+      type: string
+      description: Tipologia Domiciliazione
+      enum:
+        - DIGITAL
+        - ANALOG
+
+    EndWorkflowStatus:
+      type: string
+      description: Stato chiusura workflow
+      enum:
+        - SUCCESS
+        - FAILURE
+    
+    SendingReceipt:
+      type: object
+      properties:
+        id:
+          type: string
+        system:
+          type: string
+
+    RaddType:
+      type: string
+      description: |
+        tipo di Rete Anti Digital Divide <br/>
+        __FSU__: Fornitore Servizio Universale <br/>
+
+    RaddTransactionId:
+      type: string
+      description: Identificativo della pratica all'interno della rete RADD
+
+    DelegateInfo:
+      type: object
+      properties:
+        internalId:
+          type: string
+        taxId:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          type: string
+        operatorUuid:
+          type: string
+        mandateId:
+          type: string
+        denomination:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          type: string
+        delegateType:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'
+
+    IoSendMessageResult:
+      type: string
+      description: Risultato invio messaggio su IO
+      enum:
+        - NOT_SENT_OPTIN_ALREADY_SENT
+        - SENT_COURTESY
+        - SENT_OPTIN
+
+    AttachmentDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        documentType:
+          type: string
+          description: >
+            Codici documentType:
+            - Plico: Indica il plico cartaceo
+            - AR: Indica la ricevuta di ritorno
+            - Indagine: Indica la ricevuta dell'analisi dell'indagine
+            - 23L: Indica la ricevuta 23L
+        url:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    NotificationRefusedError:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: >-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND
+              - FILE_SHA_ERROR
+              - TAXID_NOT_VALID
+              - SERVICE_UNAVAILABLE
+              - FILE_PDF_INVALID_ERROR
+              - FILE_PDF_TOOBIG_ERROR
+              - NOT_VALID_ADDRESS
+              - RECIPIENT_ID_NOT_VALID
+        detail:
+          type: string

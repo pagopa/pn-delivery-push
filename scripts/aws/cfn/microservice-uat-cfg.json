@@ -1,8 +1,8 @@
 {
   "Parameters" : {
     "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/demo/addresses/",
-    "PhysicalPersonPortalUrl": "https://portale-demo.fe.dev.pn.pagopa.it/",
-    "LegalPersonPortalUrl": "https://portale-demo.fe.dev.pn.pagopa.it/",
+    "PhysicalPersonPortalUrl": "https://cittadini.uat.notifichedigitali.it/",
+    "LegalPersonPortalUrl": "https://imprese.uat.notifichedigitali.it/",
     "WaitingForReadCourtesyMessage": "5m",
     "SecondNotificationWorkflowWaitingTime": "4m",
     "SchedulingDaysSuccessDigitalRefinement": "9m",
@@ -11,13 +11,20 @@
     "SchedulingDaysFailureAnalogRefinement": "10m",
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "10",
-    "SandboxSafeStorageBaseUrl": "https://14ej9p2krd.execute-api.eu-south-1.amazonaws.com/dev",
-    "ExternalChannelBaseUrl": "https://w0t7lzj7a1.execute-api.eu-south-1.amazonaws.com/dev",
     "ExternalChannelDigitalRetryCount": "3",
     "ExternalChannelDigitalRetryDelay": "10m",
     "ExternalChannelDigitalSendNoResponseTimeout": "26h",
     "NotificationNonVisibilityTime": "21:00",
     "TimeToAddInNonVisibilityTimeCase": "1d",
-    "IsMvpDefaultValue": "true"
+    "IsMvpDefaultValue": "false",
+    "RetentionAttachmentDaysAfterRefinement": "120",
+    "ValidationRetryIntervals": "10s, 1m, 1m, 5m, 1h, -1s",
+    "SendNotificationAttachments": "analog-notification",
+    "SafeStorageFileNotFoundRetry": "false",
+    "LandingUrl": "https://www.dev.notifichedigitali.it/",
+    "MaxPdfAllowedSize": "200MB",
+    "EnableCheckPdfContent": "true",
+    "IsLollipopActive": "false",
+    "CheckCfEnabled": "false"
   }
 }

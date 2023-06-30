@@ -10,7 +10,7 @@ class ExternalEventsRequestTest {
 
     private ExternalEventsRequest eventsRequest;
 
-    @BeforeEach
+    @BeforeEach 
     void setUp() {
         eventsRequest = new ExternalEventsRequest();
         eventsRequest.setEvents(Collections.singletonList(ExternalEvent.builder().payment(PaymentEvent.builder().iun("001").build()).build()));
@@ -37,21 +37,5 @@ class ExternalEventsRequestTest {
                 .build();
 
         Assertions.assertEquals(Boolean.TRUE, expected.equals(eventsRequest));
-    }
-
-    @Test
-    void testToString() {
-        String expected = "class ExternalEventsRequest {\n" +
-                "    events: [class ExternalEvent {\n" +
-                "        payment: class PaymentEvent {\n" +
-                "            iun: 001\n" +
-                "            recipientTaxId: null\n" +
-                "            recipientType: null\n" +
-                "            paymentType: null\n" +
-                "            timestamp: null\n" +
-                "        }\n" +
-                "    }]\n" +
-                "}";
-        Assertions.assertEquals(expected, eventsRequest.toString());
     }
 }

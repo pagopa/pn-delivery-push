@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -91,15 +91,15 @@ public class RefinementScheduler {
 
         Instant schedulingDate = getSchedulingDate(notificationDate, schedulingDays, notification.getIun());
 
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
+        boolean isNotificationAlreadyViewed = timelineUtils.checkIsNotificationViewed(notification.getIun(), recIndex);
 
         //Se la notifica è già stata visualizzata, non viene schedulato il perfezionamento per decorrenza termini dal momento che la notifica è già stata perfezionata per visione
         if( !isNotificationAlreadyViewed ){
             log.info("Schedule refinement in date={} - iun={} id={}", schedulingDate, notification.getIun(), recIndex);
-            addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex), notification );
+            addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex, schedulingDate), notification );
             scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
         }else {
-            log.info("Notification is already viewed, refinement will not be scheduled - iun={} id={}", notification.getIun(), recIndex);
+            log.info("Notification is already viewed or paid, refinement will not be scheduled - iun={} id={}", notification.getIun(), recIndex);
         }
     }
 

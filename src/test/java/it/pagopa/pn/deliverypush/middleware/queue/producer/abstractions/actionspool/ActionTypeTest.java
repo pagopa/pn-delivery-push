@@ -21,7 +21,8 @@ class ActionTypeTest {
                 () -> Assertions.assertEquals("1_digital_workflow_e_1_timelineid_tim123", ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(action)),
                 () -> Assertions.assertEquals("1_analog_workflow_e_1", ActionType.ANALOG_WORKFLOW.buildActionId(action)),
                 () -> Assertions.assertEquals("1_choose_delivery_mode_1", ActionType.CHOOSE_DELIVERY_MODE.buildActionId(action)),
-                () -> Assertions.assertEquals("1_start_recipient_workflow_1", ActionType.START_RECIPIENT_WORKFLOW.buildActionId(action))
+                () -> Assertions.assertEquals("1_start_recipient_workflow_1", ActionType.START_RECIPIENT_WORKFLOW.buildActionId(action)),
+                () -> Assertions.assertEquals("1_digital_workflow_execute_e_1_timelineid_tim123", ActionType.DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION.buildActionId(action))
         );
     }
 

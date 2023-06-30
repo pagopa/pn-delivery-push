@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressFeedback;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -19,23 +20,16 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class DigitalWorkFlowRetryHandler {
 
     private final NotificationService notificationService;
 
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
-    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final SendAndUnscheduleNotification sendAndUnscheduleNotification;
     private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
 
-    public DigitalWorkFlowRetryHandler(DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                       NotificationService notificationService,
-                                       DigitalWorkFlowUtils digitalWorkFlowUtils, DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler) {
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
-        this.notificationService = notificationService;
-        this.digitalWorkFlowUtils = digitalWorkFlowUtils;
-        this.digitalWorkFlowExternalChannelResponseHandler = digitalWorkFlowExternalChannelResponseHandler;
-    }
 
     /**
      * Callback nel caso di ritentativo a breve termine di invio PEC
@@ -47,21 +41,24 @@ public class DigitalWorkFlowRetryHandler {
         log.debug("startScheduledRetryWorkflow - iun={} recIndex={} timelineId={}", iun, recIndex, timelineId);
 
         Optional<TimelineElementInternal> timelineElement = digitalWorkFlowUtils.getTimelineElement(iun, timelineId);
-        if (timelineElement.isPresent() && timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails) {
+        if (timelineElement.isPresent() && timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails originalSendDigitalProgressDetailsInt) {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-            DigitalSendTimelineElementDetails originalSendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.get().getDetails();
-
-
             if (checkIfEventIsStillValid(iun, recIndex, timelineElement.get())) {
-                digitalWorkFlowHandler.sendDigitalNotificationAndScheduleTimeoutAction(notification,
+                sendAndUnscheduleNotification.sendDigitalNotificationAndScheduleTimeoutAction(
+                        notification,
                         originalSendDigitalProgressDetailsInt.getDigitalAddress(),
                         DigitalAddressInfoSentAttempt.builder()
                                 .digitalAddress(originalSendDigitalProgressDetailsInt.getDigitalAddress())
                                 .digitalAddressSource(originalSendDigitalProgressDetailsInt.getDigitalAddressSource())
                                 .lastAttemptDate(timelineElement.get().getTimestamp())
                                 .sentAttemptMade(originalSendDigitalProgressDetailsInt.getRetryNumber())
-                                .build(), recIndex, true, timelineId);
+                                .relatedFeedbackTimelineId(originalSendDigitalProgressDetailsInt.getRelatedFeedbackTimelineId())
+                                .build(), 
+                        recIndex, 
+                        true,
+                        timelineId,
+                        originalSendDigitalProgressDetailsInt.getIsFirstSendRetry());
             }
             else
             {
@@ -103,10 +100,9 @@ public class DigitalWorkFlowRetryHandler {
         DigitalAddressSourceInt originalAddressSource = null;
         LegalDigitalAddressInt originalAddressInfo = null;
 
-        if (timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails)
+        if (timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt)
         {
             // dovrebbe sempre essere instanceof di questo tipo
-            DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt = (DigitalSendTimelineElementDetails) timelineElement.get().getDetails();
             originalRetryNumber = sendDigitalProgressDetailsInt.getRetryNumber();
             originalAddressSource = sendDigitalProgressDetailsInt.getDigitalAddressSource();
             originalAddressInfo = sendDigitalProgressDetailsInt.getDigitalAddress();
@@ -139,11 +135,13 @@ public class DigitalWorkFlowRetryHandler {
             // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
+            SendInformation digitalAddressFeedback = SendInformation.builder()
                     .retryNumber(originalRetryNumber)
                     .eventTimestamp(Instant.now())
                     .digitalAddressSource(originalAddressSource)
                     .digitalAddress(originalAddressInfo)
+                    .isFirstSendRetry(null)
+                    .relatedFeedbackTimelineId(null)
                     .build();
             
             digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification,
@@ -173,10 +171,7 @@ public class DigitalWorkFlowRetryHandler {
      */
     private boolean checkIfEventIsStillValid(String iun, int recIndex, TimelineElementInternal originalTimelineElement){
 
-        if (originalTimelineElement.getDetails() instanceof DigitalSendTimelineElementDetails) {
-            DigitalSendTimelineElementDetails originalDigitalSendTimelineDetailsInt = (DigitalSendTimelineElementDetails) originalTimelineElement.getDetails();
-
-
+        if (originalTimelineElement.getDetails() instanceof DigitalSendTimelineElementDetails originalDigitalSendTimelineDetailsInt) {
             // devo controllare che il timeout scattato sia ancora rilevante.
             // per capirlo, verifico se l'ultimo evento in ordine cronologico in timeline per recindex, appartiene a retrynumber e addresssource
             // è il senddigital o senddigitalprogress .
@@ -190,9 +185,8 @@ public class DigitalWorkFlowRetryHandler {
             // controllo gli eventi, e se sono di questi due tipi, mi interessa, sennò NO
             if ((mostRecentElementInternal.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS
                     || mostRecentElementInternal.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
-                    && mostRecentElementInternal.getDetails() instanceof DigitalSendTimelineElementDetails) {
+                    && mostRecentElementInternal.getDetails() instanceof DigitalSendTimelineElementDetails mostrecentDigitalSendTimelineDetailsInt) {
 
-                DigitalSendTimelineElementDetails mostrecentDigitalSendTimelineDetailsInt = (DigitalSendTimelineElementDetails) mostRecentElementInternal.getDetails();
                 lastRetryNumber = mostrecentDigitalSendTimelineDetailsInt.getRetryNumber();
                 lastAddressSource = mostrecentDigitalSendTimelineDetailsInt.getDigitalAddressSource();
 

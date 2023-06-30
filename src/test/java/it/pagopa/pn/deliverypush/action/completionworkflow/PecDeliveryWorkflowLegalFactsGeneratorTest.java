@@ -80,13 +80,13 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
         Instant completionWorkflowDate = Instant.now();
 
         //WHEN
-        pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+        pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
 
         TimelineElementInternal timelineElementInternal = timeline.get(0);
         SendDigitalFeedbackDetailsInt details = (SendDigitalFeedbackDetailsInt) timelineElementInternal.getDetails();
 
         //THEN
-        Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(
+        Mockito.verify(saveLegalFactsService).sendCreationRequestForPecDeliveryWorkflowLegalFact(
                 Collections.singletonList(details),
                 notification,
                 recipient,
@@ -126,7 +126,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
         //WHEN
         EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
         Instant completionWorkflowDate = Instant.now();
-        pecDeliveryWorkflowLegalFactsGenerator.generatePecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
+        pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate);
 
         TimelineElementInternal timelineElementInternal = timeline.get(0);
         SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElementInternal.getDetails();
@@ -135,7 +135,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
         SimpleRegisteredLetterDetailsInt registeredLetterDetails = (SimpleRegisteredLetterDetailsInt) timelineElementInternal2.getDetails();
 
         //THEN
-        Mockito.verify(saveLegalFactsService).savePecDeliveryWorkflowLegalFact(
+        Mockito.verify(saveLegalFactsService).sendCreationRequestForPecDeliveryWorkflowLegalFact(
                 Collections.singletonList(sendDigitalFeedbackDetailsInt),
                 notification,
                 recipient,

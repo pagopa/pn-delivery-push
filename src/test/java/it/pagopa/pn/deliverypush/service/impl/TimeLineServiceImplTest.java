@@ -10,54 +10,66 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineCounterEntity;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TimeLineServiceImplTest {
     private TimelineDao timelineDao;
+    private TimelineCounterEntityDao timelineCounterDao;
     private StatusUtils statusUtils;
     private TimeLineServiceImpl timeLineService;
     private StatusService statusService;
     private ConfidentialInformationService confidentialInformationService;
     private SchedulerService schedulerService;
 
+    private NotificationService notificationService;
+
     @BeforeEach
     void setup() {
         timelineDao = Mockito.mock( TimelineDao.class );
+        timelineCounterDao = Mockito.mock( TimelineCounterEntityDao.class );
         statusUtils = Mockito.mock( StatusUtils.class );
         statusService = Mockito.mock( StatusService.class );
+
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
-        
-        timeLineService = new TimeLineServiceImpl(timelineDao , statusUtils, statusService, confidentialInformationService, schedulerService);
+        notificationService = Mockito.mock(NotificationService.class);
+        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
     }
 
     @Test
     void addTimelineElement(){
         //GIVEN
-        String iun = "iun";
-        String elementId = "elementId";
+        String iun = "iun_12345";
+        String elementId = "elementId_12345";
 
         NotificationInt notification = getNotification(iun);
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
@@ -104,7 +116,7 @@ class TimeLineServiceImplTest {
         Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
                 .thenReturn(setTimelineElement);
 
-        TimelineElementInternal newElement = getSendPaperFeedbackTimelineElement(iun, elementId);
+        TimelineElementInternal newElement = getSendPaperFeedbackTimelineElement(iun, elementId, Instant.now());
 
         Mockito.doThrow(new PnInternalException("error", "test")).when(statusService).checkAndUpdateStatus(Mockito.any(TimelineElementInternal.class), Mockito.anySet(), Mockito.any(NotificationInt.class));
 
@@ -300,7 +312,7 @@ class TimeLineServiceImplTest {
         String timelineId2 = "idTimeline2";
         TimelineElementInternal sendDigitalConfInf = getSendDigitalTimelineElement(iun, timelineId2);
         String timelineId3 = "idTimeline3";
-        TimelineElementInternal sendPaperFeedbackConfInf = getSendPaperFeedbackTimelineElement(iun, timelineId3);
+        TimelineElementInternal sendPaperFeedbackConfInf = getSendPaperFeedbackTimelineElement(iun, timelineId3, Instant.now());
 
         List<TimelineElementInternal> timelineElementList = new ArrayList<>();
         timelineElementList.add(scheduleAnalogNoConfInf);
@@ -435,6 +447,166 @@ class TimeLineServiceImplTest {
         Assertions.assertEquals( firstElementReturned.getDetails().getPhysicalAddress().getAddress(), details.getPhysicalAddress().getAddress() );
 
     }
+
+
+    @Test
+    void getTimelineAndStatusHistoryOrder() {
+        //GIVEN
+        String iun = "iun";
+        int numberOfRecipients1 = 1;
+        Instant notificationCreatedAt = Instant.now();
+        NotificationStatusInt currentStatus = NotificationStatusInt.DELIVERING;
+
+        String elementId1 = "elementId1";
+        Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
+        Instant t = Instant.EPOCH.plus(1, ChronoUnit.DAYS);
+        TimelineElementInternal elementInternalFeedback = getSendPaperFeedbackTimelineElement(iun, elementId1+"FEEDBACK", t);
+        setTimelineElement.add(elementInternalFeedback);
+        TimelineElementInternal elementInternalProg = getSendPaperProgressTimelineElement(iun, elementId1+"PROGRESS", t);
+        setTimelineElement.add(elementInternalProg);
+        Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
+                .thenReturn(setTimelineElement);
+
+        Instant activeFromInValidation = Instant.now();
+
+        NotificationStatusHistoryElementInt inValidationElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.IN_VALIDATION)
+                .activeFrom(activeFromInValidation)
+                .build();
+
+        Instant activeFromAccepted = activeFromInValidation.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElementInt acceptedElementElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
+                .activeFrom(activeFromAccepted)
+                .build();
+
+        Instant activeFromDelivering = activeFromAccepted.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElementInt deliveringElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.DELIVERING)
+                .activeFrom(activeFromDelivering)
+                .build();
+
+        List<NotificationStatusHistoryElementInt> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
+
+        Mockito.when(
+                statusUtils.getStatusHistory(Mockito.anySet() ,Mockito.anyInt(), Mockito.any(Instant.class))
+        ).thenReturn(notificationStatusHistoryElements);
+
+        Mockito.when(
+                statusUtils.getCurrentStatus( Mockito.anyList() )
+        ).thenReturn(currentStatus);
+
+        //WHEN
+        NotificationHistoryResponse notificationHistoryResponse = timeLineService.getTimelineAndStatusHistory(iun, numberOfRecipients1, notificationCreatedAt);
+
+        //THEN
+
+        //Viene verificato che il numero di elementi restituiti sia 2, dunque che sia stato eliminato l'elemento con category "IN VALIDATION"
+        Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
+
+        NotificationStatusHistoryElement firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
+        Assertions.assertEquals(acceptedElementElement.getStatus(), NotificationStatusInt.valueOf(firstElement.getStatus().getValue()) );
+        Assertions.assertEquals(inValidationElement.getActiveFrom(), firstElement.getActiveFrom());
+
+        NotificationStatusHistoryElement secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
+        Assertions.assertEquals(deliveringElement.getStatus(), NotificationStatusInt.valueOf(secondElement.getStatus().getValue()));
+        Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
+
+        //Verifica timeline
+        List<TimelineElementInternal> timelineElementList = new ArrayList<>(setTimelineElement);
+
+        Assertions.assertEquals(timelineElementList.size() , notificationHistoryResponse.getTimeline().size());
+
+        TimelineElement firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
+
+        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
+        Assertions.assertEquals( elementInternalProg.getElementId(), firstElementReturned.getElementId() );
+
+    }
+
+    @Test
+    void getSchedulingAnalogDateOKTest() {
+        final String iun = "iun1";
+        final String recipientId = "cxId";
+
+        String timelineElementIdExpected = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
+                .iun(iun)
+                .recIndex(0)
+                .build());
+
+        TimelineElementInternal timelineElementExpected = TimelineElementInternal.builder()
+                .elementId(timelineElementIdExpected)
+                .timestamp(Instant.now())
+                .category(TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE)
+                .details(ProbableDateAnalogWorkflowDetailsInt.builder()
+                        .schedulingAnalogDate(Instant.now())
+                        .recIndex(0)
+                        .build())
+                .build();
+
+        Mockito.when(notificationService.getNotificationByIunReactive(iun))
+                .thenReturn(Mono.just(NotificationInt.builder()
+                        .recipients(List.of(NotificationRecipientInt.builder()
+                                .internalId(recipientId)
+                                .build()))
+                        .build()));
+
+        Mockito.when(timelineDao.getTimeline(iun))
+                .thenReturn(Set.of(timelineElementExpected));
+
+        Mockito.when(confidentialInformationService.getTimelineElementConfidentialInformation(iun, timelineElementIdExpected))
+                .thenReturn(Optional.empty());
+
+        ProbableSchedulingAnalogDateResponse schedulingAnalogDateActual = timeLineService.getSchedulingAnalogDate(iun, recipientId).block();
+
+        assertThat(schedulingAnalogDateActual.getSchedulingAnalogDate())
+                .isEqualTo(((ProbableDateAnalogWorkflowDetailsInt) timelineElementExpected.getDetails()).getSchedulingAnalogDate());
+
+        assertThat(schedulingAnalogDateActual.getIun()).isEqualTo(iun);
+        assertThat(schedulingAnalogDateActual.getRecIndex()).isZero();
+
+
+    }
+
+    @Test
+    void getSchedulingAnalogDateNotFoundTest() {
+        final String iun = "iun1";
+        final String recipientId = "cxId";
+
+        Mockito.when(notificationService.getNotificationByIunReactive(iun))
+                .thenReturn(Mono.just(NotificationInt.builder()
+                        .recipients(List.of(NotificationRecipientInt.builder()
+                                .internalId(recipientId)
+                                .build()))
+                        .build()));
+
+        Mockito.when(timelineDao.getTimeline(iun))
+                .thenReturn(Set.of());
+
+
+        Executable executable = () -> timeLineService.getSchedulingAnalogDate(iun, recipientId).block();
+        Assertions.assertThrows(PnNotFoundException.class, executable);
+
+    }
+
+
+    @Test
+    void retrieveAndIncrementCounterForTimelineEventTest() {
+        final String timelineid = "iun1";
+        TimelineCounterEntity timelineCounterEntity = new TimelineCounterEntity();
+        timelineCounterEntity.setTimelineElementId(timelineid);
+        timelineCounterEntity.setCounter(5L);
+
+        Mockito.when(timelineCounterDao.getCounter(timelineid))
+                .thenReturn(timelineCounterEntity);
+
+
+        Long r = timeLineService.retrieveAndIncrementCounterForTimelineEvent(timelineid);
+        Assertions.assertNotNull(r);
+        Assertions.assertEquals(5L, r);
+    }
     
     private TimelineElementInternal getSpecificElementFromList(List<TimelineElementInternal> listElement, String timelineId){
         for (TimelineElementInternal element : listElement){
@@ -478,7 +650,8 @@ class TimeLineServiceImplTest {
                                 .at("at")
                                 .build()
                 )
-                .investigation(true)
+                .relatedRequestId("abc")
+                 .analogCost(100)
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build();
@@ -503,8 +676,22 @@ class TimeLineServiceImplTest {
                 .details( details )
                 .build();
     }
+
+    private TimelineElementInternal getSendPaperProgressTimelineElement(String iun, String elementId, Instant timestamp) {
+        SendAnalogProgressDetailsInt details =  SendAnalogProgressDetailsInt.builder()
+                .recIndex(0)
+                .deliveryDetailCode("CON080")
+                .build();
+        return TimelineElementInternal.builder()
+                .elementId(elementId)
+                .iun(iun)
+                .category(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS)
+                .timestamp(timestamp)
+                .details( details )
+                .build();
+    }
     
-    private TimelineElementInternal getSendPaperFeedbackTimelineElement(String iun, String elementId) {
+    private TimelineElementInternal getSendPaperFeedbackTimelineElement(String iun, String elementId, Instant timestamp) {
          SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
                 .newAddress(
                         PhysicalAddressInt.builder()
@@ -519,6 +706,8 @@ class TimeLineServiceImplTest {
         return TimelineElementInternal.builder()
                 .elementId(elementId)
                 .iun(iun)
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .timestamp(timestamp)
                 .details( details )
                 .build();
     }

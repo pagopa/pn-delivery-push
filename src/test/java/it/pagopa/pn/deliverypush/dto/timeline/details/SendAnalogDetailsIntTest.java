@@ -8,18 +8,14 @@ class SendAnalogDetailsIntTest {
     @BeforeEach
     void setUp() {
         detailsInt = new SendAnalogDetailsInt();
-        detailsInt.setInvestigation(Boolean.TRUE);
-        detailsInt.setNumberOfPages(1);
         detailsInt.setPhysicalAddress(PhysicalAddressInt.builder().address("address").build());
         detailsInt.setRecIndex(3);
+        detailsInt.setRelatedRequestId("abc");
+        detailsInt.setAnalogCost(100);
         detailsInt.setServiceLevel(ServiceLevelInt.REGISTERED_LETTER_890);
         detailsInt.setSentAttemptMade(2);
     }
-    @Test
-    void toLog() {
-        String expected = "recIndex=3 sentAttemptMade=2 investigation=true physicalAddress='Sensitive information'";
-        Assertions.assertEquals(expected, detailsInt.toLog());
-    }
+
     @Test
     void testEquals() {
         SendAnalogDetailsInt expected = buildSendAnalogDetailsInt();
@@ -42,19 +38,15 @@ class SendAnalogDetailsIntTest {
         Assertions.assertEquals(2, detailsInt.getSentAttemptMade());
     }
     @Test
-    void getInvestigation() {
-        Assertions.assertEquals(Boolean.TRUE, detailsInt.getInvestigation());
+    void getRelatedRequestId() {
+        Assertions.assertEquals("abc", detailsInt.getRelatedRequestId());
     }
     @Test
-    void getNumberOfPages() {
-        Assertions.assertEquals(1, detailsInt.getNumberOfPages());
+    void getAnalogCost() {
+        Assertions.assertEquals(100, detailsInt.getAnalogCost());
     }
-    @Test
-    void testToString() {
-        String expected = "SendAnalogDetailsInt(recIndex=3, physicalAddress=PhysicalAddressInt(at=null, address=address, addressDetails=null, zip=null, municipality=null, municipalityDetails=null, province=null, foreignState=null), serviceLevel=REGISTERED_LETTER_890, sentAttemptMade=2, investigation=true, numberOfPages=1)";
-        Assertions.assertEquals(expected, detailsInt.toString());
-    }
+
     private SendAnalogDetailsInt buildSendAnalogDetailsInt() {
-        return SendAnalogDetailsInt.builder().serviceLevel(ServiceLevelInt.REGISTERED_LETTER_890).physicalAddress(PhysicalAddressInt.builder().address("address").build()).numberOfPages(1).investigation(Boolean.TRUE).sentAttemptMade(2).recIndex(3).build();
+        return SendAnalogDetailsInt.builder().serviceLevel(ServiceLevelInt.REGISTERED_LETTER_890).physicalAddress(PhysicalAddressInt.builder().address("address").build()).analogCost(100).relatedRequestId("abc").sentAttemptMade(2).recIndex(3).build();
     }
 }

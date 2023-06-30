@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AddressDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AnalogDomicile;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AddressDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AnalogDomicile;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
 
 public class ConfidentialTimelineElementDtoMapper {
     private ConfidentialTimelineElementDtoMapper() {
@@ -12,8 +12,10 @@ public class ConfidentialTimelineElementDtoMapper {
 
     public static ConfidentialTimelineElementDto internalToExternal(ConfidentialTimelineElementDtoInt dtoInt) {
         ConfidentialTimelineElementDto.ConfidentialTimelineElementDtoBuilder dtoExtBuilder = ConfidentialTimelineElementDto.builder()
-                .timelineElementId(dtoInt.getTimelineElementId());
-
+                .timelineElementId(dtoInt.getTimelineElementId())
+                .taxId(dtoInt.getTaxId())
+                .denomination(dtoInt.getDenomination());
+        
         if (dtoInt.getDigitalAddress() != null) {
             dtoExtBuilder.digitalAddress(
                     AddressDto.builder()
@@ -30,6 +32,7 @@ public class ConfidentialTimelineElementDtoMapper {
                             .addressDetails(physicalAddressInt.getAddressDetails())
                             .at(physicalAddressInt.getAt())
                             .municipality(physicalAddressInt.getMunicipality())
+                            .municipalityDetails(physicalAddressInt.getMunicipalityDetails())
                             .cap(physicalAddressInt.getZip())
                             .state(physicalAddressInt.getForeignState())
                             .province(physicalAddressInt.getProvince())
@@ -45,6 +48,7 @@ public class ConfidentialTimelineElementDtoMapper {
                             .addressDetails(newPhysicalAddressInt.getAddressDetails())
                             .at(newPhysicalAddressInt.getAt())
                             .municipality(newPhysicalAddressInt.getMunicipality())
+                            .municipalityDetails(newPhysicalAddressInt.getMunicipalityDetails())
                             .cap(newPhysicalAddressInt.getZip())
                             .state(newPhysicalAddressInt.getForeignState())
                             .province(newPhysicalAddressInt.getProvince())
@@ -57,7 +61,9 @@ public class ConfidentialTimelineElementDtoMapper {
 
     public static ConfidentialTimelineElementDtoInt externalToInternal(ConfidentialTimelineElementDto dtoExt) {
         ConfidentialTimelineElementDtoInt.ConfidentialTimelineElementDtoIntBuilder dtoIntBuilder = ConfidentialTimelineElementDtoInt.builder()
-                .timelineElementId(dtoExt.getTimelineElementId());
+                .timelineElementId(dtoExt.getTimelineElementId())
+                .taxId(dtoExt.getTaxId())
+                .denomination(dtoExt.getDenomination());
 
         if (dtoExt.getDigitalAddress() != null) {
             dtoIntBuilder.digitalAddress(dtoExt.getDigitalAddress().getValue());
@@ -71,6 +77,7 @@ public class ConfidentialTimelineElementDtoMapper {
                             .addressDetails(physicalAddress.getAddressDetails())
                             .at(physicalAddress.getAt())
                             .municipality(physicalAddress.getMunicipality())
+                            .municipalityDetails(physicalAddress.getMunicipalityDetails())
                             .zip(physicalAddress.getCap())
                             .foreignState(physicalAddress.getState())
                             .province(physicalAddress.getProvince())
@@ -86,6 +93,7 @@ public class ConfidentialTimelineElementDtoMapper {
                             .addressDetails(newPhysicalAddress.getAddressDetails())
                             .at(newPhysicalAddress.getAt())
                             .municipality(newPhysicalAddress.getMunicipality())
+                            .municipalityDetails(newPhysicalAddress.getMunicipalityDetails())
                             .zip(newPhysicalAddress.getCap())
                             .foreignState(newPhysicalAddress.getState())
                             .province(newPhysicalAddress.getProvince())
@@ -95,4 +103,5 @@ public class ConfidentialTimelineElementDtoMapper {
 
         return dtoIntBuilder.build();
     }
+
 }

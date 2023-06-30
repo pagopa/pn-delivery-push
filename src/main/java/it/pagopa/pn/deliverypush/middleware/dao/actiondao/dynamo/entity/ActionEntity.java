@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity;
 
-import java.time.Instant;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +9,8 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttri
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnoreNulls;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+
+import java.time.Instant;
 
 @Builder
 @NoArgsConstructor
@@ -26,6 +27,7 @@ public class ActionEntity {
   private Integer recipientIndex;
   private String timeslot;
   private String timelineId;
+  private long ttl;
   private ActionDetailsEntity details;
 
   @DynamoDbPartitionKey
@@ -96,4 +98,11 @@ public class ActionEntity {
     this.details = details;
   }
 
+  public long getTtl() {
+    return ttl;
+  }
+
+  public void setTtl(long ttl) {
+    this.ttl = ttl;
+  }
 }

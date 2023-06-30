@@ -35,8 +35,10 @@ public class DocumentComposition {
     public enum TemplateType {
         REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
         DIGITAL_NOTIFICATION_WORKFLOW("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),
+        ANALOG_NOTIFICATION_WORKFLOW_FAILURE("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
-    	AAR_NOTIFICATION("documents_composition_templates/NotificationAAR.html"),
+        AAR_NOTIFICATION("documents_composition_templates/NotificationAAR.html"),
+    	AAR_NOTIFICATION_MVP("documents_composition_templates/NotificationAAR_MVP.html"),
         AAR_NOTIFICATION_EMAIL("documents_composition_templates/NotificationAARForEMAIL.html"),
         AAR_NOTIFICATION_PEC("documents_composition_templates/NotificationAARForPEC.html"),
         AAR_NOTIFICATION_SUBJECT("documents_composition_templates/NotificationAARSubject.txt"),
@@ -124,7 +126,6 @@ public class DocumentComposition {
 
         try {
             Template template = freemarker.getTemplate( templateType.name() );
-            log.debug("For templateType={} use template={}", templateType, template );
             template.process( model, stringWriter );
 
         } catch (IOException | TemplateException exc) {
@@ -159,8 +160,8 @@ public class DocumentComposition {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
-
         builder.withW3cDocument( w3cDoc, baseUri);
+        
         builder.toStream(baos);
         builder.run();
         baos.close();

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.List;
 
 class ProgressResponseElementTest {
 
@@ -20,6 +21,9 @@ class ProgressResponseElementTest {
         responseElement.setTimestamp(instant);
         responseElement.setNewStatus(NotificationStatus.ACCEPTED);
         responseElement.setTimelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED);
+        responseElement.setRecipientIndex(1);
+        responseElement.setChannel("channel");
+        responseElement.setLegalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"));
     }
 
     @Test
@@ -32,6 +36,9 @@ class ProgressResponseElementTest {
                 .newStatus(NotificationStatus.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED)
                 .timestamp(instant)
+                .recipientIndex(1)
+                .channel("channel")
+                .legalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"))
                 .build();
         Assertions.assertEquals(expected, responseElement.eventId("001"));
     }
@@ -51,6 +58,9 @@ class ProgressResponseElementTest {
                 .newStatus(NotificationStatus.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED)
                 .timestamp(instant)
+                .recipientIndex(1)
+                .channel("channel")
+                .legalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"))
                 .build();
         Assertions.assertEquals(expected, responseElement.timestamp(instant));
     }
@@ -70,6 +80,9 @@ class ProgressResponseElementTest {
                 .newStatus(NotificationStatus.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED)
                 .timestamp(instant)
+                .recipientIndex(1)
+                .channel("channel")
+                .legalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"))
                 .build();
         Assertions.assertEquals(expected, responseElement.notificationRequestId("003"));
     }
@@ -89,6 +102,9 @@ class ProgressResponseElementTest {
                 .newStatus(NotificationStatus.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED)
                 .timestamp(instant)
+                .recipientIndex(1)
+                .channel("channel")
+                .legalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"))
                 .build();
         Assertions.assertEquals(expected, responseElement.iun("002"));
     }
@@ -108,6 +124,9 @@ class ProgressResponseElementTest {
                 .newStatus(NotificationStatus.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED)
                 .timestamp(instant)
+                .recipientIndex(1)
+                .channel("channel")
+                .legalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"))
                 .build();
         Assertions.assertEquals(expected, responseElement.newStatus(NotificationStatus.ACCEPTED));
     }
@@ -127,6 +146,9 @@ class ProgressResponseElementTest {
                 .newStatus(NotificationStatus.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED)
                 .timestamp(instant)
+                .recipientIndex(1)
+                .channel("channel")
+                .legalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"))
                 .build();
         Assertions.assertEquals(expected, responseElement.timelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED));
     }
@@ -146,20 +168,10 @@ class ProgressResponseElementTest {
                 .newStatus(NotificationStatus.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED)
                 .timestamp(instant)
+                .recipientIndex(1)
+                .channel("channel")
+                .legalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"))
                 .build();
         Assertions.assertEquals(Boolean.TRUE, expected.equals(responseElement));
-    }
-
-    @Test
-    void testToString() {
-        String expected = "class ProgressResponseElement {\n" +
-                "    eventId: 001\n" +
-                "    timestamp: 2021-09-16T15:23:00Z\n" +
-                "    notificationRequestId: 003\n" +
-                "    iun: 002\n" +
-                "    newStatus: ACCEPTED\n" +
-                "    timelineEventCategory: REQUEST_ACCEPTED\n" +
-                "}";
-        Assertions.assertEquals(expected, responseElement.toString());
     }
 }

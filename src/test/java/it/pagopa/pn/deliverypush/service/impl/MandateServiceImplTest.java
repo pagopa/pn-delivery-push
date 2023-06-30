@@ -1,8 +1,9 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate.PnMandateClient;
-import it.pagopa.pn.mandate.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.InternalMandateDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,17 +28,17 @@ class MandateServiceImplTest {
 
     @Test
     void listMandatesByDelegate() {
-
         List<InternalMandateDto> listMandateDto = new ArrayList<>();
         InternalMandateDto dto = new InternalMandateDto();
         dto.setDelegate("001");
         listMandateDto.add(dto);
-        
-        Mockito.when(mandateClient.listMandatesByDelegate("001", "001")).thenReturn(listMandateDto);
 
-        List<MandateDtoInt> response = mandateService.listMandatesByDelegate("001", "001");
+        it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.CxTypeAuthFleet mandateCxType = it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.CxTypeAuthFleet.PF;
+        Mockito.when(mandateClient.listMandatesByDelegate("001", "001", mandateCxType, null))
+                .thenReturn(listMandateDto);
+
+        List<MandateDtoInt> response = mandateService.listMandatesByDelegate("001", "001", CxTypeAuthFleet.PF, null);
 
         Assertions.assertEquals(1, response.size());
-
     }
 }

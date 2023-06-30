@@ -14,6 +14,7 @@ public class NotificationRecipientTestBuilder {
     private LegalDigitalAddressInt digitalDomicile;
     private NotificationPaymentInfoInt payment;
     private RecipientTypeInt recipientType;
+    private String denomination;
     
     public static NotificationRecipientTestBuilder builder() {
         return new NotificationRecipientTestBuilder();
@@ -48,7 +49,12 @@ public class NotificationRecipientTestBuilder {
     public NotificationRecipientTestBuilder withRecipientType(RecipientTypeInt recipientType) {
       this.recipientType = recipientType;
       return this;
-  }
+    }
+
+    public NotificationRecipientTestBuilder withDenomination(String denomination) {
+        this.denomination = denomination;
+        return this;
+    }
     
     public NotificationRecipientInt build() {
         if(taxId == null){
@@ -58,12 +64,31 @@ public class NotificationRecipientTestBuilder {
         if(internalId == null){
             internalId = "ANON_"+taxId;
         }
+
+        if(physicalAddress == null){
+            physicalAddress = PhysicalAddressInt.builder()
+                    .address("Test.address")
+                    .at("Test.at")
+                    .zip("Test.zip")
+                    .foreignState("Test.foreignState")
+                    .municipality("Test.municipality")
+                    .addressDetails("Test.addressDetails")
+                    .municipalityDetails("Test.municipalityDetails")
+                    .province("Test.province")
+                    .foreignState("Test.foreignState")
+                    .build();
+        }
+        
+        String denomination = "Name_and_surname_of_" + taxId;
+        if(physicalAddress != null){
+            physicalAddress.setFullname(denomination);
+        }
         
         return NotificationRecipientInt.builder()
                 .recipientType(RecipientTypeInt.PF)
                 .taxId(taxId)
                 .internalId(internalId)
-                .denomination("Name_and_surname_of_" + taxId)
+                .denomination(denomination)
                 .physicalAddress(physicalAddress)
                 .digitalDomicile(digitalDomicile)
                 .payment(payment)

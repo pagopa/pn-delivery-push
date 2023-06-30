@@ -9,15 +9,16 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.IoService;
-import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageRequest;
-import it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO;
-import static it.pagopa.pn.externalregistry.generated.openapi.clients.externalregistry.model.SendMessageResponse.ResultEnum.*;
+import static it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse.ResultEnum.*;
 
 
 @Slf4j
@@ -33,44 +34,37 @@ public class IoServiceImpl implements IoService {
     }
 
     @Override
-    public boolean sendIOMessage(NotificationInt notification, int recIndex) {
+    public SendMessageResponse.ResultEnum sendIOMessage(NotificationInt notification, int recIndex, Instant schedulingAnalogDate) {
         log.info("Start send message to App IO - iun={} id={}", notification.getIun(), recIndex);
 
         NotificationRecipientInt recipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
-        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt);
+        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt, recIndex, schedulingAnalogDate);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_AD_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_DA_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
                 .iun(sendMessageRequest.getIun())
                 .build();
         logEvent.log();
         
         try {
-            ResponseEntity<SendMessageResponse> resp = pnExternalRegistryClient.sendIOMessage(sendMessageRequest);
+          SendMessageResponse sendIoMessageResponse = pnExternalRegistryClient.sendIOMessage(sendMessageRequest);
 
-            if (resp.getStatusCode().is2xxSuccessful()) {
+          if(sendIoMessageResponse != null){
+              if( isErrorStatus( sendIoMessageResponse.getResult() ) ){
+                  logEvent.generateFailure("Error in sendIoMessage, with errorStatus={} - iun={} id={} ", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
+                  throw new PnInternalException("Error in sendIoMessage, with errorStatus="+ sendIoMessageResponse.getResult() +" - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
+              } else {
+                  logEvent.generateSuccess("Send io message success, with result={}", sendIoMessageResponse.getResult()).log();
+                  return sendIoMessageResponse.getResult();
+              }
+          }else {
+              logEvent.generateFailure("endIOMessage return not valid response response - iun={} id={} ", notification.getIun(), recIndex).log();
+              throw new PnInternalException("sendIOMessage return not valid response response - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
+          }
 
-                SendMessageResponse sendIoMessageResponse = resp.getBody();
-                if(sendIoMessageResponse != null){
-                    if( isErrorStatus( sendIoMessageResponse.getResult() ) ){
-                        logEvent.generateFailure("Error in sendIoMessage, with errorStatus={} - iun={} id={} ", sendIoMessageResponse.getResult(), notification.getIun(), recIndex).log();
-                        throw new PnInternalException("Error in sendIoMessage, with errorStatus="+ sendIoMessageResponse.getResult() +" - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
-                    } else {
-                        logEvent.generateSuccess("Send io message success, with result={}", sendIoMessageResponse.getResult()).log();
-                        return (isSentStatus(sendIoMessageResponse.getResult()));
-                    }
-                }else {
-                    logEvent.generateFailure("endIOMessage return not valid response response - iun={} id={} ", notification.getIun(), recIndex).log();
-                    throw new PnInternalException("sendIOMessage return not valid response response - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
-                }
-
-            } else {
-                logEvent.generateFailure("Error in sendIoMessage, httpStatus is {}", resp.getStatusCode()).log();
-                throw new PnInternalException("sendIOMessage Failed - iun="+ notification.getIun() +" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESYIO);
-            }
         } catch (Exception ex){
-            logEvent.generateFailure("Error in sendIoMessage, exception={}", ex).log();
+            logEvent.generateFailure("Error in sendIoMessage", ex).log();
             throw ex;
         }
     }
@@ -79,12 +73,8 @@ public class IoServiceImpl implements IoService {
         return ERROR_USER_STATUS.equals(result) || ERROR_COURTESY.equals(result) || ERROR_OPTIN.equals(result);
     }
 
-    private boolean isSentStatus(SendMessageResponse.ResultEnum result) {
-        return SENT_COURTESY.equals(result);
-    }
-
     @NotNull
-    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt) {
+    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt, int recIndex, Instant schedulingAnalogDate) {
         SendMessageRequest sendMessageRequest = new SendMessageRequest();
         sendMessageRequest.setAmount(notification.getAmount());
         sendMessageRequest.setDueDate(notification.getPaymentExpirationDate());
@@ -92,10 +82,25 @@ public class IoServiceImpl implements IoService {
         sendMessageRequest.setRequestAcceptedDate(notification.getSentAt());
         sendMessageRequest.setSenderDenomination(notification.getSender().getPaDenomination());
         sendMessageRequest.setIun(notification.getIun());
-        
-        String subject = notification.getSender().getPaDenomination() +"-"+ notification.getSubject();
-        sendMessageRequest.setSubject(subject);
+        sendMessageRequest.setRecipientIndex(recIndex);
+        sendMessageRequest.setRecipientInternalID(recipientInt.getInternalId());
+        sendMessageRequest.setSubject(prepareSubjectForIO(notification.getSender().getPaDenomination(), notification.getSubject()));
+        sendMessageRequest.setSchedulingAnalogDate(schedulingAnalogDate);
 
         return sendMessageRequest;
+    }
+
+
+
+    private String prepareSubjectForIO(String senderDenomination, String subject) {
+        // tronca il nome della PA se oltre i 50 caratteri, per lasciare spazio all'oggetto
+        // della notifica (IO supporta max 120 caratteri)
+        if (senderDenomination == null)
+            return subject;
+
+        if (senderDenomination.length() > 50)
+            senderDenomination = senderDenomination.substring(0,47) + "...";
+
+        return senderDenomination +" - "+ subject;
     }
 }

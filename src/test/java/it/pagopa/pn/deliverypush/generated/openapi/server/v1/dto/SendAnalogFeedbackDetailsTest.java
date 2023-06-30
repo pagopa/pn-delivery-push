@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-
 class SendAnalogFeedbackDetailsTest {
 
     private SendAnalogFeedbackDetails details;
@@ -14,11 +12,11 @@ class SendAnalogFeedbackDetailsTest {
     void setUp() {
         details = new SendAnalogFeedbackDetails();
         details.sentAttemptMade(1);
-        details.setErrors(Collections.singletonList("error"));
-        details.setInvestigation(Boolean.TRUE);
+        details.setDeliveryFailureCause("error");
         details.setNewAddress(PhysicalAddress.builder().address("add").build());
         details.setPhysicalAddress(PhysicalAddress.builder().address("add").build());
         details.setRecIndex(1);
+        details.setResponseStatus(ResponseStatus.KO);
         details.setServiceLevel(ServiceLevel.REGISTERED_LETTER_890);
     }
 
@@ -79,20 +77,6 @@ class SendAnalogFeedbackDetailsTest {
     }
 
     @Test
-    void investigation() {
-        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
-
-        SendAnalogFeedbackDetails actual = details.investigation(Boolean.TRUE);
-
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    void getInvestigation() {
-        Assertions.assertEquals(Boolean.TRUE, details.getInvestigation());
-    }
-
-    @Test
     void newAddress() {
         SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
 
@@ -110,63 +94,46 @@ class SendAnalogFeedbackDetailsTest {
     void errors() {
         SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.errors(Collections.singletonList("error"));
+        SendAnalogFeedbackDetails actual = details.deliveryFailureCause("error");
 
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void getErrors() {
-        Assertions.assertEquals(Collections.singletonList("error"), details.getErrors());
+        Assertions.assertEquals("error", details.getDeliveryFailureCause());
     }
+
+
+    @Test
+    void responseStatus() {
+        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
+
+        SendAnalogFeedbackDetails actual = details.responseStatus(ResponseStatus.KO);
+
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void getResponseStatus() {
+        Assertions.assertEquals(ResponseStatus.KO, details.getResponseStatus());
+    }
+
 
     @Test
     void testEquals() {
         SendAnalogFeedbackDetails data = buildSendAnalogFeedbackDetails();
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
-
-    @Test
-    void testToString() {
-        String expected = "class SendAnalogFeedbackDetails {\n" +
-                "    recIndex: 1\n" +
-                "    physicalAddress: class PhysicalAddress {\n" +
-                "        at: null\n" +
-                "        address: add\n" +
-                "        addressDetails: null\n" +
-                "        zip: null\n" +
-                "        municipality: null\n" +
-                "        municipalityDetails: null\n" +
-                "        province: null\n" +
-                "        foreignState: null\n" +
-                "    }\n" +
-                "    serviceLevel: REGISTERED_LETTER_890\n" +
-                "    sentAttemptMade: 1\n" +
-                "    investigation: true\n" +
-                "    newAddress: class PhysicalAddress {\n" +
-                "        at: null\n" +
-                "        address: add\n" +
-                "        addressDetails: null\n" +
-                "        zip: null\n" +
-                "        municipality: null\n" +
-                "        municipalityDetails: null\n" +
-                "        province: null\n" +
-                "        foreignState: null\n" +
-                "    }\n" +
-                "    errors: [error]\n" +
-                "}";
-
-        Assertions.assertEquals(expected, details.toString());
-    }
-
+    
     private SendAnalogFeedbackDetails buildSendAnalogFeedbackDetails() {
         return SendAnalogFeedbackDetails.builder()
                 .recIndex(1)
-                .errors(Collections.singletonList("error"))
-                .investigation(Boolean.TRUE)
+                .deliveryFailureCause("error")
                 .newAddress(PhysicalAddress.builder().address("add").build())
                 .physicalAddress(PhysicalAddress.builder().address("add").build())
                 .serviceLevel(ServiceLevel.REGISTERED_LETTER_890)
+                .responseStatus(ResponseStatus.KO)
                 .sentAttemptMade(1)
                 .build();
     }

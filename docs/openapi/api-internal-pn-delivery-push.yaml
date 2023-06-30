@@ -1,0 +1,332 @@
+openapi: 3.0.3
+info:
+  termsOfService: https://termofservice.it
+  title: 'API di pn-delivery-push esposte ad altri microservizi'
+  x-summary: 'API di pn-delivery-push esposte ad altri microservizi'
+  x-api-id: api-internal-pn-delivery-push
+  version: '1.0.0'
+  description: >- 
+    Da fare
+
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: 'https://da-definire/'
+servers:
+- url: https://api.pn.pagopa.it
+  description: Ambiente di produzione
+- url: https://api.uat.pn.pagopa.it
+  description: Ambiente di test
+- url: https://api.dev.pn.pagopa.it
+  description: Ambiente di sviluppo
+tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
+  - name: TimelineAndStatus
+    description: >-
+      Recupera le informazioni storiche di una notifica
+  - name: LegalFacts
+    description: >-
+      Recupero degli atti opponibili a terzi generati per una notifica
+
+paths:
+  '/status':
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
+          
+  '/delivery-push/{iun}/legal-facts':
+    get:
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi 
+        registrati durante il processo di notifica.
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getNotificationLegalFacts
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactList"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getLegalFact
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+#        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactType'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:  
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+        '400':
+          description: Invalid input                                               
+          content: 
+            application/problem+json: 
+              schema: 
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500': 
+          description: Internal Server Error                                        
+          content: 
+            application/problem+json: 
+              schema: 
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+  '/delivery-push/{iun}/download/legal-facts/{legalFactId}':
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getLegalFactById
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+#        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push/{iun}/document/{documentType}':
+    get:
+      summary: Restituisce il singolo documento identificato dalla documentKey
+      description: >-
+        Permette di scaricare un documento correlato alla notificazione
+      tags:
+        - DocumentsWeb
+      operationId: getDocumentsWeb
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: 'api-private.yaml#/components/parameters/pathDocumentType'
+        - $ref: 'api-private.yaml#/components/parameters/queryDocumentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+
+
+components:
+  
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet: # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+    cxIdAuthFleet: # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+    cxGroupsAuthFleet: # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+    uidAuthFleet: # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet' # NO EXTERNAL
+
+
+    ############################################################################################
+    ###                     HEADER DI AUTENTICAZIONE LOLLIPOP                               ###
+    ############################################################################################
+    lollipopOriginalUrl:                                                                            # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopOriginalUrl'                           # ONLY EXTERNAL
+    lollipopOriginalMethod:                                                                         # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopOriginalMethod'                        # ONLY EXTERNAL
+    lollipopPublicKey:                                                                              # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopPublicKey'                             # ONLY EXTERNAL
+    lollipopAssertionRef:                                                                           # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopAssertionRef'                          # ONLY EXTERNAL
+    lollipopAssertionType:                                                                          # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopAssertionType'                         # ONLY EXTERNAL
+    lollipopAuthJwt:                                                                                # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopAuthJwt'                               # ONLY EXTERNAL
+    lollipopUserId:                                                                                 # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopUserId'                                # ONLY EXTERNAL
+    lollipopSignatureInput:                                                                         # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopSignatureInput'                        # ONLY EXTERNAL
+    lollipopSignature:                                                                              # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopSignature'                             # ONLY EXTERNAL
+
+
+    ############################################################################################
+    ###                        PARAMETRI RICERCA LEGAL FACTS                                 ###
+    ############################################################################################
+    legalFactsSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
+        format: uuid
+        #minLength: 36
+        #maxLength: 36
+
+    ############################################################################################
+    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
+    ############################################################################################
+    pathIun:
+      description: >-
+        Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        
+    ############################################################################################
+    ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
+    ############################################################################################
+    pathLegalFactType:
+      description: >-
+        Categoria dell'atto opponibile a terzi
+      name: legalFactType
+      in: path
+      required: true
+      schema:
+        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategory'
+    
+    pathLegalFactId:
+      description: >-
+        Identificativo dell'atto opponibile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+        # ASCII printable characters
+        pattern: ^[ -~]*$
+        maxLength: 1024

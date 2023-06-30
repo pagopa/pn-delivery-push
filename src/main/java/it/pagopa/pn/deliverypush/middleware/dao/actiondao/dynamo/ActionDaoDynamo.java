@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.FutureActionEntityDao;
@@ -25,10 +25,10 @@ import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhanced
 import software.amazon.awssdk.services.dynamodb.model.CancellationReason;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -39,7 +39,8 @@ public class ActionDaoDynamo implements ActionDao {
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private final DynamoDbTable<ActionEntity> dynamoDbTableAction;
     private final DynamoDbTable<FutureActionEntity> dynamoDbTableFutureAction;
-
+    private final Duration actionTtl;
+    
     public ActionDaoDynamo(ActionEntityDao actionEntityDao,
                            FutureActionEntityDao futureActionEntityDao,
                            DynamoDbEnhancedClient dynamoDbEnhancedClient,
@@ -49,19 +50,19 @@ public class ActionDaoDynamo implements ActionDao {
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.dynamoDbTableAction = dynamoDbEnhancedClient.table(  pnDeliveryPushConfigs.getActionDao().getTableName(), TableSchema.fromClass(ActionEntity.class));
         this.dynamoDbTableFutureAction = dynamoDbEnhancedClient.table( pnDeliveryPushConfigs.getFutureActionDao().getTableName(), TableSchema.fromClass(FutureActionEntity.class));
-
+        this.actionTtl = pnDeliveryPushConfigs.getActionTtl();
     }
 
     @Override
     public void addAction(Action action, String timeSlot) {
-        actionEntityDao.put(DtoToEntityActionMapper.dtoToEntity(action));
+        actionEntityDao.put(DtoToEntityActionMapper.dtoToEntity(action, actionTtl));
         futureActionEntityDao.put(DtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
     }
 
     @Override
     public void addActionIfAbsent(Action action, String timeSlot) {
         try {
-            TransactPutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = actionEntityDao.preparePutIfAbsent(DtoToEntityActionMapper.dtoToEntity(action));
+            TransactPutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = actionEntityDao.preparePutIfAbsent(DtoToEntityActionMapper.dtoToEntity(action, actionTtl));
             TransactPutItemEnhancedRequest<FutureActionEntity> putItemEnhancedRequestFuture = futureActionEntityDao.preparePut(DtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));
             TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
                     .addPutItem(dynamoDbTableAction,  putItemEnhancedRequest)
@@ -75,13 +76,18 @@ public class ActionDaoDynamo implements ActionDao {
                      ex.cancellationReasons()) {
                     if (StringUtils.hasText(cr.code()) && cr.code().equals("ConditionalCheckFailed"))
                     {
-                        log.warn("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId={}", action.getActionId());
-                        return;
+                        log.warn("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId={} cancellationReason is {}", action.getActionId(), cr);
+                    }else if (StringUtils.hasText(cr.code()) && ! cr.code().equals("None"))
+                    {
+                        log.warn("TransactionCanceledException have cancellation reason but is not ConditionalCheckFailed, cancellationReason is {} actionId={}", cr, action.getActionId());
+                        throw ex;
                     }
                 }
             }
-            else
+            else {
+                log.warn("TransactionCanceledException haven't cancellation reason, actionId={} throw exception", action.getActionId(), ex);
                 throw ex;
+            }
         }
     }
 
@@ -102,7 +108,7 @@ public class ActionDaoDynamo implements ActionDao {
 
         return entities.stream()
                 .map(EntityToDtoFutureActionMapper::entityToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

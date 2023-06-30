@@ -4,15 +4,14 @@ import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyChannelType;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalChannelType;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyChannelType;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.LegalChannelType;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.LegalDigitalAddress;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,9 +40,8 @@ class AddressBookServiceImplTest {
         
         List<LegalDigitalAddress> listLegalDigitalAddresses = Collections.singletonList(legalDigitalAddress);
                  
-        Mockito.when(userAttributesClient.getLegalAddressBySender(Mockito.anyString(), Mockito.anyString())).thenReturn(
-                ResponseEntity.ok(listLegalDigitalAddresses)
-        );
+        Mockito.when(userAttributesClient.getLegalAddressBySender(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(listLegalDigitalAddresses);
         
         //WHEN
         Optional<LegalDigitalAddressInt> platformAddressOpt =  addressBookService.getPlatformAddresses("TAXIDANON", "SENDERID");
@@ -64,9 +62,8 @@ class AddressBookServiceImplTest {
 
         List<CourtesyDigitalAddress> listLegalDigitalAddresses = Collections.singletonList(courtesyDigitalAddress);
 
-        Mockito.when(userAttributesClient.getCourtesyAddressBySender(Mockito.anyString(), Mockito.anyString())).thenReturn(
-                ResponseEntity.ok(listLegalDigitalAddresses)
-        );
+        Mockito.when(userAttributesClient.getCourtesyAddressBySender(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(listLegalDigitalAddresses);
 
         //WHEN
         Optional<List<CourtesyDigitalAddressInt>> listCourtesyAddressOpt =  addressBookService.getCourtesyAddress("TAXIDANON", "SENDERID");

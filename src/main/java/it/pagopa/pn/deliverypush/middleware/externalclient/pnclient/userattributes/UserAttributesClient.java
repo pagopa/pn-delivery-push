@@ -1,13 +1,16 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes;
 
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.CourtesyDigitalAddress;
-import it.pagopa.pn.userattributes.generated.openapi.clients.userattributes.model.LegalDigitalAddress;
-import org.springframework.http.ResponseEntity;
-
+import it.pagopa.pn.commons.log.PnLogger;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.LegalDigitalAddress;
 import java.util.List;
 
 public interface UserAttributesClient {
-    ResponseEntity<List<LegalDigitalAddress>> getLegalAddressBySender(String internalId, String senderId);
+    String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_USER_ATTRIBUTES;
+    String GET_DIGITAL_PLATFORM_ADDRESS = "GET DIGITAL PLATFORM ADDRESS";
+    String GET_COURTESY_ADDRESS = "GET COURTESY ADDRESS";
 
-    ResponseEntity<List<CourtesyDigitalAddress>> getCourtesyAddressBySender(String internalId, String senderId);
+    List<LegalDigitalAddress> getLegalAddressBySender(String internalId, String senderId);
+
+    List<CourtesyDigitalAddress> getCourtesyAddressBySender(String internalId, String senderId);
 }

@@ -1,18 +1,18 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.api.dto.events.PnExtRegistryNotificationPaidEvent;
+import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import it.pagopa.pn.deliverypush.action.notificationpaid.NotificationPaidHandler;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 
-import java.time.Instant;
 import java.util.function.Consumer;
 
 @Configuration
-@Slf4j
+@CustomLog
 public class NotificationPaidEventHandler {
     private final NotificationPaidHandler notificationPaidHandler;
 
@@ -21,24 +21,20 @@ public class NotificationPaidEventHandler {
     }
 
     @Bean
-    public Consumer<Message<PnExtRegistryNotificationPaidEvent.Payload>> pnExtRegistryNotificationPaidEventConsumer() {
+    public Consumer<Message<PnDeliveryPaymentEvent.Payload>> pnDeliveryNotificationPaidEventConsumer() {
+        final String processName = "NOTIFICATION PAID EVENT";
+
         return message -> {
             try {
-                log.debug("Notification paid event received, message {}", message);
+                log.debug("Handle message from {} with content {}", PnDeliveryClient.CLIENT_NAME, message);
+                PnDeliveryPaymentEvent.Payload paymentEventPayload = message.getPayload();
+                HandleEventUtils.addIunAndRecIndexToMdc(paymentEventPayload.getIun(), paymentEventPayload.getRecipientIdx());
 
-                PnExtRegistryNotificationPaidEvent notificationPaidEvent = PnExtRegistryNotificationPaidEvent.builder()
-                        .payload(message.getPayload())
-                        .header(HandleEventUtils.mapStandardEventHeader(message.getHeaders()))
-                        .build();
-                
-                Instant eventDate = notificationPaidEvent.getPayload().getEventDate();
-                String noticeCode = notificationPaidEvent.getPayload().getNoticeCode();
-                String paTaxId =notificationPaidEvent.getPayload().getPaTaxId();
-                
-                log.info("pnExtRegistryNotificationPaidEventConsumer - eventDate={} noticeCode={} paTaxId={}", eventDate, noticeCode, paTaxId);
-
-                notificationPaidHandler.handleNotificationPaid(paTaxId, noticeCode, eventDate);
+                log.logStartingProcess(processName);
+                notificationPaidHandler.handleNotificationPaid(message.getPayload());
+                log.logEndingProcess(processName);
             } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }

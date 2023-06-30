@@ -3,15 +3,17 @@ package it.pagopa.pn.deliverypush.action.utils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
 
 class ExternalChannelUtilsTest {
 
@@ -51,45 +55,27 @@ class ExternalChannelUtilsTest {
                 .iun("iun1").elementId("aaaa1").timestamp(Instant.now().minusMillis(30000))
                 .details(SendDigitalProgressDetailsInt.builder().build())
                 .build();
-        Mockito.when(timelineUtils.buildSendDigitalNotificationTimelineElement(digitalAddress, DigitalAddressSourceInt.GENERAL, 1, notification, 1, "001")).thenReturn(t1);
 
-        channelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, DigitalAddressSourceInt.GENERAL, 1, 1, "001");
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalAddress)
+                .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
+                .retryNumber(1)
+                .isFirstSendRetry(false)
+                .relatedFeedbackTimelineId(null)
+                .build();
+        
+        Mockito.when(timelineUtils.buildSendDigitalNotificationTimelineElement(
+                1, 
+                notification,
+                sendInformation,
+                "001"
+        )).thenReturn(t1);
+        
+        channelUtils.addSendDigitalNotificationToTimeline(notification, 1, sendInformation, "001");
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(t1, notification);
     }
 
-    @Test
-    void addSendSimpleRegisteredLetterToTimeline() {
-        NotificationInt notification = buildNotification();
-        PhysicalAddressInt addressInt = buildPhysicalAddressInt();
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
-        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt, "001", 1)).thenReturn(timelineElementInternal);
-        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, "001", 1);
-        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
-    }
-
-
-    @Test
-    void addSendAnalogNotificationToTimeline() {
-        NotificationInt notification = buildNotification();
-        PhysicalAddressInt addressInt = buildPhysicalAddressInt();
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
-
-        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification, Boolean.FALSE, 1, "001", 1)).thenReturn(timelineElementInternal);
-        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1, Boolean.FALSE, 1, "001", 1);
-        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
-    }
-
-    @Test
-    void addPaperNotificationNotHandledToTimeline() {
-        NotificationInt notification = buildNotification();
-        PhysicalAddressInt addressInt = buildPhysicalAddressInt();
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
-
-        Mockito.when(timelineUtils.buildNotHandledTimelineElement(notification, 1, NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_CODE, NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_REASON)).thenReturn(timelineElementInternal);
-        channelUtils.addPaperNotificationNotHandledToTimeline(notification, 1);
-        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
-    }
 
     @Test
     void getExternalChannelNotificationTimelineElement() {
@@ -102,6 +88,39 @@ class ExternalChannelUtilsTest {
         Assertions.assertEquals(timelineElementInternal, actual);
     }
 
+
+    @Test
+    void getAarKeyOk() {
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl(FileUtils.getKeyWithStoragePrefix("testKey"))
+                .numberOfPages(1)
+                .build();
+        
+        Mockito.when(timelineService.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(Optional.of( aarGenerationDetails ));
+
+        String testIun = "testIun";
+        int recIndex = 0;
+        String aarKey = channelUtils.getAarKey(testIun, recIndex);
+
+        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl(), aarKey);
+    }
+
+    @Test
+    void getAarKeyNull() {
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl(null)
+                .numberOfPages(0)
+                .build();
+
+        Mockito.when(timelineService.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(Optional.of( aarGenerationDetails ));
+
+        String testIun = "testIun";
+        int recIndex = 0;
+        String aarKey = channelUtils.getAarKey(testIun, recIndex);
+
+        Assertions.assertNull(aarKey);
+    }
+    
     private List<NotificationRecipientInt> buildRecipients() {
         NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
                 .internalId("internalId")
@@ -112,6 +131,7 @@ class ExternalChannelUtilsTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(new PhysicalAddressInt(
+                        "Galileo Bruno",
                         "Palazzo dell'Inquisizione",
                         "corso Italia 666",
                         "Piano Terra (piatta)",
@@ -134,7 +154,6 @@ class ExternalChannelUtilsTest {
                 .recIndex(1)
                 .physicalAddress(addressInt)
                 .foreignState(addressInt.getForeignState())
-                .numberOfPages(1)
                 .build();
 
         return TimelineElementInternal.builder()

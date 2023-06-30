@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.*;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationRecipient.RecipientTypeEnum;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipient.RecipientTypeEnum;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -17,13 +17,15 @@ class NotificationMapperTest {
 
     @Test
     void internalToExternal() {
-
+        String denomination = "Mario rossi";
         NotificationInt expected = NotificationTestBuilder.builder()
                 .withIun("IUN01")
                 .withNotificationRecipient( NotificationRecipientTestBuilder.builder()
                         .withTaxId("TAXID01")
+                        .withDenomination(denomination)
                         .withPhysicalAddress(PhysicalAddressBuilder.builder()
-                                .withAddress(" Via Nuova")
+                                .withAddress("Via Nuova")
+                                .withFullName(denomination)
                                 .build())
                         .build())
                 .build();
@@ -63,6 +65,11 @@ class NotificationMapperTest {
                                        new NotificationDigitalAddress()
                                                .address("address")
                                                .type(NotificationDigitalAddress.TypeEnum.PEC)
+                               )
+                               .physicalAddress(
+                                       new NotificationPhysicalAddress()
+                                               .address("physicalAddress")
+                                               .municipality("municipality")
                                )
                 ))
                 .documents(Arrays.asList(

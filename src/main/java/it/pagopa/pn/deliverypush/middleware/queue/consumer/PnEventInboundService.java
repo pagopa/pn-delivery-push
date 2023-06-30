@@ -8,8 +8,8 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.MDCWebFilter;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionEventType;
 import lombok.extern.slf4j.Slf4j;
@@ -34,41 +34,56 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class PnEventInboundService {
     private final EventHandler eventHandler;
     private final String externalChannelEventQueueName;
-
+    private final String safeStorageEventQueueName;
+    private final String nationalRegistriesEventQueueName;
+    private final String addressManagerEventQueueName;
+    
     public PnEventInboundService(EventHandler eventHandler, PnDeliveryPushConfigs cfg) {
         this.eventHandler = eventHandler;
         this.externalChannelEventQueueName = cfg.getTopics().getFromExternalChannel();
+        this.safeStorageEventQueueName = cfg.getTopics().getSafeStorageEvents();
+        this.nationalRegistriesEventQueueName = cfg.getTopics().getNationalRegistriesEvents();
+        this.addressManagerEventQueueName = cfg.getTopics().getAddressManagerEvents();
     }
 
     @Bean
     public MessageRoutingCallback customRouter() {
-        return message -> {
-            setTraceId(message);
-            return handleMessage(message);
+        return new MessageRoutingCallback() {
+            @Override
+            public FunctionRoutingResult routingResult(Message<?> message) {
+                setMdc(message);
+                return new FunctionRoutingResult(handleMessage(message));
+            }
         };
     }
 
-    private void setTraceId(Message<?> message) {
+    private void setMdc(Message<?> message) {
         MessageHeaders messageHeaders = message.getHeaders();
+        MDCUtils.clearMDCKeys();
+        
+        if (messageHeaders.containsKey("aws_messageId")){
+            String awsMessageId = messageHeaders.get("aws_messageId", String.class);
+            MDC.put(MDCUtils.MDC_PN_CTX_MESSAGE_ID, awsMessageId);
+        }
+        
+        if (messageHeaders.containsKey("X-Amzn-Trace-Id")){
+            String traceId = messageHeaders.get("X-Amzn-Trace-Id", String.class);
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, traceId);
+        } else {
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, String.valueOf(UUID.randomUUID()));
+        }
 
-        String traceId = "";
-
-        if (messageHeaders.containsKey("iun"))
-            traceId = messageHeaders.get("iun", String.class);
-        else if (messageHeaders.containsKey("aws_messageId"))
-            traceId = messageHeaders.get("aws_messageId", String.class);
-        else
-            traceId = "trace_id:" + UUID.randomUUID().toString();
-
-        MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, traceId);
+        String iun = (String) message.getHeaders().get("iun");
+        if(iun != null){
+            MDC.put(MDCUtils.MDC_PN_IUN_KEY, iun);
+        }
     }
 
     private String handleMessage(Message<?> message) {
-        //Viene ricevuto un nuovo evento da una queue
-        log.debug("Received message from customRouter {}", message);
-
         String eventType = (String) message.getHeaders().get("eventType");
         log.debug("Received message from customRouter with eventType={}", eventType);
+
+        String iun = (String) message.getHeaders().get("iun");
 
         if (eventType != null) {
             //Se l'event type e valorizzato ...
@@ -81,16 +96,17 @@ public class PnEventInboundService {
             }
             else if(eventType.equals("EXTERNAL_CHANNELS_EVENT")) {
                 //usato ora dal mock di external-channels, in futuro se viene modificato l'evento, adeguare anche il mock
-                eventType = handleExternalChannelEvent(message);
+                eventType = handleOtherEvent(message);
             }
         }else {
             //EXTERNAL CHANNEL dovrà INVIARE UN EventType specifico PN-1998
             
-            //Se l'eventType non è valorizzato entro sicuramente qui, cioè negli eventi di externalChannel
-            eventType = handleExternalChannelEvent(message);
+            //Se l'eventType non è valorizzato entro sicuramente qui
+            eventType = handleOtherEvent(message);
         }
 
-        /*... arrivati qui, l'eventType o era valorizzato ma non è ne il caso di ACTION o WEBHOOK_ACTION, rientrano i casi di NEW_NOTIFICATION, NOTIFICATION_VIEWED, NOTIFICATION_PAID ecc. 
+        /*... arrivati qui, l'eventType o già valorizzato MA non era: ACTION_GENERIC, WEBHOOK_ACTION_GENERIC, EXTERNAL_CHANNELS_EVENT
+            dunque rientrano i casi di NEW_NOTIFICATION, NOTIFICATION_VIEWED, NOTIFICATION_PAID ecc. 
             oppure l'eventType non era valorizzato ed è stato valorizzato in handleExternalChannelEvent.
          */
 
@@ -98,16 +114,28 @@ public class PnEventInboundService {
         if (!StringUtils.hasText(handlerName)) {
             log.error("undefined handler for eventType={}", eventType);
         }
+
+        log.debug("Handler for eventType={} is {} - iun={}", eventType, handlerName, iun);
+
         return handlerName;
     }
 
     @NotNull
-    private String handleExternalChannelEvent(Message<?> message) {
+    private String handleOtherEvent(Message<?> message) {
         String eventType;
         String queueName = (String) message.getHeaders().get("aws_receivedQueue");
         if (Objects.equals(queueName, externalChannelEventQueueName)) {
-            eventType = "SEND_PAPER_RESPONSE";
-        } else {
+            eventType = "SEND_PEC_RESPONSE";
+        } else if (Objects.equals(queueName, safeStorageEventQueueName)) {
+            eventType = "SAFE_STORAGE_EVENTS";
+        }
+        else if(Objects.equals(queueName, nationalRegistriesEventQueueName)) {
+            eventType = "NR_GATEWAY_RESPONSE";
+        }
+        else if(Objects.equals(queueName, addressManagerEventQueueName)) {
+            eventType = "ADDRESS_MANAGER_EVENTS";
+        }
+        else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
             throw new PnInternalException("eventType not present, cannot start scheduled action", ERROR_CODE_DELIVERYPUSH_EVENTTYPENOTSUPPORTED);
         }

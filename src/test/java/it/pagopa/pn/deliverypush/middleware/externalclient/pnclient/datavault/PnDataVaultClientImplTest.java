@@ -1,10 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault;
 
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.ApiClient;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.api.NotificationsApi;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.AddressDto;
-import it.pagopa.pn.datavault.generated.openapi.clients.datavault.model.ConfidentialTimelineElementDto;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.api.NotificationsApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AddressDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -41,15 +39,7 @@ class PnDataVaultClientImplTest {
 
     @BeforeEach
     void setup() {
-        cfg = mock(PnDeliveryPushConfigs.class);
-        Mockito.when(cfg.getDataVaultBaseUrl()).thenReturn("http://localhost:8080");
-        Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
-
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getDataVaultBaseUrl());
-
-        pnDataVaultNotificationApi = new NotificationsApi(apiClient);
-        client = new PnDataVaultClientImpl(restTemplate, cfg);
+        client = new PnDataVaultClientImpl(pnDataVaultNotificationApi);
     }
 
     @Test
@@ -70,9 +60,9 @@ class PnDataVaultClientImplTest {
                 .thenReturn(ResponseEntity.ok(""));
         Mockito.when(pnDataVaultNotificationApi.getNotificationTimelineByIunAndTimelineElementIdWithHttpInfo("001", "001")).thenReturn(ResponseEntity.ok(dto));
 
-        ResponseEntity<ConfidentialTimelineElementDto> resp = client.getNotificationTimelineByIunAndTimelineElementId("001", "001");
+        ConfidentialTimelineElementDto resp = client.getNotificationTimelineByIunAndTimelineElementId("001", "001");
 
-        Assertions.assertEquals(resp, ResponseEntity.ok(dto));
+        Assertions.assertEquals(resp, dto);
     }
 
     @Test
@@ -85,9 +75,9 @@ class PnDataVaultClientImplTest {
                 .thenReturn(ResponseEntity.ok(""));
         Mockito.when(pnDataVaultNotificationApi.getNotificationTimelineByIunWithHttpInfo("001")).thenReturn(ResponseEntity.ok(dtoList));
 
-        ResponseEntity<List<ConfidentialTimelineElementDto>> resp = client.getNotificationTimelineByIunWithHttpInfo("001");
+        List<ConfidentialTimelineElementDto> resp = client.getNotificationTimelineByIunWithHttpInfo("001");
 
-        Assertions.assertEquals(resp, ResponseEntity.ok(dtoList));
+        Assertions.assertEquals(resp, dtoList);
     }
 
     private ConfidentialTimelineElementDto buildConfidentialTimelineElementDto() {

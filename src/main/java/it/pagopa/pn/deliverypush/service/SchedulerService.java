@@ -7,6 +7,10 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import java.time.Instant;
 
 public interface SchedulerService {
+    void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType);
+    
+    void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails);
+    
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType);
 
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineId);

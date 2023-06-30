@@ -1,33 +1,20 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.api.InternalOnlyApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.NotificationCostResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.RequestUpdateStatusDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.delivery.model.SentNotification;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.api.InternalOnlyApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import java.util.Map;
-import java.util.Optional;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.mockito.Mockito.mock;
+import java.util.Map;
 
 class PnDeliveryClientImplTest {
-
-    @Mock
-    private PnDeliveryPushConfigs cfg;
-
-    @Mock
-    private RestTemplate restTemplate;
 
     @Mock
     private InternalOnlyApi pnDeliveryApi;
@@ -36,78 +23,44 @@ class PnDeliveryClientImplTest {
 
     @BeforeEach
     void setup() {
-        this.cfg = mock(PnDeliveryPushConfigs.class);
-        Mockito.when(cfg.getDeliveryBaseUrl()).thenReturn("http://localhost:8080");
-
-        restTemplate = Mockito.mock(RestTemplate.class);
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getDeliveryBaseUrl());
-        client = new PnDeliveryClientImpl(restTemplate, cfg);
-        pnDeliveryApi = new InternalOnlyApi(apiClient);
+        client = new PnDeliveryClientImpl(pnDeliveryApi);
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void updateStatus() {
 
         RequestUpdateStatusDto statusDto = new RequestUpdateStatusDto();
         statusDto.setIun("001");
+        Mockito.when(pnDeliveryApi.updateStatusWithHttpInfo(statusDto))
+                .thenReturn(ResponseEntity.ok().build());
 
-        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn(ResponseEntity.ok(""));
-
-        ResponseEntity<Void> resp = client.updateStatus(statusDto);
-
-        Assertions.assertEquals(HttpStatus.OK, resp.getStatusCode());
-
+        Assertions.assertDoesNotThrow(()->client.updateStatus(statusDto));
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void getSentNotification() {
         SentNotification notification = new SentNotification();
         notification.setIun("001");
-
-        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn(ResponseEntity.ok(""));
         
         Mockito.when(pnDeliveryApi.getSentNotificationPrivateWithHttpInfo("001")).thenReturn(ResponseEntity.ok(notification));
 
-        ResponseEntity<SentNotification> res = client.getSentNotification("001");
+        SentNotification res = client.getSentNotification("001");
 
-        Assertions.assertEquals("001", res.getBody().getIun());
+        Assertions.assertEquals("001", res.getIun());
 
     }
-
-    @Test
-    void getNotificationCostPrivate() {
-
-        NotificationCostResponse response = new NotificationCostResponse();
-        response.setRecipientIdx(0);
-        response.setIun("0");
-
-        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn(ResponseEntity.ok(""));
-
-        Mockito.when(pnDeliveryApi.getNotificationCostPrivateWithHttpInfo("0", "0")).thenReturn(ResponseEntity.of(Optional.of(response)));
-
-        ResponseEntity<NotificationCostResponse> res = client.getNotificationCostPrivate("0", "0");
-
-        Assertions.assertEquals("0", res.getBody().getIun());
-    }
-    
     
     @Test
+    @ExtendWith(SpringExtension.class)
     void getQuickAccessLinkTokensPrivate() {
        Map<String, String> expected = Map.of("internalId","token");
-
-
-        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn(ResponseEntity.ok(""));
         
         Mockito.when(pnDeliveryApi.getQuickAccessLinkTokensPrivateWithHttpInfo("001")).thenReturn(ResponseEntity.ok(expected));
 
-        ResponseEntity<Map<String, String>> res = client.getQuickAccessLinkTokensPrivate("001");
+        Map<String, String> res = client.getQuickAccessLinkTokensPrivate("001");
 
-        Assertions.assertEquals(expected, res.getBody());
-
+        Assertions.assertEquals(expected, res);
     }
 }

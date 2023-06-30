@@ -42,11 +42,6 @@ public class NotificationTestBuilder {
         return this;
     }
 
-    public NotificationTestBuilder withNotificationRecipient(List<NotificationRecipientInt> recipients) {
-        this.recipients = recipients;
-        return this;
-    }
-
     public NotificationTestBuilder withNotificationRecipients(List<NotificationRecipientInt> recipientCollections) {
         this.recipients = recipientCollections;
         return this;
@@ -64,7 +59,7 @@ public class NotificationTestBuilder {
     
     public NotificationInt build() {
         if(iun == null){
-            iun = "generatedIun";
+            iun = TestUtils.getRandomIun();
         }
         
         if(paId == null){
@@ -96,7 +91,7 @@ public class NotificationTestBuilder {
                 .sentAt(Instant.now())
                 .amount(18)
                 .paymentExpirationDate(DateFormatUtils.parseDate("2002-08-12").toInstant())
-                .physicalCommunicationType(ServiceLevelTypeInt.SIMPLE_REGISTERED_LETTER)
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER)
                 .sender(NotificationSenderInt.builder()
                         .paId(paId)
                         .paDenomination("Denominazione pa con id " + paId)

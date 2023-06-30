@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush;
 
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushSchedulingConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,23 +1,21 @@
 package it.pagopa.pn.deliverypush.action;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.PublicRegistryService;
+import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,15 +41,13 @@ class ChooseDeliveryModeHandlerTest {
     @Mock
     private SchedulerService schedulerService;
     @Mock
-    private PublicRegistryService publicRegistryService;
+    private NationalRegistriesService nationalRegistriesService;
     @Mock
     private ChooseDeliveryModeUtils chooseDeliveryUtils;
     @Mock
-    private InstantNowSupplier instantNowSupplier;
-    @Mock
-    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    @Mock
     private NotificationService notificationService;
+    @Mock
+    private TimelineService timelineService;
     
     private ChooseDeliveryModeHandler handler;
 
@@ -59,9 +55,8 @@ class ChooseDeliveryModeHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new ChooseDeliveryModeHandler(chooseDeliveryUtils,
-                digitalWorkFlowHandler, schedulerService,
-                publicRegistryService, instantNowSupplier, pnDeliveryPushConfigs, notificationService);
+        handler = new ChooseDeliveryModeHandler(digitalWorkFlowHandler, schedulerService, nationalRegistriesService,
+                chooseDeliveryUtils, notificationService, timelineService);
         notificationUtils= new NotificationUtils();
     }
 
@@ -178,15 +173,15 @@ class ChooseDeliveryModeHandlerTest {
         Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, listDigitalAddressSourceCaptorValues.get(1));
         Assertions.assertFalse(listIsAvailableCaptorValues.get(1));
 
-        Mockito.verify(publicRegistryService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
-                Mockito.any(ContactPhaseInt.class), Mockito.anyInt());
+        Mockito.verify(nationalRegistriesService).sendRequestForGetDigitalGeneralAddress(Mockito.any(NotificationInt.class), Mockito.anyInt(),
+                Mockito.any(ContactPhaseInt.class), Mockito.anyInt(), Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
     void handleGeneralAddressResponseDigital() {
         //GIVEN
-        PublicRegistryResponse response = PublicRegistryResponse.builder()
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .digitalAddress(LegalDigitalAddressInt.builder()
                         .address("Via nuova")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -222,20 +217,11 @@ class ChooseDeliveryModeHandlerTest {
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
-        PublicRegistryResponse response = PublicRegistryResponse.builder()
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .digitalAddress(null).build();
-
-        Instant courtesyMessageDate = Instant.now();
-        SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = SendCourtesyMessageDetailsInt.builder()
-                .sendDate(courtesyMessageDate)
-                .build();
-
-        Mockito.when(chooseDeliveryUtils.getFirstSentCourtesyMessage(Mockito.anyString(), Mockito.anyInt()))
-                .thenReturn(Optional.of(sendCourtesyMessageDetails));
 
         TimeParams times = new TimeParams();
         times.setWaitingForReadCourtesyMessage(Duration.ofSeconds(1));
-        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         //WHEN
         handler.handleGeneralAddressResponse(response, notification, recIndex);
@@ -263,14 +249,9 @@ class ChooseDeliveryModeHandlerTest {
         NotificationInt notification = getNotification();
         NotificationRecipientInt recipient =notification.getRecipients().get(0);
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
-        PublicRegistryResponse response = PublicRegistryResponse.builder()
-                .digitalAddress(null).build();
         
-        Mockito.when(chooseDeliveryUtils.getFirstSentCourtesyMessage(Mockito.anyString(), Mockito.anyInt()))
-                .thenReturn(Optional.empty());
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
+                .digitalAddress(null).build();
 
         //WHEN
         handler.handleGeneralAddressResponse(response, notification, recIndex);

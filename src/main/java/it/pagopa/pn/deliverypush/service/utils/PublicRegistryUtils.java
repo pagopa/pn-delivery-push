@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.service.utils;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -31,7 +31,7 @@ public class PublicRegistryUtils {
     }
 
     public String generateCorrelationId(String iun, Integer recIndex, ContactPhaseInt contactPhase, int sentAttemptMade, DeliveryModeInt deliveryMode) {
-        return TimelineEventId.PUBLIC_REGISTRY_CALL.buildEventId(
+        return TimelineEventId.NATIONAL_REGISTRY_CALL.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
@@ -41,10 +41,23 @@ public class PublicRegistryUtils {
                         .build());
     }
 
-    public void addPublicRegistryCallToTimeline(NotificationInt notification, Integer recIndex, ContactPhaseInt contactPhase, 
-                                                int sentAttemptMade, String correlationId, DeliveryModeInt digital) {
+    public void addPublicRegistryCallToTimeline(NotificationInt notification, 
+                                                Integer recIndex, 
+                                                ContactPhaseInt contactPhase, 
+                                                int sentAttemptMade, 
+                                                String correlationId, 
+                                                DeliveryModeInt digital, 
+                                                String relatedFeedbackTimelineId) {
         addTimelineElement( 
-                timelineUtils.buildPublicRegistryCallTimelineElement(notification, recIndex, correlationId, digital, contactPhase, sentAttemptMade), 
+                timelineUtils.buildPublicRegistryCallTimelineElement(
+                        notification,
+                        recIndex,
+                        correlationId,
+                        digital,
+                        contactPhase,
+                        sentAttemptMade,
+                        relatedFeedbackTimelineId
+                ), 
                 notification
         );
     }
@@ -61,7 +74,7 @@ public class PublicRegistryUtils {
         }
     }
 
-    public void addPublicRegistryResponseToTimeline(NotificationInt notification, Integer recIndex, PublicRegistryResponse response) {
+    public void addPublicRegistryResponseToTimeline(NotificationInt notification, Integer recIndex, NationalRegistriesResponse response) {
         addTimelineElement( 
                 timelineUtils.buildPublicRegistryResponseCallTimelineElement(notification, recIndex, response),
                 notification

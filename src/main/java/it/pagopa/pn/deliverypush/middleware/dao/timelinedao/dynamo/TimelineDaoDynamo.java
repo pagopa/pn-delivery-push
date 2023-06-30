@@ -59,13 +59,14 @@ public class TimelineDaoDynamo implements TimelineDao {
     @NotNull
     private TimelineElementDetailsEntity cloneWithoutSensitiveInformation(TimelineElementDetailsEntity details) {
         TimelineElementDetailsEntity newDetails = details.toBuilder().build();
-
+        
         PhysicalAddressEntity physicalAddress = newDetails.getPhysicalAddress();
         if( physicalAddress != null ) {
             newDetails.setPhysicalAddress( physicalAddress.toBuilder()
                             .at(null)
                             .municipalityDetails(null)
                             .zip(null)
+                            .foreignState(null)
                             .addressDetails(null)
                             .province(null)
                             .municipality(null)
@@ -82,6 +83,7 @@ public class TimelineDaoDynamo implements TimelineDao {
                     .addressDetails(null)
                     .province(null)
                     .municipality(null)
+                    .foreignState(null)
                     .address(null)
                     .build());
         }
@@ -92,6 +94,8 @@ public class TimelineDaoDynamo implements TimelineDao {
                     .address( null )
                     .build());
         }
+
+        
         return newDetails;
     }
 

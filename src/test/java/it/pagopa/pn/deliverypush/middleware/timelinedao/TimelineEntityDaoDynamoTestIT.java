@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.*;
@@ -18,10 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
+        TimelineCounterEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO
 })
 @SpringBootTest
@@ -86,8 +85,8 @@ class TimelineEntityDaoDynamoTestIT {
             TimelineElementEntity elementFromDb = elementFromDbOpt.get();
             Assertions.assertEquals(elementToInsert, elementFromDb);
             
-        }finally {
-           // removeElementFromDb(elementToInsert);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
     }
@@ -143,9 +142,7 @@ class TimelineEntityDaoDynamoTestIT {
 
         //WHEN
         
-        assertThrows(PnIdConflictException.class, () -> {
-            timelineEntityDao.putIfAbsent(elementNotToBeInserted);
-        });
+        assertThrows(PnIdConflictException.class, () -> timelineEntityDao.putIfAbsent(elementNotToBeInserted));
         
         //THEN
         Optional<TimelineElementEntity> elementFromDbOpt =  timelineEntityDao.get(elementsKey);
@@ -571,6 +568,12 @@ class TimelineEntityDaoDynamoTestIT {
 
     @Test
     void checkSendDigitalProgress() {
+        List<NotificationRefusedErrorEntity> errors = new ArrayList<>();
+        NotificationRefusedErrorEntity notificationRefusedError = NotificationRefusedErrorEntity.builder()
+                .errorCode("FILE_NOTFOUND")
+                .detail("details")
+                .build();
+        errors.add(notificationRefusedError);
         //GIVEN
         TimelineElementEntity elementToInsert = TimelineElementEntity.builder()
                 .iun("pa1-1")
@@ -605,7 +608,7 @@ class TimelineEntityDaoDynamoTestIT {
                                                         .build()
                                         )
                                 )
-                                .errors(List.of("errors"))
+                                .refusalReasons(errors)
                                 .build()
                 )
                 .build();

@@ -20,7 +20,7 @@ public class QrCodeUtils {
   public static byte[] generateQRCodeImage(String text, int width, int height) {
     try {
       Map<EncodeHintType, ?> conf = Map.of(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H,
-          EncodeHintType.QR_VERSION, 10);
+          EncodeHintType.QR_VERSION, 14);
       QRCodeWriter qrCodeWriter = new QRCodeWriter();
       BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height, conf);
 

@@ -1,17 +1,37 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool;
 
-import it.pagopa.pn.deliverypush.action.details.NotHandledDetails;
-import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
+import it.pagopa.pn.deliverypush.action.details.*;
 import lombok.Getter;
 
 @Getter
 public enum ActionType {
 
+  NOTIFICATION_VALIDATION(NotificationValidationActionDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      NotificationValidationActionDetails details = (NotificationValidationActionDetails) action.getDetails();
+      
+      return String.format("notification_validation_iun_%s_retry=%d", 
+              action.getIun(),
+              details.getRetryAttempt());
+    }
+  },
+
+  SCHEDULE_RECEIVED_LEGALFACT_GENERATION(NotHandledDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("schedule_creation_received_iun_%s",
+              action.getIun()
+      );
+    }
+  },
+  
   START_RECIPIENT_WORKFLOW(RecipientsWorkflowDetails.class) {
     @Override
     public String buildActionId(Action action) {
-      return String.format("%s_start_recipient_workflow_%d", action.getIun(),
-          action.getRecipientIndex());
+      return String.format("%s_start_recipient_workflow_%d",
+              action.getIun(), 
+              action.getRecipientIndex());
     }
   },
 
@@ -34,6 +54,14 @@ public enum ActionType {
     @Override
     public String buildActionId(Action action) {
       return String.format("%s_digital_workflow_e_%d_timelineid_%s", action.getIun(), action.getRecipientIndex(), action.getTimelineId() == null ? "" : action.getTimelineId());
+    }
+  },
+
+
+  DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION(NotHandledDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("%s_digital_workflow_execute_e_%d_timelineid_%s", action.getIun(), action.getRecipientIndex(), action.getTimelineId() == null ? "" : action.getTimelineId());
     }
   },
 
@@ -61,12 +89,23 @@ public enum ActionType {
           action.getRecipientIndex());
     }
   },
+  
   SENDER_ACK(NotHandledDetails.class) {
 
     @Override
     public String buildActionId(Action action) {
       return String.format("%s_start", action.getIun());
     }
+  },
+
+  DOCUMENT_CREATION_RESPONSE(DocumentCreationResponseActionDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+        return String.format("safe_storage_response_timelineId=%s",
+                action.getTimelineId()
+        );
+    }
+    
   };
 
   private final Class<? extends ActionDetails> detailsJavaClass;

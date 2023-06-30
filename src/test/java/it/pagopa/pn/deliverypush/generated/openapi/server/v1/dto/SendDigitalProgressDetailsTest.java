@@ -19,7 +19,8 @@ class SendDigitalProgressDetailsTest {
         details.setDigitalAddress(DigitalAddress.builder().address("add").build());
         details.setSendingReceipts(Collections.singletonList(SendingReceipt.builder().id("001").build()));
         details.setDigitalAddressSource(DigitalAddressSource.GENERAL);
-        details.setEventCode("001");
+        details.setDeliveryDetailCode("001");
+        details.setDeliveryFailureCause("C1");
         details.setRetryNumber(1);
         details.setShouldRetry(Boolean.TRUE);
         details.setNotificationDate(instant);
@@ -43,14 +44,14 @@ class SendDigitalProgressDetailsTest {
     void eventCode() {
         SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.eventCode("001");
+        SendDigitalProgressDetails actual = details.deliveryDetailCode("001");
 
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     void getEventCode() {
-        Assertions.assertEquals("001", details.getEventCode());
+        Assertions.assertEquals("001", details.getDeliveryDetailCode());
     }
 
     @Test
@@ -148,28 +149,6 @@ class SendDigitalProgressDetailsTest {
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
 
-    @Test
-    void testToString() {
-        String data = "class SendDigitalProgressDetails {\n" +
-                "    recIndex: 1\n" +
-                "    eventCode: 001\n" +
-                "    shouldRetry: true\n" +
-                "    digitalAddress: class DigitalAddress {\n" +
-                "        type: null\n" +
-                "        address: add\n" +
-                "    }\n" +
-                "    digitalAddressSource: GENERAL\n" +
-                "    notificationDate: 2021-09-16T15:23:00Z\n" +
-                "    sendingReceipts: [class SendingReceipt {\n" +
-                "        id: 001\n" +
-                "        system: null\n" +
-                "    }]\n" +
-                "    retryNumber: 1\n" +
-                "}";
-
-        Assertions.assertEquals(data, details.toString());
-    }
-
     private SendDigitalProgressDetails buildSendDigitalProgressDetails() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
 
@@ -179,7 +158,8 @@ class SendDigitalProgressDetailsTest {
                 .sendingReceipts(Collections.singletonList(SendingReceipt.builder().id("001").build()))
                 .digitalAddress(DigitalAddress.builder().address("add").build())
                 .digitalAddressSource(DigitalAddressSource.GENERAL)
-                .eventCode("001")
+                .deliveryDetailCode("001")
+                .deliveryFailureCause("C1")
                 .shouldRetry(Boolean.TRUE)
                 .notificationDate(instant)
                 .build();

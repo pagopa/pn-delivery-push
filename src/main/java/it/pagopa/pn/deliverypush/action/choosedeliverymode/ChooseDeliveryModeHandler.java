@@ -1,18 +1,18 @@
 package it.pagopa.pn.deliverypush.action.choosedeliverymode;
 
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.publicregistry.PublicRegistryResponse;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.PublicRegistryService;
+import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -20,32 +20,19 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
+
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class ChooseDeliveryModeHandler {
     private final DigitalWorkFlowHandler digitalWorkFlowHandler;
     private final SchedulerService schedulerService;
-    private final PublicRegistryService publicRegistryService;
+    private final NationalRegistriesService nationalRegistriesService;
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
-    private final InstantNowSupplier instantNowSupplier;
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final NotificationService notificationService;
+    private final TimelineService timelineService;
 
-    public ChooseDeliveryModeHandler(ChooseDeliveryModeUtils chooseDeliveryUtils,
-                                     DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                     SchedulerService schedulerService,
-                                     PublicRegistryService publicRegistryService,
-                                     InstantNowSupplier instantNowSupplier,
-                                     PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                     NotificationService notificationService) {
-        this.chooseDeliveryUtils = chooseDeliveryUtils;
-        this.digitalWorkFlowHandler = digitalWorkFlowHandler;
-        this.schedulerService = schedulerService;
-        this.publicRegistryService = publicRegistryService;
-        this.instantNowSupplier = instantNowSupplier;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-        this.notificationService = notificationService;
-    }
 
     /**
      * Handle notification type choice (DIGITAL or ANALOG)
@@ -85,7 +72,7 @@ public class ChooseDeliveryModeHandler {
                 chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, false);
 
                 // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale
-                publicRegistryService.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhaseInt.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER);
+                nationalRegistriesService.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhaseInt.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, null);
             }
         }
 
@@ -100,7 +87,7 @@ public class ChooseDeliveryModeHandler {
      * @param notification      Notification
      * @param recIndex    User identifier
      */
-    public void handleGeneralAddressResponse(PublicRegistryResponse response, NotificationInt notification, Integer recIndex) {
+    public void handleGeneralAddressResponse(NationalRegistriesResponse response, NotificationInt notification, Integer recIndex) {
         log.info("HandleGeneralAddressResponse in choose phase  - iun={} id={}", notification.getIun(), recIndex);
 
         if (response.getDigitalAddress() != null) {
@@ -125,19 +112,18 @@ public class ChooseDeliveryModeHandler {
         String iun = notification.getIun();
         log.debug("Scheduling analog workflow for iun={} id={} ", iun, recIndex);
 
-        Optional<SendCourtesyMessageDetailsInt> sendCourtesyMessageDetailsOpt = chooseDeliveryUtils.getFirstSentCourtesyMessage(iun, recIndex);
-        Instant schedulingDate;
+        Instant schedulingDate = timelineService.getTimelineElementDetailForSpecificRecipient(notification.getIun(),
+                        recIndex, false, PROBABLE_SCHEDULING_ANALOG_DATE, ProbableDateAnalogWorkflowDetailsInt.class )
+                .map(details -> {
+                    log.info("ProbableSchedulingAnalogDate is present, need to schedule analog workflow at={}- iun={} id={} ", details.getSchedulingAnalogDate(), iun, recIndex);
+                    return details.getSchedulingAnalogDate();
+                })
+                .orElseGet(() -> {
+                    log.info("Courtesy message is not present, analog workflow can be started now  - iun={} id={} ", iun, recIndex);
+                    return Instant.now();
+                });
 
-        if (sendCourtesyMessageDetailsOpt.isPresent()) {
-            SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
-            Instant sendDate = sendCourtesyMessageDetails.getSendDate();
-            
-            schedulingDate = sendDate.plus(pnDeliveryPushConfigs.getTimeParams().getWaitingForReadCourtesyMessage());//5 Days
-            log.info("Courtesy message is present, need to schedule analog workflow at={}  - iun={} id={} ", schedulingDate, iun, recIndex);
-        } else {
-            schedulingDate = instantNowSupplier.get();
-            log.info("Courtesy message is not present, analog workflow can be started now  - iun={} id={} ", iun, recIndex);
-        }
+
         chooseDeliveryUtils.addScheduleAnalogWorkflowToTimeline(recIndex, notification);
         schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.ANALOG_WORKFLOW);
     }

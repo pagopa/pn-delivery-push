@@ -1,10 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalCourtesyMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.DigitalLegalMessagesApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.api.PaperMessagesApi;
-import it.pagopa.pn.deliverypush.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -12,14 +8,19 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalCourtesyMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.DigitalLegalMessagesApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,6 +31,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ExternalChannelSendClientImplTest {
     
@@ -59,49 +61,30 @@ class ExternalChannelSendClientImplTest {
         this.cfg = mock(PnDeliveryPushConfigs.class);
         Mockito.when(cfg.getExternalChannelBaseUrl()).thenReturn("http://localhost:8080");
         Mockito.when(cfg.getExternalchannelCxId()).thenReturn("pn-delivery-002");
-
-        restTemplate = Mockito.mock(RestTemplate.class);
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(cfg.getExternalChannelBaseUrl());
-
-        digitalLegalMessagesApi = new DigitalLegalMessagesApi(apiClient);
-        digitalCourtesyMessagesApi = new DigitalCourtesyMessagesApi(apiClient);
-        paperMessagesApi = new PaperMessagesApi(apiClient);
-        legalFactGenerator = Mockito.mock(LegalFactGenerator.class);
-
-        client = new ExternalChannelSendClientImpl(restTemplate, cfg, legalFactGenerator);
-        client.init();
+        
+        client = new ExternalChannelSendClientImpl(cfg, digitalLegalMessagesApi, digitalCourtesyMessagesApi, legalFactGenerator);
     }
 
 
-    @Test
-    void sendAnalogNotification() {
-        NotificationInt notificationInt = buildNotification();
-        NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
-        PhysicalAddressInt physicalAddressInt = buildPhysicalAddressInt();
-        String timelineEventId = "001";
-        String aarKey = "001";
-
-        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn(ResponseEntity.ok(""));
-
-        assertDoesNotThrow(() -> client.sendAnalogNotification(notificationInt, notificationRecipientInt, physicalAddressInt, timelineEventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER, aarKey));
-    }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void sendLegalNotification() {
         NotificationInt notificationInt = buildNotification();
         NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
         LegalDigitalAddressInt legalDigitalAddressInt = buildLegalDigitalAddressInt();
         String timelineEventId = "001";
+        String aarKey = "testKey";
+        String quickAccessToken = "test";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId));
+        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId, aarKey, quickAccessToken));
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void sendCourtesyNotificationEmail() {
         NotificationInt notificationInt = buildNotification();
         NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
@@ -111,14 +94,16 @@ class ExternalChannelSendClientImplTest {
                 .build();
 
         String timelineEventId = "001";
+        String aarKey = "testKey";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId));
+        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId, aarKey, ""));
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void sendCourtesyNotificationSms() {
         NotificationInt notificationInt = buildNotification();
         NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
@@ -128,11 +113,35 @@ class ExternalChannelSendClientImplTest {
                 .build();
 
         String timelineEventId = "001";
+        String aarKey = "testKey";
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId));
+        assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId, aarKey, ""));
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void sendLegalNotificationPEC() {
+
+        //Given
+        NotificationInt notificationInt = mock(NotificationInt.class);
+        NotificationRecipientInt recipientInt = mock(NotificationRecipientInt.class);
+        LegalDigitalAddressInt addressInt = mock(LegalDigitalAddressInt.class);
+        String eventId = "rtyuiokjhgvcbnjmk4567890";
+        String aarKey = "testKey";
+        String quickAccessToken = "test";
+
+        Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(ResponseEntity.ok(""));
+        when(addressInt.getType()).thenReturn(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        when(addressInt.getAddress()).thenReturn("email@email.it");
+
+        //When
+
+        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, recipientInt, addressInt, eventId, aarKey, quickAccessToken));
+
     }
 
     private NotificationRecipientInt buildNotificationRecipientInt() {
@@ -144,6 +153,7 @@ class ExternalChannelSendClientImplTest {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build())
                 .physicalAddress(new PhysicalAddressInt(
+                        "Galileo Bruno",
                         "Palazzo dell'Inquisizione",
                         "corso Italia 666",
                         "Piano Terra (piatta)",
@@ -200,6 +210,7 @@ class ExternalChannelSendClientImplTest {
 
     private PhysicalAddressInt buildPhysicalAddressInt() {
         return new PhysicalAddressInt(
+                "Galileo Bruno",
                 "Palazzo dell'Inquisizione",
                 "corso Italia 666",
                 "Piano Terra (piatta)",

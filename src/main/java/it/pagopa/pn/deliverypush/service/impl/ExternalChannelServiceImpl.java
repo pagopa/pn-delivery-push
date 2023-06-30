@@ -1,22 +1,29 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
-import it.pagopa.pn.deliverypush.action.utils.AarUtils;
-import it.pagopa.pn.deliverypush.action.utils.*;
-import it.pagopa.pn.deliverypush.dto.address.*;
+import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -24,25 +31,21 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final ExternalChannelUtils externalChannelUtils;
     private final ExternalChannelSendClient externalChannel;
     private final NotificationUtils notificationUtils;
-    private final AarUtils aarUtils;
-    private final TimelineUtils timelineUtils;
-    private final MVPParameterConsumer mvpParameterConsumer;
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
-    
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
+
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
-                                      AarUtils aarUtils,
-                                      TimelineUtils timelineUtils,
-                                      MVPParameterConsumer mvpParameterConsumer,
-                                      DigitalWorkFlowUtils digitalWorkFlowUtils) {
+                                      DigitalWorkFlowUtils digitalWorkFlowUtils,
+                                      NotificationService notificationService, AuditLogService auditLogService) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
-        this.aarUtils = aarUtils;
-        this.timelineUtils = timelineUtils;
-        this.mvpParameterConsumer = mvpParameterConsumer;
         this.digitalWorkFlowUtils = digitalWorkFlowUtils;
+        this.notificationService = notificationService;
+        this.auditLogService = auditLogService;
     }
 
     /**
@@ -50,74 +53,96 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
      * Messaggio con valore legale (PEC)
      * Tramite il sendAlreadyInProgress indica se è il primo tentativo, o se invece è un ritentativo breve
      *  @param notification notitica
-     * @param digitalAddress indirizzo
-     * @param addressSource sorgente
      * @param recIndex indice destinatario
-     * @param sentAttemptMade tentativo
      * @param sendAlreadyInProgress indica se l'invio è già stato eseguito e si sta eseguendo un ritentativo
-     * @return
+     * @param sendInformation contiene le informazione relative alla send (indirizzo, sorgente, tentativo ...)
+     * @return eventId relativo al SEND_DIGITAL_DOMICILE
      */
     @Override
     public String sendDigitalNotification(NotificationInt notification,
-                                          LegalDigitalAddressInt digitalAddress,
-                                          DigitalAddressSourceInt addressSource,
                                           Integer recIndex,
-                                          int sentAttemptMade,
-                                          boolean sendAlreadyInProgress
+                                          boolean sendAlreadyInProgress,
+                                          SendInformation sendInformation
     ) {
-        String eventId;
-        if (!sendAlreadyInProgress)
-        {
-            log.debug("Start sendDigitalNotification - iun={} recipientIndex={} attempt={}", notification.getIun(), recIndex, sentAttemptMade);
+        PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), sendInformation.getDigitalAddress(), recIndex);
 
-            eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
-                    EventId.builder()
-                            .iun(notification.getIun())
-                            .recIndex(recIndex)
-                            .source(addressSource)
-                            .sentAttemptMade(sentAttemptMade)
-                            .build()
-            );
+        try {
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
 
-            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
-            externalChannelUtils.addSendDigitalNotificationToTimeline(notification, digitalAddress, addressSource, recIndex, sentAttemptMade, eventId);
+            String eventId;
+            if (!sendAlreadyInProgress)
+            {
+                log.info("Start sendDigitalNotification - iun={} recipientIndex={} attempt={} addressSource={}", notification.getIun(), recIndex, sendInformation.getRetryNumber(), sendInformation.getDigitalAddressSource());
+
+                eventId = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+                        EventId.builder()
+                                .iun(notification.getIun())
+                                .recIndex(recIndex)
+                                .source(sendInformation.getDigitalAddressSource())
+                                .sentAttemptMade(sendInformation.getRetryNumber())
+                                .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
+                                .build()
+                );
+                externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, sendInformation.getDigitalAddress(), eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
+                
+                externalChannelUtils.addSendDigitalNotificationToTimeline(
+                        notification,
+                        recIndex,
+                        sendInformation,
+                        eventId
+                );
+            }
+            else
+            {
+                int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sendInformation.getRetryNumber(), 
+                        sendInformation.getIsFirstSendRetry(), sendInformation.getDigitalAddressSource()).size() + 1;
+
+                log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} attempt={} progressIndex={}", notification.getIun(), recIndex, sendInformation.getRetryNumber(), progressIndex);
+
+                eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+                        EventId.builder()
+                                .iun(notification.getIun())
+                                .recIndex(recIndex)
+                                .source(sendInformation.getDigitalAddressSource())
+                                .sentAttemptMade(sendInformation.getRetryNumber())
+                                .progressIndex(progressIndex)
+                                .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
+                                .build()
+                );
+
+            externalChannel.sendLegalNotification(
+                    notification,
+                    digitalParameters.recipientFromIndex,
+                    sendInformation.getDigitalAddress(), 
+                    eventId, 
+                    digitalParameters.aarKey, 
+                    digitalParameters.quickAccessToken);
+
+                SendInformation digitalAddressFeedback = SendInformation.builder()
+                        .retryNumber(sendInformation.getRetryNumber())
+                        .eventTimestamp(Instant.now())
+                        .digitalAddressSource(sendInformation.getDigitalAddressSource())
+                        .digitalAddress(sendInformation.getDigitalAddress())
+                        .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
+                        .relatedFeedbackTimelineId(sendInformation.getRelatedFeedbackTimelineId())
+                        .build();
+
+                digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
+                        notification,
+                        EventCodeInt.DP00,
+                        recIndex,
+                        false,
+                        null,
+                        digitalAddressFeedback
+                );
+            }
+
+            logEvent.generateSuccess("successful sent eventId={}", eventId).log();
+            return eventId;
+        } catch (Exception e) {
+            logEvent.generateFailure("Error in sendDigitalNotification, iun={} id={}", notification.getIun(), recIndex, e).log();
+            throw e;
         }
-        else
-        {
-            int progressIndex = digitalWorkFlowUtils.getPreviousTimelineProgress(notification, recIndex, sentAttemptMade, addressSource).size() + 1;
-
-            log.debug("Start sendDigitalNotification for retry - iun={} recipientIndex={} attempt={} progressIndex={}", notification.getIun(), recIndex, sentAttemptMade, progressIndex);
-
-            eventId = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
-                    EventId.builder()
-                            .iun(notification.getIun())
-                            .recIndex(recIndex)
-                            .source(addressSource)
-                            .sentAttemptMade(sentAttemptMade)
-                            .progressIndex(progressIndex)
-                            .build()
-            );
-
-            externalChannel.sendLegalNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), digitalAddress, eventId);
-
-            DigitalAddressFeedback digitalAddressFeedback = DigitalAddressFeedback.builder()
-                    .retryNumber(sentAttemptMade)
-                    .eventTimestamp(Instant.now())
-                    .digitalAddressSource(addressSource)
-                    .digitalAddress(digitalAddress)
-                    .build();
-            
-            digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
-                    notification, 
-                    EventCodeInt.DP00,
-                    recIndex,
-                    false, 
-                    null,
-                    digitalAddressFeedback);
-
-        }
-
-        return eventId;
     }
 
     /**
@@ -128,103 +153,53 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
-        externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId);
-    }
 
-    /**
-     * Send registered letter to external channel
-     * to use when all pec send fails
-     * Invio di RACCOMANDATA SEMPLICE quando falliscono tutti i tentativi via PEC
-     */
-    @Override
-    public void sendNotificationForRegisteredLetter(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
-        log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
-                 
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
+        PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), courtesyAddress, recIndex, eventId);
 
-        if(! isNotificationAlreadyViewed){
-
-            sendRegisteredLetterToExternalChannel(notification, physicalAddress, recIndex);
-
-            log.info("Registered Letter sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
-        }else {
-            log.info("Notification is already viewed, registered Letter will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+        try {
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
+            externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId,
+                digitalParameters.aarKey,
+                digitalParameters.quickAccessToken);
+            logEvent.generateSuccess().log();
+        } catch (Exception e) {
+            logEvent.generateFailure("Error in sendCourtesyNotification, iun={} id={}", notification.getIun(), recIndex, e).log();
+            throw e;
         }
     }
 
-    private void sendRegisteredLetterToExternalChannel(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex) {
-        String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .build()
-        );
 
-        AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
-
-        // la tipologia qui è sempre raccomandata semplice SR
-        externalChannel.sendAnalogNotification(
-                notification,
-                notificationUtils.getRecipientFromIndex(notification, recIndex),
-                physicalAddress,
-                eventId,
-                PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER,
-                aarGenerationDetails.getGeneratedAarUrl()
-        );
-
-        externalChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, physicalAddress, recIndex, eventId, aarGenerationDetails.getNumberOfPages());
+    private DigitalParameters retrieveDigitalParameters(NotificationInt notification, Integer recIndex) {
+        NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
+        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
+        return new DigitalParameters(aarKey, recipientFromIndex, recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
     }
 
-    /**
-     * Send paper notification to external channel
-     * AR o 890
-     *
-     */
-    @Override
-    public void sendAnalogNotification(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
-        log.debug("Start sendAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
-        
-        boolean isNotificationAlreadyViewed = timelineUtils.checkNotificationIsAlreadyViewed(notification.getIun(), recIndex);
 
-        if( !isNotificationAlreadyViewed ){
-            String senderTaxId = notification.getSender().getPaTaxId();
-            
-            if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( senderTaxId ) ) ){
-                
-                sendAnalogToExternalChannel(notification, physicalAddress, recIndex, investigation, sentAttemptMade);
-                log.info("Paper notification sent to externalChannel - iun {} id {}", notification.getIun(), recIndex);
-                
-            }else {
-                log.info("Paper message is not handled, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
-                externalChannelUtils.addPaperNotificationNotHandledToTimeline(notification, recIndex);
-            }
-        } else {
-            log.info("Notification is already viewed, paper notification will not be sent to externalChannel - iun={} recipientIndex={}", notification.getIun(), recIndex);
+
+    private PnAuditLogEvent buildAuditLogEvent(String iun, LegalDigitalAddressInt legalDigitalAddressInt, int recIndex) {
+        if (legalDigitalAddressInt.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DD_SEND, "sendPECMessage");
+        }
+
+        throw new PnInternalException("Unsupported LEGAL_DIGITAL_ADDRESS_TYPE " + legalDigitalAddressInt.getType().getValue(), PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDRESSTYPENOTSUPPORTED);
+    }
+
+    private PnAuditLogEvent buildAuditLogEvent(String iun, CourtesyDigitalAddressInt courtesyAddress, int recIndex, String eventId) {
+        if (courtesyAddress.getType() == CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL) {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DA_SEND_EMAIL, "sendEmailMessage eventId={}", eventId);
+        }
+        else
+        {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DA_SEND_SMS, "sendSMSMessage eventId={}", eventId);
         }
     }
 
-    private void sendAnalogToExternalChannel(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex, boolean investigation, int sentAttemptMade) {
-        String eventId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .sentAttemptMade(sentAttemptMade)
-                        .build()
-        );
 
-        AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
+    private record DigitalParameters(String aarKey,
+                                     NotificationRecipientInt recipientFromIndex,
+                                     String quickAccessToken) {}
 
-        // c'è una discrepanza nella nomenclatura tra l'enum serviceleveltype.SIMPLE_REGISTERED_LETTER che si traduce in AR e non SR.
-        // Cmq se non è 890, si intende AR.
-        externalChannel.sendAnalogNotification(
-                notification,
-                notificationUtils.getRecipientFromIndex(notification, recIndex),
-                physicalAddress,
-                eventId,
-                notification.getPhysicalCommunicationType()== ServiceLevelTypeInt.REGISTERED_LETTER_890 ? PhysicalAddressInt.ANALOG_TYPE.REGISTERED_LETTER_890 : PhysicalAddressInt.ANALOG_TYPE.AR_REGISTERED_LETTER,
-                aarGenerationDetails.getGeneratedAarUrl()
-        );
 
-        externalChannelUtils.addSendAnalogNotificationToTimeline(notification, physicalAddress, recIndex, investigation, sentAttemptMade, eventId, aarGenerationDetails.getNumberOfPages());
-    }
 }

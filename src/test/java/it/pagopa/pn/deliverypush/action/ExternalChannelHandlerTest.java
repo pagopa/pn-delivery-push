@@ -1,10 +1,8 @@
 package it.pagopa.pn.deliverypush.action;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.externalchannel.model.*;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelAnalogSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import org.junit.jupiter.api.Assertions;
@@ -16,16 +14,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
 
 class ExternalChannelHandlerTest {
     @Mock
     private DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowHandler;
-    @Mock
-    private AnalogWorkflowHandler analogWorkflowHandler;
     @Mock
     private TimelineUtils timelineUtils;
 
@@ -33,7 +26,7 @@ class ExternalChannelHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, analogWorkflowHandler, timelineUtils);
+        handler = new ExternalChannelResponseHandler(digitalWorkFlowHandler, timelineUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -76,36 +69,4 @@ class ExternalChannelHandlerTest {
         Mockito.verify(digitalWorkFlowHandler).handleExternalChannelResponse(Mockito.any(ExtChannelDigitalSentResponseInt.class));
     }
 
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void extChannelResponseReceiverForAnalog() {
-        PaperProgressStatusEvent extChannelResponse = new PaperProgressStatusEvent();
-        extChannelResponse.setStatusCode("__004__");
-        extChannelResponse.setRequestId("iun_event_idx_0");
-        extChannelResponse.setIun("iun");
-        extChannelResponse.setStatusDateTime(OffsetDateTime.now());
-
-        DiscoveredAddress address = new DiscoveredAddress();
-        address.setAddress("test");
-        extChannelResponse.setDiscoveredAddress(
-                address
-        );
-
-        List<AttachmentDetails> attachments = new ArrayList<>();
-        AttachmentDetails details = new AttachmentDetails();
-        details.setId("xx");
-        details.setDate(OffsetDateTime.now());
-        attachments.add(details);
-        extChannelResponse.setAttachments(
-                attachments 
-        );
-        
-        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
-        singleStatusUpdate.setAnalogMail(extChannelResponse);
-
-
-        handler.extChannelResponseReceiver(singleStatusUpdate);
-
-        Mockito.verify(analogWorkflowHandler).extChannelResponseHandler(Mockito.any(ExtChannelAnalogSentResponseInt.class));
-    }
 }
