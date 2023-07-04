@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.service.ActionService;
 import lombok.CustomLog;
 import net.javacrumbs.shedlock.core.LockAssert;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,9 @@ public class ActionsPoolImpl implements ActionsPool {
     private final LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao;
     private final PnDeliveryPushConfigs configs;
 
+    @Value("${lockAtMostFor}")
+    private Duration lockAtMostFor;
+    
     public ActionsPoolImpl(MomProducer<ActionEvent> actionsQueue, ActionService actionService,
                            Clock clock, LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao, PnDeliveryPushConfigs configs) {
         this.actionsQueue = actionsQueue;
@@ -95,11 +99,12 @@ public class ActionsPoolImpl implements ActionsPool {
 //    is much longer than normal execution time  If the task takes longer than lockAtMostFor the resulting behavior may be unpredictable
 //    (more than one process will effectively hold the lock).
 //    lockAtLeastFor specifies minimum amount of time for which the lock should be kept. is to prevent execution from multiple nodes 
-//    in case of really short tasks and clock difference between the nodes. Setting lockAtLeastFor we make sure it's not executed more than once in 1 minute
-    @Scheduled( fixedDelay = 10 * 1000L )
-    @SchedulerLock(name = "actionPoll", lockAtMostFor = "1m", lockAtLeastFor = "30s")
+//    in case of really short tasks and clock difference between the nodes.
+    @Scheduled( fixedDelayString = "${fixedDelayPool}" )
+    @SchedulerLock(name = "actionPoll",  lockAtMostFor = "${lockAtMostFor}", lockAtLeastFor = "${lockAtLeastFor}")
     protected void pollForFutureActions() {
         try {
+            // To assert that the lock is held (prevents misconfiguration errors)
             LockAssert.assertLocked();
             handleActionPool();
         }catch (Exception ex){
@@ -108,23 +113,13 @@ public class ActionsPoolImpl implements ActionsPool {
     }
 
     private void handleActionPool() {
-        // To assert that the lock is held (prevents misconfiguration errors)
         Instant start = Instant.now();
         
         Optional<Instant> savedLastPollTime = lastFutureActionPoolExecutionTimeDao.getLastPollTime();
 
-        Instant lastPollExecuted;
-        if ( savedLastPollTime.isPresent() ) {
-            lastPollExecuted = savedLastPollTime.get();
-        } else {
-            lastPollExecuted = configs.getActionPoolEpoch();
-            if( lastPollExecuted == null ) {
-                lastPollExecuted = clock.instant().minus(2, ChronoUnit.HOURS);
-            }
-        }
+        Instant lastPollExecuted = getLastPollExecuted(savedLastPollTime);
         log.debug("Action pool start poll {}", lastPollExecuted);
-
-
+        
         Instant now = clock.instant();
         List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, now);
 
@@ -143,8 +138,25 @@ public class ActionsPoolImpl implements ActionsPool {
 
         Instant end = Instant.now();
         Duration timeSpent = Duration.between(start, end);
-
+        
         log.debug("Action pool end. Time spent is {} millis", timeSpent.toMillis());
+
+        if(timeSpent.compareTo(lockAtMostFor) > 0){
+            log.fatal("Time spent is greater then lockAtMostFor. Multiple nodes could schedule the same actions.");
+        }
+    }
+
+    private Instant getLastPollExecuted(Optional<Instant> savedLastPollTime) {
+        Instant lastPollExecuted;
+        if ( savedLastPollTime.isPresent() ) {
+            lastPollExecuted = savedLastPollTime.get();
+        } else {
+            lastPollExecuted = configs.getActionPoolEpoch();
+            if( lastPollExecuted == null ) {
+                lastPollExecuted = clock.instant().minus(2, ChronoUnit.HOURS);
+            }
+        }
+        return lastPollExecuted;
     }
 
     private void scheduleOne( Action action, String timeSlot) {
