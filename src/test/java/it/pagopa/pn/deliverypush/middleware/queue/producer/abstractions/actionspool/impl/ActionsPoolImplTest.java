@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl;
 
 import it.pagopa.pn.api.dto.events.MomProducer;
-import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
@@ -14,15 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionsPoolImpl.TIMESLOT_PATTERN;
 
 class ActionsPoolImplTest {
 
@@ -35,8 +30,9 @@ class ActionsPoolImplTest {
     private LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao;
 
     private PnDeliveryPushConfigs configs;
-
     private ActionsPoolImpl actionsPool;
+    private Duration lockAtMostFor;
+    private Duration timeToBreak;
 
     @BeforeEach
     void setup() {
@@ -45,11 +41,15 @@ class ActionsPoolImplTest {
         clock = Mockito.mock(Clock.class);
         lastFutureActionPoolExecutionTimeDao = Mockito.mock(LastPollForFutureActionsDao.class);
         configs = Mockito.mock(PnDeliveryPushConfigs.class);
-        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs);
+        lockAtMostFor = Duration.ofSeconds(600);
+        timeToBreak = Duration.ofSeconds(10);
+        actionsQueue = Mockito.mock(MomProducer.class);
     }
 
     @Test
     void loadActionById() {
+        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, lockAtMostFor, timeToBreak);
+
         String actionId = "001";
         Action action = Action.builder()
                 .iun("01")
@@ -68,37 +68,88 @@ class ActionsPoolImplTest {
 
     @Test
     void pollForFutureActions() {
-
-        String now = "2022-09-14T06:25";
-        Instant instantTimeSlot = DateFormatUtils.getInstantFromString(now, TIMESLOT_PATTERN);
+        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, lockAtMostFor, timeToBreak);
+        
+        //GIVEN
+        final Instant now = Instant.now();
+        Instant lastPool = now.minus(Duration.ofMinutes(10));
         Action action = Action.builder()
                 .iun("01")
                 .actionId("001")
                 .recipientIndex(0)
-                .notBefore(Instant.now())
+                .notBefore(now.minus(Duration.ofSeconds(10)))
                 .type(ActionType.ANALOG_WORKFLOW)
                 .build();
 
         List<Action> actions = new ArrayList<>();
         actions.add(action);
+
+        Mockito.when(lastFutureActionPoolExecutionTimeDao.getLastPollTime()).thenReturn(Optional.of(lastPool));
+        Mockito.when(clock.instant()).thenReturn(now);
         
-        Mockito.when(lastFutureActionPoolExecutionTimeDao.getLastPollTime()).thenReturn(Optional.of(instantTimeSlot));
-        Mockito.when(clock.instant()).thenReturn(instantTimeSlot);
-        Mockito.when(actionService.findActionsByTimeSlot("001")).thenReturn(actions);
+        List<String> timeSlots = actionsPool.computeTimeSlots(lastPool, now);
+        final String timeSlot = timeSlots.get(0);
+        Mockito.when(actionService.findActionsByTimeSlot(timeSlot)).thenReturn(actions);
         
+        //WHEN
         actionsPool.pollForFutureActions();
-
-        Assertions.assertSame(action, actionService.findActionsByTimeSlot("001").get(0));
+        //THEN
+        Mockito.verify(actionsQueue).push(Mockito.any(ActionEvent.class));
+        Mockito.verify(actionService).unSchedule(action, timeSlot);
     }
 
-    private String computeTimeSlot(Instant instant) {
-        OffsetDateTime nowUtc = instant.atOffset(ZoneOffset.UTC);
-        int year = nowUtc.get(ChronoField.YEAR_OF_ERA);
-        int month = nowUtc.get(ChronoField.MONTH_OF_YEAR);
-        int day = nowUtc.get(ChronoField.DAY_OF_MONTH);
-        int hour = nowUtc.get(ChronoField.HOUR_OF_DAY);
-        int minute = nowUtc.get(ChronoField.MINUTE_OF_HOUR);
-        return String.format("%04d-%02d-%02dT%02d:%02d", year, month, day, hour, minute);
+    @Test
+    void pollForFutureActionsNoAction() {
+        //GIVEN
+        final Instant now = Instant.now();
+        Instant lastPool = now.minus(Duration.ofMinutes(10));
+
+        Mockito.when(lastFutureActionPoolExecutionTimeDao.getLastPollTime()).thenReturn(Optional.of(lastPool));
+        Mockito.when(clock.instant()).thenReturn(now);
+
+        List<String> timeSlots = actionsPool.computeTimeSlots(lastPool, now);
+        final String timeSlot = timeSlots.get(0);
+        Mockito.when(actionService.findActionsByTimeSlot(timeSlot)).thenReturn(new ArrayList<>());
+
+        //WHEN
+        actionsPool.pollForFutureActions();
+        //THEN
+        Mockito.verify(actionsQueue, Mockito.never()).push(Mockito.any(ActionEvent.class));
+        Mockito.verify(actionService, Mockito.never()).unSchedule(Mockito.any(), Mockito.anyString());
     }
 
+    @Test
+    void pollForFutureActionsCloseToLookAtMostFor() {
+        lockAtMostFor = Duration.ofMillis(10);
+        timeToBreak = Duration.ofMillis(1);
+        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, lockAtMostFor, timeToBreak);
+
+        //GIVEN
+        final Instant now = Instant.now();
+        Instant lastPool = now.minus(Duration.ofMinutes(10));
+        Action action = Action.builder()
+                .iun("01")
+                .actionId("001")
+                .recipientIndex(0)
+                .notBefore(now.minus(Duration.ofSeconds(10)))
+                .type(ActionType.ANALOG_WORKFLOW)
+                .build();
+
+        List<Action> actions = new ArrayList<>();
+        actions.add(action);
+
+        Mockito.when(lastFutureActionPoolExecutionTimeDao.getLastPollTime()).thenReturn(Optional.of(lastPool));
+        Mockito.when(clock.instant()).thenReturn(Instant.now().minus(Duration.ofSeconds(10)));
+
+        List<String> timeSlots = actionsPool.computeTimeSlots(lastPool, now);
+        final String timeSlot = timeSlots.get(0);
+        Mockito.when(actionService.findActionsByTimeSlot(timeSlot)).thenReturn(actions);
+
+        //WHEN
+        actionsPool.pollForFutureActions();
+        //THEN
+        Mockito.verify(actionsQueue, Mockito.never()).push(Mockito.any(ActionEvent.class));
+        Mockito.verify(actionService, Mockito.never()).unSchedule(action, timeSlot);
+    }
+    
 }
