@@ -44,12 +44,12 @@ class ActionsPoolImplTest {
         lockAtMostFor = Duration.ofSeconds(600);
         timeToBreak = Duration.ofSeconds(10);
         actionsQueue = Mockito.mock(MomProducer.class);
+        
+        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, lockAtMostFor, timeToBreak);
     }
 
     @Test
     void loadActionById() {
-        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, lockAtMostFor, timeToBreak);
-
         String actionId = "001";
         Action action = Action.builder()
                 .iun("01")
@@ -68,8 +68,6 @@ class ActionsPoolImplTest {
 
     @Test
     void pollForFutureActions() {
-        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, lockAtMostFor, timeToBreak);
-        
         //GIVEN
         final Instant now = Instant.now();
         Instant lastPool = now.minus(Duration.ofMinutes(10));
