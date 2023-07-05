@@ -35,7 +35,7 @@ class ActionsPoolImplTest {
     private Duration timeToBreak;
 
     @BeforeEach
-    void setup() {
+    void setup() { 
         LockAssert.TestHelper.makeAllAssertsPass(true);
         actionService = Mockito.mock(ActionService.class);
         clock = Mockito.mock(Clock.class);
