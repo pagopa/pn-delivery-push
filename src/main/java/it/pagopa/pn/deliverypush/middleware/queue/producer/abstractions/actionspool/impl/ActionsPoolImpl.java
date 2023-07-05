@@ -187,6 +187,8 @@ public class ActionsPoolImpl implements ActionsPool {
         
         addToActionsQueue( action );
         actionService.unSchedule( action, timeSlot );
+
+        log.debug("Action with actionId={} added to queue and unscheduled", action.getActionId() );
     }
 
     private void addToActionsQueue( Action action ) {
