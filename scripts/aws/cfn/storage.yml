@@ -308,6 +308,8 @@ Resources:
         - AttributeName: "timelineElementId"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true      
 
 
   PnDeliveryPushLogGroup:

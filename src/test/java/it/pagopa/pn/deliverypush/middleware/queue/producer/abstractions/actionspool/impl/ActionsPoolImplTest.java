@@ -100,8 +100,6 @@ class ActionsPoolImplTest {
 
     @Test
     void pollForFutureActionsNoAction() {
-        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, lockAtMostFor, timeToBreak);
-
         //GIVEN
         final Instant now = Instant.now();
         Instant lastPool = now.minus(Duration.ofMinutes(10));
