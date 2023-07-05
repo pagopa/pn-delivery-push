@@ -34,16 +34,19 @@ public class ActionsPoolImpl implements ActionsPool {
     private final LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao;
     private final PnDeliveryPushConfigs configs;
 
-    @Value("${lockAtMostFor}")
     private Duration lockAtMostFor;
+    private Duration timeToBreak;
     
     public ActionsPoolImpl(MomProducer<ActionEvent> actionsQueue, ActionService actionService,
-                           Clock clock, LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao, PnDeliveryPushConfigs configs) {
+                           Clock clock, LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao, PnDeliveryPushConfigs configs,
+                           @Value("${lockAtMostFor}") Duration lockAtMostFor, @Value("${timeToBreak}") Duration timeToBreak) {
         this.actionsQueue = actionsQueue;
         this.actionService = actionService;
         this.clock = clock;
         this.lastFutureActionPoolExecutionTimeDao = lastFutureActionPoolExecutionTimeDao;
         this.configs = configs;
+        this.lockAtMostFor = lockAtMostFor;
+        this.timeToBreak = timeToBreak;
     }
 
     @Override
@@ -73,9 +76,10 @@ public class ActionsPoolImpl implements ActionsPool {
         return actionService.getActionById( actionId );
     }
 
-    private List<String> computeTimeSlots(Instant from, Instant to) {
+    protected List<String> computeTimeSlots(Instant from, Instant to) {
         List<String> timeSlots = new ArrayList<>();
         Instant timeSlotStart = from.truncatedTo( ChronoUnit.MINUTES );
+        //I timeslot restituiti arrivano al minuto appena prima a now
         while( timeSlotStart.isBefore( to )) {
             String timeSlot = computeTimeSlot( timeSlotStart );
             timeSlots.add( timeSlot );
@@ -113,37 +117,56 @@ public class ActionsPoolImpl implements ActionsPool {
     }
 
     private void handleActionPool() {
-        Instant start = Instant.now();
+        //Viene presa la data di quando è avvenuto l'ultimo pool
+        Instant lastPollExecuted = getLastPollExecuted();
+        Instant start = clock.instant();
+        log.debug("Action pool now={} lastPollExecuted={}", start,  lastPollExecuted);
         
-        Optional<Instant> savedLastPollTime = lastFutureActionPoolExecutionTimeDao.getLastPollTime();
-
-        Instant lastPollExecuted = getLastPollExecuted(savedLastPollTime);
-        log.debug("Action pool start poll {}", lastPollExecuted);
+        //Vengono calcolati i timeslot da parsare (a partire da lastPollExecuted fino a now)
+        List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, start);
         
-        Instant now = clock.instant();
-        List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, now);
-
         for ( String timeSlot: uncheckedTimeSlots) {
             List<Action> actionList = actionService.findActionsByTimeSlot(timeSlot);
-            
             log.debug("timeSlot size is {}", actionList.size());
-
-            actionList.stream()
-                    .filter(action -> now.isAfter(action.getNotBefore()))
-                    .forEach(action -> this.scheduleOne(action, timeSlot));
-
+            
+            for(Action action: actionList){
+                /*Viene verificato se si sta andando oltre il lockAtMostFor, in quel caso per evitare che il lock si sblocchi quando un nodo sta ancora lavorando,
+                si esce semplicemente dal for */
+                Duration timeSpent = getTimeSpent(start);
+                Duration closeToLookAtMostFor = lockAtMostFor.minus(timeToBreak);
+                
+                if(timeSpent.compareTo(closeToLookAtMostFor) < 0){
+                    if(start.isAfter(action.getNotBefore())){
+                        this.scheduleOne(action, timeSlot);
+                    }
+                } else {
+                    log.warn("Polling is interrupted because it is very close to lockAtMostFor");
+                    break;
+                }
+            }
+            
+            /*Viene effettuato l'update lastPoolTime con l'ultimo timeslot ottenuto (NOTA, potrebbe anche essere un timeslot parsato in parte, dunque il prossimo nodo
+            prenderà lo stesso timeslot con eventuali ulteriori action ancora non lavarate)*/
             Instant instantTimeSlot = DateFormatUtils.getInstantFromString( timeSlot, TIMESLOT_PATTERN);
             lastFutureActionPoolExecutionTimeDao.updateLastPollTime( instantTimeSlot );
         }
 
-        Instant end = Instant.now();
-        Duration timeSpent = Duration.between(start, end);
-        
+        Duration timeSpent = getTimeSpent(start);
         log.debug("Action pool end. Time spent is {} millis", timeSpent.toMillis());
 
         if(timeSpent.compareTo(lockAtMostFor) > 0){
             log.fatal("Time spent is greater then lockAtMostFor. Multiple nodes could schedule the same actions.");
         }
+    }
+
+    private Instant getLastPollExecuted() {
+        Optional<Instant> savedLastPollTime = lastFutureActionPoolExecutionTimeDao.getLastPollTime();
+        return getLastPollExecuted(savedLastPollTime);
+    }
+
+    private static Duration getTimeSpent(Instant start) {
+        Instant end = Instant.now();
+        return Duration.between(start, end);
     }
 
     private Instant getLastPollExecuted(Optional<Instant> savedLastPollTime) {
@@ -160,14 +183,10 @@ public class ActionsPoolImpl implements ActionsPool {
     }
 
     private void scheduleOne( Action action, String timeSlot) {
-        try {
-            log.debug("Scheduling action {}", action );
-            addToActionsQueue( action );
-            actionService.unSchedule( action, timeSlot );
-        }
-        catch ( RuntimeException exc ) {
-            log.error( "Scheduling action " + action, exc);
-        }
+        log.debug("Scheduling action {}", action );
+        
+        addToActionsQueue( action );
+        actionService.unSchedule( action, timeSlot );
     }
 
     private void addToActionsQueue( Action action ) {
