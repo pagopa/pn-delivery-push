@@ -124,7 +124,8 @@ public class ActionsPoolImpl implements ActionsPool {
         
         //Vengono calcolati i timeslot da parsare (a partire da lastPollExecuted fino a now)
         List<String> uncheckedTimeSlots = computeTimeSlots(lastPollExecuted, start);
-        
+
+        boolean toBreak = false;
         for ( String timeSlot: uncheckedTimeSlots) {
             List<Action> actionList = actionService.findActionsByTimeSlot(timeSlot);
             log.debug("timeSlot size is {}", actionList.size());
@@ -141,6 +142,7 @@ public class ActionsPoolImpl implements ActionsPool {
                     }
                 } else {
                     log.warn("Polling is interrupted because it is very close to lockAtMostFor");
+                    toBreak = true;
                     break;
                 }
             }
@@ -149,6 +151,13 @@ public class ActionsPoolImpl implements ActionsPool {
             prenderà lo stesso timeslot con eventuali ulteriori action ancora non lavarate)*/
             Instant instantTimeSlot = DateFormatUtils.getInstantFromString( timeSlot, TIMESLOT_PATTERN);
             lastFutureActionPoolExecutionTimeDao.updateLastPollTime( instantTimeSlot );
+
+            if (toBreak)
+            {
+                // nel caso non sia riuscito a completare tutti gli timeslot, esco in modo che la prossima iterazione parta da qui.
+                log.warn("skipping remaing timeslots, last timeslotexecuted={}", timeSlot);
+                break;
+            }
         }
 
         Duration timeSpent = getTimeSpent(start);
