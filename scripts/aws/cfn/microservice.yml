@@ -496,6 +496,10 @@ Parameters:
     Default: ''
     Description: Application load balancer dimension name
     
+  IOBackendCidrs:
+    Type: CommaDelimitedList
+    Default: ''
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -782,6 +786,7 @@ Resources:
         IntendedUsage: IO 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
         Limit: 0 # disabled IP based rate limit rule
+        AllowedCidrs: !Ref IOBackendCidrs
   
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
