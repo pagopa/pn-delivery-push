@@ -497,7 +497,7 @@ Parameters:
     Description: Application load balancer dimension name
     
   IOBackendCidrs:
-    Type: CommaDelimitedList
+    Type: String
     Default: ''
 
 Conditions:
