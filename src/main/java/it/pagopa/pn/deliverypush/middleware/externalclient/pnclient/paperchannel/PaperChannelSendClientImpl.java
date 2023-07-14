@@ -8,6 +8,7 @@ import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 
 @Component
@@ -57,7 +58,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         sendRequest.setArAddress(mapInternalToExternal(paperChannelSendRequest.getArAddress()));
         sendRequest.setSenderAddress(mapInternalToExternal(paperChannelSendRequest.getSenderAddress()));
         sendRequest.setRequestPaId(paperChannelSendRequest.getNotificationInt().getSender().getPaTaxId());
-        sendRequest.setClientRequestTimeStamp(OffsetDateTime.now());
+        sendRequest.setClientRequestTimeStamp(Instant.now().now());
         
         SendResponse response = paperMessagesApi.sendPaperSendRequest(paperChannelSendRequest.getRequestId(), sendRequest);
         log.debug("[exit] send iun={} address={} recipient={} requestId={} attachments={} amount={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments(), response.getAmount());
