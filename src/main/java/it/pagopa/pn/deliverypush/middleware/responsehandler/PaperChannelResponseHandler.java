@@ -120,7 +120,7 @@ public class PaperChannelResponseHandler {
                 .deliveryFailureCause(event.getDeliveryFailureCause())
                 .requestId(event.getRequestId())
                 .registeredLetterCode(event.getRegisteredLetterCode())
-                .statusDateTime(event.getStatusDateTime().toInstant())
+                .statusDateTime(event.getStatusDateTime())
                 .statusDescription(event.getStatusDescription());
 
         if (event.getDiscoveredAddress() != null) {
@@ -145,7 +145,7 @@ public class PaperChannelResponseHandler {
             builder.attachments(
                     event.getAttachments().stream().map(
                             att -> AttachmentDetailsInt.builder()
-                                    .date(att.getDate().toInstant())
+                                    .date(att.getDate())
                                     .id(att.getId())
                                     .documentType(att.getDocumentType())
                                     .url(att.getUrl())
@@ -163,7 +163,7 @@ public class PaperChannelResponseHandler {
                 .statusCode(event.getStatusCode()==null?null:event.getStatusCode().getValue())
                 .statusDetail(event.getStatusDetail())
                 .requestId(event.getRequestId())
-                .statusDateTime(event.getStatusDateTime().toInstant())
+                .statusDateTime(event.getStatusDateTime())
                 .productType(event.getProductType());
 
         if (event.getReceiverAddress() != null) {

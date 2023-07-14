@@ -93,7 +93,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
     private void simulatePrepareResponse(String timelineEventId,  String address) {
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusDateTime(Instant.now().atOffset(ZoneOffset.UTC));
+        prepareEvent.setStatusDateTime(Instant.now());
         prepareEvent.setRequestId(timelineEventId);
 
         String status = "PROGRESS";
@@ -138,7 +138,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
     private void simulateSendResponse(String timelineEventId, String address) {
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
         SendEvent sendEvent = new SendEvent();
-        sendEvent.setStatusDateTime(Instant.now().atOffset(ZoneOffset.UTC));
+        sendEvent.setStatusDateTime(Instant.now());
         sendEvent.setRequestId(timelineEventId);
 
         String newAddress;
