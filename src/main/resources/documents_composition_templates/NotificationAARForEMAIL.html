@@ -43,6 +43,21 @@
         margin: 13px 0;
       }
 
+       .linkAsButton {
+          border-radius: 4px;
+          color: white;
+          background-color: #0073e6;
+          padding: 11px 20px;
+          display: inline-block;
+          text-decoration: none;
+          font-family: Titillium Web,Arial;
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 24px;
+          text-align: justify;
+              margin-bottom: 32px;
+         }
+
       button {
         background: #0073E6;
         border-radius: 4px;
@@ -149,6 +164,21 @@
                 width: 116px;
             }
 
+      .linkAsButton {
+          border-radius: 4px;
+          color: white;
+          background-color: #0073e6;
+          padding: 11px 20px;
+          display: inline-block;
+          text-decoration: none;
+          font-family: Titillium Web,Arial;
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 24px;
+          text-align: justify;
+              margin-bottom: 32px;
+         }
+
       @media (prefers-color-scheme: dark) {
         body {
           background-color: #212327;
@@ -233,7 +263,7 @@
                                                         <p>Hai ricevuto su SEND - Servizio Notifiche Digitali una notifica da parte di <strong>${notification.sender.paDenomination}</strong> con Codice IUN <strong>${notification.iun}</strong>. Una notifica è una <strong>comunicazione a valore legale</strong> composta da un avviso di avvenuta ricezione e da uno o più documenti.</p>
                                                         <!-- Perfezionamento Notifica -->
                                                         <p>Hai fino a 120 giorni dalla <a href="${perfezionamentoURL}" class="link" style="color: #0073E6">data di perfezionamento</a> della notifica per <strong>visualizzare i documenti</strong>.</p>
-                                                        <a title="Visualizza i documenti" href="${quickAccessLink}" class="button" style="color: #FFFFFF;">Visualizza i documenti</a>
+                                                        <a title="Visualizza i documenti" href="${quickAccessLink}" class="linkAsButton" style="color: #FFFFFF;">Visualizza i documenti</a>
                                                         <!--  Avviso su PEC -->
                                                         <p>Se non hai una PEC e visualizzi i documenti entro 5 giorni (120 ore) dall’invio del messaggio, non riceverai la notifica tramite raccomandata.</p>
                                                         <p style="font-size: 14px"><a href="https://notifichedigitali.pagopa.it/" class="link" style="color: #0073E6">SEND</a> è uno strumento che rende l'invio di notifiche da parte della Pubblica Amministrazione più sicuro, efficiente ed economico. <a title="Servizio Notifiche Digitali" class="link" href="${PNFaqSendURL}" style="color: #0073E6">Scopri di più</a></p>
