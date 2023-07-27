@@ -46,6 +46,10 @@ components:
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+          * `GENERATE_F24_CREATION_REQUEST` - Invio richiesta di generazione dei documenti F24 a pn-f24
+          * `GENERATE_F24` - Evento con i documenti F24 generati da F24.
+          * `RETRIEVE_SIMPLE_REGISTERED_LETTER_AMOUNT` - Invio richiesta di prepare (preparazione ad invio)  cartaceo a paperChannel in modalità dry-run
+          * `RETRIEVE_ANALOG_AMOUNT` - Invio richiesta di prepare (preparazione ad invio)  cartaceo a paperChannel in modalità dry-run
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -85,6 +89,10 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+        - GENERATE_F24_CREATION_REQUEST
+        - GENERATE_F24
+        - RETRIEVE_ANALOG_AMOUNT
+        - RETRIEVE_SIMPLE_REGISTERED_LETTER_AMOUNT
 
     TimelineElement:
       type: object
@@ -152,6 +160,7 @@ components:
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
+        - "$ref": "#/components/schemas/GenerateF24Details"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -986,6 +995,33 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         normalizedAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+
+    GenerateF24Details:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        notificationCost:
+          type: integer
+          description: costo in eurocent comprensivo dei costi di invio analogico, usato nella creation_request
+          format: int32
+        safestorageAttachedStatus:
+          type: boolean
+          description: se true, indica che i documenti generati devono essere salvati su safestorage con retention di legge nello stato ATTACHED. >-
+            se false, invece, la retention dipende dai documenti e sarà calcolata dal microservizio. Popolato sia nella creation_request che nella response
+        attachments:
+          description: array di url relativi agli F24. Sarà popolato solo nella response.
+          type: array
+          items:
+            type: string
+            description: url del documento F24
 
     DigitalAddressSource:
       type: string
