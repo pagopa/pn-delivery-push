@@ -995,8 +995,7 @@ components:
     NotificationCancelledDetails:
       type: object
       required:
-        - oldAddress
-        - normalizedAddress
+        - notificationCost
       properties:
         notificationCost:
           description: costo notifica in euro cents

@@ -61,9 +61,9 @@ paths:
         - $ref: '#/components/parameters/pathIun'
       responses:
         '204':
-          description: OK
+          description: Accepted - Richiesta annullamento presa in carico
         '400':
-          description: Invalid input
+          description: Bad request
           content:
             application/problem+json:
               schema:
@@ -74,43 +74,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-                
-  '/delivery-push/notifications/cancel':
-    put:
-      summary: Annullamento notifica in fase di validazione
-      description: >-
-        Permette l'annullamento di una notifica in fase di validazione. Il processo di annullamento si completa in asincrono
-      tags:
-        - notificationCancellationNotValidated
-      operationId: notificationCancellationNotValidated
-      parameters:
-        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PaNotificationId'
-      responses:
-        '204':
-          description: OK
-        '400':
-          description: Invalid input
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-        '404':
-          description: Not found
+        '409':
+          description: Conflict - La notifica risulta essere già annullata
           content:
             application/problem+json:
               schema:
@@ -121,7 +86,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-                
+                                
   '/delivery-push/{iun}/legal-facts':
     get:
       summary: Elenco atti opponibili a terzi
@@ -407,25 +372,3 @@ components:
         # ASCII printable characters
         pattern: ^[ -~]*$
         maxLength: 1024
-        
-  schemas:
-    ############################################################################################
-    ###                      PARAMETRI ANNULLAMENTO NOTIFICA                                 ###
-    ############################################################################################
-  
-    PaNotificationId:
-      title: identificativo notifica pa
-      type: object
-      required:
-        - paProtocolNumber
-      properties:
-        paProtocolNumber:
-          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
-          type: string
-        idempotenceToken:
-          description: Identificativo utilizzabile dal chiamante per disambiguare differenti
-            "richieste di notificazione" effettuate con lo stesso numero di protocollo
-            (campo _paProtocolNumber_). Questo può essere necessario in caso di
-            "richiesta di notifica" rifiutata per errori nei codici di verifica degli
-            allegati.
-          type: string
