@@ -47,12 +47,12 @@ paths:
           
   '/delivery-push/notifications/cancel/{iun}':
     put:
-      summary: Annullamento notifica già validata
+      summary: Annullamento notifica
       description: >-
-        Permette l'annullamento di una notifica già validata. Il processo di annullamento si completa in asincrono
+        Permette l'annullamento di una notifica restituendo una presa in carico, il processo di annullamento si completa poi in maniera asincrona
       tags:
-        - notificationCancellationValidated
-      operationId: notificationCancellationValidated
+        - notificationCancellation
+      operationId: notificationCancellation
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
