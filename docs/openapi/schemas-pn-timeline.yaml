@@ -49,7 +49,7 @@ components:
           * `GENERATE_F24_CREATION_REQUEST` - Invio richiesta di generazione dei documenti F24 a pn-f24
           * `GENERATE_F24` - Evento con i documenti F24 generati da F24.
           * `RETRIEVE_AMOUNT_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio)  cartaceo a paperChannel in modalità dry-run
-          * `RETRIEVE_AMOUNT_ANALOG` - Invio richiesta di prepare (preparazione ad invio)  cartaceo a paperChannel in modalità dry-run
+          * `RETRIEVE_AMOUNT_ANALOG_DOMICILE` - Invio richiesta di prepare (preparazione ad invio)  cartaceo a paperChannel in modalità dry-run
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -91,7 +91,7 @@ components:
         - PROBABLE_SCHEDULING_ANALOG_DATE
         - GENERATE_F24_CREATION_REQUEST
         - GENERATE_F24
-        - RETRIEVE_AMOUNT_ANALOG
+        - RETRIEVE_AMOUNT_ANALOG_DOMICILE
         - RETRIEVE_AMOUNT_SIMPLE_REGISTERED_LETTER
 
     TimelineElement:
