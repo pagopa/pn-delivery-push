@@ -64,6 +64,7 @@ public class LegalFactGenerator {
     public static final String FIELD_RECIPIENT_TYPE = "recipientType";
     public static final String FIELD_DELEGATE = "delegate";
     public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
+    public static final String FIELD_PERFEZIONAMENTO_LABEL = "perfezionamentoURLLabel";
 
     public static final String FIELD_SENDURL = "sendURL";
     public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
@@ -362,6 +363,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_SENDURL, this.getAccessLink());
         templateModel.put(FIELD_SENDURL_LABEL, this.getAccessLinkLabel());
         templateModel.put(FIELD_PERFEZIONAMENTO, this.getPerfezionamentoLink());
+        templateModel.put(FIELD_PERFEZIONAMENTO_LABEL, this.getPerfezionamentoLinkLabel());
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
         log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
@@ -372,7 +374,8 @@ public class LegalFactGenerator {
 
     private String getAccessUrlLabel(NotificationRecipientInt recipient) {
         try {
-            return new URL(getAccessUrl(recipient)).getHost();
+            String host = new URL(getAccessUrl(recipient)).getHost();
+            return host.startsWith("www.") ? host.substring(4) : host;
         } catch (MalformedURLException e) {
             log.warn("cannot get host", e);
             return getAccessUrl(recipient);
@@ -396,13 +399,18 @@ public class LegalFactGenerator {
         return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + "perfezionamento";
     }
 
+    private String getPerfezionamentoLinkLabel() {
+        return this.getAccessLinkLabel() + "/perfezionamento";
+    }
+
     private String getAccessLink() {
         return pnDeliveryPushConfigs.getWebapp().getLandingUrl();
     }
 
     private String getAccessLinkLabel() {
         try {
-            return new URL(pnDeliveryPushConfigs.getWebapp().getLandingUrl()).getHost();
+            String host = new URL(pnDeliveryPushConfigs.getWebapp().getLandingUrl()).getHost();
+            return host.startsWith("www.") ? host.substring(4) : host;
         } catch (MalformedURLException e) {
             log.warn("cannot get host", e);
             return pnDeliveryPushConfigs.getWebapp().getLandingUrl();
