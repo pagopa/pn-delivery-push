@@ -2,11 +2,10 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.LogUtils;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -97,7 +96,6 @@ public class DigitalWorkFlowHandler {
      */
     private void scheduleNextWorkFlowExecuteAction(String iun, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, String sourceTimelineId) {
         log.info("Schedule Next Digital workflow action - iun={} id={} sourceTimelineId={}", iun, recIndex, sourceTimelineId);
-
         
         //Viene ottenuta la source del prossimo indirizzo da testare, con il numero di tentativi già effettuati per tale sorgente e la data dell'ultimo tentativo
         DigitalAddressInfoSentAttempt nextAddressInfo = digitalWorkFlowUtils.getNextAddressInfo(iun, recIndex, lastAttemptMade);
@@ -144,7 +142,7 @@ public class DigitalWorkFlowHandler {
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
             log.info("All attempts were unsuccessful. Digital workflow is failed, lastAttemptDate={} - iun={} id={}", lastAttemptMade.getLastAttemptDate(), iun, recIndex);
-            completionWorkflow.completionDigitalWorkflow(notification, recIndex, lastAttemptMade.getLastAttemptDate(), null, EndWorkflowStatus.FAILURE);
+            completionWorkflow.completionFailureDigitalWorkflow(notification, recIndex, null);
         }
     }
 
@@ -328,12 +326,11 @@ public class DigitalWorkFlowHandler {
                 log.info("First attempt was sent successfully. Complete workflow with success - iun={} id={}",
                         iun, recIndex);
 
-                completionWorkflow.completionDigitalWorkflow(
+                completionWorkflow.completionSuccessDigitalWorkflow(
                         notification,
                         recIndex,
                         timelineElement.getTimestamp(),
-                        sendDigitalDetailsInt.getDigitalAddress(),
-                        EndWorkflowStatus.SUCCESS
+                        sendDigitalDetailsInt.getDigitalAddress()
                 );
             }else {
                 log.info("First attempt was not sent successfully. Go to next step - iun={} id={}",
@@ -371,12 +368,11 @@ public class DigitalWorkFlowHandler {
             log.info("Workflow can be completed with status success - iun={} id={}", iun, recIndex );
             //Se il primo tentativo è andato a buon fine il workflow può concludersi con successo
 
-            completionWorkflow.completionDigitalWorkflow(
+            completionWorkflow.completionSuccessDigitalWorkflow(
                     notification,
                     recIndex,
                     timelineElement.getTimestamp(),
-                    sendDigitalDetailsInt.getDigitalAddress(),
-                    EndWorkflowStatus.SUCCESS
+                    sendDigitalDetailsInt.getDigitalAddress()
             );
         }else {
             return false;

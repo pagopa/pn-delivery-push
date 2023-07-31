@@ -43,13 +43,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class TestUtils {
-
-    public static final String EXTERNAL_CHANNEL_ANALOG_FAILURE_ATTEMPT = "EXTERNAL_CHANNEL_ANALOG_FAILURE_ATTEMPT";
-    public static final String INVESTIGATION_ADDRESS_PRESENT_FAILURE = "INVESTIGATION_ADDRESS_PRESENT_FAILURE";
-    public static final String INVESTIGATION_ADDRESS_PRESENT_POSITIVE = "INVESTIGATION_ADDRESS_PRESENT_POSITIVE";
-
-    public static final String PUBLIC_REGISTRY_FAIL_GET_DIGITAL_ADDRESS = "PUBLIC_REGISTRY_FAIL_GET_DIGITAL_ADDRESS";
-    public static final String PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS = "PUBLIC_REGISTRY_FAIL_GET_ANALOG_ADDRESS";
     public static final String PN_NOTIFICATION_ATTACHMENT = "PN_NOTIFICATION_ATTACHMENT";
     public static final String TOO_BIG = "TOO_BIG";
     public static final String NOT_A_PDF = "NOT_A_PDF";
@@ -57,7 +50,7 @@ public class TestUtils {
 
     public static void checkSendCourtesyAddresses(String iun, Integer recIndex, List<CourtesyDigitalAddressInt> courtesyAddresses, TimelineService timelineService, ExternalChannelMock externalChannelMock) {
 
-        checkSendCourtesyAddressFromTimeline(iun, recIndex, courtesyAddresses, timelineService, externalChannelMock);
+        checkSendCourtesyAddressFromTimeline(iun, recIndex, courtesyAddresses, timelineService);
         //Viene verificato l'effettivo invio del messaggio di cortesia verso external channel
         Mockito.verify(externalChannelMock, Mockito.times(courtesyAddresses.size())).sendCourtesyNotification(
                     Mockito.any(NotificationInt.class),
@@ -69,7 +62,7 @@ public class TestUtils {
                 );
     }
 
-    public static void checkSendCourtesyAddressFromTimeline(String iun, Integer recIndex, List<CourtesyDigitalAddressInt> courtesyAddresses, TimelineService timelineService, ExternalChannelMock externalChannelMock) {
+    public static void checkSendCourtesyAddressFromTimeline(String iun, Integer recIndex, List<CourtesyDigitalAddressInt> courtesyAddresses, TimelineService timelineService) {
         int index = 0;
         for (CourtesyDigitalAddressInt digitalAddress : courtesyAddresses) {
             String eventId = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(
@@ -160,23 +153,19 @@ public class TestUtils {
         //Viene verificato che il workflow abbia avuto successo
         checkSuccessDigitalWorkflowFromTimeline(iun, recIndex, address, timelineService);
         
-        ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> addressCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
 
-        Mockito.verify(completionWorkflow, Mockito.times(invocationsNumber)).completionDigitalWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), addressCaptor.capture(),
-                endWorkflowStatusArgumentCaptor.capture());
+        Mockito.verify(completionWorkflow, Mockito.times(invocationsNumber)).completionSuccessDigitalWorkflow(
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), addressCaptor.capture());
 
-        List<EndWorkflowStatus> endWorkflowStatusArgumentCaptorValue = endWorkflowStatusArgumentCaptor.getAllValues();
         List<Integer> recIndexCaptorValue = recIndexCaptor.getAllValues();
         List<NotificationInt> notificationCaptorValue = notificationCaptor.getAllValues();
         List<LegalDigitalAddressInt> addressCaptorValue = addressCaptor.getAllValues();
 
         Assertions.assertEquals(recIndex, recIndexCaptorValue.get(invocation));
         Assertions.assertEquals(iun, notificationCaptorValue.get(invocation).getIun());
-        Assertions.assertEquals(EndWorkflowStatus.SUCCESS, endWorkflowStatusArgumentCaptorValue.get(invocation));
         Assertions.assertEquals(address, addressCaptorValue.get(invocation));
     }
 
@@ -199,28 +188,25 @@ public class TestUtils {
         //Viene verificato che il workflow sia fallito
         checkInTimlineIsFailedDigitalWorkflow(iun, recIndex, timelineService);
 
-        ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
 
-        Mockito.verify(completionWorkflow, Mockito.times(1)).completionDigitalWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), Mockito.any(), endWorkflowStatusArgumentCaptor.capture()
+        Mockito.verify(completionWorkflow, Mockito.times(1)).completionFailureDigitalWorkflow(
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any()
         );
         Assertions.assertEquals(iun, notificationCaptor.getValue().getIun());
         Assertions.assertEquals(recIndex, recIndexCaptor.getValue());
-        Assertions.assertEquals(EndWorkflowStatus.FAILURE, endWorkflowStatusArgumentCaptor.getValue());
     }
 
     public static void checkFailDigitalWorkflowMultiRec(String iun, Integer recIndex, int numberOfCompletedWorkflow,  TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
         //Viene verificato che il workflow sia fallito
         checkInTimlineIsFailedDigitalWorkflow(iun, recIndex, timelineService);
 
-        ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
         ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
 
-        Mockito.verify(completionWorkflow, Mockito.times(numberOfCompletedWorkflow)).completionDigitalWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), Mockito.any(), endWorkflowStatusArgumentCaptor.capture()
+        Mockito.verify(completionWorkflow, Mockito.times(numberOfCompletedWorkflow)).completionFailureDigitalWorkflow(
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any()
         );
     }
 
@@ -569,9 +555,7 @@ public class TestUtils {
 
         TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
                 notification,
-                timelineService,
                 recipient,
-                recIndex,
                 sentPecAttemptNumber,
                 endWorkflowStatus,
                 legalFactGenerator,
@@ -630,22 +614,13 @@ public class TestUtils {
     }
 
     private static void checkPecDeliveryWorkflowLegalFactsGeneration(NotificationInt notification,
-                                                                    TimelineService timelineService,
                                                                     NotificationRecipientInt recipient,
-                                                                    Integer recIndex,
                                                                     int sentPecAttemptNumber,
                                                                     EndWorkflowStatus endWorkflowStatus,
                                                                     LegalFactGenerator legalFactGenerator,
                                                                     boolean itWasGenerated
     ) {
         int times = getTimes(itWasGenerated);
-        
-        String eventId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .build()
-        );
 
         ArgumentCaptor<List<SendDigitalFeedbackDetailsInt>> sendDigitalFeedbackCaptor = ArgumentCaptor.forClass(List.class);
 
