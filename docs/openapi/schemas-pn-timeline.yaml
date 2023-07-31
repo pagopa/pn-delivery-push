@@ -1009,15 +1009,6 @@ components:
           type: integer
           description: costo in eurocent comprensivo dei costi di invio analogico, usato nella creation_request
           format: int32
-        forceDocumentGeneration:
-          type: boolean
-          description: se true, indica che i documenti generati devono essere salvati su safestorage con retention di legge nello stato ATTACHED. >-
-            se false, invece, la retention dipende dai documenti e sarà calcolata dal microservizio. Popolato sia nella creation_request che nella response
-        totalPages:
-          type: integer
-          format: int32
-          nullable: true
-          description: contiene il numero di pagine al posto dei paymentUrls. Sarà popolato solo nella response.
         attachments:
           description: array di url relativi agli F24. Sarà popolato solo nella response.
           type: array
