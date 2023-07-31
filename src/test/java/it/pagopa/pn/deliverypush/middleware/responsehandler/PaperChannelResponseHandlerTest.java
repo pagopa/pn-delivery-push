@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 
@@ -42,7 +43,7 @@ class PaperChannelResponseHandlerTest {
 
         PrepareEvent prepareEvent = new PrepareEvent();
         prepareEvent.setStatusCode(StatusCodeEnum.OK);
-        prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
+        prepareEvent.setStatusDateTime(instant);
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("ok");
         prepareEvent.setReceiverAddress(new AnalogAddress());
@@ -72,7 +73,7 @@ class PaperChannelResponseHandlerTest {
 
         PrepareEvent prepareEvent = new PrepareEvent();
         prepareEvent.setStatusCode(StatusCodeEnum.KOUNREACHABLE);
-        prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
+        prepareEvent.setStatusDateTime(instant);
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("ko");
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
@@ -97,11 +98,12 @@ class PaperChannelResponseHandlerTest {
     @Test
     void prepareUpdateTest_PROGRESS() {
 
-        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+        Instant instant = Instant.parse("2022-08-30T16:04:13Z");
+        OffsetDateTime a = OffsetDateTime.parse("2023-06-30T14:37:15Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
         prepareEvent.setStatusCode(StatusCodeEnum.PROGRESS);
-        prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
+        prepareEvent.setStatusDateTime(instant);
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("progress");
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
@@ -130,7 +132,7 @@ class PaperChannelResponseHandlerTest {
 
         SendEvent sendEvent = new SendEvent();
         sendEvent.setStatusCode(StatusCodeEnum.OK);
-        sendEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
+        sendEvent.setStatusDateTime(instant);
         sendEvent.setRequestId("iun_event_idx_0");
         sendEvent.setStatusDetail("ok");
         sendEvent.setAttachments(new ArrayList<>());
@@ -160,7 +162,7 @@ class PaperChannelResponseHandlerTest {
 
         SendEvent sendEvent = new SendEvent();
         sendEvent.setStatusCode(StatusCodeEnum.OK);
-        sendEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
+        sendEvent.setStatusDateTime(instant);
         sendEvent.setRequestId("iun_event_idx_0");
         sendEvent.setStatusDetail("ok");
         sendEvent.setAttachments(new ArrayList<>());
@@ -190,7 +192,7 @@ class PaperChannelResponseHandlerTest {
 
         PrepareEvent prepareEvent = new PrepareEvent();
         prepareEvent.setStatusCode(StatusCodeEnum.PROGRESS);
-        prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
+        prepareEvent.setStatusDateTime(instant);
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("progress");
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
@@ -211,7 +213,7 @@ class PaperChannelResponseHandlerTest {
 
         PrepareEvent prepareEvent = new PrepareEvent();
         prepareEvent.setStatusCode(StatusCodeEnum.PROGRESS);
-        prepareEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
+        prepareEvent.setStatusDateTime(instant);
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("progress");
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
@@ -233,7 +235,7 @@ class PaperChannelResponseHandlerTest {
 
         SendEvent sendEvent = new SendEvent();
         sendEvent.setStatusCode(StatusCodeEnum.OK);
-        sendEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
+        sendEvent.setStatusDateTime(instant);
         sendEvent.setRequestId("iun_event_idx_0");
         sendEvent.setStatusDetail("ok");
         sendEvent.setAttachments(new ArrayList<>());
@@ -258,7 +260,7 @@ class PaperChannelResponseHandlerTest {
 
         SendEvent sendEvent = new SendEvent();
         sendEvent.setStatusCode(StatusCodeEnum.OK);
-        sendEvent.setStatusDateTime(instant.atOffset(ZoneOffset.UTC));
+        sendEvent.setStatusDateTime(instant);
         sendEvent.setRequestId("iun_event_idx_0");
         sendEvent.setStatusDetail("ok");
         sendEvent.setAttachments(new ArrayList<>());

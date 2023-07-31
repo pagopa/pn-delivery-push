@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -123,7 +124,7 @@ class ActionPoolImplTest {
                 LastPollForFutureActionsDao lastPollForFutureActionsDao,
                 PnDeliveryPushConfigs configs
         ) {
-            super(actionsQueue, actionService, clock, lastPollForFutureActionsDao, configs);
+            super(actionsQueue, actionService, clock, lastPollForFutureActionsDao, configs, Duration.ofSeconds(600), Duration.ofSeconds(10));
         }
 
         @Override

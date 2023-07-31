@@ -496,6 +496,10 @@ Parameters:
     Default: ''
     Description: Application load balancer dimension name
     
+  IOBackendCidrs:
+    Type: String
+    Default: ''
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -781,7 +785,8 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-push-io'
         IntendedUsage: IO 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
-        Limit: 600000
+        Limit: 0 # disabled IP based rate limit rule
+        AllowedCidrs: !Ref IOBackendCidrs
   
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
