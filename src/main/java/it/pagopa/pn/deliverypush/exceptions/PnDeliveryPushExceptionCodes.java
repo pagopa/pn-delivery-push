@@ -89,7 +89,9 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
         
         SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE"),
 
-        RECIPIENT_ID_NOT_VALID("RECIPIENT_ID_NOT_VALID");
+        RECIPIENT_ID_NOT_VALID("RECIPIENT_ID_NOT_VALID"),
+
+        INVALID_F24_METADATA("INVALID_F24_METADATA");
 
         private final String value;
 

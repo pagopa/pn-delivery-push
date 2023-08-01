@@ -1108,5 +1108,6 @@ components:
               - FILE_PDF_TOOBIG_ERROR
               - NOT_VALID_ADDRESS
               - RECIPIENT_ID_NOT_VALID
+              - INVALID_F24_METADATA
         detail:
           type: string

@@ -37,6 +37,8 @@ public class PnDeliveryPushConfigs {
 
     private String dataVaultBaseUrl;
 
+    private String f24BaseUrl;
+
     private String safeStorageBaseUrl;
 
     private String safeStorageCxId;
