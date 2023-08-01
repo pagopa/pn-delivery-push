@@ -1,18 +1,12 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationInvalidMetadataException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.InternalMandateDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.GenerateF24Request;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24.PnF24Client;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate.PnMandateClient;
 import it.pagopa.pn.deliverypush.service.F24Service;
-import it.pagopa.pn.deliverypush.service.MandateService;
-import it.pagopa.pn.deliverypush.service.mapper.MandateDtoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -36,7 +30,13 @@ public class F24ServiceImpl implements F24Service {
     }
 
     @Override
-    public List<String> generateAllPDF(String requestId, String iun, Integer recipientIndex, Integer notificationCost) {
-        return null;
+    public void generateAllPDF(String requestId, String iun, Integer recipientIndex, Integer notificationCost) {
+        log.info("generating all F24 PDF iun={} recIndex={} cost={} requestId={}", iun, recipientIndex, notificationCost, requestId);
+        GenerateF24Request generateF24Request = new GenerateF24Request();
+        generateF24Request.setRequestId(requestId);
+        generateF24Request.setIun(iun);
+        generateF24Request.setNotificationCost(notificationCost);
+        generateF24Request.setRecipientIndex(recipientIndex);
+        f24Client.generateAllPDF(requestId, generateF24Request);
     }
 }

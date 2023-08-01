@@ -19,7 +19,7 @@ public interface F24Service {
      * @param iun IUN
      * @param recipientIndex recipient index
      * @param notificationCost eventuale costo della notifica
-     * @return lista di filekey
+     *
      */
-    List<String>  generateAllPDF(String requestId, String iun, Integer recipientIndex, Integer notificationCost);
+    void generateAllPDF(String requestId, String iun, Integer recipientIndex, Integer notificationCost);
 }
