@@ -23,11 +23,6 @@ public class F24ServiceImpl implements F24Service {
         return it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.model.CxTypeAuthFleet.valueOf(cxType.getValue());
     }
 
-    @Override
-    public void validate(String iun) throws PnValidationInvalidMetadataException {
-        // FIXME implementare l'invocazione al metodo del client e la generazione della exception
-        // nel caso di metadati non validi. Altri tipi di errore invece vanno fatti "salire".
-    }
 
     @Override
     public void generateAllPDF(String requestId, String iun, Integer recipientIndex, Integer notificationCost) {

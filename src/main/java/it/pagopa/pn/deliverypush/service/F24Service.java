@@ -7,13 +7,6 @@ import java.util.List;
 public interface F24Service {
 
     /**
-     * Valida i metadati di una notifica
-     * @param iun lo IUN della notifica
-     * @throws PnValidationInvalidMetadataException nell caso di errori di validazione
-     */
-    void validate(String iun) throws PnValidationInvalidMetadataException;
-
-    /**
      * Genera tutti i PDF per un certo recipient
      * @param requestId la requestId da usare
      * @param iun IUN
