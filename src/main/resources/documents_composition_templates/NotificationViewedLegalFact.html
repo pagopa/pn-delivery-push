@@ -190,11 +190,7 @@
         </div>
         <div class="row">
           <div class="left-col col-5-10">
-            <#if recipient.recipientType == "PF">
-              <p>C. F.</p>
-            <#else>
-              <p>P. IVA</p>
-            </#if>
+              <p>Codice Fiscale</p>
           </div>
           <div class="left-col col-5-10">
             <p><strong>${recipient.taxId}</strong></p>
@@ -219,11 +215,7 @@
           </div>
           <div class="row">
             <div class="left-col col-5-10">
-              <#if delegate.delegateType == "PF">
-                <p>C. F.</p>
-              <#else>
-                <p>P. IVA</p>
-              </#if>
+                <p>Codice Fiscale</p>
             </div>
             <div class="left-col col-5-10">
               <p><strong>${delegate.taxId}</strong></p>
@@ -235,9 +227,9 @@
       <p class="paragraph">
         in data <strong>${when}</strong> il
         <#if delegate??>
-        delegato
+          delegato
         <#else>
-        destinatario
+          destinatario
         </#if> ha avuto accesso ai documenti informatici oggetto di notifica e associati allo IUN già indicato.
       </p>
 
