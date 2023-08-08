@@ -27,7 +27,7 @@ public class RestTemplateFactory {
     public RestTemplate restTemplateWithOffsetDateTimeFormatter(@Value("${pn.commons.retry.max-attempts}") int retryMaxAttempts, @Value("${pn.commons.connection-timeout-millis}") int connectionTimeout , @Value("${pn.commons.read-timeout-millis}") int readTimeout) {
         // Override del comportamento di serializzazione delle date
         // per ovviare al problema del numero di cifre nella frazione di secondo
-        RestTemplate template = templateFactory.restTemplateWithTracing(retryMaxAttempts, connectionTimeout, readTimeout);
+        RestTemplate template = templateFactory.restTemplateWithTracing(retryMaxAttempts, connectionTimeout);
         template.getMessageConverters().stream()
                 .filter(AbstractJackson2HttpMessageConverter.class::isInstance)
                 .map(AbstractJackson2HttpMessageConverter.class::cast)
