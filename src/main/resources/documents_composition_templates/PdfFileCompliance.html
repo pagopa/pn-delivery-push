@@ -17,10 +17,11 @@
   
       @page {
         size: A4;
-        margin: 22mm 10mm 32mm 10mm;
-  
+         margin: 36mm 10mm 32mm 10mm;
+
         @top-left {
-          content: element(header); 
+          content: element(header);
+          vertical-align: top;
         }
   
         @bottom-center { 
@@ -119,10 +120,9 @@
         text-align: right;
       }
   
-      #subject {
+     #subject {
         font-size: 20px;
-        margin: 7mm 0;
-        margin-top: 4mm;
+        margin-bottom: 7mm;
       }
   
       .paragraph {
@@ -141,10 +141,10 @@
 		<div class="container">
           <div id="header" class="row">
             <div class="left-col">
-              <img src="images/pn-logo-header.png" />
+              <img src="images/pn-logo-header.png" style="width:126px; height:35px"  />
             </div>
             <div class="right-col">
-              <img src="images/send-logo.png" style="width:81px; height:28px />
+              <img src="images/send-logo.png" style="width:81px; height:28px" />
             </div>
           </div>
 			<!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
