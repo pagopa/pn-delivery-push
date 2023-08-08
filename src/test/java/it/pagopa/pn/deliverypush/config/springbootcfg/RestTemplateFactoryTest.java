@@ -24,7 +24,7 @@ class RestTemplateFactoryTest {
 
     @Test
     void restTemplateWithOffsetDateTimeFormatter() {
-        Mockito.when(restTemplateFactory.restTemplateWithTracing(3, 3000)).thenReturn(new RestTemplateRetryable(3));
+        Mockito.when(restTemplateFactory.restTemplateWithTracing(3, 3000,8000)).thenReturn(new RestTemplateRetryable(3));
         RestTemplate template = factory.restTemplateWithOffsetDateTimeFormatter(3, 3000,8000);
         Assertions.assertNotNull(template);
     }
