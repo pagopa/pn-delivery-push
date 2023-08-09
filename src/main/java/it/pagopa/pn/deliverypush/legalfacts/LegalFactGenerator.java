@@ -374,7 +374,8 @@ public class LegalFactGenerator {
 
     private String getAccessUrlLabel(NotificationRecipientInt recipient) {
         try {
-            return new URL(getAccessUrl(recipient)).getHost();
+            String host = new URL(getAccessUrl(recipient)).getHost();
+            return host.startsWith("www.") ? host.substring(4) : host;
         } catch (MalformedURLException e) {
             log.warn("cannot get host", e);
             return getAccessUrl(recipient);
@@ -408,7 +409,8 @@ public class LegalFactGenerator {
 
     private String getAccessLinkLabel() {
         try {
-            return new URL(pnDeliveryPushConfigs.getWebapp().getLandingUrl()).getHost();
+            String host = new URL(pnDeliveryPushConfigs.getWebapp().getLandingUrl()).getHost();
+            return host.startsWith("www.") ? host.substring(4) : host;
         } catch (MalformedURLException e) {
             log.warn("cannot get host", e);
             return pnDeliveryPushConfigs.getWebapp().getLandingUrl();

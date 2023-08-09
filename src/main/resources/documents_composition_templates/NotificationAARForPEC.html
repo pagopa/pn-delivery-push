@@ -41,7 +41,22 @@
         display: block;
         margin: 13px 0;
       }
-      button {
+      .button {
+        background: #0073e6;
+        border-radius: 4px;
+        font-family: "Titillium Web";
+        font-style: normal;
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 18px;
+        letter-spacing: 0.3px;
+        width: 141px;
+        height: 40px;
+        margin-bottom: 40px;
+        margin-top: 24px;
+      }
+
+     #outlook .button {
         background: #0073e6;
         border-radius: 4px;
         font-family: "Titillium Web";
@@ -138,7 +153,7 @@
 
       .button {
         border-radius: 4px;
-        color: white;
+        color: #FFFFFF;
         background-color: #0073E6;
         padding: 11px 20px;
         margin-bottom: 32px;
@@ -255,7 +270,7 @@
                                                         <!-- Perfezionamento Notifica -->
                                                         <p>Hai fino a 120 giorni dalla <a href="${perfezionamentoURL}" class="link" style="color: #0073E6">data di perfezionamento</a> della notifica per <strong>visualizzare i documenti</strong>.</p>
 
-                                                        <a title="Visualizza i documenti" href="${quickAccessLink}" class="button" style="color: #FFFFFF;">Visualizza i documenti</a>
+                                                        <a title="Visualizza i documenti" href="${quickAccessLink}" class="button">Visualizza i documenti</a>
 
                                                         <p style="font-family: Titillium Web, Arial;font-weight: 400;font-size: 14px;">
                                                             Ricevi questo avviso di avvenuta ricezione in qualità di persona ${recipientType} con Codice Fiscale ${recipient.taxId}. SEND è uno strumento che rende l'invio di notifiche da parte della Pubblica Amministrazione più sicuro, efficiente ed economico. <a title="Scopri di più" class="link" style="color: #0073e6" href="${PNFaqSendURL}">Scopri di più</a>

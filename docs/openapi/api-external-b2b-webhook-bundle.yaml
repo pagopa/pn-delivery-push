@@ -124,13 +124,16 @@ info:
       <li>se <code>retry-after ≠ 0</code> significa che lo stream NON contiene altri eventi rispetto</br> a quelli che ottenuti in questa chiamata e quindi dovrò attendere la quantità</br> di tempo indicata nel <code>retry-after</code> prima di effettuare un'altra chiamata</br> per consumare ulteriori eventi</li>
       </ul>
       
+      <font color="red"><strong>NOTA:</strong> 
+      è importante consumare <strong>SEMPRE</strong> gli eventi che vengono restituiti dallo stream, anche se il <code>retry-after ≠ 0</code>; infatti tale parametro regola la cadenza di chiamata al servizio, mentre il consumo degli eventi deve avvenire in ogni chiamata nella quale si ottengono eventi in risposta.</font>
+      
       </br>
       </br>
       </br>
 
       ### 3) Successive interrogazioni degli stream appena creati
 
-      Se l'header della prima interrogazione degli stream restituisce nell'header: <code>retry-after = 0</code></br> significa che lo stream contiene altri eventi che possono essere consumati subito con</br> un'ulteriore chiamata al servizio di [lettura degli eventi](#/Events/consumeEventStream), ma questa volta per consumare</br> gli eventi successivi ai primi ricevuti, bisogna valorizzare nei query params della request</br> il parametro <code>lastEventId</code> con l'eventId ottenuto nella precedente chiamata.</br> Così facendo il servizio eliminerà dallo stream tutti gli eventi precedenti a quello inserito</br> nel <code>lastEventId</code> e restituirà nella response <big><strong>d)</big></strong> solamente quelli successivi .</br>
+      Se la response della prima interrogazione degli stream restituisce nell'header: <code>retry-after = 0</code></br> significa che lo stream contiene altri eventi che possono essere consumati subito con</br> un'ulteriore chiamata al servizio di [lettura degli eventi](#/Events/consumeEventStream), ma questa volta per consumare</br> gli eventi successivi, bisogna valorizzare nei query params della request</br> il parametro <code>lastEventId</code> con l'eventId ottenuto nella precedente chiamata.</br> Così facendo il servizio eliminerà dallo stream tutti gli eventi precedenti a quello inserito</br> nel <code>lastEventId</code> e restituirà nella response <big><strong>d)</big></strong> solamente quelli successivi.</br>
 
       A questo punto si potrà capire, sempre dal valore del <code>retry-after</code> contenuto nell'header</br> se chiamare subito il servizio ed inserire il <code>lastEventId</code> di questa ulteriore chiamata</br> o attendere il tempo indicato nell'header</br>
 
