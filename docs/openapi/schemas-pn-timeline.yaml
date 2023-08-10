@@ -46,6 +46,7 @@ components:
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+          * `ANALOG_VALIDATION_ERROR` - La richiesta di validazione analogica (prepare) è fallita
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -85,6 +86,7 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+        - ANALOG_VALIDATION_ERROR
 
     TimelineElement:
       type: object
@@ -152,6 +154,7 @@ components:
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
+        - "$ref": "#/components/schemas/AnalogValidationErrorDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -986,7 +989,31 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         normalizedAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
-
+    
+    AnalogValidationErrorDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        validationFailureCause:
+          type: string
+          description: >
+            __Motivazione fallimento prepare
+              - __D01__ Indirizzo diverso - Normalizzazione KO
+              - __D02__ Indirizzi coincidenti
+              - __D03__ Indirizzo non disponibile
+          enum:
+            - D01
+            - D02
+            - D03
+        prepareRequestId:
+          type: string
+          description: RequestId della richiesta di prepare
+    
     DigitalAddressSource:
       type: string
       description: sorgente indirizzo di invio della notifica
