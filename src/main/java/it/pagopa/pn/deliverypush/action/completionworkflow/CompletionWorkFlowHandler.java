@@ -46,7 +46,7 @@ public class CompletionWorkFlowHandler {
         boolean timelineInsertSkipped = timelineService.addTimelineElement(timelineElementInternal, notification);
         
         if(timelineInsertSkipped){
-            //Se l'elemento di timeline è stato inserito in precedenza la data di completionWorkflow sarà quella dell'elemento di timeline e dunque quella presente nell'atto associato
+            //Se l'elemento di timeline è stato inserito in precedenza, la data di completionWorkflow da utilizzare dovrà essere quella dell'elemento di timeline già presente.
             completionWorkflowDate = getCompletionWorkflowDate(notification, completionWorkflowDate, timelineElementInternal);
         }
 
