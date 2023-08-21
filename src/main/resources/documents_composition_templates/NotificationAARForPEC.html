@@ -1,328 +1,209 @@
 <!DOCTYPE html>
-<html
-        lang="it"
-        xmlns="http://www.w3.org/1999/xhtml"
-        xmlns:v="urn:schemas-microsoft-com:vml"
-        xmlns:o="urn:schemas-microsoft-com:office:office"
->
+<html lang="it" xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
-    <title>Avviso di avvenuta ricezione del ${sendDate}</title>
-    <!--[if !mso]><!-->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!--<![endif]-->
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="author" content="SEND - Servizio Notifiche Digitali" />
-    <style type="text/css">
-      #outlook a {
-        padding: 0;
+  <title>Avviso di avvenuta ricezione del ${sendDate}</title>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <meta content="width=device-width,initial-scale=1" name="viewport" />
+  <meta content="SEND - Servizio Notifiche Digitali" name="author" />
+  <meta content="light dark" name="color-scheme" />
+  <meta content="light dark" name="supported-color-schemes" />
+  <link href="https://selfcare.pagopa.it/assets/font/selfhostedfonts.css" rel="stylesheet" type="text/css" />
+  <style type="text/css">
+    @import url(https://selfcare.pagopa.it/assets/font/selfhostedfonts.css);
+  </style>
+
+  <style type="text/css">
+    /* Global styles */
+
+    :root {
+      color-scheme: light dark;
+      supported-color-schemes: light dark;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Titillium Web", Arial, Helvetica, sans-serif;
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    /* Container for the entire email */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Logo */
+    .logo {
+      text-align: left;
+      margin-bottom: 32px;
+    }
+
+    /* Title */
+    .title {
+      text-align: left;
+      margin-bottom: 32px;
+    }
+
+    /* Text content */
+    .text {
+      text-align: justify;
+      margin-bottom: 32px;
+
+      & p {
+        font-weight: 400;
       }
+    }
+
+    /* Button */
+    .button {
+      display: inline-block;
+      padding: 11px 20px;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      text-decoration: none;
+      background-color: #0073E6;
+      color: #FFFFFF !important;
+      border-radius: 4px;
+    }
+
+    /* Disclaimer */
+    .disclaimer {
+      margin-top: 25px;
+      border-top: 1px solid #E3E7EB;
+      padding-top: 25px;
+
+      & p {
+        font-weight: 400;
+        font-size: 0.8rem;
+      }
+    }
+
+
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      -ms-interpolation-mode: bicubic;
+    }
+
+    h1 {
+      font-size: 32px;
+      line-height: 40px;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    h4 {
+      margin-bottom: 0px;
+    }
+
+    .link {
+      color: #0073e6 !important;
+    }
+
+    ul {
+      padding: 0;
+      text-align: left;
+    }
+
+    ul li {
+      list-style-type: none;
+    }
+
+    .logosend {
+      width: 116px;
+    }
+
+
+    @media (prefers-color-scheme: dark) {
       body {
-        margin: 0;
-        padding: 0;
-        -webkit-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
-      }
-      table,
-      td {
-        border-collapse: collapse;
-        mso-table-lspace: 0pt;
-        mso-table-rspace: 0pt;
-      }
-      img {
-        border: 0;
-        height: auto;
-        line-height: 100%;
-        outline: none;
-        text-decoration: none;
-        -ms-interpolation-mode: bicubic;
-      }
-      p {
-        display: block;
-        margin: 13px 0;
-      }
-      .button {
-        background: #0073e6;
-        border-radius: 4px;
-        font-family: "Titillium Web";
-        font-style: normal;
-        font-weight: 700;
-        font-size: 14px;
-        line-height: 18px;
-        letter-spacing: 0.3px;
-        width: 141px;
-        height: 40px;
-        margin-bottom: 40px;
-        margin-top: 24px;
+        background-color: #212327;
+        color: #ffffff;
       }
 
-     #outlook .button {
-        background: #0073e6;
-        border-radius: 4px;
-        font-family: "Titillium Web";
-        font-style: normal;
-        font-weight: 700;
-        font-size: 14px;
-        line-height: 18px;
-        letter-spacing: 0.3px;
-        width: 141px;
-        height: 40px;
-        margin-bottom: 40px;
-        margin-top: 24px;
-      }
-    </style>
-    <!--[if mso]>
-    <noscript>
-        <xml>
-            <o:OfficeDocumentSettings>
-                <o:AllowPNG />
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-            </o:OfficeDocumentSettings>
-        </xml>
-    </noscript>
-    <![endif]-->
-    <!--[if lte mso 11]>
-    <style type="text/css">
-        .mj-outlook-group-fix {
-          width: 100% !important;
-        }
-      </style>
-    <![endif]-->
-    <!--[if !mso]><!-->
-    <link
-            href="https://selfcare.pagopa.it/assets/font/selfhostedfonts.css"
-            rel="stylesheet"
-            type="text/css"
-    />
-    <style type="text/css">
-      @import url(https://selfcare.pagopa.it/assets/font/selfhostedfonts.css);
-    </style>
-    <!--<![endif]-->
-    <style type="text/css">
-      @media only screen and (min-width: 480px) {
-        .mj-column-per-100 {
-          width: 100% !important;
-          max-width: 100%;
-        }
-      }
-    </style>
-    <style media="screen and (min-width:480px)">
-      .moz-text-html .mj-column-per-100 {
-        width: 100% !important;
-        max-width: 100%;
-      }
-    </style>
-    <style type="text/css"></style>
-    <style type="text/css">
-      :root {
-        color-scheme: light dark;
-        supported-color-schemes: light dark;
+      .text {
+        color: #ffffff !important;
       }
 
-      body {
-        background-color: #ffffff;
-      }
-
-      h1 {
-        font-size: 32px;
-        line-height: 40px;
-        font-weight: 700;
-        text-align: left;
-      }
-
-      h4 {
-        margin-bottom: 0px;
-      }
-
-      p {
-        margin-top: 0px;
-        margin-bottom: 32px;
-      }
-
-      .text div {
-        color: #17324d !important;
-      }
-
-      .disclaimer div {
-        color: #5c6f82 !important;
+      .disclaimer {
+        color: #ccd4dc !important;
       }
 
       .link {
-        color: #0073e6 !important;
+        color: #94c4f4 !important;
+        /* Primary Light in HSL - L = +25 */
       }
-
-      .button {
-        border-radius: 4px;
-        color: #FFFFFF;
-        background-color: #0073E6;
-        padding: 11px 20px;
-        margin-bottom: 32px;
-        display: inline-block;
-        text-decoration: none;
-      }
-
-      ul {
-        padding: 0;
-        text-align: left;
-      }
-
-      ul li {
-        list-style-type: none;
-      }
-
-      .logosend {
-                width: 116px;
-      }
-
-
-      @media (prefers-color-scheme: dark) {
-        body {
-          background-color: #212327;
-          color: #ffffff;
-        }
-
-        .text div {
-          color: #ffffff !important;
-        }
-
-        .disclaimer div {
-          color: #ccd4dc !important;
-        }
-
-        .link {
-          color: #94c4f4 !important; /* Primary Light in HSL - L = +25 */
-        }
-      }
-
-    </style>
-    <meta name="color-scheme" content="light dark" />
-    <meta name="supported-color-schemes" content="light dark" />
+    }
+  </style>
 </head>
-<body style="word-spacing: normal">
-<div>
-    <!--[if mso | IE]>
-    <table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" >
-        <tr>
-            <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
-    <![endif]-->
-    <div style="margin: 0px auto; max-width: 600px">
-        <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%">
-            <tbody>
-            <tr>
-                <td style="direction: ltr;font-size: 0px;padding: 20px 0;text-align: center;">
-                    <!--[if mso | IE]>
-                    <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td class="" width="600px" >
-                                <table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" >
-                                    <tr>
-                                        <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
-                    <![endif]-->
-                    <div style="margin: 0px auto; max-width: 600px; padding: 20px 25px">
-                        <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%">
-                            <tbody>
-                            <tr>
-                                <td style="direction: ltr;font-size: 0px;text-align: center;">
-                                    <!--[if mso | IE]>
-                                    <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                                        <tr>
-                                            <td class="" style="vertical-align:top;width:600px;" >
-                                    <![endif]-->
-                                    <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size: 0px;text-align: left;direction: ltr;display: inline-block;vertical-align: top;width: 100%;">
-                                        <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align: top" width="100%">
-                                            <tbody>
-                                            <!-- logo SEND -->
-                                            <tr>
-                                                <td align="left" class="text" style="font-size: 0px;word-break: break-word;">
-                                                    <div style="font-family: Titillium Web, Arial;font-size: 13px;font-weight: bold;line-height: 1;text-align: left;color: #000000;margin: 32px 0">
-                                                        <img src="data:image/png;base64, ${logoBase64}" alt="SEND - Servizio Notifiche Digitali" class="logosend" width="116" align="left" style="display: block; width: 116px"/>
-                                                        <!-- <h1 style="font-size: 32px;line-height: 40px;">Logo di SEND - Servizio Notifiche Digitali</h1> -->
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <!-- Titolo e sottotitolo -->
-                                            <tr>
-                                                <td align="left" class="text" style="font-size: 0px;word-break: break-word;">
-                                                    <div style="font-family: Titillium Web, Arial;font-size: 13px;font-weight: bold;line-height: 1;text-align: left;color: #000000;margin: 32px 0">
-                                                        <h1 style="font-size: 32px;line-height: 40px;">Hai ricevuto una notifica&nbsp;-&nbsp;IUN: ${notification.iun}</h1>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td align="left" class="text" style="font-size: 0px;word-break: break-word;">
-                                                    <div style="font-family: Titillium Web, Arial;font-size: 16px;font-weight: 400;line-height: 24px;text-align: justify;color: #000000;">
-                                                        <p>Ciao,</p>
-                                                        <p>Hai ricevuto una notifica su SEND - Servizio Notifiche Digitali.</p>
-                                                        <p>
-                                                            <ul>
-                                                                <li>
-                                                                    <strong>Mittente</strong>:&nbsp;${notification.sender.paDenomination}
-                                                                </li>
-                                                                <li>
-                                                                    <strong>Oggetto</strong>:&nbsp;${notification.subject}
-                                                                </li>
-                                                                <li>
-                                                                    <strong>Codice IUN</strong>:&nbsp;${notification.iun}
-                                                                </li>
-                                                            </ul>
-                                                        </p>
-                                                       <p>Una notifica è una <strong>comunicazione a valore legale</strong> composta da un avviso di avvenuta ricezione e da uno o più documenti.</p>
-                                                        <!-- Perfezionamento Notifica -->
-                                                        <p>Hai fino a 120 giorni dalla <a href="${perfezionamentoURL}" class="link" style="color: #0073E6">data di perfezionamento</a> della notifica per <strong>visualizzare i documenti</strong>.</p>
 
-                                                        <a title="Visualizza i documenti" href="${quickAccessLink}" class="button">Visualizza i documenti</a>
-
-                                                        <p style="font-family: Titillium Web, Arial;font-weight: 400;font-size: 14px;">
-                                                            Ricevi questo avviso di avvenuta ricezione in qualità di persona ${recipientType} con Codice Fiscale ${recipient.taxId}. SEND è uno strumento che rende l'invio di notifiche da parte della Pubblica Amministrazione più sicuro, efficiente ed economico. <a title="Scopri di più" class="link" style="color: #0073e6" href="${PNFaqSendURL}">Scopri di più</a>
-                                                        </p>
-                                                        <p>A presto,<br aria-hidden="true"/>SEND - Servizio Notifiche Digitali</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td align="left" style="font-size:0px;word-break:break-word;" colspan="2">
-                                                    <hr style="border-top: 1px solid #E3E7EB; margin: 25px 0">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td align="left" class="disclaimer" style="font-size: 0px;word-break: break-word;">
-                                                    <div style="font-family: Titillium Web, Arial;font-size: 14px;line-height: 20px;text-align: left;color: #000000;">
-                                                        <p>
-                                                            L'ente mittente conosce questo indirizzo PEC perché l'hai inserito nei tuoi recapiti di SEND, perché fa parte di uno dei registri previsti dal Codice Amministrazione Digitale o perché gliel'hai comunicato in passato. Per modificare i recapiti o aggiungerne altri, <a title="vai ai tuoi recapiti" class="link" href="${piattaformaNotificheURL}recapiti" style="color: #0073e6">vai ai tuoi recapiti</a>.
-                                                        </p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <!--[if mso | IE]>
-                                    </td>
-                                    </tr>
-                                    </table>
-                                    <![endif]-->
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!--[if mso | IE]>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                    <![endif]-->
-                </td>
-            </tr>
-            </tbody>
-        </table>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img alt="SEND - Servizio Notifiche Digitali" class="logosend" src="data:image/png;base64, ${logoBase64}"
+        style="display: block; width: 116px" width="116" />
     </div>
-    <!--[if mso | IE]>
-    </td>
-    </tr>
-    </table>
-    <![endif]-->
-</div>
+    <div class="title">
+      <h1>Hai ricevuto una notifica - IUN: ${notification.iun}</h1>
+
+    </div>
+    <div class="text" style="font-size: 1rem;">
+      <p>Ciao,</p>
+      <p>Hai ricevuto una notifica su SEND - Servizio Notifiche Digitali.</p>
+      <p>
+      <ul>
+        <li>
+          <strong>Mittente</strong>:&nbsp;${notification.sender.paDenomination}
+        </li>
+        <li>
+          <strong>Oggetto</strong>:&nbsp;${notification.subject}
+        </li>
+        <li>
+          <strong>Codice IUN</strong>:&nbsp;${notification.iun}
+        </li>
+      </ul>
+      </p>
+      <p>Una notifica è una <strong>comunicazione a valore
+          legale</strong> composta da un avviso di avvenuta ricezione
+        e da uno o più documenti.</p>
+      <!-- Perfezionamento Notifica -->
+      <p>Hai fino a 120 giorni dalla <a class="link" href="${perfezionamentoURL}" style="color: #0073E6">data di
+          perfezionamento</a> della notifica per <strong>visualizzare
+          i documenti</strong>.</p>
+    </div>
+    <a class="button" href="${quickAccessLink}" title="Visualizza i documenti">Visualizza i documenti</a>
+    <div class="text">
+      <p style="font-size: 0.8rem;">
+        Ricevi questo avviso di avvenuta ricezione in qualità di
+        persona ${recipientType} con Codice Fiscale
+        ${recipient.taxId}. SEND è uno strumento che rende l'invio
+        di notifiche da parte della Pubblica Amministrazione più
+        sicuro, efficiente ed economico. <a class="link" href="${PNFaqSendURL}" style="color: #0073e6"
+          title="Scopri di più">Scopri
+          di più</a>
+      </p>
+      <p style="font-size: 1rem;">A presto,<br aria-hidden="true" />SEND - Servizio Notifiche
+        Digitali</p>
+    </div>
+    <div class="disclaimer">
+      <p>
+        L'ente mittente conosce questo indirizzo PEC perché l'hai
+        inserito nei tuoi recapiti di SEND, perché fa parte di uno
+        dei registri previsti dal Codice Amministrazione Digitale o
+        perché gliel'hai comunicato in passato. Per modificare i
+        recapiti o aggiungerne altri, <a class="link" href="${piattaformaNotificheURL}recapiti" style="color: #0073e6"
+          title="vai ai tuoi recapiti">vai ai tuoi recapiti</a>.
+      </p>
+    </div>
+  </div>
 </body>
+
 </html>
