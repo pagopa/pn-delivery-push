@@ -192,7 +192,7 @@ public class TestUtils {
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionFailureDigitalWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any()
+                notificationCaptor.capture(), recIndexCaptor.capture()
         );
         Assertions.assertEquals(iun, notificationCaptor.getValue().getIun());
         Assertions.assertEquals(recIndex, recIndexCaptor.getValue());
@@ -206,7 +206,7 @@ public class TestUtils {
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(numberOfCompletedWorkflow)).completionFailureDigitalWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any()
+                notificationCaptor.capture(), recIndexCaptor.capture()
         );
     }
 

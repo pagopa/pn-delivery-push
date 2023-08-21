@@ -35,14 +35,14 @@ public class CompletionWorkFlowHandler {
     private final DocumentCreationRequestService documentCreationRequestService;
     private final FailureWorkflowHandler failureWorkflowHandler;
 
-    public String completionFailureDigitalWorkflow(NotificationInt notification, Integer recIndex, LegalDigitalAddressInt address) {
+    public String completionFailureDigitalWorkflow(NotificationInt notification, Integer recIndex) {
         log.info("Digital workflow completed with status {} IUN {} id {}", EndWorkflowStatus.FAILURE, notification.getIun(), recIndex);
         Instant completionWorkflowDate = Instant.now();
         String legalFactId = pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, EndWorkflowStatus.FAILURE, 
                 completionWorkflowDate);
 
         TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalDeliveryLegalFactCreationRequestTimelineElement(notification, recIndex,  EndWorkflowStatus.FAILURE, 
-                completionWorkflowDate, address, legalFactId);
+                completionWorkflowDate, null, legalFactId);
         boolean timelineInsertSkipped = timelineService.addTimelineElement(timelineElementInternal, notification);
         
         if(timelineInsertSkipped){
