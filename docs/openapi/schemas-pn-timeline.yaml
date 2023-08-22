@@ -46,7 +46,7 @@ components:
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
-          * `ANALOG_VALIDATION_ERROR` - La richiesta di validazione analogica (prepare) è fallita
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - La richiesta di validazione analogica (prepare) è fallita
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -86,7 +86,7 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
-        - ANALOG_VALIDATION_ERROR
+        - PREPARE_ANALOG_DOMICILE_FAILURE
 
     TimelineElement:
       type: object
@@ -154,7 +154,7 @@ components:
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
-        - "$ref": "#/components/schemas/AnalogValidationErrorDetails"
+        - "$ref": "#/components/schemas/PrepareAnalogDomicileFailureDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -990,7 +990,7 @@ components:
         normalizedAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
     
-    AnalogValidationErrorDetails:
+    PrepareAnalogDomicileFailureDetails:
       type: object
       required:
         - recIndex
@@ -999,7 +999,9 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
-        validationFailureCause:
+        foundAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        failureCause:
           type: string
           description: >
             __Motivazione fallimento prepare
