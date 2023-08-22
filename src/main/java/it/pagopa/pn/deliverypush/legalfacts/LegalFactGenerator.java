@@ -65,6 +65,7 @@ public class LegalFactGenerator {
     public static final String FIELD_DELEGATE = "delegate";
     public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
     public static final String FIELD_PERFEZIONAMENTO_LABEL = "perfezionamentoURLLabel";
+    public static final String FIELD_LOGO_LINK = "sendLogoLink";
 
     public static final String FIELD_SENDURL = "sendURL";
     public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
@@ -364,6 +365,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_SENDURL_LABEL, this.getAccessLinkLabel());
         templateModel.put(FIELD_PERFEZIONAMENTO, this.getPerfezionamentoLink());
         templateModel.put(FIELD_PERFEZIONAMENTO_LABEL, this.getPerfezionamentoLinkLabel());
+        templateModel.put(FIELD_LOGO_LINK, this.getLogoLink());
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
         log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
@@ -421,6 +423,10 @@ public class LegalFactGenerator {
         return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
     }
 
+    private String getAssetsLink() {
+        return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + "static/generic_assets/";
+    }
+
     private String getFAQCompletionMomentAccessLink() {
         return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqCompletionMomentHash();
     }
@@ -431,6 +437,10 @@ public class LegalFactGenerator {
 
     private String getFAQSendURL() {
         return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqSendHash();
+    }
+
+    private String getLogoLink() {
+        return this.getAssetsLink() + "aar-logo-short-small.png";
     }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
