@@ -1,89 +1,53 @@
 <!DOCTYPE html>
-<html lang="it" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="it" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
   <title>Avviso di avvenuta ricezione del ${sendDate}</title>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-  <meta content="width=device-width,initial-scale=1" name="viewport" />
-  <meta content="SEND - Servizio Notifiche Digitali" name="author" />
-  <meta content="light dark" name="color-scheme" />
-  <meta content="light dark" name="supported-color-schemes" />
-  <link href="https://selfcare.pagopa.it/assets/font/selfhostedfonts.css" rel="stylesheet" type="text/css" />
-  <style type="text/css">
-    @import url(https://selfcare.pagopa.it/assets/font/selfhostedfonts.css);
-  </style>
+  <!--[if !mso]>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<![endif]-->
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  <meta content="width=device-width,initial-scale=1" name="viewport">
+  <meta content="SEND - Servizio Notifiche Digitali" name="author">
+  <meta content="light dark" name="color-scheme">
+  <meta content="light dark" name="supported-color-schemes">
 
+  <!--[if mso]>
+    <noscript>
+    <xml>
+    <o:OfficeDocumentSettings>
+      <o:AllowPNG/>
+      <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings>
+    </xml>
+    </noscript>
+    <![endif]-->
   <style type="text/css">
     /* Global styles */
-
     :root {
       color-scheme: light dark;
       supported-color-schemes: light dark;
     }
 
     body {
-      margin: 0;
-      padding: 0;
-      font-family: "Titillium Web", Arial, Helvetica, sans-serif;
-      background-color: #ffffff;
-      color: #000000;
-    }
-
-    /* Container for the entire email */
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* Logo */
-    .logo {
-      text-align: left;
-      margin-bottom: 32px;
-    }
-
-    /* Title */
-    .title {
-      text-align: left;
-      margin-bottom: 32px;
-    }
-
-    /* Text content */
-    .text {
-      text-align: justify;
-      margin-bottom: 32px;
-
-      & p {
-        font-weight: 400;
-      }
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
     }
 
     /* Button */
-    .button {
+    .send-button {
       display: inline-block;
       padding: 11px 20px;
       font-style: normal;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 0.8rem;
       letter-spacing: 0.3px;
       text-decoration: none;
       background-color: #0073E6;
       color: #FFFFFF !important;
       border-radius: 4px;
     }
-
-    /* Disclaimer */
-    .disclaimer {
-      margin-top: 25px;
-      border-top: 1px solid #E3E7EB;
-      padding-top: 25px;
-
-      & p {
-        font-weight: 400;
-        font-size: 0.8rem;
-      }
-    }
-
 
     img {
       border: 0;
@@ -92,17 +56,6 @@
       outline: none;
       text-decoration: none;
       -ms-interpolation-mode: bicubic;
-    }
-
-    h1 {
-      font-size: 32px;
-      line-height: 40px;
-      font-weight: 700;
-      text-align: left;
-    }
-
-    h4 {
-      margin-bottom: 0px;
     }
 
     .link {
@@ -117,60 +70,61 @@
     ul li {
       list-style-type: none;
     }
-
-    .logosend {
-      width: 116px;
-    }
-
-
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #212327;
-        color: #ffffff;
-      }
-
-      .text {
-        color: #ffffff !important;
-      }
-
-      .disclaimer {
-        color: #ccd4dc !important;
-      }
-
-      .link {
-        color: #94c4f4 !important;
-        /* Primary Light in HSL - L = +25 */
-      }
-    }
   </style>
+  <!--[if !mso]> <!-->
+  <link href="https://selfcare.pagopa.it/assets/font/selfhostedfonts.css" rel="stylesheet" type="text/css">
+  <style type="text/css">
+    @import url(https://selfcare.pagopa.it/assets/font/selfhostedfonts.css);
+  </style>
+  <!-- <![endif]-->
+
 </head>
 
-<body>
-  <div class="container">
-    <div class="logo">
-      <img alt="SEND - Servizio Notifiche Digitali" class="logosend" src="data:image/png;base64, ${logoBase64}"
-        style="display: block; width: 116px" width="116" />
+<body
+  style="margin: 0;padding: 0;font-family: 'Titillium Web', Arial, Helvetica, sans-serif; background-color: #ffffff;color: #17324D; line-height: 1.75rem;">
+  <!--[if (gte mso 9) | IE]>
+  <table width="600" align="center" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;border-spacing:0;" border="0" cellpadding="0" cellspacing="0" role="presentation">
+    <tr>
+      <td style="padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;border-collapse:collapse;">
+      <![endif]-->
+  <div style="max-width: 600px;margin: 0 auto;padding: 20px;">
+    <div style="text-align: left;margin-bottom: 32px;">
+      <img alt="SEND - Servizio Notifiche Digitali" src="data:image/png;base64, ${logoBase64}"
+        style="display: block;width: 116px;border: 0;height: auto;line-height: 100%;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;"
+        width="116">
     </div>
-    <div class="title">
-      <h1>Hai ricevuto una notifica - IUN: ${notification.iun}</h1>
+    <div style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif;text-align: left;margin-bottom: 32px;">
+      <h1 style="font-size: 2rem;line-height: 40px;font-weight: 700;text-align: left;">Hai ricevuto una notifica - IUN:
+        ${notification.iun}</h1>
 
     </div>
-    <div class="text" style="font-size: 1rem;">
-      <p>Ciao,</p>
+    <div
+      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; font-size: 1.125rem; margin-bottom: 32px; font-weight: 400;">
+      <p style="font-weight: 400;">Ciao,</p>
       <p>Hai ricevuto una notifica su SEND - Servizio Notifiche Digitali.</p>
-      <p>
-      <ul>
-        <li>
+
+      <div style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; padding: 0;text-align: left;">
+        <p>
+          <strong>Mittente</strong>:&nbsp;${notification.sender.paDenomination}
+        </p>
+        <p>
+          <strong>Oggetto</strong>:&nbsp;${notification.subject}
+        </p>
+        <p>
+          <strong>Codice IUN</strong>:&nbsp;${notification.iun}
+        </p>
+      </div>
+      <!-- <ul style="padding: 0;text-align: left;">
+        <li style="list-style-type: none;">
           <strong>Mittente</strong>:&nbsp;${notification.sender.paDenomination}
         </li>
-        <li>
+        <li style="list-style-type: none;">
           <strong>Oggetto</strong>:&nbsp;${notification.subject}
         </li>
-        <li>
+        <li style="list-style-type: none;">
           <strong>Codice IUN</strong>:&nbsp;${notification.iun}
         </li>
-      </ul>
-      </p>
+      </ul> -->
       <p>Una notifica è una <strong>comunicazione a valore
           legale</strong> composta da un avviso di avvenuta ricezione
         e da uno o più documenti.</p>
@@ -179,9 +133,29 @@
           perfezionamento</a> della notifica per <strong>visualizzare
           i documenti</strong>.</p>
     </div>
-    <a class="button" href="${quickAccessLink}" title="Visualizza i documenti">Visualizza i documenti</a>
-    <div class="text">
-      <p style="font-size: 0.8rem;">
+
+    <!--[if !mso]><!-->
+    <a class="send-button" href="${quickAccessLink}" title="Visualizza i documenti"
+      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; display: inline-block;padding: 11px 20px;font-style: normal;font-weight: 700;font-size: 0.8rem; line-height: 1.125rem; letter-spacing: 0.3px; text-decoration: none;background-color: #0073E6;border-radius: 4px;color: #FFFFFF !important;">
+      Visualizza i documenti</a>
+    <!--<![endif]-->
+    <!--[if (gte mso 9) | IE]>
+      <table cellpadding="0" cellmargin="0" border="0" height="50" width="178"
+      style="border-collapse: collapse; border:4px solid #0073E6;">
+      <tr>
+        <td bgcolor="#0073E6" valign="middle" align="center" width="174">
+          <div
+            style="font-style: normal;font-weight: 700;font-size: 14px; line-height: 2; margin: 0; padding: 0; mso-table-lspace:0; mso-table-rspace:0; color: #ffffff; text-decoration: none;">
+            <a href="${quickAccessLink}" title="Visualizza i documenti"
+              style=" letter-spacing: 0.3px; text-decoration: none; color: #FFFFFF">
+              Visualizza i documenti</a>
+          </div>
+        </td>
+      </tr>
+    </table>
+     <![endif]-->
+    <div style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; margin-bottom: 32px; font-weight: 400;">
+      <p style="font-size: 0.8rem; line-height: 1.25rem;">
         Ricevi questo avviso di avvenuta ricezione in qualità di
         persona ${recipientType} con Codice Fiscale
         ${recipient.taxId}. SEND è uno strumento che rende l'invio
@@ -190,20 +164,27 @@
           title="Scopri di più">Scopri
           di più</a>
       </p>
-      <p style="font-size: 1rem;">A presto,<br aria-hidden="true" />SEND - Servizio Notifiche
+      <p style="font-size: 1rem;">A presto,<br aria-hidden="true">SEND - Servizio Notifiche
         Digitali</p>
     </div>
-    <div class="disclaimer">
+    <div
+      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; margin-top: 25px;border-top: 1px solid #E3E7EB;padding-top: 25px; font-weight: 400;font-size: 0.8rem; line-height: 1.25rem;">
       <p>
         L'ente mittente conosce questo indirizzo PEC perché l'hai
         inserito nei tuoi recapiti di SEND, perché fa parte di uno
         dei registri previsti dal Codice Amministrazione Digitale o
         perché gliel'hai comunicato in passato. Per modificare i
-        recapiti o aggiungerne altri, <a class="link" href="${piattaformaNotificheURL}recapiti" style="color: #0073e6"
+        recapiti o aggiungerne altri,
+        <a class="link" href="${piattaformaNotificheURL}recapiti" style="color: #0073e6"
           title="vai ai tuoi recapiti">vai ai tuoi recapiti</a>.
       </p>
     </div>
   </div>
+  <!--[if (gte mso 9) | IE]>
+        </td>
+      </tr>
+    </table>
+  <![endif]-->
 </body>
 
 </html>
