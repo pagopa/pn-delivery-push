@@ -60,8 +60,12 @@ paths:
         - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/pathIun'
       responses:
-        '204':
+        '202':
           description: Accepted - Richiesta annullamento presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RequestStatus"
         '400':
           description: Bad request
           content:
@@ -70,12 +74,6 @@ paths:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '404':
           description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-        '409':
-          description: Conflict - La notifica risulta essere già annullata
           content:
             application/problem+json:
               schema:
@@ -283,7 +281,6 @@ paths:
 
 
 components:
-  
   parameters:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
@@ -372,3 +369,30 @@ components:
         # ASCII printable characters
         pattern: ^[ -~]*$
         maxLength: 1024
+        
+  schemas:
+    RequestStatus:
+      properties:
+        status:
+          description: >
+            Cancellation request status:
+              - OK
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusDetail'
+      required:
+        - status
+    StatusDetail:
+      properties:
+        code:
+          description: Internal code of the error, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        detail:
+          description: A human readable explanation specific to this occurrence of the problem.
+          example: Parameter not valid
+          type: string
+      required:
+        - code
