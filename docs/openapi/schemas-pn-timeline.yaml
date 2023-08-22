@@ -1006,10 +1006,6 @@ components:
               - __D00__ Indirizzo non trovato
               - __D01__ Indirizzo non valido
               - __D02__ Indirizzo coincidente con quello del primo tentativo
-          enum:
-            - D00
-            - D01
-            - D02
         prepareRequestId:
           type: string
           description: RequestId della richiesta di prepare
