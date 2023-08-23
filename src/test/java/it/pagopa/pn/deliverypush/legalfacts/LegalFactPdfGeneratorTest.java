@@ -265,7 +265,7 @@ class LegalFactPdfGeneratorTest {
 				}
 		);
 
-		System.out.print("*** AAR PEC BODY successfully created");
+		System.out.print("*** AAR EMAIL BODY successfully created");
 	}
 
 	@Test
