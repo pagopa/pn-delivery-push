@@ -14,7 +14,7 @@ import java.util.Set;
 
 public interface TimelineService {
 
-    void addTimelineElement(TimelineElementInternal element, NotificationInt notification);
+    boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification);
 
     Long retrieveAndIncrementCounterForTimelineEvent(String timelineId) ;
 
