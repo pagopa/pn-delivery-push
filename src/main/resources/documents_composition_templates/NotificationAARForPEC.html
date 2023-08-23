@@ -10,8 +10,8 @@
   <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
   <meta content="width=device-width,initial-scale=1" name="viewport">
   <meta content="SEND - Servizio Notifiche Digitali" name="author">
-  <meta content="light dark" name="color-scheme">
-  <meta content="light dark" name="supported-color-schemes">
+  <meta content="only light" name="color-scheme">
+  <meta content="only light" name="supported-color-schemes">
 
   <!--[if mso]>
     <noscript>
@@ -26,11 +26,13 @@
   <style type="text/css">
     /* Global styles */
     :root {
-      color-scheme: light dark;
-      supported-color-schemes: light dark;
+      color-scheme: only light;
+      supported-color-schemes: only light;
     }
 
     body {
+      background-color: #ffffff;
+      color: #17324D;
       -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
     }
@@ -41,7 +43,7 @@
       padding: 11px 20px;
       font-style: normal;
       font-weight: 700;
-      font-size: 0.8rem;
+      font-size: 14px;
       letter-spacing: 0.3px;
       text-decoration: none;
       background-color: #0073E6;
@@ -62,13 +64,32 @@
       color: #0073e6 !important;
     }
 
-    ul {
-      padding: 0;
-      text-align: left;
+    .text {
+      color: #17324D;
     }
 
-    ul li {
-      list-style-type: none;
+    .disclaimer {
+      color: #17324D;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #212327;
+        color: #FFFFFF;
+      }
+
+      .text {
+        color: #FFFFFF;
+      }
+
+      .disclaimer {
+        color: #CCD4DC;
+      }
+
+      .send-button {
+        color: #94C4F4;
+        /* Primary Light in HSL - L = +25 */
+      }
     }
   </style>
   <!--[if !mso]> <!-->
@@ -80,30 +101,33 @@
 
 </head>
 
+
 <body
-  style="margin: 0;padding: 0;font-family: 'Titillium Web', Arial, Helvetica, sans-serif; background-color: #ffffff;color: #17324D; line-height: 1.75rem;">
+  style="margin: 0;padding: 0;font-family: 'Titillium Web', Arial, Helvetica, sans-serif; background-color: #ffffff;color: #17324D; line-height:20px">
   <!--[if (gte mso 9) | IE]>
   <table width="600" align="center" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;border-spacing:0;" border="0" cellpadding="0" cellspacing="0" role="presentation">
     <tr>
       <td style="padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;border-collapse:collapse;">
       <![endif]-->
-  <div style="max-width: 600px;margin: 0 auto;padding: 20px;">
-    <div style="text-align: left;margin-bottom: 32px;">
+  <div class="text" style="max-width: 600px;margin: 0 auto;padding: 20px;">
+    <div class="text" style="text-align: left;margin-bottom: 32px;">
       <img alt="SEND - Servizio Notifiche Digitali" src="data:image/png;base64, ${logoBase64}"
         style="display: block;width: 116px;border: 0;height: auto;line-height: 100%;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;"
         width="116">
     </div>
-    <div style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif;text-align: left;margin-bottom: 32px;">
-      <h1 style="font-size: 2rem;line-height: 40px;font-weight: 700;text-align: left;">Hai ricevuto una notifica - IUN:
+    <div class="text"
+      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif;text-align: left;margin-bottom: 32px; color: #17324D;">
+      <h1 style="font-size: 32px;line-height: 40px;font-weight: 700;text-align: left;">Hai ricevuto una notifica - IUN:
         ${notification.iun}</h1>
 
     </div>
-    <div
-      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; font-size: 1.125rem; margin-bottom: 32px; font-weight: 400;">
-      <p style="font-weight: 400;">Ciao,</p>
+    <div class="text"
+      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; font-size: 18px; margin-bottom: 32px; font-weight: 400; color: #17324D;">
+      <p>Ciao,</p>
       <p>Hai ricevuto una notifica su SEND - Servizio Notifiche Digitali.</p>
-
-      <div style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; padding: 0;text-align: left;">
+      <br aria-hidden="true">
+      <div class="text"
+        style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; padding: 0;text-align: left; color: #17324D; line-height: 8px;">
         <p>
           <strong>Mittente</strong>:&nbsp;${notification.sender.paDenomination}
         </p>
@@ -114,29 +138,22 @@
           <strong>Codice IUN</strong>:&nbsp;${notification.iun}
         </p>
       </div>
-      <!-- <ul style="padding: 0;text-align: left;">
-        <li style="list-style-type: none;">
-          <strong>Mittente</strong>:&nbsp;${notification.sender.paDenomination}
-        </li>
-        <li style="list-style-type: none;">
-          <strong>Oggetto</strong>:&nbsp;${notification.subject}
-        </li>
-        <li style="list-style-type: none;">
-          <strong>Codice IUN</strong>:&nbsp;${notification.iun}
-        </li>
-      </ul> -->
-      <p>Una notifica è una <strong>comunicazione a valore
-          legale</strong> composta da un avviso di avvenuta ricezione
-        e da uno o più documenti.</p>
-      <!-- Perfezionamento Notifica -->
-      <p>Hai fino a 120 giorni dalla <a class="link" href="${perfezionamentoURL}" style="color: #0073E6">data di
-          perfezionamento</a> della notifica per <strong>visualizzare
-          i documenti</strong>.</p>
+      <br aria-hidden="true">
+      <div class="text"
+        style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; padding: 0;text-align: left; color: #17324D; line-height: 28px;">
+        <p>Una notifica &egrave; una <strong>comunicazione a valore
+            legale</strong> composta da un avviso di avvenuta ricezione
+          e da uno o più documenti.</p>
+        <!-- Perfezionamento Notifica -->
+        <p>Hai fino a 120 giorni dalla <a class="link" href="${perfezionamentoURL}" style="color: #0073E6">data di
+            perfezionamento</a> della notifica per <strong>visualizzare
+            i documenti</strong>.</p>
+      </div>
     </div>
 
     <!--[if !mso]><!-->
     <a class="send-button" href="${quickAccessLink}" title="Visualizza i documenti"
-      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; display: inline-block;padding: 11px 20px;font-style: normal;font-weight: 700;font-size: 0.8rem; line-height: 1.125rem; letter-spacing: 0.3px; text-decoration: none;background-color: #0073E6;border-radius: 4px;color: #FFFFFF !important;">
+      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; display: inline-block;padding: 11px 20px;font-style: normal;font-weight: 700;font-size: 14px; line-height: 18px; letter-spacing: 0.3px; text-decoration: none;background-color: #0073E6;border-radius: 4px;color: #FFFFFF !important;">
       Visualizza i documenti</a>
     <!--<![endif]-->
     <!--[if (gte mso 9) | IE]>
@@ -145,35 +162,38 @@
       <tr>
         <td bgcolor="#0073E6" valign="middle" align="center" width="174">
           <div
-            style="font-style: normal;font-weight: 700;font-size: 14px; line-height: 2; margin: 0; padding: 0; mso-table-lspace:0; mso-table-rspace:0; color: #ffffff; text-decoration: none;">
+            style="font-style: normal;font-weight: 700;font-size: 14px; line-height: 16px; margin: 0; padding: 0; mso-table-lspace:0; mso-table-rspace:0; color: #ffffff; text-decoration: none;">
             <a href="${quickAccessLink}" title="Visualizza i documenti"
-              style=" letter-spacing: 0.3px; text-decoration: none; color: #FFFFFF">
+              style="letter-spacing: 0.3px; text-decoration: none; color: #FFFFFF">
               Visualizza i documenti</a>
           </div>
         </td>
       </tr>
     </table>
      <![endif]-->
-    <div style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; margin-bottom: 32px; font-weight: 400;">
-      <p style="font-size: 0.8rem; line-height: 1.25rem;">
-        Ricevi questo avviso di avvenuta ricezione in qualità di
+    <br aria-hidden="true">
+    <div class="text"
+      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; margin-bottom: 32px; font-weight: 400; color: #17324D;">
+      <p style="font-size: 14px; line-height: 18px;">
+        Ricevi questo avviso di avvenuta ricezione in qualit&agrave; di
         persona ${recipientType} con Codice Fiscale
-        ${recipient.taxId}. SEND è uno strumento che rende l'invio
-        di notifiche da parte della Pubblica Amministrazione più
+        ${recipient.taxId}. SEND &egrave; uno strumento che rende l'invio
+        di notifiche da parte della Pubblica Amministrazione pi&ugrave
         sicuro, efficiente ed economico. <a class="link" href="${PNFaqSendURL}" style="color: #0073e6"
           title="Scopri di più">Scopri
           di più</a>
       </p>
-      <p style="font-size: 1rem;">A presto,<br aria-hidden="true">SEND - Servizio Notifiche
+      <br aria-hidden="true">
+      <p style="font-size: 18px;">A presto,<br aria-hidden="true">SEND - Servizio Notifiche
         Digitali</p>
     </div>
-    <div
-      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; margin-top: 25px;border-top: 1px solid #E3E7EB;padding-top: 25px; font-weight: 400;font-size: 0.8rem; line-height: 1.25rem;">
+    <div class="disclaimer"
+      style="font-family: 'Titillium Web', Arial, Helvetica, sans-serif; border-top: 1px solid #E3E7EB; font-weight: 400;font-size: 14px; line-height: 18px; color: #17324D;">
       <p>
-        L'ente mittente conosce questo indirizzo PEC perché l'hai
-        inserito nei tuoi recapiti di SEND, perché fa parte di uno
+        L'ente mittente conosce questo indirizzo PEC perch&eacute; l'hai
+        inserito nei tuoi recapiti di SEND, perch&eacute; fa parte di uno
         dei registri previsti dal Codice Amministrazione Digitale o
-        perché gliel'hai comunicato in passato. Per modificare i
+        perch&eacute; gliel'hai comunicato in passato. Per modificare i
         recapiti o aggiungerne altri,
         <a class="link" href="${piattaformaNotificheURL}recapiti" style="color: #0073e6"
           title="vai ai tuoi recapiti">vai ai tuoi recapiti</a>.
