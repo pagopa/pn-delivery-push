@@ -950,4 +950,21 @@ class TimelineUtilsTest {
             () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
+
+    @Test
+    void buildCancelledTimelineElement() {
+        NotificationInt notification = buildNotification();
+
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test".replace("#", TimelineEventIdBuilder.DELIMITER);
+
+        TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
+            notification
+        );
+
+        Assertions.assertAll(
+            () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+            () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+            () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+    }
 }
