@@ -38,9 +38,9 @@ public interface StatusService {
 
     /**
      * aggiorna lo stato chiamando pn-delivery
-     * @param iun
-     * @param nextState
-     * @param timeStamp
+     * @param iun iun della notifica
+     * @param nextState prossimo stato
+     * @param timeStamp timestamp
      */
     void updateStatus(String iun, NotificationStatusInt nextState, Instant timeStamp);
 
