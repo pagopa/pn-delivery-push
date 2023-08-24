@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -1071,7 +1072,9 @@ public class TimelineUtils {
             EventId.builder()
                 .iun(notification.getIun())
                 .build());
-        CancellationRequestDetailsInt details = CancellationRequestDetailsInt.builder().build();
+        CancellationRequestDetailsInt details = CancellationRequestDetailsInt.builder().
+            cancellationRequestId(UUID.randomUUID().toString()).
+            build();
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, elementId, details);
     }
 
@@ -1151,8 +1154,6 @@ public class TimelineUtils {
     }
 
     public boolean checkIsNotificationCancellationRequested(String iun) {
-        boolean isNotificationCancelled = false;
-
         String elementId = NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
             EventId.builder()
                 .iun(iun)
@@ -1160,7 +1161,7 @@ public class TimelineUtils {
 
         Set<TimelineElementInternal> notificationElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
 
-        isNotificationCancelled = notificationElements != null && !notificationElements.isEmpty();
+        boolean isNotificationCancelled = notificationElements != null && !notificationElements.isEmpty();
         log.debug("NotificationCancelled value is={}", isNotificationCancelled);
 
         return isNotificationCancelled;
