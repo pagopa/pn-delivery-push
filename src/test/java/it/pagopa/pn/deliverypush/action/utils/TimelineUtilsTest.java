@@ -897,4 +897,40 @@ class TimelineUtilsTest {
                 ))
                 .build();
     }
+
+    @Test
+    void checkIsNotificationCancellationNotRequested() {
+        String iun = "testIun";
+
+        Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.anyString(), Mockito.eq(false))).thenReturn(new HashSet<>());
+
+        boolean isNotificationCancellationRequested = timelineUtils.checkIsNotificationCancellationRequested (iun);
+        Assertions.assertFalse(isNotificationCancellationRequested);
+    }
+
+    @Test
+    void checkIsNotificationCancellationRequested() {
+        String iun = "testIun";
+
+        Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
+
+        String timelineEventId = TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
+            EventId.builder()
+                .iun(iun)
+                .build());
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+            .category(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST)
+            .elementId(timelineEventId)
+            .details(NotificationPaidDetailsInt.builder()
+                .build())
+            .build();
+
+        setTimelineElement.add(timelineElementInternal);
+
+        Mockito.when(timelineService.getTimelineByIunTimelineId(iun, timelineEventId, false)).thenReturn(setTimelineElement);
+
+        boolean isNotificationCancellationRequested = timelineUtils.checkIsNotificationCancellationRequested(iun);
+        Assertions.assertTrue(isNotificationCancellationRequested);
+    }
 }
