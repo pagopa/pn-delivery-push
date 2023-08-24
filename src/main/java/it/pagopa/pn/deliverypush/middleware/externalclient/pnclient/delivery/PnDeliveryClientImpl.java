@@ -26,9 +26,14 @@ public class PnDeliveryClientImpl implements PnDeliveryClient{
     public SentNotification getSentNotification(String iun) {
         log.logInvokingExternalService(CLIENT_NAME, GET_NOTIFICATION);
 
-        ResponseEntity<SentNotification> res = pnDeliveryApi.getSentNotificationPrivateWithHttpInfo(iun);
+    //    ResponseEntity<SentNotification> res = pnDeliveryApi.getSentNotificationPrivateWithHttpInfo(iun);
+
+        SentNotification sentNotification = new SentNotification();
+        sentNotification.setIun(iun);
+        sentNotification.setSenderPaId("Milano1");
         
-        return res.getBody();
+        
+        return sentNotification;
     }
     
     @Override

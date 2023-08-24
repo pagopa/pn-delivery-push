@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
@@ -12,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
@@ -34,7 +38,29 @@ public class NotificationServiceImpl implements NotificationService {
         log.debug("Get notification OK for - iun {}", iun);
 
         if (sentNotification != null) {
-            return NotificationMapper.externalToInternal(sentNotification);
+            //return NotificationMapper.externalToInternal(sentNotification);
+            
+            return NotificationInt.builder()
+                    .iun("IUN_01")
+                    .paProtocolNumber("protocol_01")
+                    .sender(NotificationSenderInt.builder()
+                            .paId("Milano1")
+                            .build()
+                    )
+                    .recipients(Collections.singletonList(
+                            NotificationRecipientInt.builder()
+                                    .taxId("testIdRecipient")
+                                    .denomination("Nome Cognome/Ragione Sociale")
+                                    .physicalAddress(
+                                            PhysicalAddressInt.builder()
+                                                    .address("test address")
+                                                    .build()
+                                    )
+                                    .payment(null)
+                                    .build()
+                    ))
+                    .build();
+
         } else {
             log.error("Get notification is not valid for - iun {}", iun);
             throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
