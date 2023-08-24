@@ -58,19 +58,36 @@ public class StatusServiceImpl implements StatusService {
 
         // - se i due stati differiscono
         if (!currentState.equals(nextState)) {
-
             updateStatus(dto.getIun(), nextState, dto.getTimestamp());
         }
 
         return new NotificationStatusUpdate(currentState, nextState);
     }
 
-    private void updateStatus(String iun, NotificationStatusInt nextState, Instant timeStamp) {
+    @Override
+    public NotificationStatusUpdate checkStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification) {
+        log.debug("checkStatus is present paProtocolNumber {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
+
+        NotificationStatusUpdate notificationStatusUpdate = computeStatusChange(dto, currentTimeline, notification);
+        NotificationStatusInt currentState = notificationStatusUpdate.getOldStatus();
+        NotificationStatusInt nextState = notificationStatusUpdate.getNewStatus();
+
+        log.debug("checkStatus Next state is {} for iun {}", nextState, dto.getIun());
+
+        // - se i due stati differiscono
+        if (!currentState.equals(nextState)) {
+            updateStatus(dto.getIun(), nextState, dto.getTimestamp());
+        }
+
+        return new NotificationStatusUpdate(currentState, nextState);
+    }
+
+    @Override
+    public void updateStatus(String iun, NotificationStatusInt nextState, Instant timeStamp) {
         RequestUpdateStatusDto dto = getRequestUpdateStatusDto(iun, nextState, timeStamp);
 
         pnDeliveryClient.updateStatus(dto);
         log.info("Status changed to {} for iun {}", dto.getNextStatus(), dto.getIun());
-        
     }
 
     private RequestUpdateStatusDto getRequestUpdateStatusDto(String iun, NotificationStatusInt nextState, Instant timeStamp) {
