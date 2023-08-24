@@ -262,6 +262,8 @@ servers:
     description: Ambiente di test
   - url: https://api.dev.pn.pagopa.it
     description: Ambiente di sviluppo
+security:
+  - ApiKeyAuth: []
 tags:
   - name: HealthCheck
     description: 'Invocazioni per sapere lo stato del microservizio # il servizio è ancora in fase di sviluppo'
@@ -704,7 +706,7 @@ components:
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
           * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
           * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
-          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici 
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
           * `SCHEDULE_ANALOG_WORKFLOW` - Pianificazione del workflow per invio cartaceo
           * `SCHEDULE_DIGITAL_WORKFLOW` -Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.
           * `PREPARE_DIGITAL_DOMICILE` - Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.
@@ -782,5 +784,3 @@ components:
       type: apiKey
       in: header
       name: x-api-key
-security:
-  - ApiKeyAuth: []

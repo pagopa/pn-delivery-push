@@ -156,7 +156,9 @@ components:
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
-
+        - "$ref": "#/components/schemas/NotificationCancellationRequestDetails"
+        - "$ref": "#/components/schemas/NotificationCancelledDetails"
+          
     NotificationRequestAcceptedDetails:
       type: object
       properties:
@@ -990,6 +992,23 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         normalizedAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+    
+    NotificationCancelledDetails:
+      type: object
+      required:
+        - notificationCost
+      properties:
+        notificationCost:
+          description: costo notifica in euro cents
+          example: 1220
+          type: integer
+          format: int64
+    
+    NotificationCancellationRequestDetails:
+      type: object
+      properties:
+        cancellationId:
+          type: string
 
     DigitalAddressSource:
       type: string
