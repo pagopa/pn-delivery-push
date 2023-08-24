@@ -57,7 +57,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
 
     @Override
-    public void addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
+    public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
         MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.TIMELINE_KEY);
         
         log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
@@ -91,6 +91,8 @@ public class TimeLineServiceImpl implements TimelineService {
                 logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
                 
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
+                
+                return timelineInsertSkipped;
             } catch (Exception ex) {
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
                 logEvent.generateFailure("Exception in addTimelineElement", ex).log();

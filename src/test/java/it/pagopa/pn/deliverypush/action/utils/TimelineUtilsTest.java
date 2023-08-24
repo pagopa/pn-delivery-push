@@ -213,7 +213,6 @@ class TimelineUtilsTest {
         Integer recIndex = 1;
         NotificationInt notification = buildNotification();
         PhysicalAddressInt address = buildPhysicalAddressInt();
-        String eventId = "001";
         SendResponse sendResponse = new SendResponse()
                 .amount(10);
 
@@ -318,9 +317,7 @@ class TimelineUtilsTest {
         String legalFactId = "001";
         String timelineEventIdExpected = "DIGITAL_FAILURE_WORKFLOW#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
-        TimelineElementInternal actual = timelineUtils.buildFailureDigitalWorkflowTimelineElement(
-                notification, recIndex, legalFactId, Instant.now()
-        );
+        TimelineElementInternal actual = timelineUtils.buildFailureDigitalWorkflowTimelineElement(notification, recIndex, legalFactId);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
@@ -423,11 +420,8 @@ class TimelineUtilsTest {
         List<AttachmentDetailsInt> attachments = new ArrayList<>();
         attachments.add(AttachmentDetailsInt.builder().url("key").build());
         
-        PhysicalAddressInt newAddress = buildPhysicalAddressInt();
-        List<String> errors = Collections.singletonList("error 001");
         SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder().build();
-
-
+        
         SendEventInt sendEventInt = SendEventInt.builder()
                 .statusDateTime(Instant.now())
                 .statusCode("KO")
@@ -675,7 +669,7 @@ class TimelineUtilsTest {
                 .build();
         setTimelineElement.add(timelineElementInternal);
         
-        Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.eq("test1"), Mockito.eq(false))).thenReturn(setTimelineElement);
+        Mockito.when(timelineService.getTimelineByIunTimelineId(iun, "test1", false)).thenReturn(setTimelineElement);
 
         boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
         Assertions.assertFalse(isNotificationPaid);
@@ -703,7 +697,7 @@ class TimelineUtilsTest {
         
         setTimelineElement.add(timelineElementInternal);
         
-        Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.eq(timelineEventId), Mockito.eq(false))).thenReturn(setTimelineElement);
+        Mockito.when(timelineService.getTimelineByIunTimelineId(iun, timelineEventId, false)).thenReturn(setTimelineElement);
 
         boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
         Assertions.assertTrue(isNotificationPaid);

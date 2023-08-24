@@ -399,7 +399,7 @@ class DigitalTestMultiRecipientIT {
         checkPecSendAndDeliveryAttachment(digitalDomicile1, iun, recIndex1, sendAttemptMade, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
 
         //Viene verificato per il primo recipient che il workflow sia fallito
-        TestUtils.checkFailDigitalWorkflowMultiRec(iun, recIndex1, 2,  timelineService, completionWorkflow);
+        TestUtils.checkFailDigitalWorkflowMultiRec(iun, recIndex1, 1,  timelineService, completionWorkflow);
 
         //CHECK SECONDO RECIPIENT
 
@@ -759,7 +759,7 @@ class DigitalTestMultiRecipientIT {
         checkPecSendAndDeliveryAttachment(digitalDomicile1, iun, recIndex1, sendAttemptMade, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
 
         //Viene verificato per il primo recipient che il workflow sia fallito
-        TestUtils.checkFailDigitalWorkflowMultiRec(iun, recIndex1, 2,  timelineService, completionWorkflow);
+        TestUtils.checkFailDigitalWorkflowMultiRec(iun, recIndex1, 1,  timelineService, completionWorkflow);
 
         //CHECK SECONDO RECIPIENT
 
@@ -948,7 +948,7 @@ class DigitalTestMultiRecipientIT {
         checkPecSendAndDeliveryAttachment(digitalDomicile2, iun, recIndex2, 1, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
 
         //Viene verificato per il secondo recipient che il workflow sia fallito
-        TestUtils.checkFailDigitalWorkflowMultiRec(iun, recIndex2, 2,  timelineService, completionWorkflow);
+        TestUtils.checkFailDigitalWorkflowMultiRec(iun, recIndex2, 1,  timelineService, completionWorkflow);
         
         //Viene effettuato il check dei legalFacts generati per il primo recipient
         EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;

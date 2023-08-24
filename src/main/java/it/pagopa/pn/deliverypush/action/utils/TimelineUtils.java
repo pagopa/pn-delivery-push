@@ -466,8 +466,7 @@ public class TimelineUtils {
     
     public TimelineElementInternal buildFailureDigitalWorkflowTimelineElement(NotificationInt notification,
                                                                               Integer recIndex,
-                                                                              String legalFactId,
-                                                                              Instant legalFactGenerationDate) {
+                                                                              String legalFactId) {
         log.debug("buildFailureDigitalWorkflowTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
@@ -483,8 +482,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( singleLegalFactId(legalFactId, LegalFactCategoryInt.DIGITAL_DELIVERY) );
         
-        return buildTimeline(notification, TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, elementId, legalFactGenerationDate,
-                details, timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, elementId, details, timelineBuilder);
     }
 
 

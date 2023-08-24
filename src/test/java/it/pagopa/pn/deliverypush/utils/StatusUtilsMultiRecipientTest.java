@@ -47,10 +47,10 @@ class StatusUtilsMultiRecipientTest {
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .build();
 
-        TimelineElementInternal digitalSuccessWorkflowRec1 = TimelineElementInternal.builder()
-                .elementId("digitalSuccessWorkflowRec1")
+        TimelineElementInternal digitalDeliveryCreationRequest = TimelineElementInternal.builder()
+                .elementId("digitalDeliveryCreationRequestRec1")
                 .timestamp((Instant.parse("2021-09-16T15:31:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
 
         // Secondo recipient
@@ -77,7 +77,7 @@ class StatusUtilsMultiRecipientTest {
                 requestAccepted,
                 getAddressRec1,
                 sendDigitalDomicileRec1,
-                digitalSuccessWorkflowRec1,
+                digitalDeliveryCreationRequest,
                 getAddressRec2,
                 sendAnalogDomicileRec2,
                 completelyUnreachableRec2
@@ -110,7 +110,7 @@ class StatusUtilsMultiRecipientTest {
                 .relatedTimelineElements(
                         Arrays.asList(
                                 sendDigitalDomicileRec1.getElementId(),
-                                digitalSuccessWorkflowRec1.getElementId(),
+                                digitalDeliveryCreationRequest.getElementId(),
                                 getAddressRec2.getElementId(),
                                 sendAnalogDomicileRec2.getElementId()
                         )

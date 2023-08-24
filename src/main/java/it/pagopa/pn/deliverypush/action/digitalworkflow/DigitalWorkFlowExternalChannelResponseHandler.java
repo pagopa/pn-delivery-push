@@ -3,11 +3,10 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.SendInformation;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
@@ -27,7 +26,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Optional;
+import java.util.Set;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_SENDDIGITALTIMELINEEVENTNOTFOUND;
@@ -232,12 +232,11 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                 //perchè sono sicuro che almeno questo feedback è positivo, non mi interessa dunque di controllare il primo feedback
                 
                 //La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
-                String timelineId = completionWorkflow.completionDigitalWorkflow(
+                String timelineId = completionWorkflow.completionSuccessDigitalWorkflow(
                         digitalResultInfos.getNotification(),
                         digitalResultInfos.getRecIndex(),
                         digitalResultInfos.getResponse().getEventTimestamp(),
-                        digitalResultInfos.getDigitalAddressInt(),
-                        EndWorkflowStatus.SUCCESS
+                        digitalResultInfos.getDigitalAddressInt()
                 );
 
                 logEvent.generateSuccess("Pec sent successfully, completion workflow timelineId={}", timelineId).log();
