@@ -933,4 +933,21 @@ class TimelineUtilsTest {
         boolean isNotificationCancellationRequested = timelineUtils.checkIsNotificationCancellationRequested(iun);
         Assertions.assertTrue(isNotificationCancellationRequested);
     }
+
+    @Test
+    void buildCancelRequestTimelineElement() {
+        NotificationInt notification = buildNotification();
+
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLATION_REQUEST.IUN_Example_IUN_1234_Test".replace("#", TimelineEventIdBuilder.DELIMITER);
+
+        TimelineElementInternal actual = timelineUtils.buildCancelRequestTimelineElement(
+            notification
+        );
+
+        Assertions.assertAll(
+            () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+            () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+            () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+    }
 }
