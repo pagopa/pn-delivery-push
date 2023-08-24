@@ -67,7 +67,7 @@ class LegalFactPdfGeneratorTest {
 		InstantNowSupplier instantNowSupplier = new InstantNowSupplier();
 		pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
 		pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq");
-		pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://www.notifichedigitali.pagopa.it/");
+		pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://www.dev.notifichedigitali.it/");
 		pnDeliveryPushConfigs.getWebapp().setFaqSendHash("send-cosa-e");
 		pnDeliveryPushConfigs.getWebapp().setFaqCompletionMomentHash("perfezionamento");
 		pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://cittadini.dev.notifichedigitali.it/");
@@ -245,7 +245,7 @@ class LegalFactPdfGeneratorTest {
 				}
 		);
 
-		System.out.print("*** AAR PEC BODY successfully created");
+		System.out.print("*** AAR EMAIL BODY successfully created");
 	}
 
 
@@ -265,7 +265,7 @@ class LegalFactPdfGeneratorTest {
 				}
 		);
 
-		System.out.print("*** AAR PEC BODY successfully created");
+		System.out.print("*** AAR EMAIL BODY successfully created");
 	}
 
 	@Test
@@ -309,7 +309,7 @@ class LegalFactPdfGeneratorTest {
 				}
 		);
 
-		System.out.print("*** AAR EMAIL BODY successfully created");
+		System.out.print("*** AAR SMS successfully created");
 	}
 	
 	@Test

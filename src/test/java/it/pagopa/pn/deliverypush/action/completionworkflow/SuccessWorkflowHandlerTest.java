@@ -23,8 +23,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Instant;
 
 class SuccessWorkflowHandlerTest {
-    @Mock 
-    private RefinementScheduler refinementScheduler;
     @Mock
     private TimelineService timelineService;
     @Mock
@@ -40,7 +38,6 @@ class SuccessWorkflowHandlerTest {
     public void setup() {
         notificationUtils = new NotificationUtils();
         handler = new SuccessWorkflowHandler(
-                refinementScheduler,
                 timelineService,
                 timelineUtils);
     }
@@ -75,7 +72,6 @@ class SuccessWorkflowHandlerTest {
         //THEN
         Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
         Mockito.verify(logEvent).generateSuccess();
-        Mockito.verify(refinementScheduler).scheduleDigitalRefinement(notification, recIndex, details.getCompletionWorkflowDate(), details.getEndWorkflowStatus());
     }
 
     @Test

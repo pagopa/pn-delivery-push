@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.utils;
 
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -25,8 +24,6 @@ class StatusUtilsTest {
     @Mock
     private TimelineService timelineService;
     
-    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
     private StatusUtils statusUtils;
 
     @BeforeEach
@@ -56,7 +53,7 @@ class StatusUtilsTest {
         TimelineElementInternal timelineElement5 = TimelineElementInternal.builder()
                 .elementId("el5")
                 .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         TimelineElementInternal timelineElement6 = TimelineElementInternal.builder()
                 .elementId("el6")
@@ -153,15 +150,15 @@ class StatusUtilsTest {
                 .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
                 .build();
-        TimelineElementInternal digitalFailureWorkflow = TimelineElementInternal.builder()
+        TimelineElementInternal digitalDeliveryCreationRequest = TimelineElementInternal.builder()
                 .elementId("el5")
                 .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
 
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAccepted, sendDigitalDomicile,
-                sendDigitalFeedback, digitalFailureWorkflow);
+                sendDigitalFeedback, digitalDeliveryCreationRequest);
 
 
         // WHEN ask for status history
@@ -214,9 +211,9 @@ class StatusUtilsTest {
         //  ... 4rd initial status
         Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.DELIVERED)
-                        .activeFrom(digitalFailureWorkflow.getTimestamp())
+                        .activeFrom(digitalDeliveryCreationRequest.getTimestamp())
                         .relatedTimelineElements(List.of(
-                                digitalFailureWorkflow.getElementId())
+                                digitalDeliveryCreationRequest.getElementId())
                         )
                         .build(),
                 actualStatusHistory.get(3),
@@ -243,19 +240,24 @@ class StatusUtilsTest {
                 .timestamp((Instant.parse("2021-09-16T15:27:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
                 .build();
-        TimelineElementInternal digitalFailureWorkflow = TimelineElementInternal.builder()
+        TimelineElementInternal digitalDeliveryCreationRequest = TimelineElementInternal.builder()
                 .elementId("el5")
                 .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
+                .build();
+        TimelineElementInternal digitalFailureWorkflow = TimelineElementInternal.builder()
+                .elementId("el6")
+                .timestamp((Instant.parse("2021-09-16T15:28:30.00Z")))
                 .category(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW)
                 .build();
         TimelineElementInternal sendSimpleRegisteredLetter = TimelineElementInternal.builder()
-                .elementId("el6")
+                .elementId("el7")
                 .timestamp((Instant.parse("2021-09-16T15:29:00.00Z")))
                 .category(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER)
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAccepted, sendDigitalDomicile,
-                sendDigitalFeedback, digitalFailureWorkflow, sendSimpleRegisteredLetter);
+                sendDigitalFeedback, digitalDeliveryCreationRequest, digitalFailureWorkflow, sendSimpleRegisteredLetter);
 
 
         // WHEN ask for status history
@@ -309,8 +311,9 @@ class StatusUtilsTest {
         //  ... 4rd initial status
         Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.DELIVERED)
-                        .activeFrom(digitalFailureWorkflow.getTimestamp())
+                        .activeFrom(digitalDeliveryCreationRequest.getTimestamp())
                         .relatedTimelineElements(List.of(
+                                digitalDeliveryCreationRequest.getElementId(),
                                 digitalFailureWorkflow.getElementId(),
                                 sendSimpleRegisteredLetter.getElementId()
                         ))
@@ -842,7 +845,7 @@ class StatusUtilsTest {
         TimelineElementInternal pecReceivedFirstRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:32:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         //PN riceve feedback positivo da External Channels per tutti e 3 destinatari e il workflow si completa per tutti e 3
         TimelineElementInternal feedbackOKSecondRecipientTimelineElement = TimelineElementInternal.builder()
@@ -853,7 +856,7 @@ class StatusUtilsTest {
         TimelineElementInternal pecReceivedSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:34:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         TimelineElementInternal feedbackOKThirdRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("feedbackOKThirdRecipientTimelineElement")
@@ -863,7 +866,7 @@ class StatusUtilsTest {
         TimelineElementInternal pecReceivedThirdRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedThirdRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:36:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         //Un destinatario visualizza la notifica
         TimelineElementInternal viewedFromPNTimelineElement = TimelineElementInternal.builder()
@@ -1142,7 +1145,7 @@ class StatusUtilsTest {
         TimelineElementInternal pecReceivedTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:34:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
 
 
@@ -1259,7 +1262,7 @@ class StatusUtilsTest {
         TimelineElementInternal pecReceivedFirstRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:32:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         TimelineElementInternal unreachableTimelineElement = TimelineElementInternal.builder()
                 .elementId("unreachableTimelineElement")
@@ -1269,7 +1272,7 @@ class StatusUtilsTest {
         TimelineElementInternal pecReceivedSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:34:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
 
 
@@ -1892,12 +1895,12 @@ class StatusUtilsTest {
         TimelineElementInternal pecReceivedFirstRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:29:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         TimelineElementInternal pecReceivedSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:29:30.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         TimelineElementInternal refinementFirstRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("refinementFirstRecipientTimelineElement")
@@ -2170,12 +2173,12 @@ class StatusUtilsTest {
         TimelineElementInternal pecReceivedFirstRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:29:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         TimelineElementInternal pecReceivedSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:29:30.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         TimelineElementInternal viewedTimelineElement = TimelineElementInternal.builder()
                 .elementId("viewedTimelineElement")
@@ -2299,7 +2302,7 @@ class StatusUtilsTest {
         TimelineElementInternal timelineElement5_1 = TimelineElementInternal.builder()
                 .elementId("el8")
                 .timestamp((Instant.parse("2021-09-16T15:31:00.00Z")))
-                .category(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW)
+                .category(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST)
                 .build();
         TimelineElementInternal timelineElement6 = TimelineElementInternal.builder()
                 .elementId("el9")

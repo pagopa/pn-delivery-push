@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
 
 @Component
@@ -466,8 +468,7 @@ public class TimelineUtils {
     
     public TimelineElementInternal buildFailureDigitalWorkflowTimelineElement(NotificationInt notification,
                                                                               Integer recIndex,
-                                                                              String legalFactId,
-                                                                              Instant legalFactGenerationDate) {
+                                                                              String legalFactId) {
         log.debug("buildFailureDigitalWorkflowTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
@@ -483,8 +484,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( singleLegalFactId(legalFactId, LegalFactCategoryInt.DIGITAL_DELIVERY) );
         
-        return buildTimeline(notification, TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, elementId, legalFactGenerationDate,
-                details, timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, elementId, details, timelineBuilder);
     }
 
 
@@ -1064,7 +1064,30 @@ public class TimelineUtils {
         
         return buildTimeline(notification, TimelineElementCategoryInt.NORMALIZED_ADDRESS, elementId, details);
     }
-    
+
+    public TimelineElementInternal buildCancelRequestTimelineElement(NotificationInt notification){
+        log.debug("buildCancelRequestTimelineElement - IUN={}", notification.getIun());
+
+        String elementId = NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
+            EventId.builder()
+                .iun(notification.getIun())
+                .build());
+        CancellationRequestDetailsInt details = CancellationRequestDetailsInt.builder().
+            cancellationRequestId(UUID.randomUUID().toString()).
+            build();
+        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, elementId, details);
+    }
+
+    public TimelineElementInternal buildCancelledTimelineElement(NotificationInt notification){
+        log.debug("buildCancelRequestTimelineElement - IUN={}", notification.getIun());
+
+        String elementId = TimelineEventId.NOTIFICATION_CANCELLED.buildEventId(
+            EventId.builder()
+                .iun(notification.getIun())
+                .build());
+        CancelledDetailsInt details = CancelledDetailsInt.builder().build();
+        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLED, elementId, details);
+    }
 
     public List<LegalFactsIdInt> singleLegalFactId(String legalFactKey, LegalFactCategoryInt type) {
         return Collections.singletonList( LegalFactsIdInt.builder()
@@ -1130,6 +1153,19 @@ public class TimelineUtils {
         return true;
     }
 
+    public boolean checkIsNotificationCancellationRequested(String iun) {
+        String elementId = NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
+            EventId.builder()
+                .iun(iun)
+                .build());
+
+        Set<TimelineElementInternal> notificationElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
+
+        boolean isNotificationCancelled = notificationElements != null && !notificationElements.isEmpty();
+        log.debug("NotificationCancelled value is={}", isNotificationCancelled);
+
+        return isNotificationCancelled;
+    }
     private Optional<TimelineElementInternal> getNotificationView(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()

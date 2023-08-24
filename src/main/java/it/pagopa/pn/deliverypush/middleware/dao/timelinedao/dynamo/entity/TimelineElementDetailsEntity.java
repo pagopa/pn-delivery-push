@@ -85,4 +85,6 @@ public class TimelineElementDetailsEntity {
 
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingAnalogDate")})) private Instant schedulingAnalogDate;
 
+    @Getter(onMethod=@__({@DynamoDbAttribute("cancellationRequestId")})) private String cancellationRequestId;
+
 }
