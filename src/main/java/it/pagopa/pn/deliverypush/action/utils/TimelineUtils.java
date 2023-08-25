@@ -1082,14 +1082,14 @@ public class TimelineUtils {
     public TimelineElementInternal buildCancelledTimelineElement(NotificationInt notification){
         log.debug("buildCancelRequestTimelineElement - IUN={}", notification.getIun());
 
-        int cost = 100 * (notification.getRecipients().size() - numberOfPerfectionated(notification));
+        int[] notRefined = notRefinedRecipientIndexes(notification);
         String elementId = TimelineEventId.NOTIFICATION_CANCELLED.buildEventId(
             EventId.builder()
                 .iun(notification.getIun())
                 .build());
         CancelledDetailsInt details = CancelledDetailsInt.builder().
-            notificationCost(cost).
-            notRefinedRecipientIndexes(notRefinedRecipientIndexes(notification)).
+            notificationCost(100 * notRefined.length).
+            notRefinedRecipientIndexes(notRefined).
             build();
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLED, elementId, details);
     }
@@ -1172,11 +1172,10 @@ public class TimelineUtils {
         return isNotificationCancelled;
     }
 
-    private int numberOfPerfectionated(NotificationInt notification){
-        log.debug("numberOfPerfectionated - iun={} ", notification.getIun());
-
+    private int[] notRefinedRecipientIndexes(NotificationInt notification){
+        log.debug("notRefinedRecipient - iun={} ", notification.getIun());
+        List<Integer> notRefinedRecipientList = new ArrayList<>();
         int totRecipients = notification.getRecipients().size();
-        int numberOfPerf = 0;
         for (int recIndex = 0; recIndex < totRecipients; recIndex++){
             int notificationCost=0;
             Optional<TimelineElementInternal> notificationOpt = getNotificationView(notification.getIun(), recIndex);
@@ -1193,24 +1192,11 @@ public class TimelineUtils {
                 }
             }
 
-            if (notificationCost>0){
-                numberOfPerf++;
-            }
-        }
-
-        return numberOfPerf;
-    }
-
-    private int[] notRefinedRecipientIndexes(NotificationInt notification){
-        log.debug("notRefinedRecipient - iun={} ", notification.getIun());
-        List<Integer> notRefinedRecipientList = new ArrayList<>();
-        int totRecipients = notification.getRecipients().size();
-        for (int recIndex=0; recIndex < totRecipients; recIndex++){
-            Optional<TimelineElementInternal> notificationOpt = getNotificationRefinement(notification.getIun(), recIndex);
-            if (notificationOpt.isEmpty()){
+            if (notificationCost == 0){
                 notRefinedRecipientList.add(recIndex);
             }
         }
+
         return notRefinedRecipientList.stream().mapToInt(Integer::intValue).toArray();
     }
 
