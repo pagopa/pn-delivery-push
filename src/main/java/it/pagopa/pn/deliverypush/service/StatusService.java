@@ -34,7 +34,7 @@ public interface StatusService {
      * @param notification notifica
      * @return entrambi i notificationstatus (old, new) - cambio di stato elaborato
      */
-    NotificationStatusUpdate checkStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification);
+    NotificationStatusUpdate getStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification);
 
     /**
      * aggiorna lo stato chiamando pn-delivery
