@@ -70,7 +70,7 @@ public class TimeLineServiceImpl implements TimelineService {
         if (notification != null) {
             try{
                 Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun(), true);
-                StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkStatus(dto, currentTimeline, notification);
+                StatusService.NotificationStatusUpdate notificationStatuses = statusService.getStatus(dto, currentTimeline, notification);
 
                 //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
