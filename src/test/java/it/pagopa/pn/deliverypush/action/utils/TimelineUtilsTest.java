@@ -939,7 +939,7 @@ class TimelineUtilsTest {
     void buildCancelRequestTimelineElement() {
         NotificationInt notification = buildNotification();
 
-        String timelineEventIdExpected = "NOTIFICATION_CANCELLATION_REQUEST.IUN_Example_IUN_1234_Test".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLATION_REQUEST.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelRequestTimelineElement(
             notification
@@ -956,7 +956,7 @@ class TimelineUtilsTest {
     void buildCancelledTimelineElement() {
         NotificationInt notification = buildNotification();
 
-        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
             notification
@@ -982,7 +982,7 @@ class TimelineUtilsTest {
             build();
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(timelineElementInternal));
 
-        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
             notification
