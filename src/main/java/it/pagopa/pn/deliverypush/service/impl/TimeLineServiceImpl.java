@@ -70,15 +70,20 @@ public class TimeLineServiceImpl implements TimelineService {
         if (notification != null) {
             try{
                 Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun(), true);
-                StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
+                StatusService.NotificationStatusUpdate notificationStatuses = statusService.getStatus(dto, currentTimeline, notification);
 
                 //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
 
-                //aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
+                // aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
+
+                // aggiorna lo stato su pn-delivery se i due stati differiscono
+                if (!notificationStatuses.getOldStatus().equals(notificationStatuses.getNewStatus())) {
+                    statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
+                }
 
                 // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
                 schedulerService.scheduleWebhookEvent(
