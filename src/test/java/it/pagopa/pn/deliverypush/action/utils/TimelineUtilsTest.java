@@ -49,6 +49,7 @@ class TimelineUtilsTest {
     void setUp() {
         instantNowSupplier = Mockito.mock(InstantNowSupplier.class);
         timelineService = Mockito.mock(TimelineService.class);
+
         timelineUtils = new TimelineUtils(instantNowSupplier, timelineService);
     }
 
@@ -938,7 +939,7 @@ class TimelineUtilsTest {
     void buildCancelRequestTimelineElement() {
         NotificationInt notification = buildNotification();
 
-        String timelineEventIdExpected = "NOTIFICATION_CANCELLATION_REQUEST.IUN_Example_IUN_1234_Test".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLATION_REQUEST.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelRequestTimelineElement(
             notification
@@ -955,7 +956,7 @@ class TimelineUtilsTest {
     void buildCancelledTimelineElement() {
         NotificationInt notification = buildNotification();
 
-        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test".replace("#", TimelineEventIdBuilder.DELIMITER);
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
             notification
@@ -966,5 +967,35 @@ class TimelineUtilsTest {
             () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
             () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
+
+        CancelledDetailsInt detailsInt = (CancelledDetailsInt) actual.getDetails();
+        Assertions.assertEquals(100, detailsInt.getNotificationCost());
+        Assertions.assertEquals(1, detailsInt.getNotRefinedRecipientIndexes().length);
+    }
+    @Test
+    void buildCancelledTimelineElementPerfectionated() {
+        NotificationInt notification = buildNotification();
+        NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(1).build();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().
+            elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue()).
+            details(notificationViewedDetailsInt).
+            build();
+        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(timelineElementInternal));
+
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
+
+        TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
+            notification
+        );
+
+        Assertions.assertAll(
+            () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+            () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+            () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+
+        CancelledDetailsInt detailsInt = (CancelledDetailsInt) actual.getDetails();
+        Assertions.assertEquals(0, detailsInt.getNotificationCost());
+        Assertions.assertEquals(0, detailsInt.getNotRefinedRecipientIndexes().length);
     }
 }

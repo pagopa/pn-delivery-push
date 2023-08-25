@@ -20,6 +20,6 @@ public class CancellationRequestDetailsInt implements TimelineElementDetailsInt 
     private String cancellationRequestId;
 
     public String toLog() {
-        return String.format("cancellationRequestId: %s", cancellationRequestId);
+        return String.format("cancellationRequestId=%s", cancellationRequestId);
     }
 }
