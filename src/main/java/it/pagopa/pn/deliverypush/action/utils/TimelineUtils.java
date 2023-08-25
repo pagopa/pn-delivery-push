@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
@@ -16,16 +15,13 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
@@ -42,6 +38,8 @@ public class TimelineUtils {
         this.instantNowSupplier = instantNowSupplier;
         this.timelineService = timelineService;
     }
+    
+    
 
     public TimelineElementInternal buildTimeline(NotificationInt notification,
                                                  TimelineElementCategoryInt category,

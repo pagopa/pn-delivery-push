@@ -20,6 +20,7 @@ public class PnCancellationController implements NotificationCancellationApi {
 
     private final NotificationCancellationService notificationCancellationService;
     
+    @Override
     public  Mono<ResponseEntity<RequestStatus>> notificationCancellation(
             String xPagopaPnUid,
             CxTypeAuthFleet xPagopaPnCxType,
@@ -36,6 +37,5 @@ public class PnCancellationController implements NotificationCancellationApi {
                             return ResponseEntity.ok(response);
                         })
                 );
-
     }
 }
