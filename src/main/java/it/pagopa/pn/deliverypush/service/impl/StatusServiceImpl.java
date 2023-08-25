@@ -47,24 +47,6 @@ public class StatusServiceImpl implements StatusService {
 
 
     @Override
-    public NotificationStatusUpdate checkAndUpdateStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification) {
-        log.debug("checkAndUpdateStatus is present paProtocolNumber {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
-
-        NotificationStatusUpdate notificationStatusUpdate = computeStatusChange(dto, currentTimeline, notification);
-        NotificationStatusInt currentState = notificationStatusUpdate.getOldStatus();
-        NotificationStatusInt nextState = notificationStatusUpdate.getNewStatus();
-
-        log.debug("checkAndUpdateStatus Next state is {} for iun {}", nextState, dto.getIun());
-
-        // - se i due stati differiscono
-        if (!currentState.equals(nextState)) {
-            updateStatus(dto.getIun(), nextState, dto.getTimestamp());
-        }
-
-        return new NotificationStatusUpdate(currentState, nextState);
-    }
-
-    @Override
     public NotificationStatusUpdate getStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification) {
         log.debug("checkStatus is present paProtocolNumber {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
 
