@@ -74,11 +74,6 @@ public class StatusServiceImpl implements StatusService {
 
         log.debug("checkStatus Next state is {} for iun {}", nextState, dto.getIun());
 
-        // - se i due stati differiscono
-        if (!currentState.equals(nextState)) {
-            updateStatus(dto.getIun(), nextState, dto.getTimestamp());
-        }
-
         return new NotificationStatusUpdate(currentState, nextState);
     }
 
