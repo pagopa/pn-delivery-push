@@ -85,12 +85,8 @@ public class TimeLineServiceImpl implements TimelineService {
                     statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
                 }
 
-                // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
-                schedulerService.scheduleWebhookEvent(
-                        notification.getSender().getPaId(),
-                        dtoWithStatusInfo.getIun(),
-                        dtoWithStatusInfo.getElementId()
-                );
+                // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
+                // asincrona da una lambda che opera partendo da stream Kinesis
 
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
                 logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
