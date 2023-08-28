@@ -17,6 +17,8 @@ import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import java.util.ArrayList;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -1071,18 +1073,24 @@ public class TimelineUtils {
             EventId.builder()
                 .iun(notification.getIun())
                 .build());
-        CancellationRequestDetailsInt details = CancellationRequestDetailsInt.builder().build();
+        CancellationRequestDetailsInt details = CancellationRequestDetailsInt.builder().
+            cancellationRequestId(UUID.randomUUID().toString()).
+            build();
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, elementId, details);
     }
 
     public TimelineElementInternal buildCancelledTimelineElement(NotificationInt notification){
         log.debug("buildCancelRequestTimelineElement - IUN={}", notification.getIun());
 
+        int[] notRefined = notRefinedRecipientIndexes(notification);
         String elementId = TimelineEventId.NOTIFICATION_CANCELLED.buildEventId(
             EventId.builder()
                 .iun(notification.getIun())
                 .build());
-        CancelledDetailsInt details = CancelledDetailsInt.builder().build();
+        CancelledDetailsInt details = CancelledDetailsInt.builder().
+            notificationCost(100 * notRefined.length).
+            notRefinedRecipientIndexes(notRefined).
+            build();
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLED, elementId, details);
     }
 
@@ -1151,8 +1159,6 @@ public class TimelineUtils {
     }
 
     public boolean checkIsNotificationCancellationRequested(String iun) {
-        boolean isNotificationCancelled = false;
-
         String elementId = NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
             EventId.builder()
                 .iun(iun)
@@ -1160,11 +1166,40 @@ public class TimelineUtils {
 
         Set<TimelineElementInternal> notificationElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
 
-        isNotificationCancelled = notificationElements != null && !notificationElements.isEmpty();
+        boolean isNotificationCancelled = notificationElements != null && !notificationElements.isEmpty();
         log.debug("NotificationCancelled value is={}", isNotificationCancelled);
 
         return isNotificationCancelled;
     }
+
+    private int[] notRefinedRecipientIndexes(NotificationInt notification){
+        log.debug("notRefinedRecipient - iun={} ", notification.getIun());
+        List<Integer> notRefinedRecipientList = new ArrayList<>();
+        int totRecipients = notification.getRecipients().size();
+        for (int recIndex = 0; recIndex < totRecipients; recIndex++){
+            int notificationCost=0;
+            Optional<TimelineElementInternal> notificationOpt = getNotificationView(notification.getIun(), recIndex);
+            if (notificationOpt.isPresent()){
+                NotificationViewedDetailsInt viewedDetailsInt = ((NotificationViewedDetailsInt)notificationOpt.get().getDetails());
+                notificationCost = viewedDetailsInt.getNotificationCost();
+            }
+            //If there is no notificationCost on View we check the Refinement
+            if (notificationCost == 0){
+                notificationOpt = getNotificationRefinement(notification.getIun(), recIndex);
+                if (notificationOpt.isPresent()){
+                    RefinementDetailsInt refinementDetailsInt = ((RefinementDetailsInt)notificationOpt.get().getDetails());
+                    notificationCost = refinementDetailsInt.getNotificationCost();
+                }
+            }
+
+            if (notificationCost == 0){
+                notRefinedRecipientList.add(recIndex);
+            }
+        }
+
+        return notRefinedRecipientList.stream().mapToInt(Integer::intValue).toArray();
+    }
+
     private Optional<TimelineElementInternal> getNotificationView(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()
@@ -1181,6 +1216,16 @@ public class TimelineUtils {
                         .iun(iun)
                         .recIndex(recIndex)
                         .build());
+
+        return timelineService.getTimelineElement(iun, elementId);
+    }
+
+    private Optional<TimelineElementInternal> getNotificationRefinement(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.REFINEMENT.buildEventId(
+            EventId.builder()
+                .iun(iun)
+                .recIndex(recIndex)
+                .build());
 
         return timelineService.getTimelineElement(iun, elementId);
     }

@@ -15,11 +15,11 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class CancellationRequestDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class CancellationRequestDetailsInt implements TimelineElementDetailsInt {
 
-    private int recIndex;
+    private String cancellationRequestId;
 
     public String toLog() {
-        return this.toString();
+        return String.format("cancellationRequestId=%s", cancellationRequestId);
     }
 }
