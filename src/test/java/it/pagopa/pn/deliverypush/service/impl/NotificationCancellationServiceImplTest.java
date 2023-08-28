@@ -64,7 +64,7 @@ class NotificationCancellationServiceImplTest {
                 .thenReturn(timelineElementInternal);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(1)))
+        Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_VALID), anyString(), eq(1)))
                 .thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
         
@@ -91,7 +91,7 @@ class NotificationCancellationServiceImplTest {
                 }));
         
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(1)))
+        Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_VALID), anyString(), eq(1)))
                 .thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 

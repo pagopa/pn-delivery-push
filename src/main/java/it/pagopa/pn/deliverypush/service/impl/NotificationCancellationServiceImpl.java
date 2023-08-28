@@ -58,7 +58,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
         
         return auditLogService.buildAuditLogEvent(
                 iun,
-                PnAuditLogEventType.AUD_NT_CANCELLED,
+                PnAuditLogEventType.AUD_NT_VALID, //TODO Da modificare con AUD_NT_CANCELLED (E' valorizzato così solo per il MOCK, per evitare di modificare riferimento a commons)
                 message,
                 validationStep
         );
