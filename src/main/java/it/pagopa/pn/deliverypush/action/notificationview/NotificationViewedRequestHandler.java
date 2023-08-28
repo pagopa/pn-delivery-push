@@ -58,16 +58,7 @@ public class NotificationViewedRequestHandler {
     
     private Mono<Void> handleViewNotification(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
         
-        return Mono.fromCallable(() -> (
-                timelineUtils.checkIsNotificationCancellationRequested(iun)))
-            .flatMap( isNotificationCancelled -> {
-                if (Boolean.TRUE.equals(isNotificationCancelled)){
-                    log.warn("For this notification a cancellation has been requested - iun={} id={}", iun, recIndex);
-                    return Mono.empty();
-                } else {
-                    return Mono.just(timelineUtils.checkIsNotificationViewed(iun, recIndex));
-                }
-            })
+        return Mono.fromCallable(() -> timelineUtils.checkIsNotificationViewed(iun, recIndex))
             .flatMap( isNotificationAlreadyViewed -> {
                 
                 //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
