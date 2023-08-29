@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import static org.mockito.ArgumentMatchers.eq;
+
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -9,10 +11,11 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
@@ -22,6 +25,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchan
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,10 +33,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Map;
-
-import static org.mockito.ArgumentMatchers.eq;
 
 class ExternalChannelServiceImplTest {
     @Mock
@@ -51,6 +51,9 @@ class ExternalChannelServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private TimelineUtils timelineUtils;
+
 
     private ExternalChannelService externalChannelService;
 
@@ -61,7 +64,7 @@ class ExternalChannelServiceImplTest {
                 externalChannel,
                 notificationUtils,
                 digitalWorkFlowUtils,
-                notificationService, auditLogService);
+                notificationService, auditLogService, timelineUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
