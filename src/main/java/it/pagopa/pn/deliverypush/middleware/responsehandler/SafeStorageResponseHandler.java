@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
@@ -25,6 +26,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class SafeStorageResponseHandler {
     private final DocumentCreationRequestService service;
     private final SchedulerService schedulerService;
+    private final TimelineUtils timelineUtils;
 
     public void handleSafeStorageResponse(FileDownloadResponse response) {
         String keyWithPrefix = FileUtils.getKeyWithStoragePrefix(response.getKey());
@@ -33,6 +35,7 @@ public class SafeStorageResponseHandler {
                 PnSafeStorageClient.CLIENT_NAME, PnSafeStorageClient.UPLOAD_FILE_CONTENT, keyWithPrefix);
 
         final String processName = PnSafeStorageClient.UPLOAD_FILE_CONTENT + " response handler";
+
         try {
             log.logStartingProcess(processName);
 
@@ -40,10 +43,15 @@ public class SafeStorageResponseHandler {
 
             if(documentCreationRequestOpt.isPresent()){
                 DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
-                log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
+                String iun = creationRequest.getIun();
+                if (timelineUtils.checkIsNotificationCancellationRequested(iun)){
+                    log.warn("Process {} blocked: cancellation requested for iun {}", processName, iun);
+                } else {
+                    log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
 
-                //Effettuando lo scheduling dell'evento siamo sicuri che l'evento verrà gestito una sola volta, dal momento che lo scheduling è in  putIfAbsent
-                scheduleHandleDocumentCreationResponse(creationRequest);
+                    //Effettuando lo scheduling dell'evento siamo sicuri che l'evento verrà gestito una sola volta, dal momento che lo scheduling è in  putIfAbsent
+                    scheduleHandleDocumentCreationResponse(creationRequest);
+                }
             } else {
                 String error = String.format("There isn't saved DocumentCreationRequest for fileKey=%s and documentType=%s", keyWithPrefix, response.getDocumentType());
                 log.error(error);

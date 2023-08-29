@@ -54,6 +54,12 @@ public class NationalRegistriesResponseHandler {
                 NationalRegistriesClient.CLIENT_NAME, NationalRegistriesClient.GET_DIGITAL_GENERAL_ADDRESS, correlationId);
 
         final String processName = NationalRegistriesClient.GET_DIGITAL_GENERAL_ADDRESS + " response handler";
+
+        if (timelineUtils.checkIsNotificationCancellationRequested(iun)){
+            log.warn("Process {} blocked: cancellation requested for iun {}", processName, iun);
+            return;
+        }
+        
         log.logStartingProcess(processName);
         
         try {
