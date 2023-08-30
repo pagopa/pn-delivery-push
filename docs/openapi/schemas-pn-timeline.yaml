@@ -156,6 +156,8 @@ components:
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
+        - "$ref": "#/components/schemas/CancellationRequestDetails"
+        - "$ref": "#/components/schemas/CancelledDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -990,6 +992,32 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         normalizedAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+
+    CancellationRequestDetails:
+      type: object
+      required:
+        - cancellationRequestId
+      properties:
+        cancellationRequestId:
+          type: string
+          description: Id della richiesta
+
+    CancelledDetails:
+      type: object
+      required:
+        - notificationCost
+        - notRefinedRecipientIndexes
+      properties:
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini
+          example: 1220
+          type: integer
+          format: int64
+        notRefinedRecipientIndexes:
+          type: array
+          items:
+            description: indice del recipient non perfezionato
+            type: integer
 
     DigitalAddressSource:
       type: string

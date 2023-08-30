@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +13,10 @@ class CancelledDetailsIntTest {
     void setUp() {
         detailsInt = new CancelledDetailsInt();
         detailsInt.setNotificationCost(50);
-        detailsInt.setNotRefinedRecipientIndexes(new int[]{1,2});
+        List<Integer> indexes= new ArrayList<>();
+        indexes.add(1);
+        indexes.add(2);
+        detailsInt.setNotRefinedRecipientIndexes(indexes);
     }
 
     @Test
@@ -21,8 +26,8 @@ class CancelledDetailsIntTest {
 
     @Test
     void checkNotRefinedRecipientIndexes(){
-        Assertions.assertEquals(2, detailsInt.getNotRefinedRecipientIndexes().length);
-        Assertions.assertEquals(1, detailsInt.getNotRefinedRecipientIndexes()[0]);
-        Assertions.assertEquals(2, detailsInt.getNotRefinedRecipientIndexes()[1]);
+        Assertions.assertEquals(2, detailsInt.getNotRefinedRecipientIndexes().size());
+        Assertions.assertEquals(1, detailsInt.getNotRefinedRecipientIndexes().get(0));
+        Assertions.assertEquals(2, detailsInt.getNotRefinedRecipientIndexes().get(1));
     }
 }
