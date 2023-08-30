@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: c7EBSzl3iKrVAFLkhsmkrS8c6fKqpH7L1BFsE7RgdJw=
+  version: saR1k9nC6IITaLQqMx3L1VKVmKuXbYFcG2vgEALzyAQ=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -11,6 +11,76 @@ servers:
     x-amazon-apigateway-endpoint-configuration:
       disableExecuteApiEndpoint: true
 paths:
+  /notifications/cancel/{iun}:
+    put:
+      summary: Annullamento notifica
+      description: >-
+        Permette l'annullamento di una notifica restituendo una presa in carico,
+        il processo di annullamento si completa poi in maniera asincrona
+      tags:
+        - notificationCancellation
+      operationId: notificationCancellation
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '202':
+          description: Accepted - Richiesta annullamento presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestStatus'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/cancel/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /notifications/cancel/{iun} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/cancel/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
   /{iun}/legal-facts:
     get:
       summary: Elenco atti opponibili a terzi
@@ -440,64 +510,33 @@ components:
         pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
         maxLength: 512
   schemas:
-    LegalFactCategory:
-      title: Tipi di atti opponibili a terzi
-      description: >-
-        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
-        disposizione dei suoi utenti.
-          - _SENDER_ACK_: atto di "presa in carico" di una notifica
-          - _DIGITAL_DELIVERY_: ...
-      type: string
-      enum:
-        - SENDER_ACK
-        - DIGITAL_DELIVERY
-        - ANALOG_DELIVERY
-        - RECIPIENT_ACCESS
-        - PEC_RECEIPT
-        - ANALOG_FAILURE_DELIVERY
-    LegalFactsId:
-      description: Chiavi dei documenti generati durante il processo di consegna cartacea
-      type: object
-      required:
-        - key
-        - category
+    RequestStatus:
       properties:
-        key:
+        status:
+          description: |
+            Cancellation request status:
+              - OK
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusDetail'
+      required:
+        - status
+    StatusDetail:
+      properties:
+        code:
+          description: Internal code of the error, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        detail:
           description: >-
-            Chiave dell'atto opponibile a terzi generato durante il processo di
-            consegna
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Parameter not valid
           type: string
-          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
-          maxLength: 512
-        category:
-          $ref: '#/components/schemas/LegalFactCategory'
-    LegalFactListElement:
-      description: Informazioni relative ad un atto opponibile a terzi
-      type: object
       required:
-        - iun
-        - legalFactsId
-      properties:
-        taxId:
-          description: Valorizzato se l'atto si riferisce a uno specifico destinatario
-          type: string
-          minLength: 11
-          maxLength: 16
-          pattern: >-
-            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
-        iun:
-          description: Identificativo Univoco Notifica a cui l'atto è associato
-          type: string
-          maxLength: 25
-          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
-        legalFactsId:
-          $ref: '#/components/schemas/LegalFactsId'
-    LegalFactList:
-      title: Elenco atti opponibili
-      description: Elenco degli atti opponibili a terzi correlati a una notifica
-      type: array
-      items:
-        $ref: '#/components/schemas/LegalFactListElement'
+        - code
     ProblemError:
       properties:
         code:
@@ -564,6 +603,64 @@ components:
       required:
         - status
         - errors
+    LegalFactCategory:
+      title: Tipi di atti opponibili a terzi
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
+        disposizione dei suoi utenti.
+          - _SENDER_ACK_: atto di "presa in carico" di una notifica
+          - _DIGITAL_DELIVERY_: ...
+      type: string
+      enum:
+        - SENDER_ACK
+        - DIGITAL_DELIVERY
+        - ANALOG_DELIVERY
+        - RECIPIENT_ACCESS
+        - PEC_RECEIPT
+        - ANALOG_FAILURE_DELIVERY
+    LegalFactsId:
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+      type: object
+      required:
+        - key
+        - category
+      properties:
+        key:
+          description: >-
+            Chiave dell'atto opponibile a terzi generato durante il processo di
+            consegna
+          type: string
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
+          maxLength: 512
+        category:
+          $ref: '#/components/schemas/LegalFactCategory'
+    LegalFactListElement:
+      description: Informazioni relative ad un atto opponibile a terzi
+      type: object
+      required:
+        - iun
+        - legalFactsId
+      properties:
+        taxId:
+          description: Valorizzato se l'atto si riferisce a uno specifico destinatario
+          type: string
+          minLength: 11
+          maxLength: 16
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+        iun:
+          description: Identificativo Univoco Notifica a cui l'atto è associato
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        legalFactsId:
+          $ref: '#/components/schemas/LegalFactsId'
+    LegalFactList:
+      title: Elenco atti opponibili
+      description: Elenco degli atti opponibili a terzi correlati a una notifica
+      type: array
+      items:
+        $ref: '#/components/schemas/LegalFactListElement'
     LegalFactDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-

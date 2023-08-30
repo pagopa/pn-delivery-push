@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
@@ -16,15 +15,13 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
@@ -41,6 +38,8 @@ public class TimelineUtils {
         this.instantNowSupplier = instantNowSupplier;
         this.timelineService = timelineService;
     }
+    
+    
 
     public TimelineElementInternal buildTimeline(NotificationInt notification,
                                                  TimelineElementCategoryInt category,
@@ -1071,7 +1070,9 @@ public class TimelineUtils {
             EventId.builder()
                 .iun(notification.getIun())
                 .build());
-        CancellationRequestDetailsInt details = CancellationRequestDetailsInt.builder().build();
+        CancellationRequestDetailsInt details = CancellationRequestDetailsInt.builder().
+            cancellationRequestId(UUID.randomUUID().toString()).
+            build();
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, elementId, details);
     }
 
@@ -1151,7 +1152,6 @@ public class TimelineUtils {
     }
 
     public boolean checkIsNotificationCancellationRequested(String iun) {
-        boolean isNotificationCancelled = false;
 
         String elementId = NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
             EventId.builder()
@@ -1160,7 +1160,7 @@ public class TimelineUtils {
 
         Set<TimelineElementInternal> notificationElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
 
-        isNotificationCancelled = notificationElements != null && !notificationElements.isEmpty();
+        boolean isNotificationCancelled = notificationElements != null && !notificationElements.isEmpty();
         log.debug("NotificationCancelled value is={}", isNotificationCancelled);
 
         return isNotificationCancelled;

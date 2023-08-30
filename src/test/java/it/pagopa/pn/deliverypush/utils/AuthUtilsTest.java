@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -257,6 +258,60 @@ class AuthUtilsTest {
         );
     }
 
+    @Test
+    void checkPaId() {
+        //GIVEN
+        String iun = "iun";
+        String taxId = "testTaxId";
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
+        String paId = "paId01";
+
+        Instant sentAt = Instant.now();
+
+        NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId, sentAt);
+
+        //WHEN
+        assertDoesNotThrow(() ->
+                authUtils.checkPaId(notification, paId, CxTypeAuthFleet.PA).block()
+        );
+    }
+
+    @Test
+    void checkPaIdErrorCxType() {
+        //GIVEN
+        String iun = "iun";
+        String taxId = "testTaxId";
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
+        String paId = "paId01";
+
+        Instant sentAt = Instant.now();
+
+        NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId, sentAt);
+        
+        Mono<Void> monoResp =  authUtils.checkPaId(notification, paId, CxTypeAuthFleet.PG);
+        
+        //WHEN
+        assertThrows(PnNotFoundException.class, monoResp::block);
+    }
+
+    @Test
+    void checkPaIdErrorPaId() {
+        //GIVEN
+        String iun = "iun";
+        String taxId = "testTaxId";
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
+        String paId = "paId01";
+
+        Instant sentAt = Instant.now();
+
+        NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId, sentAt);
+
+        Mono<Void> monoResp = authUtils.checkPaId(notification, "anotherPaId", CxTypeAuthFleet.PA);
+        
+        //WHEN
+        assertThrows(PnNotFoundException.class, monoResp::block);
+    }
+    
     private NotificationInt getNotification(String iun, String taxId, String taxIdAnon, String paId, Instant sentAt) {
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withInternalId(taxIdAnon)
