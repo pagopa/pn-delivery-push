@@ -1009,7 +1009,7 @@ components:
         - notRefinedRecipientIndexes
       properties:
         notificationCost:
-          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini
+          description: costo notifica in euro cents, vale 100 * numero di recipient not refined
           example: 1220
           type: integer
           format: int64

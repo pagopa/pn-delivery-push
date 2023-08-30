@@ -924,7 +924,7 @@ class TimelineUtilsTest {
 
     @Test
     void checkIsNotificationCancellationNotRequested() {
-        String iun = "testIun";
+        String iun = "IUN-checkIsNotificationCancellationNotRequested";
 
         Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.anyString(), Mockito.eq(false))).thenReturn(new HashSet<>());
 
@@ -934,7 +934,7 @@ class TimelineUtilsTest {
 
     @Test
     void checkIsNotificationCancellationRequested() {
-        String iun = "testIun";
+        String iun = "IUN-checkIsNotificationCancellationRequested";
 
         Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
 

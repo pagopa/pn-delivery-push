@@ -77,6 +77,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -914,7 +915,7 @@ public class TimelineUtils {
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
                 .refusalReasons(errors)
                 .numberOfRecipients( numberOfRecipients )
-                .notificationCost( 100 * numberOfRecipients )
+                .notificationCost( NotificationProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST * numberOfRecipients )
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);
