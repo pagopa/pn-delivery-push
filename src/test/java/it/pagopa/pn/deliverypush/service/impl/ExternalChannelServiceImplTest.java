@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -220,6 +221,76 @@ class ExternalChannelServiceImplTest {
         Mockito.verify( auditLogEvent).generateFailure(Mockito.any(), Mockito.any());
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendDigitalNotificationCancelled() {
+        //GIVEN
+        String iun = "IUN-sendDigitalNotificationCancelled";
+        String taxId = "taxId";
+        String quickAccessToken = "test";
+
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+            .address("digitalDomicile@test.it")
+            .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+            .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+            .withTaxId(taxId)
+            .withInternalId("ANON_"+taxId)
+            .withDigitalDomicile(digitalDomicile)
+            .withPhysicalAddress(
+                PhysicalAddressBuilder.builder()
+                    .withAddress("_Via Nuova")
+                    .build()
+            )
+            .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+            .withIun(iun)
+            .withPaId("paId01")
+            .withNotificationRecipient(recipient)
+            .build();
+
+        String aarKey = "testKey";
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(anyString())).thenReturn(true);
+
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
+        int recIndex = 0;
+        int sentAttemptMade = 0;
+
+        //WHEN
+        final boolean isFirstSendRetry = false;
+
+        SendInformation sendInformation = SendInformation.builder()
+            .digitalAddress(digitalDomicile)
+            .digitalAddressSource(addressSource)
+            .retryNumber(sentAttemptMade)
+            .isFirstSendRetry(isFirstSendRetry)
+            .relatedFeedbackTimelineId(null)
+            .build();
+
+        externalChannelService.sendDigitalNotification(notification, recIndex, false, sendInformation);
+
+        //THEN
+        String eventIdExpected = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+            EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(recIndex)
+                .source(addressSource)
+                .sentAttemptMade(sentAttemptMade)
+                .isFirstSendRetry(isFirstSendRetry)
+                .build()
+        );
+
+        //THEN
+        Mockito.verify(externalChannel, Mockito.never()).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey, quickAccessToken);
+        Mockito.verify(externalChannelUtils, Mockito.never()).addSendDigitalNotificationToTimeline(notification, recIndex, sendInformation, eventIdExpected);
+        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+
+    }
 
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -305,6 +376,73 @@ class ExternalChannelServiceImplTest {
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendDigitalNotification_AlreadyInProgressCancelled() {
+        //GIVEN
+        String iun = "IUN-sendDigitalNotification_AlreadyInProgressCancelled";
+        String taxId = "taxId";
+        String quickAccessToken = "test";
+
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+            .address("digitalDomicile@test.it")
+            .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+            .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+            .withTaxId(taxId)
+            .withInternalId("ANON_"+taxId)
+            .withDigitalDomicile(digitalDomicile)
+            .withPhysicalAddress(
+                PhysicalAddressBuilder.builder()
+                    .withAddress("_Via Nuova")
+                    .build()
+            )
+            .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+            .withIun(iun)
+            .withPaId("paId01")
+            .withNotificationRecipient(recipient)
+            .build();
+
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
+        int recIndex = 0;
+        int sentAttemptMade = 0;
+
+        String aarKey = "testKey";
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(anyString())).thenReturn(true);
+
+        //WHEN
+        final boolean isFirstSendRetry = false;
+        SendInformation sendInformation = SendInformation.builder()
+            .digitalAddress(digitalDomicile)
+            .digitalAddressSource(addressSource)
+            .retryNumber(sentAttemptMade)
+            .isFirstSendRetry(isFirstSendRetry)
+            .relatedFeedbackTimelineId(null)
+            .build();
+        externalChannelService.sendDigitalNotification(notification,  recIndex, true, sendInformation);
+
+        //THEN
+        String eventIdExpected = TimelineEventId.SEND_DIGITAL_PROGRESS.buildEventId(
+            EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(recIndex)
+                .source(addressSource)
+                .progressIndex(1)
+                .sentAttemptMade(0)
+                .isFirstSendRetry(isFirstSendRetry)
+                .build()
+        );
+
+        Mockito.verify(externalChannel, Mockito.never()).sendLegalNotification(notification, recipient,  digitalDomicile, eventIdExpected, aarKey, quickAccessToken);
+        Mockito.verify(externalChannelUtils, Mockito.never()).addSendDigitalNotificationToTimeline(notification, recIndex, sendInformation, eventIdExpected);
+        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+
+    }
 
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -357,6 +495,37 @@ class ExternalChannelServiceImplTest {
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
 
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendCourtesyNotificationCancelled() {
+        //GIVEN
+        String iun = "IUN-sendCourtesyNotificationCancelled";
+
+        CourtesyDigitalAddressInt courtesyDigitalAddress = CourtesyDigitalAddressInt.builder()
+            .address("courtesyDigitalAddress@test.it")
+            .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
+            .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+            .withIun(iun)
+            .withPaId("paId01")
+            .build();
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(anyString())).thenReturn(true);
+
+        int recIndex = 0;
+        String eventId = "eventId";
+
+        //WHEN
+        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
+
+        //THEN
+        Mockito.verify(externalChannel, Mockito.never()).sendCourtesyNotification(Mockito.any(), Mockito.any(),  Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -465,4 +634,33 @@ class ExternalChannelServiceImplTest {
         Mockito.verify( auditLogEvent).generateFailure(Mockito.any(), Mockito.any());
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendCourtesyNotification_SMS_Cancelled() {
+        //GIVEN
+        String iun = "IUN-sendCourtesyNotification_SMS_Cancelled";
+
+        CourtesyDigitalAddressInt courtesyDigitalAddress = CourtesyDigitalAddressInt.builder()
+            .address("3331234xxx")
+            .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
+            .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+            .withIun(iun)
+            .withPaId("paId01")
+            .build();
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(anyString())).thenReturn(true);
+
+        int recIndex = 0;
+        String eventId = "eventId";
+
+        //WHEN
+        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
+
+        //THEN
+        Mockito.verify(externalChannel, Mockito.never()).sendCourtesyNotification(Mockito.any(), Mockito.any(),  Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+    }
 }
