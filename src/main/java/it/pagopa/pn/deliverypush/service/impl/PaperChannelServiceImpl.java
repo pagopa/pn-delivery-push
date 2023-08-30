@@ -3,14 +3,13 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
@@ -20,18 +19,18 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PhysicalAddressRelatedTimelineElement;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @CustomLog
 @Service
@@ -77,6 +76,12 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public void prepareAnalogNotificationForSimpleRegisteredLetter(NotificationInt notification,  Integer recIndex) {
         log.debug("Start sendNotificationForRegisteredLetter - iun={} recipientIndex={}", notification.getIun(), recIndex);
+
+        if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
+            log.warn("sendNotificationForRegisteredLetter blocked for cancelled iun {}", notification.getIun());
+            return;
+        }
+
         boolean isNotificationAlreadyViewed = checkIsNotificationViewedOrPaid(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed){
@@ -98,6 +103,11 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public void prepareAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         log.debug("Start prepareAnalogNotification - iun {} id {}", notification.getIun(), recIndex);
+        if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
+            log.warn("prepareAnalogNotification blocked for cancelled iun {}", notification.getIun());
+            return;
+        }
+
         boolean isNotificationAlreadyViewedOrPaid = checkIsNotificationViewedOrPaid(notification.getIun(), recIndex);
 
         if( !isNotificationAlreadyViewedOrPaid ){
@@ -248,6 +258,11 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String prepareRequestId, PhysicalAddressInt receiverAddress, String productType){
         log.info("Registered Letter check if send to paperChannel - iun={} id={}", notification.getIun(), recIndex);
+        if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
+            log.warn("sendSimpleRegisteredLetter blocked for cancelled iun {}", notification.getIun());
+            return null;
+        }
+
         String timelineId = null;
         boolean isNotificationAlreadyViewed = checkIsNotificationViewedOrPaid(notification.getIun(), recIndex);
 
@@ -285,6 +300,12 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     public String sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade,
                                        String prepareRequestId, PhysicalAddressInt receiverAddress, String productType){
         String timelineId = null;
+
+        if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
+            log.warn("sendAnalogNotification blocked for cancelled iun {}", notification.getIun());
+            return timelineId;
+        }
+
         boolean isNotificationAlreadyViewed = checkIsNotificationViewedOrPaid(notification.getIun(), recIndex);
 
         if(! isNotificationAlreadyViewed) {

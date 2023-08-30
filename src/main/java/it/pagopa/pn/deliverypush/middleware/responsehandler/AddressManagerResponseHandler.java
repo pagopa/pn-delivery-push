@@ -26,7 +26,12 @@ public class AddressManagerResponseHandler {
         log.info("Async response received from service {} for {} with correlationId={}",
                 AddressManagerClient.CLIENT_NAME, AddressManagerClient.NORMALIZE_ADDRESS_PROCESS_NAME, response.getCorrelationId());
         final String processName = AddressManagerClient.NORMALIZE_ADDRESS_PROCESS_NAME + " response handler";
-        
+
+        if (timelineUtils.checkIsNotificationCancellationRequested(iun)){
+            log.warn("Process {} blocked: cancellation requested for iun {}", processName, iun);
+            return;
+        }
+
         try {
             log.logStartingProcess(processName);
             NormalizeItemsResultInt normalizeItemsResult = AddressManagerMapper.externalToInternal(response);

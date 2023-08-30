@@ -1,11 +1,14 @@
 package it.pagopa.pn.deliverypush.action.documentcreationresponsehandler;
 
+import static org.mockito.Mockito.doThrow;
+
 import it.pagopa.pn.deliverypush.action.completionworkflow.AnalogFailureDeliveryCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.DigitalDeliveryCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import org.junit.jupiter.api.Assertions;
@@ -15,8 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import static org.mockito.Mockito.doThrow;
 
 class DocumentCreationResponseHandlerTest {
     @Mock
@@ -29,12 +30,14 @@ class DocumentCreationResponseHandlerTest {
     private DigitalDeliveryCreationResponseHandler digitalDeliveryCreationResponseHandler;
     @Mock
     private AnalogFailureDeliveryCreationResponseHandler analogFailureDeliveryCreationResponseHandler;
+    @Mock
+    private TimelineUtils timelineUtils;
 
     private DocumentCreationResponseHandler handler;
 
     @BeforeEach
     public void setup() {
-        handler = new DocumentCreationResponseHandler(receivedLegalFactHandler, aarCreationResponseHandler, notificationViewLegalFactCreationResponseHandler, digitalDeliveryCreationResponseHandler, analogFailureDeliveryCreationResponseHandler);
+        handler = new DocumentCreationResponseHandler(receivedLegalFactHandler, aarCreationResponseHandler, notificationViewLegalFactCreationResponseHandler, digitalDeliveryCreationResponseHandler, analogFailureDeliveryCreationResponseHandler, timelineUtils);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -47,7 +50,8 @@ class DocumentCreationResponseHandlerTest {
                 .key("legalFactId")
                 .documentCreationType(DocumentCreationTypeInt.SENDER_ACK)
                 .build();
-        
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
         //WHEN
         handler.handleResponseReceived(iun, recIndex, details);
         
@@ -65,6 +69,7 @@ class DocumentCreationResponseHandlerTest {
                 .key("legalFactId")
                 .documentCreationType(DocumentCreationTypeInt.AAR)
                 .build();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         handler.handleResponseReceived(iun, recIndex, details);
@@ -78,12 +83,13 @@ class DocumentCreationResponseHandlerTest {
     void handleResponseReceivedDIGITAL_DELIVERY() {
         //GIVEN
         String iun = "testIun";
-        Integer recIndex = 0;
+        int recIndex = 0;
         DocumentCreationResponseActionDetails details = DocumentCreationResponseActionDetails.builder()
                 .key("legalFactId")
                 .documentCreationType(DocumentCreationTypeInt.DIGITAL_DELIVERY)
                 .build();
-        
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
+
         //WHEN
         handler.handleResponseReceived(iun, recIndex, details);
 
@@ -102,6 +108,7 @@ class DocumentCreationResponseHandlerTest {
                 .key("legalFactId")
                 .documentCreationType(DocumentCreationTypeInt.ANALOG_FAILURE_DELIVERY)
                 .build();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         handler.handleResponseReceived(iun, recIndex, details);
@@ -121,6 +128,7 @@ class DocumentCreationResponseHandlerTest {
                 .key("legalFactId")
                 .documentCreationType(DocumentCreationTypeInt.RECIPIENT_ACCESS)
                 .build();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         handler.handleResponseReceived(iun, recIndex, details);
@@ -142,10 +150,35 @@ class DocumentCreationResponseHandlerTest {
 
 
         doThrow(new RuntimeException("ex")).when(receivedLegalFactHandler).handleReceivedLegalFactCreationResponse(Mockito.any(), Mockito.any());
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Assertions.assertThrows(RuntimeException.class, () -> {
             handler.handleResponseReceived(iun, recIndex, details);
         });
+    }
+
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void handleResponseCancelled() {
+        //GIVEN
+        String iun = "IUN-handleResponseCancelled";
+        int recIndex = 0;
+        String legalFactId = "legalFactId";
+        DocumentCreationResponseActionDetails details = DocumentCreationResponseActionDetails.builder()
+            .key(legalFactId)
+            .documentCreationType(DocumentCreationTypeInt.RECIPIENT_ACCESS)
+            .build();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+
+        //WHEN
+        handler.handleResponseReceived(iun, recIndex, details);
+
+        //THEN
+        Mockito.verify(receivedLegalFactHandler, Mockito.never()).handleReceivedLegalFactCreationResponse(iun,legalFactId);
+        Mockito.verify(aarCreationResponseHandler, Mockito.never()).handleAarCreationResponse(iun, recIndex, details);
+        Mockito.verify(digitalDeliveryCreationResponseHandler, Mockito.never()).handleDigitalDeliveryCreationResponse(iun, recIndex, details);
+        Mockito.verify(analogFailureDeliveryCreationResponseHandler, Mockito.never()).handleAnalogFailureDeliveryCreationResponse(iun, recIndex, details);
+        Mockito.verify(notificationViewLegalFactCreationResponseHandler, Mockito.never()).handleLegalFactCreationResponse(iun, recIndex, details);
     }
 }

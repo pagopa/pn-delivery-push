@@ -18,7 +18,6 @@ import lombok.ToString;
 @ToString
 public class CancelledDetailsInt implements RecipientRelatedTimelineElementDetails {
 
-    private int recIndex;
     private int notificationCost;
     private int[] notRefinedRecipientIndexes;
 

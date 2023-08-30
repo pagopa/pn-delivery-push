@@ -1152,6 +1152,7 @@ public class TimelineUtils {
     }
 
     public boolean checkIsNotificationCancellationRequested(String iun) {
+
         String elementId = NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
             EventId.builder()
                 .iun(iun)
