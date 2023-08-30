@@ -6,6 +6,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.SendInformation;
@@ -19,11 +20,10 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchan
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -34,18 +34,21 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
+    private final TimelineUtils timelineUtils;
 
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
-                                      NotificationService notificationService, AuditLogService auditLogService) {
+                                      NotificationService notificationService, AuditLogService auditLogService,
+                                      TimelineUtils timelineUtils) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
         this.digitalWorkFlowUtils = digitalWorkFlowUtils;
         this.notificationService = notificationService;
         this.auditLogService = auditLogService;
+        this.timelineUtils = timelineUtils;
     }
 
     /**
@@ -64,6 +67,12 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                           boolean sendAlreadyInProgress,
                                           SendInformation sendInformation
     ) {
+        log.debug("Start sendDigitalNotification - iun {} id {}", notification.getIun(), recIndex);
+
+        if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
+            log.warn("sendDigitalNotification blocked for cancelled iun {}", notification.getIun());
+            return null;
+        }
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), sendInformation.getDigitalAddress(), recIndex);
 
         try {
@@ -154,6 +163,10 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
 
+        if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
+            log.warn("sendCourtesyNotification blocked for cancelled iun {}", notification.getIun());
+            return;
+        }
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), courtesyAddress, recIndex, eventId);
 
         try {

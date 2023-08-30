@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class CancelledDetailsIntTest {
+class NotificationCancelledDetailsIntTest {
 
-    private CancelledDetailsInt detailsInt;
+    private NotificationCancelledDetailsInt detailsInt;
     @BeforeEach
     void setUp() {
-        detailsInt = new CancelledDetailsInt();
+        detailsInt = new NotificationCancelledDetailsInt();
         detailsInt.setNotificationCost(50);
         List<Integer> indexes= new ArrayList<>();
         indexes.add(1);

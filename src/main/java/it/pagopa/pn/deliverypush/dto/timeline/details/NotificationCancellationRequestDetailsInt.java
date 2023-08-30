@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -16,16 +15,11 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class CancelledDetailsInt implements TimelineElementDetailsInt {
+public class NotificationCancellationRequestDetailsInt implements TimelineElementDetailsInt {
 
-    private int notificationCost;
-    private List<Integer> notRefinedRecipientIndexes;
+    private String cancellationRequestId;
 
     public String toLog() {
-        return String.format(
-            "notificationCost=%d notRefinedRecipientIndexes=%s",
-            notificationCost,
-            notRefinedRecipientIndexes.toString()
-        );
+        return String.format("cancellationRequestId=%s", cancellationRequestId);
     }
 }

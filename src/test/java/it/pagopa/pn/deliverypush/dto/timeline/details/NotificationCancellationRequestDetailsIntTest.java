@@ -5,14 +5,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class CancellationRequestDetailsIntTest {
-    private CancellationRequestDetailsInt detailsInt;
+class NotificationCancellationRequestDetailsIntTest {
+    private NotificationCancellationRequestDetailsInt detailsInt;
     private String cancellationRequestId;
 
     @BeforeEach
     void setUp() {
         cancellationRequestId = UUID.randomUUID().toString();
-        detailsInt = new CancellationRequestDetailsInt();
+        detailsInt = new NotificationCancellationRequestDetailsInt();
         detailsInt.setCancellationRequestId(cancellationRequestId);
     }
 

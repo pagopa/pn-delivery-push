@@ -29,9 +29,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.CancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationPaidDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
@@ -991,7 +991,7 @@ class TimelineUtilsTest {
             () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
 
-        CancelledDetailsInt detailsInt = (CancelledDetailsInt) actual.getDetails();
+        NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
         Assertions.assertEquals(100, detailsInt.getNotificationCost());
         Assertions.assertEquals(1, detailsInt.getNotRefinedRecipientIndexes().size());
     }
@@ -1017,7 +1017,7 @@ class TimelineUtilsTest {
             () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
 
-        CancelledDetailsInt detailsInt = (CancelledDetailsInt) actual.getDetails();
+        NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
         Assertions.assertEquals(0, detailsInt.getNotificationCost());
         Assertions.assertEquals(0, detailsInt.getNotRefinedRecipientIndexes().size());
     }

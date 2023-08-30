@@ -156,8 +156,8 @@ components:
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
-        - "$ref": "#/components/schemas/CancellationRequestDetails"
-        - "$ref": "#/components/schemas/CancelledDetails"
+        - "$ref": "#/components/schemas/NotificationCancellationRequestDetails"
+        - "$ref": "#/components/schemas/NotificationCancelledDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -993,7 +993,7 @@ components:
         normalizedAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
-    CancellationRequestDetails:
+    NotificationCancellationRequestDetails:
       type: object
       required:
         - cancellationRequestId
@@ -1002,7 +1002,7 @@ components:
           type: string
           description: Id della richiesta
 
-    CancelledDetails:
+    NotificationCancelledDetails:
       type: object
       required:
         - notificationCost

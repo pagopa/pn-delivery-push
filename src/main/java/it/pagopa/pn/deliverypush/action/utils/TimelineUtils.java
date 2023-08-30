@@ -36,8 +36,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogFailureWorkflowDetai
 import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogSuccessWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.CancellationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.CancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.CompletelyUnreachableCreationRequestDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.CompletelyUnreachableDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
@@ -48,6 +46,8 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSuccessWorkflowDeta
 import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NormalizedAddressDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancellationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationPaidDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
@@ -1130,7 +1130,7 @@ public class TimelineUtils {
             EventId.builder()
                 .iun(notification.getIun())
                 .build());
-        CancellationRequestDetailsInt details = CancellationRequestDetailsInt.builder().
+        NotificationCancellationRequestDetailsInt details = NotificationCancellationRequestDetailsInt.builder().
             cancellationRequestId(UUID.randomUUID().toString()).
             build();
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, elementId, details);
@@ -1144,7 +1144,7 @@ public class TimelineUtils {
             EventId.builder()
                 .iun(notification.getIun())
                 .build());
-        CancelledDetailsInt details = CancelledDetailsInt.builder().
+        NotificationCancelledDetailsInt details = NotificationCancelledDetailsInt.builder().
             notificationCost(100 * notRefined.size()).
             notRefinedRecipientIndexes(notRefined).
             build();
