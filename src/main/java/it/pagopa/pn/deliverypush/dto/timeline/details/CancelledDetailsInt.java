@@ -16,7 +16,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class CancelledDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class CancelledDetailsInt implements TimelineElementDetailsInt {
 
     private int notificationCost;
     private int[] notRefinedRecipientIndexes;
