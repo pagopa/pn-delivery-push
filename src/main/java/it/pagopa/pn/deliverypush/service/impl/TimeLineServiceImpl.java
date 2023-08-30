@@ -52,7 +52,6 @@ public class TimeLineServiceImpl implements TimelineService {
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
-    private final SchedulerService schedulerService;
     private final NotificationService notificationService;
 
 

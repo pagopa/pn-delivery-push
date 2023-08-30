@@ -64,7 +64,7 @@ class ActionHandlerTest {
     void pnDeliveryPushStartRecipientWorkflow() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushStartRecipientWorkflow();
@@ -79,7 +79,7 @@ class ActionHandlerTest {
     void pnDeliveryPushStartRecipientWorkflowCancelled() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushStartRecipientWorkflow();
@@ -94,7 +94,7 @@ class ActionHandlerTest {
     void pnDeliveryPushChooseDeliveryMode() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushChooseDeliveryMode();
@@ -109,7 +109,7 @@ class ActionHandlerTest {
     void pnDeliveryPushAnalogWorkflowConsumer() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushAnalogWorkflowConsumer();
@@ -124,7 +124,7 @@ class ActionHandlerTest {
     void pnDeliveryPushRefinementConsumer() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushRefinementConsumer();
@@ -139,7 +139,7 @@ class ActionHandlerTest {
     void pnDeliveryPushDigitalNextActionConsumer() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushDigitalNextActionConsumer();
@@ -154,7 +154,7 @@ class ActionHandlerTest {
     void pnDeliveryPushDigitalNextExecuteConsumer() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushDigitalNextExecuteConsumer();
@@ -169,7 +169,7 @@ class ActionHandlerTest {
     void pnDeliveryPushDigitalRetryActionConsumer() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushDigitalRetryActionConsumer();
@@ -184,7 +184,7 @@ class ActionHandlerTest {
     void pnDeliveryPushElapsedExternalChannelNoResponseTimeoutActionConsumer() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushElapsedExternalChannelNoResponseTimeoutActionConsumer();
@@ -234,7 +234,7 @@ class ActionHandlerTest {
         };
         
         
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushDocumentCreationResponseConsumer();
@@ -249,7 +249,7 @@ class ActionHandlerTest {
     void pnDeliveryPushNotificationValidation() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushNotificationValidation();
@@ -264,7 +264,7 @@ class ActionHandlerTest {
     void pnDeliveryPushReceivedLegalFactGeneration() {
         //GIVEN
         Message<Action> message = getActionMessage();
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
 
         //WHEN
         Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushReceivedLegalFactGeneration();
