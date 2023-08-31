@@ -1,13 +1,13 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class TimelineEventIdBuilderTest {
 
@@ -910,5 +910,39 @@ class TimelineEventIdBuilderTest {
 
     }
 
+    @Test
+    void buildNOTIFICATION_CANCELLATION_REQUESTTest() {
+        String timeLineEventIdExpected = String.format("NOTIFICATION_CANCELLATION_REQUEST.IUN_%s",IUN);
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+            .withCategory(TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST.getValue())
+            .withIun(IUN)
+            .build();
 
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST.buildEventId(EventId
+            .builder()
+            .iun(IUN)
+            .build());
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+    }
+
+    @Test
+    void buildNOTIFICATION_CANCELLEDTest() {
+        String timeLineEventIdExpected = String.format("NOTIFICATION_CANCELLED.IUN_%s",IUN);
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+            .withCategory(TimelineEventId.NOTIFICATION_CANCELLED.getValue())
+            .withIun(IUN)
+            .build();
+
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_CANCELLED.buildEventId(EventId
+            .builder()
+            .iun(IUN)
+            .build());
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+    }
 }

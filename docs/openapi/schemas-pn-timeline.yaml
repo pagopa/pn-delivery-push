@@ -158,7 +158,7 @@ components:
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
         - "$ref": "#/components/schemas/NotificationCancellationRequestDetails"
         - "$ref": "#/components/schemas/NotificationCancelledDetails"
-          
+
     NotificationRequestAcceptedDetails:
       type: object
       properties:
@@ -992,23 +992,32 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         normalizedAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
-    
+
+    NotificationCancellationRequestDetails:
+      type: object
+      required:
+        - cancellationRequestId
+      properties:
+        cancellationRequestId:
+          type: string
+          description: Id della richiesta
+
     NotificationCancelledDetails:
       type: object
       required:
         - notificationCost
+        - notRefinedRecipientIndexes
       properties:
         notificationCost:
-          description: costo notifica in euro cents
+          description: costo notifica in euro cents, vale 100 * numero di recipient not refined
           example: 1220
           type: integer
           format: int64
-    
-    NotificationCancellationRequestDetails:
-      type: object
-      properties:
-        cancellationId:
-          type: string
+        notRefinedRecipientIndexes:
+          type: array
+          items:
+            description: indice del recipient non perfezionato
+            type: integer
 
     DigitalAddressSource:
       type: string

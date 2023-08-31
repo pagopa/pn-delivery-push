@@ -43,8 +43,8 @@ public enum TimelineElementCategoryInt {
     NOT_HANDLED(NotHandledDetailsInt.class, TimelineElementCategory.NOT_HANDLED.getValue()),
     SEND_SIMPLE_REGISTERED_LETTER_PROGRESS(SimpleRegisteredLetterProgressDetailsInt.class, TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.getValue()),
     PROBABLE_SCHEDULING_ANALOG_DATE(ProbableDateAnalogWorkflowDetailsInt.class, TimelineElementCategory.PROBABLE_SCHEDULING_ANALOG_DATE.getValue()),
-    NOTIFICATION_CANCELLATION_REQUEST(CancellationRequestDetailsInt.class, TimelineElementCategory.NOTIFICATION_CANCELLATION_REQUEST.getValue()),
-    NOTIFICATION_CANCELLED(CancelledDetailsInt.class, TimelineElementCategory.NOTIFICATION_CANCELLED.getValue());
+    NOTIFICATION_CANCELLATION_REQUEST(NotificationCancellationRequestDetailsInt.class, TimelineElementCategory.NOTIFICATION_CANCELLATION_REQUEST.getValue()),
+    NOTIFICATION_CANCELLED(NotificationCancelledDetailsInt.class, TimelineElementCategory.NOTIFICATION_CANCELLED.getValue());
 
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
     private final String value;
