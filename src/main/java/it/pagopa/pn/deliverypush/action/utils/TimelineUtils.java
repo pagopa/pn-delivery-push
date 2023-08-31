@@ -1145,7 +1145,7 @@ public class TimelineUtils {
                 .iun(notification.getIun())
                 .build());
         NotificationCancelledDetailsInt details = NotificationCancelledDetailsInt.builder().
-            notificationCost(100 * notRefined.size()).
+            notificationCost(NotificationProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST * notRefined.size()).
             notRefinedRecipientIndexes(notRefined).
             build();
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLED, elementId, details);
