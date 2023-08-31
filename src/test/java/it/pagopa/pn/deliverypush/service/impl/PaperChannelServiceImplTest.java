@@ -3,35 +3,36 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 class PaperChannelServiceImplTest {
     @Mock
@@ -131,6 +132,20 @@ class PaperChannelServiceImplTest {
         Mockito.verify(paperChannelSendClient,Mockito.never()).prepare(Mockito.any());
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void prepareAnalogNotificationForSimpleRegisteredLetterCancelled() {
+        //GIVEN
+        NotificationInt notificationInt = newNotification("taxid");
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+
+        // WHEN
+        paperChannelService.prepareAnalogNotificationForSimpleRegisteredLetter(notificationInt, 0);
+
+        // THEN
+        Mockito.verify(paperChannelSendClient,Mockito.never()).prepare(Mockito.any());
+    }
 
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -350,6 +365,23 @@ class PaperChannelServiceImplTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    void prepareAnalogNotificationCancelled() {
+        //GIVEN
+        NotificationInt notificationInt = newNotification("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+            .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+
+        // WHEN
+        paperChannelService.prepareAnalogNotification(notificationInt, 0, 0);
+
+        // THEN
+        Mockito.verify(paperChannelSendClient, Mockito.never()).prepare(Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
     void sendSimpleRegisteredLetter() {
         //GIVEN
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
@@ -403,6 +435,24 @@ class PaperChannelServiceImplTest {
         Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendSimpleRegisteredLetterCancelled() {
+        //GIVEN
+        PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
+
+        NotificationInt notificationInt = newNotification("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+            .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+
+        // WHEN
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
+
+        // THEN
+        Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
+    }
 
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -492,6 +542,25 @@ class PaperChannelServiceImplTest {
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+
+        // WHEN
+        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
+
+        // THEN
+        Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendAnalogNotificationCancelled() {
+        //GIVEN
+        PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
+
+        NotificationInt notificationInt = newNotification("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+            .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested (Mockito.anyString())).thenReturn(true);
 
         // WHEN
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
