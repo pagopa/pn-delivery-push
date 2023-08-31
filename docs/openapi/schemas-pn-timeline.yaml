@@ -1044,6 +1044,7 @@ components:
           items:
             description: indice del recipient non perfezionato
             type: integer
+            format: int32
 
     DigitalAddressSource:
       type: string
