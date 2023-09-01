@@ -116,6 +116,32 @@ components:
         details:
           $ref: '#/components/schemas/TimelineElementDetails'
 
+    TimelineElementV2_0:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in 
+            maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          description: Momento in cui avviene l'evento descritto in questo elemento
+            di timeline
+          format: date-time
+        legalFactsIds:
+          type: array
+          items:
+            $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsId"
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
+            Questo elemento
+        category:
+          $ref: '#/components/schemas/TimelineElementCategory'
+        details:
+          $ref: '#/components/schemas/TimelineElementDetails'
+
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
@@ -1018,6 +1044,7 @@ components:
           items:
             description: indice del recipient non perfezionato
             type: integer
+            format: int32
 
     DigitalAddressSource:
       type: string
