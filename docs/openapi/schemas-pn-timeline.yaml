@@ -4,7 +4,7 @@ components:
     TimelineElementId:
       type: string
     
-    TimelineElementCategory:
+    TimelineElementCategoryV2_0:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
@@ -92,31 +92,31 @@ components:
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
 
-    TimelineElement:
-      type: object
-      additionalProperties: false
-      properties:
-        elementId:
-          type: string
-          description: >-
-            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in 
-            maniera univoca l'elemento di timeline
-        timestamp:
-          type: string
-          description: Momento in cui avviene l'evento descritto in questo elemento
-            di timeline
-          format: date-time
-        legalFactsIds:
-          type: array
-          items:
-            $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsId"
-          description: >-
-            Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
-            Questo elemento
-        category:
-          $ref: '#/components/schemas/TimelineElementCategory'
-        details:
-          $ref: '#/components/schemas/TimelineElementDetails'
+    # TimelineElement:
+    #   type: object
+    #   additionalProperties: false
+    #   properties:
+    #     elementId:
+    #       type: string
+    #       description: >-
+    #         Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in 
+    #         maniera univoca l'elemento di timeline
+    #     timestamp:
+    #       type: string
+    #       description: Momento in cui avviene l'evento descritto in questo elemento
+    #         di timeline
+    #       format: date-time
+    #     legalFactsIds:
+    #       type: array
+    #       items:
+    #         $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsId"
+    #       description: >-
+    #         Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
+    #         Questo elemento
+    #     category:
+    #       $ref: '#/components/schemas/TimelineElementCategory'
+    #     details:
+    #       $ref: '#/components/schemas/TimelineElementDetails'
 
     TimelineElementV2_0:
       type: object
@@ -140,11 +140,11 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategory'
+          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
         details:
-          $ref: '#/components/schemas/TimelineElementDetails'
+          $ref: '#/components/schemas/TimelineElementDetailsV2_0'
 
-    TimelineElementDetails:
+    TimelineElementDetailsV2_0:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
