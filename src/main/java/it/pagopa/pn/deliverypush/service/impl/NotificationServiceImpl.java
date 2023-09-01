@@ -52,6 +52,17 @@ public class NotificationServiceImpl implements NotificationService {
                 });
     }
 
+
+    @Override
+    public Mono<Void> removeAllNotificationCostsByIun(String iun) {
+        return pnDeliveryClientReactive.removeAllNotificationCostsByIun(iun)
+                .onErrorResume( error -> {
+                    log.error("removeAllNotificationCostsByIun error ={} - iun {}", error,  iun);
+                    return Mono.error(new PnInternalException("removeAllNotificationCostsByIun error - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED, error));
+                });
+    }
+
+
     @Override
     public Map<String, String> getRecipientsQuickAccessLinkToken(String iun) {
        Map<String, String> resp = pnDeliveryClient.getQuickAccessLinkTokensPrivate(iun);

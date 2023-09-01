@@ -30,7 +30,7 @@ public class PnDeliveryClientReactiveImpl extends CommonBaseClient implements Pn
 
     @Override
     public Mono<Void> updateStatus(String iun, NotificationStatusInt notificationStatusInt, Instant updateStatusTimestamp) {
-        log.logInvokingExternalService(CLIENT_NAME, GET_NOTIFICATION);
+        log.logInvokingExternalService(CLIENT_NAME, UPDATE_STATUS_NOTIFICATION);
 
         RequestUpdateStatusDto requestUpdateStatusDto = new RequestUpdateStatusDto();
         requestUpdateStatusDto.setIun(iun);
@@ -39,7 +39,15 @@ public class PnDeliveryClientReactiveImpl extends CommonBaseClient implements Pn
 
 
         return pnDeliveryApi.updateStatus(requestUpdateStatusDto)
-                .doOnSuccess(res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, GET_NOTIFICATION));
+                .doOnSuccess(res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, UPDATE_STATUS_NOTIFICATION));
+    }
+
+    @Override
+    public Mono<Void> removeAllNotificationCostsByIun(String iun) {
+        log.logInvokingExternalService(CLIENT_NAME, REMOVE_IUV);
+
+        return pnDeliveryApi.removeAllNotificationCostsByIun(iun)
+                .doOnSuccess(res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, REMOVE_IUV));
     }
 
 }

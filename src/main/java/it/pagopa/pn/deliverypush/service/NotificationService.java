@@ -14,4 +14,6 @@ public interface NotificationService {
     Mono<NotificationInt> getNotificationByIunReactive(String iun);
 
     Mono<Void> updateStatus(String iun, NotificationStatusInt notificationStatusInt, Instant updateStatusTimestamp);
+
+    Mono<Void> removeAllNotificationCostsByIun(String iun);
 }

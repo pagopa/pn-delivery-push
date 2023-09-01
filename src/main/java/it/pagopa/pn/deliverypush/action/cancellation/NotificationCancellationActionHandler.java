@@ -1,9 +1,11 @@
 package it.pagopa.pn.deliverypush.action.cancellation;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -25,7 +27,7 @@ public class NotificationCancellationActionHandler {
         log.debug("Start cancelNotification - iun={}", iun);
 
         // chiedo la cancellazione degli IUV
-        //notificationService.deleteNotificationCost(iun);
+        notificationService.removeAllNotificationCostsByIun(iun).block();
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
@@ -33,7 +35,7 @@ public class NotificationCancellationActionHandler {
         TimelineElementInternal cancelledTimelineElement = addCanceledTimelineElement(iun, notification);
 
         // avviso delivery del cambio di stato
-        notificationService.updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, cancelledTimelineElement.getTimestamp());
+        notificationService.updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, cancelledTimelineElement.getTimestamp()).block();
 
     }
 
@@ -53,7 +55,7 @@ public class NotificationCancellationActionHandler {
             }
             else
             {
-                log.fatal("timeline element not found but insert was skipped elementid={}", cancelledTimelineElement.getElementId());
+                throw new PnInternalException("timeline element not found but insert was skipped elementid=" + cancelledTimelineElement.getElementId(), PnDeliveryPushExceptionCodes.ERROR_CODE_PN_GENERIC_ERROR);
             }
         }
         return cancelledTimelineElement;
