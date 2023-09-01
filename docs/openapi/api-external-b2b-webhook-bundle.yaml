@@ -85,6 +85,7 @@ info:
           <li><strong>REQUEST_REFUSED </strong><em>Richiesta di notifica rifiutata per fallimento di validazione.</em></li>
           <li><strong>AAR_GENERATION </strong><em>Generazione dell’AAR (Avviso di Avvenuta Ricezione)</em></li>
           <li><strong>PROBABLE_SCHEDULING_ANALOG_DATE</strong><em>Data probabile di inizio del flusso analogico</em></li>
+          <li><strong>PREPARE_ANALOG_DOMICILE_FAILURE</strong><em>Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel</em></li>
         </ul>
       </details>
     </br> Di seguito un esempio di creazione e successiva interrogazione dello stream: 
@@ -577,7 +578,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: '#/components/schemas/TimelineElementCategory'
+          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
         recipientIndex:
           type: integer
           format: int32
@@ -694,7 +695,7 @@ components:
         - PAID
         - UNREACHABLE
         - CANCELLED
-    TimelineElementCategory:
+    TimelineElementCategoryV2_0:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -738,6 +739,7 @@ components:
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -779,6 +781,7 @@ components:
         - PROBABLE_SCHEDULING_ANALOG_DATE
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

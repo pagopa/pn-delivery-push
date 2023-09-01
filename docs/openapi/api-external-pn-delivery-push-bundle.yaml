@@ -351,6 +351,8 @@ components:
         maxLength: 512
   schemas:
     RequestStatus:
+      description: Response to cancellation async call
+      type: object
       properties:
         status:
           description: |
@@ -359,22 +361,31 @@ components:
           type: string
         details:
           type: array
+          maxItems: 9999
           items:
             $ref: '#/components/schemas/StatusDetail'
       required:
         - status
     StatusDetail:
+      description: Detail of response to cancellation async call
+      type: object
+      required:
+        - code
       properties:
         code:
-          description: Internal code of the error, in human-readable format
+          description: Internal code of the error or warning, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        level:
+          description: |
+            informational level of status detail: WARN, ERR, ...
+            ERR (error) by default
           example: NOTIFICATION_ALREADY_CANCELLED
           type: string
         detail:
           description: A human readable explanation specific to this occurrence of the problem.
           example: Parameter not valid
           type: string
-      required:
-        - code
     ProblemError:
       properties:
         code:
