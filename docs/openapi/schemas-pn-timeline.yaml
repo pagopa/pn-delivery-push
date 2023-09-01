@@ -116,7 +116,7 @@ components:
         details:
           $ref: '#/components/schemas/TimelineElementDetails'
 
-    TimelineElementV1_1:
+    TimelineElementV2_0:
       type: object
       additionalProperties: false
       properties:
