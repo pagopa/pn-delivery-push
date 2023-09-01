@@ -114,7 +114,7 @@ components:
     #         Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
     #         Questo elemento
     #     category:
-    #       $ref: '#/components/schemas/TimelineElementCategory'
+    #       $ref: '#/components/schemas/TimelineElementCategoryV20'
     #     details:
     #       $ref: '#/components/schemas/TimelineElementDetails'
 
