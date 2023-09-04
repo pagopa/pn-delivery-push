@@ -437,7 +437,7 @@ class TimeLineServiceImplTest {
 
         Assertions.assertEquals(timelineElementList.size() , notificationHistoryResponse.getTimeline().size());
 
-        TimelineElement firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
+        var firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
         
         Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
         Assertions.assertEquals( elementInt.getElementId(), firstElementReturned.getElementId() );
@@ -519,7 +519,7 @@ class TimeLineServiceImplTest {
 
         Assertions.assertEquals(timelineElementList.size() , notificationHistoryResponse.getTimeline().size());
 
-        TimelineElement firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
+        var firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
 
         Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
         Assertions.assertEquals( elementInternalProg.getElementId(), firstElementReturned.getElementId() );

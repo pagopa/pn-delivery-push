@@ -85,6 +85,7 @@ info:
           <li><strong>REQUEST_REFUSED </strong><em>Richiesta di notifica rifiutata per fallimento di validazione.</em></li>
           <li><strong>AAR_GENERATION </strong><em>Generazione dell’AAR (Avviso di Avvenuta Ricezione)</em></li>
           <li><strong>PROBABLE_SCHEDULING_ANALOG_DATE</strong><em>Data probabile di inizio del flusso analogico</em></li>
+          <li><strong>PREPARE_ANALOG_DOMICILE_FAILURE</strong><em>Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel</em></li>
         </ul>
       </details>
     </br> Di seguito un esempio di creazione e successiva interrogazione dello stream: 
@@ -262,6 +263,8 @@ servers:
     description: Ambiente di test
   - url: https://api.dev.pn.pagopa.it
     description: Ambiente di sviluppo
+security:
+  - ApiKeyAuth: []
 tags:
   - name: HealthCheck
     description: 'Invocazioni per sapere lo stato del microservizio # il servizio è ancora in fase di sviluppo'
@@ -575,7 +578,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: '#/components/schemas/TimelineElementCategory'
+          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
         recipientIndex:
           type: integer
           format: int32
@@ -692,7 +695,7 @@ components:
         - PAID
         - UNREACHABLE
         - CANCELLED
-    TimelineElementCategory:
+    TimelineElementCategoryV2_0:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -704,7 +707,7 @@ components:
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
           * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
           * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
-          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici 
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
           * `SCHEDULE_ANALOG_WORKFLOW` - Pianificazione del workflow per invio cartaceo
           * `SCHEDULE_DIGITAL_WORKFLOW` -Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.
           * `PREPARE_DIGITAL_DOMICILE` - Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.
@@ -734,6 +737,9 @@ components:
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+          * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
+          * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -773,10 +779,11 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+        - NOTIFICATION_CANCELLATION_REQUEST
+        - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
       in: header
       name: x-api-key
-security:
-  - ApiKeyAuth: []

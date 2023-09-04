@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -14,13 +13,11 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.util.Collections;
 
 class NationalRegistriesClientResponseHandlerTest {
 
@@ -34,13 +31,15 @@ class NationalRegistriesClientResponseHandlerTest {
 
     private NationalRegistriesResponseHandler handler;
 
+    private TimelineUtils timelineUtils;
+
     @BeforeEach
     void setup() {
         chooseDeliveryHandler = Mockito.mock(ChooseDeliveryModeHandler.class);
         digitalWorkFlowHandler = Mockito.mock(DigitalWorkFlowHandler.class);
         publicRegistryUtils = Mockito.mock(PublicRegistryUtils.class);
         notificationService = Mockito.mock(NotificationService.class);
-        TimelineUtils timelineUtils = new TimelineUtils(Mockito.mock(InstantNowSupplier.class), Mockito.mock(TimelineService.class));
+        timelineUtils = Mockito.mock(TimelineUtils.class);
 
         handler = new NationalRegistriesResponseHandler(chooseDeliveryHandler, digitalWorkFlowHandler, publicRegistryUtils, notificationService, timelineUtils);
     }
@@ -53,6 +52,8 @@ class NationalRegistriesClientResponseHandlerTest {
         NotificationInt notificationInt = buildNotificationInt(iun);
         NationalRegistriesResponse response = buildPublicRegistryResponse(correlationId);
         PublicRegistryCallDetailsInt publicRegistryCallDetails = buildPublicRegistryCallDetailsInt(ContactPhaseInt.CHOOSE_DELIVERY, recIndex, DeliveryModeInt.DIGITAL);
+
+        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn(iun);
 
         Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notificationInt);
         Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId)).thenReturn(publicRegistryCallDetails);
@@ -74,12 +75,32 @@ class NationalRegistriesClientResponseHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notificationInt);
         Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId)).thenReturn(publicRegistryCallDetails);
+        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn(iun);
 
         handler.handleResponse(response);
 
         Mockito.verify(digitalWorkFlowHandler, Mockito.times(1)).handleGeneralAddressResponse(response, notificationInt, publicRegistryCallDetails);
     }
 
+    @Test
+    void handleResponseCancelled() {
+        String iun = "IUN-handleResponseCancelled";
+        String correlationId = "NATIONAL_REGISTRY_CALL#IUN_iun01#RECINDEX_1#DELIVERYMODE_DIGITAL#CONTACTPHASE_CHOOSE_DELIVERY#SENTATTEMPTMADE_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        int recIndex = 1;
+        NotificationInt notificationInt = buildNotificationInt(iun);
+
+        NationalRegistriesResponse response = buildPublicRegistryResponse(correlationId);
+        PublicRegistryCallDetailsInt publicRegistryCallDetails = buildPublicRegistryCallDetailsInt(ContactPhaseInt.CHOOSE_DELIVERY, recIndex, DeliveryModeInt.DIGITAL);
+
+        Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notificationInt);
+        Mockito.when(publicRegistryUtils.getPublicRegistryCallDetail(iun, correlationId)).thenReturn(publicRegistryCallDetails);
+        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString())).thenReturn(iun);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(true);
+        handler.handleResponse(response);
+
+        Mockito.verify(publicRegistryUtils, Mockito.never()).addPublicRegistryResponseToTimeline(notificationInt, recIndex, response);
+        Mockito.verify(chooseDeliveryHandler, Mockito.never()).handleGeneralAddressResponse(response, notificationInt, recIndex);
+    }
 
     private NotificationInt buildNotificationInt(String iun) {
         return NotificationInt.builder()

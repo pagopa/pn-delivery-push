@@ -4,7 +4,7 @@ components:
     TimelineElementId:
       type: string
     
-    TimelineElementCategory:
+    TimelineElementCategoryV2_0:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
@@ -46,6 +46,9 @@ components:
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+          * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
+          * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -85,8 +88,11 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+        - NOTIFICATION_CANCELLATION_REQUEST
+        - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
 
-    TimelineElement:
+    TimelineElementV2_0:
       type: object
       additionalProperties: false
       properties:
@@ -108,11 +114,11 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategory'
+          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
         details:
-          $ref: '#/components/schemas/TimelineElementDetails'
+          $ref: '#/components/schemas/TimelineElementDetailsV2_0'
 
-    TimelineElementDetails:
+    TimelineElementDetailsV2_0:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
@@ -152,6 +158,9 @@ components:
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
+        - "$ref": "#/components/schemas/NotificationCancellationRequestDetails"
+        - "$ref": "#/components/schemas/NotificationCancelledDetails"
+        - "$ref": "#/components/schemas/PrepareAnalogDomicileFailureDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -986,6 +995,55 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
         normalizedAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+
+    NotificationCancellationRequestDetails:
+      type: object
+      required:
+        - cancellationRequestId
+      properties:
+        cancellationRequestId:
+          type: string
+          description: Id della richiesta
+
+    NotificationCancelledDetails:
+      type: object
+      required:
+        - notificationCost
+        - notRefinedRecipientIndexes
+      properties:
+        notificationCost:
+          description: costo notifica in euro cents, vale 100 * numero di recipient not refined
+          example: 1220
+          type: integer
+          format: int64
+        notRefinedRecipientIndexes:
+          type: array
+          items:
+            description: indice del recipient non perfezionato
+            type: integer
+            format: int32
+
+    PrepareAnalogDomicileFailureDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        foundAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        failureCause:
+          type: string
+          description: >
+            __Motivazione fallimento prepare
+              - __D00__ Indirizzo non trovato
+              - __D01__ Indirizzo non valido
+              - __D02__ Indirizzo coincidente con quello del primo tentativo
+        prepareRequestId:
+          type: string
+          description: RequestId della richiesta di prepare
 
     DigitalAddressSource:
       type: string

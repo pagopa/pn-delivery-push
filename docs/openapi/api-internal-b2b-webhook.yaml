@@ -119,6 +119,7 @@ info:
           <li><strong>REQUEST_REFUSED </strong><em>Richiesta di notifica rifiutata per fallimento di validazione.</em></li>
           <li><strong>AAR_GENERATION </strong><em>Generazione dell’AAR (Avviso di Avvenuta Ricezione)</em></li>
           <li><strong>PROBABLE_SCHEDULING_ANALOG_DATE</strong><em>Data probabile di inizio del flusso analogico</em></li>
+          <li><strong>PREPARE_ANALOG_DOMICILE_FAILURE</strong><em>Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel</em></li>
         </ul>
       </details>
     </br>
@@ -775,7 +776,8 @@ components:
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategory'
+#          apparentemente non retrocompatibile ma gli stream continueranno a mandare category della versione 1 fino ad esplicita modifica delle config da parte della PA
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV2_0'
         recipientIndex:
           type: integer
           format: int32

@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDe
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,13 @@ public class DocumentCreationResponseHandler {
     private final NotificationViewLegalFactCreationResponseHandler notificationViewLegalFactCreationResponseHandler;
     private final DigitalDeliveryCreationResponseHandler digitalDeliveryCreationResponseHandler;
     private final AnalogFailureDeliveryCreationResponseHandler analogFailureDeliveryCreationResponseHandler;
-    
+    private final TimelineUtils timelineUtils;
+
     public void handleResponseReceived( String iun, Integer recIndex, DocumentCreationResponseActionDetails details) {
+        if (timelineUtils.checkIsNotificationCancellationRequested(iun)){
+            log.warn("DocumentCreation blocked: cancellation requested for iun {}", iun);
+            return;
+        }
         String fileKey = details.getKey();
         DocumentCreationTypeInt documentCreationType = details.getDocumentCreationType();
 
