@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationProcessCostResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,8 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
+
 @WebFluxTest(PnNotificationProcessCostController.class)
 class PnNotificationProcessCostControllerTest {
 
@@ -26,6 +30,9 @@ class PnNotificationProcessCostControllerTest {
 
     @MockBean
     private NotificationProcessCostService service;
+
+    @MockBean
+    private TimelineUtils timelineUtils;
 
     @Test
     void notificationProcessCost() {
@@ -38,7 +45,9 @@ class PnNotificationProcessCostControllerTest {
                 .notificationViewDate(Instant.now().plus(Duration.ofDays(1)))
                 .cost(100)
                 .build();
-        
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
+
         Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy))
                 .thenReturn(Mono.just(notificationCost));
         
@@ -62,5 +71,33 @@ class PnNotificationProcessCostControllerTest {
                     Assertions.assertEquals(notificationCost.getRefinementDate(),response.getRefinementDate());
                 }
         );
+    }
+
+    @Test
+    void notificationProcessCostCancelled404() {
+        String iun = "testIun";
+        int recIndex = 0;
+        NotificationFeePolicy notificationFeePolicy = NotificationFeePolicy.DELIVERY_MODE;
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(true);
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push-private/"+iun+"/notification-process-cost/"+recIndex )
+                                .queryParam("notificationFeePolicy", notificationFeePolicy.getValue())
+                                .build())
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .exchange()
+                .expectStatus()
+                .isNotFound()
+                .expectBody(Problem.class).consumeWith(
+                        elem -> {
+                            Problem response = elem.getResponseBody();
+                            assert response != null;
+                            Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,response.getErrors().get(0).getCode());
+                        }
+                );
     }
 }

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: qR9pY3X/C4jB8jZm45xRV11Iq10vUkzg1h2V57kRlXY=
+  version: Yl5drnrg2436OzXxRod3r3K3OrEZWajfITpT84QH1/Q=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -501,7 +501,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: '#/components/schemas/TimelineElementCategory'
+          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
         recipientIndex:
           type: number
           minimum: 0
@@ -628,7 +628,7 @@ components:
         - PAID
         - UNREACHABLE
         - CANCELLED
-    TimelineElementCategory:
+    TimelineElementCategoryV2_0:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -672,6 +672,7 @@ components:
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -713,6 +714,7 @@ components:
         - PROBABLE_SCHEDULING_ANALOG_DATE
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
   responses: {}
   securitySchemes:
     api_key_openapi:

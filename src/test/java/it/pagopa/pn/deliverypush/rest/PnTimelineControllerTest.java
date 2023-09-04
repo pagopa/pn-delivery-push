@@ -32,11 +32,11 @@ class PnTimelineControllerTest {
 
     @Test
     void getTimelineSuccess() {
-        List<TimelineElement> timelineElements = Collections.singletonList(TimelineElement.builder()
+        var timelineElements = Collections.singletonList(TimelineElementV20.builder()
                 .timestamp( Instant.now() )
                 .elementId( "element_id" )
-                .category( TimelineElementCategory.REQUEST_ACCEPTED )
-                .details(TimelineElementDetails.builder().build())
+                .category( TimelineElementCategoryV20.REQUEST_ACCEPTED )
+                .details(TimelineElementDetailsV20.builder().build())
                 .build()
         );
         NotificationHistoryResponse dto = NotificationHistoryResponse.builder()

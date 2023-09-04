@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: dFpUsLX82G+zA9Hf8rI5V27rwDbu8cX+YBauU0+lNTw=
+  version: ik3BVGR097K7cpTMDqG2U5UZTAhU3rcx/sZ+70Uns94=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -506,6 +506,8 @@ components:
         maxLength: 512
   schemas:
     RequestStatus:
+      description: Response to cancellation async call
+      type: object
       properties:
         status:
           description: |
@@ -514,14 +516,25 @@ components:
           type: string
         details:
           type: array
+          maxItems: 9999
           items:
             $ref: '#/components/schemas/StatusDetail'
       required:
         - status
     StatusDetail:
+      description: Detail of response to cancellation async call
+      type: object
+      required:
+        - code
       properties:
         code:
-          description: Internal code of the error, in human-readable format
+          description: Internal code of the error or warning, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        level:
+          description: |
+            informational level of status detail: WARN, ERR, ...
+            ERR (error) by default
           example: NOTIFICATION_ALREADY_CANCELLED
           type: string
         detail:
@@ -530,8 +543,6 @@ components:
             problem.
           example: Parameter not valid
           type: string
-      required:
-        - code
     ProblemError:
       properties:
         code:
