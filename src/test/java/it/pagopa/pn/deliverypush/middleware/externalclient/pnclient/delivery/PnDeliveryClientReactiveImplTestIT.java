@@ -115,7 +115,8 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
 
         ObjectMapper mapper = new ObjectMapper();
         String respjson = mapper.writeValueAsString(notification);
-
+        mockServer.stop();
+        mockServer = startClientAndServer(9998);
         new MockServerClient("localhost", 9998)
                 .when(request()
                         .withMethod("DELETE")
@@ -139,7 +140,8 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
 
         String path = "/delivery-private/notification-cost/{iun}"
                 .replace("{iun}",iun);
-
+        mockServer.stop();
+        mockServer = startClientAndServer(9998);
         new MockServerClient("localhost", 9998)
                 .when(request()
                         .withMethod("DELETE")
@@ -165,18 +167,19 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
         SentNotification notification = new SentNotification();
         notification.setIun(iun);
 
-        String path = "/delivery-private/notifications/update-status"
-                .replace("{iun}",iun);
+        String path = "/delivery-private/notifications/update-status";
 
         ObjectMapper mapper = new ObjectMapper();
         String respjson = mapper.writeValueAsString(notification);
+
+        mockServer.stop();
+        mockServer = startClientAndServer(9998);
 
         new MockServerClient("localhost", 9998)
                 .when(request()
                         .withMethod("POST")
                         .withPath(path))
                 .respond(response()
-                        .withBody(respjson)
                         .withContentType(MediaType.APPLICATION_JSON)
                         .withStatusCode(200));
 
@@ -195,10 +198,11 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
         SentNotification notification = new SentNotification();
         notification.setIun(iun);
 
-        String path = "/delivery-private/notifications/update-status"
-                .replace("{iun}",iun);
+        String path = "/delivery-private/notifications/update-status";
 
         ObjectMapper mapper = new ObjectMapper();
+        mockServer.stop();
+        mockServer = startClientAndServer(9998);
 
         new MockServerClient("localhost", 9998)
                 .when(request()
