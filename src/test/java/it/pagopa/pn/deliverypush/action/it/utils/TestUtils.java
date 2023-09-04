@@ -691,19 +691,46 @@ public class TestUtils {
         return "XX_"+int_random;
     }
 
+    public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock,
+                                               PnDeliveryClientMock pnDeliveryClientMock,
+                                               UserAttributesClientMock userAttributesClientMock,
+                                               NationalRegistriesClientMock nationalRegistriesClientMock,
+                                               TimelineDaoMock timelineDaoMock,
+                                               PaperNotificationFailedDaoMock paperNotificationFailedDaoMock,
+                                               PnDataVaultClientMock pnDataVaultClientMock,
+                                               PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock,
+                                               DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
+                                               AddressManagerClientMock addressManagerClientMock
+    ) {
+       initializeAllMockClient(safeStorageClientMock,
+                pnDeliveryClientMock,
+                userAttributesClientMock,
+                nationalRegistriesClientMock,
+                timelineDaoMock,
+                paperNotificationFailedDaoMock,
+                pnDataVaultClientMock,
+                pnDataVaultClientReactiveMock,
+                documentCreationRequestDaoMock,
+                addressManagerClientMock,
+               null);
+    }
+
     public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock, 
-                                               PnDeliveryClientMock pnDeliveryClientMock, 
-                                               UserAttributesClientMock userAttributesClientMock, 
+                                               PnDeliveryClientMock pnDeliveryClientMock,
+                                               UserAttributesClientMock userAttributesClientMock,
                                                NationalRegistriesClientMock nationalRegistriesClientMock, 
                                                TimelineDaoMock timelineDaoMock, 
                                                PaperNotificationFailedDaoMock paperNotificationFailedDaoMock, 
                                                PnDataVaultClientMock pnDataVaultClientMock, 
                                                PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock, 
                                                DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
-                                               AddressManagerClientMock addressManagerClientMock
-    ) {
+                                               AddressManagerClientMock addressManagerClientMock,
+                                               PnDeliveryClientReactiveMock pnDeliveryClientReactiveMock
+                                               ) {
         safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
+        if (pnDeliveryClientReactiveMock != null)
+            pnDeliveryClientReactiveMock.clear();
         userAttributesClientMock.clear();
         nationalRegistriesClientMock.clear();
         timelineDaoMock.clear();

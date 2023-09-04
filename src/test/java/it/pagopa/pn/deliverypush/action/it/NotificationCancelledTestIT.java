@@ -195,6 +195,9 @@ class NotificationCancelledTestIT {
     private PnDeliveryClientMock pnDeliveryClientMock;
 
     @Autowired
+    private PnDeliveryClientReactiveMock pnDeliveryClientReactiveMock;
+
+    @Autowired
     private UserAttributesClientMock addressBookMock;
 
     @Autowired
@@ -275,7 +278,8 @@ class NotificationCancelledTestIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock
+                addressManagerClientMock,
+                pnDeliveryClientReactiveMock
         );
     }
 
@@ -334,6 +338,7 @@ class NotificationCancelledTestIT {
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
+        pnDeliveryClientReactiveMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
