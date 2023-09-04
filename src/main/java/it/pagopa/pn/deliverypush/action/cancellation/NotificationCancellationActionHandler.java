@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
+
 @Component
 @AllArgsConstructor
 @CustomLog
@@ -55,7 +57,7 @@ public class NotificationCancellationActionHandler {
             }
             else
             {
-                throw new PnInternalException("timeline element not found but insert was skipped elementid=" + cancelledTimelineElement.getElementId(), PnDeliveryPushExceptionCodes.ERROR_CODE_PN_GENERIC_ERROR);
+                throw new PnInternalException("timeline element not found but insert was skipped elementid=" + cancelledTimelineElement.getElementId(), ERROR_CODE_PN_GENERIC_ERROR);
             }
         }
         return cancelledTimelineElement;
