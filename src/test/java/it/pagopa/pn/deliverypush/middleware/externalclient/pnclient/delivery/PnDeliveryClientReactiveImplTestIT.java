@@ -133,7 +133,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     @Test
     void removeAllNotificationCostsByIunError(){
         //Given
-        String iun ="iunTest";
+        String iun ="iunTest1";
         SentNotification notification = new SentNotification();
         notification.setIun(iun);
 
@@ -191,7 +191,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     @Test
     void updateStatusError(){
         //Given
-        String iun ="iunTest";
+        String iun ="iunTest1";
         SentNotification notification = new SentNotification();
         notification.setIun(iun);
 
