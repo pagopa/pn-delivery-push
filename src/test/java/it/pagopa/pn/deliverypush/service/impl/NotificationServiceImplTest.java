@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -18,6 +19,7 @@ import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 
@@ -111,6 +113,54 @@ class NotificationServiceImplTest {
           service.getRecipientsQuickAccessLinkToken("001");
       });
         
+    }
+
+
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void removeAllNotificationCostsByIun() {
+        Mockito.when(pnDeliveryClientReactive.removeAllNotificationCostsByIun("001"))
+                .thenReturn(Mono.empty());
+
+        Mono<Void> mono = service.removeAllNotificationCostsByIun("001");
+        Assertions.assertDoesNotThrow( () -> mono.block());
+
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void removeAllNotificationCostsByIunError() {
+        Mockito.when(pnDeliveryClientReactive.removeAllNotificationCostsByIun("001"))
+                .thenReturn(Mono.error(new PnHttpResponseException("", 400)));
+
+        Mono<Void> mono = service.removeAllNotificationCostsByIun("001");
+        Assertions.assertThrows(PnInternalException.class, mono::block);
+
+    }
+
+
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void updateStatus() {
+        Mockito.when(pnDeliveryClientReactive.updateStatus(Mockito.eq("001"), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.empty());
+
+        Mono<Void> mono = service.updateStatus("001", NotificationStatusInt.CANCELLED, Instant.EPOCH);
+        Assertions.assertDoesNotThrow( () -> mono.block());
+
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void updateStatusError() {
+        Mockito.when(pnDeliveryClientReactive.updateStatus( Mockito.eq("001"), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new PnHttpResponseException("", 400)));
+
+        Mono<Void> mono = service.updateStatus("001", NotificationStatusInt.CANCELLED, Instant.EPOCH);
+        Assertions.assertThrows(PnInternalException.class, mono::block);
+
     }
     
     private SentNotification buildSentNotification() {
