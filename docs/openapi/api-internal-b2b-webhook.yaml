@@ -18,8 +18,9 @@ info:
       - inserimento di elementi nella timeline. <br/>
     
     Per ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni 
-    cambiamenti di stato o determinati eventi di timeline di maggiore interesse. Si consiglia 
-    di creare gli stream prima dell'invio delle notifiche perchè gli stati o gli eventi di 
+    cambiamenti di stato o determinati eventi di timeline di maggiore interesse.</br><strong>In assenza del filtro
+    verranno restituiti tutti gli elementi relativi alla v1.</strong>
+    </br>Si consiglia di creare gli stream prima dell'invio delle notifiche perché gli stati o gli eventi di 
     timeline vengono registrati solo successivamente alla creazione dello stream.</br>
     </br>
     __Esempio:__
@@ -64,7 +65,7 @@ info:
     
     Gli stati della notifica che possono essere inseriti come __filterValues__ sono i seguenti: 
       <details>
-        <summary>Stati</summary>
+        <summary>Stati - v1</summary>
         <ul>
           <li><strong>ACCEPTED </strong><em>L'ente ha depositato la notifica con successo.</em></li>
           <li><strong>REFUSED </strong><em>Notifica rifiutata a seguito della validazione.</em></li>
@@ -73,6 +74,11 @@ info:
           <li><strong>VIEWED </strong><em>Il destinatario ha letto la notifica entro il termine stabilito.</em></li>
           <li><strong>EFFECTIVE_DATE </strong><em>Il destinatario non ha letto la notifica entro il termine stabilito.</em></li>
           <li><strong>UNREACHABLE </strong><em>Il destinatario non è reperibile.</em></li>
+        </ul>
+      </details>
+      <details>
+        <summary>Stati - v2 (in aggiunta agli stati v1)</summary>
+        <ul>
           <li><strong>CANCELLED </strong><em>L'ente ha annullato l'invio della notifica.</em></li>
         </ul>
       </details>
@@ -81,7 +87,7 @@ info:
     Le categorie degli eventi di timeline che possono essere inseriti come __filterValues__ sono i seguenti: 
 
       <details>
-        <summary>Eventi di timeline</summary>
+        <summary>Eventi di timeline - v1</summary>
         <ul>
           <li><strong>SENDER_ACK_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage</em></li>
           <li><strong>VALIDATE_NORMALIZE_ADDRESSES_REQUEST </strong><em>Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica</em></li>
@@ -121,6 +127,14 @@ info:
           <li><strong>PROBABLE_SCHEDULING_ANALOG_DATE</strong><em>Data probabile di inizio del flusso analogico</em></li>
         </ul>
       </details>
+      <details>
+        <summary>Eventi di timeline - v2 (tutti gli elementi v1 + gli elementi seguenti)</summary>
+        <ul>
+          <li><strong>NOTIFICATION_CANCELLATION_REQUEST</strong><em>Richiesta di annullamento di una notifica</em></li>
+          <li><strong>NOTIFICATION_CANCELLED</strong><em>Notifica annullata: completamento della richiesta di annullamento di una notifica</em></li>
+          <li><strong>PREPARE_ANALOG_DOMICILE_FAILURE</strong><em>Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel</em></li>
+        </ul>
+      </details>
     </br>
     Di seguito un esempio di creazione e successiva interrogazione dello stream: 
 
@@ -136,7 +150,7 @@ info:
       </br>
       
       ### 1) Creazione dello stream ed inserimento notifica
-      In questo esempio creo 2 stream con il servizio di [creazione stream](#/Streams/createEventStream): uno per gli status</br> e l'altro per gli eventi di timeline.</br> Vedesi le request <big><strong>a)</strong></big> di esempio con le relative response <big><strong>b)</strong></big>, Da notare che sono presenti</br> dei filtri per ottenere solo specifici status o eventi; se si vogliono ottenere tutte </br>le variazioni non bisogna inserire nessun filtro: 
+      In questo esempio creo 2 stream con il servizio di [creazione stream](#/Streams/createEventStream): uno per gli status</br> e l'altro per gli eventi di timeline.</br> Vedesi le request <big><strong>a)</strong></big> di esempio con le relative response <big><strong>b)</strong></big>, Da notare che sono presenti</br> dei filtri per ottenere solo specifici status o eventi; se si vogliono ottenere tutte </br>le variazioni limitatamente agli eventi della v1, non bisogna inserire alcun filtro: 
       <code>"filterValues": []</code></br>      
       Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
       
@@ -682,7 +696,7 @@ components:
             - TIMELINE
         filterValues:
           description: >-
-            rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserire array vuoto [] se non si vuole applicare nessun filtro
+            rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi a v1
           type: array
           items:
             type: string
@@ -775,7 +789,8 @@ components:
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategory'
+#          apparentemente non retrocompatibile ma gli stream continueranno a mandare category della versione 1 fino ad esplicita modifica delle config da parte della PA
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV2_0'
         recipientIndex:
           type: integer
           format: int32

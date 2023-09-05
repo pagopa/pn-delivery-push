@@ -7,17 +7,15 @@ import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
 
 @Slf4j
 @Component
@@ -58,39 +56,35 @@ public class NotificationViewedRequestHandler {
     
     private Mono<Void> handleViewNotification(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
         
-        return Mono.fromCallable(() -> timelineUtils.checkIsNotificationViewed(iun, recIndex))
+        return Mono.fromCallable(() -> (
+                timelineUtils.checkIsNotificationCancellationRequested(iun)))
+            .flatMap( isNotificationCancelled -> {
+                if (Boolean.TRUE.equals(isNotificationCancelled)){
+                    log.warn("For this notification a cancellation has been requested - iun={} id={}", iun, recIndex);
+                    return Mono.empty();
+                } else {
+                    return Mono.just(timelineUtils.checkIsNotificationViewed(iun, recIndex));
+                }
+            })
             .flatMap( isNotificationAlreadyViewed -> {
                 
                 //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
                 if(Boolean.FALSE.equals(isNotificationAlreadyViewed) ){
-                    
+
                     PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddInfo, delegateInfo);
                     logEvent.log();
 
                     log.debug("Notification is not already viewed - iun={} id={}", iun, recIndex);
 
                     return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
-                            .flatMap( notification -> 
-                                    Mono.fromCallable(() -> statusUtils.getCurrentStatusFromNotification(notification, timelineService))
-                                    .flatMap( currentStatus -> {
-                                        //Una notifica annullata non può essere perfezionata per visione
-                                        if( !NotificationStatusInt.CANCELLED.equals(currentStatus) ){
-                                            log.debug("Notification is not in state CANCELLED - iun={} id={}", iun, recIndex);
-                                            
+                            .flatMap( notification -> {
                                             NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
                                             return viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddInfo, delegateInfo, eventTimestamp)
-                                                    .thenEmpty(
-                                                            Mono.fromCallable(() -> {
-                                                                logEvent.generateSuccess().log();
-                                                                return null;
-                                                            })
-                                                    );
-                                        } else {
-                                            log.debug("Notification is in status {}, can't start view Notification process - iun={} id={}", currentStatus, iun, recIndex);
-                                            return Mono.empty();
-                                        }
+                                                .doOnSuccess( x->
+                                                    logEvent.generateSuccess().log()
+                                                );
                                     })
-                            ).doOnError( err -> logEvent.generateFailure("Exception in View notification iun={} id={}", iun, recIndex, err).log());
+                            .doOnError( err -> logEvent.generateFailure("Exception in View notification iun={} id={}", iun, recIndex, err).log());
                 } else {
                     log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
                     return Mono.empty();

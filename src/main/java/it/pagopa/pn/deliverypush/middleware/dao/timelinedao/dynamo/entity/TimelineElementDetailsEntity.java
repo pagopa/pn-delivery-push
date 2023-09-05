@@ -1,11 +1,16 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
-import lombok.*;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-
 import java.time.Instant;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @Builder( toBuilder = true )
 @NoArgsConstructor
@@ -85,4 +90,6 @@ public class TimelineElementDetailsEntity {
 
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingAnalogDate")})) private Instant schedulingAnalogDate;
 
+    @Getter(onMethod=@__({@DynamoDbAttribute("cancellationRequestId")})) private String cancellationRequestId;
+    @Getter(onMethod=@__({@DynamoDbAttribute("notRefinedRecipientIndexes")})) private List<Integer> notRefinedRecipientIndexes;
 }

@@ -62,7 +62,7 @@ class TimeLineServiceImplTest {
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
         notificationService = Mockito.mock(NotificationService.class);
-        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
+        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService);
     }
 
     @Test
@@ -121,9 +121,7 @@ class TimeLineServiceImplTest {
         Mockito.doThrow(new PnInternalException("error", "test")).when(statusService).checkAndUpdateStatus(Mockito.any(TimelineElementInternal.class), Mockito.anySet(), Mockito.any(NotificationInt.class));
 
         // WHEN
-        assertThrows(PnInternalException.class, () -> {
-            timeLineService.addTimelineElement(newElement, notification);
-        });
+        assertThrows(PnInternalException.class, () -> timeLineService.addTimelineElement(newElement, notification));
     }
 
     @Test
@@ -437,7 +435,7 @@ class TimeLineServiceImplTest {
 
         Assertions.assertEquals(timelineElementList.size() , notificationHistoryResponse.getTimeline().size());
 
-        TimelineElement firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
+        var firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
         
         Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
         Assertions.assertEquals( elementInt.getElementId(), firstElementReturned.getElementId() );
@@ -519,7 +517,7 @@ class TimeLineServiceImplTest {
 
         Assertions.assertEquals(timelineElementList.size() , notificationHistoryResponse.getTimeline().size());
 
-        TimelineElement firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
+        var firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
 
         Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
         Assertions.assertEquals( elementInternalProg.getElementId(), firstElementReturned.getElementId() );
@@ -561,6 +559,7 @@ class TimeLineServiceImplTest {
 
         ProbableSchedulingAnalogDateResponse schedulingAnalogDateActual = timeLineService.getSchedulingAnalogDate(iun, recipientId).block();
 
+        assert schedulingAnalogDateActual != null;
         assertThat(schedulingAnalogDateActual.getSchedulingAnalogDate())
                 .isEqualTo(((ProbableDateAnalogWorkflowDetailsInt) timelineElementExpected.getDetails()).getSchedulingAnalogDate());
 

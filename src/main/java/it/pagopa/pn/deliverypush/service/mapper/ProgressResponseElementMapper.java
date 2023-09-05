@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.RefusedReason;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.RefusedReasonEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoRefusedReasonMapper;
@@ -22,7 +22,7 @@ public class ProgressResponseElementMapper {
         progressResponseElement.setIun(ev.getIun());
         progressResponseElement.setNewStatus(ev.getNewStatus() != null ? NotificationStatus.valueOf(ev.getNewStatus()) : null);
         progressResponseElement.setNotificationRequestId(ev.getNotificationRequestId());
-        progressResponseElement.setTimelineEventCategory(TimelineElementCategory.fromValue(ev.getTimelineEventCategory()));
+        progressResponseElement.setTimelineEventCategory(TimelineElementCategoryV20.fromValue(ev.getTimelineEventCategory()));
         progressResponseElement.setChannel(ev.getChannel());
         progressResponseElement.setRecipientIndex(ev.getRecipientIndex());
         progressResponseElement.setLegalfactIds(ev.getLegalfactIds());

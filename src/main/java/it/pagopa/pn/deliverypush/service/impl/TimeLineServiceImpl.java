@@ -20,10 +20,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.*;
@@ -52,7 +49,6 @@ public class TimeLineServiceImpl implements TimelineService {
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
-    private final SchedulerService schedulerService;
     private final NotificationService notificationService;
 
 
@@ -72,20 +68,16 @@ public class TimeLineServiceImpl implements TimelineService {
                 Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun(), true);
                 StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
 
-                //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
+                // vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
 
-                //aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
+                // aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
 
-                // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
-                schedulerService.scheduleWebhookEvent(
-                        notification.getSender().getPaId(),
-                        dtoWithStatusInfo.getIun(),
-                        dtoWithStatusInfo.getElementId()
-                );
+                // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
+                // asincrona da una lambda che opera partendo da stream Kinesis
 
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
                 logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
@@ -324,7 +316,7 @@ public class TimeLineServiceImpl implements TimelineService {
     private NotificationHistoryResponse createResponse(Set<TimelineElementInternal> timelineElements, List<NotificationStatusHistoryElementInt> statusHistory,
                                                        NotificationStatusInt currentStatus) {
 
-        List<TimelineElement> timelineList = timelineElements.stream()
+        var timelineList = timelineElements.stream()
                 .sorted(Comparator.naturalOrder())
                 .map(TimelineElementMapper::internalToExternal)
                 .toList();

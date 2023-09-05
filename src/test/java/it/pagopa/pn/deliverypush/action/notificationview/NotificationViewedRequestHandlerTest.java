@@ -6,12 +6,13 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import java.time.Instant;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,9 +20,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.Collections;
 
 class NotificationViewedRequestHandlerTest {
     @Mock
@@ -40,7 +38,7 @@ class NotificationViewedRequestHandlerTest {
     @BeforeEach
     public void setup() {
         NotificationUtils notificationUtils = new NotificationUtils();
-        
+
         handler = new NotificationViewedRequestHandler(timelineService, notificationService,
                 timelineUtils, statusUtils, notificationUtils, viewNotification);
     }
@@ -56,8 +54,6 @@ class NotificationViewedRequestHandlerTest {
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
-        Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
-                .thenReturn(NotificationStatusInt.DELIVERING);
         Mockito.when(viewNotification.startVewNotificationProcess(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.empty());
 
@@ -90,8 +86,6 @@ class NotificationViewedRequestHandlerTest {
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
-        Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
-                .thenReturn(NotificationStatusInt.DELIVERING);
         Mockito.when(viewNotification.startVewNotificationProcess(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.empty());
 
@@ -124,8 +118,6 @@ class NotificationViewedRequestHandlerTest {
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
-        Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
-                .thenReturn(NotificationStatusInt.DELIVERING);
         Mockito.when(viewNotification.startVewNotificationProcess(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.empty());
 
@@ -159,7 +151,7 @@ class NotificationViewedRequestHandlerTest {
         NotificationInt notification = getNotification(iun);
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
-        
+
         Instant viewDate = Instant.now();
         int recIndex = 0;
 
@@ -177,26 +169,6 @@ class NotificationViewedRequestHandlerTest {
         );
     }
 
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void handleNotificationInCancelledStatus() {
-        //GIVEN
-        String iun = "test_iun";
-        NotificationInt notification = getNotification(iun);
-        NotificationRecipientInt recipientInt = notification.getRecipients().get(0);
-
-        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
-        Mockito.when(statusUtils.getCurrentStatusFromNotification(Mockito.any(NotificationInt.class), Mockito.any()))
-                .thenReturn(NotificationStatusInt.CANCELLED);
-
-        //WHEN
-        handler.handleViewNotificationDelivery(notification.getIun(),0, null, Instant.now());
-
-        //THEN
-        Mockito.verify(viewNotification,  Mockito.never()).startVewNotificationProcess(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-    }
-    
     private NotificationInt getNotification(String iun) {
         return NotificationInt.builder()
                 .iun(iun)
@@ -216,5 +188,53 @@ class NotificationViewedRequestHandlerTest {
                                 .build()
                 ))
                 .build();
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleCancellationRequested() {
+        //GIVEN
+        String iun = "test_iun_handleCancellationRequested";
+        NotificationInt notification = getNotification(iun);
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn (true);
+
+        Instant viewDate = Instant.now();
+        int recIndex = 0;
+
+        //WHEN
+        handler.handleViewNotificationDelivery(notification.getIun(),recIndex, null, viewDate);
+
+        //THEN
+        Mockito.verify(notificationService,  Mockito.never()).getNotificationByIun(iun);
+        Mockito.verify(timelineUtils,  Mockito.never()).checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt());
+        Mockito.verify(viewNotification,  Mockito.never()).startVewNotificationProcess(
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any()
+        );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleCancellationNotRequested() {
+        //GIVEN
+        String iun = "test_iun_handleCancellationNotRequested";
+        NotificationInt notification = getNotification(iun);
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn (false);
+
+        Instant viewDate = Instant.now();
+        int recIndex = 0;
+
+        //WHEN
+        handler.handleViewNotificationDelivery(notification.getIun(),recIndex, null, viewDate);
+
+        //THEN
+        Mockito.verify(timelineUtils,  Mockito.atLeastOnce()).checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt());
+
     }
 }

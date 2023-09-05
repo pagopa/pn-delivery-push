@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
@@ -149,8 +150,24 @@ public class AuthUtils {
         }
     }
 
+    public Mono<Void> checkPaId(NotificationInt notification, String senderPaId, CxTypeAuthFleet cxType) {
+        log.debug("Start checkPaId - iun={} senderPaId={} cxType={}", notification.getIun(), senderPaId, cxType);
+        String paId = notification.getSender().getPaId();
+
+        return Mono.just(senderPaId)
+                .filter(pa -> CxTypeAuthFleet.PA.equals(cxType) && pa.equals(paId))
+                .doOnNext(validPa -> log.info("checkPaId validation success - iun={} paId={}", notification.getIun(), senderPaId))
+                .switchIfEmpty(Mono.error(() -> {
+                    String message = String.format("SenderPaId %s haven't authorization to cancel notification - iun=%s", senderPaId, notification.getIun());
+                    log.warn(message);
+                    throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND);
+                }))
+                .then();
+    }
+
     private void handleError(String message) {
         log.warn(message);
         throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND);
     }
+    
 }
