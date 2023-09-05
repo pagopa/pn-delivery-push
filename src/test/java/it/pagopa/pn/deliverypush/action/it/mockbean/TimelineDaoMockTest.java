@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
+import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
@@ -15,10 +16,9 @@ class TimelineDaoMockTest {
     private NotificationService notificationService;
     private NotificationUtils notificationUtils;
     private NotificationCancellationService notificationCancellationService;
-    private SchedulerService schedulerService;
-    private InstantNowSupplier instantNowSupplier;
+    private NotificationCancellationActionHandler notificationCancellationActionHandler;
 
-    private final TimelineDaoMock timelineDaoMock = new TimelineDaoMock(notificationViewedHandler, notificationService, notificationUtils, notificationCancellationService, schedulerService, instantNowSupplier);
+    private final TimelineDaoMock timelineDaoMock = new TimelineDaoMock(notificationViewedHandler, notificationService, notificationUtils, notificationCancellationService, notificationCancellationActionHandler);
 
 
     @Test

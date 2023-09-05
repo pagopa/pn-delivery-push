@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWork
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
@@ -26,7 +27,6 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForR
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -40,11 +40,8 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsI
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.mandate.api.MandatePrivateServiceApi;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate.PnMandateClient;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -56,7 +53,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -68,6 +64,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -159,6 +156,7 @@ import static org.mockito.ArgumentMatchers.eq;
         NotificationCancellationServiceImpl.class,
         AuthUtils.class,
         MandateServiceImpl.class,
+        NotificationCancellationActionHandler.class,
         NotificationCancelledTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")
@@ -262,6 +260,9 @@ class NotificationCancelledTestIT {
 
     @Autowired
     private AddressManagerClientMock addressManagerClientMock;
+
+    @Autowired
+    private NotificationCancellationActionHandler notificationCancellationActionHandler;
     
     @BeforeEach
     public void setup() {
@@ -285,26 +286,8 @@ class NotificationCancelledTestIT {
 
     @Test
     void notificationCancelled() {
-        //GIVEN
-        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
-                .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-
-        //OK
-        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
-                .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-
-        //ok
-        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
-                .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
 
         String iun = TestUtils.getRandomIun();
-        //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
         String taxId = TimelineDaoMock.SIMULATE_CANCEL_NOTIFICATION +  TimelineEventId.AAR_GENERATION.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
@@ -312,205 +295,73 @@ class NotificationCancelledTestIT {
                 .build()
         );
 
+        NotificationInt notification = commonExecution(iun, taxId);
 
-        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId(taxId)
-                .withDigitalDomicile(digitalDomicile)
-                .withPhysicalAddress(
-                        PhysicalAddressBuilder.builder()
-                                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
-                                .build()
-                )
-                .build();
+        commonChecks(notification, 0, TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build());
+    }
 
-        String fileDoc = "sha256_doc00";
-        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
-        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+    @Test
+    void notificationCancelledAfterViewed() {
+        // controlla che la notifica vada in annullata DOPO la visualizzazione
+        String iun = TestUtils.getRandomIun();
+        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.AAR_GENERATION.buildEventId(EventId.builder()
+                .iun(iun)
+                .recIndex(0)
+                .sentAttemptMade(0)
+                .build()
+        ) + TimelineDaoMock.SIMULATE_AFTER_CANCEL_NOTIFICATION;
 
-        NotificationInt notification = NotificationTestBuilder.builder()
-                .withNotificationDocuments(notificationDocumentList)
-                .withPaId("paId01")
-                .withIun(iun)
-                .withNotificationRecipient(recipient)
-                .withNotificationDocuments(notificationDocumentList)
-                .build();
+        NotificationInt notification = commonExecution(iun, taxId);
+
+        commonChecks(notification, 0, TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(true)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build());
+    }
 
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-        pnDeliveryClientMock.addNotification(notification);
-        pnDeliveryClientReactiveMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
-        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+    @Test
+    void notificationCancelledIngoreViewed() {
+        // controlla che la notifica annullata resti tale anche DOPO la visualizzazione
+        String iun = TestUtils.getRandomIun();
+        String taxId = TimelineDaoMock.SIMULATE_CANCEL_NOTIFICATION +  TimelineEventId.AAR_GENERATION.buildEventId(EventId.builder()
+                .iun(iun)
+                .recIndex(0)
+                .sentAttemptMade(0)
+                .build()
+        );
 
-        String delegateInternalId = "delegateInternalId";
-        RecipientType delegateType = RecipientType.PF;
+        NotificationInt notification = commonExecution(iun, taxId);
 
-        BaseRecipientDto baseRecipientDto = BaseRecipientDto.builder()
-                .internalId(delegateInternalId)
-                .denomination("delegateName")
-                .taxId("delegateTaxId")
-                .recipientType(delegateType)
-                .build();
-
-        pnDataVaultClientReactiveMock.insertBaseRecipientDto(baseRecipientDto);
-
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-
-        //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
+        //Simulazione visualizzazione della notifica per il secondo recipient
+        Instant notificationViewDate2 = Instant.now();
+        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, 0, null, notificationViewDate2);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().atLeast(Duration.ofSeconds(1));
+
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.CANCELLED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
 
-
-        checkNotificationCancelledTimelineElement(iun);
-        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification), eq(recipient), Mockito.isNull(), Mockito.any(Instant.class));
-        Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
-
-
-        //Viene effettuato il check dei legalFacts generati
-        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+        commonChecks(notification, 0, TestUtils.GeneratedLegalFactsInfo.builder()
                 .notificationReceivedLegalFactGenerated(true)
                 .notificationAARGenerated(true)
-                .notificationViewedLegalFactGenerated(true)
-                .pecDeliveryWorkflowLegalFactsGenerated(true)
-                .build();
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .build());
 
-        TestUtils.checkGeneratedLegalFacts(
-                notification,
-                recipient,
-                recIndex,
-                0,
-                generatedLegalFactsInfo,
-                EndWorkflowStatus.FAILURE,
-                legalFactGenerator,
-                timelineService,
-                null
-        );
 
-        //Vengono stampati tutti i legalFacts generati
-        String className = this.getClass().getSimpleName();
-        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
-
-        ConsoleAppenderCustom.checkLogs();
     }
 
-    @Disabled("fail only in build fase")
-    void notificationViewed(){
-        //GIVEN
-        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
-                .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-        
-        //OK
-        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
-                .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-        
-        //ok
-        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
-                .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-
-        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
-                .withDigitalDomicile(digitalDomicile)
-                .withPhysicalAddress(
-                        PhysicalAddressBuilder.builder()
-                                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
-                                .build()
-                )
-                .build();
-
-        String fileDoc = "sha256_doc00";
-        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
-        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
-
-        
-        NotificationInt notification = NotificationTestBuilder.builder()
-                .withNotificationDocuments(notificationDocumentList)
-                .withPaId("paId01")
-                .withNotificationRecipient(recipient)
-                .withNotificationDocuments(notificationDocumentList)
-                .build();
-
-
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-        pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
-        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
-
-        String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-
-        //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
-
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
-        );
-
-        //Simulazione visualizzazione della notifica
-        Instant notificationViewDate = Instant.now();
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, notificationViewDate);
-
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
-        );
-        
-        String internalId = recipient.getInternalId();
-        
-        await().untilAsserted(() -> 
-                Assertions.assertThrows(PnNotFoundException.class, () -> paperNotificationFailedService.getPaperNotificationByRecipientId(internalId, false))
-        );
-        
-        //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
-        checkNotificationViewTimelineElement(iun, recIndex, notificationViewDate, null);
-        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification), eq(recipient), eq(null), Mockito.any(Instant.class));
-        Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
-
-        //Simulazione seconda visualizzazione della notifica
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, Instant.now());
-
-        checkIsNotificationViewed(iun, recIndex, notificationViewDate);
-
-        //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
-        Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient), eq(null), Mockito.any(Instant.class));
-        Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
-
-        //Viene effettuato il check dei legalFacts generati
-        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
-                .notificationReceivedLegalFactGenerated(true)
-                .notificationAARGenerated(true)
-                .notificationViewedLegalFactGenerated(true)
-                .pecDeliveryWorkflowLegalFactsGenerated(true)
-                .build();
-
-        TestUtils.checkGeneratedLegalFacts(
-                notification,
-                recipient,
-                recIndex,
-                6,
-                generatedLegalFactsInfo,
-                EndWorkflowStatus.FAILURE,
-                legalFactGenerator,
-                timelineService,
-                null
-        );
-        
-        //Vengono stampati tutti i legalFacts generati
-        String className = this.getClass().getSimpleName();
-        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
-
-        ConsoleAppenderCustom.checkLogs();
-    }
 
     private void checkIsNotificationViewed(String iun, Integer recIndex, Instant notificationViewDate) {
         Optional<TimelineElementInternal> notificationViewTimelineElementOpt = timelineService.getTimelineElement(iun, TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
@@ -566,6 +417,106 @@ class NotificationCancelledTestIT {
 
     }
 
+    private NotificationInt commonExecution(String iun, String taxId){
+        //GIVEN
+        LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
+                .address("platformAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        //OK
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+                .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+        //ok
+        LegalDigitalAddressInt pbDigitalAddress = LegalDigitalAddressInt.builder()
+                .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId)
+                .withDigitalDomicile(digitalDomicile)
+                .withPhysicalAddress(
+                        PhysicalAddressBuilder.builder()
+                                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
+                                .build()
+                )
+                .build();
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withPaId("paId01")
+                .withIun(iun)
+                .withNotificationRecipient(recipient)
+                .withNotificationDocuments(notificationDocumentList)
+                .build();
+
+
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+        pnDeliveryClientMock.addNotification(notification);
+        pnDeliveryClientReactiveMock.addNotification(notification);
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
+        nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
+
+        String delegateInternalId = "delegateInternalId";
+        RecipientType delegateType = RecipientType.PF;
+
+        BaseRecipientDto baseRecipientDto = BaseRecipientDto.builder()
+                .internalId(delegateInternalId)
+                .denomination("delegateName")
+                .taxId("delegateTaxId")
+                .recipientType(delegateType)
+                .build();
+
+        pnDataVaultClientReactiveMock.insertBaseRecipientDto(baseRecipientDto);
+
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.CANCELLED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
+        checkNotificationCancelledTimelineElement(iun);
+
+        return notification;
+    }
+
+
+    private void commonChecks(NotificationInt notification, int recIndex, TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo ){
+
+        //Viene effettuato il check dei legalFacts generati
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                notification.getRecipients().get(recIndex),
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.FAILURE,
+                legalFactGenerator,
+                timelineService,
+                null
+        );
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(notification.getIun(), className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
+    }
+
     @Test
     void testNotificationViewedTwoRecipient(){
         //Primo Recipient
@@ -618,7 +569,7 @@ class NotificationCancelledTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withNotificationRecipients(recipients)
                 .build();
-        
+
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
@@ -635,7 +586,7 @@ class NotificationCancelledTestIT {
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.ACCEPTED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
-        
+
         //Simulazione visualizzazione della notifica per il primo recipient
         Instant notificationViewDate1 = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex1, null, notificationViewDate1);
@@ -650,7 +601,7 @@ class NotificationCancelledTestIT {
                         )).isPresent()
                 )
         );
-        
+
         checkIsNotificationViewed(iun, recIndex1, notificationViewDate1);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
@@ -674,7 +625,7 @@ class NotificationCancelledTestIT {
                         )).isPresent()
                 )
         );
-        
+
         checkIsNotificationViewed(iun, recIndex2, notificationViewDate2);
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
@@ -682,7 +633,7 @@ class NotificationCancelledTestIT {
 
         Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient2), eq(null), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient2.getInternalId(), iun);
-        
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
