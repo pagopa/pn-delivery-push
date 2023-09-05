@@ -1,0 +1,36 @@
+{
+    "tableName": "pn-Timelines",
+    "eventName": "INSERT",
+    "dynamodb": {
+        "NewImage": {
+            "iun": {
+                "S": "XLDW-MQYJ-WUKA-202302-A-1"
+            },
+            "timelineElementId": {
+                "S": "notification_cancellation_request.IUN_XLDW-MQYJ-WUKA-202302-A-1"
+            },
+            "notificationSentAt": {
+                "S": "2023-01-20T14:48:00.000Z"
+            },
+            "timestamp": {
+                "S": "2023-01-20T14:48:00.000Z"
+            },
+            "paId": {
+                "S": "026e8c72-7944-4dcd-8668-f596447fec6d"
+            },
+            "category": {
+                "S": "NOTIFICATION_CANCELLATION_REQUEST"
+            },
+            "details": {
+                "M": {
+                    "notificationCost": {
+                        "N": 100
+                    },
+                    "notRefinedRecipientIndexes": {
+                        "L": [ {"N": "1"}, {"N": "2"}, {"N": "3"} ]
+                    }
+                }
+            }
+        }
+    }
+}
