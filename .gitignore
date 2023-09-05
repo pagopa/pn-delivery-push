@@ -34,3 +34,10 @@ build/
 
 ### MAC ###
 **/.DS_Store
+
+# coverage
+.nyc_output/
+coverage/
+
+# lambda
+function.zip
