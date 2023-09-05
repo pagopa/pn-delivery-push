@@ -49,7 +49,6 @@ public class TimeLineServiceImpl implements TimelineService {
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
-    private final SchedulerService schedulerService;
     private final NotificationService notificationService;
 
 
@@ -69,20 +68,16 @@ public class TimeLineServiceImpl implements TimelineService {
                 Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun(), true);
                 StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
 
-                //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
+                // vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
 
-                //aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
+                // aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
 
-                // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
-                schedulerService.scheduleWebhookEvent(
-                        notification.getSender().getPaId(),
-                        dtoWithStatusInfo.getIun(),
-                        dtoWithStatusInfo.getElementId()
-                );
+                // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
+                // asincrona da una lambda che opera partendo da stream Kinesis
 
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
                 logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
