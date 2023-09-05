@@ -31,6 +31,8 @@ import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -49,7 +51,15 @@ public class TimeLineServiceImpl implements TimelineService {
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
+    private SchedulerService schedulerService;
     private final NotificationService notificationService;
+
+//    TODO cancellare la dipendenza
+    @Lazy
+    @Autowired
+    public void setSchedulerService(SchedulerService schedulerService) {
+        this.schedulerService = schedulerService;
+    }
 
 
     @Override
@@ -66,7 +76,7 @@ public class TimeLineServiceImpl implements TimelineService {
         if (notification != null) {
             try{
                 Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun(), true);
-                StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
+                StatusService.NotificationStatusUpdate notificationStatuses = statusService.getStatus(dto, currentTimeline, notification);
 
                 // vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
@@ -76,8 +86,18 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
 
-                // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
-                // asincrona da una lambda che opera partendo da stream Kinesis
+
+                // aggiorna lo stato su pn-delivery se i due stati differiscono
+                if (!notificationStatuses.getOldStatus().equals(notificationStatuses.getNewStatus())) {
+                    statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
+                }
+
+                // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
+                schedulerService.scheduleWebhookEvent(
+                        notification.getSender().getPaId(),
+                        dtoWithStatusInfo.getIun(),
+                        dtoWithStatusInfo.getElementId()
+                );
 
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
                 logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
