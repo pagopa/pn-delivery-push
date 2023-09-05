@@ -20,10 +20,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.*;
@@ -34,6 +31,8 @@ import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -52,8 +51,15 @@ public class TimeLineServiceImpl implements TimelineService {
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
-    private final SchedulerService schedulerService;
+    private SchedulerService schedulerService;
     private final NotificationService notificationService;
+
+//    TODO cancellare la dipendenza
+    @Lazy
+    @Autowired
+    public void setSchedulerService(SchedulerService schedulerService) {
+        this.schedulerService = schedulerService;
+    }
 
 
     @Override
@@ -70,15 +76,21 @@ public class TimeLineServiceImpl implements TimelineService {
         if (notification != null) {
             try{
                 Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun(), true);
-                StatusService.NotificationStatusUpdate notificationStatuses = statusService.checkAndUpdateStatus(dto, currentTimeline, notification);
+                StatusService.NotificationStatusUpdate notificationStatuses = statusService.getStatus(dto, currentTimeline, notification);
 
-                //Vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
+                // vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
                 confidentialInformationService.saveTimelineConfidentialInformation(dto);
 
-                //aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
+                // aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
+
+
+                // aggiorna lo stato su pn-delivery se i due stati differiscono
+                if (!notificationStatuses.getOldStatus().equals(notificationStatuses.getNewStatus())) {
+                    statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
+                }
 
                 // genero un messaggio per l'aggiunta in sqs in modo da salvarlo in maniera asincrona
                 schedulerService.scheduleWebhookEvent(
@@ -324,7 +336,7 @@ public class TimeLineServiceImpl implements TimelineService {
     private NotificationHistoryResponse createResponse(Set<TimelineElementInternal> timelineElements, List<NotificationStatusHistoryElementInt> statusHistory,
                                                        NotificationStatusInt currentStatus) {
 
-        List<TimelineElement> timelineList = timelineElements.stream()
+        var timelineList = timelineElements.stream()
                 .sorted(Comparator.naturalOrder())
                 .map(TimelineElementMapper::internalToExternal)
                 .toList();

@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>it.pagopa.pn</groupId>
 	<artifactId>pn-delivery-push</artifactId>
-	<version>2.0.1-SNAPSHOT</version>
+	<version>2.0.2-SNAPSHOT</version>
 	<name>pn-delivery-push</name>
 	<description>Orchestrate Notification Workflow</description>
 	<scm>
@@ -352,7 +352,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/d3f6dcd8b484c761959c315b444bdeafebd35968/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/ce5e790ef503e6557406f6f7395bd84aaeb310df/docs/openapi/api-private.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -382,7 +382,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/d3f6dcd8b484c761959c315b444bdeafebd35968/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/ce5e790ef503e6557406f6f7395bd84aaeb310df/docs/openapi/api-private.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>webclient</library>
 							<generateApiTests>false</generateApiTests>

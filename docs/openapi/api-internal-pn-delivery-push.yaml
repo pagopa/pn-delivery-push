@@ -84,7 +84,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-                                
+
   '/delivery-push/{iun}/legal-facts':
     get:
       summary: Elenco atti opponibili a terzi
@@ -281,6 +281,7 @@ paths:
 
 
 components:
+  
   parameters:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
@@ -369,9 +370,11 @@ components:
         # ASCII printable characters
         pattern: ^[ -~]*$
         maxLength: 1024
-        
+
   schemas:
     RequestStatus:
+      description: Response to cancellation async call
+      type: object
       properties:
         status:
           description: >
@@ -380,19 +383,30 @@ components:
           type: string
         details:
           type: array
+          maxItems: 9999
           items:
             $ref: '#/components/schemas/StatusDetail'
       required:
         - status
+
     StatusDetail:
+      description: Detail of response to cancellation async call
+      type: object
+      required:
+        - code
       properties:
         code:
-          description: Internal code of the error, in human-readable format
+          description: Internal code of the error or warning, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        level:
+          description: |
+            informational level of status detail: WARN, ERR, ...
+            ERR (error) by default
           example: NOTIFICATION_ALREADY_CANCELLED
           type: string
         detail:
           description: A human readable explanation specific to this occurrence of the problem.
           example: Parameter not valid
           type: string
-      required:
-        - code
+

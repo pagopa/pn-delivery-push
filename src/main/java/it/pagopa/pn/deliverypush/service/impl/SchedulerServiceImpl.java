@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
@@ -8,6 +9,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +17,13 @@ import java.time.Clock;
 import java.time.Instant;
 
 @Service
+@AllArgsConstructor
 @Slf4j
 public class SchedulerServiceImpl implements SchedulerService {
     private final ActionsPool actionsPool;
     private final WebhooksPool webhooksPool;
     private final Clock clock;
-
-    public SchedulerServiceImpl(ActionsPool actionsPool, WebhooksPool webhooksPool, Clock clock) {
-        this.actionsPool = actionsPool;
-        this.webhooksPool = webhooksPool;
-        this.clock = clock;
-    }
+    private final TimelineUtils timelineUtils;
 
     @Override
     public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType) {
@@ -51,24 +49,26 @@ public class SchedulerServiceImpl implements SchedulerService {
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, ActionDetails actionDetails) {
         log.info("Schedule {} in schedulingDate={} - iun={}", actionType, dateToSchedule, iun);
         log.debug("ScheduleEvent iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
+        
+        if(! timelineUtils.checkIsNotificationCancellationRequested(iun)){
+            Action action = Action.builder()
+                    .iun(iun)
+                    .recipientIndex(recIndex)
+                    .notBefore(dateToSchedule)
+                    .type(actionType)
+                    .timelineId(timelineEventId)
+                    .details(actionDetails)
+                    .build();
 
-        Action action = Action.builder()
-                .iun(iun)
-                .recipientIndex(recIndex)
-                .notBefore(dateToSchedule)
-                .type(actionType)
-                .timelineId(timelineEventId)
-                .details(actionDetails)
-                .build();
-
-        this.actionsPool.scheduleFutureAction(action.toBuilder()
-                .actionId(action.getType().buildActionId(action))
-                .build()
-        );
+            this.actionsPool.scheduleFutureAction(action.toBuilder()
+                    .actionId(action.getType().buildActionId(action))
+                    .build()
+            );
+        } else {
+            log.info("Notification is cancelled, the action {} will not be scheduled - iun={}", actionType, iun);
+        }
     }
-
-
-
+    
     @Override
     public void unscheduleEvent(String iun, Integer recIndex, ActionType actionType, String timelineEventId) {
         Action action = Action.builder()
@@ -80,7 +80,6 @@ public class SchedulerServiceImpl implements SchedulerService {
 
         this.actionsPool.unscheduleFutureAction (action.getType().buildActionId(action));
     }
-
 
     @Override
     public void scheduleWebhookEvent(String paId, String iun, String timelineId) {
@@ -95,8 +94,7 @@ public class SchedulerServiceImpl implements SchedulerService {
 
         this.webhooksPool.scheduleFutureAction(action);
     }
-
-
+    
     @Override
     public void scheduleWebhookEvent(String streamId, String eventId, Integer delay, WebhookEventType actionType) {
         WebhookAction action = WebhookAction.builder()
@@ -115,5 +113,4 @@ public class SchedulerServiceImpl implements SchedulerService {
         ActionType actionType, String timelineId) {
       this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, timelineId, null);
     }
-
 }
