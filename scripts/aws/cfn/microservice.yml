@@ -559,7 +559,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${DoneActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
