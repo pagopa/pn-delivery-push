@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
@@ -41,6 +42,7 @@ public class ActionHandler {
     private final DocumentCreationResponseHandler documentCreationResponseHandler;
     private final NotificationValidationActionHandler notificationValidationActionHandler;
     private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
+    private final NotificationCancellationActionHandler notificationCancellationActionHandler;
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
@@ -279,6 +281,27 @@ public class ActionHandler {
                 
                 log.logStartingProcess(processName);
                 notificationValidationActionHandler.validateNotification(action.getIun(), details );
+                log.logEndingProcess(processName);
+            } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushNotificationCancellation(){
+        final String processName = "NOTIFICATION CANCELLATION";
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushNotificationCancellation, with content {}", message);
+                Action action = message.getPayload();
+                HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
+
+                log.logStartingProcess(processName);
+                notificationCancellationActionHandler.cancelNotification(action.getIun());
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
