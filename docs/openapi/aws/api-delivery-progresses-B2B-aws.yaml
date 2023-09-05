@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Yl5drnrg2436OzXxRod3r3K3OrEZWajfITpT84QH1/Q=
+  version: xU38cjX7bQDWoQZ8qDBawiRrK992NjXUYPSDZLyeLSI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -426,8 +426,8 @@ components:
         filterValues:
           description: >-
             rappresenta l'elenco degli stati o elementi di timeline che si
-            vogliono filtrare; inserire array vuoto [] se non si vuole applicare
-            nessun filtro
+            vogliono filtrare; inserendo un array vuoto [] si riceveranno solo
+            gli elementi relativi a v1
           type: array
           items:
             type: string
