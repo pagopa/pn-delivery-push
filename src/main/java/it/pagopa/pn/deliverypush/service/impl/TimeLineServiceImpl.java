@@ -31,6 +31,8 @@ import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -49,8 +51,15 @@ public class TimeLineServiceImpl implements TimelineService {
     private final StatusUtils statusUtils;
     private final ConfidentialInformationService confidentialInformationService;
     private final StatusService statusService;
-    private final SchedulerService schedulerService;
+    private SchedulerService schedulerService;
     private final NotificationService notificationService;
+
+//    TODO cancellare la dipendenza
+    @Lazy
+    @Autowired
+    public void setSchedulerService(SchedulerService schedulerService) {
+        this.schedulerService = schedulerService;
+    }
 
 
     @Override
