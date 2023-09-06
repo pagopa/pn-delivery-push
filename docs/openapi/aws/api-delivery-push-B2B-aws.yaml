@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: st6pVoire4+JBXHeGyEaJczwHgeBhhk6Jhc7YigP5B0=
+  version: J7RiP+7DUYr3TzkhIxeVBrZgKxK8+KykouxoHvtku0c=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -63,6 +63,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -135,6 +136,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -217,6 +219,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
           integration.request.path.legalFactType: method.request.path.legalFactType
           integration.request.path.legalFactId: method.request.path.legalFactId
@@ -302,6 +305,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
           integration.request.path.legalFactId: method.request.path.legalFactId
         passthroughBehavior: when_no_match
@@ -375,6 +379,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
           integration.request.path.documentType: method.request.path.documentType
         passthroughBehavior: when_no_match

@@ -20,6 +20,7 @@
   </scm>
 	<properties>
 		<jacoco.min.line.cover.ratio>0.70</jacoco.min.line.cover.ratio>
+		<pagopa.codegen.version>v01.03.01-SNAPSHOT</pagopa.codegen.version>
 	</properties>
 
 	<dependencies>
