@@ -3,7 +3,9 @@ const { TABLES } = require("./repository");
 const allowedTimelineCategories = ["NOTIFICATION_CANCELLATION_REQUEST"];
 
 function makeNotificationCancellationInsertOp(iun, timelineElementId, event) {
-  const scheduleDatetimeString = new Date().toISOString();
+  const now = new Date(); // Get the current date and time
+  now.setSeconds(now.getSeconds() + 1); // Add 1 second to the current time
+  const scheduleDatetimeString = now.toISOString();
   // datetime until minutes
   const timeslotString = scheduleDatetimeString.slice(0, 16);
 
