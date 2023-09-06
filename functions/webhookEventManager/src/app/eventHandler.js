@@ -15,24 +15,30 @@ exports.handleEvent = async (event) => {
     return {
       batchItemFailures: [],
     };
-  }
-
-  
-  const processedItems = await mapEvents(cdcEvents);
-  if (processedItems.length == 0) {
-    console.log("No events to persist");
-    return {
-      batchItemFailures: [],
-    };
-  }
-
-
-  console.log(`Items to persist`, processedItems);
-
-  if (processedItems.length > 0){
-    await sendMessages(processedItems);
   }else{
-    console.log('Nothing to send');
+    let batchItemFailures = [];
+    while(cdcEvents.length > 0){
+      let currentCdcEvents = cdcEvents.splice(0,10);
+      try{
+        let processedItems = await mapEvents(currentCdcEvents);
+        if (processedItems.length > 0){
+          await sendMessages(processedItems);
+        }else{
+          console.log('No events to persist in current cdcEvents: ',currentCdcEvents);
+        }
+      }catch(exc){
+        console.log('Error in persist current cdcEvents: ', currentCdcEvents);
+        batchItemFailures = batchItemFailures.concat(currentCdcEvents.map((i) => {
+          return { itemIdentifier: i.kinesisSeqNumber };
+        }));
+      }
+    }
+    if(batchItemFailures.length > 0){
+      console.log('process finished with error!');
+      return {
+        batchItemFailures: batchItemFailures,
+      };
+    }
   }
            
 };
@@ -42,7 +48,7 @@ async function sendMessages(messages) {
     
       console.log('Proceeding to send ' + messages.length + ' messages to ' + QUEUE_URL);
       const input = {
-        Entries: messages.splice(0,10), 
+        Entries: messages, 
         QueueUrl: QUEUE_URL
       }
 
@@ -55,12 +61,6 @@ async function sendMessages(messages) {
       {
         console.log("error sending some message totalErrors:" + response.Failed.length);
         throw new Error("Failed to send some messages");
-      }
-
-      if (messages.length > 0)
-      {
-        console.log('There are ' + messages.length + ' messages to send');
-        await sendMessages(messages);
       }
 
   }catch(exc){

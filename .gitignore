@@ -34,3 +34,6 @@ build/
 
 ### MAC ###
 **/.DS_Store
+
+### NODE ###
+node_modules
