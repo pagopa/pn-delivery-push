@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: XKHF6BNR9CIP8mNybDyK9dZNhvPvPt5mDLlOadcRD1U=
+  version: 1c4YbB3vzWWsMdz0Z2Wr+dKgl+d6ZHP0hscBsdTPcDQ=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -18,7 +18,7 @@ paths:
         Permette l'annullamento di una notifica restituendo una presa in carico,
         il processo di annullamento si completa poi in maniera asincrona
       tags:
-        - notificationCancellation
+        - NotificationCancellation
       operationId: notificationCancellation
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -771,6 +771,8 @@ tags:
     description: Recupera le informazioni storiche di una notifica
   - name: LegalFacts
     description: Recupero degli atti opponibili a terzi generati per una notifica
+  - name: NotificationCancellation
+    description: Annullamento di una notifica
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:

@@ -30,6 +30,9 @@ tags:
   - name: LegalFacts
     description: >-
       Recupero degli atti opponibili a terzi generati per una notifica
+  - name: NotificationCancellation
+    description: >-
+      Annullamento di una notifica
 
 paths:
   '/status':
@@ -51,7 +54,7 @@ paths:
       description: >-
         Permette l'annullamento di una notifica restituendo una presa in carico, il processo di annullamento si completa poi in maniera asincrona
       tags:
-        - notificationCancellation
+        - NotificationCancellation
       operationId: notificationCancellation
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
