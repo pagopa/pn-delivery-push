@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -15,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -26,14 +26,13 @@ import java.util.HashSet;
 import java.util.List;
 
 class StatusServiceImplTest {
-    private PnDeliveryClient pnDeliveryClient;
     private StatusUtils statusUtils;
     
     private StatusService statusService;
     
     @BeforeEach
     void setup() {
-        pnDeliveryClient = Mockito.mock( PnDeliveryClient.class );
+        PnDeliveryClient pnDeliveryClient = Mockito.mock( PnDeliveryClient.class );
         statusUtils = Mockito.mock( StatusUtils.class );
 
         statusService = new StatusServiceImpl(pnDeliveryClient, statusUtils);
@@ -80,10 +79,10 @@ class StatusServiceImplTest {
         HashSet<TimelineElementInternal> hashSet = new HashSet<>(timelineElementList);
         
         //WHEN
-        statusService.checkAndUpdateStatus(dto, hashSet, notification);
+        StatusService.NotificationStatusUpdate statuses = statusService.getStatus(dto, hashSet, notification);
         
         //THEN
-        Mockito.verify(pnDeliveryClient).updateStatus(Mockito.any(RequestUpdateStatusDto.class));
+        Assertions.assertNotEquals(statuses.getOldStatus(), statuses.getNewStatus()); // changed status
     }
 
     @Test
@@ -127,10 +126,10 @@ class StatusServiceImplTest {
         HashSet<TimelineElementInternal> hashSet = new HashSet<>(timelineElementList);
 
         //WHEN
-        statusService.checkAndUpdateStatus(dto, hashSet, notification);
+        StatusService.NotificationStatusUpdate statuses = statusService.getStatus(dto, hashSet, notification);
 
         //THEN
-        Mockito.verify(pnDeliveryClient, Mockito.never()).updateStatus(Mockito.any(RequestUpdateStatusDto.class));
+        Assertions.assertEquals(statuses.getOldStatus(), statuses.getNewStatus()); // same status (didn't change)
     }
     
     private List<TimelineElementInternal> getListTimelineElementInternal(String iun){

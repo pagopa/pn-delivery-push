@@ -33,7 +33,7 @@ class PnCancellationControllerTest {
         
         // WHEN
         webTestClient.put()
-                .uri("/delivery-push/notifications/cancel/"+IUN)
+                .uri("/delivery-push/v2.0/notifications/cancel/"+IUN)
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .header("x-pagopa-pn-uid", "1234")
