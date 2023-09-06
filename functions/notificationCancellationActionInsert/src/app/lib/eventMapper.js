@@ -18,7 +18,8 @@ function makeNotificationCancellationInsertOp(iun, timelineElementId, event) {
     type: "NOTIFICATION_CANCELLATION",
     notBefore: scheduleDatetimeString,
     timeslot: timeslotString, // key future action
-    timelineId: timelineElementId,
+    timelineId: timelineElementId, // not actually used
+    // no details and not recIdx
     // op
     opType: "INSERT_ACTION_FUTUREACTION",
     kinesisSeqNumber: event.kinesisSeqNumber,
