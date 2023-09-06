@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: lc20zTMhbgNfv1qgU4IBy0++zhbhqPnuqGnBEsLMJqU=
+  version: mJwVW6+poRJ6nujS3OmPAKC525Gat067onDyObEBYTg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -507,7 +507,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
+          $ref: '#/components/schemas/TimelineElementCategoryV20'
         recipientIndex:
           type: number
           minimum: 0
@@ -634,7 +634,7 @@ components:
         - PAID
         - UNREACHABLE
         - CANCELLED
-    TimelineElementCategoryV2_0:
+    TimelineElementCategoryV20:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
