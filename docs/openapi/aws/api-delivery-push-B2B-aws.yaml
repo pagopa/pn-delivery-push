@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: /V/qVCVCBRQvEWI6eZ/r984zb5Hy/It/YB3pPhDf5qU=
+  version: st6pVoire4+JBXHeGyEaJczwHgeBhhk6Jhc7YigP5B0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -11,7 +11,7 @@ servers:
     x-amazon-apigateway-endpoint-configuration:
       disableExecuteApiEndpoint: true
 paths:
-  /notifications/cancel/{iun}:
+  /v2.0/notifications/cancel/{iun}:
     put:
       summary: Annullamento notifica
       description: >-
@@ -52,7 +52,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/cancel/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/cancel/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -69,10 +69,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /notifications/cancel/{iun} API CORS
+      operationId: Options for /v2.0/notifications/cancel/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/cancel/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/cancel/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
