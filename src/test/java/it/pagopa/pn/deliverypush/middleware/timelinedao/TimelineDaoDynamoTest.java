@@ -1,15 +1,13 @@
 package it.pagopa.pn.deliverypush.middleware.timelinedao;
 
-import io.swagger.models.auth.In;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.TimelineDaoDynamo;
-import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
@@ -86,6 +84,80 @@ class TimelineDaoDynamoTest {
         // check full retrieve
         Set<TimelineElementInternal> result = dao.getTimeline(iun);
         Assertions.assertEquals(Set.of(row1, row2), result);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void successfullyInsertAndRetrieveWithPhysicalAddress() {
+        // GIVEN
+        String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
+
+        String id1 = "sender_ack";
+        TimelineElementInternal row1 = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(id1)
+                .category(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER)
+                .details( SimpleRegisteredLetterDetailsInt.builder()
+                        .physicalAddress(PhysicalAddressInt.builder()
+                                .foreignState("IT")
+                                .zip("12345")
+                                .address("via esempio 123")
+                                .municipalityDetails("municipalityDetails")
+                                .municipality("roma")
+                                .province("RM")
+                                .at("at")
+                                .build())
+                        .build() )
+                .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
+                .build();
+        String id2 = "SendDigitalDetails";
+        TimelineElementInternal row2 = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(id2)
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
+                .details( SendAnalogDetailsInt.builder()
+                        .physicalAddress(PhysicalAddressInt.builder()
+                                .foreignState("IT")
+                                .zip("12345")
+                                .address("via esempio 123")
+                                .municipalityDetails("municipalityDetails")
+                                .municipality("roma")
+                                .province("RM")
+                                .at("at")
+                                .build())
+                        .build() )
+                .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
+                .build();
+
+        // WHEN
+        dao.addTimelineElementIfAbsent(row1);
+        dao.addTimelineElementIfAbsent(row2);
+
+        // THEN
+        // check first row
+        Optional<TimelineElementInternal> retrievedRow1 = dao.getTimelineElement(iun, id1);
+        Assertions.assertTrue(retrievedRow1.isPresent());
+        Assertions.assertEquals(((SimpleRegisteredLetterDetailsInt)row1.getDetails()).getPhysicalAddress().getForeignState(), ((SimpleRegisteredLetterDetailsInt)retrievedRow1.get().getDetails()).getPhysicalAddress().getForeignState());
+        Assertions.assertEquals(((SimpleRegisteredLetterDetailsInt)row1.getDetails()).getPhysicalAddress().getZip(), ((SimpleRegisteredLetterDetailsInt)retrievedRow1.get().getDetails()).getPhysicalAddress().getZip());
+        Assertions.assertNull(((SimpleRegisteredLetterDetailsInt)retrievedRow1.get().getDetails()).getPhysicalAddress().getAddress());
+        Assertions.assertNull(((SimpleRegisteredLetterDetailsInt)retrievedRow1.get().getDetails()).getPhysicalAddress().getMunicipality());
+        Assertions.assertNull(((SimpleRegisteredLetterDetailsInt)retrievedRow1.get().getDetails()).getPhysicalAddress().getMunicipalityDetails());
+        Assertions.assertNull(((SimpleRegisteredLetterDetailsInt)retrievedRow1.get().getDetails()).getPhysicalAddress().getProvince());
+        Assertions.assertNull(((SimpleRegisteredLetterDetailsInt)retrievedRow1.get().getDetails()).getPhysicalAddress().getAt());
+
+        // check second row
+        Optional<TimelineElementInternal> retrievedRow2 = dao.getTimelineElement(iun, id2);
+        Assertions.assertTrue(retrievedRow2.isPresent());
+        Assertions.assertEquals(((SendAnalogDetailsInt)row2.getDetails()).getPhysicalAddress().getForeignState(), ((SendAnalogDetailsInt)retrievedRow2.get().getDetails()).getPhysicalAddress().getForeignState());
+        Assertions.assertEquals(((SendAnalogDetailsInt)row2.getDetails()).getPhysicalAddress().getZip(), ((SendAnalogDetailsInt)retrievedRow2.get().getDetails()).getPhysicalAddress().getZip());
+        Assertions.assertNull(((SendAnalogDetailsInt)retrievedRow2.get().getDetails()).getPhysicalAddress().getAddress());
+        Assertions.assertNull(((SendAnalogDetailsInt)retrievedRow2.get().getDetails()).getPhysicalAddress().getMunicipality());
+        Assertions.assertNull(((SendAnalogDetailsInt)retrievedRow2.get().getDetails()).getPhysicalAddress().getMunicipalityDetails());
+        Assertions.assertNull(((SendAnalogDetailsInt)retrievedRow2.get().getDetails()).getPhysicalAddress().getProvince());
+        Assertions.assertNull(((SendAnalogDetailsInt)retrievedRow2.get().getDetails()).getPhysicalAddress().getAt());
+
     }
 
     @ExtendWith(MockitoExtension.class)
