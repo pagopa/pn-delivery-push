@@ -791,7 +791,7 @@ components:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
 #          apparentemente non retrocompatibile ma gli stream continueranno a mandare category della versione 1 fino ad esplicita modifica delle config da parte della PA
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV2_0'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20'
         recipientIndex:
           type: integer
           format: int32
