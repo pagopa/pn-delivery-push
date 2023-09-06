@@ -4,6 +4,7 @@ const fs = require("fs");
 const { mapEvents } = require("../app/lib/eventMapper");
 
 describe("event mapper tests", function () {
+  // correct mapping
   it("test NOTIFICATION_CANCELLATION_REQUEST", async () => {
     const eventJSON = fs.readFileSync("./src/test/eventMapper.timeline.json");
     const event = JSON.parse(eventJSON);
@@ -21,5 +22,17 @@ describe("event mapper tests", function () {
     expect(res[0].actionId).equal(
       "notification_cancellation_iun_XLDW-MQYJ-WUKA-202302-A-1"
     );
+  });
+
+  // check that the event is not mapped, by changing the category
+  it("test NOTIFICATION_CANCELLATION_REQUEST wrong category", async () => {
+    const eventJSON = fs.readFileSync("./src/test/eventMapper.timeline.json");
+    const event = JSON.parse(eventJSON);
+    event.dynamodb.NewImage.category.S = "NO_NOTIFICATION_CANCELLATION_REQUEST";
+    const events = [event];
+
+    const res = await mapEvents(events);
+
+    expect(res.length).equal(0);
   });
 });
