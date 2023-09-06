@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
@@ -12,6 +13,7 @@ import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
@@ -41,6 +43,8 @@ public class ActionHandler {
     private final DocumentCreationResponseHandler documentCreationResponseHandler;
     private final NotificationValidationActionHandler notificationValidationActionHandler;
     private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
+    private final NotificationCancellationActionHandler notificationCancellationActionHandler;
+    private final TimelineUtils timelineUtils;
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
@@ -51,9 +55,13 @@ public class ActionHandler {
                 log.debug("Handle action pnDeliveryPushStartRecipientWorkflow, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
-                
                 log.logStartingProcess(processName);
-                startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(action.getIun(), action.getRecipientIndex(), (RecipientsWorkflowDetails) action.getDetails());
+
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(a.getIun(), a.getRecipientIndex(), (RecipientsWorkflowDetails) a.getDetails())
+                );
+
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -74,7 +82,10 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
                 log.logStartingProcess(processName);
-                chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(action.getIun(), action.getRecipientIndex());
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(a.getIun(), a.getRecipientIndex())
+                );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -95,7 +106,10 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
                 log.logStartingProcess(processName);
-                analogWorkflowHandler.startAnalogWorkflow(action.getIun(), action.getRecipientIndex());
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> analogWorkflowHandler.startAnalogWorkflow(a.getIun(), a.getRecipientIndex())
+                );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -116,7 +130,10 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
 
                 log.logStartingProcess(processName);
-                refinementHandler.handleRefinement(action.getIun(), action.getRecipientIndex());
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> refinementHandler.handleRefinement(a.getIun(), a.getRecipientIndex())
+                );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -137,7 +154,10 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
 
                 log.logStartingProcess(processName);
-                digitalWorkFlowHandler.startScheduledNextWorkflow(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a ->digitalWorkFlowHandler.startScheduledNextWorkflow(a.getIun(), a.getRecipientIndex(), a.getTimelineId())
+                );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -146,7 +166,6 @@ public class ActionHandler {
             }
         };
     }
-
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushDigitalNextExecuteConsumer() {
@@ -159,7 +178,10 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
                 log.logStartingProcess(processName);
-                digitalWorkFlowHandler.startNextWorkFlowActionExecute(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> digitalWorkFlowHandler.startNextWorkFlowActionExecute(a.getIun(), a.getRecipientIndex(), a.getTimelineId())
+                );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -181,7 +203,10 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
 
                 log.logStartingProcess(processName);
-                digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> digitalWorkFlowRetryHandler.startScheduledRetryWorkflow(a.getIun(), a.getRecipientIndex(), a.getTimelineId())
+                );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -202,7 +227,10 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
 
                 log.logStartingProcess(processName);
-                digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(a.getIun(), a.getRecipientIndex(), a.getTimelineId())
+                );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -252,7 +280,10 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
                 
                 log.logStartingProcess(processName);
-                documentCreationResponseHandler.handleResponseReceived(action.getIun(), action.getRecipientIndex(), details );
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> documentCreationResponseHandler.handleResponseReceived(a.getIun(), a.getRecipientIndex(), (DocumentCreationResponseActionDetails) a.getDetails() )
+                );
                 log.logEndingProcess(processName);
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
@@ -274,11 +305,33 @@ public class ActionHandler {
                 log.debug("Handle action pnDeliveryPushNotificationValidation, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
-                
-                NotificationValidationActionDetails details = (NotificationValidationActionDetails) action.getDetails();
-                
+
                 log.logStartingProcess(processName);
-                notificationValidationActionHandler.validateNotification(action.getIun(), details );
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> notificationValidationActionHandler.validateNotification(a.getIun(), (NotificationValidationActionDetails) a.getDetails() )
+                );
+                log.logEndingProcess(processName);
+            } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushNotificationCancellation(){
+        final String processName = "NOTIFICATION CANCELLATION";
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushNotificationCancellation, with content {}", message);
+                Action action = message.getPayload();
+                HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
+
+                log.logStartingProcess(processName);
+                notificationCancellationActionHandler.cancelNotification(action.getIun());
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -297,9 +350,11 @@ public class ActionHandler {
                 log.debug("Handle action pnDeliveryPushReceivedLegalFactGeneration, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
-
                 log.logStartingProcess(processName);
-                receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(action.getIun());
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(a.getIun())
+                );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
@@ -308,5 +363,13 @@ public class ActionHandler {
             }
         };
     }
-    
+
+    private void checkNotificationCancelledAndExecute(Action action, Consumer<Action> functionToCall) {
+        if (! timelineUtils.checkIsNotificationCancellationRequested(action.getIun())) {
+            functionToCall.accept(action);
+        } else {
+            log.info("Notification is cancelled, the action will not be executed - iun={}", action.getIun());
+        }
+    }
+
 }

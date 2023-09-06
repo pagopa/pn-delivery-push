@@ -45,7 +45,7 @@ paths:
         '500':
           description: Internal Server Error
           
-  '/delivery-push/notifications/cancel/{iun}':
+  '/delivery-push/v2.0/notifications/cancel/{iun}':
     put:
       summary: Annullamento notifica
       description: >-

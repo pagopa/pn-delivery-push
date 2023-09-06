@@ -16,6 +16,12 @@ public enum ActionType {
               details.getRetryAttempt());
     }
   },
+  NOTIFICATION_CANCELLATION(NotHandledDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("notification_cancellation_iun_%s", action.getIun());
+    }
+  },
 
   SCHEDULE_RECEIVED_LEGALFACT_GENERATION(NotHandledDetails.class) {
     @Override

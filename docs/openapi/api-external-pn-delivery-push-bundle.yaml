@@ -38,7 +38,7 @@ paths:
           description: Ok
         '500':
           description: Internal Server Error
-  /delivery-push/notifications/cancel/{iun}:
+  /delivery-push/v2.0/notifications/cancel/{iun}:
     put:
       summary: Annullamento notifica
       description: Permette l'annullamento di una notifica restituendo una presa in carico, il processo di annullamento si completa poi in maniera asincrona
