@@ -11,13 +11,13 @@ function makeNotificationCancellationInsertOp(iun, timelineElementId, event) {
 
   // see pn-delivery-push: it.pagopa.pn.deliverypush.service.impl.SchedulerServiceImpl#scheduleEvent
   const op = {
-    // key
+    // keys for two tables
     actionId: `notification_cancellation_iun_${iun}`,
-    iun: iun,
+    timeslot: timeslotString,
     // others
+    iun: iun, // GSI in both tables
     type: "NOTIFICATION_CANCELLATION",
     notBefore: scheduleDatetimeString,
-    timeslot: timeslotString, // key future action
     timelineId: timelineElementId, // not actually used
     // no details and not recIdx
     // op

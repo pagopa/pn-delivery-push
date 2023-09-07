@@ -1,7 +1,7 @@
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const {
   DynamoDBDocumentClient,
-  TransactWriteItemsCommand,
+  TransactWriteCommand,
 } = require("@aws-sdk/lib-dynamodb");
 
 const TABLES = {
@@ -31,22 +31,30 @@ exports.persistEvents = async (events) => {
           Put: {
             TableName: TABLES.ACTION,
             Item: {
-              iun: { S: "exampleIun" },
-              id: { S: "exampleId1" },
-              user: { S: "exampleUser" },
-              // ...
+              // key
+              actionId: { S: persistEvent.actionId },
+              // other attributes
+              iun: { S: persistEvent.iun }, // GSI
+              type: { S: persistEvent.type },
+              notBefore: { S: persistEvent.notBefore },
+              timeslot: { S: persistEvent.timeslot },
+              timelineId: { S: persistEvent.timelineId },
             },
             // condition for put if absent
-            ConditionExpression:
-              "attribute_not_exists(iun) AND attribute_not_exists(id)",
+            ConditionExpression: "attribute_not_exists(actionId)",
           },
         },
         {
           Put: {
             TableName: TABLES.FUTUREACTION,
             Item: {
-              id: { S: "exampleId2" },
-              // ...
+              // key (composite)
+              timeSlot: { S: persistEvent.timeslot }, // in this case "timeSlot", not "timeslot"
+              actionId: { S: persistEvent.actionId },
+              // others
+              iun: { S: persistEvent.iun }, // GSI
+              notBefore: { S: persistEvent.notBefore },
+              type: { S: persistEvent.type },
             },
           },
         },
@@ -54,11 +62,33 @@ exports.persistEvents = async (events) => {
     };
 
     try {
-      const result = await dynamoDB.send(new TransactWriteItemsCommand(params));
+      const result = await dynamoDB.send(new TransactWriteCommand(params));
       console.log("Action-FutureAction transaction succeeded:", result);
+      summary.insertions++;
     } catch (error) {
-      console.error("Error performing Action-FutureAction transaction:", error);
-      summary.errors.push(persistEvent);
+      // check for ConditionalCheckFailed
+      if (error.name == "TransactionCanceledException") {
+        for (let cancellation of error.cancellationReasons) {
+          if (cancellation.code == "ConditionalCheckFailed") {
+            console.warn(
+              "TransactionCanceledException: ConditionalCheckFailed"
+            );
+            // ignore this error
+          } else {
+            console.error(
+              "Error performing Action-FutureAction transaction:",
+              error
+            );
+            summary.errors.push(persistEvent);
+          }
+        }
+      } else {
+        console.error(
+          "Error performing Action-FutureAction transaction:",
+          error
+        );
+        summary.errors.push(persistEvent);
+      }
     }
   }
 
