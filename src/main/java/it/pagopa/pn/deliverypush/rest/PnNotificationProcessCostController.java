@@ -25,7 +25,8 @@ public class PnNotificationProcessCostController implements NotificationProcessC
     @Override
     public  Mono<ResponseEntity<NotificationProcessCostResponse>> notificationProcessCost(String iun, 
                                                                                           Integer recIndex, 
-                                                                                          NotificationFeePolicy notificationFeePolicy, 
+                                                                                          NotificationFeePolicy notificationFeePolicy,
+                                                                                          Boolean applyCost,
                                                                                           final ServerWebExchange exchange) {
         if (timelineUtils.checkIsNotificationCancellationRequested(iun))
         {
@@ -33,7 +34,7 @@ public class PnNotificationProcessCostController implements NotificationProcessC
             throw new PnNotificationCancelledException();
         }
 
-        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy)
+        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost)
                 .map(response -> ResponseEntity.ok().body(mapResponse(response)));
     }
 

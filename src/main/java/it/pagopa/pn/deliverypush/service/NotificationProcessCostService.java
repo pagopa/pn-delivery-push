@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 public interface NotificationProcessCostService {
     Mono<Integer> getPagoPaNotificationBaseCost();
     
-    Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy);
+    Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost);
 }

@@ -30,11 +30,11 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
     }
 
     @Override
-    public Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy) {
-        return Mono.fromCallable(() -> getNotificationProcessCost(iun, recIndex, notificationFeePolicy));
+    public Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost) {
+        return Mono.fromCallable(() -> getNotificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost));
     }
 
-    private NotificationProcessCost getNotificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy) {
+    private NotificationProcessCost getNotificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost) {
         log.info("Start getNotificationProcessCost notificationFeePolicy={} - iun={} id={}", notificationFeePolicy, iun, recIndex);
         
         Instant notificationViewDate = null;
@@ -61,7 +61,7 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
         
         int notificationProcessCost = 0; //In caso di FLAT_RATE viene restituito sempre zero
         
-        if(NotificationFeePolicy.DELIVERY_MODE.equals(notificationFeePolicy)){
+        if(NotificationFeePolicy.DELIVERY_MODE.equals(notificationFeePolicy) && Boolean.TRUE.equals(applyCost)){
             notificationProcessCost = PAGOPA_NOTIFICATION_BASE_COST + analogCost;
         }
 

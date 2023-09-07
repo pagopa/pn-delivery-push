@@ -39,6 +39,7 @@ class PnNotificationProcessCostControllerTest {
         String iun = "testIun";
         int recIndex = 0;
         NotificationFeePolicy notificationFeePolicy = NotificationFeePolicy.DELIVERY_MODE;
+        Boolean applyCost = true;
 
         final NotificationProcessCost notificationCost = NotificationProcessCost.builder()
                 .refinementDate(Instant.now())
@@ -48,7 +49,7 @@ class PnNotificationProcessCostControllerTest {
 
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
 
-        Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy))
+        Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost))
                 .thenReturn(Mono.just(notificationCost));
         
         webTestClient.get()
@@ -56,6 +57,7 @@ class PnNotificationProcessCostControllerTest {
                         uriBuilder
                                 .path("/delivery-push-private/"+iun+"/notification-process-cost/"+recIndex )
                                 .queryParam("notificationFeePolicy", notificationFeePolicy.getValue())
+                                .queryParam("applyCost", applyCost)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -86,6 +88,7 @@ class PnNotificationProcessCostControllerTest {
                         uriBuilder
                                 .path("/delivery-push-private/"+iun+"/notification-process-cost/"+recIndex )
                                 .queryParam("notificationFeePolicy", notificationFeePolicy.getValue())
+                                .queryParam("applyCost", true)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")

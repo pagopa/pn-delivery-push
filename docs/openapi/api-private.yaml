@@ -343,6 +343,7 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIndex'
         - $ref: '#/components/parameters/queryNotificationFeePolicy'
+        - $ref: '#/components/parameters/queryApplyCost'
       responses:
         '200':
           description: OK
@@ -519,6 +520,15 @@ components:
       required: true
       schema:
         $ref: 'remote-refs.yaml#/components/schemas/NotificationFeePolicy'
+
+    queryApplyCost:
+      description: >-
+        Flag per determinare se devono essere applicati i costi di notifica
+      name: applyCost
+      in: query
+      required: true
+      schema:
+        type: boolean
         
   schemas:
 
