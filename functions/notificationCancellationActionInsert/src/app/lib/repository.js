@@ -80,6 +80,7 @@ exports.persistEvents = async (events) => {
               error
             );
             summary.errors.push(persistEvent);
+            break; // we want to return without processing other errors
           }
         }
       } else {

@@ -13,21 +13,21 @@ describe("DynamoDB tests", function () {
     ddbMock.reset();
   });
 
-  it("test persistEvents", async () => {
-    const events = [
-      {
-        actionId: "notification_cancellation_iun_XLDW-MQYJ-WUKA-202302-A-1",
-        timeslot: "2021-09-23T10:00",
-        iun: "XLDW-MQYJ-WUKA-202302-A-1",
-        type: "NOTIFICATION_CANCELLATION",
-        notBefore: "2021-09-23T10:00:00.000Z",
-        timelineId:
-          "notification_cancellation_request.IUN_XLDW-MQYJ-WUKA-202302-A-1",
-        opType: "INSERT_ACTION_FUTUREACTION",
-        kinesisSeqNumber: "4950",
-      },
-    ];
+  const events = [
+    {
+      actionId: "notification_cancellation_iun_XLDW-MQYJ-WUKA-202302-A-1",
+      timeslot: "2021-09-23T10:00",
+      iun: "XLDW-MQYJ-WUKA-202302-A-1",
+      type: "NOTIFICATION_CANCELLATION",
+      notBefore: "2021-09-23T10:00:00.000Z",
+      timelineId:
+        "notification_cancellation_request.IUN_XLDW-MQYJ-WUKA-202302-A-1",
+      opType: "INSERT_ACTION_FUTUREACTION",
+      kinesisSeqNumber: "4950",
+    },
+  ];
 
+  it("test persistEvents", async () => {
     ddbMock.on(TransactWriteCommand).resolves({
       UnprocessedItems: {},
     });
@@ -38,46 +38,7 @@ describe("DynamoDB tests", function () {
     expect(res.errors.length).equal(0);
   });
 
-  //   it("test persistEvents with error", async () => {
-  //     const events = [
-  //       {
-  //         actionId: "notification_cancellation_iun_XLDW-MQYJ-WUKA-202302-A-1",
-  //         timeslot: "2021-09-23T10:00",
-  //         iun: "XLDW-MQYJ-WUKA-202302-A-1",
-  //         type: "NOTIFICATION_CANCELLATION",
-  //         notBefore: "2021-09-23T10:00:00.000Z",
-  //         timelineId:
-  //           "notification_cancellation_request.IUN_XLDW-MQYJ-WUKA-202302-A-1",
-  //         opType: "INSERT_ACTION_FUTUREACTION",
-  //         kinesisSeqNumber: "4950",
-  //       },
-  //     ];
-
-  //     ddbMock.on(TransactWriteCommand).rejects({
-  //       UnprocessedItems: {},
-  //     });
-
-  //     const res = await persistEvents(events);
-
-  //     expect(res.insertions).equal(0);
-  //     expect(res.errors.length).equal(1);
-  //   });
-
   it("test persistEvents with ConditionalCheckFailed", async () => {
-    const events = [
-      {
-        actionId: "notification_cancellation_iun_XLDW-MQYJ-WUKA-202302-A-1",
-        timeslot: "2021-09-23T10:00",
-        iun: "XLDW-MQYJ-WUKA-202302-A-1",
-        type: "NOTIFICATION_CANCELLATION",
-        notBefore: "2021-09-23T10:00:00.000Z",
-        timelineId:
-          "notification_cancellation_request.IUN_XLDW-MQYJ-WUKA-202302-A-1",
-        opType: "INSERT_ACTION_FUTUREACTION",
-        kinesisSeqNumber: "4950",
-      },
-    ];
-
     ddbMock.on(TransactWriteCommand).rejects({
       name: "TransactionCanceledException",
       cancellationReasons: [
@@ -91,5 +52,32 @@ describe("DynamoDB tests", function () {
 
     expect(res.insertions).equal(0);
     expect(res.errors.length).equal(0);
+  });
+
+  it("test persistEvents with TransactionCanceledException but not ConditionalCheckFailed", async () => {
+    ddbMock.on(TransactWriteCommand).rejects({
+      name: "TransactionCanceledException",
+      cancellationReasons: [
+        {
+          code: "Other",
+        },
+      ],
+    });
+
+    const res = await persistEvents(events);
+
+    expect(res.insertions).equal(0);
+    expect(res.errors.length).equal(1);
+  });
+
+  it("test persistEvents with a generic error", async () => {
+    ddbMock.on(TransactWriteCommand).rejects({
+      name: "OtherException",
+    });
+
+    const res = await persistEvents(events);
+
+    expect(res.insertions).equal(0);
+    expect(res.errors.length).equal(1);
   });
 });
