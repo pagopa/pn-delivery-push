@@ -49,7 +49,7 @@ exports.persistEvents = async (events) => {
             TableName: TABLES.FUTUREACTION,
             Item: {
               // key (composite)
-              timeSlot: { S: persistEvent.timeslot }, // in this case "timeSlot", not "timeslot"
+              timeSlot: { S: persistEvent.timeslot }, // in this case in the table it's "timeSlot", not "timeslot"
               actionId: { S: persistEvent.actionId },
               // others
               iun: { S: persistEvent.iun }, // GSI
