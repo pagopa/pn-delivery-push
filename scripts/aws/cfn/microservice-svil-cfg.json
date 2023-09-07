@@ -26,6 +26,7 @@
     "MaxPdfAllowedSize": "200MB",
     "EnableCheckPdfContent": "true",
     "IsLollipopActive": "false",
-    "CheckCfEnabled": "false"
+    "CheckCfEnabled": "false",
+    "ActionTtlDays": "365"
   }
 }

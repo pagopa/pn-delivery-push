@@ -516,14 +516,8 @@ Parameters:
     Type: String
     Description: 'DLQ Alarm ARN for WebhookEventManagerLambda'
 
-  CdcKinesisSourceStreamArn:
-    Type: String
-    Description: "Where to send CDC"
 
-  BucketBasePath:
-    Type: String
-    Description: "The S3 bucket base path where lambda functions are stored"
-
+  # Lambda parameters
   NotificationCancellationActionInsertLambdaName:
     Type: String
 
@@ -534,6 +528,17 @@ Parameters:
   NotificationCancellationActionInsertDLQAlarmARN:
     Type: String
     Description: 'DLQ Alarm ARN for NotificationCancellationActionInsertLambda'
+
+  ActionTtlDays:
+    Default: 365
+    Type: Number
+    Description: TTL in days for pn-Action table rows
+
+  # CDC
+
+  CdcKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send CDC'
 
   CdcKinesisSourceStreamKeyArn:
     Description: "Kinesis source CDC stream crypto key ARN"
@@ -950,6 +955,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
+          ACTION_TTL_DAYS: !Ref ActionTtlDays
       TracingConfig:
         Mode: Active
       Layers:
