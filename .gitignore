@@ -35,7 +35,12 @@ build/
 ### MAC ###
 **/.DS_Store
 
-### NODE ###
-node_modules
-coverage
-.nyc_output
+# coverage
+.nyc_output/
+coverage/
+
+# lambda
+function.zip
+
+# Node.js
+node_modules/
