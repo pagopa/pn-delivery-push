@@ -890,8 +890,7 @@ components:
           $ref: './schemas-pn-notification.yaml#/components/schemas/RecipientType'      # NOT YET IMPLEMENTED
         paymentType:                                                                    # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
-          enum:                                                                         # NOT YET IMPLEMENTED
-            - F24                                                                       # NOT YET IMPLEMENTED
+          enum:                                                                        # NOT YET IMPLEMENTED
             - PAGOPA                                                                    # NOT YET IMPLEMENTED
         timestamp:                                                                      # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED

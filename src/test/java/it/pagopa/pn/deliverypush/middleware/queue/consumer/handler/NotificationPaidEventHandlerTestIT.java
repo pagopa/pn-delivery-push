@@ -66,12 +66,11 @@ class NotificationPaidEventHandlerTestIT {
         final String CREDITOR_TAX_ID = "77777777777"; //stringa di 11 caratteri
         final String NOTICE_CODE = "123456789123456789"; //stringa di 18 caratteri
         final PnDeliveryPaymentEvent.PaymentType PAYMENT_TYPE = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
-        final String ID_F24 = null;
         final String ELEMENT_ID_EXPECTED = "NOTIFICATION_PAID.IUN_" + IUN + ".CODE_PPA" + NOTICE_CODE + CREDITOR_TAX_ID;
 
         NotificationInt notificationIntMock = buildNotification(IUN);
         Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
-        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload(), ID_F24);
+        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload());
         TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
 
         when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED)).thenReturn(timelineElementInternalExpected);
@@ -93,12 +92,11 @@ class NotificationPaidEventHandlerTestIT {
         final String CREDITOR_TAX_ID = "77777777777"; //stringa di 11 caratteri
         final String NOTICE_CODE = "123456789123456789"; //stringa di 18 caratteri
         final PnDeliveryPaymentEvent.PaymentType PAYMENT_TYPE = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
-        final String ID_F24 = null;
         final String ELEMENT_ID_EXPECTED = "NOTIFICATION_PAID.IUN_" + IUN + ".CODE_PPA" + NOTICE_CODE + CREDITOR_TAX_ID;
 
         NotificationInt notificationIntMock = buildNotification(IUN);
         Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
-        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload(), ID_F24);
+        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload());
         TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
 
         when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED)).thenReturn(timelineElementInternalExpected);
@@ -113,35 +111,6 @@ class NotificationPaidEventHandlerTestIT {
         // verifico che NON viene eseguito il metodo di aggiunta della timeline con id ELEMENT_ID_EXPECTED, perché già pagata
         verify(timelineService, times(0)).addTimelineElement(timelineElementInternalExpected, notificationIntMock);
     }
-
-    @Test
-    void consumeMessageWithPaymentF24NotAlreadyPaid() {
-        final String IUN = "iun-value-12345-6789";
-        final String CREDITOR_TAX_ID = null;
-        final String NOTICE_CODE = null;
-        final PnDeliveryPaymentEvent.PaymentType PAYMENT_TYPE = PnDeliveryPaymentEvent.PaymentType.F24;
-        final String ID_F24 = "987654321-00000";
-        final String ELEMENT_ID_EXPECTED = "NOTIFICATION_PAID.IUN_" + IUN + ".CODE_F24" + ID_F24;
-
-        NotificationInt notificationIntMock = buildNotification(IUN);
-        Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
-        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload(), ID_F24);
-        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
-
-        when(uuidCreatorUtils.createUUID()).thenReturn(ID_F24);
-        when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED)).thenReturn(timelineElementInternalExpected);
-        when(timelineService.getTimelineElement(anyString(), anyString())).thenReturn(Optional.empty());
-        when(notificationService.getNotificationByIun(IUN)).thenReturn(notificationIntMock);
-        Function<Object, Object> function = functionCatalog.lookup(RoutingFunction.FUNCTION_NAME);
-
-        // verifico che il messaggio venga correttamente gestito dal router grazie all'eventType
-        assertThat(function).isNotNull();
-        // verifico che il flusso da quando arriva il messaggio al salvataggio della timeline non provochi eccezioni
-        assertDoesNotThrow(() -> function.apply(payloadMessage));
-        // verifico che viene eseguito il metodo di aggiunta della timeline con id ELEMENT_ID_EXPECTED
-        verify(timelineService, times(1)).addTimelineElement(timelineElementInternalExpected, notificationIntMock);
-    }
-
 
     private Message<PnDeliveryPaymentEvent.Payload> buildMessage(String iun, String creditorTaxId, String noticeCode,
                                                                  PnDeliveryPaymentEvent.PaymentType paymentType) {

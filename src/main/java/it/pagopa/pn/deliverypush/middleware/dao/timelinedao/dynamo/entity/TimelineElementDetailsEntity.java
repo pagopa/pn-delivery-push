@@ -66,7 +66,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("amount")})) private Integer amount;
     @Getter(onMethod=@__({@DynamoDbAttribute("creditorTaxId")})) private String creditorTaxId;
     @Getter(onMethod=@__({@DynamoDbAttribute("noticeCode")})) private String noticeCode;
-    @Getter(onMethod=@__({@DynamoDbAttribute("idF24")})) private String idF24;
     @Getter(onMethod=@__({@DynamoDbAttribute("paymentSourceChannel")})) private String paymentSourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingDate")})) private Instant schedulingDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private IoSendMessageResultEntity ioSendMessageResult;

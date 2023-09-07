@@ -889,9 +889,6 @@ components:
           $ref: 'remote-refs.yaml#/components/schemas/PaTaxId'
         noticeCode:
           $ref: 'remote-refs.yaml#/components/schemas/NoticeCode'
-        idF24:
-          type: string
-          description: un UUID che identifica un pagamento f24
         paymentSourceChannel:
           type: string
           description: Canale sorgente della richiesta di pagamento

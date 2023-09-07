@@ -464,19 +464,13 @@ public enum TimelineEventId {
 
         private String buildPaymentCode(EventId eventId) {
             String paymentCode;
-            if(eventId.getIdF24() != null) {
-                //per pagamenti f24
-                paymentCode = "F24" + eventId.getIdF24();
+            //per pagamenti PagoPa
+            paymentCode = "PPA";
+            if (eventId.getNoticeCode() != null) {
+                paymentCode += eventId.getNoticeCode();
             }
-            else {
-                //per pagamenti PagoPa
-                paymentCode = "PPA";
-                if(eventId.getNoticeCode() != null){
-                    paymentCode += eventId.getNoticeCode();
-                }
-                if(eventId.getCreditorTaxId() != null){
-                    paymentCode += eventId.getCreditorTaxId();
-                }
+            if (eventId.getCreditorTaxId() != null) {
+                paymentCode += eventId.getCreditorTaxId();
             }
             return paymentCode;
         }

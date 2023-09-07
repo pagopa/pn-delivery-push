@@ -976,7 +976,6 @@ public class TimelineUtils {
                 .amount(notificationPaidInt.getAmount())
                 .creditorTaxId(notificationPaidInt.getCreditorTaxId())
                 .noticeCode(notificationPaidInt.getNoticeCode())
-                .idF24(notificationPaidInt.getIdF24())
                 .paymentSourceChannel(notificationPaidInt.getPaymentSourceChannel())
                 .uncertainPaymentDate(notificationPaidInt.isUncertainPaymentDate())
                 .build();
