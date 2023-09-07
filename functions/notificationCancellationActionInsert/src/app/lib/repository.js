@@ -73,7 +73,7 @@ exports.persistEvents = async (events) => {
             console.warn(
               "TransactionCanceledException: ConditionalCheckFailed"
             );
-            // ignore this error
+            // ignore this error, let the flow continue
           } else {
             console.error(
               "Error performing Action-FutureAction transaction:",
