@@ -500,6 +500,37 @@ Parameters:
     Type: String
     Default: ''
 
+  WebhookEventManagerLambdaName:
+    Type: String
+
+  WebhookEventManagerDLQARN:
+    Type: String
+    Description: 'DLQ ARN for WebhookEventManagerLambda'
+
+  DeliveryPushActionDoneDLQARN:
+    Type: String
+    Description: 'DLQ ARN for DeliveryPushActionDoneDLQARN'
+
+  WebhookEventManagerDLQAlarmARN:
+    Type: String
+    Description: 'DLQ Alarm ARN for WebhookEventManagerLambda'
+
+  CdcKinesisSourceStreamArn:
+    Type: String
+    Description: "Where to send CDC"
+
+  CdcKinesisSourceStreamKeyArn:
+    Description: "Kinesis source CDC stream crypto key ARN"
+    Type: String
+
+  LambdasBucketName:
+    Type: String
+    Description: "The S3 bucket from which to fetch the templates used by this stack."
+
+  DeliveryPushActionDoneQueueURL:
+    Description: "SQS queue URL"
+    Type: String
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -757,6 +788,110 @@ Resources:
         IntendedUsage: WEB 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
         Limit: 600000
+
+  #########################################################
+  ###              WebhookEventManagerLambda            ###
+  #########################################################
+
+  # Lambda function
+  WebhookEventManagerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref WebhookEventManagerLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref LambdasBucketName
+        S3Key: !Sub "${BucketBasePath}/webhookEventManager.zip"
+      Role: !GetAtt WebhookEventManagerLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          QUEUE_URL: !Ref DeliveryPushActionDoneQueueURL
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+
+  # Lambda function role
+  WebhookEventManagerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-webhookEventManagerLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  WebhookEventManagerLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-WebhookEventManagerLambdaPolicy
+      Roles:
+        - !Ref WebhookEventManagerLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcKinesisSourceStreamArn
+          - Action: kms:Decrypt
+            Effect: Allow
+            Resource: !Ref CdcKinesisSourceStreamKeyArn
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource: !Ref WebhookEventManagerDLQARN
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource: !Ref DeliveryPushActionDoneDLQARN
+
+  # CDC to Webhook Event Manager
+  WebhookEventManagerLambdaKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 20
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FunctionName: !Ref WebhookEventManagerLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      MaximumBatchingWindowInSeconds: 300 # 1 minute
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref WebhookEventManagerDLQARN
+
+  WebhookEventManagerLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref WebhookEventManagerLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage

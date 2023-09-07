@@ -432,6 +432,26 @@ Outputs:
     Description: ARN Dynamo Name used by application to access the key-value store of CounterTable
     Value: !Sub '${TimelinesCounterTable.Arn}'
 
+
+  # Lambda functions
+  WebhookEventManagerLambdaName:
+    Value: !Sub "${ProjectName}-webhookEventManagerLambda"
+
+
+  # Activity Step Manager DLQ
+  WebhookEventManagerDLQName:
+    Value: !GetAtt WebhookEventManagerDLQName.Outputs.QueueName
+    Description: pn-delivery-push_webhook_event_manager_DLQ queue name
+  WebhookEventManagerDLQURL:
+    Value: !GetAtt WebhookEventManagerDLQURL.Outputs.QueueURL
+    Description: pn-delivery-push_webhook_event_manager_DLQ queue URL
+  WebhookEventManagerDLQARN:
+    Value: !GetAtt WebhookEventManagerDLQARN.Outputs.QueueARN
+    Description: pn-delivery-push_webhook_event_manager_DLQ queue ARN
+  WebhookEventManagerDLQAlarmARN:
+    Value: !GetAtt WebhookEventManagerDLQAlarmARN.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery-push_webhook_event_manager_DLQ alarm ARN
+
   # Log group exports
   EcsLogGroup:
     Value: !GetAtt PnDeliveryPushLogGroup.Outputs.LogGroupName
