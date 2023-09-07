@@ -520,10 +520,6 @@ Parameters:
     Type: String
     Description: "Where to send CDC"
 
-  LambdasBucketName:
-    Type: String
-    Description: "The S3 bucket from which to fetch the templates used by this stack."
-
   BucketBasePath:
     Type: String
     Description: "The S3 bucket base path where lambda functions are stored"
@@ -952,8 +948,8 @@ Resources:
       Runtime: nodejs18.x
       Handler: "index.handler"
       Code:
-        S3Bucket: !Ref LambdasBucketName
-        S3Key: !Sub "${BucketBasePath}/notificationCancellationActionInsert.zip"
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions/notificationCancellationActionInsert.zip"
       Role: !GetAtt   NotificationCancellationActionInsertLambdaRole.Arn
       Environment:
         Variables:
