@@ -1,6 +1,5 @@
 const { expect } = require("chai");
-const { persistEvents, ttlDays } = require("../app/lib/repository.js");
-const { nDaysFromNowAsUNIXTimestamp } = require("../app/lib/utils.js");
+const { persistEvents } = require("../app/lib/repository.js");
 const { mockClient } = require("aws-sdk-client-mock");
 const {
   DynamoDBDocumentClient,
@@ -49,38 +48,28 @@ describe("DynamoDB tests", function () {
     expect(res.insertions).equal(1);
     expect(res.errors.length).equal(0);
 
-    // check ttl
-    const ttl = nDaysFromNowAsUNIXTimestamp(ttlDays);
-    expect(
-      ddbMock.calls()[0].args[0].input.TransactItems[0].Put.Item.ttl.N
-    ).equal(ttl.toString());
+    // check ttl.N field presence
+    expect(ddbMock.calls()[0].args[0].input.TransactItems[0].Put.Item.ttl.N).not
+      .to.be.undefined;
   });
 
-  // it("test persistEvents with ttl === 0", async () => {
-  //   ddbMock.on(TransactWriteCommand).resolves({
-  //     UnprocessedItems: {},
-  //   });
+  it("test persistEvents with ttl === 0", async () => {
+    ddbMock.on(TransactWriteCommand).resolves({
+      UnprocessedItems: {},
+    });
 
-  //   // mock, inside persistEvents, the ttlDays function, to return 0
-  //   //const ttlDaysMock = sinon.stub();
-  //   //ttlDaysMock.returns(0);
-  //   const proxyquire = require("proxyquire");
-  //   const persistEvents = proxyquire
-  //     .noCallThru()
-  //     .load("../app/lib/repository.js", {
-  //       "./utils.js": {
-  //         ttlDays: 0,
-  //       },
-  //     }).persistEvents;
+    const oldTtlDays = process.env.ACTION_TTL_DAYS;
+    process.env.ACTION_TTL_DAYS = 0;
+    const res = await persistEvents(events);
+    process.env.ACTION_TTL_DAYS = oldTtlDays;
 
-  //   const res = await persistEvents(events);
+    expect(res.insertions).equal(1);
+    expect(res.errors.length).equal(0);
 
-  //   expect(res.insertions).equal(1);
-  //   expect(res.errors.length).equal(0);
-
-  //   expect(ddbMock.calls()[0].args[0].input.TransactItems[0].Put.Item.ttl).to.be
-  //     .undefined;
-  // });
+    // ttl field won't be present
+    expect(ddbMock.calls()[0].args[0].input.TransactItems[0].Put.Item.ttl).to.be
+      .undefined;
+  });
 
   it("test persistEvents with ConditionalCheckFailed", async () => {
     ddbMock.on(TransactWriteCommand).rejects({

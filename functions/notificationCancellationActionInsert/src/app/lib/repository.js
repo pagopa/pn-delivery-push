@@ -11,20 +11,20 @@ const TABLES = {
   FUTUREACTION: "pn-FutureAction",
 };
 
-const ttlDays = process.env.TTL_DAYS || 365;
-
 const client = new DynamoDBClient({
   region: process.env.REGION,
 });
 
 exports.TABLES = TABLES;
-exports.ttlDays = ttlDays;
 
 exports.persistEvents = async (events) => {
   const summary = {
     insertions: 0,
     errors: [],
   };
+  // if we put this here and not outside, we can change it at runtime
+  // by changing the environment variable
+  const ttlDays = process.env.ACTION_TTL_DAYS ?? 365; // not ||, because we want 0 to remain 0, not 365
 
   const dynamoDB = DynamoDBDocumentClient.from(client);
 
