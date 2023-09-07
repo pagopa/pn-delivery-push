@@ -3,6 +3,7 @@ const {
   DynamoDBDocumentClient,
   TransactWriteCommand,
 } = require("@aws-sdk/lib-dynamodb");
+const { nDaysFromNowAsUNIXTimestamp } = require("./utils");
 
 const TABLES = {
   TIMELINES: "pn-Timelines",
@@ -10,11 +11,14 @@ const TABLES = {
   FUTUREACTION: "pn-FutureAction",
 };
 
+const ttlDays = process.env.TTL_DAYS || 365;
+
 const client = new DynamoDBClient({
   region: process.env.REGION,
 });
 
 exports.TABLES = TABLES;
+exports.ttlDays = ttlDays;
 
 exports.persistEvents = async (events) => {
   const summary = {
@@ -60,6 +64,11 @@ exports.persistEvents = async (events) => {
         },
       ],
     };
+    // ttl
+    const ttl = nDaysFromNowAsUNIXTimestamp(ttlDays);
+    if (ttl > 0) {
+      params.TransactItems[0].Put.Item.ttl = { N: ttl.toString() };
+    }
 
     try {
       const result = await dynamoDB.send(new TransactWriteCommand(params));

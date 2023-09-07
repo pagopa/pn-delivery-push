@@ -1,5 +1,6 @@
 const { expect } = require("chai");
-const { persistEvents } = require("../app/lib/repository.js");
+const { persistEvents, ttlDays } = require("../app/lib/repository.js");
+const { nDaysFromNowAsUNIXTimestamp } = require("../app/lib/utils.js");
 const { mockClient } = require("aws-sdk-client-mock");
 const {
   DynamoDBDocumentClient,
@@ -37,6 +38,49 @@ describe("DynamoDB tests", function () {
     expect(res.insertions).equal(1);
     expect(res.errors.length).equal(0);
   });
+
+  it("test persistEvents with ttl", async () => {
+    ddbMock.on(TransactWriteCommand).resolves({
+      UnprocessedItems: {},
+    });
+
+    const res = await persistEvents(events);
+
+    expect(res.insertions).equal(1);
+    expect(res.errors.length).equal(0);
+
+    // check ttl
+    const ttl = nDaysFromNowAsUNIXTimestamp(ttlDays);
+    expect(
+      ddbMock.calls()[0].args[0].input.TransactItems[0].Put.Item.ttl.N
+    ).equal(ttl.toString());
+  });
+
+  // it("test persistEvents with ttl === 0", async () => {
+  //   ddbMock.on(TransactWriteCommand).resolves({
+  //     UnprocessedItems: {},
+  //   });
+
+  //   // mock, inside persistEvents, the ttlDays function, to return 0
+  //   //const ttlDaysMock = sinon.stub();
+  //   //ttlDaysMock.returns(0);
+  //   const proxyquire = require("proxyquire");
+  //   const persistEvents = proxyquire
+  //     .noCallThru()
+  //     .load("../app/lib/repository.js", {
+  //       "./utils.js": {
+  //         ttlDays: 0,
+  //       },
+  //     }).persistEvents;
+
+  //   const res = await persistEvents(events);
+
+  //   expect(res.insertions).equal(1);
+  //   expect(res.errors.length).equal(0);
+
+  //   expect(ddbMock.calls()[0].args[0].input.TransactItems[0].Put.Item.ttl).to.be
+  //     .undefined;
+  // });
 
   it("test persistEvents with ConditionalCheckFailed", async () => {
     ddbMock.on(TransactWriteCommand).rejects({
