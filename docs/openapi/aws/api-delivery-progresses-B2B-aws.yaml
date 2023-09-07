@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: qR9pY3X/C4jB8jZm45xRV11Iq10vUkzg1h2V57kRlXY=
+  version: mJwVW6+poRJ6nujS3OmPAKC525Gat067onDyObEBYTg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -64,6 +64,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -110,6 +111,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -171,6 +173,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -226,6 +229,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -271,6 +275,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -358,6 +363,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -426,8 +432,8 @@ components:
         filterValues:
           description: >-
             rappresenta l'elenco degli stati o elementi di timeline che si
-            vogliono filtrare; inserire array vuoto [] se non si vuole applicare
-            nessun filtro
+            vogliono filtrare; inserendo un array vuoto [] si riceveranno solo
+            gli elementi relativi a v1
           type: array
           items:
             type: string
@@ -501,7 +507,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: '#/components/schemas/TimelineElementCategory'
+          $ref: '#/components/schemas/TimelineElementCategoryV20'
         recipientIndex:
           type: number
           minimum: 0
@@ -628,7 +634,7 @@ components:
         - PAID
         - UNREACHABLE
         - CANCELLED
-    TimelineElementCategory:
+    TimelineElementCategoryV20:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -672,6 +678,7 @@ components:
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -713,6 +720,7 @@ components:
         - PROBABLE_SCHEDULING_ANALOG_DATE
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
   responses: {}
   securitySchemes:
     api_key_openapi:

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 8GkpefxZ1xP5MDWujbWDVfKVvW1v/DFfhSZ2GO6nFEA=
+  version: ScGEKw3ixsBOSTaFxB5DgWx/9B+EKWm3WzwWIeC2mws=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -11,14 +11,14 @@ servers:
     x-amazon-apigateway-endpoint-configuration:
       disableExecuteApiEndpoint: true
 paths:
-  /notifications/cancel/{iun}:
+  /v2.0/notifications/cancel/{iun}:
     put:
       summary: Annullamento notifica
       description: >-
         Permette l'annullamento di una notifica restituendo una presa in carico,
         il processo di annullamento si completa poi in maniera asincrona
       tags:
-        - notificationCancellation
+        - NotificationCancellation
       operationId: notificationCancellation
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -52,7 +52,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/cancel/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/cancel/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -63,16 +63,17 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /notifications/cancel/{iun} API CORS
+      operationId: Options for /v2.0/notifications/cancel/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/cancel/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/cancel/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -135,6 +136,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -217,6 +219,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
           integration.request.path.legalFactType: method.request.path.legalFactType
           integration.request.path.legalFactId: method.request.path.legalFactId
@@ -302,6 +305,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
           integration.request.path.legalFactId: method.request.path.legalFactId
         passthroughBehavior: when_no_match
@@ -375,6 +379,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
           integration.request.path.documentType: method.request.path.documentType
         passthroughBehavior: when_no_match
@@ -475,6 +480,7 @@ components:
       required: true
       schema:
         type: string
+        minLength: 25
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     pathLegalFactType:
@@ -511,6 +517,8 @@ components:
         maxLength: 512
   schemas:
     RequestStatus:
+      description: Response to cancellation async call
+      type: object
       properties:
         status:
           description: |
@@ -519,14 +527,25 @@ components:
           type: string
         details:
           type: array
+          maxItems: 9999
           items:
             $ref: '#/components/schemas/StatusDetail'
       required:
         - status
     StatusDetail:
+      description: Detail of response to cancellation async call
+      type: object
+      required:
+        - code
       properties:
         code:
-          description: Internal code of the error, in human-readable format
+          description: Internal code of the error or warning, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        level:
+          description: |
+            informational level of status detail: WARN, ERR, ...
+            ERR (error) by default
           example: NOTIFICATION_ALREADY_CANCELLED
           type: string
         detail:
@@ -535,8 +554,6 @@ components:
             problem.
           example: Parameter not valid
           type: string
-      required:
-        - code
     ProblemError:
       properties:
         code:
@@ -753,6 +770,8 @@ tags:
     description: Recupera le informazioni storiche di una notifica
   - name: LegalFacts
     description: Recupero degli atti opponibili a terzi generati per una notifica
+  - name: NotificationCancellation
+    description: Annullamento di una notifica
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:

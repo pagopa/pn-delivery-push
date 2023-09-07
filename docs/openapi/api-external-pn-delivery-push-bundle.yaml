@@ -25,6 +25,8 @@ tags:
     description: Recupera le informazioni storiche di una notifica
   - name: LegalFacts
     description: Recupero degli atti opponibili a terzi generati per una notifica
+  - name: NotificationCancellation
+    description: Annullamento di una notifica
 paths:
   /status:
     get:
@@ -38,12 +40,12 @@ paths:
           description: Ok
         '500':
           description: Internal Server Error
-  /delivery-push/notifications/cancel/{iun}:
+  /delivery-push/v2.0/notifications/cancel/{iun}:
     put:
       summary: Annullamento notifica
       description: Permette l'annullamento di una notifica restituendo una presa in carico, il processo di annullamento si completa poi in maniera asincrona
       tags:
-        - notificationCancellation
+        - NotificationCancellation
       operationId: notificationCancellation
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -315,6 +317,7 @@ components:
       required: true
       schema:
         type: string
+        minLength: 25
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     pathLegalFactType:
@@ -351,6 +354,8 @@ components:
         maxLength: 512
   schemas:
     RequestStatus:
+      description: Response to cancellation async call
+      type: object
       properties:
         status:
           description: |
@@ -359,22 +364,31 @@ components:
           type: string
         details:
           type: array
+          maxItems: 9999
           items:
             $ref: '#/components/schemas/StatusDetail'
       required:
         - status
     StatusDetail:
+      description: Detail of response to cancellation async call
+      type: object
+      required:
+        - code
       properties:
         code:
-          description: Internal code of the error, in human-readable format
+          description: Internal code of the error or warning, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        level:
+          description: |
+            informational level of status detail: WARN, ERR, ...
+            ERR (error) by default
           example: NOTIFICATION_ALREADY_CANCELLED
           type: string
         detail:
           description: A human readable explanation specific to this occurrence of the problem.
           example: Parameter not valid
           type: string
-      required:
-        - code
     ProblemError:
       properties:
         code:

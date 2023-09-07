@@ -572,7 +572,7 @@ components:
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
 
 
     ############################################################################################

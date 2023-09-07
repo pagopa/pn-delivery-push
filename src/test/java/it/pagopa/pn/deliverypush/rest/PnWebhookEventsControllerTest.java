@@ -5,7 +5,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.deliverypush.service.WebhookService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -42,7 +42,7 @@ class PnWebhookEventsControllerTest {
                 .eventId( "event_id" )
                 .iun("")
                 .newStatus(NotificationStatus.ACCEPTED)
-                .timelineEventCategory(TimelineElementCategory.REQUEST_ACCEPTED)
+                .timelineEventCategory(TimelineElementCategoryV20.REQUEST_ACCEPTED)
                 .build()
         );
         ProgressResponseElementDto dto = ProgressResponseElementDto.builder()
