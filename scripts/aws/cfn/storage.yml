@@ -452,7 +452,7 @@ Outputs:
     Value: !Sub "${ProjectName}-webhookEventManagerLambda"
 
 
-  # Activity Step Manager DLQ
+  # Webhook Step Manager DLQ
   WebhookEventManagerDLQName:
     Value: !GetAtt WebhookEventManagerDLQName.Outputs.QueueName
     Description: pn-delivery-push_webhook_event_manager_DLQ queue name
@@ -465,6 +465,19 @@ Outputs:
   WebhookEventManagerDLQAlarmARN:
     Value: !GetAtt WebhookEventManagerDLQAlarmARN.Outputs.SqsDLQAlarmArn
     Description: pn-delivery-push_webhook_event_manager_DLQ alarm ARN
+
+  DeliveryPushActionDoneQueueName:
+    Value: !GetAtt DeliveryPushActionDoneQueueName.Outputs.QueueName
+    Description: pn-delivery-push_action_done_queue queue name
+  DeliveryPushActionDoneQueueURL:
+    Value: !GetAtt DeliveryPushActionDoneQueueURL.Outputs.QueueURL
+    Description: pn-delivery-push_action_done_queue queue URL
+  DeliveryPushActionDoneQueueARN:
+    Value: !GetAtt DeliveryPushActionDoneQueueARN.Outputs.QueueARN
+    Description: pn-delivery-push_action_done_queue queue ARN
+  DeliveryPushActionDoneQueueAlarmARN:
+    Value: !GetAtt DeliveryPushActionDoneQueueAlarmARN.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery-push_action_done_queue alarm ARN
 
   # Log group exports
   EcsLogGroup:

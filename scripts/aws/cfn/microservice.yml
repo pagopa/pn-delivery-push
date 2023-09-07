@@ -508,9 +508,9 @@ Parameters:
     Type: String
     Description: 'DLQ ARN for WebhookEventManagerLambda'
 
-  DeliveryPushActionDoneDLQARN:
+  DeliveryPushActionDoneQueueARN:
     Type: String
-    Description: 'DLQ ARN for DeliveryPushActionDoneDLQARN'
+    Description: 'DLQ ARN for DeliveryPushActionDoneQueueARN'
 
   WebhookEventManagerDLQAlarmARN:
     Type: String
@@ -814,8 +814,8 @@ Resources:
       Runtime: nodejs18.x
       Handler: "index.handler"
       Code:
-        S3Bucket: !Ref LambdasBucketName
-        S3Key: !Sub "${BucketBasePath}/webhookEventManager.zip"
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions/webhookEventManager.zip"
       Role: !GetAtt WebhookEventManagerLambdaRole.Arn
       Environment:
         Variables:
@@ -873,14 +873,10 @@ Resources:
               - sqs:GetQueueAttributes
               - sqs:GetQueueUrl
               - sqs:SendMessage
-            Resource: !Ref WebhookEventManagerDLQARN
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource: !Ref DeliveryPushActionDoneDLQARN
+            Resource:
+              !Ref WebhookEventManagerDLQARN
+              !Ref DeliveryPushActionDoneQueueARN
+
 
   # CDC to Webhook Event Manager
   WebhookEventManagerLambdaKinesisSource:
