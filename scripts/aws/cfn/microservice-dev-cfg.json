@@ -32,7 +32,8 @@
     "MemoryAmount": "4GB",
     "MaxPdfAllowedSize": "200MB",
     "EnableCheckPdfContent": "true",
-    "CheckCfEnabled": "false"
+    "CheckCfEnabled": "false",
+    "ActionTtlDays": "365"
   }
 }
 

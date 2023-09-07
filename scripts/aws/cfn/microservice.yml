@@ -500,6 +500,35 @@ Parameters:
     Type: String
     Default: ''
 
+  # Lambda parameters
+
+  NotificationCancellationActionInsertLambdaName:
+    Type: String
+
+  NotificationCancellationActionInsertDLQARN:
+    Type: String
+    Description: 'DLQ ARN for NotificationCancellationActionInsertLambda'
+
+  NotificationCancellationActionInsertDLQAlarmARN:
+    Type: String
+    Description: 'DLQ Alarm ARN for NotificationCancellationActionInsertLambda'
+
+  ActionTtlDays:
+    Default: 365
+    Type: Number
+    Description: TTL in days for pn-Action table rows
+
+  # CDC
+
+  CdcKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send CDC'
+
+  CdcKinesisSourceStreamKeyArn:
+    Description: "Kinesis source CDC stream crypto key ARN"
+    Type: String
+
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -787,6 +816,115 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
         Limit: 0 # disabled IP based rate limit rule
         AllowedCidrs: !Ref IOBackendCidrs
+
+  ##########################################################################
+  ###              notificationCancellationActionInsertLambda            ###
+  ##########################################################################
+
+  # Lambda function
+  NotificationCancellationActionInsertLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref NotificationCancellationActionInsertLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions/notificationCancellationActionInsert.zip"
+      Role: !GetAtt   NotificationCancellationActionInsertLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          ACTION_TTL_DAYS: !Ref ActionTtlDays
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+
+  # Lambda function role
+  NotificationCancellationActionInsertLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-notificationCancellationActionInsertLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  NotificationCancellationActionInsertLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-NotificationCancellationActionInsertLambdaPolicy
+      Roles:
+        - !Ref NotificationCancellationActionInsertLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:TransactWriteItems"
+            Resource:
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Action
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Action/*"
+          - Effect: Allow
+            Action:
+              - "dynamodb:TransactWriteItems"
+            Resource:
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-FutureAction
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-FutureAction/*"
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcKinesisSourceStreamArn
+          - Action: kms:Decrypt
+            Effect: Allow
+            Resource: !Ref CdcKinesisSourceStreamKeyArn
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource: !Ref NotificationCancellationActionInsertDLQARN
+
+  # CDC to NotificationCancellationActionInsert
+  NotificationCancellationActionInsertLambdaSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 20
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FunctionName: !Ref NotificationCancellationActionInsertLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      MaximumBatchingWindowInSeconds: 300 # 1 minute
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref NotificationCancellationActionInsertDLQARN
+
+  NotificationCancellationActionInsertLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref NotificationCancellationActionInsertLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
   
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
@@ -834,6 +972,11 @@ Resources:
             - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
             - !Ref AddressManagerToDeliveryPushQueueAlarmARN
             - !Ref AddressManagerToDeliveryPushQueueAgeAlarmARN
+            - !Ref NotificationCancellationActionInsertDLQAlarmARN
+            - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+        LambdaArns: !Join
+          - ","
+          - - !GetAtt NotificationCancellationActionInsertLambda.Arn
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -846,6 +989,7 @@ Resources:
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
+            - !Sub '/aws/lambda/${ProjectName}-notificationCancellationActionInsertLambda'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscaling:
