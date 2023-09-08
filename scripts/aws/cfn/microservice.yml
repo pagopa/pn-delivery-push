@@ -1092,9 +1092,12 @@ Resources:
             - !Ref AddressManagerToDeliveryPushQueueAgeAlarmARN
             - !Ref NotificationCancellationActionInsertDLQAlarmARN
             - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !Ref WebhookEventManagerDLQAlarmARN
+            - !GetAtt WebhookEventManagerDLQAlarm.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
+            - !GetAtt WebhookEventManagerLambda.Arn
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -1107,8 +1110,8 @@ Resources:
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
-            - !Sub '/aws/lambda/${ProjectName}-notificationCancellationActionInsertLambda'
-            - !Sub '/aws/lambda/${ProjectName}-webhookEventManagerLambda'
+            - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
+            - !Sub '/aws/lambda/${WebhookEventManagerLambdaName}'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscaling:
