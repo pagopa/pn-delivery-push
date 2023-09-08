@@ -279,16 +279,8 @@ class NotificationCancelledTestIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock,
-                pnDeliveryClientReactiveMock
+                addressManagerClientMock
         );
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException ignored) {
-        }
-
-        ConsoleAppenderCustom.initializeLog();
     }
 
     @Test
@@ -479,7 +471,6 @@ class NotificationCancelledTestIT {
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
-        pnDeliveryClientReactiveMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
@@ -601,7 +592,6 @@ class NotificationCancelledTestIT {
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
-        pnDeliveryClientReactiveMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
 
         Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());

@@ -22,6 +22,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -691,29 +692,6 @@ public class TestUtils {
         return "XX_"+int_random;
     }
 
-    public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock,
-                                               PnDeliveryClientMock pnDeliveryClientMock,
-                                               UserAttributesClientMock userAttributesClientMock,
-                                               NationalRegistriesClientMock nationalRegistriesClientMock,
-                                               TimelineDaoMock timelineDaoMock,
-                                               PaperNotificationFailedDaoMock paperNotificationFailedDaoMock,
-                                               PnDataVaultClientMock pnDataVaultClientMock,
-                                               PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock,
-                                               DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
-                                               AddressManagerClientMock addressManagerClientMock
-    ) {
-       initializeAllMockClient(safeStorageClientMock,
-                pnDeliveryClientMock,
-                userAttributesClientMock,
-                nationalRegistriesClientMock,
-                timelineDaoMock,
-                paperNotificationFailedDaoMock,
-                pnDataVaultClientMock,
-                pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock,
-                addressManagerClientMock,
-               null);
-    }
 
     public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock, 
                                                PnDeliveryClientMock pnDeliveryClientMock,
@@ -724,14 +702,11 @@ public class TestUtils {
                                                PnDataVaultClientMock pnDataVaultClientMock, 
                                                PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock, 
                                                DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
-                                               AddressManagerClientMock addressManagerClientMock,
-                                               PnDeliveryClientReactiveMock pnDeliveryClientReactiveMock
+                                               AddressManagerClientMock addressManagerClientMock
                                                ) {
         log.warn("CLEARING MOCKS");
         safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
-        if (pnDeliveryClientReactiveMock != null)
-            pnDeliveryClientReactiveMock.clear();
         userAttributesClientMock.clear();
         nationalRegistriesClientMock.clear();
         timelineDaoMock.clear();
@@ -740,6 +715,15 @@ public class TestUtils {
         pnDataVaultClientReactiveMock.clear();
         documentCreationRequestDaoMock.clear();
         addressManagerClientMock.clear();
+
+        // si da il tempo ad eventuali mock di terminare.
+        // in futuro, prevedere un kill dei thread al posto dello sleep
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException ignored) {
+        }
+
+        ConsoleAppenderCustom.initializeLog();
     }
     
     @Builder
