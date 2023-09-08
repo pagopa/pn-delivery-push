@@ -877,8 +877,15 @@ Resources:
               - sqs:GetQueueUrl
               - sqs:SendMessage
             Resource:
-              !Ref WebhookEventManagerDLQARN
               !Ref DoneActionsQueueARN
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref WebhookEventManagerDLQARN
 
 
   # CDC to Webhook Event Manager
@@ -1095,7 +1102,7 @@ Resources:
             - !Ref NotificationCancellationActionInsertDLQAlarmARN
             - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref WebhookEventManagerDLQAlarmARN
-            - !GetAtt WebhookEventManagerDLQAlarm.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt WebhookEventManagerLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
