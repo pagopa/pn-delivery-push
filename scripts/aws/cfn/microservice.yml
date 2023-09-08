@@ -115,6 +115,11 @@ Parameters:
   DoneActionsQueueName:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
+
+
+  DoneActionsQueueUrl:
+    Type: String
+    Description: 'Send done actions to this queue read by webhook'
     
   DoneActionsQueueARN:
     Type: String
@@ -508,10 +513,6 @@ Parameters:
     Type: String
     Description: 'DLQ ARN for WebhookEventManagerLambda'
 
-  DeliveryPushActionDoneQueueARN:
-    Type: String
-    Description: 'DLQ ARN for DeliveryPushActionDoneQueueARN'
-
   WebhookEventManagerDLQAlarmARN:
     Type: String
     Description: 'DLQ Alarm ARN for WebhookEventManagerLambda'
@@ -544,9 +545,6 @@ Parameters:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
 
-  DeliveryPushActionDoneQueueURL:
-    Description: "SQS queue URL"
-    Type: String
 
 
 Conditions:
@@ -820,12 +818,12 @@ Resources:
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions/webhookEventManager.zip"
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/webhookEventManager.zip"
       Role: !GetAtt WebhookEventManagerLambdaRole.Arn
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          QUEUE_URL: !Ref DeliveryPushActionDoneQueueURL
+          QUEUE_URL: !Ref DoneActionsQueueUrl
       TracingConfig:
         Mode: Active
       Layers:
@@ -880,7 +878,7 @@ Resources:
               - sqs:SendMessage
             Resource:
               !Ref WebhookEventManagerDLQARN
-              !Ref DeliveryPushActionDoneQueueARN
+              !Ref DoneActionsQueueARN
 
 
   # CDC to Webhook Event Manager
