@@ -17,8 +17,9 @@ class TimelineDaoMockTest {
     private NotificationUtils notificationUtils;
     private NotificationCancellationService notificationCancellationService;
     private NotificationCancellationActionHandler notificationCancellationActionHandler;
+    private PnDeliveryClientMock pnDeliveryClientMock;
 
-    private final TimelineDaoMock timelineDaoMock = new TimelineDaoMock(notificationViewedHandler, notificationService, notificationUtils, notificationCancellationService, notificationCancellationActionHandler);
+    private final TimelineDaoMock timelineDaoMock = new TimelineDaoMock(notificationViewedHandler, notificationService, notificationUtils, notificationCancellationService, notificationCancellationActionHandler, pnDeliveryClientMock);
 
 
     @Test

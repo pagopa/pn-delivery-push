@@ -49,13 +49,16 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     private final ExternalChannelResponseHandler externalChannelHandler;
     private final TimelineService timelineService;
     private final InstantNowSupplier instantNowSupplier;
+    private final PnDeliveryClientMock pnDeliveryClientMock;
 
     public ExternalChannelMock(@Lazy ExternalChannelResponseHandler externalChannelHandler,
                                @Lazy TimelineService timelineService,
-                               @Lazy InstantNowSupplier instantNowSupplier) {
+                               @Lazy InstantNowSupplier instantNowSupplier,
+                               @Lazy PnDeliveryClientMock pnDeliveryClientMock) {
         this.externalChannelHandler = externalChannelHandler;
         this.timelineService = timelineService;
         this.instantNowSupplier = instantNowSupplier;
+        this.pnDeliveryClientMock = pnDeliveryClientMock;
     }
 
     @Override
@@ -90,13 +93,22 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                         Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), timelineEventId).isPresent())
                 );
 
-                simulateExternalChannelDigitalProgressResponse(timelineEventId);
+                if (pnDeliveryClientMock.checkTestNotificationIsValid(notification.getIun()))
+                {
+                    simulateExternalChannelDigitalProgressResponse(timelineEventId);
+                }
+                else
+                    log.warn("IUN={} is no more valid, skipping event timelineEventId={}", notification.getIun(), timelineEventId);
 
                 Optional<SendDigitalDetailsInt> sendDigitalDetailsOpt = timelineService.getTimelineElementDetails(notification.getIun(), timelineEventId, SendDigitalDetailsInt.class);
                 if(sendDigitalDetailsOpt.isPresent()){
                     waitForProgressTimelineElement(notification, sendDigitalDetailsOpt.get());
 
-                    simulateExternalChannelDigitalResponse(address, timelineEventId);
+                    if (pnDeliveryClientMock.checkTestNotificationIsValid(notification.getIun())) {
+                        simulateExternalChannelDigitalResponse(address, timelineEventId);
+                    }
+                    else
+                        log.warn("IUN={} is no more valid, skipping event timelineEventId={}", notification.getIun(), timelineEventId);
 
                 }else {
                     log.error("[TEST] SendDigitalDetails is not present");

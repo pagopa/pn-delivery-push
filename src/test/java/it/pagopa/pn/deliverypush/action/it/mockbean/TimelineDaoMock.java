@@ -41,15 +41,19 @@ public class TimelineDaoMock implements TimelineDao {
     private final NotificationUtils notificationUtils;
     private final NotificationCancellationService notificationCancellationService;
     private final NotificationCancellationActionHandler notificationCancellationActionHandler;
+    private final PnDeliveryClientMock pnDeliveryClientMock;
 
     public TimelineDaoMock(@Lazy NotificationViewedRequestHandler notificationViewedRequestHandler, @Lazy NotificationService notificationService,
-                           @Lazy NotificationUtils notificationUtils, @Lazy NotificationCancellationService notificationCancellationService, @Lazy NotificationCancellationActionHandler notificationCancellationActionHandler) {
+                           @Lazy NotificationUtils notificationUtils, @Lazy NotificationCancellationService notificationCancellationService,
+                           @Lazy NotificationCancellationActionHandler notificationCancellationActionHandler,
+                           @Lazy PnDeliveryClientMock pnDeliveryClientMock) {
         this.notificationViewedRequestHandler = notificationViewedRequestHandler;
         this.notificationCancellationActionHandler = notificationCancellationActionHandler;
         timelineList = new CopyOnWriteArrayList<>();
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
         this.notificationCancellationService = notificationCancellationService;
+        this.pnDeliveryClientMock = pnDeliveryClientMock;
     }
 
     public void clear() {
@@ -130,6 +134,11 @@ public class TimelineDaoMock implements TimelineDao {
     
     @Override
     public void addTimelineElementIfAbsent(TimelineElementInternal dto) {
+        if (!pnDeliveryClientMock.checkTestNotificationIsValid(dto.getIun()))
+        {
+            log.warn("IUN={} is no more valid, skipping saving timelineId={}", dto.getIun(), dto.getElementId());
+            return;
+        }
         checkAndAddTimelineElement(dto);
     }
 

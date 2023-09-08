@@ -727,6 +727,7 @@ public class TestUtils {
                                                AddressManagerClientMock addressManagerClientMock,
                                                PnDeliveryClientReactiveMock pnDeliveryClientReactiveMock
                                                ) {
+        log.warn("CLEARING MOCKS");
         safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         if (pnDeliveryClientReactiveMock != null)

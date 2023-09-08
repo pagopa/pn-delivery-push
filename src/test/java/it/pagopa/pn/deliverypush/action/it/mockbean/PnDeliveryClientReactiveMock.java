@@ -38,6 +38,7 @@ public class PnDeliveryClientReactiveMock implements PnDeliveryClientReactive {
     public void addNotification(NotificationInt notification) {
         SentNotification sentNotification = NotificationMapper.internalToExternal(notification);
         this.notifications.add(sentNotification);
+        log.warn("ADDED_IUN:" + notification.getIun());
     }
 
 
@@ -78,7 +79,7 @@ public class PnDeliveryClientReactiveMock implements PnDeliveryClientReactive {
 
             return Mono.just(sentNotificationOpt.get());
         }
-        return Mono.error(new RuntimeException("Test error, iun is not presente in getSentNotification"));
+        return Mono.error(new RuntimeException("Test error, iun is not presente in getSentNotification IUN:" + iun));
     }
 
     @Override
