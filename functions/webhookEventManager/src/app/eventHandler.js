@@ -35,10 +35,10 @@ exports.handleEvent = async (event) => {
     }
     if(batchItemFailures.length > 0){
       console.log('process finished with error!');
-      return {
-        batchItemFailures: batchItemFailures,
-      };
     }
+    return {
+      batchItemFailures: batchItemFailures,
+    };
   }
            
 };
@@ -56,7 +56,7 @@ async function sendMessages(messages) {
 
       const command = new SendMessageBatchCommand(input);
       const response = await sqs.send(command);
-      console.log('Sent message response: %j', response);
+      
       if (response.Failed && response.Failed.length > 0)
       {
         console.log("error sending some message totalErrors:" + response.Failed.length);

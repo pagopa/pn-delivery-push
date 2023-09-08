@@ -51,4 +51,9 @@ describe("test utils functions", () => {
       },
     });
   });
+
+  it("no kinesis obj", () => {
+    const parsedObj = parseKinesisObjToJsonObj(null);
+    expect(parsedObj).equal(null);
+  });
 });
