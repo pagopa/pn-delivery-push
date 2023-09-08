@@ -115,6 +115,11 @@ Parameters:
   DoneActionsQueueName:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
+
+
+  DoneActionsQueueUrl:
+    Type: String
+    Description: 'Send done actions to this queue read by webhook'
     
   DoneActionsQueueARN:
     Type: String
@@ -500,6 +505,18 @@ Parameters:
     Type: String
     Default: ''
 
+
+  WebhookEventManagerLambdaName:
+    Type: String
+
+  WebhookEventManagerDLQARN:
+    Type: String
+    Description: 'DLQ ARN for WebhookEventManagerLambda'
+
+  WebhookEventManagerDLQAlarmARN:
+    Type: String
+    Description: 'DLQ Alarm ARN for WebhookEventManagerLambda'
+
   # Lambda parameters
 
   NotificationCancellationActionInsertLambdaName:
@@ -527,6 +544,7 @@ Parameters:
   CdcKinesisSourceStreamKeyArn:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
+
 
 
 Conditions:
@@ -588,7 +606,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${DoneActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -787,6 +805,106 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
         Limit: 600000
 
+  #########################################################
+  ###              WebhookEventManagerLambda            ###
+  #########################################################
+
+  # Lambda function
+  WebhookEventManagerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref WebhookEventManagerLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/webhookEventManager.zip"
+      Role: !GetAtt WebhookEventManagerLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          QUEUE_URL: !Ref DoneActionsQueueUrl
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+
+  # Lambda function role
+  WebhookEventManagerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-webhookEventManagerLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  WebhookEventManagerLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-WebhookEventManagerLambdaPolicy
+      Roles:
+        - !Ref WebhookEventManagerLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcKinesisSourceStreamArn
+          - Action: kms:Decrypt
+            Effect: Allow
+            Resource: !Ref CdcKinesisSourceStreamKeyArn
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref WebhookEventManagerDLQARN
+              !Ref DoneActionsQueueARN
+
+
+  # CDC to Webhook Event Manager
+  WebhookEventManagerLambdaKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 20
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FunctionName: !Ref WebhookEventManagerLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      MaximumBatchingWindowInSeconds: 300 # 1 minute
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref WebhookEventManagerDLQARN
+
+  WebhookEventManagerLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref WebhookEventManagerLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
   DeliveryPushMicroservicePublicIoAPI:
@@ -927,7 +1045,7 @@ Resources:
       Parameters:
         FunctionName: !Ref NotificationCancellationActionInsertLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-  
+
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
@@ -976,9 +1094,12 @@ Resources:
             - !Ref AddressManagerToDeliveryPushQueueAgeAlarmARN
             - !Ref NotificationCancellationActionInsertDLQAlarmARN
             - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !Ref WebhookEventManagerDLQAlarmARN
+            - !GetAtt WebhookEventManagerDLQAlarm.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
+            - !GetAtt WebhookEventManagerLambda.Arn
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -992,6 +1113,7 @@ Resources:
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
             - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
+            - !Sub '/aws/lambda/${WebhookEventManagerLambdaName}'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscaling:
