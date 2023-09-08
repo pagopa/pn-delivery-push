@@ -990,12 +990,14 @@ Resources:
           - Effect: Allow
             Action:
               - "dynamodb:TransactWriteItems"
+              - "dynamodb:PutItem"
             Resource:
               - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Action
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Action/*"
           - Effect: Allow
             Action:
               - "dynamodb:TransactWriteItems"
+              - "dynamodb:PutItem"
             Resource:
               - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-FutureAction
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-FutureAction/*"
