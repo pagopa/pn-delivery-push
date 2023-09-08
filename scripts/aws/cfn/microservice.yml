@@ -117,7 +117,7 @@ Parameters:
     Description: 'Send done actions to this queue read by webhook'
 
 
-  DoneActionsQueueUrl:
+  DoneActionsQueueURL:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
     
@@ -823,7 +823,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          QUEUE_URL: !Ref DoneActionsQueueUrl
+          QUEUE_URL: !Ref DoneActionsQueueURL
       TracingConfig:
         Mode: Active
       Layers:

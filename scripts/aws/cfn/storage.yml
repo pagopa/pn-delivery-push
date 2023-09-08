@@ -511,7 +511,7 @@ Outputs:
   NotificationCancellationActionInsertLambdaName:
     Value: !Sub "${ProjectName}-notificationCancellationActionInsertLambda"
 
-  # ANotificationCancellationActionInsertLambdaAlarms DLQ
+  # NotificationCancellationActionInsertLambdaAlarms DLQ
   NotificationCancellationActionInsertDLQName:
     Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueName
     Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue name
