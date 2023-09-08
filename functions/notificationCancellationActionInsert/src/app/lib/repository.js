@@ -1,0 +1,106 @@
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {
+  DynamoDBDocumentClient,
+  TransactWriteCommand,
+} = require("@aws-sdk/lib-dynamodb");
+const { nDaysFromNowAsUNIXTimestamp } = require("./utils");
+
+const TABLES = {
+  TIMELINES: "pn-Timelines",
+  ACTION: "pn-Action",
+  FUTUREACTION: "pn-FutureAction",
+};
+
+const client = new DynamoDBClient({
+  region: process.env.REGION,
+});
+
+exports.TABLES = TABLES;
+
+exports.persistEvents = async (events) => {
+  const summary = {
+    insertions: 0,
+    errors: [],
+  };
+  // if we put this here and not outside, we can change it at runtime
+  // by changing the environment variable
+  const ttlDays = process.env.ACTION_TTL_DAYS ?? 365; // not ||, because we want 0 to remain 0, not 365
+
+  const dynamoDB = DynamoDBDocumentClient.from(client);
+
+  for (let persistEvent of events) {
+    const params = {
+      TransactItems: [
+        {
+          Put: {
+            TableName: TABLES.ACTION,
+            Item: {
+              // key
+              actionId: { S: persistEvent.actionId },
+              // other attributes
+              iun: { S: persistEvent.iun }, // GSI
+              type: { S: persistEvent.type },
+              notBefore: { S: persistEvent.notBefore },
+              timeslot: { S: persistEvent.timeslot },
+              timelineId: { S: persistEvent.timelineId },
+            },
+            // condition for put if absent
+            ConditionExpression: "attribute_not_exists(actionId)",
+          },
+        },
+        {
+          Put: {
+            TableName: TABLES.FUTUREACTION,
+            Item: {
+              // key (composite)
+              timeSlot: { S: persistEvent.timeslot }, // in this case in the table it's "timeSlot", not "timeslot"
+              actionId: { S: persistEvent.actionId },
+              // others
+              iun: { S: persistEvent.iun }, // GSI
+              notBefore: { S: persistEvent.notBefore },
+              type: { S: persistEvent.type },
+            },
+          },
+        },
+      ],
+    };
+    // ttl
+    const ttl = nDaysFromNowAsUNIXTimestamp(ttlDays);
+    if (ttl > 0) {
+      params.TransactItems[0].Put.Item.ttl = { N: ttl.toString() };
+    }
+
+    try {
+      const result = await dynamoDB.send(new TransactWriteCommand(params));
+      console.log("Action-FutureAction transaction succeeded:", result);
+      summary.insertions++;
+    } catch (error) {
+      // check for ConditionalCheckFailed
+      if (error.name == "TransactionCanceledException") {
+        for (let cancellation of error.cancellationReasons) {
+          if (cancellation.code == "ConditionalCheckFailed") {
+            console.warn(
+              "TransactionCanceledException: ConditionalCheckFailed"
+            );
+            // ignore this error, let the flow continue
+          } else {
+            console.error(
+              "Error performing Action-FutureAction transaction:",
+              error
+            );
+            summary.errors.push(persistEvent);
+            break; // we want to return without processing other errors
+          }
+        }
+      } else {
+        console.error(
+          "Error performing Action-FutureAction transaction:",
+          error
+        );
+        summary.errors.push(persistEvent);
+      }
+    }
+  }
+
+  return summary;
+};
