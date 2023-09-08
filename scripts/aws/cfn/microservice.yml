@@ -989,7 +989,7 @@ Resources:
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
-            - !Sub '/aws/lambda/${ProjectName}-notificationCancellationActionInsertLambda'
+            - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscaling:
