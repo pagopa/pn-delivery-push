@@ -33,18 +33,11 @@ async function mapPayload(event) {
 
   const iun = event.dynamodb.NewImage.iun.S;
   const timelineElementId = event.dynamodb.NewImage.timelineElementId.S;
-  const category = event.dynamodb.NewImage.category.S;
-  console.log("category", category);
 
-  switch (category) {
-    case "NOTIFICATION_CANCELLATION_REQUEST":
-      console.log("NOTIFICATION_CANCELLATION_REQUEST");
-      dynamoDbOps.push(
-        makeNotificationCancellationInsertOp(iun, timelineElementId, event)
-      );
-    default:
-      break;
-  }
+  // we con't check for category, since we previously filtered if in mapEvents()
+  dynamoDbOps.push(
+    makeNotificationCancellationInsertOp(iun, timelineElementId, event)
+  );
 
   // returns an array of ops, empty in case of problems
   return dynamoDbOps;
