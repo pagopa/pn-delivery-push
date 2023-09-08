@@ -1108,6 +1108,7 @@ Resources:
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
             - !Sub '/aws/lambda/${ProjectName}-notificationCancellationActionInsertLambda'
+            - !Sub '/aws/lambda/${ProjectName}-webhookEventManagerLambda'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscaling:
