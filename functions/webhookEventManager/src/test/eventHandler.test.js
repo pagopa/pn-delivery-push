@@ -76,6 +76,42 @@ describe("event handler tests", function () {
 
     const res = await lambda.handleEvent(event);
     expect(res).deep.equals({
+      batchItemFailures: [{itemIdentifier: 'message-1'}],
+    });
+  });
+
+  it("test exception nella send", async () => {
+    const event = {};
+
+    const mockSQSClient = {
+      send: async () => {
+        throw new Error("Simulated SQS Error");
+      },
+    };
+
+    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
+      "@aws-sdk/client-sqs": {
+        SQSClient: class {
+          constructor() {
+            return mockSQSClient;
+          }
+        },
+        SendMessageBatchCommand: class {},
+      },
+      "./lib/kinesis.js": {
+        extractKinesisData: () => {
+          return [{payload: '1', kinesisSeqNumber: 'test'}];
+        },
+      },
+      "./lib/eventMapper.js": {
+        mapEvents: () => {
+          return [{ test: 1 }];
+        },
+      },
+    });
+
+    const res = await lambda.handleEvent(event);
+    expect(res).deep.equals({
       batchItemFailures: [{itemIdentifier: 'test'}],
     });
   });

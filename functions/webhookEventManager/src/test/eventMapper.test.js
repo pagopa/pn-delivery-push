@@ -17,14 +17,14 @@ describe("event mapper tests", function () {
 
     console.log(res[0]);
 
-    expect(res[0].payload.iun).equal("abcd");
-    expect(res[0].payload.paId).equal("026e8c72-7944-4dcd-8668-f596447fec6d");
-    expect(res[0].payload.timelineId).equal("notification_viewed_creation_request;IUN_XLDW-MQYJ-WUKA-202302-A-1;RECINDEX_1");
-    expect(res[0].payload.type).equal("REGISTER_EVENT");
+    expect(res[0].MessageBody.payload.iun).equal("abcd");
+    expect(res[0].MessageBody.payload.paId).equal("026e8c72-7944-4dcd-8668-f596447fec6d");
+    expect(res[0].MessageBody.payload.timelineId).equal("notification_viewed_creation_request;IUN_XLDW-MQYJ-WUKA-202302-A-1;RECINDEX_1");
+    expect(res[0].MessageBody.payload.type).equal("REGISTER_EVENT");
 
-    expect(res[0].header.publisher).equal("deliveryPush");
-    expect(res[0].header.iun).equal("abcd");
-    expect(res[0].header.eventType).equal("WEBHOOK_ACTION_GENERIC");
+    expect(res[0].MessageBody.header.publisher).equal("deliveryPush");
+    expect(res[0].MessageBody.header.iun).equal("abcd");
+    expect(res[0].MessageBody.header.eventType).equal("WEBHOOK_ACTION_GENERIC");
 
     console.log('OK');
   

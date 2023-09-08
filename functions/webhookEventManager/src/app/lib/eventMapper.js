@@ -42,7 +42,12 @@ exports.mapEvents = async (events) => {
       payload: action
     };
 
-    result.push(webhookEvent);
+    let resultElement = {
+      Id: filteredEvents[i].kinesisSeqNumber,
+      MessageBody: webhookEvent,
+    };
+
+    result.push(resultElement);
 
   }
   return result;

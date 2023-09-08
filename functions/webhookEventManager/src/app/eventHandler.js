@@ -22,7 +22,14 @@ exports.handleEvent = async (event) => {
       try{
         let processedItems = await mapEvents(currentCdcEvents);
         if (processedItems.length > 0){
-          await sendMessages(processedItems);
+          let responseError = await sendMessages(processedItems);
+
+          if(responseError.length > 0){
+            console.log('Error in persist current cdcEvents: ', currentCdcEvents);
+            batchItemFailures = batchItemFailures.concat(responseError.map((i) => {
+            return { itemIdentifier: i.kinesisSeqNumber };
+            }));
+          }
         }else{
           console.log('No events to persist in current cdcEvents: ',currentCdcEvents);
         }
@@ -44,6 +51,7 @@ exports.handleEvent = async (event) => {
 };
 
 async function sendMessages(messages) {
+  let error = [];
   try{
     
       console.log('Proceeding to send ' + messages.length + ' messages to ' + QUEUE_URL);
@@ -60,12 +68,17 @@ async function sendMessages(messages) {
       if (response.Failed && response.Failed.length > 0)
       {
         console.log("error sending some message totalErrors:" + response.Failed.length);
-        throw new Error("Failed to send some messages");
+
+        error = error.concat(response.Failed.map((i) => {
+          return { kinesisSeqNumber : i.Id };
+        }));
+        
       }
 
   }catch(exc){
       console.log("error sending message", exc)
       throw exc;
   }
+  return error;
 
 };
