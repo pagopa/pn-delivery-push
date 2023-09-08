@@ -830,7 +830,7 @@ Resources:
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions/notificationCancellationActionInsert.zip"
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/notificationCancellationActionInsert.zip"
       Role: !GetAtt   NotificationCancellationActionInsertLambdaRole.Arn
       Environment:
         Variables:
