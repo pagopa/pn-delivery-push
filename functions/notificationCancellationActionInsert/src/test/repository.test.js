@@ -48,8 +48,8 @@ describe("DynamoDB tests", function () {
     expect(res.insertions).equal(1);
     expect(res.errors.length).equal(0);
 
-    // check ttl.N field presence
-    expect(ddbMock.calls()[0].args[0].input.TransactItems[0].Put.Item.ttl.N).not
+    // check ttl field presence
+    expect(ddbMock.calls()[0].args[0].input.TransactItems[0].Put.Item.ttl).not
       .to.be.undefined;
   });
 
@@ -74,7 +74,7 @@ describe("DynamoDB tests", function () {
   it("test persistEvents with ConditionalCheckFailed", async () => {
     ddbMock.on(TransactWriteCommand).rejects({
       name: "TransactionCanceledException",
-      cancellationReasons: [
+      CancellationReasons: [
         {
           code: "ConditionalCheckFailed",
         },
@@ -90,7 +90,7 @@ describe("DynamoDB tests", function () {
   it("test persistEvents with TransactionCanceledException but not ConditionalCheckFailed", async () => {
     ddbMock.on(TransactWriteCommand).rejects({
       name: "TransactionCanceledException",
-      cancellationReasons: [
+      CancellationReasons: [
         {
           code: "Other",
         },
