@@ -129,8 +129,9 @@ public class LegalFactGenerator {
 
         // F24 digests
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
-
+            //TODO Remove from 133 to 142 when recipient.getPayment() will be removed.
             NotificationPaymentInfoInt recipientPayment = recipient.getPayment();
+
             if (recipientPayment != null ) {
 
                 NotificationDocumentInt pagoPaForm = recipientPayment.getPagoPaForm();
