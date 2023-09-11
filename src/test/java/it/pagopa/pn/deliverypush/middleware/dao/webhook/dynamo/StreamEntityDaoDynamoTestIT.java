@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -215,6 +216,54 @@ class StreamEntityDaoDynamoTestIT {
             Assertions.assertEquals( elementFromDb.getTitle(), res.getTitle());
             Assertions.assertEquals( elementFromDb.getActivationDate(), res.getActivationDate());
             Assertions.assertEquals( 0, elementFromDb.getEventAtomicCounter());
+
+
+        } catch (Exception e) {
+            fail(e);
+        } finally {
+            try {
+                testDao.delete(ae.getPaId(), ae.getStreamId());
+            } catch (Exception e) {
+                System.out.println("Nothing to remove");
+            }
+        }
+    }
+
+    @Test
+    void update() {
+        //Given
+        String streamId = UUID.randomUUID().toString();
+        StreamEntity ae = newStream(streamId);
+
+        try {
+            testDao.delete(ae.getPaId(), ae.getStreamId());
+            StreamEntity res = daoDynamo.save(ae).block(d);
+        } catch (Exception e) {
+            System.out.println("Nothing to remove");
+        }
+
+        //When
+        Long res1 = daoDynamo.updateAndGetAtomicCounter(ae).block(d);
+        Long res2 = daoDynamo.updateAndGetAtomicCounter(ae).block(d);
+        Long res3 = daoDynamo.updateAndGetAtomicCounter(ae).block(d);
+
+        ae.setEventAtomicCounter(null);
+        ae.setTitle("title_new");
+        ae.setEventType("TIMELINE");
+        ae.setFilterValues(Set.of("NOTIFICATION_VIEWED"));
+        StreamEntity res = daoDynamo.update(ae).block(d);
+
+        //Then
+        try {
+            StreamEntity elementFromDb = testDao.get(ae.getPaId(), ae.getStreamId());
+
+            Assertions.assertEquals( elementFromDb.getPaId(), res.getPaId());
+            Assertions.assertEquals( elementFromDb.getStreamId(), res.getStreamId());
+            Assertions.assertEquals( elementFromDb.getFilterValues(), ae.getFilterValues());
+            Assertions.assertEquals( elementFromDb.getEventType(), ae.getEventType());
+            Assertions.assertEquals( elementFromDb.getTitle(), ae.getTitle());
+            Assertions.assertEquals( elementFromDb.getActivationDate(), ae.getActivationDate());
+            Assertions.assertEquals( 3, elementFromDb.getEventAtomicCounter());
 
 
         } catch (Exception e) {
