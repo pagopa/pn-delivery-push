@@ -17,14 +17,15 @@ describe("event mapper tests", function () {
 
     console.log(res[0]);
 
-    expect(res[0].MessageBody.payload.iun).equal("abcd");
-    expect(res[0].MessageBody.payload.paId).equal("026e8c72-7944-4dcd-8668-f596447fec6d");
-    expect(res[0].MessageBody.payload.timelineId).equal("notification_viewed_creation_request;IUN_XLDW-MQYJ-WUKA-202302-A-1;RECINDEX_1");
-    expect(res[0].MessageBody.payload.type).equal("REGISTER_EVENT");
+    let body = JSON.parse(res[0].MessageBody);
+    expect(body.iun).equal("abcd");
+    expect(body.paId).equal("026e8c72-7944-4dcd-8668-f596447fec6d");
+    expect(body.timelineId).equal("notification_viewed_creation_request;IUN_XLDW-MQYJ-WUKA-202302-A-1;RECINDEX_1");
+    expect(body.type).equal("REGISTER_EVENT");
 
-    expect(res[0].MessageBody.header.publisher).equal("deliveryPush");
-    expect(res[0].MessageBody.header.iun).equal("abcd");
-    expect(res[0].MessageBody.header.eventType).equal("WEBHOOK_ACTION_GENERIC");
+    expect(res[0].MessageAttributes.publisher.StringValue).equal("deliveryPush");
+    expect(res[0].MessageAttributes.iun.StringValue).equal("abcd");
+    expect(res[0].MessageAttributes.eventType.StringValue).equal("WEBHOOK_ACTION_GENERIC");
 
     console.log('OK');
   

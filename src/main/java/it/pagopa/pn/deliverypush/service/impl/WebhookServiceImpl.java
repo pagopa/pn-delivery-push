@@ -105,7 +105,11 @@ public class WebhookServiceImpl implements WebhookService {
                 .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to update this streamId " + streamId)))
                 .then(streamCreationRequest)
                 .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
-                .flatMap(streamEntityDao::save)
+                .map(entity -> {
+                    entity.setEventAtomicCounter(null);
+                    return entity;
+                })
+                .flatMap(streamEntityDao::update)
                 .map(EntityToDtoStreamMapper::entityToDto);
     }
 

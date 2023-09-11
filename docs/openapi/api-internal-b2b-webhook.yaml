@@ -74,11 +74,6 @@ info:
           <li><strong>VIEWED </strong><em>Il destinatario ha letto la notifica entro il termine stabilito.</em></li>
           <li><strong>EFFECTIVE_DATE </strong><em>Il destinatario non ha letto la notifica entro il termine stabilito.</em></li>
           <li><strong>UNREACHABLE </strong><em>Il destinatario non è reperibile.</em></li>
-        </ul>
-      </details>
-      <details>
-        <summary>Stati - v2 (in aggiunta agli stati v1)</summary>
-        <ul>
           <li><strong>CANCELLED </strong><em>L'ente ha annullato l'invio della notifica.</em></li>
         </ul>
       </details>
