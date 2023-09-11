@@ -29,22 +29,41 @@ exports.mapEvents = async (events) => {
       type: 'REGISTER_EVENT'
     };
 
-    let header = {
-      publisher: 'deliveryPush',
-      iun: action.iun,
-      eventId: crypto.randomUUID(), 
-      createdAt: date.toISOString(), 
-      eventType: 'WEBHOOK_ACTION_GENERIC'
+    let messageAttributes = {
+      publisher: {
+        DataType: 'String',
+        StringValue: 'deliveryPush'
+      },
+      iun: {
+        DataType: 'String',
+        StringValue: action.iun
+      },
+      eventId: {
+        DataType: 'String',
+        StringValue: crypto.randomUUID()
+      },
+       
+      createdAt: {
+        DataType: 'String',
+        StringValue: date.toISOString()
+      }, 
+      eventType:  {
+        DataType: 'String',
+        StringValue:'WEBHOOK_ACTION_GENERIC'
+      },
     };
     
+    /*
     let webhookEvent = {
       header: header,
       payload: action
     };
+    */
 
     let resultElement = {
       Id: filteredEvents[i].kinesisSeqNumber,
-      MessageBody: JSON.stringify(webhookEvent),
+      MessageAttributes: messageAttributes,
+      MessageBody: JSON.stringify(action)
     };
 
     result.push(resultElement);
