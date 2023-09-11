@@ -40,5 +40,5 @@ public class StreamEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_TITLE)})) private String title;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_EVENT_TYPE)})) private String eventType;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_FILTER_VALUES)})) private Set<String> filterValues;
-    @Getter(onMethod=@__({@DynamoDbAttribute(COL_EVENT_CURRENT_COUNTER)})) private Long eventAtomicCounter;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_EVENT_CURRENT_COUNTER) })) private Long eventAtomicCounter;
 }
