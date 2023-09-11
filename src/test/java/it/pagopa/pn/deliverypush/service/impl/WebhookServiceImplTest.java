@@ -1,5 +1,9 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -16,19 +20,24 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.EventEntityBatch;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.StatusService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.WebhookService;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class WebhookServiceImplTest {
 
@@ -494,7 +503,6 @@ class WebhookServiceImplTest {
         list.add(entity);
 
 
-
         List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
         Set<TimelineElementInternal> settimeline = new HashSet<>(timeline);
         TimelineElementInternal newtimeline = timeline.get(timeline.size()-1);
@@ -518,7 +526,7 @@ class WebhookServiceImplTest {
         Mockito.when(statusUpdate.getOldStatus()).thenReturn(notificationStatusInt1);
 
         TimelineElementInternal timelineElementInternal = Mockito.mock(TimelineElementInternal.class);
-        Mockito.when(timelineElementInternal.getCategory()).thenReturn(TimelineElementCategoryInt.REQUEST_ACCEPTED);
+        Mockito.when(timelineElementInternal.getCategory()).thenReturn(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST);
 
         WebhookUtils.RetrieveTimelineResult retrieveTimelineResult = WebhookUtils.RetrieveTimelineResult.builder()
                 .notificationInt(Mockito.mock(NotificationInt.class))
