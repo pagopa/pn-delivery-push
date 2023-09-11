@@ -44,7 +44,7 @@ exports.mapEvents = async (events) => {
 
     let resultElement = {
       Id: filteredEvents[i].kinesisSeqNumber,
-      MessageBody: webhookEvent,
+      MessageBody: JSON.stringify(webhookEvent),
     };
 
     result.push(resultElement);
