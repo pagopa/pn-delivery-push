@@ -24,6 +24,7 @@ import it.pagopa.pn.deliverypush.service.WebhookService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -61,8 +62,8 @@ public class WebhookServiceImpl implements WebhookService {
         this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
         this.schedulerService = schedulerService;
         this.maxStreams= webhookConf.getMaxStreams();
-        defaultCategories = webhookUtils.categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
-        defaultNotificationStatuses = webhookUtils.statusByVersion(NotificationStatusInt.VERSION_10);
+        defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
+        defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
     }
 
     @Override
@@ -244,5 +245,19 @@ public class WebhookServiceImpl implements WebhookService {
                         .doOnSuccess(event -> log.info("saved webhookevent={}", event))
                         .then();
             });
+    }
+
+    private List<String> categoriesByVersion(int version) {
+        return Arrays.stream(TimelineElementCategoryInt.values())
+            .filter( e -> e.getVersion() <= version)
+            .map(TimelineElementCategoryInt::getValue)
+            .toList();
+    }
+
+    private List<String> statusByVersion(int version) {
+        return Arrays.stream(NotificationStatusInt.values())
+            .filter( e -> e.getVersion() <= version)
+            .map(NotificationStatusInt::getValue)
+            .toList();
     }
 }

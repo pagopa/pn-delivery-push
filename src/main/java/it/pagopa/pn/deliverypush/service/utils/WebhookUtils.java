@@ -20,7 +20,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.RefusedReason;
@@ -37,7 +36,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -193,19 +191,5 @@ public class WebhookUtils {
         private StatusService.NotificationStatusUpdate notificationStatusUpdate;
         private TimelineElementInternal event;
         private NotificationInt notificationInt;
-    }
-
-    public List<String> categoriesByVersion(int version) {
-        return Arrays.stream(TimelineElementCategoryInt.values())
-            .filter( e -> e.getVersion() <= version)
-            .map(TimelineElementCategoryInt::getValue)
-            .toList();
-    }
-
-    public List<String> statusByVersion(int version) {
-        return Arrays.stream(NotificationStatusInt.values())
-            .filter( e -> e.getVersion() <= version)
-            .map(NotificationStatusInt::getValue)
-            .toList();
     }
 }
