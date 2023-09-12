@@ -4,30 +4,34 @@ import lombok.Getter;
 
 @Getter
 public enum NotificationStatusInt {
-    IN_VALIDATION("IN_VALIDATION"),
+    IN_VALIDATION("IN_VALIDATION", NotificationStatusInt.VERSION_10),
 
-    ACCEPTED("ACCEPTED"),
+    ACCEPTED("ACCEPTED", NotificationStatusInt.VERSION_10),
 
-    DELIVERING("DELIVERING"),
+    DELIVERING("DELIVERING", NotificationStatusInt.VERSION_10),
 
-    DELIVERED("DELIVERED"),
+    DELIVERED("DELIVERED", NotificationStatusInt.VERSION_10),
 
-    VIEWED("VIEWED"),
+    VIEWED("VIEWED", NotificationStatusInt.VERSION_10),
 
-    EFFECTIVE_DATE("EFFECTIVE_DATE"),
+    EFFECTIVE_DATE("EFFECTIVE_DATE", NotificationStatusInt.VERSION_10),
 
-    PAID("PAID"),
+    PAID("PAID", NotificationStatusInt.VERSION_10),
 
-    UNREACHABLE("UNREACHABLE"),
+    UNREACHABLE("UNREACHABLE", NotificationStatusInt.VERSION_10),
 
-    REFUSED("REFUSED"),
+    REFUSED("REFUSED", NotificationStatusInt.VERSION_10),
 
-    CANCELLED("CANCELLED");
+    CANCELLED("CANCELLED", NotificationStatusInt.VERSION_10);
 
     private final String value;
+    private final int version;
 
-    NotificationStatusInt(String value) {
+    public static final int VERSION_10 = 10;
+
+    NotificationStatusInt(String value, int version) {
         this.value = value;
+        this.version = version;
     }
 
     @Override

@@ -2,7 +2,9 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
@@ -21,16 +23,17 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -45,6 +48,9 @@ public class WebhookServiceImpl implements WebhookService {
 
     private final int maxStreams;
 
+    private final List<String> defaultCategories;
+    private final List<String> defaultNotificationStatuses;
+
     public WebhookServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao,
                               PnDeliveryPushConfigs pnDeliveryPushConfigs, SchedulerService schedulerService,
                               WebhookUtils webhookUtils) {
@@ -56,6 +62,8 @@ public class WebhookServiceImpl implements WebhookService {
         this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
         this.schedulerService = schedulerService;
         this.maxStreams= webhookConf.getMaxStreams();
+        defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
+        defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
     }
 
     @Override
@@ -173,12 +181,22 @@ public class WebhookServiceImpl implements WebhookService {
         }
 
         String timelineEventCategory = timelineElementInternal.getCategory().getValue();
+
+        List<String> filteredValues = new ArrayList<>();
+        if (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE) {
+            filteredValues.addAll(stream.getFilterValues().isEmpty()
+                ? defaultCategories
+                : stream.getFilterValues());
+        } else if (eventType == StreamCreationRequest.EventTypeEnum.STATUS){
+            filteredValues.addAll(stream.getFilterValues().isEmpty()
+                ? defaultNotificationStatuses
+                : stream.getFilterValues());
+        }
+
         // e poi c'è il caso in cui lo stream ha un filtro sugli eventi interessati
         // se è nullo/vuoto o contiene lo stato, vuol dire che devo salvarlo
-        if ((stream.getFilterValues() == null
-                || stream.getFilterValues().isEmpty()
-                || (eventType == StreamCreationRequest.EventTypeEnum.STATUS && stream.getFilterValues().contains(newStatus))
-                || (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE && stream.getFilterValues().contains(timelineEventCategory))))
+        if ( (eventType == StreamCreationRequest.EventTypeEnum.STATUS && filteredValues.contains(newStatus))
+                || (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE && filteredValues.contains(timelineEventCategory)))
         {
             return saveEventWithAtomicIncrement(stream, newStatus, timelineElementInternal, notificationInt);
         }
@@ -227,5 +245,19 @@ public class WebhookServiceImpl implements WebhookService {
                         .doOnSuccess(event -> log.info("saved webhookevent={}", event))
                         .then();
             });
+    }
+
+    private List<String> categoriesByVersion(int version) {
+        return Arrays.stream(TimelineElementCategoryInt.values())
+            .filter( e -> e.getVersion() <= version)
+            .map(TimelineElementCategoryInt::getValue)
+            .toList();
+    }
+
+    private List<String> statusByVersion(int version) {
+        return Arrays.stream(NotificationStatusInt.values())
+            .filter( e -> e.getVersion() <= version)
+            .map(NotificationStatusInt::getValue)
+            .toList();
     }
 }
