@@ -41,6 +41,7 @@ public class SchedulerServiceMock implements SchedulerService {
   private final DocumentCreationResponseHandler documentCreationResponseHandler;
   private final NotificationValidationActionHandler notificationValidationActionHandler;
   private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
+  private final PnDeliveryClientMock pnDeliveryClientMock;
 
   public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
                               @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
@@ -51,7 +52,8 @@ public class SchedulerServiceMock implements SchedulerService {
                               @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
                               @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
                               @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
-                              @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest) {
+                              @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
+                              @Lazy PnDeliveryClientMock pnDeliveryClientMock) {
     this.digitalWorkFlowHandler = digitalWorkFlowHandler;
     this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
     this.analogWorkflowHandler = analogWorkflowHandler;
@@ -62,6 +64,7 @@ public class SchedulerServiceMock implements SchedulerService {
     this.documentCreationResponseHandler = documentCreationResponseHandler;
     this.notificationValidationActionHandler = notificationValidationActionHandler;
     this.receivedLegalFactCreationRequest = receivedLegalFactCreationRequest;
+    this.pnDeliveryClientMock = pnDeliveryClientMock;
   }
 
   @Override
@@ -73,6 +76,12 @@ public class SchedulerServiceMock implements SchedulerService {
       
       Assertions.assertDoesNotThrow(() -> {
         waitSchedulingTime(dateToSchedule);
+
+        if (!pnDeliveryClientMock.checkTestNotificationIsValid(iun))
+        {
+          log.warn("IUN={} is no more valid, skipping event actionDetails={}", iun, actionDetails);
+          return;
+        }
 
         switch (actionType) {
           case START_RECIPIENT_WORKFLOW -> 
@@ -119,6 +128,11 @@ public class SchedulerServiceMock implements SchedulerService {
     new Thread(() -> {
       Assertions.assertDoesNotThrow(() -> {
         mockSchedulingDate(dateToSchedule);
+        if (!pnDeliveryClientMock.checkTestNotificationIsValid(iun))
+        {
+          log.warn("IUN={} is no more valid, skipping event timelineId={}", iun, timelineId);
+          return;
+        }
 
         switch (actionType) {
 
@@ -171,6 +185,12 @@ public class SchedulerServiceMock implements SchedulerService {
 
         Assertions.assertDoesNotThrow(() -> {
           waitSchedulingTime(dateToSchedule);
+
+          if (!pnDeliveryClientMock.checkTestNotificationIsValid(iun))
+          {
+            log.warn("IUN={} is no more valid, skipping event actionDetails={}", iun, actionDetails);
+            return;
+          }
 
           switch (actionType) {
             case DOCUMENT_CREATION_RESPONSE ->
