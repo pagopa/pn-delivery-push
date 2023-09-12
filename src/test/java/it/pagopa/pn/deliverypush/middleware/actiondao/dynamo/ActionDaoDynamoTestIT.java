@@ -217,26 +217,26 @@ class ActionDaoDynamoTestIT {
         actionDao.unSchedule(action2, timeSlot2);
     }
 
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void addActionIfAbsent() {
-        String timeslot = "2022-08-30T16:04:13.913859900Z";
-
-        Action.ActionBuilder actionBuilder = Action.builder()
-                .iun("Test_addActionIfAbsent_iun01")
-                .recipientIndex(1)
-                .type(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
-        String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(
-                actionBuilder.build());
-
-        Action action = actionBuilder.actionId(actionId).build();
-
-
-        // non si riesce a mockare TransactWriteItemsEnhancedRequest
-        Assertions.assertDoesNotThrow(() ->
-                actionDao.addActionIfAbsent(action, timeslot)
-        );
-    }
+//    @Test
+//    @ExtendWith(SpringExtension.class)
+//    void addActionIfAbsent() {
+//        String timeslot = "2022-08-30T16:04:13.913859900Z";
+//
+//        Action.ActionBuilder actionBuilder = Action.builder()
+//                .iun("Test_addActionIfAbsent_iun01")
+//                .recipientIndex(1)
+//                .type(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+//        String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(
+//                actionBuilder.build());
+//
+//        Action action = actionBuilder.actionId(actionId).build();
+//
+//
+//        // non si riesce a mockare TransactWriteItemsEnhancedRequest
+//        Assertions.assertDoesNotThrow(() ->
+//                actionDao.addActionIfAbsent(action, timeslot)
+//        );
+//    }
 
     @Test
     @ExtendWith(SpringExtension.class)

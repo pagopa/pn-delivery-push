@@ -198,14 +198,14 @@ class WebhookServiceImplTest {
 
 
         Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.empty());
-        Mockito.when(streamEntityDao.save(Mockito.any())).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
 
 
         Mono<StreamMetadataResponse> mono = webhookService.updateEventStream(xpagopacxid, uuidd, Mono.just(req));
         assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
 
         //THEN
-        Mockito.verify(streamEntityDao, Mockito.never()).save(Mockito.any());
+        Mockito.verify(streamEntityDao, Mockito.never()).update(Mockito.any());
     }
 
     @Test
@@ -297,7 +297,7 @@ class WebhookServiceImplTest {
 
 
         Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
-        Mockito.when(streamEntityDao.save(Mockito.any())).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
 
 
         //WHEN
@@ -306,7 +306,7 @@ class WebhookServiceImplTest {
         //THEN
         assertNotNull(res);
 
-        Mockito.verify(streamEntityDao).save(Mockito.any());
+        Mockito.verify(streamEntityDao).update(Mockito.any());
     }
 
     @Test

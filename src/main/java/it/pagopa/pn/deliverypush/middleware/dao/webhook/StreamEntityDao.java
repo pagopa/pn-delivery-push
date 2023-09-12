@@ -16,6 +16,8 @@ public interface StreamEntityDao {
 
     Mono<StreamEntity> save(StreamEntity entity);
 
+    Mono<StreamEntity> update(StreamEntity entity);
+
     /**
      * Ritorna il nuovo valore del contatore.
      * Nel caso in cui la entity non sia presente, torna -1
