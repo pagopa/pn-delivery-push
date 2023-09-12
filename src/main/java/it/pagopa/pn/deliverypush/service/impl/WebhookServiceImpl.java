@@ -48,6 +48,9 @@ public class WebhookServiceImpl implements WebhookService {
 
     private final int maxStreams;
 
+    private final List<String> defaultCategories;
+    private final List<String> defaultNotificationStatuses;
+
     public WebhookServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao,
                               PnDeliveryPushConfigs pnDeliveryPushConfigs, SchedulerService schedulerService,
                               WebhookUtils webhookUtils) {
@@ -59,6 +62,8 @@ public class WebhookServiceImpl implements WebhookService {
         this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
         this.schedulerService = schedulerService;
         this.maxStreams= webhookConf.getMaxStreams();
+        defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
+        defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
     }
 
     @Override
@@ -180,11 +185,11 @@ public class WebhookServiceImpl implements WebhookService {
         List<String> filteredValues = new ArrayList<>();
         if (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE) {
             filteredValues.addAll(stream.getFilterValues().isEmpty()
-                ? categoriesByVersion(TimelineElementCategoryInt.VERSION_10)
+                ? defaultCategories
                 : stream.getFilterValues());
         } else if (eventType == StreamCreationRequest.EventTypeEnum.STATUS){
             filteredValues.addAll(stream.getFilterValues().isEmpty()
-                ? statusByVersion(NotificationStatusInt.VERSION_10)
+                ? defaultNotificationStatuses
                 : stream.getFilterValues());
         }
 
@@ -242,14 +247,14 @@ public class WebhookServiceImpl implements WebhookService {
             });
     }
 
-    public List<String> categoriesByVersion(int version) {
+    private List<String> categoriesByVersion(int version) {
         return Arrays.stream(TimelineElementCategoryInt.values())
             .filter( e -> e.getVersion() <= version)
             .map(TimelineElementCategoryInt::getValue)
             .toList();
     }
 
-    public List<String> statusByVersion(int version) {
+    private List<String> statusByVersion(int version) {
         return Arrays.stream(NotificationStatusInt.values())
             .filter( e -> e.getVersion() <= version)
             .map(NotificationStatusInt::getValue)
