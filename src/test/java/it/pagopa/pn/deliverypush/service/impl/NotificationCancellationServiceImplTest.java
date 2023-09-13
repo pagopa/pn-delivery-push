@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.cancellation.StatusDetailInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -27,6 +28,8 @@ import reactor.core.publisher.Mono;
 import java.util.Collections;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
+import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_ALREADY_CANCELLED;
+import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_CANCELLATION_ACCEPTED;
 import static org.mockito.ArgumentMatchers.*;
 
 class NotificationCancellationServiceImplTest {
@@ -62,6 +65,8 @@ class NotificationCancellationServiceImplTest {
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
         Mockito.when(timelineUtils.buildCancelRequestTimelineElement(notification))
                 .thenReturn(timelineElementInternal);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun()))
+                .thenReturn(false);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_VALID), anyString(), eq(1)))
@@ -69,12 +74,48 @@ class NotificationCancellationServiceImplTest {
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
         
         //WHEN
-        notificationCancellationService.startCancellationProcess(notification.getIun(), notification.getSender().getPaId(), CxTypeAuthFleet.PA)
+        StatusDetailInt res = notificationCancellationService.startCancellationProcess(notification.getIun(), notification.getSender().getPaId(), CxTypeAuthFleet.PA)
                 .block();
         
         //THEN
+        Assertions.assertNotNull(res);
+        Assertions.assertEquals(NOTIFICATION_CANCELLATION_ACCEPTED, res.getCode());
+        Assertions.assertEquals("INFO", res.getLevel());
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
         Mockito.verify(auditLogEvent).generateSuccess();
+    }
+
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    void startCancellationProcessAlreadyCancelled() {
+        //GIVEN
+        NotificationInt notification = getNotification();
+        Mockito.when(notificationService.getNotificationByIunReactive(Mockito.any()))
+                .thenReturn(Mono.just(notification));
+
+        Mockito.when(authUtils.checkPaId(eq(notification), anyString(), any(CxTypeAuthFleet.class)))
+                .thenReturn(Mono.empty());
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun()))
+                .thenReturn(true);
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_VALID), anyString(), eq(1)))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.anyString())).thenReturn(auditLogEvent);
+
+        //WHEN
+        StatusDetailInt res = notificationCancellationService.startCancellationProcess(notification.getIun(), notification.getSender().getPaId(), CxTypeAuthFleet.PA)
+                .block();
+
+        //THEN
+        Assertions.assertNotNull(res);
+        Assertions.assertEquals(NOTIFICATION_ALREADY_CANCELLED, res.getCode());
+        Assertions.assertEquals("WARN", res.getLevel());
+        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(auditLogEvent).generateWarning(Mockito.anyString(), Mockito.anyString());
     }
 
     @Test
@@ -97,10 +138,38 @@ class NotificationCancellationServiceImplTest {
 
         //WHEN
 
-        Mono<Void> monoResp = notificationCancellationService.startCancellationProcess(notification.getIun(), notification.getSender().getPaId(), CxTypeAuthFleet.PA);
+        Mono<StatusDetailInt> monoResp = notificationCancellationService.startCancellationProcess(notification.getIun(), notification.getSender().getPaId(), CxTypeAuthFleet.PA);
         
         Assertions.assertThrows(PnNotFoundException.class, monoResp::block);
         
+        //THEN
+        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.any());
+        Mockito.verify(auditLogEvent).generateFailure(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any());
+    }
+
+
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    void startCancellationProcessErrorNotFound2() {
+        //GIVEN
+        NotificationInt notification = getNotification();
+        Mockito.when(notificationService.getNotificationByIunReactive(Mockito.any()))
+                .thenReturn(Mono.error(() -> {
+                    throw new PnNotFoundException("Not found", "error", ERROR_CODE_DELIVERYPUSH_NOTFOUND);
+                }));
+
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_VALID), anyString(), eq(1)))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
+        //WHEN
+
+        Mono<StatusDetailInt> monoResp = notificationCancellationService.startCancellationProcess(notification.getIun(), notification.getSender().getPaId(), CxTypeAuthFleet.PA);
+
+        Assertions.assertThrows(PnNotFoundException.class, monoResp::block);
+
         //THEN
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.any());
         Mockito.verify(auditLogEvent).generateFailure(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any());
