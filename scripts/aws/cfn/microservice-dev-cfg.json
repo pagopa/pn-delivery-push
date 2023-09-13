@@ -35,7 +35,10 @@
     "CheckCfEnabled": "false",
     "ActionTtlDays": "365",
     "WebhookEventManagerLambdaMaximumBatchingWindowInSeconds": "20",
-    "WebhookEventManagerLambdaBatchSize": "60"
+    "WebhookEventManagerLambdaBatchSize": "60",
+    "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
+    "NotificationCancellationActionInsertLambdaBatchSize": "20"
+
   }
 }
 
