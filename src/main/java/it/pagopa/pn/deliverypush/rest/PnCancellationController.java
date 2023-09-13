@@ -1,9 +1,12 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.NotificationCancellationApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.StatusDetail;
 import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +32,11 @@ public class PnCancellationController implements NotificationCancellationApi {
             List<String> xPagopaPnCxGroups,
             final ServerWebExchange exchange) {
         return notificationCancellationService.startCancellationProcess(iun, xPagopaPnCxId, xPagopaPnCxType)
-                .then(
-                        Mono.fromCallable(() -> {
-                            RequestStatus response = RequestStatus.builder()
+                .map(statusdetail -> ResponseEntity.accepted().body(RequestStatus.builder()
                                     .status("OK")
-                                    .build();
-                            return ResponseEntity.ok(response);
-                        })
-                );
+                                    .details(List.of(SmartMapper.mapToClass(statusdetail, StatusDetail.class)))
+                                    .build())
+                )
+                .onErrorReturn(PnNotFoundException.class, ResponseEntity.notFound().build());
     }
 }
