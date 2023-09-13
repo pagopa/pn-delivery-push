@@ -659,10 +659,6 @@ Resources:
         ContainerEnvEntry56: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         ContainerEnvEntry57: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
         ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
-        ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_WEBHOOK_EVENT_MANAGER_MAXIMUM_BATCHING_WINDOWS_IN_SECOND=${WebhookEventManagerLambdaMaximumBatchingWindowInSeconds}'
-        ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_WEBHOOK_EVENT_MANAGER_BATCH_SIZE=${WebhookEventManagerLambdaBatchSize}'
-        ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_NOTIFICATION_CANCELLATION_ACTION_INSERT_MAXIMUM_BATCHING_WINDOWS_IN_SECOND=${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}'
-        ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_NOTIFICATION_CANCELLATION_ACTION_INSERT_BATCH_SIZE=${NotificationCancellationActionInsertLambdaBatchSize}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
