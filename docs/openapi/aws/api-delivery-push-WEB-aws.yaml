@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: lrTFbUGe7+eUlRnFnNyPXMivdF0F7cjSpdgign5sbs0=
+  version: E+JgAaDbB4PRlFtkmk2iTFcJ8bBirZ7ryqoOvC8qiww=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -757,8 +757,6 @@ components:
 tags:
   - name: HealthCheck
     description: Invocazioni per sapere lo stato del microservizio
-  - name: TimelineAndStatus
-    description: Recupera le informazioni storiche di una notifica
   - name: LegalFacts
     description: Recupero degli atti opponibili a terzi generati per una notifica
   - name: NotificationCancellation
