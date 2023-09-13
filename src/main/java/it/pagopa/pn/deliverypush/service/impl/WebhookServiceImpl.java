@@ -23,11 +23,10 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -48,8 +47,8 @@ public class WebhookServiceImpl implements WebhookService {
 
     private final int maxStreams;
 
-    private final List<String> defaultCategories;
-    private final List<String> defaultNotificationStatuses;
+    private final Set<String> defaultCategories;
+    private final Set<String> defaultNotificationStatuses;
 
     public WebhookServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao,
                               PnDeliveryPushConfigs pnDeliveryPushConfigs, SchedulerService schedulerService,
@@ -182,15 +181,15 @@ public class WebhookServiceImpl implements WebhookService {
 
         String timelineEventCategory = timelineElementInternal.getCategory().getValue();
 
-        List<String> filteredValues = new ArrayList<>();
+        Set<String> filteredValues = new LinkedHashSet<>();
         if (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE) {
-            filteredValues.addAll(stream.getFilterValues().isEmpty()
+            filteredValues = stream.getFilterValues()== null || stream.getFilterValues().isEmpty()
                 ? defaultCategories
-                : stream.getFilterValues());
+                : stream.getFilterValues();
         } else if (eventType == StreamCreationRequest.EventTypeEnum.STATUS){
-            filteredValues.addAll(stream.getFilterValues().isEmpty()
+            filteredValues = stream.getFilterValues() == null || stream.getFilterValues().isEmpty()
                 ? defaultNotificationStatuses
-                : stream.getFilterValues());
+                : stream.getFilterValues();
         }
 
         // e poi c'è il caso in cui lo stream ha un filtro sugli eventi interessati
@@ -247,17 +246,17 @@ public class WebhookServiceImpl implements WebhookService {
             });
     }
 
-    private List<String> categoriesByVersion(int version) {
+    private Set<String> categoriesByVersion(int version) {
         return Arrays.stream(TimelineElementCategoryInt.values())
-            .filter( e -> e.getVersion() <= version)
-            .map(TimelineElementCategoryInt::getValue)
-            .toList();
+                .filter( e -> e.getVersion() <= version)
+                .map(TimelineElementCategoryInt::getValue)
+                .collect(Collectors.toSet());
     }
 
-    private List<String> statusByVersion(int version) {
+    private Set<String> statusByVersion(int version) {
         return Arrays.stream(NotificationStatusInt.values())
-            .filter( e -> e.getVersion() <= version)
-            .map(NotificationStatusInt::getValue)
-            .toList();
+                .filter( e -> e.getVersion() <= version)
+                .map(NotificationStatusInt::getValue)
+                .collect(Collectors.toSet());
     }
 }
