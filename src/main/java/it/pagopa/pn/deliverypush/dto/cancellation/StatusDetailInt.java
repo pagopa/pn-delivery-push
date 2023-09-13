@@ -1,9 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.cancellation;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-
-import java.time.Instant;
 
 @NoArgsConstructor
 @AllArgsConstructor
