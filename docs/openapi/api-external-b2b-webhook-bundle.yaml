@@ -520,7 +520,7 @@ components:
           type: array
           items:
             type: string
-            minLength: 5
+            minLength: 4
             maxLength: 256
             pattern: ^[A-Z_]+$
     StreamMetadataResponse:
