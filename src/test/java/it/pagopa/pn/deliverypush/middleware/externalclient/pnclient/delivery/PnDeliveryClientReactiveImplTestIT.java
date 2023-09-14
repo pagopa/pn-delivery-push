@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.models.auth.In;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
@@ -98,6 +99,33 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
         client.getSentNotification(iun).onErrorResume(
                 ex -> {
                     Assertions.assertNotNull(ex);
+                    return Mono.empty();
+                }
+        );
+    }
+
+    @Test
+    void getSentNotificationError404(){
+        //Given
+        String iun ="iunTest";
+        SentNotification notification = new SentNotification();
+        notification.setIun(iun);
+
+        String path = "/delivery-private/notifications/{iun}"
+                .replace("{iun}",iun);
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path))
+                .respond(response()
+                        .withContentType(MediaType.APPLICATION_JSON)
+                        .withStatusCode(404));
+
+        client.getSentNotification(iun).onErrorResume(
+                ex -> {
+                    Assertions.assertNotNull(ex);
+                    Assertions.assertEquals(PnNotFoundException.class, ex.getClass());
                     return Mono.empty();
                 }
         );

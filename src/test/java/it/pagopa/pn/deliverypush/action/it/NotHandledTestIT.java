@@ -73,7 +73,6 @@ import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.E
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.with;
-@Disabled
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,

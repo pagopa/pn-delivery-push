@@ -36,7 +36,6 @@ public class PnCancellationController implements NotificationCancellationApi {
                                     .status("OK")
                                     .details(List.of(SmartMapper.mapToClass(statusdetail, StatusDetail.class)))
                                     .build())
-                )
-                .onErrorReturn(PnNotFoundException.class, ResponseEntity.notFound().build());
+                );
     }
 }
