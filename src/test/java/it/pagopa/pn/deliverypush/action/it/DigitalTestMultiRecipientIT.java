@@ -65,7 +65,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.awaitility.Awaitility.await;
-@Disabled
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
@@ -626,7 +625,6 @@ class DigitalTestMultiRecipientIT {
     // Il primo destinatario è UNREACHBLE, il secondo è raggiungibile, ma il primo destinatario visualizza la notifica
     // via PN dopo il primo feedback (negativo) di External Channels.
     @Test
-    @Disabled
     void rec1ViewedRec2GeneralOk() { 
        /* Primo recipient
        - Platform address presente ed entrambi gli invii con fallimento
