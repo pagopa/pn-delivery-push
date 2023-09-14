@@ -133,11 +133,6 @@ public class TimelineDaoMock implements TimelineDao {
     
     @Override
     public void addTimelineElementIfAbsent(TimelineElementInternal dto) {
-        if (!pnDeliveryClientMock.checkTestNotificationIsValid(dto.getIun()))
-        {
-            log.warn("IUN={} is no more valid, skipping saving timelineId={}", dto.getIun(), dto.getElementId());
-            return;
-        }
         checkAndAddTimelineElement(dto);
     }
 

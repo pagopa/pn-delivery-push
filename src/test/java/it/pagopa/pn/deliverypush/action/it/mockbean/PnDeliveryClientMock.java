@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class PnDeliveryClientMock implements PnDeliveryClient {
     private CopyOnWriteArrayList<SentNotification> notifications;
 
-    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
+    private final PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
     public PnDeliveryClientMock( @Lazy PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
         this.pnDataVaultClientReactiveMock = pnDataVaultClientReactiveMock;
@@ -40,18 +40,6 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     @Override
     public void updateStatus(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto dto) {
         //Nothing to do
-    }
-
-    public boolean checkTestNotificationIsValid(String iun) {
-        boolean iunexists = this.notifications.stream().map(x -> {
-            log.info("IUN EXISTS:" + x.getIun());
-            return x.getIun();
-        }).anyMatch(x -> x.equals(iun));
-
-        if (!iunexists)
-            log.warn("IUN DOES NOT EXISTS:" + iun);
-
-        return iunexists;
     }
 
     @Override

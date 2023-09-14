@@ -93,30 +93,20 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                 await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                         Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), timelineEventId).isPresent())
                 );
-
-                if (pnDeliveryClientMock.checkTestNotificationIsValid(notification.getIun()))
-                {
-                    simulateExternalChannelDigitalProgressResponse(timelineEventId);
-                }
-                else
-                    log.warn("IUN={} is no more valid, skipping event timelineEventId={}", notification.getIun(), timelineEventId);
-
+                
+                simulateExternalChannelDigitalProgressResponse(timelineEventId);
+                
                 Optional<SendDigitalDetailsInt> sendDigitalDetailsOpt = timelineService.getTimelineElementDetails(notification.getIun(), timelineEventId, SendDigitalDetailsInt.class);
                 if(sendDigitalDetailsOpt.isPresent()){
                     waitForProgressTimelineElement(notification, sendDigitalDetailsOpt.get());
 
-                    if (pnDeliveryClientMock.checkTestNotificationIsValid(notification.getIun())) {
-                        simulateExternalChannelDigitalResponse(address, timelineEventId);
-                    }
-                    else
-                        log.warn("IUN={} is no more valid, skipping event timelineEventId={}", notification.getIun(), timelineEventId);
+                    simulateExternalChannelDigitalResponse(address, timelineEventId);
 
                 }else {
                     log.error("[TEST] SendDigitalDetails is not present");
                 }
             });
         }));
-
     }
 
     private void waitForProgressTimelineElement(NotificationInt notification, SendDigitalDetailsInt sendDigitalDetails) {

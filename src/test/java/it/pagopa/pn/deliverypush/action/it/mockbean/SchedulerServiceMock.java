@@ -78,12 +78,6 @@ public class SchedulerServiceMock implements SchedulerService {
       Assertions.assertDoesNotThrow(() -> {
         waitSchedulingTime(dateToSchedule);
 
-        if (!pnDeliveryClientMock.checkTestNotificationIsValid(iun))
-        {
-          log.warn("IUN={} is no more valid, skipping event actionDetails={}", iun, actionDetails);
-          return;
-        }
-
         switch (actionType) {
           case START_RECIPIENT_WORKFLOW -> 
                   startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(iun, recIndex,
@@ -130,11 +124,6 @@ public class SchedulerServiceMock implements SchedulerService {
     ThreadPool.start(new Thread(() -> {
       Assertions.assertDoesNotThrow(() -> {
         mockSchedulingDate(dateToSchedule);
-        if (!pnDeliveryClientMock.checkTestNotificationIsValid(iun))
-        {
-          log.warn("IUN={} is no more valid, skipping event timelineId={}", iun, timelineId);
-          return;
-        }
 
         switch (actionType) {
 
@@ -187,12 +176,6 @@ public class SchedulerServiceMock implements SchedulerService {
 
         Assertions.assertDoesNotThrow(() -> {
           waitSchedulingTime(dateToSchedule);
-
-          if (!pnDeliveryClientMock.checkTestNotificationIsValid(iun))
-          {
-            log.warn("IUN={} is no more valid, skipping event actionDetails={}", iun, actionDetails);
-            return;
-          }
 
           switch (actionType) {
             case DOCUMENT_CREATION_RESPONSE ->
