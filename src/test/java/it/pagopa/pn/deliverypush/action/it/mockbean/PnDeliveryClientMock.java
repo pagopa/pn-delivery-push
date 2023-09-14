@@ -34,7 +34,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     public void addNotification(NotificationInt notification) {
         SentNotification sentNotification = NotificationMapper.internalToExternal(notification);
         this.notifications.add(sentNotification);
-        log.warn("ADDED_IUN:" + notification.getIun());
+        log.info("ADDED_IUN:" + notification.getIun());
     }
     
     @Override
@@ -44,7 +44,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
 
     public boolean checkTestNotificationIsValid(String iun) {
         boolean iunexists = this.notifications.stream().map(x -> {
-            log.warn("IUN EXISTS:" + x.getIun());
+            log.info("IUN EXISTS:" + x.getIun());
             return x.getIun();
         }).anyMatch(x -> x.equals(iun));
 

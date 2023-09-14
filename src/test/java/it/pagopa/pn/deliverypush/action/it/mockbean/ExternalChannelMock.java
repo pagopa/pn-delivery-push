@@ -1,9 +1,5 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalMessageReference;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.LegalMessageSentDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.ProgressEventCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -12,9 +8,14 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalMessageReference;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.ProgressEventCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
@@ -85,8 +86,8 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
     private void sendDigitalNotification(String address, NotificationInt notification, String timelineEventId){
         log.info("[TEST] sendDigitalNotification address:{} requestId:{}", address, timelineEventId);
-        
-        new Thread(() -> {
+
+        ThreadPool.start(new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
                 // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
                 await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
@@ -114,7 +115,8 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                     log.error("[TEST] SendDigitalDetails is not present");
                 }
             });
-        }).start();
+        }));
+
     }
 
     private void waitForProgressTimelineElement(NotificationInt notification, SendDigitalDetailsInt sendDigitalDetails) {

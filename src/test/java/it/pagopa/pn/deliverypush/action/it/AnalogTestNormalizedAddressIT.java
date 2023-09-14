@@ -62,7 +62,6 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.awaitility.Awaitility.await;
-@Disabled
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,

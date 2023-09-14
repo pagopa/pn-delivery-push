@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
@@ -72,7 +73,7 @@ public class SchedulerServiceMock implements SchedulerService {
       ActionType actionType, ActionDetails actionDetails) {
     log.info("[TEST] Start scheduling - iun={} id={} actionType={} ", iun, recIndex, actionType);
 
-    new Thread(() -> {
+    ThreadPool.start(new Thread(() -> {
       
       Assertions.assertDoesNotThrow(() -> {
         waitSchedulingTime(dateToSchedule);
@@ -109,7 +110,8 @@ public class SchedulerServiceMock implements SchedulerService {
                   log.error("[TEST] actionType not found {}", actionType);
         }
       });
-    }).start();
+    }));
+
   }
 
   private void waitSchedulingTime(Instant dateToSchedule) throws InterruptedException {
@@ -125,7 +127,7 @@ public class SchedulerServiceMock implements SchedulerService {
       ActionType actionType, String timelineId) {
     log.info("[TEST] Start scheduling with timelineid - iun={} id={} actionType={} timelineid={} datetoschedule={}", iun, recIndex, actionType, timelineId, dateToSchedule);
 
-    new Thread(() -> {
+    ThreadPool.start(new Thread(() -> {
       Assertions.assertDoesNotThrow(() -> {
         mockSchedulingDate(dateToSchedule);
         if (!pnDeliveryClientMock.checkTestNotificationIsValid(iun))
@@ -146,7 +148,7 @@ public class SchedulerServiceMock implements SchedulerService {
           break;*/
         }
       });
-    }).start();
+    }));
   }
 
   @Override
@@ -181,7 +183,7 @@ public class SchedulerServiceMock implements SchedulerService {
       ActionType actionType, String timelineId, ActionDetails actionDetails) {
     if(timelineId != null && actionDetails != null){
 
-      new Thread(() -> {
+      ThreadPool.start( new Thread(() -> {
 
         Assertions.assertDoesNotThrow(() -> {
           waitSchedulingTime(dateToSchedule);
@@ -199,7 +201,8 @@ public class SchedulerServiceMock implements SchedulerService {
                     log.error("[TEST] actionType not found {}", actionType);
           }
         });
-      }).start();
+      }));
+
       
     }else {
       

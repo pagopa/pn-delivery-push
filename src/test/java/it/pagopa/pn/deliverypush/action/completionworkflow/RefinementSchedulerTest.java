@@ -26,7 +26,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Duration;
 import java.time.Instant;
 
-@Disabled
 class RefinementSchedulerTest {
     @Mock
     private TimelineUtils timelineUtils;

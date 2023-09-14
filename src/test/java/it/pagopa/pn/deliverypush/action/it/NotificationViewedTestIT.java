@@ -69,7 +69,6 @@ import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
-@Disabled
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
@@ -264,7 +263,6 @@ class NotificationViewedTestIT {
     }
 
     @Test
-    @Disabled("fail only in build fase")
     void notificationViewedFromDelegate() {
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
