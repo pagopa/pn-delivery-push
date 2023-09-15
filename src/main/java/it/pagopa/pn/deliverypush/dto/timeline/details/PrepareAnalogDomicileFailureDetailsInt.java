@@ -10,20 +10,29 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class PrepareAnalogDomicileFailureDetailsInt implements RecipientRelatedTimelineElementDetails, FoundAddressRelatedTimelineElement {
+public class PrepareAnalogDomicileFailureDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement {
 
-    private Integer recIndex;
+    private int recIndex;
     private PhysicalAddressInt foundAddress;
     private String failureCause;
     private String prepareRequestId;
 
     public String toLog() {
         return String.format(
-            "failureCause=%s recIndex=%d prepareRequestId=%s",
-            failureCause,
+            "recIndex=%d failureCause=%s prepareRequestId=%s",
             recIndex,
+            failureCause,
             prepareRequestId
         );
     }
 
+    @Override
+    public PhysicalAddressInt getPhysicalAddress() {
+        return foundAddress;
+    }
+
+    @Override
+    public void setPhysicalAddress(PhysicalAddressInt physicalAddressInt) {
+        this.foundAddress = physicalAddressInt;
+    }
 }

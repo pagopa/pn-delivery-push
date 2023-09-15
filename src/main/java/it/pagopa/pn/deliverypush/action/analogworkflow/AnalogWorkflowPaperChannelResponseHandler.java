@@ -77,9 +77,9 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             {
                 handlerPrepareOK(response, notification, timelineElementInternal, recIndex, requestId, auditLogEvent);
             }
-            else if (statusCode == PrepareEventInt.STATUS_CODE.KOUNREACHABLE) {
+            else if (statusCode == PrepareEventInt.STATUS_CODE.KO) {
 
-                handlePrepareKOUNREACHABLE(response, notification, timelineElementInternal, recIndex, requestId, auditLogEvent);
+                handlePrepareKO(response, notification, timelineElementInternal, recIndex, requestId, auditLogEvent);
             }
         } catch (Exception exc) {
             auditLogEvent.generateFailure("Unexpected error", exc).log();
@@ -87,21 +87,25 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         }
     }
 
-    private void handlePrepareKOUNREACHABLE(PrepareEventInt response, NotificationInt notification, TimelineElementInternal timelineElementInternal, int recIndex, String requestId, PnAuditLogEvent auditLogEvent) {
+    private void handlePrepareKO(PrepareEventInt response, NotificationInt notification, TimelineElementInternal timelineElementInternal, int recIndex, String requestId, PnAuditLogEvent auditLogEvent) {
+
+        // salvo in timeline l'evento di fallimento
+        paperChannelUtils.buildPrepareAnalogFailureTimelineElement(response.getReceiverAddress(), response.getRequestId(), response.getFailureDetailCode(), recIndex, notification);
+
         // se era una prepare di un analog, procedo con nextworkflow
         if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE){
             log.info("paperChannelPrepareResponseHandler prepare response is for analog, setting as unreachable iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
             this.analogWorkflowHandler.nextWorkflowStep(notification, recIndex, AnalogWorkflowHandler.ATTEMPT_MADE_UNREACHABLE, null);
         }
         else if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER){
-            log.error("paperChannelPrepareResponseHandler prepare response is for simple registered letter  event is KOUNREACHABLE and is not expected iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
+            log.error("paperChannelPrepareResponseHandler prepare response is for simple registered letter  event is KO and is not expected iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
-            auditLogEvent.generateFailure("Unexpected KOUNREACHABLE for simple registered letter requestId=" + requestId).log();
-            throw new PnInternalException("Unexpected KOUNREACHABLE for simple registered letter requestId=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+            auditLogEvent.generateFailure("Unexpected KO for simple registered letter requestId=" + requestId).log();
+            throw new PnInternalException("Unexpected KO for simple registered letter requestId=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
         }
         else
         {
-            auditLogEvent.generateFailure("Unexpected detail of timelineElement on KOUNREACHABLE event timeline=" + requestId).log();
+            auditLogEvent.generateFailure("Unexpected detail of timelineElement on KO event timeline=" + requestId).log();
             throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
         }
     }

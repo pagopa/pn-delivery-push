@@ -67,12 +67,12 @@ class PaperChannelResponseHandlerTest {
     }
 
     @Test
-    void prepareUpdateTest_KOUNREACHABLE() {
+    void prepareUpdateTest_KO() {
 
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode(StatusCodeEnum.KOUNREACHABLE);
+        prepareEvent.setStatusCode(StatusCodeEnum.KO);
         prepareEvent.setStatusDateTime(instant);
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("ko");

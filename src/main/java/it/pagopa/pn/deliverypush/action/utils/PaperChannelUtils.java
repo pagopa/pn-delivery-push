@@ -110,6 +110,15 @@ public class PaperChannelUtils {
         );
         return timelineElementInternal.getElementId();
     }
+
+
+    public void buildPrepareAnalogFailureTimelineElement(PhysicalAddressInt foundAddress, String prepareRequestId, String failureCause, Integer recIndex, NotificationInt notification) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildPrepareAnalogFailureTimelineElement(foundAddress, prepareRequestId, failureCause, recIndex, notification);
+        addTimelineElement(timelineElementInternal,
+                notification
+        );
+    }
+
     
     public String addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
                                                       AnalogDtoInt analogDtoInfo) {
