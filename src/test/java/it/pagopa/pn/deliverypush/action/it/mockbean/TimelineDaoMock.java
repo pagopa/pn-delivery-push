@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
-import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -13,7 +12,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
@@ -91,10 +90,10 @@ public class TimelineDaoMock implements TimelineDao {
                 notificationCancellationService.startCancellationProcess( dto.getIun(), dto.getPaId(), CxTypeAuthFleet.PA).block();
                 // bisogna anche generare l'action
 
-                new Thread(() -> {
+                ThreadPool.start(new Thread(() -> {
                     await().atLeast(Duration.ofSeconds(1));
                     notificationCancellationActionHandler.cancelNotification(dto.getIun());
-                }).start();
+                }));
 
             }
         }
@@ -120,10 +119,10 @@ public class TimelineDaoMock implements TimelineDao {
                 notificationCancellationService.startCancellationProcess(dto.getIun(), dto.getPaId(), CxTypeAuthFleet.PA).block();
                 // bisogna anche generare l'action
 
-                new Thread(() -> {
+                ThreadPool.start(new Thread(() -> {
                     await().atLeast(Duration.ofSeconds(1));
                     notificationCancellationActionHandler.cancelNotification(dto.getIun());
-                }).start();
+                }));
             }
         }
     }
@@ -134,11 +133,6 @@ public class TimelineDaoMock implements TimelineDao {
     
     @Override
     public void addTimelineElementIfAbsent(TimelineElementInternal dto) {
-        if (!pnDeliveryClientMock.checkTestNotificationIsValid(dto.getIun()))
-        {
-            log.warn("IUN={} is no more valid, skipping saving timelineId={}", dto.getIun(), dto.getElementId());
-            return;
-        }
         checkAndAddTimelineElement(dto);
     }
 

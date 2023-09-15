@@ -6,13 +6,13 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.PaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,7 +47,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
     public void prepare(PaperChannelPrepareRequest paperChannelPrepareRequest) {
         log.info("[TEST] prepare paperChannelPrepareRequest:{}", paperChannelPrepareRequest);
 
-        new Thread(() -> {
+        ThreadPool.start(new Thread(() -> {
             await().pollDelay(Duration.ofMillis(200)).atMost(Duration.ofSeconds(30)).untilAsserted(() ->
 
                     Assertions.assertTrue(true)
@@ -61,7 +61,8 @@ public class PaperChannelMock implements PaperChannelSendClient {
                 simulatePrepareResponse(paperChannelPrepareRequest.getRequestId(), address);
             });
 
-        }).start();
+        }));
+
     }
 
     @Override
@@ -70,7 +71,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
         log.info("[TEST] send paperChannelSendRequest:{}", paperChannelSendRequest);
 
 
-        new Thread(() -> {
+        ThreadPool.start(new Thread(() -> {
             await().pollDelay(Duration.ofMillis(200)).atMost(Duration.ofSeconds(30)).untilAsserted(() ->
 
                     Assertions.assertTrue(true)
@@ -81,7 +82,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
                 simulateSendResponse(paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getReceiverAddress().getAddress());
             });
 
-        }).start();
+        }));
 
         return new SendResponse()
                 .amount(100)
