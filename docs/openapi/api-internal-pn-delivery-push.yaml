@@ -95,7 +95,8 @@ paths:
         L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getNotificationLegalFacts
+      operationId: getNotificationLegalFacts                                      # NO EXTERNAL
+#      operationId: retrieveNotificationLegalFacts                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
@@ -138,7 +139,8 @@ paths:
         L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFact
+      operationId: getLegalFact                                      # NO EXTERNAL
+#      operationId: retrieveLegalFact                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
@@ -182,7 +184,8 @@ paths:
         L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFactById
+      operationId: getLegalFactById                                      # NO EXTERNAL
+#      operationId: downloadLegalFactById                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
