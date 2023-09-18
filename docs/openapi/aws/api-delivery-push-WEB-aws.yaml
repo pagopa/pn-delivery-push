@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: xI4PWxw1ptJm3yemPtif+G1CjaSWU1PRH2V9pst+fW0=
+  version: RSq6w/8vuz+RLlE3coFVvti0UKBgIiy/nR5j3jJFnCw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -383,7 +383,7 @@ components:
       name: mandateId
       in: query
       required: false
-      description: identificativo della delega
+      description: identificativo della delega, non utilizzato nelle API B2B
       schema:
         type: string
         format: uuid

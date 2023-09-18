@@ -258,7 +258,7 @@ components:
       name: mandateId
       in: query
       required: false
-      description: identificativo della delega
+      description: identificativo della delega, non utilizzato nelle API B2B
       schema:
         type: string
         format: uuid
