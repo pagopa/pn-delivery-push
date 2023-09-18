@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: RSq6w/8vuz+RLlE3coFVvti0UKBgIiy/nR5j3jJFnCw=
+  version: ZmxbfjrzOEhh8pPW9RyAlMn6De9unFQW3zr8nTpMniU=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -384,6 +384,8 @@ components:
       in: query
       required: false
       description: identificativo della delega, non utilizzato nelle API B2B
+      x-pn-intended-usage:
+        - WEB
       schema:
         type: string
         format: uuid
