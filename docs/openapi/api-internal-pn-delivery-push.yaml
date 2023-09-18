@@ -290,6 +290,7 @@ components:
       in: query
       required: false
       description: identificativo della delega, non utilizzato nelle API B2B
+      x-pn-intended-usage: ["WEB"]
       schema:
         type: string
         format: uuid
