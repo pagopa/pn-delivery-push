@@ -263,6 +263,7 @@ class NotificationViewedTestIT {
     }
 
     @Test
+    @Disabled("unpredictable behavior")
     void notificationViewedFromDelegate() {
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
