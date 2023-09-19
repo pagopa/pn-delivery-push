@@ -112,7 +112,7 @@ public class PaperChannelUtils {
     }
 
 
-    public void buildPrepareAnalogFailureTimelineElement(PhysicalAddressInt foundAddress, String prepareRequestId, String failureCause, Integer recIndex, NotificationInt notification) {
+    public void addPrepareAnalogFailureTimelineElement(PhysicalAddressInt foundAddress, String prepareRequestId, String failureCause, Integer recIndex, NotificationInt notification) {
         TimelineElementInternal timelineElementInternal = timelineUtils.buildPrepareAnalogFailureTimelineElement(foundAddress, prepareRequestId, failureCause, recIndex, notification);
         addTimelineElement(timelineElementInternal,
                 notification

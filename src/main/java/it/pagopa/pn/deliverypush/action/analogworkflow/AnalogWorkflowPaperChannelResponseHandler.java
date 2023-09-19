@@ -89,11 +89,13 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
     private void handlePrepareKO(PrepareEventInt response, NotificationInt notification, TimelineElementInternal timelineElementInternal, int recIndex, String requestId, PnAuditLogEvent auditLogEvent) {
 
-        // salvo in timeline l'evento di fallimento
-        paperChannelUtils.buildPrepareAnalogFailureTimelineElement(response.getReceiverAddress(), response.getRequestId(), response.getFailureDetailCode(), recIndex, notification);
 
-        // se era una prepare di un analog, procedo con nextworkflow
+        // se era una prepare di un analog, procedo con nextworkflow. E' l'unica caso in cui mi interessa gestire il KO (e che può verificarsi da flusso workflo)
         if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE){
+            // salvo in timeline l'evento di fallimento
+            paperChannelUtils.addPrepareAnalogFailureTimelineElement(response.getReceiverAddress(), response.getRequestId(), response.getFailureDetailCode(), recIndex, notification);
+
+            auditLogEvent.generateWarning("Received KO for prepare requestId=" + requestId + " failureDetailCause=" + response.getFailureDetailCode() + " recIndex=" + recIndex).log();
             log.info("paperChannelPrepareResponseHandler prepare response is for analog, setting as unreachable iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
             this.analogWorkflowHandler.nextWorkflowStep(notification, recIndex, AnalogWorkflowHandler.ATTEMPT_MADE_UNREACHABLE, null);
         }
