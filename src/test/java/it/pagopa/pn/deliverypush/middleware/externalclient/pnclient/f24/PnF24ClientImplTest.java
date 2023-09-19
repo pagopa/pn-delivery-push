@@ -39,7 +39,7 @@ class PnF24ClientImplTest {
         Mockito.when(f24ControllerApi.validateMetadata(cxId, validateF24Request.getSetId(), validateF24Request))
                 .thenReturn(Mono.just(response));
 
-        StepVerifier.create(client.validate(validateF24Request, cxId))
+        StepVerifier.create(client.validate(validateF24Request))
                 .expectNext(response)
                 .verifyComplete();
     }

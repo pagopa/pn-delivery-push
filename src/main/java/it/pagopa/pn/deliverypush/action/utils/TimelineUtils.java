@@ -156,6 +156,12 @@ public class TimelineUtils {
                 .notificationSentAt(notification.getSentAt())
                 .build();
     }
+
+    public TimelineElementInternal buildValidateF24TimelineElement(NotificationInt notification, String elementId) {
+        log.debug("buildValidateAddressTimelineElement - iun={}", notification.getIun());
+
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_F24_REQUEST, elementId, null);
+    }
     
     public TimelineElementInternal buildValidateAndNormalizeAddressTimelineElement(NotificationInt notification, String elementId) {
         log.debug("buildValidateAddressTimelineElement - iun={}", notification.getIun());

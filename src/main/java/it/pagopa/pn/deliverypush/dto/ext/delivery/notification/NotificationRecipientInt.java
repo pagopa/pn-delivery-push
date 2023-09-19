@@ -7,6 +7,8 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -20,5 +22,6 @@ public class NotificationRecipientInt {
     private LegalDigitalAddressInt digitalDomicile;
     private PhysicalAddressInt physicalAddress;
     private NotificationPaymentInfoInt payment;
+    private List<NotificationPaymentInfoIntV2> payments;
     private RecipientTypeInt recipientType;
 }

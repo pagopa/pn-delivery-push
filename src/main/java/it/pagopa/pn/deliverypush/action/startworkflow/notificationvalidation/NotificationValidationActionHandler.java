@@ -10,10 +10,17 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.MetadataValidationEndEvent;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.ValidateF24Request;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.ValidationIssue;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -23,11 +30,13 @@ import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -35,6 +44,8 @@ import java.util.Objects;
 public class NotificationValidationActionHandler {
     private static final int FIRST_VALIDATION_STEP = 1;
     private static final int SECOND_VALIDATION_STEP = 2;
+
+    private static final int THIRD_VALIDATION_STEP = 3;
     private final AttachmentUtils attachmentUtils;
     private final TaxIdPivaValidator taxIdPivaValidator;
     private final TimelineService timelineService;
@@ -46,6 +57,7 @@ public class NotificationValidationActionHandler {
     private final NormalizeAddressHandler normalizeAddressHandler;
     private final SchedulerService schedulerService;
     private final PnDeliveryPushConfigs cfg;
+    private final F24Validator f24Validator;
 
     public void validateNotification(String iun, NotificationValidationActionDetails details){
         log.debug("Start validateNotification - iun={}", iun);
@@ -60,10 +72,19 @@ public class NotificationValidationActionHandler {
                 taxIdPivaValidator.validateTaxIdPiva(notification);
             }
 
-            //La validazione dell'indirizzo è async
-            MDCUtils.addMDCToContextAndExecute(
-                    addressValidator.requestValidateAndNormalizeAddresses(notification)
-            ).block();
+            if (f24Exists(notification)) {
+                ValidateF24Request validateF24Request = new ValidateF24Request();
+                validateF24Request.setSetId(iun);
+                //La validazione del F24 è async
+                MDCUtils.addMDCToContextAndExecute(
+                        f24Validator.requestValidateF24(notification, validateF24Request)
+                ).block();
+            } else {
+                //La validazione dell'indirizzo è async
+                MDCUtils.addMDCToContextAndExecute(
+                        addressValidator.requestValidateAndNormalizeAddresses(notification)
+                ).block();
+            }
 
             logEvent.generateSuccess().log(); 
         } catch (PnValidationFileNotFoundException ex){
@@ -77,6 +98,16 @@ public class NotificationValidationActionHandler {
             logEvent.generateWarning("Validation need to be rescheduled - iun={} ex=", notification.getIun(), ex).log();
             handleRuntimeException(iun, details, notification, ex);
         }
+    }
+
+    private boolean f24Exists(NotificationInt notification) {
+        return notification.getRecipients()
+                .stream()
+                .map(NotificationRecipientInt::getPayments)
+                .anyMatch(notificationPaymentInfoIntV2s -> CollectionUtils.isEmpty(notificationPaymentInfoIntV2s)
+                        &&notificationPaymentInfoIntV2s
+                        .stream()
+                        .anyMatch(paymentInfoIntV2 -> paymentInfoIntV2.getF24() != null));
     }
 
     private void handleRuntimeException(String iun, NotificationValidationActionDetails details, NotificationInt notification, RuntimeException ex) {
@@ -137,10 +168,36 @@ public class NotificationValidationActionHandler {
         timelineService.addTimelineElement(element, notification);
     }
 
-    public void handleValidateAndNormalizeAddressResponse(String iun, NormalizeItemsResultInt normalizeItemsResult){
+    public void handleValidateF24Response(MetadataValidationEndEvent metadataValidationEndEvent) {
+        NotificationInt notification = notificationService.getNotificationByIun(metadataValidationEndEvent.getSetId());
+        PnAuditLogEvent logEvent = generateAuditLog(notification, SECOND_VALIDATION_STEP);
+        try {
+            if (!CollectionUtils.isEmpty(metadataValidationEndEvent.getErrors())) {
+                String errors = metadataValidationEndEvent.getErrors().stream()
+                        .map(ValidationIssue::getDetail).collect(Collectors.joining(","));
+                throw new PnValidationNotValidF24Exception(errors);
+            } else {
+                String correlationId = TimelineEventId.VALIDATED_F24.buildEventId(
+                        EventId.builder()
+                                .iun(metadataValidationEndEvent.getSetId())
+                                .build());
+                timelineService.addTimelineElement(
+                        timelineUtils.buildValidateF24TimelineElement(notification, correlationId),
+                        notification
+                );
+                addressValidator.requestValidateAndNormalizeAddresses(notification);
+                logEvent.generateSuccess().log();
+            }
+        } catch (PnValidationException e) {
+            logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), e).log();
+            handleValidationError(notification, e);
+        }
+    }
+
+    public void handleValidateAndNormalizeAddressResponse(String iun, NormalizeItemsResultInt normalizeItemsResult) {
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        PnAuditLogEvent logEvent = generateAuditLog(notification, SECOND_VALIDATION_STEP);
+        PnAuditLogEvent logEvent = generateAuditLog(notification, THIRD_VALIDATION_STEP);
 
         try {
             addressValidator.handleAddressValidation(iun, normalizeItemsResult);

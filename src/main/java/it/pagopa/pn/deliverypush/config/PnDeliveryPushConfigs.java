@@ -119,6 +119,8 @@ public class PnDeliveryPushConfigs {
         private String nationalRegistriesEvents;
 
         private String addressManagerEvents;
+
+        private String f24Events;
     }
 
     @Data

@@ -37,6 +37,7 @@ public class PnEventInboundService {
     private final String safeStorageEventQueueName;
     private final String nationalRegistriesEventQueueName;
     private final String addressManagerEventQueueName;
+    private final String validateF24EventQueueName;
     
     public PnEventInboundService(EventHandler eventHandler, PnDeliveryPushConfigs cfg) {
         this.eventHandler = eventHandler;
@@ -44,6 +45,7 @@ public class PnEventInboundService {
         this.safeStorageEventQueueName = cfg.getTopics().getSafeStorageEvents();
         this.nationalRegistriesEventQueueName = cfg.getTopics().getNationalRegistriesEvents();
         this.addressManagerEventQueueName = cfg.getTopics().getAddressManagerEvents();
+        this.validateF24EventQueueName = cfg.getTopics().getF24Events();
     }
 
     @Bean
@@ -134,6 +136,9 @@ public class PnEventInboundService {
         }
         else if(Objects.equals(queueName, addressManagerEventQueueName)) {
             eventType = "ADDRESS_MANAGER_EVENTS";
+        }
+        else if(Objects.equals(queueName, validateF24EventQueueName)) {
+            eventType = "VALIDATE_F24_EVENTS";
         }
         else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());

@@ -8,7 +8,8 @@ import reactor.core.publisher.Mono;
 public interface PnF24Client {
     String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_F24;
     String VALIDATE_F24_PROCESS_NAME = "VALIDATE F24";
+    String X_PAGOPA_CX_ID = "pn-delivery";
 
-    Mono<RequestAccepted> validate(ValidateF24Request validateF24Request, String xPagopaF24CxId);
+    Mono<RequestAccepted> validate(ValidateF24Request validateF24Request);
 }
  

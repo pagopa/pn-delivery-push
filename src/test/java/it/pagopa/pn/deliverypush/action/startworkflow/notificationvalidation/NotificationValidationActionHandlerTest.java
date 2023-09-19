@@ -44,6 +44,9 @@ class NotificationValidationActionHandlerTest {
     private NotificationValidationScheduler notificationValidationScheduler;
     @Mock
     private AddressValidator addressValidator;
+
+    @Mock
+    private F24Validator f24Validator;
     @Mock
     private AuditLogService auditLogService;
     @Mock
@@ -58,7 +61,8 @@ class NotificationValidationActionHandlerTest {
     public void setup() {
         handler = new NotificationValidationActionHandler(attachmentUtils, taxIdPivaValidator,
                 timelineService, timelineUtils, notificationService,
-                notificationValidationScheduler, addressValidator, auditLogService, normalizeAddressHandler, schedulerService, cfg);
+                notificationValidationScheduler, addressValidator, auditLogService, normalizeAddressHandler,
+                schedulerService, cfg, f24Validator);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -243,7 +247,7 @@ class NotificationValidationActionHandlerTest {
         Mockito.when(cfg.isCheckCfEnabled())
                 .thenReturn(false);
 
-        NotificationInt notification = TestUtils.getNotification();
+        NotificationInt notification = TestUtils.getNotificationV2();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
