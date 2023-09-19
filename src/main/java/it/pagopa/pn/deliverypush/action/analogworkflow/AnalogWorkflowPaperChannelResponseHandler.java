@@ -102,12 +102,10 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         else if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER){
             log.error("paperChannelPrepareResponseHandler prepare response is for simple registered letter  event is KO and is not expected iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
-            auditLogEvent.generateFailure("Unexpected KO for simple registered letter requestId=" + requestId).log();
             throw new PnInternalException("Unexpected KO for simple registered letter requestId=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
         }
         else
         {
-            auditLogEvent.generateFailure("Unexpected detail of timelineElement on KO event timeline=" + requestId).log();
             throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
         }
     }

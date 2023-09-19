@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.analogworkflow;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.FailureDetailCodeEnum;
@@ -93,6 +94,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
     }
+
 
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -209,6 +211,46 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
         Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess(Mockito.any());
     }
+
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void paperChannelPrepareResponseHandlerKO_simple_1() {
+        // GIVEN
+        PrepareEventInt prepareEventInt = PrepareEventInt.builder()
+                .iun("IUN-01")
+                .statusCode(StatusCodeEnum.KO.getValue())
+                .statusDateTime(Instant.now())
+                .failureDetailCode(FailureDetailCodeEnum.D00.getValue())
+                .requestId("IUN-01_abcd")
+                .build();
+
+        NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER)
+                .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
+                .build();
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE_RECEIVE), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
+
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
+        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
+
+        // WHEN
+        Assertions.assertThrows(PnInternalException.class, () -> analogWorkflowPaperChannelResponseHandler.paperChannelPrepareResponseHandler(prepareEventInt));
+
+
+        Mockito.verify(paperChannelUtils, Mockito.times(0)).addPrepareAnalogFailureTimelineElement(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.any());
+        Mockito.verify( auditLogEvent).generateFailure(Mockito.anyString(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
+        Mockito.verify( auditLogEvent, Mockito.never()).generateWarning(Mockito.any());
+        Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess(Mockito.any());
+    }
+
 
     @ExtendWith(MockitoExtension.class)
     @Test
