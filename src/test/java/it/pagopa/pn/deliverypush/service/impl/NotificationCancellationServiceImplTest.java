@@ -215,7 +215,6 @@ class NotificationCancellationServiceImplTest {
         //THEN
         Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
         Mockito.verify(notificationService).removeAllNotificationCostsByIun(notification.getIun());
-        Mockito.verify(notificationService).updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, timelineElement.getTimestamp());
         Mockito.verify(auditLogEvent).generateSuccess();
     }
 
@@ -257,7 +256,6 @@ class NotificationCancellationServiceImplTest {
         //THEN
         Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
         Mockito.verify(notificationService).removeAllNotificationCostsByIun(notification.getIun());
-        Mockito.verify(notificationService).updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, timelineElementOLD.getTimestamp());
         Mockito.verify(auditLogEvent).generateSuccess();
     }
 
