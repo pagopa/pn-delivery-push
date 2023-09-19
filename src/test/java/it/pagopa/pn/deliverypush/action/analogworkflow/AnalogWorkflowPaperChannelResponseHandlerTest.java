@@ -130,6 +130,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         Mockito.verify( auditLogEvent).generateWarning(Mockito.anyString());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+        Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess(Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -168,6 +169,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         Mockito.verify( auditLogEvent).generateWarning(Mockito.anyString());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+        Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess(Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -205,6 +207,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         Mockito.verify( auditLogEvent).generateWarning(Mockito.anyString());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+        Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess(Mockito.any());
     }
 
     @ExtendWith(MockitoExtension.class)
