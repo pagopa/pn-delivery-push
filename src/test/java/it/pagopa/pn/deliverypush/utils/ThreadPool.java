@@ -1,25 +1,24 @@
 package it.pagopa.pn.deliverypush.utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ThreadPool {
-    private static List<Thread> threadPool = null;
+    private static ExecutorService executor = createNewThreadPool();
     
     private ThreadPool() {}
 
     public static void start(Thread thread) {
-        if ( threadPool == null) {
-            threadPool = new ArrayList<>();
-        }
-        threadPool.add(thread);
-        thread.start();
+        executor.execute(thread);
     }
     
     public static void killThreads(){
-        if ( threadPool != null) {
-            threadPool.forEach( thread ->  thread.interrupt());
-            threadPool = null;
-        }
+        // Ferma la ThreadPool
+        executor.shutdown();
+        executor = createNewThreadPool();
+    }
+
+    private static ExecutorService createNewThreadPool() {
+        return Executors.newFixedThreadPool(10);
     }
 }

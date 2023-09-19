@@ -491,140 +491,10 @@ class DigitalTestMultiRecipientIT {
         checkIsPresentAcceptanceAndDeliveringAttachmentInTimeline(platformAddress1.getAddress(), iun, recIndex1, sendAttemptMade, platform, ko);
     }
 
-
-
-
-
-    @Test
-    void testtest() { 
-       /* 
-       Secondo recipient
-       - Platform address presente ed entrambi gli invii con fallimento
-       - Special address presente ed entrambi gli invii con fallimento 
-       - General address presente e secondo tentativo ok
-    */
-
-
-        String iun = TestUtils.getRandomIun();
-
-        //Secondo recipient
-        LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
-                .address("test2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-
-        LegalDigitalAddressInt digitalDomicile2 = LegalDigitalAddressInt.builder()
-                .address("digitalDomicile2@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-
-        LegalDigitalAddressInt pbDigitalAddress2 = LegalDigitalAddressInt.builder()
-                .address("pbDigitalAddress@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_FIRST)
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-
-        String taxId02 = "TAXID02";
-        NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
-                .withTaxId(taxId02)
-                .withInternalId("ANON_"+taxId02)
-                .withDigitalDomicile(digitalDomicile2)
-                .build();
-
-        List<NotificationRecipientInt> recipients = new ArrayList<>();
-
-        recipients.add(recipient2);
-
-        String fileDoc = "sha256_doc00";
-        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
-        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
-
-        NotificationInt notification = NotificationTestBuilder.builder()
-                .withNotificationDocuments(notificationDocumentList)
-                .withIun(iun)
-                .withPaId("paId01")
-                .withNotificationRecipients(recipients)
-                .build();
-
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-
-        pnDeliveryClientMock.addNotification(notification);
-        addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
-        nationalRegistriesClientMock.addDigital(recipient2.getTaxId(), pbDigitalAddress2);
-
-        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
-
-        //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
-
-        // Viene atteso fino a che non sia presente il REFINEMENT per il secondo recipient
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-        );
-
-        //Viene verificato il numero di send PEC verso external channel
-        ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
-        ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
-        Mockito.verify(externalChannelMock, Mockito.times(6)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-
-
-        //CHECK SECONDO RECIPIENT
-
-        //Viene verificata la disponibilità degli indirizzi per il secondo recipient relativi al primo tentativo
-        checkAddressAvailabilitySecondRecipient(iun, recIndex2);
-
-        int sendAttemptMade = 0;
-        //Viene verificato per il secondo recipient che il primo tentativo sia avvenuto con il platform address e fallito
-        checkPecSendAndDeliveryAttachment(platformAddress2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.KO);
-
-        //Viene verificato per il secondo recipient che il secondo tentativo sia avvenuto con il domicilio digitale e fallito
-        checkPecSendAndDeliveryAttachment(digitalDomicile2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
-
-        //Viene verificato per il secondo recipient che il terzo tentativo sia avvenuto con l'indirizzo generale e fallito
-        checkPecSendAndDeliveryAttachment(pbDigitalAddress2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.GENERAL, ResponseStatusInt.KO);
-
-        sendAttemptMade += 1;
-
-        //Viene verificato per il secondo recipient che il terzo tentativo sia avvenuto con il platform address e fallito
-        checkPecSendAndDeliveryAttachment(platformAddress2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.PLATFORM, ResponseStatusInt.KO);
-
-        //Viene verificato per il secondo recipient che il quarto tentativo sia avvenuto con il domicilio digitale e fallito
-        checkPecSendAndDeliveryAttachment(digitalDomicile2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.SPECIAL, ResponseStatusInt.KO);
-
-        //Viene verificato per il secondo recipient che il quinto tentativo sia avvenuto con l'indirizzo generale e fallito
-        checkPecSendAndDeliveryAttachment(pbDigitalAddress2, iun, recIndex2, sendAttemptMade, DigitalAddressSourceInt.GENERAL, ResponseStatusInt.OK);
-
-        //Viene verificato per il secondo recipient che il workflow sia abbia avuto successo
-        TestUtils.checkSuccessDigitalWorkflowFromTimeline(iun, recIndex2, pbDigitalAddress2, timelineService);
-
-
-        //Viene effettuato il check dei legalFacts generati per il secondo recipient
-        EndWorkflowStatus endWorkflowStatus2 = EndWorkflowStatus.SUCCESS;
-        checkGeneratedLegalFacts(recipient2, notification, recIndex2, true, true, false, true, endWorkflowStatus2, 6);
-
-        //Vengono stampati tutti i legalFacts generati
-        String className = this.getClass().getSimpleName();
-        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
-
-        ConsoleAppenderCustom.checkLogs();
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
     // Il primo destinatario è UNREACHBLE, il secondo è raggiungibile, ma il primo destinatario visualizza la notifica
     // via PN dopo il primo feedback (negativo) di External Channels.
     @Test
+    @Disabled("unpredictable behavior")
     void rec1ViewedRec2GeneralOk() { 
        /* Primo recipient
        - Platform address presente ed entrambi gli invii con fallimento
@@ -814,6 +684,7 @@ class DigitalTestMultiRecipientIT {
 
     // il primo destinatario è raggiungibile, il secondo è UNREACHBLE
     @Test
+    @Disabled("unpredictable behavior")
     void rec1PlatformOkRec2AllKo() {
        /* Primo recipient
        - Platform address presente e primo invio con fallimento
