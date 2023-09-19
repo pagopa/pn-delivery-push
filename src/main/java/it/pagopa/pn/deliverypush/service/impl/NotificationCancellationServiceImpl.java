@@ -1,12 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.cancellation.StatusDetailInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
@@ -19,10 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.Optional;
-
-import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
 
 @Service
 @AllArgsConstructor
@@ -66,10 +60,8 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
             // salvo l'evento in timeline
-            TimelineElementInternal cancelledTimelineElement = addCanceledTimelineElement(iun, notification);
+            addCanceledTimelineElement(notification);
 
-            // avviso delivery del cambio di stato
-            notificationService.updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, cancelledTimelineElement.getTimestamp()).block();
             logEvent.generateSuccess().log();
         } catch (Exception e) {
             logEvent.generateFailure("Error in cancellation process iun={}", iun, e).log();
@@ -78,26 +70,10 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
     }
 
-    private TimelineElementInternal addCanceledTimelineElement(String iun, NotificationInt notification) {
+    private void addCanceledTimelineElement(NotificationInt notification) {
         TimelineElementInternal cancelledTimelineElement = timelineUtils.buildCancelledTimelineElement(notification);
-
         // salvo l'evento in timeline
-        boolean insertSkipped = timelineService.addTimelineElement(cancelledTimelineElement, notification);
-
-        if (insertSkipped)
-        {
-            // devo recuperarmi il vero timeline event per sapere il suo timestamp, evidentemente c'è stato un errore nell'update a delivery
-            Optional<TimelineElementInternal> timelineElementInternal = timelineService.getTimelineElement(iun, cancelledTimelineElement.getElementId());
-            if (timelineElementInternal.isPresent())
-            {
-                cancelledTimelineElement = timelineElementInternal.get();
-            }
-            else
-            {
-                throw new PnInternalException("timeline element not found but insert was skipped elementid=" + cancelledTimelineElement.getElementId(), ERROR_CODE_PN_GENERIC_ERROR);
-            }
-        }
-        return cancelledTimelineElement;
+        timelineService.addTimelineElement(cancelledTimelineElement, notification);
     }
 
     private void addCancellationRequestTimelineElement(NotificationInt notification) {
