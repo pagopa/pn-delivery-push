@@ -104,8 +104,8 @@ public class NotificationValidationActionHandler {
         return notification.getRecipients()
                 .stream()
                 .map(NotificationRecipientInt::getPayments)
-                .anyMatch(notificationPaymentInfoIntV2s -> CollectionUtils.isEmpty(notificationPaymentInfoIntV2s)
-                        &&notificationPaymentInfoIntV2s
+                .anyMatch(notificationPaymentInfoIntV2s -> !CollectionUtils.isEmpty(notificationPaymentInfoIntV2s)
+                        && notificationPaymentInfoIntV2s
                         .stream()
                         .anyMatch(paymentInfoIntV2 -> paymentInfoIntV2.getF24() != null));
     }

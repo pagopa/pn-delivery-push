@@ -737,9 +737,43 @@
 							</configOptions>
 						</configuration>
 					</execution>
-					
+
+					<!-- OPEN API CLIENT PN-F24 REACTIVE-->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-f24</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<!-- change inputSpec with correct url -->
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-f24/feature/Payment-f24/docs/openapi/api-internal-f24.yaml</inputSpec>							<generatorName>java</generatorName>
+							<library>webclient</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+							<configOptions>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.f24.api</apiPackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.f24.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
+
 				</executions>
-				
+
+
+
 			</plugin>
 		</plugins>
 	</build>

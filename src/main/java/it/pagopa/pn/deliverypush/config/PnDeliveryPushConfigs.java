@@ -87,6 +87,8 @@ public class PnDeliveryPushConfigs {
 
     private String addressManagerBaseUrl;
 
+    private String f24BaseUrl;
+
     private String addressManagerApiKey;
     
     private Duration[] validationRetryIntervals;
