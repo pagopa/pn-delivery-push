@@ -2,7 +2,8 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV21;
+
 import java.util.Map;
 
 public interface PnDeliveryClient {
@@ -13,6 +14,6 @@ public interface PnDeliveryClient {
     String GET_QUICK_ACCESS_TOKEN = "GET QUICK ACCESS TOKEN";
 
     void updateStatus(RequestUpdateStatusDto dto);
-    SentNotification getSentNotification(String iun);
+    SentNotificationV21 getSentNotification(String iun);
     Map<String, String> getQuickAccessLinkTokensPrivate(String iun);
 }

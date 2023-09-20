@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: mJwVW6+poRJ6nujS3OmPAKC525Gat067onDyObEBYTg=
+  version: ZwnXTaZkq3GjN+CzftI3vam2eoc8ZDYzy1nuU9G/KYQ=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -437,7 +437,7 @@ components:
           type: array
           items:
             type: string
-            minLength: 5
+            minLength: 4
             maxLength: 256
             pattern: ^[A-Z_]+$
     StreamMetadataResponse:

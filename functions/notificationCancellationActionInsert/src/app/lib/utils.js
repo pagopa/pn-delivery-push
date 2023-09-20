@@ -1,4 +1,7 @@
 exports.nDaysFromNowAsUNIXTimestamp = (n) => {
+  // if string make it number
+  n = +n;
+
   if (n <= 0) {
     return 0;
   }

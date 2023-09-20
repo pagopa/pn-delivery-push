@@ -64,7 +64,7 @@ class TimeLineServiceImplTest {
         notificationService = Mockito.mock(NotificationService.class);
 //        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
         timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService);
-        timeLineService.setSchedulerService(schedulerService);
+        //timeLineService.setSchedulerService(schedulerService);
 
     }
 

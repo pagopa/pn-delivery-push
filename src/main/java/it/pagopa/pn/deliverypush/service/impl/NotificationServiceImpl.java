@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV21;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactive;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -32,7 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationInt getNotificationByIun(String iun) {
-        SentNotification sentNotification = pnDeliveryClient.getSentNotification(iun);
+        SentNotificationV21 sentNotification = pnDeliveryClient.getSentNotification(iun);
         log.debug("Get notification OK for - iun {}", iun);
 
         if (sentNotification != null) {
@@ -73,10 +73,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Mono<NotificationInt> getNotificationByIunReactive(String iun) {
         return pnDeliveryClientReactive.getSentNotification(iun)
-                .onErrorResume( error -> {
-                    log.error("Get notification error ={} - iun {}", error,  iun);
-                    return Mono.error(new PnInternalException("Get notification error - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED, error));
-                })
                 .switchIfEmpty(
                     Mono.error(new PnNotFoundException("Not found", "Get notification is not valid for - iun " + iun,
                             ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED))

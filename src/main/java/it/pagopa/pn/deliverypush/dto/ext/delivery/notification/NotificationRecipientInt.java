@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.dto.ext.delivery.notification;
 
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -15,6 +16,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class NotificationRecipientInt {
     private String taxId;
     private String internalId;
