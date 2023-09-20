@@ -255,7 +255,41 @@ class StateMap {
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
         ;
-        this.fromState(NotificationStatusInt.CANCELLED);
+        this.fromState(NotificationStatusInt.CANCELLED)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.GET_ADDRESS, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_CALL, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_RESPONSE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE_CREATION_REQUEST, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_REFINEMENT, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.CANCELLED, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET);
         this.fromState(NotificationStatusInt.REFUSED);
     }
 

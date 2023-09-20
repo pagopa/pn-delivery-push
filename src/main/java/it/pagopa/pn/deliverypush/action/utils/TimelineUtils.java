@@ -1243,14 +1243,14 @@ public class TimelineUtils {
             Optional<TimelineElementInternal> notificationOpt = getNotificationView(notification.getIun(), recIndex);
             if (notificationOpt.isPresent()){
                 NotificationViewedDetailsInt viewedDetailsInt = ((NotificationViewedDetailsInt)notificationOpt.get().getDetails());
-                notificationCost = viewedDetailsInt.getNotificationCost();
+                notificationCost = Optional.ofNullable(viewedDetailsInt.getNotificationCost()).orElse(0);
             }
             //If there is no notificationCost on View we check the Refinement
             if (notificationCost == 0){
                 notificationOpt = getNotificationRefinement(notification.getIun(), recIndex);
                 if (notificationOpt.isPresent()){
                     RefinementDetailsInt refinementDetailsInt = ((RefinementDetailsInt)notificationOpt.get().getDetails());
-                    notificationCost = refinementDetailsInt.getNotificationCost();
+                    notificationCost = Optional.ofNullable(refinementDetailsInt.getNotificationCost()).orElse(0);
                 }
             }
 

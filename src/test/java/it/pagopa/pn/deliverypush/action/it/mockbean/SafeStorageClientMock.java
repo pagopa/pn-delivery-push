@@ -1,13 +1,14 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.*;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
+import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.util.Base64Utils;
@@ -20,9 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.awaitility.Awaitility.await;
@@ -79,7 +78,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
         String key = sha256;
         savedFileMap.put(key,fileCreationRequest);
 
-        new Thread(() -> {
+        ThreadPool.start( new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
                 String keyWithPrefix = FileUtils.getKeyWithStoragePrefix(key);
 
@@ -106,10 +105,9 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
                 } else{
                     log.info("[TEST] No need to wait response for PN_NOTIFICATION_ATTACHMENT");
                 }
-
             });
-        }).start();
-
+        }));
+        
         FileCreationResponse fileCreationResponse = new FileCreationResponse();
         fileCreationResponse.setKey(key);
         fileCreationResponse.setSecret("abc");

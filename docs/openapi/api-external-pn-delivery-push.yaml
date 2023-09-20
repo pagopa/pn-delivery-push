@@ -24,9 +24,6 @@ tags:
   - name: HealthCheck
     description: >-
       Invocazioni per sapere lo stato del microservizio
-  - name: TimelineAndStatus
-    description: >-
-      Recupera le informazioni storiche di una notifica
   - name: LegalFacts
     description: >-
       Recupero degli atti opponibili a terzi generati per una notifica
@@ -94,7 +91,7 @@ paths:
         L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getNotificationLegalFacts
+      operationId: retrieveNotificationLegalFacts                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
@@ -133,17 +130,8 @@ paths:
         L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFact
+      operationId: retrieveLegalFact                                # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
@@ -182,17 +170,8 @@ paths:
         L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFactById
+      operationId: downloadLegalFactById                                # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
@@ -270,27 +249,6 @@ components:
     ############################################################################################
 
 
-    ############################################################################################
-    ###                     HEADER DI AUTENTICAZIONE LOLLIPOP                               ###
-    ############################################################################################
-    lollipopOriginalUrl:                                                                            # ONLY EXTERNAL
-      $ref: 'remote-refs.yaml#/components/parameters/lollipopOriginalUrl'                           # ONLY EXTERNAL
-    lollipopOriginalMethod:                                                                         # ONLY EXTERNAL
-      $ref: 'remote-refs.yaml#/components/parameters/lollipopOriginalMethod'                        # ONLY EXTERNAL
-    lollipopPublicKey:                                                                              # ONLY EXTERNAL
-      $ref: 'remote-refs.yaml#/components/parameters/lollipopPublicKey'                             # ONLY EXTERNAL
-    lollipopAssertionRef:                                                                           # ONLY EXTERNAL
-      $ref: 'remote-refs.yaml#/components/parameters/lollipopAssertionRef'                          # ONLY EXTERNAL
-    lollipopAssertionType:                                                                          # ONLY EXTERNAL
-      $ref: 'remote-refs.yaml#/components/parameters/lollipopAssertionType'                         # ONLY EXTERNAL
-    lollipopAuthJwt:                                                                                # ONLY EXTERNAL
-      $ref: 'remote-refs.yaml#/components/parameters/lollipopAuthJwt'                               # ONLY EXTERNAL
-    lollipopUserId:                                                                                 # ONLY EXTERNAL
-      $ref: 'remote-refs.yaml#/components/parameters/lollipopUserId'                                # ONLY EXTERNAL
-    lollipopSignatureInput:                                                                         # ONLY EXTERNAL
-      $ref: 'remote-refs.yaml#/components/parameters/lollipopSignatureInput'                        # ONLY EXTERNAL
-    lollipopSignature:                                                                              # ONLY EXTERNAL
-      $ref: 'remote-refs.yaml#/components/parameters/lollipopSignature'                             # ONLY EXTERNAL
 
 
     ############################################################################################
@@ -300,7 +258,8 @@ components:
       name: mandateId
       in: query
       required: false
-      description: identificativo della delega
+      description: identificativo della delega, non utilizzato nelle API B2B
+      x-pn-intended-usage: ["WEB"]
       schema:
         type: string
         format: uuid
@@ -372,13 +331,13 @@ components:
       properties:
         code:
           description: Internal code of the error or warning, in human-readable format
-          example: NOTIFICATION_ALREADY_CANCELLED
+          example: NOTIFICATION_CANCELLATION_ACCEPTED, NOTIFICATION_ALREADY_CANCELLED
           type: string
         level:
           description: |
-            informational level of status detail: WARN, ERR, ...
+            informational level of status detail: INFO,WARN, ERR
             ERR (error) by default
-          example: NOTIFICATION_ALREADY_CANCELLED
+          example: INFO
           type: string
         detail:
           description: A human readable explanation specific to this occurrence of the problem.

@@ -9,12 +9,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
@@ -64,6 +62,19 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
     public Mono<StreamEntity> save(StreamEntity entity) {
         log.info("save entity={}", entity);
         return Mono.fromFuture(table.putItem(entity).thenApply(r -> entity));
+    }
+
+    @Override
+    public Mono<StreamEntity> update(StreamEntity entity) {
+
+        UpdateItemEnhancedRequest<StreamEntity> updateItemEnhancedRequest =
+                UpdateItemEnhancedRequest.builder(StreamEntity.class)
+                        .item(entity)
+                        .ignoreNulls(true)
+                        .build();
+
+        log.info("update stream entity={}", entity);
+        return Mono.fromFuture(table.updateItem(updateItemEnhancedRequest).thenApply(r -> entity));
     }
 
     @Override

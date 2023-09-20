@@ -33,7 +33,12 @@
     "MaxPdfAllowedSize": "200MB",
     "EnableCheckPdfContent": "true",
     "CheckCfEnabled": "false",
-    "ActionTtlDays": "365"
+    "ActionTtlDays": "365",
+    "WebhookEventManagerLambdaMaximumBatchingWindowInSeconds": "20",
+    "WebhookEventManagerLambdaBatchSize": "60",
+    "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
+    "NotificationCancellationActionInsertLambdaBatchSize": "20"
+
   }
 }
 

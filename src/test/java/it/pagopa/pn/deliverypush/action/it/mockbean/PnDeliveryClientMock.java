@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class PnDeliveryClientMock implements PnDeliveryClient {
     private CopyOnWriteArrayList<SentNotification> notifications;
 
-    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
+    private final PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
     public PnDeliveryClientMock( @Lazy PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
         this.pnDataVaultClientReactiveMock = pnDataVaultClientReactiveMock;
@@ -34,6 +34,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     public void addNotification(NotificationInt notification) {
         SentNotification sentNotification = NotificationMapper.internalToExternal(notification);
         this.notifications.add(sentNotification);
+        log.info("ADDED_IUN:" + notification.getIun());
     }
     
     @Override
@@ -78,7 +79,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
 
             return sentNotificationOpt.get();
         }
-        throw new RuntimeException("Test error, iun is not presente in getSentNotification");
+        throw new RuntimeException("Test error, iun is not presente in getSentNotification IUN:" + iun);
     }
 
     @Override

@@ -1,9 +1,5 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalMessageReference;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.LegalMessageSentDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.ProgressEventCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -12,9 +8,14 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalMessageReference;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.LegalMessageSentDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.ProgressEventCategory;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.ExternalChannelResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
@@ -49,13 +50,16 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
     private final ExternalChannelResponseHandler externalChannelHandler;
     private final TimelineService timelineService;
     private final InstantNowSupplier instantNowSupplier;
+    private final PnDeliveryClientMock pnDeliveryClientMock;
 
     public ExternalChannelMock(@Lazy ExternalChannelResponseHandler externalChannelHandler,
                                @Lazy TimelineService timelineService,
-                               @Lazy InstantNowSupplier instantNowSupplier) {
+                               @Lazy InstantNowSupplier instantNowSupplier,
+                               @Lazy PnDeliveryClientMock pnDeliveryClientMock) {
         this.externalChannelHandler = externalChannelHandler;
         this.timelineService = timelineService;
         this.instantNowSupplier = instantNowSupplier;
+        this.pnDeliveryClientMock = pnDeliveryClientMock;
     }
 
     @Override
@@ -82,16 +86,16 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
 
     private void sendDigitalNotification(String address, NotificationInt notification, String timelineEventId){
         log.info("[TEST] sendDigitalNotification address:{} requestId:{}", address, timelineEventId);
-        
-        new Thread(() -> {
+
+        ThreadPool.start(new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
                 // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
                 await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                         Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), timelineEventId).isPresent())
                 );
-
+                
                 simulateExternalChannelDigitalProgressResponse(timelineEventId);
-
+                
                 Optional<SendDigitalDetailsInt> sendDigitalDetailsOpt = timelineService.getTimelineElementDetails(notification.getIun(), timelineEventId, SendDigitalDetailsInt.class);
                 if(sendDigitalDetailsOpt.isPresent()){
                     waitForProgressTimelineElement(notification, sendDigitalDetailsOpt.get());
@@ -102,7 +106,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                     log.error("[TEST] SendDigitalDetails is not present");
                 }
             });
-        }).start();
+        }));
     }
 
     private void waitForProgressTimelineElement(NotificationInt notification, SendDigitalDetailsInt sendDigitalDetails) {
