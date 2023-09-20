@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV21;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -23,7 +23,7 @@ public class PnDeliveryClientReactiveMock implements PnDeliveryClientReactive {
 
 
     @Override
-    public Mono<SentNotification> getSentNotification(String iun) {
+    public Mono<SentNotificationV21> getSentNotification(String iun) {
         return Mono.just(pnDeliveryClientMock.getSentNotification(iun));
     }
 

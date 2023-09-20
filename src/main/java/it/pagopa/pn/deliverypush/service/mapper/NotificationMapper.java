@@ -15,7 +15,7 @@ import java.util.List;
 public class NotificationMapper {
     private NotificationMapper(){}
 
-    public static NotificationInt externalToInternal(SentNotification sentNotification) {
+    public static NotificationInt externalToInternal(SentNotificationV21 sentNotification) {
 
         List<NotificationRecipientInt> listNotificationRecipientInt = mapNotificationRecipient(sentNotification.getRecipients());
         List<NotificationDocumentInt> listNotificationDocumentIntInt = mapNotificationDocument(sentNotification.getDocuments());
@@ -72,10 +72,10 @@ public class NotificationMapper {
         return list;
     }
 
-    private static List<NotificationRecipientInt> mapNotificationRecipient(List<NotificationRecipient> recipients) {
+    private static List<NotificationRecipientInt> mapNotificationRecipient(List<NotificationRecipientV21> recipients) {
         List<NotificationRecipientInt> list = new ArrayList<>();
 
-        for (NotificationRecipient recipient : recipients){
+        for (NotificationRecipientV21 recipient : recipients){
             NotificationRecipientInt recipientInt = RecipientMapper.externalToInternal(recipient);
             list.add(recipientInt);
         }
@@ -84,8 +84,8 @@ public class NotificationMapper {
     }
     
     //Utilizzata a livello di test
-    public static SentNotification internalToExternal(NotificationInt notification) {
-        SentNotification sentNotification = new SentNotification();
+    public static SentNotificationV21 internalToExternal(NotificationInt notification) {
+        SentNotificationV21 sentNotification = new SentNotificationV21();
 
         sentNotification.setIun(notification.getIun());
         sentNotification.setPaProtocolNumber(notification.getPaProtocolNumber());
@@ -100,7 +100,7 @@ public class NotificationMapper {
         
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(
-                    SentNotification.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
+                    SentNotificationV21.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
             );
         }
 
@@ -111,7 +111,7 @@ public class NotificationMapper {
             sentNotification.setSenderTaxId( sender.getPaTaxId() );
         }
 
-        List<NotificationRecipient> recipients = notification.getRecipients().stream()
+        List<NotificationRecipientV21> recipients = notification.getRecipients().stream()
                 .map(RecipientMapper::internalToExternal).toList();
 
         sentNotification.setRecipients(recipients);
@@ -122,7 +122,7 @@ public class NotificationMapper {
         sentNotification.setDocuments(documents);
 
         if(notification.getPhysicalCommunicationType() != null){
-            sentNotification.setPhysicalCommunicationType(SentNotification.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
+            sentNotification.setPhysicalCommunicationType(SentNotificationV21.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
         }
         
         if(notification.getSender() != null){
