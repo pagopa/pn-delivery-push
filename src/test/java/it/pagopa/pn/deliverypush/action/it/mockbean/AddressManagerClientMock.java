@@ -1,12 +1,13 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.*;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.addressmanager.AddressManagerClient;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.AddressManagerResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.AddressManagerMapper;
+import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +49,7 @@ public class AddressManagerClientMock implements AddressManagerClient {
 
     @Override
     public Mono<AcceptedResponse> normalizeAddresses(NormalizeItemsRequest normalizeItemsRequest) {
-        new Thread( () ->{
+        ThreadPool.start(new Thread( () ->{
 
             String iun = timelineUtils.getIunFromTimelineId(normalizeItemsRequest.getCorrelationId());
             await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
@@ -87,7 +88,7 @@ public class AddressManagerClientMock implements AddressManagerClient {
             addressManagerResponseHandler.handleResponseReceived(response);
 
             log.info("[TEST] END handle normalizeAddress corrId={}", normalizeItemsRequest.getCorrelationId());
-        }).start();
+        }));
         
         return Mono.just(new AcceptedResponse().correlationId(normalizeItemsRequest.getCorrelationId()));
     }

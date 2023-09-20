@@ -65,12 +65,14 @@ public class TimelineDaoDynamo implements TimelineDao {
             newDetails.setPhysicalAddress( physicalAddress.toBuilder()
                             .at(null)
                             .municipalityDetails(null)
-                            .zip(null)
-                            .foreignState(null)
                             .addressDetails(null)
                             .province(null)
                             .municipality(null)
                             .address(null)
+                            // NBBBB: zip e foreignState NON vanno eliminati, in quanto servono per la fatturazione
+                            // li esplicito volutamente anche se non serve
+                            .zip(physicalAddress.getZip())
+                            .foreignState(physicalAddress.getForeignState())
                     .build());
         }
         

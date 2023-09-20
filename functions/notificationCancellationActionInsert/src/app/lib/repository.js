@@ -36,13 +36,13 @@ exports.persistEvents = async (events) => {
             TableName: TABLES.ACTION,
             Item: {
               // key
-              actionId: { S: persistEvent.actionId },
+              actionId: persistEvent.actionId,
               // other attributes
-              iun: { S: persistEvent.iun }, // GSI
-              type: { S: persistEvent.type },
-              notBefore: { S: persistEvent.notBefore },
-              timeslot: { S: persistEvent.timeslot },
-              timelineId: { S: persistEvent.timelineId },
+              iun: persistEvent.iun, // GSI
+              type: persistEvent.type,
+              notBefore: persistEvent.notBefore,
+              timeslot: persistEvent.timeslot,
+              timelineId: persistEvent.timelineId,
             },
             // condition for put if absent
             ConditionExpression: "attribute_not_exists(actionId)",
@@ -53,12 +53,12 @@ exports.persistEvents = async (events) => {
             TableName: TABLES.FUTUREACTION,
             Item: {
               // key (composite)
-              timeSlot: { S: persistEvent.timeslot }, // in this case in the table it's "timeSlot", not "timeslot"
-              actionId: { S: persistEvent.actionId },
+              timeSlot: persistEvent.timeslot, // in this case in the table it's "timeSlot", not "timeslot"
+              actionId: persistEvent.actionId,
               // others
-              iun: { S: persistEvent.iun }, // GSI
-              notBefore: { S: persistEvent.notBefore },
-              type: { S: persistEvent.type },
+              iun: persistEvent.iun, // GSI
+              notBefore: persistEvent.notBefore,
+              type: persistEvent.type,
             },
           },
         },
@@ -67,7 +67,7 @@ exports.persistEvents = async (events) => {
     // ttl
     const ttl = nDaysFromNowAsUNIXTimestamp(ttlDays);
     if (ttl > 0) {
-      params.TransactItems[0].Put.Item.ttl = { N: ttl.toString() };
+      params.TransactItems[0].Put.Item.ttl = ttl;
     }
 
     try {
@@ -75,9 +75,11 @@ exports.persistEvents = async (events) => {
       console.log("Action-FutureAction transaction succeeded:", result);
       summary.insertions++;
     } catch (error) {
+      console.log(JSON.stringify(error));
+
       // check for ConditionalCheckFailed
       if (error.name == "TransactionCanceledException") {
-        for (let cancellation of error.cancellationReasons) {
+        for (let cancellation of error.CancellationReasons) {
           if (cancellation.code == "ConditionalCheckFailed") {
             console.warn(
               "TransactionCanceledException: ConditionalCheckFailed"

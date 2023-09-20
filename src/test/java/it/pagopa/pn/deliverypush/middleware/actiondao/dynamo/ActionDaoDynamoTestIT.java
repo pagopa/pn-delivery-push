@@ -224,7 +224,7 @@ class ActionDaoDynamoTestIT {
 
         Action.ActionBuilder actionBuilder = Action.builder()
                 .iun("Test_addActionIfAbsent_iun01")
-                .recipientIndex(1)
+                .recipientIndex(2)
                 .type(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
         String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(
                 actionBuilder.build());

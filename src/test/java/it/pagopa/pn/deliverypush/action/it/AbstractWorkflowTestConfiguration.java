@@ -122,7 +122,9 @@ public class AbstractWorkflowTestConfiguration {
                                                          @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
                                                          @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
                                                          @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
-                                                         @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest) {
+                                                         @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
+                                                         @Lazy PnDeliveryClientMock pnDeliveryClientMock
+    ) {
         return new SchedulerServiceMock(
                 digitalWorkFlowHandler,
                 digitalWorkFlowRetryHandler,
@@ -133,7 +135,8 @@ public class AbstractWorkflowTestConfiguration {
                 chooseDeliveryModeHandler, 
                 documentCreationResponseHandler,
                 notificationValidationActionHandler,
-                receivedLegalFactCreationRequest);
+                receivedLegalFactCreationRequest,
+                pnDeliveryClientMock);
     }
 
     
