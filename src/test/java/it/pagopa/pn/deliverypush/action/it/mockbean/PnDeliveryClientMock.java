@@ -2,9 +2,7 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AnalogDomicile;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.NotificationRecipientAddressesDto;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationPhysicalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipient;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationMapper;
@@ -19,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class PnDeliveryClientMock implements PnDeliveryClient {
-    private CopyOnWriteArrayList<SentNotification> notifications;
+    private CopyOnWriteArrayList<SentNotificationV21> notifications;
 
     private final PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
@@ -32,7 +30,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     }
 
     public void addNotification(NotificationInt notification) {
-        SentNotification sentNotification = NotificationMapper.internalToExternal(notification);
+        SentNotificationV21 sentNotification = NotificationMapper.internalToExternal(notification);
         this.notifications.add(sentNotification);
         log.info("ADDED_IUN:" + notification.getIun());
     }
@@ -43,14 +41,14 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     }
 
     @Override
-    public SentNotification getSentNotification(String iun) {
-        Optional<SentNotification> sentNotificationOpt = notifications.stream().filter(notification -> iun.equals(notification.getIun())).findFirst();
+    public SentNotificationV21 getSentNotification(String iun) {
+        Optional<SentNotificationV21> sentNotificationOpt = notifications.stream().filter(notification -> iun.equals(notification.getIun())).findFirst();
         if(sentNotificationOpt.isPresent()){
-            SentNotification sentNotification = sentNotificationOpt.get();
-            List<NotificationRecipient> listRecipient = sentNotification.getRecipients();
+            SentNotificationV21 sentNotification = sentNotificationOpt.get();
+            List<NotificationRecipientV21> listRecipient = sentNotification.getRecipients();
             
             int recIndex = 0;
-            for (NotificationRecipient recipient : listRecipient){
+            for (NotificationRecipientV21 recipient : listRecipient){
                 
                 NotificationRecipientAddressesDto recipientAddressesDto = pnDataVaultClientReactiveMock.getAddressFromRecipientIndex(iun, recIndex);
                 
@@ -86,9 +84,9 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     public Map<String, String> getQuickAccessLinkTokensPrivate(String iun) {
       Map<String, String> body = this.notifications.stream()
       .filter(n->n.getIun().equals(iun))
-      .map(SentNotification::getRecipients)
+      .map(SentNotificationV21::getRecipients)
       .flatMap(List::stream)
-      .collect(Collectors.toMap(NotificationRecipient::getInternalId, (n) -> "test"));
+      .collect(Collectors.toMap(NotificationRecipientV21::getInternalId, (n) -> "test"));
       return body;
     }
 }
