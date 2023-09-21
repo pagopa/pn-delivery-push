@@ -148,7 +148,9 @@ import static org.mockito.ArgumentMatchers.eq;
         AddressManagerClientMock.class,
         NormalizeAddressHandler.class,
         AddressManagerResponseHandler.class,
-        NotificationViewedTestIT.SpringTestConfiguration.class
+        NotificationViewedTestIT.SpringTestConfiguration.class,
+        F24Validator.class,
+        F24ClientMock.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
@@ -242,6 +244,9 @@ class NotificationViewedTestIT {
 
     @Autowired
     private AddressManagerClientMock addressManagerClientMock;
+
+    @Autowired
+    private F24ClientMock f24ClientMock;
     
     @BeforeEach
     public void setup() {
@@ -258,7 +263,8 @@ class NotificationViewedTestIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock
+                addressManagerClientMock,
+                f24ClientMock
         );
     }
 

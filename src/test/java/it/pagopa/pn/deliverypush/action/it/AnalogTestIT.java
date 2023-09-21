@@ -151,7 +151,9 @@ import static org.awaitility.Awaitility.with;
         AddressManagerClientMock.class,
         NormalizeAddressHandler.class,
         AddressManagerResponseHandler.class,
-        AnalogTestIT.SpringTestConfiguration.class
+        AnalogTestIT.SpringTestConfiguration.class,
+        F24Validator.class,
+        F24ClientMock.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
@@ -238,6 +240,9 @@ class AnalogTestIT {
     
     @Autowired
     private AddressManagerClientMock addressManagerClientMock;
+
+    @Autowired
+    private F24ClientMock f24ClientMock;
     
     @BeforeEach
     public void setup() {
@@ -255,7 +260,8 @@ class AnalogTestIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock
+                addressManagerClientMock,
+                f24ClientMock
         );
     }
 

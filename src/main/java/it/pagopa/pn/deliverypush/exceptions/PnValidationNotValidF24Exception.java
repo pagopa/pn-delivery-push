@@ -15,4 +15,12 @@ public class PnValidationNotValidF24Exception extends PnValidationException {
                 .build()), null );
     }
 
+    public PnValidationNotValidF24Exception(List<String> details) {
+        super("Validazione fallita, f24 non valido",
+                details.stream().map(detail -> ProblemError.builder()
+                        .code(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.NOT_VALID_F24.getValue())
+                        .detail(detail)
+                        .build()).toList(), null);
+    }
+
 }
