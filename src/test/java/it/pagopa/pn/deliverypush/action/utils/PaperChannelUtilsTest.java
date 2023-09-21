@@ -116,6 +116,18 @@ class PaperChannelUtilsTest {
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 
+
+    @Test
+    void addPrepareAnalogFailureTimelineElement() {
+        NotificationInt notification = buildNotification();
+        PhysicalAddressInt addressInt = buildPhysicalAddressInt();
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
+
+        Mockito.when(timelineUtils.buildPrepareAnalogFailureTimelineElement(addressInt, "prep_id", "D01", 1, notification)).thenReturn(timelineElementInternal);
+        channelUtils.addPrepareAnalogFailureTimelineElement(addressInt, "prep_id", "D01",1,  notification);
+        Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
+    }
+
     @Test
     void getPaperChannelNotificationTimelineElement() {
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
