@@ -20,7 +20,6 @@ import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.MetadataValidationEndEvent;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.ValidateF24Request;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.ValidationIssue;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -36,7 +35,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -44,7 +42,6 @@ import java.util.stream.Collectors;
 public class NotificationValidationActionHandler {
     private static final int FIRST_VALIDATION_STEP = 1;
     private static final int SECOND_VALIDATION_STEP = 2;
-
     private static final int THIRD_VALIDATION_STEP = 3;
     private final AttachmentUtils attachmentUtils;
     private final TaxIdPivaValidator taxIdPivaValidator;
@@ -133,7 +130,7 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(NotificationInt notification, int validationStep) {
-        String message = "Notification validation step {} of 2.";
+        String message = "Notification validation step {} of 3.";
 
         if(! cfg.isCheckCfEnabled()){
             message += " TaxId validation will be skipped";
@@ -173,8 +170,11 @@ public class NotificationValidationActionHandler {
         PnAuditLogEvent logEvent = generateAuditLog(notification, SECOND_VALIDATION_STEP);
         try {
             if (!CollectionUtils.isEmpty(metadataValidationEndEvent.getErrors())) {
-                String errors = metadataValidationEndEvent.getErrors().stream()
-                        .map(ValidationIssue::getDetail).collect(Collectors.joining(","));
+                List<String> errors = metadataValidationEndEvent.getErrors().stream()
+                        .map(error -> "ERROR: " + error.getCode() + " \n" +
+                                "ON ELEMENT: " +  error.getElement() + " \n" +
+                                "MESSAGE: " +  error.getDetail())
+                        .toList();
                 throw new PnValidationNotValidF24Exception(errors);
             } else {
                 String correlationId = TimelineEventId.VALIDATED_F24.buildEventId(

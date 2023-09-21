@@ -511,6 +511,20 @@ public class TestUtils {
         );
     }
 
+    public static List<NotificationPaymentInfoIntV2> getPaymentWithF24(NotificationDocumentInt paymentDocumentInt) {
+        return List.of(
+                NotificationPaymentInfoIntV2.builder()
+                        .f24(F24Int.builder()
+                                .applyCost(true)
+                                .title("payment_f24_1")
+                                .metadataAttachment(paymentDocumentInt)
+                                .build()
+                        )
+                        .pagoPA(null)
+                        .build()
+        );
+    }
+
     public static void writeAllGeneratedLegalFacts(String iun, String className, TimelineService timelineService, SafeStorageClientMock safeStorageClientMock) {
         String testName = className + "-" + getMethodName(3);
 
@@ -786,14 +800,16 @@ public class TestUtils {
     public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock,
                                                PnDeliveryClientMock pnDeliveryClientMock,
                                                UserAttributesClientMock userAttributesClientMock,
-                                               NationalRegistriesClientMock nationalRegistriesClientMock, 
-                                               TimelineDaoMock timelineDaoMock, 
-                                               PaperNotificationFailedDaoMock paperNotificationFailedDaoMock, 
-                                               PnDataVaultClientMock pnDataVaultClientMock, 
-                                               PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock, 
+                                               NationalRegistriesClientMock nationalRegistriesClientMock,
+                                               TimelineDaoMock timelineDaoMock,
+                                               PaperNotificationFailedDaoMock paperNotificationFailedDaoMock,
+                                               PnDataVaultClientMock pnDataVaultClientMock,
+                                               PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock,
                                                DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
-                                               AddressManagerClientMock addressManagerClientMock
-                                               ) {
+                                               AddressManagerClientMock addressManagerClientMock,
+                                               F24ClientMock f24ClientMock
+    ) {
+
         log.info("CLEARING MOCKS");
 
         ThreadPool.killThreads();
@@ -808,6 +824,7 @@ public class TestUtils {
         pnDataVaultClientReactiveMock.clear();
         documentCreationRequestDaoMock.clear();
         addressManagerClientMock.clear();
+        f24ClientMock.clear();
 
         ConsoleAppenderCustom.initializeLog();
     }

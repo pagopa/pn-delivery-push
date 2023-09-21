@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 @FunctionalSpringBootTest
 @Import(LocalStackTestConfig.class)
-class F24EventHandler {
+class F24EventHandlerTest {
 
     @Autowired
     private FunctionCatalog functionCatalog;

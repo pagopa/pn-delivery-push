@@ -25,6 +25,7 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForR
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -55,11 +56,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static it.pagopa.pn.deliverypush.action.it.mockbean.F24ClientMock.F24_VALIDATION_FAIL;
 import static org.awaitility.Awaitility.await;
-
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
@@ -137,7 +139,10 @@ import static org.awaitility.Awaitility.await;
         AddressManagerClientMock.class,
         NormalizeAddressHandler.class,
         AddressManagerResponseHandler.class,
-        ValidationTestIT.SpringTestConfiguration.class
+        ValidationTestIT.SpringTestConfiguration.class,
+        F24Validator.class,
+        F24ClientMock.class,
+        F24ResponseHandler.class
 })
 @TestPropertySource(
         locations ="classpath:/application-test.properties",
@@ -217,7 +222,10 @@ class ValidationTestIT {
 
     @Autowired
     private AddressManagerClientMock addressManagerClientMock;
-    
+
+    @Autowired
+    private F24ClientMock f24ClientMock;
+
     @BeforeEach
     public void setup() {
         //Mock for get current date
@@ -234,7 +242,8 @@ class ValidationTestIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock
+                addressManagerClientMock,
+                f24ClientMock
         );
     }
     @Test
@@ -547,5 +556,69 @@ class ValidationTestIT {
 
         ConsoleAppenderCustom.checkLogs();
     }
-    
+    @Test
+    void f24ValidationKo() {
+        // GIVEN
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                .build();
+
+        String paymentDocName = "metadata_0_0";
+        NotificationDocumentInt paymentDoc = TestUtils.getDocumentList(paymentDocName).get(0);
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01")
+                .withPhysicalAddress(paPhysicalAddress1)
+                .withPayments(TestUtils.getPaymentWithF24(paymentDoc))
+                .build();
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
+        List<TestUtils.DocumentWithContent> listDocumentWithContentForPayments = TestUtils.getDocumentWithContents(paymentDocName, List.of(paymentDoc));
+
+        //List which contains documents and payments
+        List<TestUtils.DocumentWithContent> notificationDocuments = new ArrayList<>(listDocumentWithContent);
+        notificationDocuments.addAll(listDocumentWithContentForPayments);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(TestUtils.getRandomIun() + F24_VALIDATION_FAIL)
+                .withNotificationDocuments(notificationDocumentList)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        TestUtils.firstFileUploadFromNotification(notificationDocuments, safeStorageClientMock);
+
+        pnDeliveryClientMock.addNotification(notification);
+
+        String iun = notification.getIun();
+
+        //WHEN the workflow start
+        startWorkflowHandler.startWorkflow(iun);
+
+        //THEN
+        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+                //Check worfklow is failed
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REQUEST_REFUSED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .build())).isPresent()
+                )
+        );
+
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(NotificationRecipientInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString()
+        );
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
+
+        ConsoleAppenderCustom.checkLogs();
+    }
 }

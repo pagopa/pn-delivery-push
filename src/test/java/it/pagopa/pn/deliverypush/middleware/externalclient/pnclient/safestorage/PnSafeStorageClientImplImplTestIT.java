@@ -15,7 +15,6 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestTemplate;
@@ -29,6 +28,7 @@ import static org.mockserver.model.HttpResponse.response;
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
         "pn.delivery-push.safe-storage-base-url=http://localhost:9998",
+        "pn.delivery-push.safe-storage-cx-id=pn-delivery-push"
 })
 class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
     @Autowired
