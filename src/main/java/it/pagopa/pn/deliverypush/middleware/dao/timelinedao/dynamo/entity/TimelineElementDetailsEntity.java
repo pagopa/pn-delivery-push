@@ -95,5 +95,4 @@ public class TimelineElementDetailsEntity {
 
 
     @Getter(onMethod=@__({@DynamoDbAttribute("failureCause")})) private String failureCause;
-    @Getter(onMethod=@__({@DynamoDbAttribute("foundAddress")}))  private PhysicalAddressEntity foundAddress;
 }
