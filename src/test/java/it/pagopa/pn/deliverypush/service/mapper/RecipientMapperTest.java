@@ -1,22 +1,22 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipient.RecipientTypeEnum;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipientV21.RecipientTypeEnum;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 class RecipientMapperTest {
 
     @Test
     void externalToInternal() {
         //GIVEN
-        NotificationRecipient given = buildNotificationRecipient();
+        NotificationRecipientV21 given = buildNotificationRecipient();
         
         //WHEN
         NotificationRecipientInt actual = RecipientMapper.externalToInternal(given);
@@ -31,9 +31,9 @@ class RecipientMapperTest {
 
         NotificationRecipientInt given = buildNotificationRecipientInt();
 
-        NotificationRecipient actual = RecipientMapper.internalToExternal(given);
+        NotificationRecipientV21 actual = RecipientMapper.internalToExternal(given);
 
-        NotificationRecipient expected = buildNotificationRecipient();
+        NotificationRecipientV21 expected = buildNotificationRecipient();
 
         Assertions.assertEquals(expected, actual);
     }
@@ -61,21 +61,28 @@ class RecipientMapperTest {
                         .province("006")
                         .foreignState("005")
                         .build())
-                .payment(NotificationPaymentInfoInt.builder()
-                        .noticeCode("001")
-                        .creditorTaxId("002")
-                        .pagoPaForm(NotificationDocumentInt.builder()
-                                .digests(NotificationDocumentInt.Digests.builder().sha256("001").build())
-                                .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("001")
-                                        .versionToken("002")
+                .payments(List.of(NotificationPaymentInfoIntV2.builder()
+                        .f24(F24Int.builder()
+                                .title("title")
+                                .applyCost(true)
+                                .metadataAttachment(NotificationDocumentInt.builder()
+                                        .ref(NotificationDocumentInt.Ref.builder().build())
+                                        .digests(NotificationDocumentInt.Digests.builder().sha256("sha256").build())
                                         .build())
                                 .build())
-                        .build())
+                        .pagoPA(PagoPaInt.builder()
+                                .noticeCode("noticeCode")
+                                .creditorTaxId("taxID")
+                                .applyCost(true)
+                                .attachment(NotificationDocumentInt.builder()
+                                        .ref(NotificationDocumentInt.Ref.builder().build())
+                                        .digests(NotificationDocumentInt.Digests.builder().sha256("sha256").build())
+                                        .build()).build())
+                        .build()))
                 .build();
     }
 
-    private NotificationRecipient buildNotificationRecipient() {
+    private NotificationRecipientV21 buildNotificationRecipient() {
         NotificationPhysicalAddress physicalAddress = new NotificationPhysicalAddress();
         physicalAddress.setAddress("001");
         physicalAddress.setAddressDetails("002");
@@ -84,40 +91,8 @@ class RecipientMapperTest {
         physicalAddress.setForeignState("005");
         physicalAddress.setProvince("006");
         physicalAddress.setZip("007");
-
-        NotificationPaymentAttachment pagoPaForm = new NotificationPaymentAttachment();
-        NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
-        digests.setSha256("001");
-        pagoPaForm.setDigests(digests);
-        NotificationAttachmentBodyRef ref = new NotificationAttachmentBodyRef();
-        ref.setKey("001");
-        ref.setVersionToken("002");
-        pagoPaForm.setRef(ref);
-
-        NotificationPaymentAttachment f24FlatRate = new NotificationPaymentAttachment();
-        NotificationAttachmentDigests digestsF24FlatRate = new NotificationAttachmentDigests();
-        digestsF24FlatRate.setSha256("001");
-        f24FlatRate.setDigests(digestsF24FlatRate);
-        NotificationAttachmentBodyRef refF24FlatRate = new NotificationAttachmentBodyRef();
-        refF24FlatRate.setKey("001");
-        refF24FlatRate.setVersionToken("002");
-        f24FlatRate.setRef(refF24FlatRate);
-
-        NotificationPaymentAttachment f24Standard = new NotificationPaymentAttachment();
-        NotificationAttachmentDigests digestsF24Standard = new NotificationAttachmentDigests();
-        digestsF24Standard.setSha256("001");
-        f24Standard.setDigests(digestsF24Standard);
-        NotificationAttachmentBodyRef refF24Standard = new NotificationAttachmentBodyRef();
-        refF24Standard.setKey("001");
-        refF24Standard.setVersionToken("002");
-        f24Standard.setRef(refF24Standard);
         
-        NotificationPaymentInfo paymentInfo = new NotificationPaymentInfo();
-        paymentInfo.setNoticeCode("001");
-        paymentInfo.setCreditorTaxId("002");
-        paymentInfo.setPagoPaForm(pagoPaForm);
-        
-        NotificationRecipient recipient = new NotificationRecipient();
+        NotificationRecipientV21 recipient = new NotificationRecipientV21();
         recipient.setRecipientType(RecipientTypeEnum.PF);
         recipient.setTaxId("001");
         recipient.setInternalId("002");
@@ -126,7 +101,35 @@ class RecipientMapperTest {
                 .address("account@dominio.it")
                 .type(NotificationDigitalAddress.TypeEnum.PEC));
         recipient.setPhysicalAddress(physicalAddress);
-        recipient.setPayment(paymentInfo);
+        NotificationPaymentItem item = new NotificationPaymentItem();
+        F24Payment f24Payment = new F24Payment();
+        f24Payment.setTitle("title");
+        f24Payment.setApplyCost(true);
+
+        NotificationMetadataAttachment notificationMetadataAttachment = new NotificationMetadataAttachment();
+        notificationMetadataAttachment.setRef(new NotificationAttachmentBodyRef());
+        NotificationAttachmentDigests digests = new NotificationAttachmentDigests();
+        digests.setSha256("sha256");
+        notificationMetadataAttachment.setDigests(digests);
+
+        f24Payment.setMetadataAttachment(notificationMetadataAttachment);
+
+        item.setF24(f24Payment);
+
+        PagoPaPayment pagoPaPayment = new PagoPaPayment();
+        pagoPaPayment.setNoticeCode("noticeCode");
+        pagoPaPayment.setApplyCost(true);
+        pagoPaPayment.setCreditorTaxId("taxID");
+
+        NotificationPaymentAttachment notificationPaymentAttachment = new NotificationPaymentAttachment();
+        notificationPaymentAttachment.setRef(new NotificationAttachmentBodyRef());
+        digests.setSha256("sha256");
+        notificationPaymentAttachment.setDigests(digests);
+
+        pagoPaPayment.setAttachment(notificationPaymentAttachment);
+
+        item.setPagoPa(pagoPaPayment);
+        recipient.setPayments(List.of(item));
         return recipient;
     }
     

@@ -279,7 +279,7 @@ class IoServiceImplTest {
         .thenThrow(PnHttpResponseException.class);
         //WHEN
         Instant schedulingAnalogDate = Instant.now();
-        assertThrows(PnInternalException.class, () ->
+        assertThrows(PnHttpResponseException.class, () ->
                 ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
         );
     }

@@ -1,14 +1,18 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
+import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
@@ -25,6 +29,8 @@ import static org.awaitility.Awaitility.await;
 @Slf4j
 public class TimelineDaoMock implements TimelineDao {
     public static final String SIMULATE_VIEW_NOTIFICATION= "simulate-view-notification";
+    public static final String SIMULATE_CANCEL_NOTIFICATION= "simulate-cancel-notification";
+    public static final String SIMULATE_AFTER_CANCEL_NOTIFICATION= "simulate-after-cancel-notification";
     public static final String SIMULATE_RECIPIENT_WAIT = "simulate-recipient-wait";
     public static final String WAIT_SEPARATOR = "@@";
 
@@ -32,13 +38,21 @@ public class TimelineDaoMock implements TimelineDao {
     private CopyOnWriteArrayList<TimelineElementInternal> timelineList;
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
+    private final NotificationCancellationService notificationCancellationService;
+    private final NotificationCancellationActionHandler notificationCancellationActionHandler;
+    private final PnDeliveryClientMock pnDeliveryClientMock;
 
     public TimelineDaoMock(@Lazy NotificationViewedRequestHandler notificationViewedRequestHandler, @Lazy NotificationService notificationService,
-                           @Lazy NotificationUtils notificationUtils) {
+                           @Lazy NotificationUtils notificationUtils, @Lazy NotificationCancellationService notificationCancellationService,
+                           @Lazy NotificationCancellationActionHandler notificationCancellationActionHandler,
+                           @Lazy PnDeliveryClientMock pnDeliveryClientMock) {
         this.notificationViewedRequestHandler = notificationViewedRequestHandler;
+        this.notificationCancellationActionHandler = notificationCancellationActionHandler;
         timelineList = new CopyOnWriteArrayList<>();
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
+        this.notificationCancellationService = notificationCancellationService;
+        this.pnDeliveryClientMock = pnDeliveryClientMock;
     }
 
     public void clear() {
@@ -55,6 +69,7 @@ public class TimelineDaoMock implements TimelineDao {
             NotificationRecipientInt notificationRecipientInt = getRecipientInt(dto);
             String simulateViewNotificationString = SIMULATE_VIEW_NOTIFICATION + dto.getElementId();
             String simulateRecipientWaitString = SIMULATE_RECIPIENT_WAIT + dto.getElementId();
+            String simulateCancelNotificationString = SIMULATE_CANCEL_NOTIFICATION + dto.getElementId();
 
             if(notificationRecipientInt.getTaxId().startsWith(simulateViewNotificationString)){
                 log.debug("[TEST] Simulate view notification {}", dto);
@@ -69,6 +84,17 @@ public class TimelineDaoMock implements TimelineDao {
                 await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                         Assertions.assertTrue(getTimelineElement(dto.getIun(), waitForElementId).isPresent())
                 );
+            }else if(notificationRecipientInt.getTaxId().startsWith(simulateCancelNotificationString)){
+                //Viene simulata la cancellazione della notifica prima di uno specifico inserimento in timeline
+                log.debug("[TEST] Simulate cancel notification {}", dto);
+                notificationCancellationService.startCancellationProcess( dto.getIun(), dto.getPaId(), CxTypeAuthFleet.PA).block();
+                // bisogna anche generare l'action
+
+                ThreadPool.start(new Thread(() -> {
+                    await().atLeast(Duration.ofSeconds(1));
+                    notificationCancellationActionHandler.cancelNotification(dto.getIun());
+                }));
+
             }
         }
 
@@ -80,6 +106,25 @@ public class TimelineDaoMock implements TimelineDao {
         }*/
         
         timelineList.add(dto);
+
+
+        if( dto.getDetails() != null && dto.getDetails() instanceof RecipientRelatedTimelineElementDetails) {
+
+            NotificationRecipientInt notificationRecipientInt = getRecipientInt(dto);
+            String simulateAfterCancelNotificationString = dto.getElementId() + SIMULATE_AFTER_CANCEL_NOTIFICATION ;
+
+            if (notificationRecipientInt.getTaxId().endsWith(simulateAfterCancelNotificationString)) {
+                //Viene simulata la cancellazione della notifica DOPO di uno specifico inserimento in timeline
+                log.debug("[TEST] Simulate after cancel notification {}", dto);
+                notificationCancellationService.startCancellationProcess(dto.getIun(), dto.getPaId(), CxTypeAuthFleet.PA).block();
+                // bisogna anche generare l'action
+
+                ThreadPool.start(new Thread(() -> {
+                    await().atLeast(Duration.ofSeconds(1));
+                    notificationCancellationActionHandler.cancelNotification(dto.getIun());
+                }));
+            }
+        }
     }
     
     public void addTimelineElement(TimelineElementInternal dto){

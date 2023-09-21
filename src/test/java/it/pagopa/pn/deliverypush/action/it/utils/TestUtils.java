@@ -1,11 +1,14 @@
 package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.*;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -22,11 +25,13 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -691,9 +696,10 @@ public class TestUtils {
         return "XX_"+int_random;
     }
 
+
     public static void initializeAllMockClient(SafeStorageClientMock safeStorageClientMock, 
-                                               PnDeliveryClientMock pnDeliveryClientMock, 
-                                               UserAttributesClientMock userAttributesClientMock, 
+                                               PnDeliveryClientMock pnDeliveryClientMock,
+                                               UserAttributesClientMock userAttributesClientMock,
                                                NationalRegistriesClientMock nationalRegistriesClientMock, 
                                                TimelineDaoMock timelineDaoMock, 
                                                PaperNotificationFailedDaoMock paperNotificationFailedDaoMock, 
@@ -701,7 +707,11 @@ public class TestUtils {
                                                PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock, 
                                                DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
                                                AddressManagerClientMock addressManagerClientMock
-    ) {
+                                               ) {
+        log.info("CLEARING MOCKS");
+
+        ThreadPool.killThreads();
+
         safeStorageClientMock.clear();
         pnDeliveryClientMock.clear();
         userAttributesClientMock.clear();
@@ -712,6 +722,8 @@ public class TestUtils {
         pnDataVaultClientReactiveMock.clear();
         documentCreationRequestDaoMock.clear();
         addressManagerClientMock.clear();
+        
+        ConsoleAppenderCustom.initializeLog();
     }
     
     @Builder

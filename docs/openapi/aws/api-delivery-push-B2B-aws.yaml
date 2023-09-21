@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ScGEKw3ixsBOSTaFxB5DgWx/9B+EKWm3WzwWIeC2mws=
+  version: DEjr1m9CcqAJuq/sVTfjCuHCk92s9Q4XbfrzSozEcQA=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -91,7 +91,7 @@ paths:
         valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getNotificationLegalFacts
+      operationId: retrieveNotificationLegalFacts
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
@@ -163,17 +163,8 @@ paths:
         ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFact
+      operationId: retrieveLegalFact
       parameters:
-        - $ref: '#/components/parameters/lollipopOriginalUrl'
-        - $ref: '#/components/parameters/lollipopOriginalMethod'
-        - $ref: '#/components/parameters/lollipopPublicKey'
-        - $ref: '#/components/parameters/lollipopAssertionRef'
-        - $ref: '#/components/parameters/lollipopAssertionType'
-        - $ref: '#/components/parameters/lollipopAuthJwt'
-        - $ref: '#/components/parameters/lollipopUserId'
-        - $ref: '#/components/parameters/lollipopSignatureInput'
-        - $ref: '#/components/parameters/lollipopSignature'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
@@ -250,17 +241,8 @@ paths:
         ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFactById
+      operationId: downloadLegalFactById
       parameters:
-        - $ref: '#/components/parameters/lollipopOriginalUrl'
-        - $ref: '#/components/parameters/lollipopOriginalMethod'
-        - $ref: '#/components/parameters/lollipopPublicKey'
-        - $ref: '#/components/parameters/lollipopAssertionRef'
-        - $ref: '#/components/parameters/lollipopAssertionType'
-        - $ref: '#/components/parameters/lollipopAuthJwt'
-        - $ref: '#/components/parameters/lollipopUserId'
-        - $ref: '#/components/parameters/lollipopSignatureInput'
-        - $ref: '#/components/parameters/lollipopSignature'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
@@ -402,74 +384,13 @@ paths:
         type: http_proxy
 components:
   parameters:
-    lollipopOriginalUrl:
-      name: x-pagopa-lollipop-original-url
-      in: header
-      description: lollipop expected lc original url
-      required: false
-      schema:
-        type: string
-    lollipopOriginalMethod:
-      name: x-pagopa-lollipop-original-method
-      in: header
-      description: lollipop expected lc original method
-      required: false
-      schema:
-        type: string
-    lollipopPublicKey:
-      name: x-pagopa-lollipop-public-key
-      in: header
-      description: lollipop public key
-      required: false
-      schema:
-        type: string
-    lollipopAssertionRef:
-      name: x-pagopa-lollipop-assertion-ref
-      in: header
-      description: lollipop assertion reference
-      required: false
-      schema:
-        type: string
-    lollipopAssertionType:
-      name: x-pagopa-lollipop-assertion-type
-      in: header
-      description: lollipop assertion type (SAML)
-      required: false
-      schema:
-        type: string
-    lollipopAuthJwt:
-      name: x-pagopa-lollipop-auth-jwt
-      in: header
-      description: lollipop authentication jwt
-      required: false
-      schema:
-        type: string
-    lollipopUserId:
-      name: x-pagopa-lollipop-user-id
-      in: header
-      description: lollipop user id
-      required: false
-      schema:
-        type: string
-    lollipopSignatureInput:
-      name: signature-input
-      in: header
-      description: lollipop signature input
-      required: false
-      schema:
-        type: string
-    lollipopSignature:
-      name: signature
-      in: header
-      description: lollipop signature
-      required: false
-      schema:
-        type: string
     legalFactsSearchMandateId:
       name: mandateId
       in: query
       required: false
-      description: identificativo della delega
+      description: identificativo della delega, non utilizzato nelle API B2B
+      x-pn-intended-usage:
+        - WEB
       schema:
         type: string
         format: uuid
@@ -540,13 +461,13 @@ components:
       properties:
         code:
           description: Internal code of the error or warning, in human-readable format
-          example: NOTIFICATION_ALREADY_CANCELLED
+          example: NOTIFICATION_CANCELLATION_ACCEPTED, NOTIFICATION_ALREADY_CANCELLED
           type: string
         level:
           description: |
-            informational level of status detail: WARN, ERR, ...
+            informational level of status detail: INFO,WARN, ERR
             ERR (error) by default
-          example: NOTIFICATION_ALREADY_CANCELLED
+          example: INFO
           type: string
         detail:
           description: >-
@@ -766,8 +687,6 @@ components:
 tags:
   - name: HealthCheck
     description: Invocazioni per sapere lo stato del microservizio
-  - name: TimelineAndStatus
-    description: Recupera le informazioni storiche di una notifica
   - name: LegalFacts
     description: Recupero degli atti opponibili a terzi generati per una notifica
   - name: NotificationCancellation

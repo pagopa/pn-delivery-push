@@ -48,7 +48,6 @@ import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import it.pagopa.pn.deliverypush.utils.UUIDCreatorUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -68,7 +67,6 @@ import java.util.List;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.with;
-@Disabled
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
