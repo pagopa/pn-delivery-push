@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.timeline.details.NormalizedAddressDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareAnalogDomicileFailureDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV20;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
@@ -20,10 +21,19 @@ public class SmartMapper {
         }
     };
 
+
+    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV20> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
+        @Override
+        protected void configure() {
+            skip(destination.getPhysicalAddress());
+        }
+    };
+
     static{
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         modelMapper.addMappings(addressDetailPropertyMap);
+        modelMapper.addMappings(prepareAnalogDomicileFailureDetailsInt);
     }
 
     public static  <S,T> T mapToClass(S source, Class<T> destinationClass ){
