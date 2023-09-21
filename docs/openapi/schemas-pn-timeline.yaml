@@ -1009,7 +1009,7 @@ components:
       type: object
       required:
         - notificationCost
-        - notRefinedRecipientIndexes
+#        - notRefinedRecipientIndexes # ONLY EXTERNAL
       properties:
         notificationCost:
           description: costo notifica in euro cents, vale 100 * numero di recipient not refined
