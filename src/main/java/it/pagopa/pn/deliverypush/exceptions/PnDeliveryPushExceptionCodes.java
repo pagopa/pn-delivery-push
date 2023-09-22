@@ -89,7 +89,7 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
         NOT_VALID_ADDRESS("NOT_VALID_ADDRESS"),
 
-        NOT_VALID_F24("NOT_VALID_F24"),
+        F24_METADATA_NOT_VALID("F24_METADATA_NOT_VALID"),
         
         SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE"),
 

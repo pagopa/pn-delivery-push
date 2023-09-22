@@ -10,7 +10,7 @@ public class PnValidationNotValidF24Exception extends PnValidationException {
     public PnValidationNotValidF24Exception(String detail) {
         super("Validazione fallita, f24 non valido",
                 List.of(ProblemError.builder()
-                .code(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.NOT_VALID_ADDRESS.getValue())
+                .code(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.F24_METADATA_NOT_VALID.getValue())
                 .detail(detail)
                 .build()), null );
     }
@@ -18,7 +18,7 @@ public class PnValidationNotValidF24Exception extends PnValidationException {
     public PnValidationNotValidF24Exception(List<String> details) {
         super("Validazione fallita, f24 non valido",
                 details.stream().map(detail -> ProblemError.builder()
-                        .code(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.NOT_VALID_F24.getValue())
+                        .code(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.F24_METADATA_NOT_VALID.getValue())
                         .detail(detail)
                         .build()).toList(), null);
     }
