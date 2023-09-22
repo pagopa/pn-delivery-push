@@ -114,7 +114,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
-                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.DELIVERED, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
 
 
