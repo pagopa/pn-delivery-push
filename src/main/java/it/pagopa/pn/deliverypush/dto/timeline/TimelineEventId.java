@@ -225,6 +225,16 @@ public enum TimelineEventId {
                     .build();
         }
     },
+    PREPARE_ANALOG_DOMICILE_FAILURE("PREPARE_ANALOG_DOMICILE_FAILURE") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
+        }
+    },
 
     SEND_ANALOG_DOMICILE("SEND_ANALOG_DOMICILE") {
         @Override
