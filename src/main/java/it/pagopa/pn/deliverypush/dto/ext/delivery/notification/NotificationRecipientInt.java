@@ -23,7 +23,9 @@ public class NotificationRecipientInt {
     private String denomination;
     private LegalDigitalAddressInt digitalDomicile;
     private PhysicalAddressInt physicalAddress;
+    /* Aggiornato a nuovo oggetto pagamento
     private NotificationPaymentInfoInt payment;
+     */
     private List<NotificationPaymentInfoIntV2> payments;
     private RecipientTypeInt recipientType;
 }

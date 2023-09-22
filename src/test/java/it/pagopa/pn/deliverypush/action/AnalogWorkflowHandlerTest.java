@@ -125,7 +125,10 @@ class AnalogWorkflowHandlerTest {
                                                 .address("test address")
                                                 .build()
                                 )
+                                /* Aggiornato a nuovo oggetto pagamento
                                 .payment(null)
+                                */
+                                .payments(null)
                                 .build()
                 ))
                 .build();
