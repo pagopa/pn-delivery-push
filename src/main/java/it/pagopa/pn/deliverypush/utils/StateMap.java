@@ -62,6 +62,7 @@ class StateMap {
                 //STATE UNCHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
@@ -89,7 +90,6 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.DELIVERING, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERING, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
-                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
 
 
 
@@ -114,6 +114,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.DELIVERED, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
 
 
@@ -129,6 +130,7 @@ class StateMap {
                 //STATE UNCHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
@@ -173,6 +175,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_RESPONSE, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
@@ -236,6 +239,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.PAID, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, NotificationStatusInt.PAID, SINGLE_RECIPINET)
@@ -264,6 +268,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_RESPONSE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_DIGITAL_DOMICILE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
