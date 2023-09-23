@@ -6,7 +6,6 @@ import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoIntV2;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
@@ -16,7 +15,6 @@ import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.unit.DataSize;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -67,24 +65,24 @@ public class AttachmentUtils {
         }
 
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
-            if(!CollectionUtils.isEmpty(recipient.getPayments())){
-                recipient.getPayments().forEach(paymentInfoIntV2 -> {
-                    acceptPagoPaForm(paymentInfoIntV2, callback);
-                    acceptF24Attachment(paymentInfoIntV2, callback);
-                });
+            /* Aggiornato a nuovo oggetto pagamento
+            if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
+                    callback.accept(recipient.getPayment().getPagoPaForm());
             }
-        }
-    }
+            */
+            if(recipient.getPayments() != null) {
+                recipient.getPayments().forEach(
+                        payment -> {
+                            if(payment.getPagoPA() != null && payment.getPagoPA().getAttachment() != null) {
+                                callback.accept(payment.getPagoPA().getAttachment());
+                            }
 
-    private void acceptF24Attachment(NotificationPaymentInfoIntV2 paymentInfoIntV2, Consumer<NotificationDocumentInt> callback) {
-        if(paymentInfoIntV2.getF24() != null){
-            callback.accept(paymentInfoIntV2.getF24().getMetadataAttachment());
-        }
-    }
-
-    private void acceptPagoPaForm(NotificationPaymentInfoIntV2 paymentInfoIntV2, Consumer<NotificationDocumentInt> callback) {
-        if(paymentInfoIntV2.getPagoPA() != null){
-            callback.accept(paymentInfoIntV2.getPagoPA().getAttachment());
+                            if(payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
+                                callback.accept(payment.getF24().getMetadataAttachment());
+                            }
+                        }
+                );
+            }
         }
     }
 
@@ -93,12 +91,29 @@ public class AttachmentUtils {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
 
         notification.getRecipients().forEach( recipient -> {
+            /* Aggiornato a nuovo oggetto pagamento
             if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
                     notificationDocuments.add(recipient.getPayment().getPagoPaForm());
             }
+            */
+            addAllRecipientPaymentsToAttachmentList(notificationDocuments, recipient);
         });
         
         return notificationDocuments;
+    }
+
+    private void addAllRecipientPaymentsToAttachmentList(List<NotificationDocumentInt> notificationDocuments, NotificationRecipientInt recipient) {
+        if(recipient.getPayments() != null) {
+            recipient.getPayments().forEach(payment -> {
+                if(payment.getPagoPA() != null && payment.getPagoPA().getAttachment() != null) {
+                    notificationDocuments.add(payment.getPagoPA().getAttachment());
+                }
+
+                if(payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
+                    notificationDocuments.add(payment.getF24().getMetadataAttachment());
+                }
+            });
+        }
     }
 
     private void checkAttachment(NotificationDocumentInt attachment) {
@@ -210,9 +225,12 @@ public class AttachmentUtils {
     {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
 
+        /* Aggiornato a nuovo oggetto pagamento
         if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
                 notificationDocuments.add(recipient.getPayment().getPagoPaForm());
         }
+        */
+        addAllRecipientPaymentsToAttachmentList(notificationDocuments, recipient);
 
         return notificationDocuments;
     }

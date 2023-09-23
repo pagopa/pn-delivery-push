@@ -34,6 +34,7 @@ public enum TimelineElementCategoryInt {
     NOTIFICATION_VIEWED_CREATION_REQUEST(NotificationViewedCreationRequestDetailsInt.class, TimelineElementCategoryV20.NOTIFICATION_VIEWED_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_10),
     NOTIFICATION_VIEWED(NotificationViewedDetailsInt.class, TimelineElementCategoryV20.NOTIFICATION_VIEWED.getValue(), TimelineElementCategoryInt.VERSION_10),
     PREPARE_ANALOG_DOMICILE(BaseAnalogDetailsInt.class, TimelineElementCategoryV20.PREPARE_ANALOG_DOMICILE.getValue(), TimelineElementCategoryInt.VERSION_10),
+    PREPARE_ANALOG_DOMICILE_FAILURE(PrepareAnalogDomicileFailureDetailsInt.class, TimelineElementCategoryV20.PREPARE_ANALOG_DOMICILE_FAILURE.getValue(), TimelineElementCategoryInt.VERSION_20),
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategoryV20.SEND_ANALOG_DOMICILE.getValue(), TimelineElementCategoryInt.VERSION_10),
     SEND_ANALOG_PROGRESS(SendAnalogProgressDetailsInt.class, TimelineElementCategoryV20.SEND_ANALOG_PROGRESS.getValue(), TimelineElementCategoryInt.VERSION_10),
     SEND_ANALOG_FEEDBACK(SendAnalogFeedbackDetailsInt.class, TimelineElementCategoryV20.SEND_ANALOG_FEEDBACK.getValue(), TimelineElementCategoryInt.PRIORITY_AFTER, TimelineElementCategoryInt.VERSION_10),

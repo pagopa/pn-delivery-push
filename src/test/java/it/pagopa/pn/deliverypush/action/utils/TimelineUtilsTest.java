@@ -556,6 +556,22 @@ class TimelineUtilsTest {
         );
     }
 
+
+    @Test
+    void buildPrepareAnalogFailureTimelineElement() {
+        NotificationInt notification = buildNotification();
+        PhysicalAddressInt addressInt = buildPhysicalAddressInt();
+        Integer recIndex = 1;
+
+        TimelineElementInternal actual = timelineUtils.buildPrepareAnalogFailureTimelineElement(addressInt, "prepare_id", "D01", recIndex, notification);
+        String timelineEventIdExpected = "PREPARE_ANALOG_DOMICILE_FAILURE#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+    }
+
     @Test
     void buildRefinementTimelineElement() {
         NotificationInt notification = buildNotification();

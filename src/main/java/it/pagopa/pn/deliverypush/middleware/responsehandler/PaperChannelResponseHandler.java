@@ -3,10 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.utils.LogUtils;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.AnalogAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.PaperChannelUpdate;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.PrepareEvent;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendEvent;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.*;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -17,6 +14,8 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import lombok.CustomLog;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED;
 
@@ -158,12 +157,17 @@ public class PaperChannelResponseHandler {
     }
 
     private PrepareEventInt mapExternalToInternal(String iun, PrepareEvent event) {
+
+        // valido l'evento
+        validateEvent(event);
+
         var builder = PrepareEventInt.builder()
                 .iun(iun)
-                .statusCode(event.getStatusCode()==null?null:event.getStatusCode().getValue())
+                .statusCode(Optional.ofNullable(event.getStatusCode()).map(StatusCodeEnum::getValue).orElse(null))
                 .statusDetail(event.getStatusDetail())
                 .requestId(event.getRequestId())
                 .statusDateTime(event.getStatusDateTime())
+                .failureDetailCode(Optional.ofNullable(event.getFailureDetailCode()).map(FailureDetailCodeEnum::getValue).orElse(null))
                 .productType(event.getProductType());
 
         if (event.getReceiverAddress() != null) {
@@ -188,6 +192,30 @@ public class PaperChannelResponseHandler {
         return builder.build();
     }
 
+
+    private void validateEvent(PrepareEvent event){
+        // mi aspetto ci sia lo statusCode
+        if (event.getStatusCode() == null)
+        {
+            log.error("No statusCode specified in paperchannelevent event={}", event);
+            throw new PnInternalException("No statusCode specified, invalid event update received from paper-channel", ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+        }
+        if (event.getStatusCode() == StatusCodeEnum.KO)
+        {
+            // mi aspetto ci sia il failureDetailCode
+            if (event.getFailureDetailCode() == null) {
+                log.error("No failureDetailCode specified in paperchannelevent event={}", event);
+                throw new PnInternalException("No failureDetailCode specified, invalid event update received from paper-channel", ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+            }
+            // nel caso di D01, D02, mi aspetto ci sia anche l'indirizzo
+            if ((event.getFailureDetailCode() == FailureDetailCodeEnum.D01 || event.getFailureDetailCode() == FailureDetailCodeEnum.D02)
+                && event.getReceiverAddress() == null)
+            {
+                log.error("No address specified in paperchannelevent event={}", event);
+                throw new PnInternalException("No address specified, invalid event update received from paper-channel", ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+            }
+        }
+    }
 
     private void handleError(PaperChannelUpdate response) {
         log.error("None event specified in paperchannelevent event={}", response);
