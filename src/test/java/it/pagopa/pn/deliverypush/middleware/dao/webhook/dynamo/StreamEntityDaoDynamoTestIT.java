@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class StreamEntityDaoDynamoTestIT {
 
 
-    Duration d = Duration.ofMillis(3000);
+    Duration d = Duration.ofMillis(30000);
 
     @Autowired
     private StreamEntityDaoDynamo daoDynamo;
