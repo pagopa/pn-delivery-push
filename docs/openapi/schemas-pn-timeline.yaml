@@ -49,6 +49,9 @@ components:
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+  #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
+  #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
+  #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -1163,5 +1166,6 @@ components:
               - FILE_PDF_TOOBIG_ERROR
               - NOT_VALID_ADDRESS
               - RECIPIENT_ID_NOT_VALID
+              - F24_METADATA_NOT_VALID   (solo a partire dalla versione 2.1)
         detail:
           type: string

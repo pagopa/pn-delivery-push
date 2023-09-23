@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.PrepareEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,15 +68,16 @@ class PaperChannelResponseHandlerTest {
     }
 
     @Test
-    void prepareUpdateTest_KOUNREACHABLE() {
+    void prepareUpdateTest_KO_1() {
 
         Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
 
         PrepareEvent prepareEvent = new PrepareEvent();
-        prepareEvent.setStatusCode(StatusCodeEnum.KOUNREACHABLE);
+        prepareEvent.setStatusCode(StatusCodeEnum.KO);
         prepareEvent.setStatusDateTime(instant);
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("ko");
+        prepareEvent.setFailureDetailCode(FailureDetailCodeEnum.D00);
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
         singleStatusUpdate.setPrepareEvent(prepareEvent);
 
@@ -86,12 +88,169 @@ class PaperChannelResponseHandlerTest {
         PrepareEventInt tmp = PrepareEventInt.builder()
                 .iun("iun_event_idx_0")
                 .requestId("iun_event_idx_0")
-                .statusCode("KOUNREACHABLE")
+                .statusCode("KO")
                 .statusDateTime(instant)
+                .failureDetailCode(FailureDetailCodeEnum.D00.getValue())
                 .statusDetail("ko")
                 .build();
 
         Mockito.verify(analogWorkflowPaperChannelResponseHandler, Mockito.times(1)).paperChannelPrepareResponseHandler(tmp);
+    }
+
+    @Test
+    void prepareUpdateTest_KO_2() {
+
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        PrepareEvent prepareEvent = new PrepareEvent();
+        prepareEvent.setStatusCode(StatusCodeEnum.KO);
+        prepareEvent.setStatusDateTime(instant);
+        prepareEvent.setRequestId("iun_event_idx_0");
+        prepareEvent.setStatusDetail("ko");
+        prepareEvent.setFailureDetailCode(FailureDetailCodeEnum.D01);
+        prepareEvent.setReceiverAddress(new AnalogAddress());
+        prepareEvent.getReceiverAddress().setAddress("via prova 123");
+        prepareEvent.getReceiverAddress().setCap("32323");
+        prepareEvent.getReceiverAddress().setCountry("italia");
+        PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
+        singleStatusUpdate.setPrepareEvent(prepareEvent);
+
+        Mockito.when(timelineUtils.getIunFromTimelineId("iun_event_idx_0")).thenReturn("iun_event_idx_0");
+
+        handler.paperChannelResponseReceiver(singleStatusUpdate);
+
+        PrepareEventInt tmp = PrepareEventInt.builder()
+                .iun("iun_event_idx_0")
+                .requestId("iun_event_idx_0")
+                .statusCode("KO")
+                .statusDateTime(instant)
+                .failureDetailCode(FailureDetailCodeEnum.D01.getValue())
+                .receiverAddress(PhysicalAddressInt.builder()
+                        .address(prepareEvent.getReceiverAddress().getAddress())
+                        .zip(prepareEvent.getReceiverAddress().getCap())
+                        .foreignState(prepareEvent.getReceiverAddress().getCountry())
+                        .build())
+                .statusDetail("ko")
+                .build();
+
+        Mockito.verify(analogWorkflowPaperChannelResponseHandler, Mockito.times(1)).paperChannelPrepareResponseHandler(tmp);
+    }
+
+    @Test
+    void prepareUpdateTest_KO_3() {
+
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        PrepareEvent prepareEvent = new PrepareEvent();
+        prepareEvent.setStatusCode(StatusCodeEnum.KO);
+        prepareEvent.setStatusDateTime(instant);
+        prepareEvent.setRequestId("iun_event_idx_0");
+        prepareEvent.setStatusDetail("ko");
+        prepareEvent.setFailureDetailCode(FailureDetailCodeEnum.D02);
+        prepareEvent.setReceiverAddress(new AnalogAddress());
+        prepareEvent.getReceiverAddress().setAddress("via prova 123");
+        prepareEvent.getReceiverAddress().setCap("32323");
+        prepareEvent.getReceiverAddress().setCountry("italia");
+        PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
+        singleStatusUpdate.setPrepareEvent(prepareEvent);
+
+        Mockito.when(timelineUtils.getIunFromTimelineId("iun_event_idx_0")).thenReturn("iun_event_idx_0");
+
+        handler.paperChannelResponseReceiver(singleStatusUpdate);
+
+        PrepareEventInt tmp = PrepareEventInt.builder()
+                .iun("iun_event_idx_0")
+                .requestId("iun_event_idx_0")
+                .statusCode("KO")
+                .statusDateTime(instant)
+                .failureDetailCode(FailureDetailCodeEnum.D02.getValue())
+                .receiverAddress(PhysicalAddressInt.builder()
+                        .address(prepareEvent.getReceiverAddress().getAddress())
+                        .zip(prepareEvent.getReceiverAddress().getCap())
+                        .foreignState(prepareEvent.getReceiverAddress().getCountry())
+                        .build())
+                .statusDetail("ko")
+                .build();
+
+        Mockito.verify(analogWorkflowPaperChannelResponseHandler, Mockito.times(1)).paperChannelPrepareResponseHandler(tmp);
+    }
+
+    @Test
+    void prepareUpdateTest_KO_fail1() {
+
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        PrepareEvent prepareEvent = new PrepareEvent();
+        prepareEvent.setStatusCode(StatusCodeEnum.KO);
+        prepareEvent.setStatusDateTime(instant);
+        prepareEvent.setRequestId("iun_event_idx_0");
+        prepareEvent.setStatusDetail("ko");
+        PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
+        singleStatusUpdate.setPrepareEvent(prepareEvent);
+
+        Mockito.when(timelineUtils.getIunFromTimelineId("iun_event_idx_0")).thenReturn("iun_event_idx_0");
+
+        Assertions.assertThrows(PnInternalException.class, ()-> handler.paperChannelResponseReceiver(singleStatusUpdate));
+
+    }
+
+    @Test
+    void prepareUpdateTest_KO_fail2() {
+
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        PrepareEvent prepareEvent = new PrepareEvent();
+        prepareEvent.setStatusCode(StatusCodeEnum.KO);
+        prepareEvent.setStatusDateTime(instant);
+        prepareEvent.setRequestId("iun_event_idx_0");
+        prepareEvent.setFailureDetailCode(FailureDetailCodeEnum.D01);
+        prepareEvent.setStatusDetail("ko");
+        PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
+        singleStatusUpdate.setPrepareEvent(prepareEvent);
+
+        Mockito.when(timelineUtils.getIunFromTimelineId("iun_event_idx_0")).thenReturn("iun_event_idx_0");
+
+        Assertions.assertThrows(PnInternalException.class, ()-> handler.paperChannelResponseReceiver(singleStatusUpdate));
+
+    }
+
+    @Test
+    void prepareUpdateTest_KO_fail3() {
+
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        PrepareEvent prepareEvent = new PrepareEvent();
+        prepareEvent.setStatusCode(StatusCodeEnum.KO);
+        prepareEvent.setStatusDateTime(instant);
+        prepareEvent.setRequestId("iun_event_idx_0");
+        prepareEvent.setFailureDetailCode(FailureDetailCodeEnum.D02);
+        prepareEvent.setStatusDetail("ko");
+        PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
+        singleStatusUpdate.setPrepareEvent(prepareEvent);
+
+        Mockito.when(timelineUtils.getIunFromTimelineId("iun_event_idx_0")).thenReturn("iun_event_idx_0");
+
+        Assertions.assertThrows(PnInternalException.class, ()-> handler.paperChannelResponseReceiver(singleStatusUpdate));
+
+    }
+
+    @Test
+    void prepareUpdateTest_KO_fail4() {
+
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        PrepareEvent prepareEvent = new PrepareEvent();
+        prepareEvent.setStatusDateTime(instant);
+        prepareEvent.setRequestId("iun_event_idx_0");
+        prepareEvent.setFailureDetailCode(FailureDetailCodeEnum.D02);
+        prepareEvent.setStatusDetail("ko");
+        PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
+        singleStatusUpdate.setPrepareEvent(prepareEvent);
+
+        Mockito.when(timelineUtils.getIunFromTimelineId("iun_event_idx_0")).thenReturn("iun_event_idx_0");
+
+        Assertions.assertThrows(PnInternalException.class, ()-> handler.paperChannelResponseReceiver(singleStatusUpdate));
+
     }
 
 

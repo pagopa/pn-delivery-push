@@ -91,4 +91,7 @@ public class TimelineElementDetailsEntity {
 
     @Getter(onMethod=@__({@DynamoDbAttribute("cancellationRequestId")})) private String cancellationRequestId;
     @Getter(onMethod=@__({@DynamoDbAttribute("notRefinedRecipientIndexes")})) private List<Integer> notRefinedRecipientIndexes;
+
+
+    @Getter(onMethod=@__({@DynamoDbAttribute("failureCause")})) private String failureCause;
 }

@@ -129,7 +129,7 @@ public class LegalFactGenerator {
 
         // F24 digests
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
-            //TODO Remove from 133 to 142 when recipient.getPayment() will be removed.
+            /* Aggiornato a nuovo oggetto pagamento
             NotificationPaymentInfoInt recipientPayment = recipient.getPayment();
 
             if (recipientPayment != null ) {
@@ -140,8 +140,9 @@ public class LegalFactGenerator {
                 }
                 
             }
+            */
 
-            //add digests for v2
+            //add digests for v21
             addDigestsForMultiPayments(recipient.getPayments(), digests);
 
         }
@@ -186,14 +187,14 @@ public class LegalFactGenerator {
     @AllArgsConstructor
     @Jacksonized
     public static class PecDeliveryInfo {
-        String denomination;
-        String taxId;
-        RecipientTypeInt recipientType;
-        String address;
-        String addressSource;
-        Instant orderBy;
-        String responseDate;
-        boolean ok;
+        private String denomination;
+        private String taxId;
+        private RecipientTypeInt recipientType;
+        private String address;
+        private String addressSource;
+        private Instant orderBy;
+        private String responseDate;
+        private boolean ok;
     }
 
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
@@ -265,8 +266,8 @@ public class LegalFactGenerator {
     
     /**
      * Generate the File Compliance Certificate, according to design 4h of: 
-     * <a href="https://www.figma.com/file/HjyZhnoAKbzCbxkmQCGsZw/Piattaforma-Notifiche?node-id=13514%3A94002">...</a>
-     *
+     * https://www.figma.com/file/HjyZhnoAKbzCbxkmQCGsZw/Piattaforma-Notifiche?node-id=13514%3A94002
+     * 
      * @param pdfFileName - the fileName to certificate, without extension
      * @param signature - the signature (footprint) of file
      * @param timeReference - file temporal reference

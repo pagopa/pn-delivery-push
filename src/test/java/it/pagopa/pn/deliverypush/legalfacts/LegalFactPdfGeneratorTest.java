@@ -209,7 +209,7 @@ class LegalFactPdfGeneratorTest {
         String quickAccessToken = "test";
         NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType(RecipientTypeInt.PF).build();
         Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
-        System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+		System.out.print("*** AAR pdf successfully created at: " + filePath);
     }
 
     @Test
@@ -381,7 +381,7 @@ class LegalFactPdfGeneratorTest {
                 .sender(createSender())
                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
                 .iun("Example_IUN_1234_Test")
-                .subject("notification test subject")
+				.subject("notification Titolo di 134 caratteri massimi spazi compresi. Aid olotielit, sed eiusmod tempora incidunt ue et et dolore magna aliqua aliqua aliqua")
                 .documents(Arrays.asList(
                                 NotificationDocumentInt.builder()
                                         .ref(NotificationDocumentInt.Ref.builder()
