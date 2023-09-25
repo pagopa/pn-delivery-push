@@ -82,7 +82,7 @@ class AttachmentUtilsTest {
         attachmentUtils.validateAttachment(notification);
 
         //THEN
-        Mockito.verify(safeStorageService, Mockito.times(1)).getFile(Mockito.any(), Mockito.anyBoolean());
+        Mockito.verify(safeStorageService, Mockito.times(2)).getFile(Mockito.any(), Mockito.anyBoolean());
     }
 
     @Test
@@ -203,7 +203,7 @@ class AttachmentUtilsTest {
 
 
         //THEN
-        Mockito.verify(safeStorageService, Mockito.times(1)).getFile(Mockito.any(), Mockito.anyBoolean());
+        Mockito.verify(safeStorageService, Mockito.times(2)).getFile(Mockito.any(), Mockito.anyBoolean());
     }
 
     
@@ -222,7 +222,7 @@ class AttachmentUtilsTest {
         attachmentUtils.changeAttachmentsStatusToAttached(notification);
 
         //THEN
-        Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(Mockito.any(), Mockito.any());
+        Mockito.verify(safeStorageService, Mockito.times(2)).updateFileMetadata(Mockito.any(), Mockito.any());
     }
 
     @Test
