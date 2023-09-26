@@ -332,11 +332,23 @@ Parameters:
 
   F24ToDeliveryPushQueueName:
     Type: String
-    Description: 'F24-to-delivery-push Queue Name'
+    Description: F24-to-delivery-push Queue Name
+
+  F24ToDeliveryPushQueueARN:
+    Type: String
+    Description: F24-to-delivery-push queue ARN
+
+  F24ToDeliveryPushQueueAlarmARN:
+    Type: String
+    Description: F24-to-delivery-push queue alarm ARN
+
+  F24ToDeliveryPushQueueAgeAlarmARN:
+    Type: String
+    Description: F24-to-delivery-push queue age alarm ARN
 
   AddressManagerToDeliveryPushQueueARN:
     Type: String
-    Description: 'AddressManager-to-delivery-push queue ARN'
+    Description: AddressManager-to-delivery-push queue ARN
 
   AddressManagerToDeliveryPushQueueAlarmARN:
     Type: String
@@ -668,7 +680,7 @@ Resources:
         ContainerEnvEntry57: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
         ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
         ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_TOPICS_VALIDATEF24EVENTS=${F24ToDeliveryPushQueueName}'
-        ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_F24_BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_F24_BASEURL=${F24BaseUrl}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -710,6 +722,7 @@ Resources:
               - !Ref SafeStorageToDeliveryPushQueueARN
               - !Ref NationalRegistries2DeliveryPushQueueARN
               - !Ref AddressManagerToDeliveryPushQueueARN
+              - !Ref F24ToDeliveryPushQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -1131,7 +1144,9 @@ Resources:
             - !Ref NationalRegistries2DeliveryPushQueueAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
             - !Ref AddressManagerToDeliveryPushQueueAlarmARN
+            - !Ref F24ToDeliveryPushQueueAlarmARN
             - !Ref AddressManagerToDeliveryPushQueueAgeAlarmARN
+            - !Ref F24ToDeliveryPushQueueAgeAlarmARN
             - !Ref NotificationCancellationActionInsertDLQAlarmARN
             - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref WebhookEventManagerDLQAlarmARN
@@ -1149,6 +1164,7 @@ Resources:
             - !Ref SafeStorageToDeliveryPushQueueARN
             - !Ref NationalRegistries2DeliveryPushQueueARN
             - !Ref AddressManagerToDeliveryPushQueueARN
+            - !Ref F24ToDeliveryPushQueueARN
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
