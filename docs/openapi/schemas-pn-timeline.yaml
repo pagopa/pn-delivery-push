@@ -91,9 +91,6 @@ components:
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
-#  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
-#   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
-#   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
 
     TimelineElementV20:
       type: object
