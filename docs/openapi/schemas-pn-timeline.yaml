@@ -49,10 +49,6 @@ components:
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
-
-  #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
-  #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
-  #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -95,6 +91,9 @@ components:
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
+#  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
+#   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
+#   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
 
     TimelineElementV20:
       type: object
