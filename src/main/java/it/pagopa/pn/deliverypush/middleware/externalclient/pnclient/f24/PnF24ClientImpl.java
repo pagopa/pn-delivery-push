@@ -5,19 +5,27 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.api.F24Controlle
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.RequestAccepted;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.ValidateF24Request;
 import lombok.CustomLog;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor
 @CustomLog
 public class PnF24ClientImpl extends CommonBaseClient implements PnF24Client {
     private final F24ControllerApi f24ControllerApi;
 
+    private final String xPagoPaCxId;
+
+    public PnF24ClientImpl(F24ControllerApi f24ControllerApi,
+                           @Value("${pn.delivery-push.pagopa-cx-id}") String xPagoPaCxId) {
+        this.f24ControllerApi = f24ControllerApi;
+        this.xPagoPaCxId = xPagoPaCxId;
+    }
+
     @Override
-    public Mono<RequestAccepted> validate(ValidateF24Request validateF24Request) {
+    public Mono<RequestAccepted> validate(String iun) {
+        ValidateF24Request validateF24Request = new ValidateF24Request().setId(iun);
         log.logInvokingAsyncExternalService(CLIENT_NAME, VALIDATE_F24_PROCESS_NAME, "correlationId");
-        return f24ControllerApi.validateMetadata(X_PAGOPA_CX_ID, validateF24Request.getSetId(), validateF24Request);
+        return f24ControllerApi.validateMetadata(xPagoPaCxId, iun, validateF24Request);
     }
 }

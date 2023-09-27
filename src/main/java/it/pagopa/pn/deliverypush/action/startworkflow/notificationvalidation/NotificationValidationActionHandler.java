@@ -11,15 +11,12 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.MetadataValidationEndEvent;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.ValidateF24Request;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -70,13 +67,13 @@ public class NotificationValidationActionHandler {
             }
 
             if (f24Exists(notification)) {
-                ValidateF24Request validateF24Request = new ValidateF24Request();
-                validateF24Request.setSetId(iun);
                 //La validazione del F24 è async
                 MDCUtils.addMDCToContextAndExecute(
-                        f24Validator.requestValidateF24(notification, validateF24Request)
+                        f24Validator.requestValidateF24(notification)
                 ).block();
             } else {
+                String detail = " F24 does not exists, so F24 validation will be skipped";
+                generateSkipAuditLog(notification, SECOND_VALIDATION_STEP, detail);
                 //La validazione dell'indirizzo è async
                 MDCUtils.addMDCToContextAndExecute(
                         addressValidator.requestValidateAndNormalizeAddresses(notification)
@@ -144,6 +141,18 @@ public class NotificationValidationActionHandler {
         );
     }
 
+    @NotNull
+    private PnAuditLogEvent generateSkipAuditLog(NotificationInt notification, int validationStep, String detail) {
+        String message = "Notification validation step {} of 3." + detail;
+
+        return auditLogService.buildAuditLogEvent(
+                notification.getIun(),
+                PnAuditLogEventType.AUD_NT_VALID,
+                message,
+                validationStep
+        );
+    }
+
     private void handleValidationError(NotificationInt notification, PnValidationException ex) {
         List<NotificationRefusedErrorInt> errors = new ArrayList<>();
         if (Objects.nonNull( ex.getProblem() )) {
@@ -177,15 +186,15 @@ public class NotificationValidationActionHandler {
                         .toList();
                 throw new PnValidationNotValidF24Exception(errors);
             } else {
-                String correlationId = TimelineEventId.VALIDATED_F24.buildEventId(
-                        EventId.builder()
-                                .iun(metadataValidationEndEvent.getSetId())
-                                .build());
                 timelineService.addTimelineElement(
-                        timelineUtils.buildValidateF24TimelineElement(notification, correlationId),
+                        timelineUtils.buildValidatedF24TimelineElement(notification),
                         notification
                 );
-                addressValidator.requestValidateAndNormalizeAddresses(notification);
+
+                MDCUtils.addMDCToContextAndExecute(
+                        addressValidator.requestValidateAndNormalizeAddresses(notification)
+                ).block();
+
                 logEvent.generateSuccess().log();
             }
         } catch (PnValidationException e) {

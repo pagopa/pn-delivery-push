@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24.PnF24Client;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.F24ResponseHandler;
@@ -29,26 +28,25 @@ public class F24ClientMock implements PnF24Client {
     }
 
     @Override
-    public Mono<RequestAccepted> validate(ValidateF24Request validateF24Request) {
+    public Mono<RequestAccepted> validate(String iun) {
         new Thread(() -> {
-            String iun = validateF24Request.getSetId();
             await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, "VALIDATE_F24_REQUEST.IUN_" + validateF24Request.getSetId()).isPresent())
+                    Assertions.assertTrue(timelineService.getTimelineElement(iun, "VALIDATE_F24_REQUEST.IUN_" + iun).isPresent())
             );
 
-            log.info("[TEST] Start handle validate setId={}", validateF24Request.getSetId());
+            log.info("[TEST] Start handle validate setId={}", iun);
 
             AsyncF24Event response = new AsyncF24Event();
             response.setCxId("pn-delivery");
-            if (validateF24Request.getSetId().contains(F24_VALIDATION_FAIL)) {
-                response.setMetadataValidationEnd(buildMetadataValidationEndWithErrors(validateF24Request.getSetId()));
+            if (iun.contains(F24_VALIDATION_FAIL)) {
+                response.setMetadataValidationEnd(buildMetadataValidationEndWithErrors(iun));
             } else {
-                response.setMetadataValidationEnd(buildMetadataValidationEndOk(validateF24Request.getSetId()));
+                response.setMetadataValidationEnd(buildMetadataValidationEndOk(iun));
             }
 
             f24ResponseHandler.handleResponseReceived(response);
 
-            log.info("[TEST] End handle validate setId={}", validateF24Request.getSetId());
+            log.info("[TEST] End handle validate setId={}", iun);
         }).start();
 
 

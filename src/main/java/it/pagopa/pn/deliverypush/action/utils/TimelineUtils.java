@@ -113,10 +113,26 @@ public class TimelineUtils {
                 .build();
     }
 
-    public TimelineElementInternal buildValidateF24TimelineElement(NotificationInt notification, String elementId) {
-        log.debug("buildValidateAddressTimelineElement - iun={}", notification.getIun());
+    public TimelineElementInternal buildValidateF24RequestTimelineElement(NotificationInt notification) {
+        log.debug("buildValidateF24RequestTimelineElement - iun={}", notification.getIun());
 
-        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_F24_REQUEST, elementId, null);
+        String correlationId = TimelineEventId.VALIDATE_F24_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_F24_REQUEST, correlationId, null);
+    }
+
+    public TimelineElementInternal buildValidatedF24TimelineElement(NotificationInt notification) {
+        log.debug("buildValidatedF24TimelineElement - iun={}", notification.getIun());
+
+        String correlationId = TimelineEventId.VALIDATED_F24.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_F24_REQUEST, correlationId, null);
     }
     
     public TimelineElementInternal buildValidateAndNormalizeAddressTimelineElement(NotificationInt notification, String elementId) {

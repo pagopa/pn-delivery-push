@@ -14,7 +14,6 @@ import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationTaxIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.MetadataValidationEndEvent;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.ValidateF24Request;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.ValidationIssue;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -126,9 +125,7 @@ class NotificationValidationActionHandlerTest {
                 .thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
 
-        ValidateF24Request request = new ValidateF24Request();
-        request.setSetId(notification.getIun());
-        Mockito.when(f24Validator.requestValidateF24(notification, request)).thenReturn(Mono.empty());
+        Mockito.when(f24Validator.requestValidateF24(notification)).thenReturn(Mono.empty());
 
         //WHEN
         handler.validateNotification(notification.getIun(), details);
@@ -370,7 +367,7 @@ class NotificationValidationActionHandlerTest {
                 .thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
 
-        when(timelineUtils.buildValidateF24TimelineElement(any(), any()))
+        when(timelineUtils.buildValidateF24RequestTimelineElement(any()))
                 .thenReturn(TimelineElementInternal.builder().build());
         when(addressValidator.requestValidateAndNormalizeAddresses(notification)).thenReturn(Mono.empty());
         MetadataValidationEndEvent metadataValidationEndEvent = new MetadataValidationEndEvent();
@@ -378,7 +375,7 @@ class NotificationValidationActionHandlerTest {
         metadataValidationEndEvent.setStatus("ok");
         metadataValidationEndEvent.setErrors(Collections.emptyList());
         //WHEN
-        handler.handleValidateF24Response(metadataValidationEndEvent);
+        Assertions.assertDoesNotThrow(() -> handler.handleValidateF24Response(metadataValidationEndEvent));
     }
 
     @ExtendWith(SpringExtension.class)
@@ -395,7 +392,7 @@ class NotificationValidationActionHandlerTest {
 
         MetadataValidationEndEvent metadataValidationEndEvent = new MetadataValidationEndEvent();
         metadataValidationEndEvent.setId(notification.getIun());
-        metadataValidationEndEvent.setStatus("ok");
+        metadataValidationEndEvent.setStatus("ko");
         ValidationIssue validationIssue = new ValidationIssue();
         validationIssue.setDetail("error detail");
         metadataValidationEndEvent.setErrors(List.of(validationIssue));
