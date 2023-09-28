@@ -589,6 +589,10 @@ Parameters:
     Default: "20"
     Description: 'BatchSize asseveration event source mapping'
 
+  F24DeliveryPushUser:
+    Type: String
+    Description: 'pn-delivery-push clientId for communication with pn-f24'
+
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
@@ -681,6 +685,7 @@ Resources:
         ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
         ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_TOPICS_VALIDATEF24EVENTS=${F24ToDeliveryPushQueueName}'
         ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_F24BASEURL=${F24BaseUrl}'
+        ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_PAGOPA_CX_ID=${F24DeliveryPushUser}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
