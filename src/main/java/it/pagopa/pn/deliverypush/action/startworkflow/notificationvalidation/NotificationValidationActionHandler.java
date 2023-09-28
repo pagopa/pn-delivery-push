@@ -66,6 +66,8 @@ public class NotificationValidationActionHandler {
                 taxIdPivaValidator.validateTaxIdPiva(notification);
             }
 
+            logEvent.generateSuccess().log();
+
             if (f24Exists(notification)) {
                 //La validazione del F24 è async
                 MDCUtils.addMDCToContextAndExecute(
@@ -73,14 +75,13 @@ public class NotificationValidationActionHandler {
                 ).block();
             } else {
                 String detail = " F24 does not exists, so F24 validation will be skipped";
-                generateSkipAuditLog(notification, SECOND_VALIDATION_STEP, detail);
+                generateSkipAuditLog(notification, SECOND_VALIDATION_STEP, detail).generateSuccess().log();
                 //La validazione dell'indirizzo è async
                 MDCUtils.addMDCToContextAndExecute(
                         addressValidator.requestValidateAndNormalizeAddresses(notification)
                 ).block();
             }
 
-            logEvent.generateSuccess().log(); 
         } catch (PnValidationFileNotFoundException ex){
             if(cfg.isSafeStorageFileNotFoundRetry())
                 logEvent.generateWarning("Validation need to be rescheduled - iun={} ex=", notification.getIun(), ex).log();

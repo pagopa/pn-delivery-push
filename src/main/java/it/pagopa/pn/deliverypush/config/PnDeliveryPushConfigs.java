@@ -98,6 +98,7 @@ public class PnDeliveryPushConfigs {
     private boolean checkPdfValidEnabled;
     private Duration actionTtl;
     private boolean checkCfEnabled;
+    private String f24CxId;
     
     @Data
     public static class Topics {

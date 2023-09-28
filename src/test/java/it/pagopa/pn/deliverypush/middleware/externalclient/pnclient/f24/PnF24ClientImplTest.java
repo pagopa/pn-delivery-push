@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24;
 
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.api.F24ControllerApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.RequestAccepted;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,9 @@ class PnF24ClientImplTest {
 
     @InjectMocks
     PnF24ClientImpl client;
+
+    @Mock
+    PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     @Test
     @ExtendWith(SpringExtension.class)

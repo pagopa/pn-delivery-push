@@ -32,8 +32,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class NotificationValidationActionHandlerTest {
     @Mock
@@ -100,7 +99,7 @@ class NotificationValidationActionHandlerTest {
         
         //THEN
         Mockito.verify(attachmentUtils).validateAttachment(notification);
-        Mockito.verify(auditLogEvent).generateSuccess();
+        Mockito.verify(auditLogEvent, times(2)).generateSuccess();
         Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any());
 
     }

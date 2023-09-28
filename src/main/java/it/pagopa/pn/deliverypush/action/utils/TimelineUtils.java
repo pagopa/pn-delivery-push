@@ -132,7 +132,7 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .build());
 
-        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_F24_REQUEST, correlationId, null);
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATED_F24, correlationId, null);
     }
     
     public TimelineElementInternal buildValidateAndNormalizeAddressTimelineElement(NotificationInt notification, String elementId) {
