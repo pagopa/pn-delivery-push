@@ -76,7 +76,7 @@ class NotificationProcessCostServiceImplTest {
         Mockito.when(timelineService.getTimeline(iun, false))
                 .thenReturn(timelineElements);
 
-        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true).block();
+        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true, 0).block();
         
         int notificationProcessCostExpected = PAGOPA_NOTIFICATION_BASE_COST + simpleRegisteredLetterCost;
 
@@ -107,7 +107,7 @@ class NotificationProcessCostServiceImplTest {
         Mockito.when(timelineService.getTimeline(iun, false))
                 .thenReturn(timelineElements);
 
-        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true).block();
+        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true, 0).block();
         
         Assertions.assertNotNull(notificationProcessCostResponse);
         Assertions.assertEquals(PAGOPA_NOTIFICATION_BASE_COST, notificationProcessCostResponse.getCost());
@@ -164,7 +164,7 @@ class NotificationProcessCostServiceImplTest {
         Mockito.when(timelineService.getTimeline(iun, false))
                 .thenReturn(timelineElements);
 
-        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true).block();
+        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true, null).block();
 
         int notificationProcessCostExpected = PAGOPA_NOTIFICATION_BASE_COST + firstAnalogCost + secondAnalogCost;
 
@@ -215,7 +215,7 @@ class NotificationProcessCostServiceImplTest {
         Mockito.when(timelineService.getTimeline(iun, false))
                 .thenReturn(timelineElements);
 
-        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true).block();
+        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true, null).block();
 
         int notificationProcessCostExpected = PAGOPA_NOTIFICATION_BASE_COST + firstAnalogCost;
 
@@ -272,7 +272,7 @@ class NotificationProcessCostServiceImplTest {
         Mockito.when(timelineService.getTimeline(iun, false))
                 .thenReturn(timelineElements);
 
-        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true).block();
+        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, true, null).block();
 
         int notificationProcessCostExpected = PAGOPA_NOTIFICATION_BASE_COST + firstAnalogCost;
 
@@ -338,7 +338,7 @@ class NotificationProcessCostServiceImplTest {
         Mockito.when(timelineService.getTimeline(iun, false))
                 .thenReturn(timelineElements);
 
-        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex0, NotificationFeePolicy.DELIVERY_MODE, true).block();
+        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex0, NotificationFeePolicy.DELIVERY_MODE, true, null).block();
 
         int notificationProcessCostExpected = PAGOPA_NOTIFICATION_BASE_COST + analogCostRec0;
 
@@ -395,7 +395,7 @@ class NotificationProcessCostServiceImplTest {
         Mockito.when(timelineService.getTimeline(iun, false))
                 .thenReturn(timelineElements);
 
-        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.FLAT_RATE, false).block();
+        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.FLAT_RATE, false, null).block();
 
         int notificationProcessCostExpected = 0;
 
@@ -452,7 +452,7 @@ class NotificationProcessCostServiceImplTest {
         Mockito.when(timelineService.getTimeline(iun, false))
                 .thenReturn(timelineElements);
 
-        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, false).block();
+        NotificationProcessCost notificationProcessCostResponse = service.notificationProcessCost(iun, recIndex, NotificationFeePolicy.DELIVERY_MODE, false, null).block();
 
         int notificationProcessCostExpected = 0;
 

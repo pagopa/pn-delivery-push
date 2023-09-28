@@ -27,6 +27,7 @@ public class PnNotificationProcessCostController implements NotificationProcessC
                                                                                           Integer recIndex, 
                                                                                           NotificationFeePolicy notificationFeePolicy,
                                                                                           Boolean applyCost,
+                                                                                          Integer paFee,
                                                                                           final ServerWebExchange exchange) {
         if (timelineUtils.checkIsNotificationCancellationRequested(iun))
         {
@@ -34,7 +35,7 @@ public class PnNotificationProcessCostController implements NotificationProcessC
             throw new PnNotificationCancelledException();
         }
 
-        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost)
+        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee)
                 .map(response -> ResponseEntity.ok().body(mapResponse(response)));
     }
 

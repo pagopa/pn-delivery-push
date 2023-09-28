@@ -344,6 +344,7 @@ paths:
         - $ref: '#/components/parameters/pathRecipientIndex'
         - $ref: '#/components/parameters/queryNotificationFeePolicy'
         - $ref: '#/components/parameters/queryApplyCost'
+        - $ref: '#/components/parameters/paFee'
       responses:
         '200':
           description: OK
@@ -529,6 +530,16 @@ components:
       required: true
       schema:
         type: boolean
+
+    paFee:
+      description: Costo espresso in eurocent che la PA imputa per la notifica
+      name: paFee
+      in: query
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 100
         
   schemas:
 

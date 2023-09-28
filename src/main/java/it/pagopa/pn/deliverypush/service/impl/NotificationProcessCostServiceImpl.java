@@ -30,16 +30,17 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
     }
 
     @Override
-    public Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost) {
-        return Mono.fromCallable(() -> getNotificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost));
+    public Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost, Integer paFee) {
+        return Mono.fromCallable(() -> getNotificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee));
     }
 
-    private NotificationProcessCost getNotificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost) {
-        log.info("Start getNotificationProcessCost notificationFeePolicy={} - iun={} id={}", notificationFeePolicy, iun, recIndex);
+    private NotificationProcessCost getNotificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost, Integer paFee) {
+        log.info("Start getNotificationProcessCost notificationFeePolicy={} - iun={} id={} applyCost={} paFee={}", notificationFeePolicy, iun, recIndex, applyCost, paFee);
         
         Instant notificationViewDate = null;
         Instant refinementDate = null;
         Integer analogCost = 0;
+        int paFeeCost = paFee != null ? paFee : 0;
         
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun, false);
         log.debug("get timeline for notificationProcessCost completed - iun={} id={}", iun, recIndex);
@@ -62,11 +63,11 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
         int notificationProcessCost = 0; //In caso di FLAT_RATE viene restituito sempre zero
         
         if(NotificationFeePolicy.DELIVERY_MODE.equals(notificationFeePolicy) && Boolean.TRUE.equals(applyCost)){
-            notificationProcessCost = PAGOPA_NOTIFICATION_BASE_COST + analogCost;
+            notificationProcessCost = PAGOPA_NOTIFICATION_BASE_COST + analogCost + paFeeCost;
         }
 
-        log.info("End getNotificationProcessCost: notificationFeePolicy={} analogCost={} notificationBaseCost={} notificationProcessCost={} notificationViewDate={}, refinementDate={} - iun={} id={}", 
-                notificationFeePolicy, analogCost, PAGOPA_NOTIFICATION_BASE_COST, notificationProcessCost, notificationViewDate, refinementDate, iun, recIndex);
+        log.info("End getNotificationProcessCost: notificationFeePolicy={} analogCost={} notificationBaseCost={} notificationProcessCost={} paFeeCost={} notificationViewDate={}, refinementDate={} - iun={} id={}",
+                notificationFeePolicy, analogCost, PAGOPA_NOTIFICATION_BASE_COST, notificationProcessCost, paFeeCost, notificationViewDate, refinementDate, iun, recIndex);
 
         return NotificationProcessCost.builder()
                 .cost(notificationProcessCost)
