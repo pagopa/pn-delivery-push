@@ -40,6 +40,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsI
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
@@ -71,7 +72,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -267,7 +267,7 @@ class NotificationCancelledTestIT {
 
     @Autowired
     private F24ClientMock f24ClientMock;
-    
+
     @BeforeEach
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -470,6 +470,7 @@ class NotificationCancelledTestIT {
                 .withIun(iun)
                 .withNotificationRecipient(recipient)
                 .withNotificationDocuments(notificationDocumentList)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
 

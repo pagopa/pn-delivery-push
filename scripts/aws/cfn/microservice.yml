@@ -486,8 +486,13 @@ Parameters:
     Type: Number
     Description: maximum autoscaling number of tasks
 
-  SendNotificationAttachments:
-    Default: 'analog-notification'
+  SendAnalogNotificationAttachments:
+    Default: 'AAR-DOCUMENTS-PAYMENTS'
+    Type: String
+    Description: 'Configuration to enable sending notification attachments'
+
+  SendSimpleRegisteredLetterAttachments:
+    Default: 'AAR-DOCUMENTS-PAYMENTS'
     Type: String
     Description: 'Configuration to enable sending notification attachments'
 
@@ -667,18 +672,19 @@ Resources:
         ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
         ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
         ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
-        ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_SENDNOTIFICATIONATTACHMENTS=${SendNotificationAttachments}'
-        ContainerEnvEntry48: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
-        ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
-        ContainerEnvEntry50: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
-        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
-        ContainerEnvEntry52: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
-        ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
-        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
-        ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
-        ContainerEnvEntry56: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
-        ContainerEnvEntry57: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
-        ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
+        ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_SENDANALOGNOTIFICATIONATTACHMENTS=${SendAnalogNotificationAttachments}'
+        ContainerEnvEntry48: !Sub 'PN_DELIVERYPUSH_SENDSIMPLEREGISTEREDLETTERATTACHMENTS=${SendSimpleRegisteredLetterAttachments}'
+        ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
+        ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
+        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
+        ContainerEnvEntry52: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
+        ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
+        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
+        ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
+        ContainerEnvEntry56: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
+        ContainerEnvEntry57: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
+        ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
+        ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
         ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_TOPICS_VALIDATEF24EVENTS=${F24ToDeliveryPushQueueName}'
         ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'

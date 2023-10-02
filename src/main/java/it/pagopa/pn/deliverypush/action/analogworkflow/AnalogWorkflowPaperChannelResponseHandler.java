@@ -113,6 +113,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     private void handlerPrepareOK(PrepareEventInt response, NotificationInt notification, TimelineElementInternal timelineElementInternal, int recIndex, String requestId, PnAuditLogEvent auditLogEvent) {
         PhysicalAddressInt receiverAddress = response.getReceiverAddress();
         String productType = response.getProductType();
+        List<String> replacedF24AttachmentUrls = response.getReplacedF24AttachmentUrls();
 
         // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
         if (timelineElementInternal.getDetails() instanceof BaseAnalogDetailsInt sendAnalogDetails){
@@ -120,14 +121,14 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             int sentAttemptMade = sendAnalogDetails.getSentAttemptMade();
 
 
-            String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType);
+            String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
             String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
             auditLogEvent.generateSuccess(auditlogmessage).log();
         }
         else if ( timelineElementInternal.getDetails() instanceof BaseRegisteredLetterDetailsInt ){
             log.info("paperChannelPrepareResponseHandler prepare response is for simple registered letter, now registered letter can be sent iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
-            String timelineId = this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType);
+            String timelineId = this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
             String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
             auditLogEvent.generateSuccess(auditlogmessage).log();
         }

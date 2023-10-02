@@ -4,6 +4,8 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -12,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 public class PrepareEventInt extends PaperEventInt {
     private PhysicalAddressInt receiverAddress;
+    private List<String> replacedF24AttachmentUrls;
     private String productType;
     private String failureDetailCode;
 

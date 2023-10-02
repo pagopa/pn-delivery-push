@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.PrepareEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PhysicalAddress;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +14,8 @@ import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.List;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED;
@@ -48,6 +47,7 @@ class PaperChannelResponseHandlerTest {
         prepareEvent.setRequestId("iun_event_idx_0");
         prepareEvent.setStatusDetail("ok");
         prepareEvent.setReceiverAddress(new AnalogAddress());
+        prepareEvent.setReplacedF24AttachmentUrls(List.of("replacedF24Urls"));
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
         singleStatusUpdate.setPrepareEvent(prepareEvent);
 
@@ -61,6 +61,7 @@ class PaperChannelResponseHandlerTest {
                 .statusCode("OK")
                 .statusDateTime(instant)
                 .statusDetail("ok")
+                .replacedF24AttachmentUrls(List.of("replacedF24Urls"))
                 .receiverAddress(new PhysicalAddressInt())
                 .build();
 

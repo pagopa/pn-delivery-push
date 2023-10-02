@@ -37,7 +37,7 @@ public class F24ClientMock implements PnF24Client {
             log.info("[TEST] Start handle validate setId={}", iun);
 
             AsyncF24Event response = new AsyncF24Event();
-            response.setCxId("pn-delivery");
+            response.setClientId("pn-delivery");
             if (iun.contains(F24_VALIDATION_FAIL)) {
                 response.setMetadataValidationEnd(buildMetadataValidationEndWithErrors(iun));
             } else {

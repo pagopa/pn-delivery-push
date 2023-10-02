@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -41,8 +42,10 @@ public class NotificationMapper {
                                 .paDenomination(sentNotification.getSenderDenomination())
                                 .build()
                 )
+                .paFee(sentNotification.getPaFee())
                 .documents(listNotificationDocumentIntInt)
                 .recipients(listNotificationRecipientInt)
+                .notificationFeePolicy(NotificationFeePolicy.fromValue(sentNotification.getNotificationFeePolicy().getValue()))
                 .amount(sentNotification.getAmount())
                 .paymentExpirationDate(paymentExpirationDate)
                 .build();
@@ -92,7 +95,8 @@ public class NotificationMapper {
         sentNotification.setSentAt(notification.getSentAt());
         sentNotification.setSubject(notification.getSubject());
         sentNotification.setAmount(notification.getAmount());
-        
+        sentNotification.setPaFee(notification.getPaFee());
+
         ZonedDateTime time = DateFormatUtils.parseInstantToZonedDateTime(notification.getPaymentExpirationDate());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedString = time.format(formatter);
@@ -129,6 +133,10 @@ public class NotificationMapper {
             sentNotification.setSenderPaId(notification.getSender().getPaId());
             sentNotification.setSenderDenomination(notification.getSender().getPaDenomination());
             sentNotification.setSenderTaxId(notification.getSender().getPaTaxId());
+        }
+
+        if(notification.getNotificationFeePolicy() != null){
+            sentNotification.setNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationFeePolicy.fromValue(notification.getNotificationFeePolicy().getValue()));
         }
         
         return sentNotification;

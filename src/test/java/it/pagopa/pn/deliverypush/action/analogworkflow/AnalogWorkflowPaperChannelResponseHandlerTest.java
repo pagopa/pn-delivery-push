@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.FailureDetailCodeEnum;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.StatusCodeEnum;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
@@ -76,6 +77,78 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
                 .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
+                .build();
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE_RECEIVE), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
+
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
+        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
+
+        // WHEN
+        Assertions.assertDoesNotThrow(() -> analogWorkflowPaperChannelResponseHandler.paperChannelPrepareResponseHandler(prepareEventInt));
+
+        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
+        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void paperChannelPrepareResponseHandlerWithF24replacedUrlAnalogNotification() {
+        // GIVEN
+        PrepareEventInt prepareEventInt = PrepareEventInt.builder()
+                .iun("IUN-01")
+                .statusCode(StatusCodeEnum.OK.getValue())
+                .statusDateTime(Instant.now())
+                .replacedF24AttachmentUrls(List.of("replacedF24AttachmentUrls"))
+                .receiverAddress(PhysicalAddressInt.builder().address("via casa").build())
+                .requestId("IUN-01_abcd")
+                .build();
+
+        NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
+                .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
+                .build();
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE_RECEIVE), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
+
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
+        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
+
+        // WHEN
+        Assertions.assertDoesNotThrow(() -> analogWorkflowPaperChannelResponseHandler.paperChannelPrepareResponseHandler(prepareEventInt));
+
+        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
+        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void paperChannelPrepareResponseHandlerWithF24replacedUrlSimpleRegisteredLetter() {
+        // GIVEN
+        PrepareEventInt prepareEventInt = PrepareEventInt.builder()
+                .iun("IUN-01")
+                .statusCode(StatusCodeEnum.OK.getValue())
+                .statusDateTime(Instant.now())
+                .replacedF24AttachmentUrls(List.of("replacedF24AttachmentUrls"))
+                .receiverAddress(PhysicalAddressInt.builder().address("via casa").build())
+                .requestId("IUN-01_abcd")
+                .build();
+
+        NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER)
+                .details(BaseRegisteredLetterDetailsInt.builder().build())
                 .build();
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);

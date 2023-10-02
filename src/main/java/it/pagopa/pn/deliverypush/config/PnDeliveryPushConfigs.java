@@ -98,8 +98,12 @@ public class PnDeliveryPushConfigs {
     private boolean checkPdfValidEnabled;
     private Duration actionTtl;
     private boolean checkCfEnabled;
+
     private String f24CxId;
-    
+
+    private String sendAnalogNotificationAttachments;
+    private String sendSimpleRegisteredLetterAttachments;
+
     @Data
     public static class Topics {
 
@@ -237,8 +241,6 @@ public class PnDeliveryPushConfigs {
     public static class LegalFacts {
         private SanitizeMode sanitizeMode;
     }
-
-    private String sendNotificationAttachments;
 
     private boolean safeStorageFileNotFoundRetry;
 
