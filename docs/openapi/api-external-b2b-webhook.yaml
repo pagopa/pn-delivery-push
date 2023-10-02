@@ -253,24 +253,17 @@ info:
     Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream)  filtrati in base alla configurazione impostata negli streams.
     La api restituisce un massimo di <span id="webhookMaxLength">50</span> elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la response del servizio  restituice l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi, utilizzando  il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. Si evidenzia che ogni nuova chiamata al servizio con _lastEventId_ implica la cancellazione degli eventi precedenti. Tuttavia, in fase di implementazione del client che consumerà i servizi, bisogna considerare il fattore della __non univocità degli eventi__: è possibile che se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br> Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br> <font color="red"><strong>Nella prima versione di Piattaforma Notifiche non verrà implementata la segregazione dei gruppi e pertanto le informazioni presenti all'interno di uno stream saranno accessibili a tutte le apiKey della stessa PA; Si evidenzia comunque che gli eventi esposti dalle stream sono anonimizzati e non contengono informazioni personali o sensibili dei soggetti impattati dagli eventi.</font></strong></br> <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__ </font> 
     </br> </br>
-    <h3>Le <strong>FAQ</strong> possono essere consultate al seguente link:<a href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
-    <details>
-      <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
-    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di produzione</li> <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di collaudo</li> <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li> <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di sviluppo</li> </ul>   </details></br>
+    <h3>Le <strong>FAQ</strong> possono essere consultate al seguente link: <a href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
   contact:
     email: pn-supporto-enti@pagopa.it
   license:
     name: Licenza di PN
     url: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
 servers:
-  - url: https://api.pn.pagopa.it
+  - url: https://api.notifichedigitali.it
     description: Ambiente di produzione
-  - url: https://api.coll.pn.pagopa.it
+  - url: https://api.uat.notifichedigitali.it
     description: Ambiente di collaudo
-  - url: https://api.uat.pn.pagopa.it
-    description: Ambiente di test
-  - url: https://api.dev.pn.pagopa.it
-    description: Ambiente di sviluppo
 security:
   - ApiKeyAuth: []
 tags:
