@@ -22,10 +22,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -57,7 +54,7 @@ class AttachmentUtilsTest {
     private NotificationUtils notificationUtils;
 
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    @BeforeAll
+    @BeforeEach
     void init(){
         safeStorageService = Mockito.mock(SafeStorageService.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
@@ -242,14 +239,6 @@ class AttachmentUtilsTest {
                 .url("https://fileurl")
                 .build());
 
-        FileDownloadResponseInt resp2 = new FileDownloadResponseInt();
-        resp2.setKey("abcd");
-        resp2.setChecksum( "c2hhMjU2X2RvYzAx" );
-        resp2.setContentLength(BigDecimal.valueOf(99));
-        resp2.setDownload(FileDownloadInfoInt.builder()
-                .url("https://fileurl")
-                .build());
-
         FileDownloadResponseInt resp3 = new FileDownloadResponseInt();
         resp3.setKey("keyPagoPaForm");
         resp3.setChecksum( "a2V5UGFnb1BhRm9ybQ==" );
@@ -261,7 +250,6 @@ class AttachmentUtilsTest {
         Mockito.when(pnDeliveryPushConfigs.getCheckPdfSize()).thenReturn(DataSize.ofBytes(100));
         Mockito.when(pnDeliveryPushConfigs.isCheckPdfValidEnabled()).thenReturn(true);
         Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", false)).thenReturn(Mono.just(resp));
-        Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", false)).thenReturn(Mono.just(resp2));
         Mockito.when(safeStorageService.getFile( "keyPagoPaForm", false)).thenReturn(Mono.just(resp3));
         Mockito.when(safeStorageService.downloadPieceOfContent(Mockito.anyString(), Mockito.anyString(), Mockito.anyLong())).thenReturn(downloadPieceOfContent(true));
 
@@ -270,7 +258,7 @@ class AttachmentUtilsTest {
 
 
         //THEN
-        Mockito.verify(safeStorageService, Mockito.times(4)).getFile(any(), Mockito.anyBoolean());
+        Mockito.verify(safeStorageService, Mockito.times(2)).getFile(any(), Mockito.anyBoolean());
     }
 
 
@@ -289,7 +277,7 @@ class AttachmentUtilsTest {
         attachmentUtils.changeAttachmentsStatusToAttached(notification);
 
         //THEN
-        Mockito.verify(safeStorageService, Mockito.times(3)).updateFileMetadata(any(), any());
+        Mockito.verify(safeStorageService, Mockito.times(2)).updateFileMetadata(any(), any());
     }
 
     @Test
@@ -339,7 +327,7 @@ class AttachmentUtilsTest {
         assertThrows(PnInternalException.class, flux::blockFirst);
 
         //THEN
-        Mockito.verify(safeStorageService, Mockito.times(4)).updateFileMetadata(any(), any());
+        Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(any(), any());
     }
 
     @Test
