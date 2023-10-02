@@ -6,7 +6,9 @@ import lombok.Getter;
 @Getter
 public enum TimelineElementCategoryInt {
     SENDER_ACK_CREATION_REQUEST(SenderAckCreationRequestDetailsInt.class, TimelineElementCategoryV20.SENDER_ACK_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_10),
+    VALIDATE_F24_REQUEST(ValidateF24Int.class, DiagnosticTimelineElementCategory.VALIDATE_F24_REQUEST.value, TimelineElementCategoryInt.VERSION_20),
     VALIDATE_NORMALIZE_ADDRESSES_REQUEST(ValidateNormalizeAddressDetailsInt.class, TimelineElementCategoryV20.VALIDATE_NORMALIZE_ADDRESSES_REQUEST.getValue(),TimelineElementCategoryInt.VERSION_10),
+    VALIDATED_F24(ValidatedF24DetailInt.class, DiagnosticTimelineElementCategory.VALIDATED_F24.value, TimelineElementCategoryInt.VERSION_20),
     NORMALIZED_ADDRESS(NormalizedAddressDetailsInt.class, TimelineElementCategoryV20.NORMALIZED_ADDRESS.getValue(), TimelineElementCategoryInt.VERSION_10),
     REQUEST_ACCEPTED(NotificationRequestAcceptedDetailsInt.class, TimelineElementCategoryV20.REQUEST_ACCEPTED.getValue(), TimelineElementCategoryInt.VERSION_10),
     SEND_COURTESY_MESSAGE(SendCourtesyMessageDetailsInt.class, TimelineElementCategoryV20.SEND_COURTESY_MESSAGE.getValue(), TimelineElementCategoryInt.VERSION_10),
@@ -75,6 +77,16 @@ public enum TimelineElementCategoryInt {
     
     public Class<? extends TimelineElementDetailsInt> getDetailsJavaClass() {
         return this.detailsJavaClass;
+    }
+
+    public enum DiagnosticTimelineElementCategory {
+        VALIDATED_F24("VALIDATED_F24"),
+        VALIDATE_F24_REQUEST("VALIDATE_F24_REQUEST");
+
+        private final String value;
+        DiagnosticTimelineElementCategory(String value) {
+            this.value = value;
+        }
     }
     
 }

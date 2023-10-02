@@ -87,6 +87,8 @@ public class PnDeliveryPushConfigs {
 
     private String addressManagerBaseUrl;
 
+    private String f24BaseUrl;
+
     private String addressManagerApiKey;
     
     private Duration[] validationRetryIntervals;
@@ -96,6 +98,7 @@ public class PnDeliveryPushConfigs {
     private boolean checkPdfValidEnabled;
     private Duration actionTtl;
     private boolean checkCfEnabled;
+    private String f24CxId;
     
     @Data
     public static class Topics {
@@ -119,6 +122,8 @@ public class PnDeliveryPushConfigs {
         private String nationalRegistriesEvents;
 
         private String addressManagerEvents;
+
+        private String f24Events;
     }
 
     @Data

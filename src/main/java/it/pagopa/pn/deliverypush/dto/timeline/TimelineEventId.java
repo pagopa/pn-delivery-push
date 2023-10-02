@@ -11,6 +11,26 @@ public enum TimelineEventId {
         }
     },
 
+    VALIDATE_F24_REQUEST("VALIDATE_F24_REQUEST") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .build();
+        }
+    },
+
+    VALIDATED_F24("VALIDATED_F24") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .build();
+        }
+    },
+
     VALIDATE_NORMALIZE_ADDRESSES_REQUEST("VALIDATE_NORMALIZE_ADDRESSES_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {

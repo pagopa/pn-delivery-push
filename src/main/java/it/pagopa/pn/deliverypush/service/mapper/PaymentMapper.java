@@ -49,8 +49,9 @@ public class PaymentMapper {
     }
 
     private static F24Payment getF24(F24Int f24) {
-        F24Payment f24Payment = new F24Payment();
+        F24Payment f24Payment = null;
         if (f24 != null) {
+            f24Payment = new F24Payment();
             f24Payment.setApplyCost(f24.getApplyCost());
             f24Payment.setTitle(f24.getTitle());
             f24Payment.setMetadataAttachment(getNotificationMetadataAttachment(f24.getMetadataAttachment()));
@@ -70,8 +71,9 @@ public class PaymentMapper {
     }
 
     private static PagoPaPayment getPagoPa(PagoPaInt pagoPA) {
-        PagoPaPayment pagoPaPayment = new PagoPaPayment();
+        PagoPaPayment pagoPaPayment = null;
         if (pagoPA != null) {
+            pagoPaPayment = new PagoPaPayment();
             pagoPaPayment.setApplyCost(pagoPA.getApplyCost());
             pagoPaPayment.setAttachment(getNotificationPaymentAttachment(pagoPA.getAttachment()));
             pagoPaPayment.setCreditorTaxId(pagoPA.getCreditorTaxId());
