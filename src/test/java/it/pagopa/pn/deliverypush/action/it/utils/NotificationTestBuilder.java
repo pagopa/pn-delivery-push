@@ -91,6 +91,10 @@ public class NotificationTestBuilder {
                             .build()
             );
         }
+
+        if(notificationFeePolicy == null) {
+            notificationFeePolicy = NotificationFeePolicy.FLAT_RATE;
+        }
         
         return NotificationInt.builder()
                 .iun(iun)
