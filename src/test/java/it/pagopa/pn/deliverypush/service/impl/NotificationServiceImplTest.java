@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV21;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactive;
 import org.junit.jupiter.api.Assertions;
@@ -163,6 +164,7 @@ class NotificationServiceImplTest {
         SentNotificationV21 sentNotification = new SentNotificationV21();
         sentNotification.setIun("001");
         sentNotification.setPhysicalCommunicationType(SentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        sentNotification.setNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationFeePolicy.DELIVERY_MODE);
         return sentNotification;
     }
 
@@ -170,6 +172,7 @@ class NotificationServiceImplTest {
         SentNotificationV21 sentNotification = new SentNotificationV21();
         sentNotification.setIun("001");
         sentNotification.setPhysicalCommunicationType(SentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        sentNotification.setNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationFeePolicy.DELIVERY_MODE);
         return sentNotification;
     }
     
@@ -179,6 +182,7 @@ class NotificationServiceImplTest {
                 .recipients(Collections.emptyList())
                 .documents(Collections.emptyList())
                 .sender(NotificationSenderInt.builder().build())
+                .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
                 .build();
     }

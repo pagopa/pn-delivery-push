@@ -70,6 +70,7 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingDate")})) private Instant schedulingDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private IoSendMessageResultEntity ioSendMessageResult;
     @Getter(onMethod=@__({@DynamoDbAttribute("envelopeWeight")})) private Integer envelopeWeight;
+    @Getter(onMethod=@__({@DynamoDbAttribute("f24Attachments")})) private List<String> f24Attachments;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryDetailCode")})) private String deliveryDetailCode;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryFailureCause")})) private String deliveryFailureCause;
     @Getter(onMethod=@__({@DynamoDbAttribute("attachments")})) private List<AttachmentDetailsEntity> attachments;

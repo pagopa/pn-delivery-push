@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +27,7 @@ class NotificationMapperTest {
                                 .withFullName(denomination)
                                 .build())
                         .build())
+                .withNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         SentNotificationV21 sent = NotificationMapper.internalToExternal( expected );
@@ -55,6 +56,7 @@ class NotificationMapperTest {
                 .physicalCommunicationType(SentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .amount(18)
                 .paymentExpirationDate("2022-10-22")
+                .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .recipients( Collections.singletonList(
                        new NotificationRecipientV21()
                                 .taxId("Codice Fiscale 01")

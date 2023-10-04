@@ -35,6 +35,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -300,6 +301,7 @@ class NotificationPaidTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -403,6 +405,7 @@ class NotificationPaidTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 

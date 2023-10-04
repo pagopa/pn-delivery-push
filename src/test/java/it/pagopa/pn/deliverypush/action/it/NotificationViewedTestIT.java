@@ -39,6 +39,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsI
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
@@ -596,6 +597,7 @@ class NotificationViewedTestIT {
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipients(recipients)
                 .build();
         

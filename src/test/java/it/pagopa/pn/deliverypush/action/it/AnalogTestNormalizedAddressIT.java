@@ -32,6 +32,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -292,6 +293,7 @@ class AnalogTestNormalizedAddressIT {
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);

@@ -38,6 +38,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
@@ -337,6 +338,7 @@ class DigitalTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -473,6 +475,7 @@ class DigitalTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -720,6 +723,7 @@ class DigitalTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -871,6 +875,7 @@ class DigitalTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -966,6 +971,7 @@ class DigitalTestIT {
         final NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -1071,6 +1077,7 @@ class DigitalTestIT {
         final NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -1176,6 +1183,7 @@ class DigitalTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -1384,6 +1392,7 @@ class DigitalTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -1526,6 +1535,7 @@ class DigitalTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -1656,6 +1666,7 @@ class DigitalTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 

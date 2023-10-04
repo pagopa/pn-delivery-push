@@ -39,6 +39,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalFailureWorkflowDeta
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -432,6 +433,7 @@ class NotHandledTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -540,6 +542,7 @@ class NotHandledTestIT {
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);

@@ -471,9 +471,10 @@ public class TimelineUtils {
     public TimelineElementInternal buildSendAnalogNotificationTimelineElement(PhysicalAddressInt address,
                                                                               Integer recIndex,
                                                                               NotificationInt notification,
-                                                                              AnalogDtoInt analogDtoInfo) {
+                                                                              AnalogDtoInt analogDtoInfo,
+                                                                              List<String> replacedF24AttachmentUrls) {
         SendResponse sendResponse = analogDtoInfo.getSendResponse();
-        log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={} analogCost={} relatedRequestId={}", notification.getIun(), recIndex, sendResponse.getAmount(), analogDtoInfo.getRelatedRequestId());
+        log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={} analogCost={} relatedRequestId={} replacedF24AttachmentUrls={}", notification.getIun(), recIndex, sendResponse.getAmount(), analogDtoInfo.getRelatedRequestId(), replacedF24AttachmentUrls);
         ServiceLevelInt serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevelInt.valueOf(notification.getPhysicalCommunicationType().name()) : null;
 
         String elementId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
@@ -493,6 +494,7 @@ public class TimelineUtils {
                 .productType(analogDtoInfo.getProductType())
                 .numberOfPages(sendResponse.getNumberOfPages())
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
+                .f24Attachments(replacedF24AttachmentUrls)
                 .prepareRequestId(analogDtoInfo.getPrepareRequestId())
                 .build();
 
