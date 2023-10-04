@@ -35,7 +35,7 @@ public class SendAnalogDetailsInt extends BaseAnalogDetailsInt implements Analog
                 analogCost,
                 productType,
                 prepareRequestId,
-                CollectionUtils.isEmpty(f24Attachments) ? String.join(",", f24Attachments) : Collections.emptyList()
+                !CollectionUtils.isEmpty(f24Attachments) ? String.join(",", f24Attachments) : Collections.emptyList()
         );
     }
 }

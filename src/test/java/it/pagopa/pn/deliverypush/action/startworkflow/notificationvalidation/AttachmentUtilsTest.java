@@ -382,8 +382,8 @@ class AttachmentUtilsTest {
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient2)).thenReturn(notification.getRecipients().get(recIndexRecipient2));
 
         //WHEN
-        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, true);
-        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, false);
+        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, true, Collections.emptyList());
+        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, false, Collections.emptyList());
 
         Assertions.assertEquals(3, attachmentsRecipient1.size());
         Assertions.assertEquals(2, attachmentsRecipient2.size());

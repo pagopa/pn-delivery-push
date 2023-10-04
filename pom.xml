@@ -603,7 +603,6 @@
 						</goals>
 						<configuration>
 							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-channel/2a44648b6188d25133e70eeb772ac44785cdb6ca/docs/openapi/api-internal-v1.yaml</inputSpec>
-							<!--<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-channel/bdc880d020645b19bae5399989be2a0dffc97c45/docs/openapi/api-internal-v1.yaml</inputSpec>-->
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

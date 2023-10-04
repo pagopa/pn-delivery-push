@@ -28,11 +28,11 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @CustomLog
@@ -153,7 +153,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         String eventId = paperChannelUtils.buildPrepareSimpleRegisteredLetterEventId(notification, recIndex);
 
         // recupero gli allegati
-        List<String> attachments = retrieveAttachments(notification, recIndex, retrieveSendAttachmentMode(NotificationChannelType.SIMPLE_REGISTERED_LETTER), true);
+        List<String> attachments = retrieveAttachments(notification, recIndex, retrieveSendAttachmentMode(NotificationChannelType.SIMPLE_REGISTERED_LETTER), true, Collections.emptyList());
         PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER.name(), attachments);
 
         try {
@@ -179,7 +179,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         String eventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade);
 
         // recupero gli allegati
-        List<String> attachments = retrieveAttachments(notification, recIndex, retrieveSendAttachmentMode(NotificationChannelType.ANALOG_NOTIFICATION), true);
+        List<String> attachments = retrieveAttachments(notification, recIndex, retrieveSendAttachmentMode(NotificationChannelType.ANALOG_NOTIFICATION), true, Collections.emptyList());
         PhysicalAddressInt.ANALOG_TYPE analogType = getAnalogType(notification);
         PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, analogType.name(), attachments);
 
@@ -245,7 +245,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
      * @return lista id allegati
      */
     @NotNull
-    private List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, SendAttachmentMode sendAttachmentMode, Boolean includeF24MetadataUrl) {
+    private List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, SendAttachmentMode sendAttachmentMode, Boolean isPrepareFlow, List<String> replacedF24AttachmentUrls) {
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
         List<String> attachments = new ArrayList<>();
@@ -261,7 +261,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 yield attachments;
             }
             case AAR_DOCUMENTS_PAYMENTS -> {
-                attachments.addAll(attachmentUtils.getNotificationAttachmentsAndPayments(notification,notificationRecipientInt, recIndex, includeF24MetadataUrl));
+                attachments.addAll(attachmentUtils.getNotificationAttachmentsAndPayments(notification,notificationRecipientInt, recIndex, isPrepareFlow, replacedF24AttachmentUrls));
                 yield attachments;
             }
         };
@@ -283,10 +283,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             log.info("Registered Letter sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
             // recupero gli allegati
-            List<String> attachments = retrieveAttachments(notification, recIndex, retrieveSendAttachmentMode(NotificationChannelType.SIMPLE_REGISTERED_LETTER), false);
-            if(!CollectionUtils.isEmpty(replacedF24AttachmentUrls)){
-                attachments.addAll(replacedF24AttachmentUrls);
-            }
+            List<String> attachments = retrieveAttachments(notification, recIndex, retrieveSendAttachmentMode(NotificationChannelType.SIMPLE_REGISTERED_LETTER), false, replacedF24AttachmentUrls);
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
@@ -328,10 +325,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             log.info("Analog notification sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
             // recupero gli allegati
-            List<String> attachments = retrieveAttachments(notification, recIndex, retrieveSendAttachmentMode(NotificationChannelType.ANALOG_NOTIFICATION), false);
-            if(!CollectionUtils.isEmpty(replacedF24AttachmentUrls)){
-                attachments.addAll(replacedF24AttachmentUrls);
-            }
+            List<String> attachments = retrieveAttachments(notification, recIndex, retrieveSendAttachmentMode(NotificationChannelType.ANALOG_NOTIFICATION), false, replacedF24AttachmentUrls);
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 

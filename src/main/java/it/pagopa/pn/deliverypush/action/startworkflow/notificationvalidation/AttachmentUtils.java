@@ -5,13 +5,10 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
@@ -34,6 +31,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @CustomLog
 public class AttachmentUtils {
     private static final String VALIDATE_ATTACHMENT_PROCESS = "Validate attachment";
+    private static final String F24_URL_PREFIX = "f24set:///";
     private final SafeStorageService safeStorageService;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
@@ -231,12 +229,19 @@ public class AttachmentUtils {
         return notification.getDocuments().stream().map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey())).toList();
     }
 
-    public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, Boolean includeF24MetadataUrl) {
+    public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, Boolean isPrepareFlow, List<String> replacedF24AttachmentUrls) {
         List<String> attachments = new ArrayList<>(getNotificationAttachments(notification));
-        if (!CollectionUtils.isEmpty(recipient.getPayments())) {
-            attachments.addAll(getNotificationPagoPaPayments(recipient));
-            if (Boolean.TRUE.equals(includeF24MetadataUrl)) {
-                attachments.addAll(getNotificationF24Payments(notification, recipient, recIndex));
+        if (CollectionUtils.isEmpty(recipient.getPayments())) {
+            return attachments;
+        }
+
+        attachments.addAll(getNotificationPagoPaPayments(recipient));
+        if (Boolean.TRUE.equals(isPrepareFlow)) {
+            addNotificationF24PaymentsUrl(attachments, notification, recipient, recIndex);
+        } else {
+            // Se non è flusso prepare, è flusso send e non devo includere la URL degli F24 ma provare ad aggiungere l'eventuale lista di pdf prodotti agli attachments
+            if(!CollectionUtils.isEmpty(replacedF24AttachmentUrls)){
+                attachments.addAll(replacedF24AttachmentUrls);
             }
         }
         return attachments;
@@ -251,25 +256,31 @@ public class AttachmentUtils {
 
     }
 
-    private List<String> getNotificationF24Payments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex) {
-        return recipient.getPayments().stream()
-                .filter(paymentInfoIntV2 -> paymentInfoIntV2.getF24() != null)
-                .map(paymentInfoIntV2 -> {
-                    Boolean applyCost = paymentInfoIntV2.getF24().getApplyCost();
-                    Integer cost = retrieveCost(notification, recIndex, applyCost);
-                    return getF24Url(notification.getIun(), recIndex, cost);
-                })
+    private void addNotificationF24PaymentsUrl(List<String> attachments, NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex) {
+        List<F24Int> f24Payments = recipient.getPayments().stream()
+                .map(NotificationPaymentInfoIntV2::getF24)
+                .filter(Objects::nonNull)
                 .toList();
+
+        //Se non ci sono pagamenti F24 non faccio nulla.
+        if(f24Payments.isEmpty()) {
+            return;
+        }
+
+        boolean f24PaymentsRequireCost = f24Payments.stream().anyMatch(F24Int::getApplyCost);
+        Integer cost = null;
+        // Se almeno uno dei pagamenti F24 ha applyCost = true, devo calcolare il costo della notifica
+        if(f24PaymentsRequireCost) {
+            cost = retrieveCost(notification, recIndex);
+        }
+
+        attachments.add(getF24Url(notification.getIun(), recIndex, cost));
     }
 
-    private Integer retrieveCost(NotificationInt notificationInt, int recipientIdx, Boolean applyCost) {
-        Integer cost = null;
-        if (NotificationFeePolicy.DELIVERY_MODE == notificationInt.getNotificationFeePolicy()) {
-            cost = notificationProcessCostService.notificationProcessCost(notificationInt.getIun(), recipientIdx, notificationInt.getNotificationFeePolicy(), applyCost, notificationInt.getPaFee())
+    private Integer retrieveCost(NotificationInt notificationInt, int recipientIdx) {
+        return notificationProcessCostService.notificationProcessCost(notificationInt.getIun(), recipientIdx, notificationInt.getNotificationFeePolicy(), true, notificationInt.getPaFee())
                     .map(NotificationProcessCost::getCost)
                     .block();
-        }
-        return cost;
     }
 
     private boolean checkIsPDF(byte[] data) {
@@ -285,12 +296,12 @@ public class AttachmentUtils {
     }
 
     public String getF24Url(String iun, Integer recIndex, Integer cost) {
-        StringBuilder stringBuilder = new StringBuilder("f24set:///");
+        StringBuilder stringBuilder = new StringBuilder(F24_URL_PREFIX);
         stringBuilder.append(iun);
         stringBuilder.append("/");
         stringBuilder.append(recIndex);
 
-        if (cost != null) {
+        if (cost != null && cost > 0) {
             stringBuilder.append("?cost=");
             stringBuilder.append(cost);
         }
