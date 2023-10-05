@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.mod
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,7 @@ public class PnExternalRegistryClientImpl implements PnExternalRegistryClient{
     }
 
 
+    @Cacheable("aooSenderIdCache")
     public String getRootSenderId(String senderId){
         try{
             RootSenderIdResponse rootSenderIdPrivate = rootSenderIdApi.getRootSenderIdPrivate(senderId);
