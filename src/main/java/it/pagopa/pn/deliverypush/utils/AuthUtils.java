@@ -4,6 +4,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.MandateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,9 +22,11 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class AuthUtils {
 
     private final MandateService mandateService;
+    private final PnExternalRegistryClient externalRegistryClient;
 
-    public AuthUtils(MandateService mandateService) {
+    public AuthUtils(MandateService mandateService, PnExternalRegistryClient externalRegistryClient) {
         this.mandateService = mandateService;
+        this.externalRegistryClient = externalRegistryClient;
     }
 
     //Viene verificata l'autorizzazione di accesso a una determinata risorsa da parte del recipient
@@ -48,7 +51,8 @@ public class AuthUtils {
         log.info("Start CheckUserPaAndMandateAuthorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
 
         if (StringUtils.hasText(mandateId)) {
-            checkAuthForMandate(notification, senderRecipientId, mandateId, paId, iun, cxType, cxGroups);
+            String rootSenderId = externalRegistryClient.getRootSenderId(paId);
+            checkAuthForMandate(notification, senderRecipientId, mandateId, rootSenderId, iun, cxType, cxGroups);
         } else {
             checkAuthForSenderAndRecipients(notification, senderRecipientId, paId, iun, cxType, cxGroups);
         }

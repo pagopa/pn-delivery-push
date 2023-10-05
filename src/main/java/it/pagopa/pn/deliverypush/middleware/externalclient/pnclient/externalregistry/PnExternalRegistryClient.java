@@ -9,4 +9,5 @@ public interface PnExternalRegistryClient {
     String SEND_IO_MESSAGE = "SEND MESSAGE TO IO";
     
     SendMessageResponse sendIOMessage(SendMessageRequest sendMessageRequest);
+    String getRootSenderId(String senderId);
 }

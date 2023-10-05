@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.MandateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,13 +29,14 @@ import static org.mockito.Mockito.when;
 class AuthUtilsTest {
 
     private MandateService mandateService;
+    private PnExternalRegistryClient externalRegistryClient;
 
     private AuthUtils authUtils;
 
     @BeforeEach
     void setup() {
         mandateService = Mockito.mock(MandateService.class);
-        authUtils = new AuthUtils(mandateService);
+        authUtils = new AuthUtils(mandateService,externalRegistryClient);
     }
 
     @Test
