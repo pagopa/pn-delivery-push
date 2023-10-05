@@ -129,18 +129,6 @@ public class LegalFactGenerator {
 
         // F24 digests
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
-            /* Aggiornato a nuovo oggetto pagamento
-            NotificationPaymentInfoInt recipientPayment = recipient.getPayment();
-
-            if (recipientPayment != null ) {
-
-                NotificationDocumentInt pagoPaForm = recipientPayment.getPagoPaForm();
-                if ( pagoPaForm != null ) {
-                    digests.add( FileUtils.convertBase64toHexUppercase(pagoPaForm.getDigests().getSha256()) );
-                }
-                
-            }
-            */
 
             //add digests for v21
             addDigestsForMultiPayments(recipient.getPayments(), digests);

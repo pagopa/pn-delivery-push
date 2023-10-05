@@ -69,11 +69,6 @@ public class AttachmentUtils {
         }
 
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
-            /* Aggiornato a nuovo oggetto pagamento
-            if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
-                    callback.accept(recipient.getPayment().getPagoPaForm());
-            }
-            */
             if(recipient.getPayments() != null) {
                 recipient.getPayments().forEach(
                         payment -> {
@@ -95,11 +90,6 @@ public class AttachmentUtils {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
 
         notification.getRecipients().forEach( recipient -> {
-            /* Aggiornato a nuovo oggetto pagamento
-            if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
-                    notificationDocuments.add(recipient.getPayment().getPagoPaForm());
-            }
-            */
             addAllRecipientPaymentsToAttachmentList(notificationDocuments, recipient);
         });
         

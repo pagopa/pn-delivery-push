@@ -63,9 +63,6 @@ class RegisteredLetterSenderTest {
         NotificationRecipientInt recipient = NotificationRecipientInt.builder()
                 .taxId("testIdRecipient")
                 .denomination("Nome Cognome/Ragione Sociale")
-                /* Aggiornato a nuovo oggetto pagamento
-                .payment(null)
-                 */
                 .payments(null)
                 .build();
 

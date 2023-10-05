@@ -14,9 +14,6 @@ public class NotificationRecipientTestBuilder {
     private PhysicalAddressInt physicalAddress;
     private String internalId;
     private LegalDigitalAddressInt digitalDomicile;
-    /* Aggiornato a nuovo oggetto pagamento
-    private NotificationPaymentInfoInt payment;
-     */
     private List<NotificationPaymentInfoIntV2> payments;
     private RecipientTypeInt recipientType;
     private String denomination;
@@ -44,13 +41,7 @@ public class NotificationRecipientTestBuilder {
         this.digitalDomicile = digitalDomicile;
         return this;
     }
-    
-    /* Aggiornato a nuovo oggetto pagamento
-    public NotificationRecipientTestBuilder withPayment(NotificationPaymentInfoInt payment) {
-        this.payment = payment;
-        return this;
-    }
-     */
+
 
 
     public NotificationRecipientTestBuilder withPayments(List<NotificationPaymentInfoIntV2> payments) {
@@ -103,9 +94,6 @@ public class NotificationRecipientTestBuilder {
                 .denomination(denomination)
                 .physicalAddress(physicalAddress)
                 .digitalDomicile(digitalDomicile)
-                /* Aggiornato a nuovo oggetto pagamento
-                .payment(payment)
-                 */
                 .payments(payments)
                 .build();
     }

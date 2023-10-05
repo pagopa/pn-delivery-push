@@ -417,18 +417,6 @@ class AttachmentUtilsTest {
                                 .withAddress(EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
                                 .build()
                 )
-                /* Aggiornato a nuovo oggetto pagamento
-                .withPayment(NotificationPaymentInfoInt.builder()
-                        .pagoPaForm(NotificationDocumentInt.builder()
-                                .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("keyPagoPaForm")
-                                        .build())
-                                .digests( NotificationDocumentInt.Digests.builder()
-                                        .sha256( Base64Utils.encodeToString("keyPagoPaForm".getBytes()) )
-                                        .build() )
-                                .build())
-                        .build())
-                 */
                 .withPayments(Collections.singletonList(
                         NotificationPaymentInfoIntV2.builder()
                                 .pagoPA(PagoPaInt.builder()
@@ -464,13 +452,6 @@ class AttachmentUtilsTest {
                                 .foreignState("ITALIA")
                                 .build()
                 )
-                /* Aggiornato a nuovo oggetto pagamento
-                .withPayment(NotificationPaymentInfoInt.builder()
-                        .noticeCode("302011681384967173")
-                        .creditorTaxId("77777777777")
-                        .build()
-                )
-                 */
                 .withPayments(
                         Collections.singletonList(
                                 NotificationPaymentInfoIntV2.builder()
@@ -521,21 +502,6 @@ class AttachmentUtilsTest {
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                 .build()
                 )
-                /* Aggiornato a nuovo oggetto pagamento
-                .withPayment(NotificationPaymentInfoInt.builder()
-                        .noticeCode("302011681384967181")
-                        .creditorTaxId("77777777777")
-                        .pagoPaForm(NotificationDocumentInt.builder()
-                                .ref(NotificationDocumentInt.Ref.builder()
-                                        .key("PN_NOTIFICATION_ATTACHMENTS-a75e827e953c4917b6d1beaf6df56755.pdf")
-                                        .versionToken("v1")
-                                        .build())
-                                .digests( NotificationDocumentInt.Digests.builder()
-                                        .sha256( "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=" )
-                                        .build() )
-                                .build())
-                        .build())
-                 */
                 .withPayments(
                         Collections.singletonList(
                                 NotificationPaymentInfoIntV2.builder()
