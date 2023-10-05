@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
+import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEventPayload;
+import it.pagopa.pn.api.dto.events.PnF24MetadataValidationIssue;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
@@ -13,8 +15,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationTaxIdNotValidException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.MetadataValidationEndEvent;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.ValidationIssue;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -369,12 +369,14 @@ class NotificationValidationActionHandlerTest {
         when(timelineUtils.buildValidateF24RequestTimelineElement(any()))
                 .thenReturn(TimelineElementInternal.builder().build());
         when(addressValidator.requestValidateAndNormalizeAddresses(notification)).thenReturn(Mono.empty());
-        MetadataValidationEndEvent metadataValidationEndEvent = new MetadataValidationEndEvent();
-        metadataValidationEndEvent.setId(notification.getIun());
-        metadataValidationEndEvent.setStatus("ok");
-        metadataValidationEndEvent.setErrors(Collections.emptyList());
+
+        PnF24MetadataValidationEndEventPayload pnF24MetadataValidationEndEventPayload = PnF24MetadataValidationEndEventPayload.builder()
+                .setId(notification.getIun())
+                .status("ok")
+                .errors(Collections.emptyList())
+                .build();
         //WHEN
-        Assertions.assertDoesNotThrow(() -> handler.handleValidateF24Response(metadataValidationEndEvent));
+        Assertions.assertDoesNotThrow(() -> handler.handleValidateF24Response(pnF24MetadataValidationEndEventPayload));
     }
 
     @ExtendWith(SpringExtension.class)
@@ -389,14 +391,18 @@ class NotificationValidationActionHandlerTest {
                 .thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), any())).thenReturn(auditLogEvent);
 
-        MetadataValidationEndEvent metadataValidationEndEvent = new MetadataValidationEndEvent();
-        metadataValidationEndEvent.setId(notification.getIun());
-        metadataValidationEndEvent.setStatus("ko");
-        ValidationIssue validationIssue = new ValidationIssue();
-        validationIssue.setDetail("error detail");
-        metadataValidationEndEvent.setErrors(List.of(validationIssue));
+        PnF24MetadataValidationIssue validationIssue = PnF24MetadataValidationIssue.builder()
+                .detail("error detail")
+                .build();
+
+        PnF24MetadataValidationEndEventPayload pnF24MetadataValidationEndEventPayload = PnF24MetadataValidationEndEventPayload.builder()
+                .setId(notification.getIun())
+                .status("ko")
+                .errors(List.of(validationIssue))
+                .build();
+
         //WHEN
-        Assertions.assertDoesNotThrow(() -> handler.handleValidateF24Response(metadataValidationEndEvent));
+        Assertions.assertDoesNotThrow(() -> handler.handleValidateF24Response(pnF24MetadataValidationEndEventPayload));
     }
 
 

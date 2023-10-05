@@ -1,10 +1,10 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
+import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEvent;
+import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEventPayload;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.AsyncF24Event;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.MetadataValidationEndEvent;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24.PnF24Client;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import lombok.AllArgsConstructor;
@@ -18,9 +18,9 @@ public class F24ResponseHandler {
     private TimelineUtils timelineUtils;
     private NotificationValidationActionHandler validationActionHandler;
 
-    public void handleResponseReceived(AsyncF24Event event) {
+    public void handleResponseReceived(PnF24MetadataValidationEndEvent.Detail event) {
         if (event.getMetadataValidationEnd() != null) {
-            MetadataValidationEndEvent metadataValidationEndEvent = event.getMetadataValidationEnd();
+            PnF24MetadataValidationEndEventPayload metadataValidationEndEvent = event.getMetadataValidationEnd();
             String iun = metadataValidationEndEvent.getSetId();
             addMdcFilter(iun);
             log.info("Async response received from service {} for {} with iun={}",

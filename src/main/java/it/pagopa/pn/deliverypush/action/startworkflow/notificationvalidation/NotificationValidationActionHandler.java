@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
+import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEventPayload;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -16,7 +17,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.MetadataValidationEndEvent;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -175,7 +175,7 @@ public class NotificationValidationActionHandler {
         timelineService.addTimelineElement(element, notification);
     }
 
-    public void handleValidateF24Response(MetadataValidationEndEvent metadataValidationEndEvent) {
+    public void handleValidateF24Response(PnF24MetadataValidationEndEventPayload metadataValidationEndEvent) {
         NotificationInt notification = notificationService.getNotificationByIun(metadataValidationEndEvent.getSetId());
         PnAuditLogEvent logEvent = generateAuditLog(notification, SECOND_VALIDATION_STEP);
         try {

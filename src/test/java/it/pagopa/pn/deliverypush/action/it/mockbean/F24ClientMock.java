@@ -1,5 +1,8 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
+import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEvent;
+import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEventPayload;
+import it.pagopa.pn.api.dto.events.PnF24MetadataValidationIssue;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24.PnF24Client;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.F24ResponseHandler;
@@ -36,15 +39,16 @@ public class F24ClientMock implements PnF24Client {
 
             log.info("[TEST] Start handle validate setId={}", iun);
 
-            AsyncF24Event response = new AsyncF24Event();
-            response.setClientId("pn-delivery");
+            PnF24MetadataValidationEndEvent.Detail.DetailBuilder builder = PnF24MetadataValidationEndEvent.Detail.builder();
+
+            builder.clientId("pn-delivery");
             if (iun.contains(F24_VALIDATION_FAIL)) {
-                response.setMetadataValidationEnd(buildMetadataValidationEndWithErrors(iun));
+                builder.metadataValidationEnd(buildMetadataValidationEndWithErrors(iun));
             } else {
-                response.setMetadataValidationEnd(buildMetadataValidationEndOk(iun));
+                builder.metadataValidationEnd(buildMetadataValidationEndOk(iun));
             }
 
-            f24ResponseHandler.handleResponseReceived(response);
+            f24ResponseHandler.handleResponseReceived(builder.build());
 
             log.info("[TEST] End handle validate setId={}", iun);
         }).start();
@@ -53,29 +57,28 @@ public class F24ClientMock implements PnF24Client {
         return Mono.just(new RequestAccepted().description("OK").status("OK"));
     }
 
-    private MetadataValidationEndEvent buildMetadataValidationEndWithErrors(String setId) {
-        MetadataValidationEndEvent metadataValidationEndEvent = new MetadataValidationEndEvent();
-        metadataValidationEndEvent.setId(setId);
-        metadataValidationEndEvent.setStatus("KO");
-        metadataValidationEndEvent.setErrors(
-                List.of(new ValidationIssue()
-                                .code("ERROR_TEST")
-                                .detail("ERROR_DETAIL")
-                                .element("rec0paym0"),
-                        new ValidationIssue()
-                                .code("ERROR_TEST")
-                                .detail("ERROR_DETAIL_2")
-                                .element("rec0paym1")
-                )
-        );
-        return metadataValidationEndEvent;
+    private PnF24MetadataValidationEndEventPayload buildMetadataValidationEndWithErrors(String setId) {
+        return PnF24MetadataValidationEndEventPayload.builder()
+                .setId(setId)
+                .status("KO")
+                .errors(
+                        List.of(
+                                PnF24MetadataValidationIssue.builder()
+                                        .code("ERROR_TEST")
+                                        .detail("ERROR_DETAIL")
+                                        .element("rec0paym0")
+                                        .build(),
+
+                                PnF24MetadataValidationIssue.builder()
+                                        .code("ERROR_TEST")
+                                        .detail("ERROR_DETAIL_2")
+                                        .element("rec0paym1")
+                                        .build()))
+                .build();
     }
 
-    private MetadataValidationEndEvent buildMetadataValidationEndOk(String setId) {
-        MetadataValidationEndEvent metadataValidationEndEvent = new MetadataValidationEndEvent();
-        metadataValidationEndEvent.setId(setId);
-        metadataValidationEndEvent.setStatus("KO");
-        return metadataValidationEndEvent;
+    private PnF24MetadataValidationEndEventPayload buildMetadataValidationEndOk(String setId) {
+        return PnF24MetadataValidationEndEventPayload.builder().setId(setId).status("OK").build();
     }
 
     public void clear() {

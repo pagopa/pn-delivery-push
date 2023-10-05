@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.AsyncF24Event;
+import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEvent;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24.PnF24Client;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.F24ResponseHandler;
@@ -19,11 +19,11 @@ public class F24EventHandler {
     private F24ResponseHandler handler;
 
     @Bean
-    public Consumer<Message<AsyncF24Event>> pnF24EventInboundConsumer() {
+    public Consumer<Message<PnF24MetadataValidationEndEvent.Detail>> pnF24EventInboundConsumer() {
         return message -> {
             try {
                 log.debug("Handle message from {} with content {}", PnF24Client.CLIENT_NAME, message);
-                AsyncF24Event event = message.getPayload();
+                PnF24MetadataValidationEndEvent.Detail event = message.getPayload();
                 handler.handleResponseReceived(event);
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
