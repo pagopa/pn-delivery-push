@@ -92,7 +92,6 @@ paths:
         Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi 
         registrati durante il processo di notifica.
         <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
       operationId: getNotificationLegalFacts                                      # NO EXTERNAL
@@ -136,7 +135,6 @@ paths:
       description: >-
         Permette di scaricare un atto opponibile a terzi
         <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
       operationId: getLegalFact                                      # NO EXTERNAL
@@ -181,7 +179,6 @@ paths:
       description: >-
         Permette di scaricare un atto opponibile a terzi
         <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
       operationId: getLegalFactById                                      # NO EXTERNAL
