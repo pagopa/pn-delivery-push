@@ -899,6 +899,7 @@ components:
           type: string
           description: Canale sorgente della richiesta di pagamento
         uncertainPaymentDate:
+          deprecated: true
           type: boolean
           description: Indica se la data di pagamento é certa
 
