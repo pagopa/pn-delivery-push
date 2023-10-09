@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationPaidMapper;
-import it.pagopa.pn.deliverypush.utils.UUIDCreatorUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,7 +35,7 @@ class NotificationPaidHandlerTest {
         timelineUtils = Mockito.mock(TimelineUtils.class);
         notificationService = Mockito.mock(NotificationService.class);
 
-        handler = new NotificationPaidHandler(timelineService, timelineUtils, notificationService, Mockito.mock(UUIDCreatorUtils.class));
+        handler = new NotificationPaidHandler(timelineService, timelineUtils, notificationService);
 
     }
 
@@ -62,7 +61,7 @@ class NotificationPaidHandlerTest {
                         .build())
                 .build();
 
-        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(paymentEvent, null);
+        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(paymentEvent);
         String elementId = buildElementId(notificationPaidInt);
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal(notificationPaidInt);
 

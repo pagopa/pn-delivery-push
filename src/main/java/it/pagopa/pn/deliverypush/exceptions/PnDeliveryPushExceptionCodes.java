@@ -76,6 +76,8 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
     public static final String ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED = "PN_DELIVERYPUSH_NOTIFICATION_CANCELLED";
 
+    public static final String ERROR_CODE_DELIVERYPUSH_PAPERCHANNELSENDCOSTCHANGED = "PN_DELIVERYPUSH_PAPERCHANNELSENDCOSTCHANGED";
+
     public enum NotificationRefusedErrorCodeInt {
         FILE_NOTFOUND("FILE_NOTFOUND"),
 
@@ -88,6 +90,8 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
         TAXID_NOT_VALID("TAXID_NOT_VALID"),
 
         NOT_VALID_ADDRESS("NOT_VALID_ADDRESS"),
+
+        F24_METADATA_NOT_VALID("F24_METADATA_NOT_VALID"),
         
         SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE"),
 

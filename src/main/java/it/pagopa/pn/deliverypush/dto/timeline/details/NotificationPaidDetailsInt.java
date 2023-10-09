@@ -15,7 +15,6 @@ public class NotificationPaidDetailsInt implements RecipientRelatedTimelineEleme
     private Integer amount;
     private String creditorTaxId;
     private String noticeCode;
-    private String idF24;
     private String paymentSourceChannel;
     private boolean uncertainPaymentDate;
 

@@ -4,25 +4,25 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.unit.DataSize;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
@@ -31,12 +31,16 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @CustomLog
 public class AttachmentUtils {
     private static final String VALIDATE_ATTACHMENT_PROCESS = "Validate attachment";
+    private static final String F24_URL_PREFIX = "f24set:///";
     private final SafeStorageService safeStorageService;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public AttachmentUtils(SafeStorageService safeStorageService, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    private final NotificationProcessCostService notificationProcessCostService;
+
+    public AttachmentUtils(SafeStorageService safeStorageService, PnDeliveryPushConfigs pnDeliveryPushConfigs, NotificationProcessCostService notificationProcessCostService) {
         this.safeStorageService = safeStorageService;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.notificationProcessCostService = notificationProcessCostService;
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
@@ -65,9 +69,18 @@ public class AttachmentUtils {
         }
 
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
-            if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
-                    callback.accept(recipient.getPayment().getPagoPaForm());
+            if(recipient.getPayments() != null) {
+                recipient.getPayments().forEach(
+                        payment -> {
+                            if(payment.getPagoPA() != null && payment.getPagoPA().getAttachment() != null) {
+                                callback.accept(payment.getPagoPA().getAttachment());
+                            }
 
+                            if(payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
+                                callback.accept(payment.getF24().getMetadataAttachment());
+                            }
+                        }
+                );
             }
         }
     }
@@ -76,13 +89,23 @@ public class AttachmentUtils {
     {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
 
-        notification.getRecipients().forEach( recipient -> {
-            if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
-                    notificationDocuments.add(recipient.getPayment().getPagoPaForm());
-            }
-        });
+        notification.getRecipients().forEach( recipient -> addAllRecipientPaymentsToAttachmentList(notificationDocuments, recipient));
         
         return notificationDocuments;
+    }
+
+    private void addAllRecipientPaymentsToAttachmentList(List<NotificationDocumentInt> notificationDocuments, NotificationRecipientInt recipient) {
+        if(recipient.getPayments() != null) {
+            recipient.getPayments().forEach(payment -> {
+                if(payment.getPagoPA() != null && payment.getPagoPA().getAttachment() != null) {
+                    notificationDocuments.add(payment.getPagoPA().getAttachment());
+                }
+
+                if(payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
+                    notificationDocuments.add(payment.getF24().getMetadataAttachment());
+                }
+            });
+        }
     }
 
     private void checkAttachment(NotificationDocumentInt attachment) {
@@ -190,23 +213,65 @@ public class AttachmentUtils {
                 });
     }
 
-    private List<NotificationDocumentInt> getAllAttachmentByRecipient(NotificationInt notification, NotificationRecipientInt recipient)
-    {
-        List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
+    public List<String> getNotificationAttachments(NotificationInt notification) {
+        return notification.getDocuments().stream().map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey())).toList();
+    }
 
-        if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null){
-                notificationDocuments.add(recipient.getPayment().getPagoPaForm());
+    public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, Boolean isPrepareFlow, List<String> replacedF24AttachmentUrls) {
+        List<String> attachments = new ArrayList<>(getNotificationAttachments(notification));
+        if (CollectionUtils.isEmpty(recipient.getPayments())) {
+            return attachments;
         }
 
-        return notificationDocuments;
+        attachments.addAll(getNotificationPagoPaPayments(recipient));
+        if (Boolean.TRUE.equals(isPrepareFlow)) {
+            addNotificationF24PaymentsUrl(attachments, notification, recipient, recIndex);
+        } else {
+            // Se non è flusso prepare, è flusso send e non devo includere la URL degli F24 ma provare ad aggiungere l'eventuale lista di pdf prodotti agli attachments
+            if(!CollectionUtils.isEmpty(replacedF24AttachmentUrls)){
+                attachments.addAll(replacedF24AttachmentUrls);
+            }
+        }
+        return attachments;
     }
 
-    public List<String> getNotificationAttachments(NotificationInt notification, NotificationRecipientInt recipient) {
-        return getAllAttachmentByRecipient(notification, recipient).stream().map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey())).toList();
+    private List<String> getNotificationPagoPaPayments(NotificationRecipientInt recipient) {
+        return recipient.getPayments().stream()
+                .filter(notificationPaymentInfoIntV2 -> notificationPaymentInfoIntV2.getPagoPA() != null && notificationPaymentInfoIntV2.getPagoPA().getAttachment() != null)
+                .map(payment -> payment.getPagoPA().getAttachment())
+                .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
+                .toList();
+
     }
 
-    private boolean checkIsPDF(byte[] data)
-    {
+    private void addNotificationF24PaymentsUrl(List<String> attachments, NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex) {
+        List<F24Int> f24Payments = recipient.getPayments().stream()
+                .map(NotificationPaymentInfoIntV2::getF24)
+                .filter(Objects::nonNull)
+                .toList();
+
+        //Se non ci sono pagamenti F24 non faccio nulla.
+        if(f24Payments.isEmpty()) {
+            return;
+        }
+
+        boolean f24PaymentsRequireCost = f24Payments.stream().anyMatch(F24Int::getApplyCost);
+        Integer cost = null;
+        // Se almeno uno dei pagamenti F24 ha applyCost = true, devo calcolare il costo della notifica
+        if(f24PaymentsRequireCost) {
+            cost = retrieveCost(notification, recIndex);
+        }
+
+        attachments.add(getF24Url(notification.getIun(), recIndex, cost));
+    }
+
+    private Integer retrieveCost(NotificationInt notificationInt, int recipientIdx) {
+        return notificationProcessCostService.notificationProcessCost(notificationInt.getIun(), recipientIdx, notificationInt.getNotificationFeePolicy(), true, notificationInt.getPaFee())
+                    .map(NotificationProcessCost::getCost)
+                    .block();
+    }
+
+    private boolean checkIsPDF(byte[] data) {
         if (data == null || data.length < 4)
             return false;
 
@@ -216,5 +281,18 @@ public class AttachmentUtils {
                 data[2] == 0x44 && // D
                 data[3] == 0x46 && // F
                 data[4] == 0x2D;   // -
+    }
+
+    public String getF24Url(String iun, Integer recIndex, Integer cost) {
+        StringBuilder stringBuilder = new StringBuilder(F24_URL_PREFIX);
+        stringBuilder.append(iun);
+        stringBuilder.append("/");
+        stringBuilder.append(recIndex);
+
+        if (cost != null && cost > 0) {
+            stringBuilder.append("?cost=");
+            stringBuilder.append(cost);
+        }
+        return stringBuilder.toString();
     }
 }

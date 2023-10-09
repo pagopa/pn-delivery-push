@@ -3,10 +3,11 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotification;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV21;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactive;
 import org.junit.jupiter.api.Assertions;
@@ -43,7 +44,7 @@ class NotificationServiceImplTest {
     void getNotificationByIun() {
         NotificationInt expected = buildNotificationInt();
 
-        SentNotification sentNotification = buildSentNotification();
+        SentNotificationV21 sentNotification = buildSentNotification();
         Mockito.when(pnDeliveryClient.getSentNotification("001")).thenReturn(sentNotification);
 
         NotificationInt actual = service.getNotificationByIun("001");
@@ -57,9 +58,7 @@ class NotificationServiceImplTest {
 
         Mockito.when(pnDeliveryClient.getSentNotification("001")).thenThrow(PnHttpResponseException.class);
 
-        Assertions.assertThrows(PnHttpResponseException.class, () -> {
-            service.getNotificationByIun("001");
-        });
+        Assertions.assertThrows(PnHttpResponseException.class, () -> service.getNotificationByIun("001"));
 
     }
 
@@ -67,7 +66,7 @@ class NotificationServiceImplTest {
     @ExtendWith(SpringExtension.class)
     void getNotificationByIunReactive() {
         NotificationInt expected = buildNotificationInt();
-        SentNotification sentNotification = buildSentNotificationReactive();
+        SentNotificationV21 sentNotification = buildSentNotificationReactive();
         Mockito.when(pnDeliveryClientReactive.getSentNotification("001")).thenReturn(Mono.just(sentNotification));
 
         Mono<NotificationInt> actual = service.getNotificationByIunReactive("001");
@@ -109,9 +108,7 @@ class NotificationServiceImplTest {
     void getRecipientsQuickAccessLinkTokenFailure() {       
         Mockito.when(pnDeliveryClient.getQuickAccessLinkTokensPrivate("001"))
         .thenThrow(PnHttpResponseException.class);
-        Assertions.assertThrows(PnHttpResponseException.class, () -> {
-          service.getRecipientsQuickAccessLinkToken("001");
-      });
+        Assertions.assertThrows(PnHttpResponseException.class, () -> service.getRecipientsQuickAccessLinkToken("001"));
         
     }
 
@@ -163,17 +160,19 @@ class NotificationServiceImplTest {
 
     }
     
-    private SentNotification buildSentNotification() {
-        SentNotification sentNotification = new SentNotification();
+    private SentNotificationV21 buildSentNotification() {
+        SentNotificationV21 sentNotification = new SentNotificationV21();
         sentNotification.setIun("001");
-        sentNotification.setPhysicalCommunicationType(SentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        sentNotification.setPhysicalCommunicationType(SentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        sentNotification.setNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationFeePolicy.DELIVERY_MODE);
         return sentNotification;
     }
 
-    private SentNotification buildSentNotificationReactive() {
-        SentNotification sentNotification = new SentNotification();
+    private SentNotificationV21 buildSentNotificationReactive() {
+        SentNotificationV21 sentNotification = new SentNotificationV21();
         sentNotification.setIun("001");
-        sentNotification.setPhysicalCommunicationType(SentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        sentNotification.setPhysicalCommunicationType(SentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        sentNotification.setNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationFeePolicy.DELIVERY_MODE);
         return sentNotification;
     }
     
@@ -183,6 +182,7 @@ class NotificationServiceImplTest {
                 .recipients(Collections.emptyList())
                 .documents(Collections.emptyList())
                 .sender(NotificationSenderInt.builder().build())
+                .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
                 .build();
     }

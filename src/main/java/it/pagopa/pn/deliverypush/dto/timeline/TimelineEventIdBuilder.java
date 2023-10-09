@@ -106,7 +106,6 @@ public class TimelineEventIdBuilder {
 
 
     // payment code per pagamenti PagoPa = PPANoticeNumberCreditorTaxId
-    // payment code per pagamenti f24 = F24Idf24
     public TimelineEventIdBuilder withPaymentCode(@Nullable String paymentCode) {
         if(paymentCode != null)
             this.paymentCode = DELIMITER.concat("CODE_").concat(paymentCode);

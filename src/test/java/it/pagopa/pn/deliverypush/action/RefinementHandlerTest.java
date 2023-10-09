@@ -108,7 +108,7 @@ class RefinementHandlerTest {
                                                 .address("test address")
                                                 .build()
                                 )
-                                .payment(null)
+                                .payments(null)
                                 .build()
                 ))
                 .build();

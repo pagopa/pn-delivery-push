@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationPaidMapper;
-import it.pagopa.pn.deliverypush.utils.UUIDCreatorUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -23,26 +22,17 @@ public class NotificationPaidHandler {
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
 
-    private final UUIDCreatorUtils uuidCreatorUtils;
-
     public NotificationPaidHandler(TimelineService timelineService,
                                    TimelineUtils timelineUtils,
-                                   NotificationService notificationService,
-                                   UUIDCreatorUtils uuidCreatorUtils) {
+                                   NotificationService notificationService) {
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
         this.notificationService = notificationService;
-        this.uuidCreatorUtils = uuidCreatorUtils;
     }
 
     public void handleNotificationPaid(PnDeliveryPaymentEvent.Payload paymentEventPayload) {
-        String idF24 = null;
 
-        if(paymentEventPayload.getPaymentType().equals(PnDeliveryPaymentEvent.PaymentType.F24)) {
-            idF24 = uuidCreatorUtils.createUUID(); //attualmente inseriamo noi un UUID perché non abbiamo questa informazione
-        }
-
-        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(paymentEventPayload, idF24);
+        NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(paymentEventPayload);
 
         // attualmente controllo inutile per i pagamenti f24, in quanto inserendo un UUID, non verrà mai trovata la timeline,
         // ma quando (se) verrà popolato un vero id, il controllo sarà necessario anche per gli f24
@@ -50,7 +40,7 @@ public class NotificationPaidHandler {
         Optional<TimelineElementInternal> timelineElementOpt = getNotificationPaidTimelineElement(notificationPaidInt.getIun(), elementId);
 
         if (timelineElementOpt.isEmpty()) {
-            //Se il pagamento non è già avvenuto per questo (IUN,creditoTaxId,noticeCode) o (IUN,idF24)
+            //Se il pagamento non è già avvenuto per questo (IUN,creditoTaxId,noticeCode)
             handleInsertNotificationPaidTimelineElement(notificationPaidInt, elementId);
         } else {
             //Pagamento già avvenuto
@@ -74,7 +64,6 @@ public class NotificationPaidHandler {
                         .iun(notificationPaidInt.getIun())
                         .creditorTaxId(notificationPaidInt.getCreditorTaxId())
                         .noticeCode(notificationPaidInt.getNoticeCode())
-                        .idF24(notificationPaidInt.getIdF24())
                         .build());
     }
 

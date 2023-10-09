@@ -165,6 +165,7 @@ public class PaperChannelResponseHandler {
                 .iun(iun)
                 .statusCode(Optional.ofNullable(event.getStatusCode()).map(StatusCodeEnum::getValue).orElse(null))
                 .statusDetail(event.getStatusDetail())
+                .replacedF24AttachmentUrls(event.getReplacedF24AttachmentUrls())
                 .requestId(event.getRequestId())
                 .statusDateTime(event.getStatusDateTime())
                 .failureDetailCode(Optional.ofNullable(event.getFailureDetailCode()).map(FailureDetailCodeEnum::getValue).orElse(null))

@@ -12,9 +12,8 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
@@ -33,6 +32,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.mockito.ArgumentMatchers.*;
 
 class PaperChannelServiceImplTest {
     @Mock
@@ -84,20 +85,141 @@ class PaperChannelServiceImplTest {
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
 
         // WHEN
         paperChannelService.prepareAnalogNotificationForSimpleRegisteredLetter(notificationInt, 0);
 
         // THEN
-        Mockito.verify(paperChannelSendClient).prepare(Mockito.any());
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
-        Mockito.verify( auditLogEvent).log();
-        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+        Mockito.verify(paperChannelSendClient).prepare(any());
+        Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
+        Mockito.verify(auditLogEvent).log();
+        Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void prepareAnalogNotificationForSimpleRegisteredLetterWithAarAndDocument() {
+        //GIVEN
+        NotificationInt notificationInt = newNotificationWithPayments("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(cfg.getSendSimpleRegisteredLetterAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS.name());
+        Mockito.when(attachmentUtils.getNotificationAttachments(notificationInt)).thenReturn(List.of("http://document"));
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(), anyInt())).thenReturn(notificationInt.getRecipients().get(0));
+
+        // WHEN
+        paperChannelService.prepareAnalogNotificationForSimpleRegisteredLetter(notificationInt, 0);
+
+        // THEN
+        Mockito.verify(paperChannelSendClient).prepare(any());
+        Mockito.verify(attachmentUtils).getNotificationAttachments(any());
+        Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
+        Mockito.verify(auditLogEvent).log();
+        Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void prepareAnalogNotificationForSimpleRegisteredLetterWithAarDocumentAndPayments() {
+        //GIVEN
+        NotificationInt notificationInt = newNotificationWithPayments("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(cfg.getSendSimpleRegisteredLetterAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS.name());
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(), anyInt())).thenReturn(notificationInt.getRecipients().get(0));
+        Mockito.when(attachmentUtils.getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any() )).thenReturn(List.of("http://document", "http://payment"));
+
+        // WHEN
+        paperChannelService.prepareAnalogNotificationForSimpleRegisteredLetter(notificationInt, 0);
+
+        // THEN
+        Mockito.verify(paperChannelSendClient).prepare(any());
+        Mockito.verify(attachmentUtils).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any());
+        Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
+        Mockito.verify(auditLogEvent).log();
+        Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void prepareAnalogNotificationWithAarAndDocument() {
+        //GIVEN
+        NotificationInt notificationInt = newNotificationWithPayments("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(cfg.getSendAnalogNotificationAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS.name());
+        Mockito.when(attachmentUtils.getNotificationAttachments(notificationInt)).thenReturn(List.of("http://document"));
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(), anyInt())).thenReturn(notificationInt.getRecipients().get(0));
+
+        // WHEN
+        paperChannelService.prepareAnalogNotification(notificationInt, 0, 0);
+
+        // THEN
+        Mockito.verify(paperChannelSendClient).prepare(any());
+        Mockito.verify(attachmentUtils).getNotificationAttachments(any());
+        Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
+        Mockito.verify(auditLogEvent).log();
+        Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void prepareAnalogNotificationWithAarDocumentAndPayments() {
+        //GIVEN
+        NotificationInt notificationInt = newNotificationWithPayments("taxid");
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(cfg.getSendAnalogNotificationAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS.name());
+        Mockito.when(attachmentUtils.getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any())).thenReturn(List.of("http://document", "http://payment"));
+
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(), anyInt())).thenReturn(notificationInt.getRecipients().get(0));
+
+        // WHEN
+        paperChannelService.prepareAnalogNotification(notificationInt, 0, 0);
+
+        // THEN
+        Mockito.verify(paperChannelSendClient).prepare(any());
+        Mockito.verify(attachmentUtils).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any());
+        Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
+        Mockito.verify(auditLogEvent).log();
+        Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -112,7 +234,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.prepareAnalogNotificationForSimpleRegisteredLetter(notificationInt, 0);
 
         // THEN
-        Mockito.verify(paperChannelSendClient,Mockito.never()).prepare(Mockito.any());
+        Mockito.verify(paperChannelSendClient, Mockito.never()).prepare(any());
     }
 
 
@@ -332,8 +454,6 @@ class PaperChannelServiceImplTest {
     void prepareAnalogNotificationAlreadyviewed() {
         //GIVEN
         NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
@@ -350,8 +470,6 @@ class PaperChannelServiceImplTest {
     void prepareAnalogNotificationAlreadyPaid() {
         //GIVEN
         NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
@@ -368,8 +486,6 @@ class PaperChannelServiceImplTest {
     void prepareAnalogNotificationCancelled() {
         //GIVEN
         NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-            .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
 
@@ -386,7 +502,7 @@ class PaperChannelServiceImplTest {
         //GIVEN
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
-        NotificationInt notificationInt = newNotification("taxid");
+        NotificationInt notificationInt = newNotificationWithPayments("taxid");
 
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
@@ -400,20 +516,22 @@ class PaperChannelServiceImplTest {
         Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
 
-        Mockito.when(cfg.getSendNotificationAttachments()).thenReturn("simple-registered-letter-and-analog-notification");
-        List<String> attachments = new ArrayList<String>(2);
+        Mockito.when(cfg.getSendSimpleRegisteredLetterAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS.name());
+        List<String> attachments = new ArrayList<>(2);
         attachments.add("attachment1");
         attachments.add("attachment2");
-        Mockito.when(attachmentUtils.getNotificationAttachments(Mockito.any(), Mockito.any())).thenReturn(attachments);
+        attachments.add("replacedF24Url");
+        Mockito.when(attachmentUtils.getNotificationAttachmentsAndPayments(Mockito.any(), any(), anyInt(), anyBoolean(), any())).thenReturn(attachments);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify(paperChannelSendClient).send(Mockito.any());
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
-        Mockito.verify( auditLogEvent).log();
-        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+        Mockito.verify(paperChannelSendClient).send(any());
+        Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
+        Mockito.verify(auditLogEvent).log();
+        Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
+        Mockito.verify(attachmentUtils).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -423,16 +541,14 @@ class PaperChannelServiceImplTest {
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
         NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
+        Mockito.verify(paperChannelSendClient, Mockito.never()).send(any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -442,16 +558,14 @@ class PaperChannelServiceImplTest {
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
         NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-            .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
+        Mockito.verify(paperChannelSendClient, Mockito.never()).send(any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -461,17 +575,15 @@ class PaperChannelServiceImplTest {
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
         NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
+        Mockito.verify(paperChannelSendClient, Mockito.never()).send(any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -486,28 +598,30 @@ class PaperChannelServiceImplTest {
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
 
-        Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
+        Mockito.when(paperChannelSendClient.send(any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
 
-        Mockito.when(cfg.getSendNotificationAttachments()).thenReturn("analog-notification");
-        List<String> attachments = new ArrayList<String>(2);
+        Mockito.when(cfg.getSendAnalogNotificationAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS.name());
+        List<String> attachments = new ArrayList<>(2);
         attachments.add("attachment1");
         attachments.add("attachment2");
-        Mockito.when(attachmentUtils.getNotificationAttachments(Mockito.any(), Mockito.any())).thenReturn(attachments);
-        
+        attachments.add("replacedF24Url");
+
+        Mockito.when(attachmentUtils.getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any())).thenReturn(attachments);
+
         // WHEN
-        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify(paperChannelSendClient).send(Mockito.any());
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
-        Mockito.verify( auditLogEvent).log();
-        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+        Mockito.verify(paperChannelSendClient).send(any());
+        Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
+        Mockito.verify(auditLogEvent).log();
+        Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -517,16 +631,14 @@ class PaperChannelServiceImplTest {
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
         NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
         // WHEN
-        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
+        Mockito.verify(paperChannelSendClient, Mockito.never()).send(any());
     }
 
 
@@ -537,17 +649,15 @@ class PaperChannelServiceImplTest {
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
         NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
         // WHEN
-        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
+        Mockito.verify(paperChannelSendClient, Mockito.never()).send(any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -557,16 +667,14 @@ class PaperChannelServiceImplTest {
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
         NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-            .generatedAarUrl("http").build();
 
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested (Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
 
         // WHEN
-        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify(paperChannelSendClient, Mockito.never()).send(Mockito.any());
+        Mockito.verify(paperChannelSendClient, Mockito.never()).send(any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -582,20 +690,21 @@ class PaperChannelServiceImplTest {
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+        Mockito.when(paperChannelSendClient.send(any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
 
-        Mockito.when(cfg.getSendNotificationAttachments()).thenReturn("none");
+        Mockito.when(cfg.getSendSimpleRegisteredLetterAttachments()).thenReturn("none");
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", Collections.emptyList());
 
         // THEN
-        Mockito.verify( attachmentUtils, Mockito.never()).getNotificationAttachments(Mockito.any(), Mockito.any());
+        Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachments(any());
+        Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -604,27 +713,35 @@ class PaperChannelServiceImplTest {
         //GIVEN
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
-        NotificationInt notificationInt = newNotification("taxid");
+        NotificationInt notificationInt = newNotificationWithPayments("taxid");
 
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(), anyInt())).thenReturn(notificationInt.getRecipients().get(0));
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+        Mockito.when(paperChannelSendClient.send(any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
 
-        Mockito.when(cfg.getSendNotificationAttachments()).thenReturn("simple-registered-letter");
+        Mockito.when(cfg.getSendSimpleRegisteredLetterAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS.name());
+
+        List<String> attachments = new ArrayList<>(2);
+        attachments.add("attachment1");
+        attachments.add("attachment2");
+        attachments.add("attachment3");
+        attachments.add("replacedF24Url");
+        Mockito.when(attachmentUtils.getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any())).thenReturn(attachments);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify( attachmentUtils).getNotificationAttachments(Mockito.any(), Mockito.any());
+        Mockito.verify(attachmentUtils).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -633,27 +750,35 @@ class PaperChannelServiceImplTest {
         //GIVEN
         PhysicalAddressInt physicalAddressInt = PhysicalAddressInt.builder().address("via casa").fullname("full name").build();
 
-        NotificationInt notificationInt = newNotification("taxid");
+        NotificationInt notificationInt = newNotificationWithPayments("taxid");
 
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(), anyInt())).thenReturn(notificationInt.getRecipients().get(0));
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+        Mockito.when(paperChannelSendClient.send(any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
 
-        Mockito.when(cfg.getSendNotificationAttachments()).thenReturn("simple-registered-letter-and-analog-notification");
+        List<String> attachments = new ArrayList<>(2);
+        attachments.add("attachment1");
+        attachments.add("attachment2");
+        attachments.add("attachment3");
+        attachments.add("replacedF24Url");
+        Mockito.when(attachmentUtils.getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any())).thenReturn(attachments);
+
+        Mockito.when(cfg.getSendSimpleRegisteredLetterAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS.name());
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify( attachmentUtils).getNotificationAttachments(Mockito.any(), Mockito.any());
+        Mockito.verify(attachmentUtils).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -668,21 +793,21 @@ class PaperChannelServiceImplTest {
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
 
-        Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
+        Mockito.when(paperChannelSendClient.send(any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
 
-        Mockito.when(cfg.getSendNotificationAttachments()).thenReturn("analog-notification");
+        Mockito.when(cfg.getSendAnalogNotificationAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS.name());
 
         // WHEN
-        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify( attachmentUtils).getNotificationAttachments(Mockito.any(), Mockito.any());
+        Mockito.verify(attachmentUtils).getNotificationAttachments(any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -697,21 +822,21 @@ class PaperChannelServiceImplTest {
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
 
-        Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
+        Mockito.when(paperChannelSendClient.send(any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
 
-        Mockito.when(cfg.getSendNotificationAttachments()).thenReturn("simple-registered-letter-and-analog-notification");
+        Mockito.when(cfg.getSendAnalogNotificationAttachments()).thenReturn(SendAttachmentMode.AAR_DOCUMENTS.name());
 
         // WHEN
-        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR");
+        paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
 
         // THEN
-        Mockito.verify( attachmentUtils).getNotificationAttachments(Mockito.any(), Mockito.any());
+        Mockito.verify(attachmentUtils).getNotificationAttachments(any());
     }
 
     private NotificationInt newNotification(String TAX_ID) {
@@ -731,6 +856,53 @@ class PaperChannelServiceImplTest {
                                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                         .address("account@dominio.it")
                                         .build())
+                                .build()
+                ))
+                .build();
+    }
+
+    private NotificationInt newNotificationWithPayments(String TAX_ID) {
+        return NotificationInt.builder()
+                .iun("IUN_01")
+                .paProtocolNumber("protocol_01")
+                .sender(NotificationSenderInt.builder()
+                        .paId(" pa_02")
+                        .build()
+                )
+                .documents(List.of(NotificationDocumentInt.builder()
+                        .ref(NotificationDocumentInt.Ref.builder().key("DocumentKey").build())
+                        .digests(NotificationDocumentInt.Digests.builder().sha256("DocumentSha256").build())
+                        .build()))
+                .recipients(Collections.singletonList(
+                        NotificationRecipientInt.builder()
+                                .taxId(TAX_ID)
+                                .internalId(TAX_ID + "ANON")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(LegalDigitalAddressInt.builder()
+                                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                        .address("account@dominio.it")
+                                        .build())
+                                .payments(List.of(
+                                        NotificationPaymentInfoIntV2.builder()
+                                                .f24(F24Int.builder()
+                                                        .applyCost(true)
+                                                        .title("title")
+                                                        .metadataAttachment(NotificationDocumentInt.builder()
+                                                                .ref(NotificationDocumentInt.Ref.builder().key("F24Key").build())
+                                                                .digests(NotificationDocumentInt.Digests.builder().sha256("F24Sha256").build())
+                                                                .build())
+                                                        .build())
+                                                .pagoPA(PagoPaInt.builder()
+                                                        .applyCost(true)
+                                                        .attachment((NotificationDocumentInt.builder()
+                                                                .ref(NotificationDocumentInt.Ref.builder().key("PagoPaKey").build())
+                                                                .digests(NotificationDocumentInt.Digests.builder().sha256("PagoPaSha256").build())
+                                                                .build()))
+                                                        .creditorTaxId(TAX_ID)
+                                                        .noticeCode("noticeCode")
+                                                        .build())
+                                                .build()
+                                ))
                                 .build()
                 ))
                 .build();

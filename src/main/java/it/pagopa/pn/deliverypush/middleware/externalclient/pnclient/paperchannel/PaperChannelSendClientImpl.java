@@ -1,15 +1,17 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel;
 
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.api.PaperMessagesApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.*;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -43,26 +45,35 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
 
     @Override
     public SendResponse send(PaperChannelSendRequest paperChannelSendRequest) {
-        log.logInvokingAsyncExternalService(CLIENT_NAME, SEND_ANALOG_NOTIFICATION, paperChannelSendRequest.getRequestId());
-        log.debug("[enter] send iun={} address={} recipient={} requestId={} attachments={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments());
+        try {
+            log.logInvokingAsyncExternalService(CLIENT_NAME, SEND_ANALOG_NOTIFICATION, paperChannelSendRequest.getRequestId());
+            log.debug("[enter] send iun={} address={} recipient={} requestId={} attachments={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments());
 
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setIun(paperChannelSendRequest.getNotificationInt().getIun());
-        sendRequest.setRequestId(paperChannelSendRequest.getRequestId());
-        sendRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
-        sendRequest.setProductType(ProductTypeEnum.fromValue(paperChannelSendRequest.getProductType()));
-        sendRequest.setReceiverAddress(mapInternalToExternal(paperChannelSendRequest.getReceiverAddress()));
-        sendRequest.setAttachmentUrls(paperChannelSendRequest.getAttachments());
-        sendRequest.setReceiverFiscalCode(paperChannelSendRequest.getRecipientInt().getTaxId());
-        sendRequest.setReceiverType(paperChannelSendRequest.getRecipientInt().getRecipientType().getValue());
-        sendRequest.setArAddress(mapInternalToExternal(paperChannelSendRequest.getArAddress()));
-        sendRequest.setSenderAddress(mapInternalToExternal(paperChannelSendRequest.getSenderAddress()));
-        sendRequest.setRequestPaId(paperChannelSendRequest.getNotificationInt().getSender().getPaTaxId());
-        sendRequest.setClientRequestTimeStamp(Instant.now().now());
-        
-        SendResponse response = paperMessagesApi.sendPaperSendRequest(paperChannelSendRequest.getRequestId(), sendRequest);
-        log.debug("[exit] send iun={} address={} recipient={} requestId={} attachments={} amount={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments(), response.getAmount());
-        return response;
+            SendRequest sendRequest = new SendRequest();
+            sendRequest.setIun(paperChannelSendRequest.getNotificationInt().getIun());
+            sendRequest.setRequestId(paperChannelSendRequest.getRequestId());
+            sendRequest.setPrintType(PRINT_TYPE_BN_FRONTE_RETRO);
+            sendRequest.setProductType(ProductTypeEnum.fromValue(paperChannelSendRequest.getProductType()));
+            sendRequest.setReceiverAddress(mapInternalToExternal(paperChannelSendRequest.getReceiverAddress()));
+            sendRequest.setAttachmentUrls(paperChannelSendRequest.getAttachments());
+            sendRequest.setReceiverFiscalCode(paperChannelSendRequest.getRecipientInt().getTaxId());
+            sendRequest.setReceiverType(paperChannelSendRequest.getRecipientInt().getRecipientType().getValue());
+            sendRequest.setArAddress(mapInternalToExternal(paperChannelSendRequest.getArAddress()));
+            sendRequest.setSenderAddress(mapInternalToExternal(paperChannelSendRequest.getSenderAddress()));
+            sendRequest.setRequestPaId(paperChannelSendRequest.getNotificationInt().getSender().getPaTaxId());
+            sendRequest.setClientRequestTimeStamp(Instant.now());
+
+            SendResponse response = paperMessagesApi.sendPaperSendRequest(paperChannelSendRequest.getRequestId(), sendRequest);
+            log.debug("[exit] send iun={} address={} recipient={} requestId={} attachments={} amount={}", paperChannelSendRequest.getNotificationInt().getIun(), LogUtils.maskGeneric(paperChannelSendRequest.getReceiverAddress().getAddress()), LogUtils.maskGeneric(paperChannelSendRequest.getRecipientInt().getDenomination()), paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getAttachments(), response.getAmount());
+            return response;
+        } catch (PnHttpResponseException e) {
+            if (e.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY.value()) {
+                log.error("received unprocessable from paper-channel, it means that send cost is different from prepare, and need to recompute prepare", e);
+                throw new PnPaperChannelChangedCostException(e);
+            } else {
+              throw e;
+            }
+        }
     }
 
     private AnalogAddress mapInternalToExternal(PhysicalAddressInt physicalAddress){

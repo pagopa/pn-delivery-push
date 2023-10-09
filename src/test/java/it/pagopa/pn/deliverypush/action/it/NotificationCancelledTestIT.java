@@ -38,9 +38,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
@@ -51,7 +51,6 @@ import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -73,7 +72,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -158,7 +156,9 @@ import static org.mockito.ArgumentMatchers.eq;
         AuthUtils.class,
         MandateServiceImpl.class,
         NotificationCancellationActionHandler.class,
-        NotificationCancelledTestIT.SpringTestConfiguration.class
+        NotificationCancelledTestIT.SpringTestConfiguration.class,
+        F24Validator.class,
+        F24ClientMock.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
@@ -264,7 +264,10 @@ class NotificationCancelledTestIT {
 
     @Autowired
     private NotificationCancellationActionHandler notificationCancellationActionHandler;
-    
+
+    @Autowired
+    private F24ClientMock f24ClientMock;
+
     @BeforeEach
     public void setup() {
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
@@ -279,7 +282,8 @@ class NotificationCancelledTestIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock
+                addressManagerClientMock,
+                f24ClientMock
         );
     }
 
@@ -466,6 +470,7 @@ class NotificationCancelledTestIT {
                 .withIun(iun)
                 .withNotificationRecipient(recipient)
                 .withNotificationDocuments(notificationDocumentList)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
 
