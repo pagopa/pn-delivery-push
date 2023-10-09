@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ZmxbfjrzOEhh8pPW9RyAlMn6De9unFQW3zr8nTpMniU=
+  version: ferH4+XlvB+n0PUFtrRLAQHbFKC//K+AWghWZwniNRc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -86,8 +86,7 @@ paths:
       summary: Elenco atti opponibili a terzi
       description: >-
         Elenca le informazione di categorizzazione di tutti gli atti opponibili
-        a terzi  registrati durante il processo di notifica. <br/> L'unico
-        valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+        a terzi  registrati durante il processo di notifica. <br/>
       tags:
         - LegalFacts
       operationId: retrieveNotificationLegalFacts
@@ -156,9 +155,7 @@ paths:
   /{iun}/legal-facts/{legalFactType}/{legalFactId}:
     get:
       summary: Singolo atto opponibile a terzi
-      description: >-
-        Permette di scaricare un atto opponibile a terzi <br/> L'unico valore
-        ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      description: Permette di scaricare un atto opponibile a terzi <br/>
       tags:
         - LegalFacts
       operationId: retrieveLegalFact
@@ -233,9 +230,7 @@ paths:
   /{iun}/download/legal-facts/{legalFactId}:
     get:
       summary: Singolo atto opponibile a terzi
-      description: >-
-        Permette di scaricare un atto opponibile a terzi <br/> L'unico valore
-        ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      description: Permette di scaricare un atto opponibile a terzi <br/>
       tags:
         - LegalFacts
       operationId: downloadLegalFactById

@@ -38,6 +38,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
@@ -151,7 +152,9 @@ import static org.awaitility.Awaitility.with;
         AddressManagerClientMock.class,
         NormalizeAddressHandler.class,
         AddressManagerResponseHandler.class,
-        AnalogTestIT.SpringTestConfiguration.class
+        AnalogTestIT.SpringTestConfiguration.class,
+        F24Validator.class,
+        F24ClientMock.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
@@ -238,6 +241,9 @@ class AnalogTestIT {
     
     @Autowired
     private AddressManagerClientMock addressManagerClientMock;
+
+    @Autowired
+    private F24ClientMock f24ClientMock;
     
     @BeforeEach
     public void setup() {
@@ -255,7 +261,8 @@ class AnalogTestIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock
+                addressManagerClientMock,
+                f24ClientMock
         );
     }
 
@@ -302,6 +309,7 @@ class AnalogTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -432,6 +440,7 @@ class AnalogTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -542,6 +551,7 @@ class AnalogTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -686,6 +696,7 @@ class AnalogTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
 
@@ -821,6 +832,7 @@ class AnalogTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
@@ -1027,6 +1039,7 @@ class AnalogTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
@@ -1241,6 +1254,7 @@ class AnalogTestIT {
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 
@@ -1454,6 +1468,7 @@ class AnalogTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withIun(iun)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipients( List.of(recipient1, recipient2) )
                 .build();
 

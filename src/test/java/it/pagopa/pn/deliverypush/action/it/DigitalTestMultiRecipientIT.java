@@ -34,6 +34,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
@@ -144,7 +145,9 @@ import static org.awaitility.Awaitility.await;
         AddressManagerClientMock.class,
         NormalizeAddressHandler.class,
         AddressManagerResponseHandler.class,
-        DigitalTestMultiRecipientIT.SpringTestConfiguration.class
+        DigitalTestMultiRecipientIT.SpringTestConfiguration.class,
+        F24Validator.class,
+        F24ClientMock.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
@@ -248,6 +251,9 @@ class DigitalTestMultiRecipientIT {
     @Autowired
     private AddressManagerClientMock addressManagerClientMock;
 
+    @Autowired
+    private F24ClientMock f24ClientMock;
+
     @BeforeEach
     public void setup() {
 
@@ -265,7 +271,8 @@ class DigitalTestMultiRecipientIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock
+                addressManagerClientMock,
+                f24ClientMock
         );
     }
 
@@ -352,6 +359,7 @@ class DigitalTestMultiRecipientIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -906,6 +914,7 @@ class DigitalTestMultiRecipientIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -1068,6 +1077,7 @@ class DigitalTestMultiRecipientIT {
                 .withIun(iun)
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipients(recipients)
                 .build();
 
@@ -1237,6 +1247,7 @@ class DigitalTestMultiRecipientIT {
                 .withIun(iun)
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipients(recipients)
                 .build();
 
@@ -1397,6 +1408,7 @@ class DigitalTestMultiRecipientIT {
                 .withIun(iun)
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipients(recipients)
                 .build();
 
@@ -1517,6 +1529,7 @@ class DigitalTestMultiRecipientIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationRecipients(recipients)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);

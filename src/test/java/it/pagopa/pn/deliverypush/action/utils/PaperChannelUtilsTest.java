@@ -87,6 +87,7 @@ class PaperChannelUtilsTest {
         NotificationInt notification = buildNotification();
         PhysicalAddressInt addressInt = buildPhysicalAddressInt();
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
+        List<String> attachments = Collections.emptyList();
 
         SendResponse sendResponse = new SendResponse()
                 .amount(10);
@@ -99,9 +100,9 @@ class PaperChannelUtilsTest {
                 .prepareRequestId("prepare_request_id")
                 .build();
 
-        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification,analogDtoInfo)).thenReturn(timelineElementInternal);
+        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification,analogDtoInfo, attachments)).thenReturn(timelineElementInternal);
         
-        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   analogDtoInfo);
+        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   analogDtoInfo, attachments);
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 

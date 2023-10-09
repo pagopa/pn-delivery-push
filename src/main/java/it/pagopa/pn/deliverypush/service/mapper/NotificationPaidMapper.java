@@ -7,7 +7,7 @@ public class NotificationPaidMapper {
 
     private NotificationPaidMapper() {}
 
-    public static NotificationPaidInt messageToInternal(PnDeliveryPaymentEvent.Payload paymentEvent, String idF24) {
+    public static NotificationPaidInt messageToInternal(PnDeliveryPaymentEvent.Payload paymentEvent) {
 
         return NotificationPaidInt.builder()
                 .iun(paymentEvent.getIun())
@@ -20,7 +20,6 @@ public class NotificationPaidMapper {
                 .paymentType(NotificationPaidInt.PaymentTypeInt.valueOf(paymentEvent.getPaymentType().getValue()))
                 .amount(paymentEvent.getAmount())
                 .paymentSourceChannel(paymentEvent.getPaymentSourceChannel())
-                .idF24(idF24)
                 .build();
     }
 }

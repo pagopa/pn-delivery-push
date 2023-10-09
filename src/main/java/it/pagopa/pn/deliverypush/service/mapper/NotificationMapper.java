@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -15,7 +16,7 @@ import java.util.List;
 public class NotificationMapper {
     private NotificationMapper(){}
 
-    public static NotificationInt externalToInternal(SentNotification sentNotification) {
+    public static NotificationInt externalToInternal(SentNotificationV21 sentNotification) {
 
         List<NotificationRecipientInt> listNotificationRecipientInt = mapNotificationRecipient(sentNotification.getRecipients());
         List<NotificationDocumentInt> listNotificationDocumentIntInt = mapNotificationDocument(sentNotification.getDocuments());
@@ -41,8 +42,10 @@ public class NotificationMapper {
                                 .paDenomination(sentNotification.getSenderDenomination())
                                 .build()
                 )
+                .paFee(sentNotification.getPaFee())
                 .documents(listNotificationDocumentIntInt)
                 .recipients(listNotificationRecipientInt)
+                .notificationFeePolicy(NotificationFeePolicy.fromValue(sentNotification.getNotificationFeePolicy().getValue()))
                 .amount(sentNotification.getAmount())
                 .paymentExpirationDate(paymentExpirationDate)
                 .build();
@@ -72,10 +75,10 @@ public class NotificationMapper {
         return list;
     }
 
-    private static List<NotificationRecipientInt> mapNotificationRecipient(List<NotificationRecipient> recipients) {
+    private static List<NotificationRecipientInt> mapNotificationRecipient(List<NotificationRecipientV21> recipients) {
         List<NotificationRecipientInt> list = new ArrayList<>();
 
-        for (NotificationRecipient recipient : recipients){
+        for (NotificationRecipientV21 recipient : recipients){
             NotificationRecipientInt recipientInt = RecipientMapper.externalToInternal(recipient);
             list.add(recipientInt);
         }
@@ -84,15 +87,16 @@ public class NotificationMapper {
     }
     
     //Utilizzata a livello di test
-    public static SentNotification internalToExternal(NotificationInt notification) {
-        SentNotification sentNotification = new SentNotification();
+    public static SentNotificationV21 internalToExternal(NotificationInt notification) {
+        SentNotificationV21 sentNotification = new SentNotificationV21();
 
         sentNotification.setIun(notification.getIun());
         sentNotification.setPaProtocolNumber(notification.getPaProtocolNumber());
         sentNotification.setSentAt(notification.getSentAt());
         sentNotification.setSubject(notification.getSubject());
         sentNotification.setAmount(notification.getAmount());
-        
+        sentNotification.setPaFee(notification.getPaFee());
+
         ZonedDateTime time = DateFormatUtils.parseInstantToZonedDateTime(notification.getPaymentExpirationDate());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedString = time.format(formatter);
@@ -100,7 +104,7 @@ public class NotificationMapper {
         
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(
-                    SentNotification.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
+                    SentNotificationV21.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
             );
         }
 
@@ -111,7 +115,7 @@ public class NotificationMapper {
             sentNotification.setSenderTaxId( sender.getPaTaxId() );
         }
 
-        List<NotificationRecipient> recipients = notification.getRecipients().stream()
+        List<NotificationRecipientV21> recipients = notification.getRecipients().stream()
                 .map(RecipientMapper::internalToExternal).toList();
 
         sentNotification.setRecipients(recipients);
@@ -122,13 +126,17 @@ public class NotificationMapper {
         sentNotification.setDocuments(documents);
 
         if(notification.getPhysicalCommunicationType() != null){
-            sentNotification.setPhysicalCommunicationType(SentNotification.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
+            sentNotification.setPhysicalCommunicationType(SentNotificationV21.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
         }
         
         if(notification.getSender() != null){
             sentNotification.setSenderPaId(notification.getSender().getPaId());
             sentNotification.setSenderDenomination(notification.getSender().getPaDenomination());
             sentNotification.setSenderTaxId(notification.getSender().getPaTaxId());
+        }
+
+        if(notification.getNotificationFeePolicy() != null){
+            sentNotification.setNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationFeePolicy.fromValue(notification.getNotificationFeePolicy().getValue()));
         }
         
         return sentNotification;
