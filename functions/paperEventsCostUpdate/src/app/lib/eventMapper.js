@@ -92,14 +92,12 @@ exports.mapEvents = async (events) => {
         const costPhase = updateCostPhaseForSendAnalogDomicile(timelineObj);
         if (costPhase) {
           resultElementBody.updateCostPhase = costPhase;
-        } else {
-          console.warn("Error in parsing timelineObj: ", timelineObj);
         }
         break;
 
-      default:
-        // we previously filtered out the events with not allowed categories
-        break;
+      //default:
+      // we previously filtered out the events with not allowed categories
+      //  break;
     }
 
     let resultElement = {
@@ -108,7 +106,17 @@ exports.mapEvents = async (events) => {
       MessageAttributes: messageAttributes,
     };
 
-    result.push(resultElement);
+    // we want to send the element to the queue only if fields are valid,
+    // without sending them back to the stream, or we'd end up in an loop
+    if (
+      resultElementBody.updateCostPhase &&
+      resultElementBody.recIndex &&
+      resultElementBody.notificationStepCost
+    ) {
+      result.push(resultElement);
+    } else {
+      console.error("Error in parsing timelineObj: ", timelineObj);
+    }
   }
   return result;
 };
