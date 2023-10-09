@@ -31,7 +31,7 @@ exports.handleEvent = async (event) => {
 
           if (responseError.length > 0) {
             console.log(
-              "Error in persist current cdcEvents: ",
+              "Error in persisting current cdcEvents: ",
               currentCdcEvents
             );
             batchItemFailures = batchItemFailures.concat(
@@ -47,7 +47,10 @@ exports.handleEvent = async (event) => {
           );
         }
       } catch (exc) {
-        console.log("Error in persist current cdcEvents: ", currentCdcEvents);
+        console.log(
+          "Error in persisting current cdcEvents: ",
+          currentCdcEvents
+        );
         batchItemFailures = batchItemFailures.concat(
           currentCdcEvents.map((i) => {
             return { itemIdentifier: i.kinesisSeqNumber };
@@ -56,7 +59,7 @@ exports.handleEvent = async (event) => {
       }
     }
     if (batchItemFailures.length > 0) {
-      console.log("process finished with error!");
+      console.log("process finished with some errors!");
     }
     return {
       batchItemFailures: batchItemFailures,
