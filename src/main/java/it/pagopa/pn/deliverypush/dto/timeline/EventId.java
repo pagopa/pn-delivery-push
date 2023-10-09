@@ -26,7 +26,6 @@ public class EventId {
     private CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT courtesyAddressType;
     private String creditorTaxId;
     private String noticeCode;
-    private String idF24;
     private Boolean isFirstSendRetry;
     private String relatedTimelineId;
 }

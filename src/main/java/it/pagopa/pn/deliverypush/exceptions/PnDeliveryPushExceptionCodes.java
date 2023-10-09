@@ -88,6 +88,8 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
         TAXID_NOT_VALID("TAXID_NOT_VALID"),
 
         NOT_VALID_ADDRESS("NOT_VALID_ADDRESS"),
+
+        F24_METADATA_NOT_VALID("F24_METADATA_NOT_VALID"),
         
         SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE"),
 

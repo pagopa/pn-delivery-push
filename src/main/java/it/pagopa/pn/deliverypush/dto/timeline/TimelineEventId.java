@@ -11,6 +11,26 @@ public enum TimelineEventId {
         }
     },
 
+    VALIDATE_F24_REQUEST("VALIDATE_F24_REQUEST") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .build();
+        }
+    },
+
+    VALIDATED_F24("VALIDATED_F24") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .build();
+        }
+    },
+
     VALIDATE_NORMALIZE_ADDRESSES_REQUEST("VALIDATE_NORMALIZE_ADDRESSES_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -474,19 +494,13 @@ public enum TimelineEventId {
 
         private String buildPaymentCode(EventId eventId) {
             String paymentCode;
-            if(eventId.getIdF24() != null) {
-                //per pagamenti f24
-                paymentCode = "F24" + eventId.getIdF24();
+            //per pagamenti PagoPa
+            paymentCode = "PPA";
+            if (eventId.getNoticeCode() != null) {
+                paymentCode += eventId.getNoticeCode();
             }
-            else {
-                //per pagamenti PagoPa
-                paymentCode = "PPA";
-                if(eventId.getNoticeCode() != null){
-                    paymentCode += eventId.getNoticeCode();
-                }
-                if(eventId.getCreditorTaxId() != null){
-                    paymentCode += eventId.getCreditorTaxId();
-                }
+            if (eventId.getCreditorTaxId() != null) {
+                paymentCode += eventId.getCreditorTaxId();
             }
             return paymentCode;
         }

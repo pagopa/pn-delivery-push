@@ -530,6 +530,94 @@ class TimeLineServiceImplTest {
     }
 
     @Test
+    void getTimelineWithoutDiagnosticElements() {
+        //GIVEN
+        String iun = "iun";
+        int numberOfRecipients1 = 1;
+        Instant notificationCreatedAt = Instant.now();
+        NotificationStatusInt currentStatus = NotificationStatusInt.DELIVERING;
+
+        String elementId1 = "elementId1";
+        Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
+        Instant t = Instant.EPOCH.plus(1, ChronoUnit.DAYS);
+        TimelineElementInternal elementValidatedF24 = getValidatedF24TimelineElement(iun, elementId1+"VALIDATED_F24");
+        setTimelineElement.add(elementValidatedF24);
+        TimelineElementInternal elementInternalFeedback = getSendPaperFeedbackTimelineElement(iun, elementId1+"FEEDBACK", t);
+        setTimelineElement.add(elementInternalFeedback);
+        TimelineElementInternal elementInternalProg = getSendPaperProgressTimelineElement(iun, elementId1+"PROGRESS", t);
+        setTimelineElement.add(elementInternalProg);
+        Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
+                .thenReturn(setTimelineElement);
+
+        Instant activeFromInValidation = Instant.now();
+
+        NotificationStatusHistoryElementInt inValidationElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.IN_VALIDATION)
+                .activeFrom(activeFromInValidation)
+                .build();
+
+        Instant activeFromAccepted = activeFromInValidation.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElementInt acceptedElementElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.ACCEPTED)
+                .activeFrom(activeFromAccepted)
+                .build();
+
+        Instant activeFromDelivering = activeFromAccepted.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElementInt deliveringElement = NotificationStatusHistoryElementInt.builder()
+                .status(NotificationStatusInt.DELIVERING)
+                .activeFrom(activeFromDelivering)
+                .build();
+
+        List<NotificationStatusHistoryElementInt> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
+
+        Mockito.when(
+                statusUtils.getStatusHistory(Mockito.anySet() ,Mockito.anyInt(), Mockito.any(Instant.class))
+        ).thenReturn(notificationStatusHistoryElements);
+
+        Mockito.when(
+                statusUtils.getCurrentStatus( Mockito.anyList() )
+        ).thenReturn(currentStatus);
+
+        //WHEN
+        NotificationHistoryResponse notificationHistoryResponse = timeLineService.getTimelineAndStatusHistory(iun, numberOfRecipients1, notificationCreatedAt);
+
+        //THEN
+
+        //Viene verificato che il numero di elementi restituiti sia 2, dunque che sia stato eliminato l'elemento con category "IN VALIDATION"
+        Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
+
+        NotificationStatusHistoryElement firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
+        Assertions.assertEquals(acceptedElementElement.getStatus(), NotificationStatusInt.valueOf(firstElement.getStatus().getValue()) );
+        Assertions.assertEquals(inValidationElement.getActiveFrom(), firstElement.getActiveFrom());
+
+        NotificationStatusHistoryElement secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
+        Assertions.assertEquals(deliveringElement.getStatus(), NotificationStatusInt.valueOf(secondElement.getStatus().getValue()));
+        Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
+
+        //Verifica timeline
+        List<TimelineElementV20> timelineElementList = notificationHistoryResponse.getTimeline();
+
+        //Mi aspetto che sia rimosso l'elemento di timeline di diagnostica. (Con category VALIDATE_REQUEST_F24)
+        Assertions.assertEquals(timelineElementList.size() , 2);
+
+        var firstElementReturned = timelineElementList.get(0);
+        var secondElementReturned = timelineElementList.get(1);
+
+        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
+        Assertions.assertEquals( elementInternalProg.getElementId(), firstElementReturned.getElementId() );
+        Assertions.assertEquals( elementInternalFeedback.getElementId(), secondElementReturned.getElementId());
+        Assertions.assertFalse(timelineElementContainsElementId(timelineElementList, elementId1+"VALIDATED_F24" ) );
+
+    }
+
+    private boolean timelineElementContainsElementId(List<TimelineElementV20> timelineElements, String elementId) {
+        return timelineElements.stream()
+                .anyMatch(timelineElementV20 -> timelineElementV20.getElementId().equalsIgnoreCase(elementId));
+    }
+
+    @Test
     void getSchedulingAnalogDateOKTest() {
         final String iun = "iun1";
         final String recipientId = "cxId";
@@ -712,6 +800,18 @@ class TimeLineServiceImplTest {
                 .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
                 .timestamp(timestamp)
                 .details( details )
+                .build();
+    }
+
+    private TimelineElementInternal getValidatedF24TimelineElement(String iun, String elementId) {
+        ValidatedF24DetailInt detail = ValidatedF24DetailInt.builder().build();
+
+        return TimelineElementInternal.builder()
+                .elementId(elementId)
+                .iun(iun)
+                .category(TimelineElementCategoryInt.VALIDATE_F24_REQUEST)
+                .timestamp(Instant.now())
+                .details(detail)
                 .build();
     }
     

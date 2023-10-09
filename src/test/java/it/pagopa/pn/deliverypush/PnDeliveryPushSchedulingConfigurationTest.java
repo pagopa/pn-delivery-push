@@ -27,4 +27,5 @@ class PnDeliveryPushSchedulingConfigurationTest {
         LockProvider provider = configuration.lockProvider(dynamoDB, cfg);
         Assertions.assertNotNull(provider);
     }
+
 }

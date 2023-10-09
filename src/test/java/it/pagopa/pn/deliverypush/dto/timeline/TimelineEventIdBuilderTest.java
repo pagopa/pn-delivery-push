@@ -887,30 +887,6 @@ class TimelineEventIdBuilderTest {
     }
 
     @Test
-    void buildNOTIFICATION_PAIDForF24Test() {
-        //vecchia versione 123456789_notification_paid
-        String timeLineEventIdExpected = "NOTIFICATION_PAID.IUN_KWKU-JHXN-HJXM-202304-U-1.CODE_F2401125571-d77f-423e-82c6-7f251b6c6b2c";
-        String idF24 = "01125571-d77f-423e-82c6-7f251b6c6b2c";
-        String timeLineEventIdActual = new TimelineEventIdBuilder()
-                .withCategory(TimelineEventId.NOTIFICATION_PAID.getValue())
-                .withIun(IUN)
-                .withPaymentCode("F24" + idF24)
-                .build();
-
-        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
-
-        String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_PAID.buildEventId(EventId
-                .builder()
-                .iun(IUN)
-                .idF24(idF24)
-                .build());
-
-
-        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
-
-    }
-
-    @Test
     void buildNOTIFICATION_CANCELLATION_REQUESTTest() {
         String timeLineEventIdExpected = String.format("NOTIFICATION_CANCELLATION_REQUEST.IUN_%s",IUN);
         String timeLineEventIdActual = new TimelineEventIdBuilder()
