@@ -76,6 +76,8 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
     public static final String ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED = "PN_DELIVERYPUSH_NOTIFICATION_CANCELLED";
 
+    public static final String ERROR_CODE_DELIVERYPUSH_PAPERCHANNELSENDCOSTCHANGED = "PN_DELIVERYPUSH_PAPERCHANNELSENDCOSTCHANGED";
+
     public enum NotificationRefusedErrorCodeInt {
         FILE_NOTFOUND("FILE_NOTFOUND"),
 
