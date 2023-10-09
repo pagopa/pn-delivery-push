@@ -682,7 +682,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-external-registries/5f5e336d0fa707a54977c348cfc224361ee7ce5b/docs/openapi/pn-payment-info-external-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-external-registries/5f5e336d0fa707a54977c348cfc224361ee7ce5b/docs/openapi/pn-payment-info-internal-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
