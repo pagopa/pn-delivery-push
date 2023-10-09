@@ -1,4 +1,5 @@
 const { parseKinesisObjToJsonObj } = require("./utils");
+const crypto = require("crypto");
 
 const TABLES = {
   TIMELINES: "pn-Timelines",
@@ -9,8 +10,22 @@ const allowedTimelineCategories = [
   "SEND_ANALOG_DOMICILE",
 ];
 
-function extractRecIdsFromTimelineId(timelineElementId) {
-  return timelineElementId.split("RECINDEX_")[1];
+function updateCostPhaseForSendAnalogDomicile(timelineObj) {
+  // timelineObj.timelineElementId must exist and be a string
+  if (
+    !timelineObj.timelineElementId ||
+    typeof timelineObj.timelineElementId !== "string"
+  ) {
+    return null;
+  }
+
+  if (timelineObj.timelineElementId.indexOf("ATTEMPT_0") >= 0) {
+    return "SEND_ANALOG_DOMICILE_ATTEMPT_0";
+  } else if (timelineObj.timelineElementId.indexOf("ATTEMPT_1") >= 0) {
+    return "SEND_ANALOG_DOMICILE_ATTEMPT_1";
+  } else {
+    return null;
+  }
 }
 
 exports.mapEvents = async (events) => {
@@ -27,27 +42,71 @@ exports.mapEvents = async (events) => {
   let result = [];
 
   for (const filteredEvent of filteredEvents) {
-    let timelineObj = parseKinesisObjToJsonObj(filteredEvent.dynamodb.NewImage);
+    const date = new Date();
 
-    let resultElement = {
+    const timelineObj = parseKinesisObjToJsonObj(
+      filteredEvent.dynamodb.NewImage
+    );
+
+    const resultElementBody = {
+      // common to all events
       iun: timelineObj.iun,
-      // ...
+      // common to all handled paper events
+      recIndex: timelineObj.details?.recIndex ?? undefined,
+      notificationStepCost: timelineObj.details?.analogCost ?? undefined,
+      eventTimestamp: timelineObj.timestamp,
+      eventStorageTimestamp: timelineObj.timestamp,
+    };
+
+    let messageAttributes = {
+      publisher: {
+        DataType: "String",
+        StringValue: "deliveryPush",
+      },
+      iun: {
+        DataType: "String",
+        StringValue: resultElementBody.iun,
+      },
+      eventId: {
+        DataType: "String",
+        StringValue: crypto.randomUUID(),
+      },
+      createdAt: {
+        DataType: "String",
+        StringValue: date.toISOString(),
+      },
+      eventType: {
+        DataType: "String",
+        StringValue: "UPDATE_COST_PHASE_EVENT",
+      },
     };
 
     const category = timelineObj.category;
 
     switch (category) {
-      // ...
       case "SEND_SIMPLE_REGISTERED_LETTER":
-        // ...
+        resultElementBody.updateCostPhase = "SEND_SIMPLE_REGISTERED_LETTER";
         break;
+
       case "SEND_ANALOG_DOMICILE":
-        // ...
+        const costPhase = updateCostPhaseForSendAnalogDomicile(timelineObj);
+        if (costPhase) {
+          resultElementBody.updateCostPhase = costPhase;
+        } else {
+          console.warn("Error in parsing timelineObj: ", timelineObj);
+        }
         break;
+
       default:
-        console.log(`Category ${category} not supported`);
+        console.log(`Category ${category} not supported`); // anyway, we previously filtered out the events with not allowed categories
         break;
     }
+
+    let resultElement = {
+      Id: filteredEvent.kinesisSeqNumber,
+      MessageBody: JSON.stringify(resultElementBody),
+      MessageAttributes: messageAttributes,
+    };
 
     result.push(resultElement);
   }
