@@ -46,7 +46,7 @@ class F24ValidatorTest {
         Mockito.when(pnF24Client.validate(any())).thenReturn(Mono.just(requestAccepted));
 
         final TimelineElementInternal timelineElement = TimelineElementInternal.builder().build();
-        Mockito.when(timelineUtils.buildValidateF24RequestTimelineElement(Mockito.eq(notification)))
+        Mockito.when(timelineUtils.buildValidateF24RequestTimelineElement(notification))
                 .thenReturn(timelineElement);
 
         //WHEN

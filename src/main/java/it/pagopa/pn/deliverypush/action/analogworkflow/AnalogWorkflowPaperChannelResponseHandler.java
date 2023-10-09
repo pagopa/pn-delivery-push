@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -121,16 +122,28 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             int sentAttemptMade = sendAnalogDetails.getSentAttemptMade();
 
 
-            String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
-            String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
-            auditLogEvent.generateSuccess(auditlogmessage).log();
+            try {
+                String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
+                String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
+                auditLogEvent.generateSuccess(auditlogmessage).log();
+            } catch (PnPaperChannelChangedCostException e) {
+                String auditlogmessage = "send cost is different from prepare cost, need to re-do prepare";
+                this.paperChannelService.prepareAnalogNotification(notification, recIndex, sentAttemptMade);
+                auditLogEvent.generateWarning(auditlogmessage).log();
+            }
         }
         else if ( timelineElementInternal.getDetails() instanceof BaseRegisteredLetterDetailsInt ){
             log.info("paperChannelPrepareResponseHandler prepare response is for simple registered letter, now registered letter can be sent iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
-            String timelineId = this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
-            String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
-            auditLogEvent.generateSuccess(auditlogmessage).log();
+            try {
+                String timelineId = this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
+                String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
+                auditLogEvent.generateSuccess(auditlogmessage).log();
+            } catch (PnPaperChannelChangedCostException e) {
+                String auditlogmessage = "send cost is different from prepare cost, need to re-do prepare";
+                this.paperChannelService.prepareAnalogNotificationForSimpleRegisteredLetter(notification, recIndex);
+                auditLogEvent.generateWarning(auditlogmessage).log();
+            }
         }
         else
         {
