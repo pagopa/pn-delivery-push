@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -121,9 +122,9 @@ public class PaperChannelUtils {
 
     
     public String addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                      AnalogDtoInt analogDtoInfo) {
+                                                      AnalogDtoInt analogDtoInfo, List<String> replacedF24AttachmentUrls) {
         TimelineElementInternal timelineElementInternal = timelineUtils.buildSendAnalogNotificationTimelineElement(
-                physicalAddress, recIndex, notification, analogDtoInfo);
+                physicalAddress, recIndex, notification, analogDtoInfo, replacedF24AttachmentUrls);
         addTimelineElement(timelineElementInternal,
                 notification
         );

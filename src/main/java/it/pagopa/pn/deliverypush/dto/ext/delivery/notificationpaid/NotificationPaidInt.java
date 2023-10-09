@@ -22,14 +22,12 @@ public class NotificationPaidInt {
     private String noticeCode;
     private String paymentSourceChannel;
     private Integer amount;
-    private String idF24;
 
     @RequiredArgsConstructor
     @Getter
     @ToString
     public enum PaymentTypeInt {
-        PAGOPA("PAGOPA"),
-        F24("F24");
+        PAGOPA("PAGOPA");
 
         private final String value;
 

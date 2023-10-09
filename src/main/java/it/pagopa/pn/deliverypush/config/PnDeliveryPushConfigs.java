@@ -87,6 +87,8 @@ public class PnDeliveryPushConfigs {
 
     private String addressManagerBaseUrl;
 
+    private String f24BaseUrl;
+
     private String addressManagerApiKey;
     
     private Duration[] validationRetryIntervals;
@@ -96,7 +98,12 @@ public class PnDeliveryPushConfigs {
     private boolean checkPdfValidEnabled;
     private Duration actionTtl;
     private boolean checkCfEnabled;
-    
+
+    private String f24CxId;
+
+    private String sendAnalogNotificationAttachments;
+    private String sendSimpleRegisteredLetterAttachments;
+
     @Data
     public static class Topics {
 
@@ -119,6 +126,8 @@ public class PnDeliveryPushConfigs {
         private String nationalRegistriesEvents;
 
         private String addressManagerEvents;
+
+        private String f24Events;
     }
 
     @Data
@@ -232,8 +241,6 @@ public class PnDeliveryPushConfigs {
     public static class LegalFacts {
         private SanitizeMode sanitizeMode;
     }
-
-    private String sendNotificationAttachments;
 
     private boolean safeStorageFileNotFoundRetry;
 

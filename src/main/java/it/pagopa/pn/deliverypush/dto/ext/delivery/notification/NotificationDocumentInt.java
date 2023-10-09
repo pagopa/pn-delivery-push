@@ -9,6 +9,7 @@ import lombok.*;
 @EqualsAndHashCode
 @ToString
 public class NotificationDocumentInt {
+    private String contentType;
     private Digests digests;
     private Ref ref;
 

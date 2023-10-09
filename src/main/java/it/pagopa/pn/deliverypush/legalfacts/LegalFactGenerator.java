@@ -7,10 +7,7 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
@@ -25,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.CollectionUtils;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -132,21 +130,28 @@ public class LegalFactGenerator {
         // F24 digests
         for(NotificationRecipientInt recipient : notification.getRecipients()) {
 
-            NotificationPaymentInfoInt recipientPayment = recipient.getPayment();
-            if (recipientPayment != null ) {
+            //add digests for v21
+            addDigestsForMultiPayments(recipient.getPayments(), digests);
 
-                NotificationDocumentInt pagoPaForm = recipientPayment.getPagoPaForm();
-                if ( pagoPaForm != null ) {
-                    digests.add( FileUtils.convertBase64toHexUppercase(pagoPaForm.getDigests().getSha256()) );
-                }
-                
-            }
         }
 
 
         return digests;
     }
-    
+
+    private void addDigestsForMultiPayments(List<NotificationPaymentInfoIntV2> payments, List<String> digests) {
+        if(!CollectionUtils.isEmpty(payments)){
+            payments.forEach(payment -> {
+                if(payment.getPagoPA() != null && payment.getPagoPA().getAttachment() != null){
+                    digests.add(FileUtils.convertBase64toHexUppercase(payment.getPagoPA().getAttachment().getDigests().getSha256()));
+                }
+                if(payment.getF24() != null && payment.getF24().getMetadataAttachment() != null){
+                    digests.add(FileUtils.convertBase64toHexUppercase(payment.getF24().getMetadataAttachment().getDigests().getSha256()));
+                }
+            });
+        }
+    }
+
     public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();

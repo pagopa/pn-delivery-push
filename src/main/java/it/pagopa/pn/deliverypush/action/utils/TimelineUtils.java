@@ -112,6 +112,28 @@ public class TimelineUtils {
                 .notificationSentAt(notification.getSentAt())
                 .build();
     }
+
+    public TimelineElementInternal buildValidateF24RequestTimelineElement(NotificationInt notification) {
+        log.debug("buildValidateF24RequestTimelineElement - iun={}", notification.getIun());
+
+        String correlationId = TimelineEventId.VALIDATE_F24_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_F24_REQUEST, correlationId, null);
+    }
+
+    public TimelineElementInternal buildValidatedF24TimelineElement(NotificationInt notification) {
+        log.debug("buildValidatedF24TimelineElement - iun={}", notification.getIun());
+
+        String correlationId = TimelineEventId.VALIDATED_F24.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATED_F24, correlationId, null);
+    }
     
     public TimelineElementInternal buildValidateAndNormalizeAddressTimelineElement(NotificationInt notification, String elementId) {
         log.debug("buildValidateAddressTimelineElement - iun={}", notification.getIun());
@@ -449,9 +471,10 @@ public class TimelineUtils {
     public TimelineElementInternal buildSendAnalogNotificationTimelineElement(PhysicalAddressInt address,
                                                                               Integer recIndex,
                                                                               NotificationInt notification,
-                                                                              AnalogDtoInt analogDtoInfo) {
+                                                                              AnalogDtoInt analogDtoInfo,
+                                                                              List<String> replacedF24AttachmentUrls) {
         SendResponse sendResponse = analogDtoInfo.getSendResponse();
-        log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={} analogCost={} relatedRequestId={}", notification.getIun(), recIndex, sendResponse.getAmount(), analogDtoInfo.getRelatedRequestId());
+        log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={} analogCost={} relatedRequestId={} replacedF24AttachmentUrls={}", notification.getIun(), recIndex, sendResponse.getAmount(), analogDtoInfo.getRelatedRequestId(), replacedF24AttachmentUrls);
         ServiceLevelInt serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevelInt.valueOf(notification.getPhysicalCommunicationType().name()) : null;
 
         String elementId = TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
@@ -471,6 +494,7 @@ public class TimelineUtils {
                 .productType(analogDtoInfo.getProductType())
                 .numberOfPages(sendResponse.getNumberOfPages())
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
+                .f24Attachments(replacedF24AttachmentUrls)
                 .prepareRequestId(analogDtoInfo.getPrepareRequestId())
                 .build();
 
@@ -954,7 +978,6 @@ public class TimelineUtils {
                 .amount(notificationPaidInt.getAmount())
                 .creditorTaxId(notificationPaidInt.getCreditorTaxId())
                 .noticeCode(notificationPaidInt.getNoticeCode())
-                .idF24(notificationPaidInt.getIdF24())
                 .paymentSourceChannel(notificationPaidInt.getPaymentSourceChannel())
                 .uncertainPaymentDate(notificationPaidInt.isUncertainPaymentDate())
                 .build();

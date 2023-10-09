@@ -39,6 +39,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalFailureWorkflowDeta
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -152,7 +153,9 @@ import static org.awaitility.Awaitility.with;
         AddressManagerClientMock.class,
         NormalizeAddressHandler.class,
         AddressManagerResponseHandler.class,
-        NotHandledTestIT.SpringTestConfiguration.class
+        NotHandledTestIT.SpringTestConfiguration.class,
+        F24Validator.class,
+        F24ClientMock.class
 })
 @TestPropertySource( 
         locations ="classpath:/application-test.properties",
@@ -249,6 +252,9 @@ class NotHandledTestIT {
 
     @Autowired
     private AddressManagerClientMock addressManagerClientMock;
+
+    @Autowired
+    private F24ClientMock f24ClientMock;
     
     @BeforeEach
     public void setup() {
@@ -267,7 +273,8 @@ class NotHandledTestIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock
+                addressManagerClientMock,
+                f24ClientMock
         );
     }
 
@@ -426,6 +433,7 @@ class NotHandledTestIT {
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -534,6 +542,7 @@ class NotHandledTestIT {
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
