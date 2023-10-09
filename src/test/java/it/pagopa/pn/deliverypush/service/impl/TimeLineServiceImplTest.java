@@ -600,7 +600,7 @@ class TimeLineServiceImplTest {
         List<TimelineElementV20> timelineElementList = notificationHistoryResponse.getTimeline();
 
         //Mi aspetto che sia rimosso l'elemento di timeline di diagnostica. (Con category VALIDATE_REQUEST_F24)
-        Assertions.assertEquals(timelineElementList.size() , 2);
+        Assertions.assertEquals(2, timelineElementList.size());
 
         var firstElementReturned = timelineElementList.get(0);
         var secondElementReturned = timelineElementList.get(1);

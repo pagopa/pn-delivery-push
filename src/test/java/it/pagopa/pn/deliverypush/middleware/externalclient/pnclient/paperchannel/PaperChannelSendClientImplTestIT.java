@@ -2,6 +2,10 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchanne
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.Problem;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ProblemError;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ProductTypeEnum;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
@@ -228,6 +232,101 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
         SendResponse sendResponse = client.send(paperChannelSendRequest);
         
         Assertions.assertEquals(notificationCostExpected, sendResponse.getAmount());
+
+    }
+
+
+
+    @Test
+    void send_Unprocessable() throws JsonProcessingException {
+
+        String requestId = "requestId1";
+        String path = "/paper-channel-private/v1/b2b/paper-deliveries-send/{requestId}"
+                .replace("{requestId}", requestId);
+
+        Problem response = new Problem();
+        response.setStatus(422);
+        response.setDetail("costo");
+        response.setErrors(List.of(new ProblemError()));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String respJson = mapper.writeValueAsString(response);
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("POST")
+                        .withPath(path)
+                )
+                .respond(response()
+                        .withStatusCode(422)
+                        .withContentType(MediaType.APPLICATION_JSON)
+                        .withBody(respJson)
+                );
+
+        PaperChannelSendRequest paperChannelSendRequest = PaperChannelSendRequest.builder()
+                .requestId(requestId)
+                .productType(ProductTypeEnum._890.getValue())
+                .arAddress(PhysicalAddressInt.builder()
+                        .address("test")
+                        .build())
+                .receiverAddress(PhysicalAddressInt.builder()
+                        .address("test2")
+                        .build())
+                .recipientInt(NotificationRecipientTestBuilder.builder().build())
+                .notificationInt(NotificationTestBuilder.builder().build())
+                .attachments(List.of("Att"))
+                .build();
+
+        Assertions.assertThrows(PnPaperChannelChangedCostException.class, () -> client.send(paperChannelSendRequest));
+
+
+
+    }
+
+
+    @Test
+    void send_ERror() throws JsonProcessingException {
+
+        String requestId = "requestId2";
+        String path = "/paper-channel-private/v1/b2b/paper-deliveries-send/{requestId}"
+                .replace("{requestId}", requestId);
+
+        Problem response = new Problem();
+        response.setStatus(422);
+        response.setDetail("costo");
+        response.setErrors(List.of(new ProblemError()));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String respJson = mapper.writeValueAsString(response);
+
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("POST")
+                        .withPath(path)
+                )
+                .respond(response()
+                        .withStatusCode(500)
+                        .withContentType(MediaType.APPLICATION_JSON)
+                        .withBody(respJson)
+                );
+
+        PaperChannelSendRequest paperChannelSendRequest = PaperChannelSendRequest.builder()
+                .requestId(requestId)
+                .productType(ProductTypeEnum._890.getValue())
+                .arAddress(PhysicalAddressInt.builder()
+                        .address("test")
+                        .build())
+                .receiverAddress(PhysicalAddressInt.builder()
+                        .address("test2")
+                        .build())
+                .recipientInt(NotificationRecipientTestBuilder.builder().build())
+                .notificationInt(NotificationTestBuilder.builder().build())
+                .attachments(List.of("Att"))
+                .build();
+
+        Assertions.assertThrows(PnHttpResponseException.class, () -> client.send(paperChannelSendRequest));
+
+
 
     }
 }

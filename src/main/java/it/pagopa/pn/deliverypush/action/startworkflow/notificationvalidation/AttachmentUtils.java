@@ -89,9 +89,7 @@ public class AttachmentUtils {
     {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());
 
-        notification.getRecipients().forEach( recipient -> {
-            addAllRecipientPaymentsToAttachmentList(notificationDocuments, recipient);
-        });
+        notification.getRecipients().forEach( recipient -> addAllRecipientPaymentsToAttachmentList(notificationDocuments, recipient));
         
         return notificationDocuments;
     }
