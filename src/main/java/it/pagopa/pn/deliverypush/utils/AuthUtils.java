@@ -51,8 +51,8 @@ public class AuthUtils {
         log.info("Start CheckUserPaAndMandateAuthorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
 
         if (StringUtils.hasText(mandateId)) {
-            String rootSenderId = externalRegistryClient.getRootSenderId(paId);
-            checkAuthForMandate(notification, senderRecipientId, mandateId, rootSenderId, iun, cxType, cxGroups);
+            String rootPaId = externalRegistryClient.getRootSenderId(paId);
+            checkAuthForMandate(notification, senderRecipientId, mandateId, rootPaId, iun, cxType, cxGroups);
         } else {
             checkAuthForSenderAndRecipients(notification, senderRecipientId, paId, iun, cxType, cxGroups);
         }
