@@ -98,7 +98,7 @@ exports.mapEvents = async (events) => {
         break;
 
       default:
-        console.log(`Category ${category} not supported`); // anyway, we previously filtered out the events with not allowed categories
+        // we previously filtered out the events with not allowed categories
         break;
     }
 
