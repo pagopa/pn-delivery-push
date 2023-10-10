@@ -517,6 +517,17 @@ Parameters:
     Type: String
     Description: 'DLQ Alarm ARN for WebhookEventManagerLambda'
 
+  PaperEventsCostUpdateLambdaName:
+    Type: String
+
+  PaperEventsCostUpdateDLQARN:
+    Type: String
+    Description: 'DLQ ARN for PaperEventsCostUpdateLambda'
+
+  PaperEventsCostUpdateDLQAlarmARN:
+    Type: String
+    Description: 'DLQ Alarm ARN for PaperEventsCostUpdateLambda'
+
   # Lambda parameters
 
   NotificationCancellationActionInsertLambdaName:
@@ -567,6 +578,17 @@ Parameters:
   NotificationCancellationActionInsertLambdaBatchSize:
     Type: String
     Default: "20"
+    Description: 'BatchSize asseveration event source mapping'
+
+  # Paper Cost Notification lambda parameters
+  PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds:
+    Type: String
+    Default: "20"
+    Description: 'MaximumBatchingWindow asseveration event source mapping'
+
+  PaperEventsCostUpdateLambdaBatchSize:
+    Type: String
+    Default: "60"
     Description: 'BatchSize asseveration event source mapping'
 
 
@@ -1076,6 +1098,113 @@ Resources:
         FunctionName: !Ref NotificationCancellationActionInsertLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
+  #########################################################
+  ###             PaperEventsCostUpdateLambda           ###
+  #########################################################
+
+  # Lambda function
+  PaperEventsCostUpdateLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref PaperEventsCostUpdateLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/paperEventsCostUpdateLambda.zip"
+      Role: !GetAtt PaperEventsCostUpdateLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          QUEUE_URL: !Ref CHANGECHANGECHANGE_DoneActionsQueueURL
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+
+  # Lambda function role
+  PaperEventsCostUpdateLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-paperEventsCostUpdateLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  PaperEventsCostUpdateLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-PaperEventsCostUpdateLambdaPolicy
+      Roles:
+        - !Ref PaperEventsCostUpdateLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcKinesisSourceStreamArn
+          - Action: kms:Decrypt
+            Effect: Allow
+            Resource: !Ref CdcKinesisSourceStreamKeyArn
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref CHANGECHANGECHANGE_DoneActionsQueueARN
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+            Resource:
+              !Ref PaperEventsCostUpdateDLQARN
+
+    # CDC to Paper Events Cost Update
+  PaperEventsCostUpdateLambdaKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: !Sub ${PaperEventsCostUpdateLambdaBatchSize}
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FunctionName: !Ref PaperEventsCostUpdateLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      MaximumBatchingWindowInSeconds: !Sub ${PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds}
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref PaperEventsCostUpdateDLQARN
+
+  PaperEventsCostUpdateLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref PaperEventsCostUpdateLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
@@ -1126,10 +1255,13 @@ Resources:
             - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref WebhookEventManagerDLQAlarmARN
             - !GetAtt WebhookEventManagerLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !Ref PaperEventsCostUpdateDLQAlarmARN
+            - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
             - !GetAtt WebhookEventManagerLambda.Arn
+            - !GetAtt PaperEventsCostUpdateLambda.Arn
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -1144,6 +1276,7 @@ Resources:
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
             - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
             - !Sub '/aws/lambda/${WebhookEventManagerLambdaName}'
+            - !Sub '/aws/lambda/${PaperEventsCostUpdateLambdaName}'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscaling:
