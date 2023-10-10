@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import org.springframework.util.Base64Utils;
 
 import java.time.Instant;
@@ -12,6 +13,8 @@ public class NotificationTestBuilder {
     private String iun;
     private String paId;
     private List<NotificationRecipientInt> recipients;
+
+    private NotificationFeePolicy notificationFeePolicy;
     private Instant sentAt;
     List<NotificationDocumentInt> notificationDocument;
     
@@ -32,6 +35,11 @@ public class NotificationTestBuilder {
 
     public NotificationTestBuilder withPaId(String paId) {
         this.paId = paId;
+        return this;
+    }
+
+    public NotificationTestBuilder withNotificationFeePolicy(NotificationFeePolicy notificationFeePolicy) {
+        this.notificationFeePolicy = notificationFeePolicy;
         return this;
     }
 
@@ -83,6 +91,10 @@ public class NotificationTestBuilder {
                             .build()
             );
         }
+
+        if(notificationFeePolicy == null) {
+            notificationFeePolicy = NotificationFeePolicy.FLAT_RATE;
+        }
         
         return NotificationInt.builder()
                 .iun(iun)
@@ -98,6 +110,7 @@ public class NotificationTestBuilder {
                         .paTaxId("CFPA-" + paId)
                         .build()
                 )
+                .notificationFeePolicy(notificationFeePolicy)
                 .sentAt( sentAt )
                 .recipients(recipients)
                 .documents(notificationDocument)

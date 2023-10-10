@@ -120,7 +120,7 @@ Parameters:
   DoneActionsQueueURL:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
-    
+
   DoneActionsQueueARN:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
@@ -326,9 +326,25 @@ Parameters:
     Type: String
     Description: 'AddressManager-to-delivery-push queue Name'
 
+  F24ToDeliveryPushQueueName:
+    Type: String
+    Description: F24-to-delivery-push Queue Name
+
+  F24ToDeliveryPushQueueARN:
+    Type: String
+    Description: F24-to-delivery-push queue ARN
+
+  F24ToDeliveryPushQueueAlarmARN:
+    Type: String
+    Description: F24-to-delivery-push queue alarm ARN
+
+  F24ToDeliveryPushQueueAgeAlarmARN:
+    Type: String
+    Description: F24-to-delivery-push queue age alarm ARN
+
   AddressManagerToDeliveryPushQueueARN:
     Type: String
-    Description: 'AddressManager-to-delivery-push queue ARN'
+    Description: AddressManager-to-delivery-push queue ARN
 
   AddressManagerToDeliveryPushQueueAlarmARN:
     Type: String
@@ -478,8 +494,13 @@ Parameters:
     Type: Number
     Description: maximum autoscaling number of tasks
 
-  SendNotificationAttachments:
-    Default: 'analog-notification'
+  SendAnalogNotificationAttachments:
+    Default: 'AAR-DOCUMENTS-PAYMENTS'
+    Type: String
+    Description: 'Configuration to enable sending notification attachments'
+
+  SendSimpleRegisteredLetterAttachments:
+    Default: 'AAR-DOCUMENTS-PAYMENTS'
     Type: String
     Description: 'Configuration to enable sending notification attachments'
 
@@ -599,6 +620,17 @@ Parameters:
     Default: "60"
     Description: 'BatchSize asseveration event source mapping'
 
+  EnhancedWebSecurityEnabled:
+    Type: String
+    Default: false
+    Description: Enable additional WAF Web rules
+    AllowedValues:
+      - true
+      - false
+
+  F24DeliveryPushUser:
+    Type: String
+    Description: 'pn-delivery-push clientId for communication with pn-f24'
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
@@ -659,7 +691,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${DoneActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName}, ${F24ToDeliveryPushQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -677,18 +709,22 @@ Resources:
         ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
         ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
         ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
-        ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_SENDNOTIFICATIONATTACHMENTS=${SendNotificationAttachments}'
-        ContainerEnvEntry48: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
-        ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
-        ContainerEnvEntry50: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
-        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
-        ContainerEnvEntry52: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
-        ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
-        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
-        ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
-        ContainerEnvEntry56: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
-        ContainerEnvEntry57: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
-        ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
+        ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_SENDANALOGNOTIFICATIONATTACHMENTS=${SendAnalogNotificationAttachments}'
+        ContainerEnvEntry48: !Sub 'PN_DELIVERYPUSH_SENDSIMPLEREGISTEREDLETTERATTACHMENTS=${SendSimpleRegisteredLetterAttachments}'
+        ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
+        ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
+        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
+        ContainerEnvEntry52: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
+        ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
+        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
+        ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
+        ContainerEnvEntry56: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
+        ContainerEnvEntry57: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
+        ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
+        ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
+        ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
+        ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -730,6 +766,7 @@ Resources:
               - !Ref SafeStorageToDeliveryPushQueueARN
               - !Ref NationalRegistries2DeliveryPushQueueARN
               - !Ref AddressManagerToDeliveryPushQueueARN
+              - !Ref F24ToDeliveryPushQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -857,6 +894,7 @@ Resources:
         IntendedUsage: WEB 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
         Limit: 600000
+        EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   #########################################################
   ###              WebhookEventManagerLambda            ###
@@ -1258,7 +1296,9 @@ Resources:
             - !Ref NationalRegistries2DeliveryPushQueueAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
             - !Ref AddressManagerToDeliveryPushQueueAlarmARN
+            - !Ref F24ToDeliveryPushQueueAlarmARN
             - !Ref AddressManagerToDeliveryPushQueueAgeAlarmARN
+            - !Ref F24ToDeliveryPushQueueAgeAlarmARN
             - !Ref NotificationCancellationActionInsertDLQAlarmARN
             - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref WebhookEventManagerDLQAlarmARN
@@ -1279,6 +1319,7 @@ Resources:
             - !Ref SafeStorageToDeliveryPushQueueARN
             - !Ref NationalRegistries2DeliveryPushQueueARN
             - !Ref AddressManagerToDeliveryPushQueueARN
+            - !Ref F24ToDeliveryPushQueueARN
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
@@ -1382,6 +1423,17 @@ Resources:
                   Value: !Ref ApplicationLoadBalancerMetricsDimensionName
               Namespace: "AWS/ApplicationELB"
               MetricName: "HealthyHostCount"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m9
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "F24ToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
             Period: !Ref AutoscalingCheckPeriod
             Stat: Average
           ReturnData: False        

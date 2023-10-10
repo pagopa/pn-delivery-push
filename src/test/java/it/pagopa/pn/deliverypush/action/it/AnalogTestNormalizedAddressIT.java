@@ -32,6 +32,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -141,7 +142,9 @@ import static org.awaitility.Awaitility.await;
         AddressManagerResponseHandler.class,
         AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
         AnalogFailureDeliveryCreationResponseHandler.class,
-        AnalogTestNormalizedAddressIT.SpringTestConfiguration.class
+        AnalogTestNormalizedAddressIT.SpringTestConfiguration.class,
+        F24Validator.class,
+        F24ClientMock.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
@@ -233,6 +236,9 @@ class AnalogTestNormalizedAddressIT {
     
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private F24ClientMock f24ClientMock;
     
     @BeforeEach
     public void setup() {
@@ -250,7 +256,8 @@ class AnalogTestNormalizedAddressIT {
                 pnDataVaultClientMock,
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
-                addressManagerClientMock
+                addressManagerClientMock,
+                f24ClientMock
         );
     }
 
@@ -286,6 +293,7 @@ class AnalogTestNormalizedAddressIT {
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -304,7 +312,7 @@ class AnalogTestNormalizedAddressIT {
                 .municipalityDetails(paPhysicalAddress.getMunicipalityDetails() +"_NORMALIZED")
                 .fullname(recipient.getDenomination())
                 .at(paPhysicalAddress.getAt())
-                .build();;
+                .build();
         
         addressManagerClientMock.addNormalizedAddress(iun, recIndex, paPhysicalAddressNormalized );
 

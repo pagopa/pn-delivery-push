@@ -63,7 +63,7 @@ class RegisteredLetterSenderTest {
         NotificationRecipientInt recipient = NotificationRecipientInt.builder()
                 .taxId("testIdRecipient")
                 .denomination("Nome Cognome/Ragione Sociale")
-                .payment(null)
+                .payments(null)
                 .build();
 
         NotificationInt notification = NotificationTestBuilder.builder()

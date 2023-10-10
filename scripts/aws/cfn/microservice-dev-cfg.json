@@ -23,7 +23,8 @@
     "MaxTasksNumber": "11",
     "AutoscalingThreshold": "650",
     "ConsumedQueueMessagePerMinute": "3000",
-    "SendNotificationAttachments": "analog-notification",
+    "SendAnalogNotificationAttachments": "AAR-DOCUMENTS-PAYMENTS",
+    "SendSimpleRegisteredLetterAttachments": "AAR-DOCUMENTS-PAYMENTS",
     "SafeStorageFileNotFoundRetry": "false",
     "LandingUrl": "https://www.dev.notifichedigitali.it/",
     "AddressManagerBaseUrl": "http://alb.confidential.pn.internal:8080",
@@ -37,8 +38,8 @@
     "WebhookEventManagerLambdaMaximumBatchingWindowInSeconds": "20",
     "WebhookEventManagerLambdaBatchSize": "60",
     "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
-    "NotificationCancellationActionInsertLambdaBatchSize": "20"
-
+    "NotificationCancellationActionInsertLambdaBatchSize": "20",
+    "EnhancedWebSecurityEnabled": "true"
   }
 }
 
