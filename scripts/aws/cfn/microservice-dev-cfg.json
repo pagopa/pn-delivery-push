@@ -38,8 +38,8 @@
     "WebhookEventManagerLambdaMaximumBatchingWindowInSeconds": "20",
     "WebhookEventManagerLambdaBatchSize": "60",
     "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
-    "NotificationCancellationActionInsertLambdaBatchSize": "20"
-
+    "NotificationCancellationActionInsertLambdaBatchSize": "20",
+    "EnhancedWebSecurityEnabled": "true"
   }
 }
 
