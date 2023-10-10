@@ -144,7 +144,8 @@ import static org.awaitility.Awaitility.await;
         AnalogFailureDeliveryCreationResponseHandler.class,
         AnalogTestNormalizedAddressIT.SpringTestConfiguration.class,
         F24Validator.class,
-        F24ClientMock.class
+        F24ClientMock.class,
+        PnExternalRegistriesClientReactiveMock.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
