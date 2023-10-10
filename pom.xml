@@ -687,21 +687,24 @@
 						<configuration>
 							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-external-registries/5f5e336d0fa707a54977c348cfc224361ee7ce5b/docs/openapi/pn-payment-info-internal-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
-							<library>resttemplate</library>
+							<library>webclient</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
 							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
 							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
-								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalregistry.api</apiPackage>
-								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalregistry.model</modelPackage>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalregistry-reactive.api</apiPackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalregistry-reactive.model</modelPackage>
 								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
 								<annotationLibrary>none</annotationLibrary>
 								<documentationProvider>source</documentationProvider>
 								<openApiNullable>false</openApiNullable>
-								<useAbstractionForFiles>true</useAbstractionForFiles>
-								<useBeanValidation>false</useBeanValidation>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
 							</configOptions>
 						</configuration>
 					</execution>

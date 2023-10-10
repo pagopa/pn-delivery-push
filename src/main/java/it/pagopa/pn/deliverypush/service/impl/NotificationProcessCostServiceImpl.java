@@ -1,18 +1,24 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
+import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
+import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
+import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationCostResponseMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -20,14 +26,29 @@ import java.util.Set;
 @Slf4j
 public class NotificationProcessCostServiceImpl implements NotificationProcessCostService {
     public static final int PAGOPA_NOTIFICATION_BASE_COST = 100;
-    private final PnDeliveryClient pnDeliveryClient;
     private final TimelineService timelineService;
+    private final PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive;
     
 
     @Override
     public Mono<Integer> getPagoPaNotificationBaseCost() {
         return Mono.just(PAGOPA_NOTIFICATION_BASE_COST);
     }
+    
+    public Mono<UpdateNotificationCostResponseInt> setNotificationStepCost(int notificationStepCost,
+                                                                         String iun,
+                                                                         List<PaymentsInfoForRecipientInt> paymentsInfoForRecipients,
+                                                                         Instant eventTimestamp,
+                                                                         Instant eventStorageTimestamp,
+                                                                         UpdateCostPhaseInt updateCostPhase){
+        log.debug("Start service setNotificationStepCost");
+
+        UpdateNotificationCostRequest updateNotificationCostRequest = NotificationCostResponseMapper.internalToExternal(notificationStepCost, iun, paymentsInfoForRecipients, eventTimestamp, eventStorageTimestamp, updateCostPhase);
+        return pnExternalRegistriesClientReactive.updateNotificationCost(updateNotificationCostRequest)
+                .map(NotificationCostResponseMapper::externalToInternal)
+                .doOnSuccess(res -> log.debug("setNotificationStepCost service completed"));
+    }
+
 
     @Override
     public Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost, Integer paFee) {

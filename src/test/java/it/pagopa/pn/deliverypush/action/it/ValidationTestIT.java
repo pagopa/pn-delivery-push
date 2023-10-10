@@ -142,7 +142,8 @@ import static org.awaitility.Awaitility.await;
         ValidationTestIT.SpringTestConfiguration.class,
         F24Validator.class,
         F24ClientMock.class,
-        F24ResponseHandler.class
+        F24ResponseHandler.class,
+        PnExternalRegistriesClientReactiveMock.class
 })
 @TestPropertySource(
         locations ="classpath:/application-test.properties",
