@@ -1,10 +1,13 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
+import it.pagopa.pn.deliverypush.dto.cost.*;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostResult;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
@@ -14,27 +17,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 import static it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST;
 
 class NotificationProcessCostServiceImplTest {
     @Mock
-    private PnDeliveryClient pnDeliveryClient;
-    @Mock
     private TimelineService timelineService;
-
+    @Mock
+    private PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive;
+    
     private NotificationProcessCostService service;
     
     @BeforeEach
     void setUp() {
-        service = new NotificationProcessCostServiceImpl(pnDeliveryClient, timelineService);
+        service = new NotificationProcessCostServiceImpl(timelineService, pnExternalRegistriesClientReactive);
     }
     
     @Test
@@ -45,6 +47,53 @@ class NotificationProcessCostServiceImplTest {
         Assertions.assertEquals(100, pagoPaBaseCost);
     }
 
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void setNotificationStepCostOK() {
+        //GIVEN
+        int notificationStepCost = 100;
+        String iun = "testIun";
+
+        PaymentsInfoForRecipientInt paymentsInfoForRecipient = PaymentsInfoForRecipientInt.builder()
+                .creditorTaxId("testCred")
+                .noticeCode("testNotice")
+                .recIndex(0)
+                .build();
+        List<PaymentsInfoForRecipientInt> paymentsInfoForRecipients = Collections.singletonList(paymentsInfoForRecipient);
+        Instant eventTimestamp = Instant.now().minus(2, ChronoUnit.HOURS);
+        Instant eventStorageTimestamp = Instant.now().minus(1, ChronoUnit.HOURS);
+        UpdateCostPhaseInt updateCostPhase = UpdateCostPhaseInt.VALIDATION;
+        
+        UpdateNotificationCostResponse updateNotificationCostResponse = new UpdateNotificationCostResponse();
+        updateNotificationCostResponse.setIun(iun);
+        updateNotificationCostResponse.addUpdateResultsItem(
+                new UpdateNotificationCostResult()
+                        .creditorTaxId(paymentsInfoForRecipient.getCreditorTaxId())
+                        .noticeCode(paymentsInfoForRecipient.getNoticeCode())
+                        .recIndex(paymentsInfoForRecipient.getRecIndex())
+                        .result(UpdateNotificationCostResult.ResultEnum.KO)
+        );
+        Mockito.when(pnExternalRegistriesClientReactive.updateNotificationCost(Mockito.any(UpdateNotificationCostRequest.class))).thenReturn(Mono.just(updateNotificationCostResponse));
+        
+        //WHEN
+        UpdateNotificationCostResponseInt updateNotificationCostResponseInt = service.setNotificationStepCost(notificationStepCost,iun,paymentsInfoForRecipients,eventTimestamp,
+                eventStorageTimestamp, updateCostPhase).block();
+        
+        //THEN
+        Assertions.assertNotNull(updateNotificationCostResponseInt);
+        Assertions.assertEquals(updateNotificationCostResponseInt.getIun(), iun);
+        Assertions.assertNotNull(updateNotificationCostResponseInt.getUpdateResults());
+        Assertions.assertNotNull(updateNotificationCostResponseInt.getUpdateResults().get(0));
+        
+        UpdateNotificationCostResultInt updateNotificationCostResultInt = updateNotificationCostResponseInt.getUpdateResults().get(0);
+        final UpdateNotificationCostResult updateNotificationCostResponseExpected = updateNotificationCostResponse.getUpdateResults().get(0);
+
+        Assertions.assertEquals(updateNotificationCostResponseExpected.getResult().getValue(), updateNotificationCostResultInt.getResult().getValue());
+        Assertions.assertEquals(updateNotificationCostResponseExpected.getNoticeCode(), updateNotificationCostResultInt.getPaymentsInfoForRecipient().getNoticeCode());
+        Assertions.assertEquals(updateNotificationCostResponseExpected.getCreditorTaxId(), updateNotificationCostResultInt.getPaymentsInfoForRecipient().getCreditorTaxId());
+        Assertions.assertEquals(updateNotificationCostResponseExpected.getRecIndex(), updateNotificationCostResultInt.getPaymentsInfoForRecipient().getRecIndex());
+    }
+    
     @Test
     @ExtendWith(SpringExtension.class)
     void notificationProcessCost_1() {
