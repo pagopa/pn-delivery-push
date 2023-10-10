@@ -115,7 +115,10 @@ exports.mapEvents = async (events) => {
     ) {
       result.push(resultElement);
     } else {
-      console.error("Error in parsing timelineObj: ", timelineObj);
+      console.error(
+        "Error in parsing timelineObj (analogCost or recIndex missing or incomplete timelineElementId): ",
+        timelineObj
+      );
     }
   }
   return result;

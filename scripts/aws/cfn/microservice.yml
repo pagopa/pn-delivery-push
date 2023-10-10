@@ -385,6 +385,14 @@ Parameters:
     Type: String
     Description: 'National Registries to delivery-push queue age alarm'
 
+  DeliveryPushToExternalRegistriesQueueURL: # defined in pn-infra
+    Type: String
+    Description: 'delivery-push to external-registries queue URL'
+
+  DeliveryPushToExternalRegistriesQueueARN: # defined in pn-infra
+    Type: String
+    Description: 'delivery-push to external-registries queue ARN'
+
   ValidationRetryIntervals:
     Type: String
     Description: 'Time interval between validations retry'
@@ -1116,7 +1124,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          QUEUE_URL: !Ref CHANGECHANGECHANGE_DoneActionsQueueURL
+          QUEUE_URL: !Ref DeliveryPushToExternalRegistriesQueueURL
       TracingConfig:
         Mode: Active
       Layers:
@@ -1170,7 +1178,7 @@ Resources:
               - sqs:GetQueueUrl
               - sqs:SendMessage
             Resource:
-              !Ref CHANGECHANGECHANGE_DoneActionsQueueARN
+              !Ref DeliveryPushToExternalRegistriesQueueARN
           - Effect: Allow
             Action:
               - sqs:ChangeMessageVisibility
