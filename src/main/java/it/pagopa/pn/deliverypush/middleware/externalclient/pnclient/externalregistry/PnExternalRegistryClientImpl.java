@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry;
 
+import it.pagopa.pn.deliverypush.exceptions.PnRootIdNonFountException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.RootSenderIdApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.SendIoMessageApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.RootSenderIdResponse;
@@ -37,8 +38,9 @@ public class PnExternalRegistryClientImpl implements PnExternalRegistryClient{
             RootSenderIdResponse rootSenderIdPrivate = rootSenderIdApi.getRootSenderIdPrivate(senderId);
             return rootSenderIdPrivate.getRootId();
         }catch (Exception exc) {
-            log.error("Error during map rootSenderID", exc);
-            return "";
+            String message = String.format("Error during map rootSenderID = %s [exception received = %s]", senderId, exc);
+            log.error(message);
+            throw new PnRootIdNonFountException(message);
         }
     }
 }
