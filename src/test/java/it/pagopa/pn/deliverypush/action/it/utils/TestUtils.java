@@ -511,9 +511,9 @@ public class TestUtils {
         );
     }
 
-    public static List<NotificationPaymentInfoIntV2> getPaymentWithF24(NotificationDocumentInt paymentDocumentInt) {
+    public static List<NotificationPaymentInfoInt> getPaymentWithF24(NotificationDocumentInt paymentDocumentInt) {
         return List.of(
-                NotificationPaymentInfoIntV2.builder()
+                NotificationPaymentInfoInt.builder()
                         .f24(F24Int.builder()
                                 .applyCost(true)
                                 .title("payment_f24_1")
@@ -721,7 +721,7 @@ public class TestUtils {
                                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                         .address("account@dominio.it")
                                         .build())
-                                .payments(List.of(NotificationPaymentInfoIntV2.builder()
+                                .payments(List.of(NotificationPaymentInfoInt.builder()
                                         .pagoPA(PagoPaInt.builder()
                                                 .noticeCode("noticeCode")
                                                 .creditorTaxId("taxId")
@@ -759,7 +759,7 @@ public class TestUtils {
                                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                                         .address("account@dominio.it")
                                         .build())
-                                .payments(List.of(NotificationPaymentInfoIntV2.builder()
+                                .payments(List.of(NotificationPaymentInfoInt.builder()
                                         .pagoPA(PagoPaInt.builder()
                                                 .noticeCode("noticeCode")
                                                 .creditorTaxId("taxId")
@@ -838,7 +838,7 @@ public class TestUtils {
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .address("account@dominio.it")
                         .build())
-                .payments(List.of(NotificationPaymentInfoIntV2.builder()
+                .payments(List.of(NotificationPaymentInfoInt.builder()
                         .pagoPA(PagoPaInt.builder()
                                 .noticeCode("noticeCode")
                                 .creditorTaxId("taxId")

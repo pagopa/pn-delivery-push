@@ -883,7 +883,7 @@ class PaperChannelServiceImplTest {
                                         .address("account@dominio.it")
                                         .build())
                                 .payments(List.of(
-                                        NotificationPaymentInfoIntV2.builder()
+                                        NotificationPaymentInfoInt.builder()
                                                 .f24(F24Int.builder()
                                                         .applyCost(true)
                                                         .title("title")

@@ -139,7 +139,7 @@ public class LegalFactGenerator {
         return digests;
     }
 
-    private void addDigestsForMultiPayments(List<NotificationPaymentInfoIntV2> payments, List<String> digests) {
+    private void addDigestsForMultiPayments(List<NotificationPaymentInfoInt> payments, List<String> digests) {
         if(!CollectionUtils.isEmpty(payments)){
             payments.forEach(payment -> {
                 if(payment.getPagoPA() != null && payment.getPagoPA().getAttachment() != null){

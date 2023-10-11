@@ -61,7 +61,7 @@ class RecipientMapperTest {
                         .province("006")
                         .foreignState("005")
                         .build())
-                .payments(List.of(NotificationPaymentInfoIntV2.builder()
+                .payments(List.of(NotificationPaymentInfoInt.builder()
                         .f24(F24Int.builder()
                                 .title("title")
                                 .applyCost(true)

@@ -55,7 +55,7 @@ public class RecipientMapper {
                 );
 
 
-        List<NotificationPaymentInfoIntV2> payments = null;
+        List<NotificationPaymentInfoInt> payments = null;
         List<NotificationPaymentItem> paymentItemList = recipient.getPayments();
         if (!CollectionUtils.isEmpty(paymentItemList)) {
             payments = getNotificationPaymentInfo(paymentItemList);
@@ -81,7 +81,7 @@ public class RecipientMapper {
         }
 
         List<NotificationPaymentItem> payment = null;
-        List<NotificationPaymentInfoIntV2> paymentInternalList = recipient.getPayments();
+        List<NotificationPaymentInfoInt> paymentInternalList = recipient.getPayments();
         if (!CollectionUtils.isEmpty(paymentInternalList)) {
             payment = getNotificationPaymentItem(paymentInternalList);
         }
