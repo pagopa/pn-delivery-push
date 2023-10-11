@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.F24Int;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoIntV2;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ public class PaymentMapper {
     }
 
     @NotNull
-    public static List<NotificationPaymentItem> getNotificationPaymentItem(List<NotificationPaymentInfoIntV2> paymentInternalList) {
+    public static List<NotificationPaymentItem> getNotificationPaymentItem(List<NotificationPaymentInfoInt> paymentInternalList) {
 
         if (!CollectionUtils.isEmpty(paymentInternalList)) {
             return paymentInternalList.stream()
@@ -33,12 +33,12 @@ public class PaymentMapper {
     }
 
     @NotNull
-    public static List<NotificationPaymentInfoIntV2> getNotificationPaymentInfo(List<NotificationPaymentItem> paymentItemList) {
+    public static List<NotificationPaymentInfoInt> getNotificationPaymentInfo(List<NotificationPaymentItem> paymentItemList) {
 
         if (!CollectionUtils.isEmpty(paymentItemList)) {
             return paymentItemList.stream()
                     .map(item ->
-                            NotificationPaymentInfoIntV2.builder()
+                            NotificationPaymentInfoInt.builder()
                                     .f24(getF24Int(item.getF24()))
                                     .pagoPA(getPagoPaInt(item.getPagoPa()))
                                     .build())

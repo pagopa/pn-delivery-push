@@ -418,7 +418,7 @@ class AttachmentUtilsTest {
                                 .build()
                 )
                 .withPayments(Collections.singletonList(
-                        NotificationPaymentInfoIntV2.builder()
+                        NotificationPaymentInfoInt.builder()
                                 .pagoPA(PagoPaInt.builder()
                                         .attachment(NotificationDocumentInt.builder()
                                                 .ref(NotificationDocumentInt.Ref.builder()
@@ -454,7 +454,7 @@ class AttachmentUtilsTest {
                 )
                 .withPayments(
                         Collections.singletonList(
-                                NotificationPaymentInfoIntV2.builder()
+                                NotificationPaymentInfoInt.builder()
                                         .pagoPA(PagoPaInt.builder()
                                                 .noticeCode("302011681384967173")
                                                 .creditorTaxId("77777777777")
@@ -504,7 +504,7 @@ class AttachmentUtilsTest {
                 )
                 .withPayments(
                         Collections.singletonList(
-                                NotificationPaymentInfoIntV2.builder()
+                                NotificationPaymentInfoInt.builder()
                                         .pagoPA(
                                                 PagoPaInt.builder()
                                                         .noticeCode("302011681384967181")
