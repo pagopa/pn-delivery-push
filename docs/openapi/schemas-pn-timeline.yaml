@@ -1170,5 +1170,6 @@ components:
               - FILE_PDF_TOOBIG_ERROR
               - NOT_VALID_ADDRESS
               - RECIPIENT_ID_NOT_VALID
+              - PAYMENT_NOT_VALID
         detail:
           type: string
