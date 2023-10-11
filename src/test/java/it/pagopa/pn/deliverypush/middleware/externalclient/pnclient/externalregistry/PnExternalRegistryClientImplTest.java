@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry;
 
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.RootSenderIdApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.SendIoMessageApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
@@ -17,11 +18,14 @@ class PnExternalRegistryClientImplTest {
     @Mock
     private SendIoMessageApi sendIoMessageApi;
 
+    @Mock
+    private RootSenderIdApi rootSenderIdApi;
+
     private PnExternalRegistryClientImpl client;
 
     @BeforeEach
     void setup() {
-        client = new PnExternalRegistryClientImpl(sendIoMessageApi);
+        client = new PnExternalRegistryClientImpl(sendIoMessageApi,rootSenderIdApi);
     }
 
     @Test
