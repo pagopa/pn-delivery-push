@@ -95,7 +95,9 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
         
         SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE"),
 
-        RECIPIENT_ID_NOT_VALID("RECIPIENT_ID_NOT_VALID");
+        RECIPIENT_ID_NOT_VALID("RECIPIENT_ID_NOT_VALID"),
+
+        PAYMENT_NOT_VALID("PAYMENT_NOT_VALID");
 
         private final String value;
 

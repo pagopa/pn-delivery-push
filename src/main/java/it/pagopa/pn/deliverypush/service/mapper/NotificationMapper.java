@@ -48,6 +48,7 @@ public class NotificationMapper {
                 .notificationFeePolicy(NotificationFeePolicy.fromValue(sentNotification.getNotificationFeePolicy().getValue()))
                 .amount(sentNotification.getAmount())
                 .paymentExpirationDate(paymentExpirationDate)
+                .pagoPaIntMode(sentNotification.getPagoPaIntMode() != null ? PagoPaIntMode.valueOf(sentNotification.getPagoPaIntMode().getValue()) : null)
                 .build();
     }
 

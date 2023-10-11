@@ -26,4 +26,5 @@ public class NotificationInt {
     private Integer amount;
     private NotificationFeePolicy notificationFeePolicy;
     private Instant paymentExpirationDate;
+    private PagoPaIntMode pagoPaIntMode;
 }
