@@ -14,12 +14,14 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
+@ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         TimelineDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         PaperNotificationFailedDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
@@ -35,7 +38,6 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
 class ActionDaoDynamoTestIT {
-
     @Autowired
     private ActionDao actionDao;
     
@@ -216,6 +218,7 @@ class ActionDaoDynamoTestIT {
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void addActionIfAbsent() {
         String timeslot = "2022-08-30T16:04:13.913859900Z";
 
@@ -236,6 +239,7 @@ class ActionDaoDynamoTestIT {
     }
 
     @Test
+    @ExtendWith(SpringExtension.class)
     void addActionIfAbsentFailSilent() {
         String timeslot = "2022-08-30T16:04:13.913859900Z";
 
