@@ -406,7 +406,7 @@ components:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedError'
+            $ref: '#/components/schemas/NotificationRefusedErrorV20'
 
     ScheduleAnalogWorkflowDetails:
       type: object
@@ -1155,7 +1155,7 @@ components:
           type: string
           format: date-time
 
-    NotificationRefusedError:
+    NotificationRefusedErrorV20:
       type: object
       properties:
         errorCode:
