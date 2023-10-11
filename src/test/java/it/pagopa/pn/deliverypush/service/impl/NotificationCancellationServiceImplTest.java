@@ -213,6 +213,7 @@ class NotificationCancellationServiceImplTest {
         notificationCancellationService.completeCancellationProcess(notification.getIun());
 
         //THEN
+        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), "iun");
         Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
         Mockito.verify(notificationService).removeAllNotificationCostsByIun(notification.getIun());
         Mockito.verify(auditLogEvent).generateSuccess();
@@ -254,6 +255,7 @@ class NotificationCancellationServiceImplTest {
         notificationCancellationService.completeCancellationProcess(notification.getIun());
 
         //THEN
+        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), "iun");
         Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
         Mockito.verify(notificationService).removeAllNotificationCostsByIun(notification.getIun());
         Mockito.verify(auditLogEvent).generateSuccess();
@@ -281,7 +283,7 @@ class NotificationCancellationServiceImplTest {
         Assert.assertThrows(NullPointerException.class, ()-> notificationCancellationService.completeCancellationProcess(iun));
 
         //THEN
-
+        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipient.getInternalId(), "iun");
         Mockito.verify(auditLogEvent).generateFailure(Mockito.anyString(), Mockito.anyString(), Mockito.any());
     }
 
