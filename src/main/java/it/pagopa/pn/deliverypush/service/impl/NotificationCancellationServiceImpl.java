@@ -7,10 +7,7 @@ import it.pagopa.pn.deliverypush.dto.cancellation.StatusDetailInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +27,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
 
     private final NotificationService notificationService;
+    private final PaperNotificationFailedService paperNotificationFailedService;
     private final AuthUtils authUtils;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
@@ -58,6 +56,10 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
             notificationService.removeAllNotificationCostsByIun(iun).block();
 
             NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+            // elimino le righe di paper notification failed
+            notification.getRecipients().forEach(recipient ->
+                    paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), iun));
 
             // salvo l'evento in timeline
             addCanceledTimelineElement(notification);

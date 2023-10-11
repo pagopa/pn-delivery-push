@@ -15,10 +15,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
@@ -44,6 +41,8 @@ class NotificationCancellationServiceImplTest {
     @Mock
     private NotificationService notificationService;
     @Mock
+    private PaperNotificationFailedService paperNotificationFailedService;
+    @Mock
     private AuthUtils authUtils;
     @Mock
     private TimelineService timelineService;
@@ -55,8 +54,9 @@ class NotificationCancellationServiceImplTest {
     private NotificationCancellationService notificationCancellationService;
     
     @BeforeEach
-    public void init(){
-        notificationCancellationService = new NotificationCancellationServiceImpl(notificationService,authUtils, timelineService, timelineUtils, auditLogService);
+    public void init() {
+        notificationCancellationService = new NotificationCancellationServiceImpl(notificationService,
+                paperNotificationFailedService, authUtils, timelineService, timelineUtils, auditLogService);
     }
     
     @Test
