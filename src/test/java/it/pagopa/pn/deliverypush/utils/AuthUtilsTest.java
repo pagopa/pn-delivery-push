@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.MandateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,13 +29,15 @@ import static org.mockito.Mockito.when;
 class AuthUtilsTest {
 
     private MandateService mandateService;
+    private PnExternalRegistryClient externalRegistryClient;
 
     private AuthUtils authUtils;
 
     @BeforeEach
     void setup() {
         mandateService = Mockito.mock(MandateService.class);
-        authUtils = new AuthUtils(mandateService);
+        externalRegistryClient = Mockito.mock(PnExternalRegistryClient.class);
+        authUtils = new AuthUtils(mandateService,externalRegistryClient);
     }
 
     @Test
@@ -145,8 +148,41 @@ class AuthUtilsTest {
         when(mandateService.listMandatesByDelegate(anyString(), anyString(), any(), any()))
                 .thenReturn(List.of(mandate));
 
+        when(externalRegistryClient.getRootSenderId(anyString())).thenReturn("paId01");
+
         //WHEN
         assertDoesNotThrow(() -> authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId, CxTypeAuthFleet.PF, null));
+    }
+
+    @Test
+    void checkValidAuthorizationWithVisibilityIdNotRootForDelegate() {
+        //GIVEN
+        String iun = "iun";
+        String taxId = "testTaxId";
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
+        String paId01 = "paId01";
+        Instant sentAt = Instant.now();
+
+        NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId01, sentAt);
+
+        String mandateId = "mandateId";
+
+        MandateDtoInt mandate = MandateDtoInt.builder()
+                .mandateId(mandateId)
+                .delegate("delegate")
+                .delegator(taxId)
+                .dateFrom(sentAt.minus(2, ChronoUnit.DAYS))
+                .dateTo(sentAt.plus(2, ChronoUnit.DAYS))
+                .visibilityIds(Collections.singletonList(paId01))
+                .build();
+
+        when(mandateService.listMandatesByDelegate(anyString(), anyString(), any(), any()))
+                .thenReturn(List.of(mandate));
+
+        when(externalRegistryClient.getRootSenderId(anyString())).thenReturn("paId00");
+
+        //WHEN
+        assertThrows(PnNotFoundException.class, () -> authUtils.checkUserPaAndMandateAuthorization(notification, taxIdAnon, mandateId, CxTypeAuthFleet.PF, null));
     }
 
     @Test

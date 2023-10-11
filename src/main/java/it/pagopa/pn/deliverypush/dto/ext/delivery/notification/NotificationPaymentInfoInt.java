@@ -9,8 +9,6 @@ import lombok.*;
 @EqualsAndHashCode
 @ToString
 public class NotificationPaymentInfoInt {
-    private String noticeCode;
-    private String creditorTaxId;
-
-    private NotificationDocumentInt pagoPaForm;
+    private PagoPaInt pagoPA;
+    private F24Int f24;
 }

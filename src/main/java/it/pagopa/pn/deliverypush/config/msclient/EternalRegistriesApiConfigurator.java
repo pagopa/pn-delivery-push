@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.config.msclient;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.ApiClient;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.RootSenderIdApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.SendIoMessageApi;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,14 @@ public class EternalRegistriesApiConfigurator {
         ApiClient newApiClient = new ApiClient(restTemplate);
         newApiClient.setBasePath(cfg.getExternalRegistryBaseUrl());
         return new SendIoMessageApi( newApiClient );
+    }
+
+    @Bean
+    @Primary
+    RootSenderIdApi rootSenderIdApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
+        ApiClient newApiClient = new ApiClient(restTemplate);
+        newApiClient.setBasePath( cfg.getExternalRegistryBaseUrl() );
+        return new RootSenderIdApi(newApiClient);
     }
     
 }

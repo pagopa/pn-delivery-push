@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.action.it.utils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoIntV2;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 
 import java.util.List;
@@ -14,7 +14,7 @@ public class NotificationRecipientTestBuilder {
     private PhysicalAddressInt physicalAddress;
     private String internalId;
     private LegalDigitalAddressInt digitalDomicile;
-    private List<NotificationPaymentInfoIntV2> payments;
+    private List<NotificationPaymentInfoInt> payments;
     private RecipientTypeInt recipientType;
     private String denomination;
     
@@ -44,7 +44,7 @@ public class NotificationRecipientTestBuilder {
 
 
 
-    public NotificationRecipientTestBuilder withPayments(List<NotificationPaymentInfoIntV2> payments) {
+    public NotificationRecipientTestBuilder withPayments(List<NotificationPaymentInfoInt> payments) {
         this.payments = payments;
         return this;
     }
