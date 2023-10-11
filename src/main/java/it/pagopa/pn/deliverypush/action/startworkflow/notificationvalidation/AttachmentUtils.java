@@ -45,14 +45,14 @@ public class AttachmentUtils {
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
         log.logChecking(VALIDATE_ATTACHMENT_PROCESS);
-        forEachAttachment(notification, this::checkAttachment);
+        forEachAttachment(notification, this::checkAttachment, false);
         log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, true);
     }
 
     public void changeAttachmentsStatusToAttached(NotificationInt notification ) {
         log.info( "changeAttachmentsStatusToAttached iun={}", notification.getIun());
 
-        forEachAttachment(notification, this::changeAttachmentStatusToAttached);
+        forEachAttachment(notification, this::changeAttachmentStatusToAttached, true);
     }
 
     public Flux<Void> changeAttachmentsRetention(NotificationInt notification, int retentionUntilDays) {
@@ -62,7 +62,7 @@ public class AttachmentUtils {
                 .flatMap( doc -> this.changeAttachmentRetention(doc, retentionUntilDays));
     }
 
-    private void forEachAttachment(NotificationInt notification, Consumer<NotificationDocumentInt> callback)
+    private void forEachAttachment(NotificationInt notification, Consumer<NotificationDocumentInt> callback, boolean includeF24Metadata)
     {
         for(NotificationDocumentInt attachment : notification.getDocuments()) {
             callback.accept(attachment);
@@ -76,7 +76,7 @@ public class AttachmentUtils {
                                 callback.accept(payment.getPagoPA().getAttachment());
                             }
 
-                            if(payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
+                            if(includeF24Metadata && payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
                                 callback.accept(payment.getF24().getMetadataAttachment());
                             }
                         }
