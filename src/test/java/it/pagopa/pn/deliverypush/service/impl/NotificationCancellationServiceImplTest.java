@@ -38,6 +38,7 @@ import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationSer
 import static org.mockito.ArgumentMatchers.*;
 
 class NotificationCancellationServiceImplTest {
+
     @Mock
     private NotificationService notificationService;
     @Mock
