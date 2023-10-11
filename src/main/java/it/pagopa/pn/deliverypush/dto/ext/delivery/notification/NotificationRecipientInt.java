@@ -23,6 +23,6 @@ public class NotificationRecipientInt {
     private String denomination;
     private LegalDigitalAddressInt digitalDomicile;
     private PhysicalAddressInt physicalAddress;
-    private List<NotificationPaymentInfoIntV2> payments;
+    private List<NotificationPaymentInfoInt> payments;
     private RecipientTypeInt recipientType;
 }

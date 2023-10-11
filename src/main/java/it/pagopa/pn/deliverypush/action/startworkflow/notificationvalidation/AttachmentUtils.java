@@ -246,7 +246,7 @@ public class AttachmentUtils {
 
     private void addNotificationF24PaymentsUrl(List<String> attachments, NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex) {
         List<F24Int> f24Payments = recipient.getPayments().stream()
-                .map(NotificationPaymentInfoIntV2::getF24)
+                .map(NotificationPaymentInfoInt::getF24)
                 .filter(Objects::nonNull)
                 .toList();
 

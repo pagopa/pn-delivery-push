@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilde
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoIntV2;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.IoService;
@@ -49,7 +49,7 @@ class IoServiceImplTest {
                         NotificationRecipientTestBuilder.builder()
                                 .withTaxId("taxId")
                                 .withPayments(Collections.singletonList(
-                                        NotificationPaymentInfoIntV2.builder()
+                                        NotificationPaymentInfoInt.builder()
                                                 .pagoPA(PagoPaInt.builder()
                                                         .creditorTaxId("cred")
                                                         .noticeCode("notice")
@@ -90,7 +90,7 @@ class IoServiceImplTest {
                         NotificationRecipientTestBuilder.builder()
                                 .withTaxId("taxId")
                                 .withPayments(Collections.singletonList(
-                                        NotificationPaymentInfoIntV2.builder()
+                                        NotificationPaymentInfoInt.builder()
                                                 .pagoPA(PagoPaInt.builder()
                                                         .creditorTaxId("cred")
                                                         .noticeCode("notice")
@@ -131,7 +131,7 @@ class IoServiceImplTest {
                         NotificationRecipientTestBuilder.builder()
                                 .withTaxId("taxId")
                                 .withPayments(Collections.singletonList(
-                                        NotificationPaymentInfoIntV2.builder()
+                                        NotificationPaymentInfoInt.builder()
                                                 .pagoPA(PagoPaInt.builder()
                                                         .creditorTaxId("cred")
                                                         .noticeCode("notice")
@@ -169,7 +169,7 @@ class IoServiceImplTest {
                         NotificationRecipientTestBuilder.builder()
                                 .withTaxId("taxId")
                                 .withPayments(Collections.singletonList(
-                                        NotificationPaymentInfoIntV2.builder()
+                                        NotificationPaymentInfoInt.builder()
                                                 .pagoPA(PagoPaInt.builder()
                                                         .creditorTaxId("cred")
                                                         .noticeCode("notice")
@@ -206,7 +206,7 @@ class IoServiceImplTest {
                         NotificationRecipientTestBuilder.builder()
                                 .withTaxId("taxId")
                                 .withPayments(Collections.singletonList(
-                                        NotificationPaymentInfoIntV2.builder()
+                                        NotificationPaymentInfoInt.builder()
                                                 .pagoPA(PagoPaInt.builder()
                                                         .creditorTaxId("cred")
                                                         .noticeCode("notice")
@@ -243,7 +243,7 @@ class IoServiceImplTest {
                         NotificationRecipientTestBuilder.builder()
                                 .withTaxId("taxId")
                                 .withPayments(Collections.singletonList(
-                                        NotificationPaymentInfoIntV2.builder()
+                                        NotificationPaymentInfoInt.builder()
                                                 .pagoPA(PagoPaInt.builder()
                                                         .creditorTaxId("cred")
                                                         .noticeCode("notice")
@@ -276,7 +276,7 @@ class IoServiceImplTest {
                         NotificationRecipientTestBuilder.builder()
                                 .withTaxId("taxId")
                                 .withPayments(Collections.singletonList(
-                                        NotificationPaymentInfoIntV2.builder()
+                                        NotificationPaymentInfoInt.builder()
                                                 .pagoPA(PagoPaInt.builder()
                                                         .creditorTaxId("cred")
                                                         .noticeCode("notice")
