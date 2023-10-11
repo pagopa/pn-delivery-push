@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @Disabled //per problema timeout su codebuild, ma in locale funziona
 class PaperNotificationFailedDaoTestIT {
 
-
     @Autowired
     private PaperNotificationFailedDao paperNotificationFailedDao;
 
