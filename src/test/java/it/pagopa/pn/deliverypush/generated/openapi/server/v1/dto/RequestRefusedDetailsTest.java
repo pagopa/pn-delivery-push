@@ -8,17 +8,17 @@ import java.util.List;
 
 class RequestRefusedDetailsTest {
 
-    private RequestRefusedDetails details;
+    private RequestRefusedDetailsV20 details;
 
     @BeforeEach
     void setUp() {
-        details = new RequestRefusedDetails();
+        details = new RequestRefusedDetailsV20();
         details.setRefusalReasons(List.of(NotificationRefusedErrorV20.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()));
     }
 
     @Test
     void errors() {
-        RequestRefusedDetails tmp = RequestRefusedDetails.builder()
+        RequestRefusedDetailsV20 tmp = RequestRefusedDetailsV20.builder()
                 .refusalReasons(List.of(NotificationRefusedErrorV20.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()))
                 .build();
         Assertions.assertEquals(tmp, details.refusalReasons(List.of(NotificationRefusedErrorV20.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build())
@@ -27,7 +27,7 @@ class RequestRefusedDetailsTest {
 
     @Test
     void addErrorsItem() {
-        RequestRefusedDetails tmp = new RequestRefusedDetails();
+        RequestRefusedDetailsV20 tmp = new RequestRefusedDetailsV20();
         tmp.addRefusalReasonsItem(
                 NotificationRefusedErrorV20.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()
         );
@@ -41,7 +41,7 @@ class RequestRefusedDetailsTest {
 
     @Test
     void testEquals() {
-        RequestRefusedDetails tmp = RequestRefusedDetails.builder()
+        RequestRefusedDetailsV20 tmp = RequestRefusedDetailsV20.builder()
                 .refusalReasons(List.of(NotificationRefusedErrorV20.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()))
                 .build();
         Assertions.assertEquals(Boolean.TRUE, tmp.equals(details));

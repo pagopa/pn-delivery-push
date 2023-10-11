@@ -140,7 +140,7 @@ components:
         - "$ref": "#/components/schemas/PublicRegistryCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
         - "$ref": "#/components/schemas/RefinementDetails"
-        - "$ref": "#/components/schemas/RequestRefusedDetails"
+        - "$ref": "#/components/schemas/RequestRefusedDetailsV20"
         - "$ref": "#/components/schemas/ScheduleAnalogWorkflowDetails"
         - "$ref": "#/components/schemas/ScheduleDigitalWorkflowDetails"
         - "$ref": "#/components/schemas/ScheduleRefinementDetails"
@@ -157,7 +157,7 @@ components:
         - "$ref": "#/components/schemas/AarCreationRequestDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
-        - "$ref": "#/components/schemas/NotificationPaidDetails"
+        - "$ref": "#/components/schemas/NotificationPaidDetailsV20"
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
@@ -399,7 +399,7 @@ components:
           type: integer
           format: int64
 
-    RequestRefusedDetails:
+    RequestRefusedDetailsV20:
       type: object
       properties:
         refusalReasons:
@@ -871,7 +871,7 @@ components:
           type: string
           description: Motivazione casistica non gestita
 
-    NotificationPaidDetails:
+    NotificationPaidDetailsV20:
       type: object
       required:
         - recIndex
