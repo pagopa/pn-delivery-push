@@ -35,6 +35,7 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
 class ActionDaoDynamoTestIT {
+
     @Autowired
     private ActionDao actionDao;
     
