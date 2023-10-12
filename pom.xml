@@ -267,7 +267,7 @@
 						</configuration>
 					</execution>
 					
-					<!-- OPEN API PN-DELIVERY-PUSH -->
+					<!-- OPEN API PN-DELIVERY-PUSH  -->
 					<execution>
 						<phase>generate-resources</phase>
 						<id>pn-internal-delivery-push</id>
