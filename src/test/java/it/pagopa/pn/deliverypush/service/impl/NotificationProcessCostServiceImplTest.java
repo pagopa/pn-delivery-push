@@ -45,9 +45,12 @@ class NotificationProcessCostServiceImplTest {
     @Test
     @ExtendWith(SpringExtension.class)
     void getPagoPaNotificationBaseCost() {
-        Integer pagoPaBaseCost = service.getPagoPaNotificationBaseCost().block();
+        Integer notificationCost = 100;
+        Mockito.when(cfg.getPagoPaNotificationBaseCost()).thenReturn(notificationCost);
         
-        Assertions.assertEquals(100, pagoPaBaseCost);
+        Integer pagoPaBaseCost = service.getPagoPaNotificationBaseCost().block();
+
+        Assertions.assertEquals(notificationCost, pagoPaBaseCost);
     }
 
     @Test

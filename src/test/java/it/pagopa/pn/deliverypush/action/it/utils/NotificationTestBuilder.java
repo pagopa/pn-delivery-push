@@ -13,10 +13,11 @@ public class NotificationTestBuilder {
     private String iun;
     private String paId;
     private List<NotificationRecipientInt> recipients;
-
     private NotificationFeePolicy notificationFeePolicy;
     private Instant sentAt;
-    List<NotificationDocumentInt> notificationDocument;
+    private List<NotificationDocumentInt> notificationDocument;
+    private PagoPaIntMode pagoPaIntMode;
+    private Integer paFee;
     
     public NotificationTestBuilder() {
         sentAt = Instant.now();
@@ -64,7 +65,17 @@ public class NotificationTestBuilder {
         this.notificationDocument = documents;
         return this;
     }
-    
+
+    public NotificationTestBuilder withPagoPaIntMode(PagoPaIntMode pagoPaIntMode) {
+        this.pagoPaIntMode = pagoPaIntMode;
+        return this;
+    }
+
+    public NotificationTestBuilder withPaFee(int paFee) {
+        this.paFee = paFee;
+        return this;
+    }
+
     public NotificationInt build() {
         if(iun == null){
             iun = TestUtils.getRandomIun();
@@ -95,6 +106,10 @@ public class NotificationTestBuilder {
         if(notificationFeePolicy == null) {
             notificationFeePolicy = NotificationFeePolicy.FLAT_RATE;
         }
+
+        if(pagoPaIntMode == null) {
+            pagoPaIntMode = PagoPaIntMode.SYNC;
+        }
         
         return NotificationInt.builder()
                 .iun(iun)
@@ -114,6 +129,8 @@ public class NotificationTestBuilder {
                 .sentAt( sentAt )
                 .recipients(recipients)
                 .documents(notificationDocument)
+                .pagoPaIntMode(pagoPaIntMode)
+                .paFee(paFee)
                 .build();
     }
 }

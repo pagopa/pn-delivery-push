@@ -91,20 +91,17 @@ public class PaymentValidator {
                 case OK -> log.debug("Update and validation OK for iun={} recIndex={} creditorTaxId={} noticeCode={}",
                             notification.getIun(), paymentsInfo.getRecIndex(), paymentsInfo.getCreditorTaxId(), paymentsInfo.getNoticeCode());
                 case KO -> {
-                    final String errorDetail = String.format(
-                            "Payment information is not valid - creditorTaxId=%s noticeCode=%s",
+                    final String errorDetail = String.format( "Payment information is not valid - creditorTaxId=%s noticeCode=%s",
                             paymentsInfo.getCreditorTaxId(), paymentsInfo.getNoticeCode());
                     handleFailValidation(errorDetail);
                 }
                 case RETRY -> {
-                    final String errorDetail = String.format(
-                            "Validation need to be rescheduled, can't have response from service. iun=%s recIndex=%s creditorTaxId=%s noticeCode=%s",
+                    final String errorDetail = String.format("Validation need to be rescheduled, can't have response from service. iun=%s recIndex=%s creditorTaxId=%s noticeCode=%s",
                             notification.getIun(), paymentsInfo.getRecIndex(), paymentsInfo.getCreditorTaxId(), paymentsInfo.getNoticeCode());
                     handleRescheduleValidation(errorDetail);
                 }
                 default -> {
-                    final String errorDetail = String.format(
-                            "Validation need to be rescheduled. Response received is not handled for iun=%s recIndex=%s creditorTaxId=%s noticeCode=%s",
+                    final String errorDetail = String.format("Validation need to be rescheduled. Response received is not handled for iun=%s recIndex=%s creditorTaxId=%s noticeCode=%s",
                             notification.getIun(), paymentsInfo.getRecIndex(), paymentsInfo.getCreditorTaxId(), paymentsInfo.getNoticeCode());
                     handleRescheduleValidation(errorDetail);
                 }
