@@ -8,7 +8,7 @@ import java.util.List;
 public class PnValidationPaymentException extends PnValidationException {
 
     public PnValidationPaymentException(String detail) {
-        super("Validazione fallita, sha256 non congruente",
+        super("Validation failed, payment not valid",
                 List.of(ProblemError.builder()
                 .code(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.PAYMENT_NOT_VALID.getValue())
                 .detail(detail)

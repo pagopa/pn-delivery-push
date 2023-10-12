@@ -37,13 +37,14 @@ public class NotificationValidationScheduler {
 
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(0)
+                .startWorkflowTime(Instant.now())
                 .build();
 
         log.info("Scheduling notification validation schedulingDate={} - iun={}", schedulingDate, iun);
         schedulerService.scheduleEvent(iun, schedulingDate, ActionType.NOTIFICATION_VALIDATION, details);
     }
     
-    public void scheduleNotificationValidation(NotificationInt notification, int retryAttempt, Exception ex) {
+    public void scheduleNotificationValidation(NotificationInt notification, int retryAttempt, Exception ex, Instant startWorkflowTime) {
         String iun = notification.getIun();
         log.info("Start NotificationValidationScheduler - iun={} retryAttempt={}", iun, retryAttempt);
 
@@ -60,7 +61,7 @@ public class NotificationValidationScheduler {
         if(waitingTime.isNegative()){
             //Se l'intervallo ottenuto è negativo significa che si vuole scehdulare all'infinito, anche se il retryAttempt è maggiore della grandezza array
             //dovendo schedulare all'infinito la notifica non va in rifiutata
-            calculateWaitTimeAndScheduleEvent(retryAttempt, iun, waitingTimeArray, waitingTimeIndex);
+            calculateWaitTimeAndScheduleEvent(retryAttempt, iun, waitingTimeArray, waitingTimeIndex, startWorkflowTime);
         } else {
             //Se il waitingTime non è negativo, significa che non devo schedulare all'infinito
             log.debug("WaitingTime is not negative - iun={} retryAttempt={}", iun, retryAttempt);
@@ -72,23 +73,24 @@ public class NotificationValidationScheduler {
             } else {
                 //altrimenti schedulo il nuovo tentativo
                 log.debug("Need to schedule new attempt - iun={}", iun);
-                scheduleEvent(iun, retryAttempt, waitingTime);
+                scheduleEvent(iun, retryAttempt, waitingTime, startWorkflowTime);
             }
         }
     }
 
-    private void calculateWaitTimeAndScheduleEvent(int retryAttempt, String iun, Duration[] waitingTimeArray, int waitingTimeIndex) {
+    private void calculateWaitTimeAndScheduleEvent(int retryAttempt, String iun, Duration[] waitingTimeArray, int waitingTimeIndex, Instant startWorkflowTime) {
         log.debug("WaitingTime is negative, infinite scheduling- iun={} retryAttempt={}", iun, retryAttempt);
         Duration waitingTime = getWaitingTimeForInfiniteScheduling(waitingTimeArray, waitingTimeIndex);
-        scheduleEvent(iun, retryAttempt, waitingTime);
+        scheduleEvent(iun, retryAttempt, waitingTime, startWorkflowTime);
     }
 
-    private void scheduleEvent(String iun, int retryAttempt, Duration waitingTime) {
+    private void scheduleEvent(String iun, int retryAttempt, Duration waitingTime, Instant startWorkflowTime) {
         
         Instant schedulingDate = instantNowSupplier.get().plus(waitingTime);
 
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(retryAttempt + 1)
+                .startWorkflowTime(startWorkflowTime)
                 .build();
 
         log.info("Scheduling notification validation - iun={} schedulingDate={}", iun, schedulingDate);

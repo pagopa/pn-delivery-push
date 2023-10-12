@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.cost.*;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
@@ -31,19 +32,21 @@ class NotificationProcessCostServiceImplTest {
     private TimelineService timelineService;
     @Mock
     private PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive;
+    @Mock
+    private PnDeliveryPushConfigs cfg;
     
     private NotificationProcessCostService service;
-    
+
     @BeforeEach
     void setUp() {
-        service = new NotificationProcessCostServiceImpl(timelineService, pnExternalRegistriesClientReactive);
+        service = new NotificationProcessCostServiceImpl(timelineService, pnExternalRegistriesClientReactive, cfg);
     }
     
     @Test
     @ExtendWith(SpringExtension.class)
     void getPagoPaNotificationBaseCost() {
         Integer pagoPaBaseCost = service.getPagoPaNotificationBaseCost().block();
-
+        
         Assertions.assertEquals(100, pagoPaBaseCost);
     }
 

@@ -305,8 +305,8 @@ public class ActionHandler {
                 log.debug("Handle action pnDeliveryPushNotificationValidation, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
-
                 log.logStartingProcess(processName);
+                
                 checkNotificationCancelledAndExecute(
                         action,
                         a -> notificationValidationActionHandler.validateNotification(a.getIun(), (NotificationValidationActionDetails) a.getDetails() )

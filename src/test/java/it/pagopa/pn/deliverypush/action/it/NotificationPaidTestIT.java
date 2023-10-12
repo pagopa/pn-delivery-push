@@ -152,7 +152,8 @@ import static org.awaitility.Awaitility.with;
         NotificationPaidTestIT.SpringTestConfiguration.class,
         F24Validator.class,
         F24ClientMock.class,
-        PnExternalRegistriesClientReactiveMock.class
+        PnExternalRegistriesClientReactiveMock.class,
+        PaymentValidator.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
