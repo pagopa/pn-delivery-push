@@ -36,6 +36,7 @@ public class PaymentValidator {
             if(PagoPaIntMode.ASYNC.equals(notification.getPagoPaIntMode())){
                 if(notification.getPaFee() != null){
                     startValidationAndUpdateFeeProcess(notification, startWorkflowInstant);
+                    log.logCheckingOutcome(VALIDATE_PAYMENT_PROCESS, true);
                 } else {
                     final String errorDetail = "There isn't paFee. In Async integration and DeliveryMode state the paFee are mandatory";
                     handleFailValidation(errorDetail);
@@ -47,7 +48,6 @@ public class PaymentValidator {
             log.info("No need to start validate payment process, notification is not in DELIVERY MODE");
         }
         
-        log.logCheckingOutcome(VALIDATE_PAYMENT_PROCESS, true);
     }
 
     private void startValidationAndUpdateFeeProcess(NotificationInt notification, Instant startWorkflowInstant) {

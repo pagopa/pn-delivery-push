@@ -103,6 +103,9 @@ public class NotificationMapper {
         String formattedString = time.format(formatter);
         sentNotification.setPaymentExpirationDate(formattedString);
         
+        if(notification.getPagoPaIntMode() != null){
+            sentNotification.setPagoPaIntMode(SentNotificationV21.PagoPaIntModeEnum.valueOf(notification.getPagoPaIntMode().getValue()));
+        }
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(
                     SentNotificationV21.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
