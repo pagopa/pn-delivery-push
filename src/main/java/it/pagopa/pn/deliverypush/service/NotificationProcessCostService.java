@@ -19,6 +19,8 @@ public interface NotificationProcessCostService {
                                                                            UpdateCostPhaseInt updateCostPhase);
     
     Mono<Integer> getPagoPaNotificationBaseCost();
-    
+
+    int getNotificationBaseCost(int paFee);
+
     Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost, Integer paFee);
 }

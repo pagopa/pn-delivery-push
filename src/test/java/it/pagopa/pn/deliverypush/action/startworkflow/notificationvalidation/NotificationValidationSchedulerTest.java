@@ -66,7 +66,7 @@ class NotificationValidationSchedulerTest {
         
         //WHEN
         int retryAttempt = 0;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, null, Instant.now());
         
         //THEN
         Instant schedulingDate = now.plus(intervalsDuration[retryAttempt]);
@@ -87,7 +87,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, null);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, null, Instant.now());
 
         //THEN
         Instant schedulingDate = now.plus(intervalsDuration[retryAttempt - 1]);
@@ -107,7 +107,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null, Instant.now());
 
         //THEN
         Instant schedulingDate = now.plus(DEFAULT_INTERVAL);
@@ -132,7 +132,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null, Instant.now());
 
         //THEN
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
@@ -157,7 +157,7 @@ class NotificationValidationSchedulerTest {
         //WHEN
         int retryAttempt = 2;
         PnValidationFileNotFoundException ex = new PnValidationFileNotFoundException( "file non trovato", new Throwable() );
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, ex);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, ex, Instant.now());
 
         //THEN
         Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);

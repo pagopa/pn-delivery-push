@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
@@ -28,11 +29,16 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
     public static final int PAGOPA_NOTIFICATION_BASE_COST = 100;
     private final TimelineService timelineService;
     private final PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive;
-    
+    private final PnDeliveryPushConfigs cfg;
 
     @Override
     public Mono<Integer> getPagoPaNotificationBaseCost() {
-        return Mono.just(PAGOPA_NOTIFICATION_BASE_COST);
+        return Mono.just(cfg.getPagoPaNotificationBaseCost());
+    }
+
+    @Override
+    public int getNotificationBaseCost(int paFee) {
+        return paFee + cfg.getPagoPaNotificationBaseCost();
     }
     
     public Mono<UpdateNotificationCostResponseInt> setNotificationStepCost(int notificationStepCost,
@@ -48,7 +54,6 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
                 .map(NotificationCostResponseMapper::externalToInternal)
                 .doOnSuccess(res -> log.debug("setNotificationStepCost service completed"));
     }
-
 
     @Override
     public Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost, Integer paFee) {
