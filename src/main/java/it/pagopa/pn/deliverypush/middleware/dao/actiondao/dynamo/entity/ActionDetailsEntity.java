@@ -21,4 +21,6 @@ public class ActionDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("timelineId")}))  private String timelineId;
     @Getter(onMethod=@__({@DynamoDbAttribute("retryAttempt")}))  private int retryAttempt;
     @Getter(onMethod=@__({@DynamoDbAttribute("startWorkflowTime")}))  private Instant startWorkflowTime;
+    @Getter(onMethod=@__({@DynamoDbAttribute("errors")}))  private NotificationRefusedActionErrorEntity errors;
+    
 }

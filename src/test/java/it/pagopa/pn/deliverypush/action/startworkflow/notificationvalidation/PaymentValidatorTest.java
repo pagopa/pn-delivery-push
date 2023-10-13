@@ -9,7 +9,7 @@ import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import it.pagopa.pn.deliverypush.exceptions.PnRescheduleValidationException;
+import it.pagopa.pn.deliverypush.exceptions.PnPaymentUpdateRetryException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationPaymentException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
@@ -27,8 +27,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.action.it.utils.TestUtils.verifyPaymentInfo;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(SpringExtension.class)
@@ -284,7 +284,7 @@ class PaymentValidatorTest {
         )).thenReturn(Mono.just(response));
 
         //WHEN
-        Assertions.assertThrows(PnRescheduleValidationException.class,
+        Assertions.assertThrows(PnPaymentUpdateRetryException.class,
                 () -> paymentValidator.validatePayments(notification, startWorkflow));
 
         //THEN
@@ -598,20 +598,5 @@ class PaymentValidatorTest {
         verifyPaymentInfo(notification, recIndex, paymentsInfoForRecipientsCaptured);
     }
 
-    private static void verifyPaymentInfo(NotificationInt notification, int recIndex, List<PaymentsInfoForRecipientInt> paymentsInfoForRecipientsCaptured) {
-        notification.getRecipients().forEach(rec ->
-                rec.getPayments().forEach(payment -> {
-                    final PagoPaInt paymentPagoPA = payment.getPagoPA();
-                    if(paymentPagoPA != null && paymentPagoPA.getApplyCost()){
-                        Optional<PaymentsInfoForRecipientInt> paymentsInfoForRecipient = paymentsInfoForRecipientsCaptured.stream()
-                                .filter(x -> x.getCreditorTaxId().equals(paymentPagoPA.getCreditorTaxId()) &&
-                                        x.getNoticeCode().equals(paymentPagoPA.getNoticeCode()) &&
-                                        x.getRecIndex().equals(recIndex)).findFirst();
-
-                        Assertions.assertTrue(paymentsInfoForRecipient.isPresent());
-                    }
-                })
-        );
-    }
 
 }

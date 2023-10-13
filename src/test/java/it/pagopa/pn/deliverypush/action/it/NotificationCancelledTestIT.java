@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFa
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.*;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
@@ -160,7 +161,8 @@ import static org.awaitility.Awaitility.await;
         F24Validator.class,
         F24ClientMock.class,
         PnExternalRegistriesClientReactiveMock.class,
-        PaymentValidator.class
+        PaymentValidator.class,
+        NotificationRefusedActionHandler.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)

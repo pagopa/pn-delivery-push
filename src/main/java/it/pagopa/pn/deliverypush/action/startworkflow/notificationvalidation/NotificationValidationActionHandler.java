@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -13,7 +14,6 @@ import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
@@ -161,7 +161,6 @@ public class NotificationValidationActionHandler {
         List<NotificationRefusedErrorInt> errors = new ArrayList<>();
         if (Objects.nonNull( ex.getProblem() )) {
             ex.getProblem().getErrors().forEach( elem -> {
-                //Per sviluppi futuri si può pensare d'inserire questo intero oggetto in timeline
                 NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
                         .errorCode(elem.getCode())
                         .detail(elem.getDetail())
@@ -170,12 +169,20 @@ public class NotificationValidationActionHandler {
                 errors.add(notificationRefusedError);
             });
         }
+
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
-        addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
+        scheduleNotificationRefused(notification.getIun(), errors);
     }
-    
-    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
-        timelineService.addTimelineElement(element, notification);
+
+    public void scheduleNotificationRefused(String iun, List<NotificationRefusedErrorInt> errors) {
+        Instant schedulingDate = Instant.now();
+
+        NotificationRefusedActionDetails details = NotificationRefusedActionDetails.builder()
+                .errors(errors)
+                .build();
+
+        log.debug("Scheduling Notification refused schedulingDate={} - iun={}", schedulingDate, iun);
+        schedulerService.scheduleEvent(iun, schedulingDate, ActionType.NOTIFICATION_REFUSED, details);
     }
 
     public void handleValidateF24Response(PnF24MetadataValidationEndEventPayload metadataValidationEndEvent) {

@@ -1,23 +1,20 @@
 package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.PaymentUtils;
 import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaIntMode;
-import it.pagopa.pn.deliverypush.exceptions.PnRescheduleValidationException;
+import it.pagopa.pn.deliverypush.exceptions.PnPaymentUpdateRetryException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationPaymentException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -27,7 +24,6 @@ public class PaymentValidator {
     private static final String VALIDATE_PAYMENT_PROCESS = "Validate payment";
     
     private final NotificationProcessCostService notificationProcessCostService;
-    private final NotificationUtils notificationUtils;
     
     public void validatePayments(NotificationInt notification, Instant startWorkflowInstant){
         log.logChecking(VALIDATE_PAYMENT_PROCESS);
@@ -51,7 +47,7 @@ public class PaymentValidator {
     }
 
     private void startValidationAndUpdateFeeProcess(NotificationInt notification, Instant startWorkflowInstant) {
-        List<PaymentsInfoForRecipientInt> paymentsInfoForRecipients = getPaymentsInfoToUpdateAndValidate(notification);
+        List<PaymentsInfoForRecipientInt> paymentsInfoForRecipients = PaymentUtils.getPaymentsInfoFromNotification(notification);
 
         int notificationBaseCost = notificationProcessCostService.getNotificationBaseCost(notification.getPaFee());
 
@@ -111,7 +107,7 @@ public class PaymentValidator {
 
     private static void handleRescheduleValidation(String errorDetail) {
         log.info(errorDetail);
-        throw new PnRescheduleValidationException(errorDetail);
+        throw new PnPaymentUpdateRetryException(errorDetail);
     }
 
     private static void handleFailValidation(String errorDetail) {
@@ -119,28 +115,4 @@ public class PaymentValidator {
         throw new PnValidationPaymentException(errorDetail);
     }
 
-    @NotNull
-    private List<PaymentsInfoForRecipientInt> getPaymentsInfoToUpdateAndValidate(NotificationInt notification) {
-        List<PaymentsInfoForRecipientInt> paymentsInfoForRecipients = new ArrayList<>();
-
-        notification.getRecipients().forEach(recipient -> {
-            int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-            log.debug("Start add validation for recipient index {}", recIndex);
-            
-            recipient.getPayments().forEach( payment ->{
-                final PagoPaInt pagoPaPayment = payment.getPagoPA();
-                if(pagoPaPayment != null && Boolean.TRUE.equals(pagoPaPayment.getApplyCost())){
-                    log.debug("Add validation for creditorTaxId={} noticeCode={} recIndex={}", pagoPaPayment.getCreditorTaxId(), pagoPaPayment.getNoticeCode(), recIndex);
-                    PaymentsInfoForRecipientInt paymentsInfoForRecipient = PaymentsInfoForRecipientInt.builder()
-                            .recIndex(recIndex)
-                            .noticeCode(pagoPaPayment.getNoticeCode())
-                            .creditorTaxId(pagoPaPayment.getCreditorTaxId())
-                            .build();
-
-                    paymentsInfoForRecipients.add(paymentsInfoForRecipient);
-                }
-            });
-        });
-        return paymentsInfoForRecipients;
-    }
 }
