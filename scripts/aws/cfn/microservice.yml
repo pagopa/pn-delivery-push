@@ -1163,7 +1163,7 @@ Resources:
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/paperEventsCostUpdateLambda.zip"
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/paperEventsCostUpdate.zip"
       Role: !GetAtt PaperEventsCostUpdateLambdaRole.Arn
       Environment:
         Variables:

@@ -32,7 +32,7 @@ exports.handleEvent = async (event) => {
           if (responseError.length > 0) {
             console.log(
               "Error in persisting current cdcEvents: ",
-              currentCdcEvents
+              JSON.stringify(currentCdcEvents)
             );
             batchItemFailures = batchItemFailures.concat(
               responseError.map((i) => {
@@ -43,7 +43,7 @@ exports.handleEvent = async (event) => {
         } else {
           console.log(
             "No events to persist in current cdcEvents: ",
-            currentCdcEvents
+            JSON.stringify(currentCdcEvents)
           );
         }
       } catch (exc) {
