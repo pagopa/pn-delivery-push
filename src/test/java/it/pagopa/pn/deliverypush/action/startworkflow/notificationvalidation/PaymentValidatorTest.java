@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
@@ -37,12 +36,10 @@ class PaymentValidatorTest {
     private PaymentValidator paymentValidator;
     @Mock
     private NotificationProcessCostService notificationProcessCostService;
-    @Mock
-    private NotificationUtils notificationUtils;
 
     @BeforeEach
     public void setup() {
-        paymentValidator = new PaymentValidator(notificationProcessCostService, notificationUtils);
+        paymentValidator = new PaymentValidator(notificationProcessCostService);
     }
 
     @Test
