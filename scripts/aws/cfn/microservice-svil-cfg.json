@@ -32,6 +32,6 @@
     "WebhookEventManagerLambdaBatchSize": "60",
     "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
     "NotificationCancellationActionInsertLambdaBatchSize": "20",
-    "pagoPaNotificationBaseCost": "100"
+    "PagoPaNotificationBaseCost": "100"
   }
 }

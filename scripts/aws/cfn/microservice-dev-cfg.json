@@ -40,7 +40,7 @@
     "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
     "NotificationCancellationActionInsertLambdaBatchSize": "20",
     "EnhancedWebSecurityEnabled": "true",
-    "pagoPaNotificationBaseCost": "100"
+    "PagoPaNotificationBaseCost": "100"
   }
 }
 

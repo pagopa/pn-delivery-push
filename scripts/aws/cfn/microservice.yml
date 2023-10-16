@@ -309,6 +309,7 @@ Parameters:
   PagoPaNotificationBaseCost:
     Type: String
     Description: 'PagoPa notification base cost'
+    Default: '100'
 
   SafeStorageToDeliveryPushQueueName:
     Type: String
