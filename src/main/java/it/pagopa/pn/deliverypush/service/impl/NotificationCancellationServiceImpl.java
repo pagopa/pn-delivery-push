@@ -2,15 +2,18 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.action.utils.PaymentUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.cancellation.StatusDetailInt;
+import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
+import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
+import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaIntMode;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +21,17 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.List;
+
+import static it.pagopa.pn.deliverypush.action.utils.PaymentUtils.handleResponse;
+
 @Service
 @AllArgsConstructor
 @Slf4j
 public class NotificationCancellationServiceImpl implements NotificationCancellationService {
+    public static final int NOTIFICATION_CANCELLED_COST = 0;
+
     private static final int FIRST_CANCELLATION_STEP = 1;
     private static final int SECOND_CANCELLATION_STEP = 2; //Da utilizzare per lo step async
 
@@ -34,6 +44,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private AuditLogService auditLogService;
+    private NotificationProcessCostService notificationProcessCostService;
     
     @Override
     public Mono<StatusDetailInt> startCancellationProcess(String iun, String paId, CxTypeAuthFleet cxType) {
@@ -47,8 +58,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
                 )
                 .doOnError(err -> logEvent.generateFailure("Error in cancellation process iun={} paId={}", iun, paId, err).log());
     }
-
-
+    
     public void completeCancellationProcess(String iun){
         log.debug("Start cancelNotification - iun={}", iun);
         PnAuditLogEvent logEvent = generateAuditLog(iun, SECOND_CANCELLATION_STEP);
@@ -59,6 +69,13 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
+            if(NotificationFeePolicy.DELIVERY_MODE.equals(notification.getNotificationFeePolicy()) &&
+                    PagoPaIntMode.ASYNC.equals(notification.getPagoPaIntMode())){
+                handleUpdateNotificationCost(notification);
+            } else {
+                log.debug("don't need to update notification cost - iun={}", iun);
+            }
+            
             // salvo l'evento in timeline
             addCanceledTimelineElement(notification);
 
@@ -67,9 +84,26 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
             logEvent.generateFailure("Error in cancellation process iun={}", iun, e).log();
             throw e;
         }
-
     }
 
+    private void handleUpdateNotificationCost(NotificationInt notification) {
+        List<PaymentsInfoForRecipientInt> paymentsInfoForRecipients = PaymentUtils.getPaymentsInfoFromNotification(notification);
+        Instant timestampSendUpdate = Instant.now();
+
+        UpdateNotificationCostResponseInt updateNotificationCostResponse = notificationProcessCostService.setNotificationStepCost(
+                NOTIFICATION_CANCELLED_COST,
+                notification.getIun(),
+                paymentsInfoForRecipients,
+                timestampSendUpdate,
+                timestampSendUpdate,
+                UpdateCostPhaseInt.NOTIFICATION_CANCELLED
+        ).block();
+
+        if (updateNotificationCostResponse != null && !updateNotificationCostResponse.getUpdateResults().isEmpty()) {
+            handleResponse(notification, updateNotificationCostResponse);
+        }
+    }
+    
     private void addCanceledTimelineElement(NotificationInt notification) {
         TimelineElementInternal cancelledTimelineElement = timelineUtils.buildCancelledTimelineElement(notification);
         // salvo l'evento in timeline

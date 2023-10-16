@@ -9,7 +9,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaIntMode;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.exceptions.PnPaymentUpdateRetryException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -20,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+
+import static it.pagopa.pn.deliverypush.action.utils.PaymentUtils.handleResponse;
 
 @Component
 @AllArgsConstructor
@@ -62,40 +63,7 @@ public class NotificationRefusedActionHandler {
         }
     }
 
-
-    private static void handleResponse(NotificationInt notification, UpdateNotificationCostResponseInt updateNotificationCostResponse) {
-        log.debug("Start handle update cost response {}", updateNotificationCostResponse.getIun());
-
-        updateNotificationCostResponse.getUpdateResults().forEach(response -> {
-            PaymentsInfoForRecipientInt paymentsInfo = response.getPaymentsInfoForRecipient();
-
-            log.debug("Start handle update response for iun={} recIndex={} creditorTaxId={} noticeCode={}",
-                    notification.getIun(), paymentsInfo.getRecIndex(), paymentsInfo.getCreditorTaxId(), paymentsInfo.getNoticeCode());
-
-            switch (response.getResult()) {
-                case OK -> log.debug("Update cost OK for iun={} recIndex={} creditorTaxId={} noticeCode={}",
-                        notification.getIun(), paymentsInfo.getRecIndex(), paymentsInfo.getCreditorTaxId(), paymentsInfo.getNoticeCode());
-                case KO -> log.error("Payment information is not valid. Can't update notification cost to={} for REQUEST_REFUSED" +
-                            " - creditorTaxId={} noticeCode={}", NOTIFICATION_REFUSED_COST, paymentsInfo.getCreditorTaxId(), paymentsInfo.getNoticeCode());
-                case RETRY -> {
-                    final String errorDetail = String.format("Validation need to be rescheduled, can't have response from service. iun=%s recIndex=%s creditorTaxId=%s noticeCode=%s",
-                            notification.getIun(), paymentsInfo.getRecIndex(), paymentsInfo.getCreditorTaxId(), paymentsInfo.getNoticeCode());
-                    handleRetryError(errorDetail);
-                }
-                default -> {
-                    final String errorDetail = String.format("Validation need to be rescheduled. Response received is not handled for iun=%s recIndex=%s creditorTaxId=%s noticeCode=%s",
-                            notification.getIun(), paymentsInfo.getRecIndex(), paymentsInfo.getCreditorTaxId(), paymentsInfo.getNoticeCode());
-                    handleRetryError(errorDetail);
-                }
-            }
-        });
-    }
-
-    private static void handleRetryError(String errorDetail) {
-        log.info(errorDetail);
-        throw new PnPaymentUpdateRetryException(errorDetail);
-    }
-
+    
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         timelineService.addTimelineElement(element, notification);
     }
