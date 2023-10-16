@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.*;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
@@ -146,7 +147,8 @@ import static org.awaitility.Awaitility.await;
         F24ClientMock.class,
         F24ResponseHandler.class,
         PnExternalRegistriesClientReactiveMock.class,
-        PaymentValidator.class
+        PaymentValidator.class,
+        NotificationRefusedActionHandler.class
 })
 @TestPropertySource(
         locations ="classpath:/application-test.properties",
@@ -691,7 +693,7 @@ class ValidationTestIT {
         );
         Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
-        ConsoleAppenderCustom.checkLogs();
+        ConsoleAppenderCustom.checkLogs("Payment information is not valid");
     }
 
     @Test

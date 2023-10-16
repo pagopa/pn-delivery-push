@@ -3,15 +3,18 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
@@ -26,6 +29,8 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
@@ -57,6 +62,9 @@ class ActionHandlerTest {
     private NotificationValidationActionHandler notificationValidationActionHandler;
     @Mock
     private ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
+    @Mock
+    private NotificationRefusedActionHandler notificationRefusedActionHandler;
+    
     @Mock
     private TimelineUtils timelineUtils;
 
@@ -258,6 +266,49 @@ class ActionHandlerTest {
         //THEN
         Action action = message.getPayload();
         verify(notificationValidationActionHandler).validateNotification(action.getIun(), (NotificationValidationActionDetails) action.getDetails());
+    }
+
+    @Test
+    void pnDeliveryPushNotificationAction() {
+        //GIVEN
+        Message<Action> message = getActionRefusedMessage();
+        
+        //WHEN
+        Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushNotificationRefused();
+        consumer.accept(message);
+
+        //THEN
+        NotificationRefusedActionDetails details = (NotificationRefusedActionDetails) message.getPayload().getDetails();
+
+        Action action = message.getPayload();
+        notificationRefusedActionHandler.notificationRefusedHandler(action.getIun(), details.getErrors(), action.getNotBefore());
+
+        verify(notificationRefusedActionHandler).notificationRefusedHandler(action.getIun(), details.getErrors(), action.getNotBefore());
+    }
+
+    @NotNull
+    private static Message<Action> getActionRefusedMessage() {
+        return new Message<>() {
+            @Override
+            @NotNull
+            public Action getPayload() {
+                return Action.builder()
+                        .iun("test_IUN")
+                        .recipientIndex(0)
+                        .timelineId("testTimelineId")
+                        .notBefore(Instant.now())
+                        .details(NotificationRefusedActionDetails.builder()
+                                .errors(Collections.singletonList(NotificationRefusedErrorInt.builder().build()))
+                                .build())
+                        .build();
+            }
+
+            @Override
+            @NotNull
+            public MessageHeaders getHeaders() {
+                return new MessageHeaders(new HashMap<>());
+            }
+        };
     }
 
     @Test

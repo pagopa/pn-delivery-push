@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEventPayload;
 import it.pagopa.pn.api.dto.events.PnF24MetadataValidationIssue;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
@@ -11,6 +12,8 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.exceptions.*;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.exceptions.*;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -225,11 +228,7 @@ class NotificationValidationActionHandlerTest {
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(1)
                 .build();
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any()))
-                .thenReturn(timelineElementInternal);
-
+        
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), any()))
                 .thenReturn(auditLogEvent);
@@ -240,7 +239,8 @@ class NotificationValidationActionHandlerTest {
 
         //THEN
         Mockito.verify(addressValidator, Mockito.never()).requestValidateAndNormalizeAddresses(notification);
-        Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.eq(notification.getIun()), Mockito.any(Instant.class),
+                Mockito.eq(ActionType.NOTIFICATION_REFUSED), Mockito.any(NotificationRefusedActionDetails.class));
         Mockito.verify(auditLogEvent).generateWarning(any(), any());
         Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
     }
@@ -260,11 +260,7 @@ class NotificationValidationActionHandlerTest {
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
                 .retryAttempt(1)
                 .build();
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any()))
-                .thenReturn(timelineElementInternal);
-
+        
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), any()))
                 .thenReturn(auditLogEvent);
@@ -275,7 +271,8 @@ class NotificationValidationActionHandlerTest {
 
         //THEN
         Mockito.verify(addressValidator, Mockito.never()).requestValidateAndNormalizeAddresses(notification);
-        Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.eq(notification.getIun()), Mockito.any(Instant.class),
+                Mockito.eq(ActionType.NOTIFICATION_REFUSED), Mockito.any(NotificationRefusedActionDetails.class));
         Mockito.verify(auditLogEvent).generateWarning(any(), any());
         Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
     }
@@ -419,7 +416,7 @@ class NotificationValidationActionHandlerTest {
                 .thenReturn(notification);
 
         //Simulazione errore che necessita retry
-        PnRescheduleValidationException ex = new PnRescheduleValidationException("error");
+        PnPaymentUpdateRetryException ex = new PnPaymentUpdateRetryException("error");
         doThrow(ex).when(paymentValidator).validatePayments(Mockito.any(NotificationInt.class), Mockito.any(Instant.class));
 
         NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
@@ -457,11 +454,7 @@ class NotificationValidationActionHandlerTest {
                 .retryAttempt(1)
                 .startWorkflowTime(Instant.now())
                 .build();
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any()))
-                .thenReturn(timelineElementInternal);
-
+        
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), any()))
                 .thenReturn(auditLogEvent);
@@ -472,7 +465,8 @@ class NotificationValidationActionHandlerTest {
 
         //THEN
         Mockito.verify(addressValidator, Mockito.never()).requestValidateAndNormalizeAddresses(notification);
-        Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.eq(notification.getIun()), Mockito.any(Instant.class),
+                Mockito.eq(ActionType.NOTIFICATION_REFUSED), Mockito.any(NotificationRefusedActionDetails.class));
         Mockito.verify(auditLogEvent).generateWarning(any(), any());
         Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
     }

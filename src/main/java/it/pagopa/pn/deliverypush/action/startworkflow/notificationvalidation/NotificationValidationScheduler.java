@@ -1,16 +1,14 @@
 package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,8 +27,6 @@ public class NotificationValidationScheduler {
     private final SchedulerService schedulerService;
     private final PnDeliveryPushConfigs configs;
     private final InstantNowSupplier instantNowSupplier;
-    private final TimelineService timelineService;
-    private final TimelineUtils timelineUtils;
 
     public void scheduleNotificationValidation(String iun) {
         Instant schedulingDate = Instant.now();
@@ -115,7 +111,7 @@ public class NotificationValidationScheduler {
     private void handleValidationError(NotificationInt notification, Exception ex) {
         List<NotificationRefusedErrorInt> errors = new ArrayList<>();
         NotificationRefusedErrorInt notificationRefusedError;
-
+        
         if(Objects.nonNull(ex) && ex instanceof PnValidationFileNotFoundException) {
             notificationRefusedError = NotificationRefusedErrorInt.builder()
                     .errorCode("FILE_NOTFOUND")
@@ -130,10 +126,17 @@ public class NotificationValidationScheduler {
         errors.add(notificationRefusedError);
         
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
-        addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
+        scheduleNotificationRefused(notification.getIun(), errors);
     }
 
-    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
-        timelineService.addTimelineElement(element, notification);
+    public void scheduleNotificationRefused(String iun, List<NotificationRefusedErrorInt> errors) {
+        Instant schedulingDate = Instant.now();
+
+        NotificationRefusedActionDetails details = NotificationRefusedActionDetails.builder()
+                .errors(errors)
+                .build();
+
+        log.debug("Scheduling Notification refused schedulingDate={} - iun={}", schedulingDate, iun);
+        schedulerService.scheduleEvent(iun, schedulingDate, ActionType.NOTIFICATION_REFUSED, details);
     }
 }
