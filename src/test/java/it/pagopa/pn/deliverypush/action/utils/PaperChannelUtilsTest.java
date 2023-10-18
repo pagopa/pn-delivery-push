@@ -76,8 +76,8 @@ class PaperChannelUtilsTest {
 
         SendResponse sendResponse = new SendResponse()
                 .amount(10);
-        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  sendResponse, "RN_AR", "request_id")).thenReturn(timelineElementInternal);
-        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, sendResponse, "RN_AR", "request_id");
+        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  sendResponse, "RN_AR", "request_id", null)).thenReturn(timelineElementInternal);
+        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, sendResponse, "RN_AR", "request_id", null);
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 
