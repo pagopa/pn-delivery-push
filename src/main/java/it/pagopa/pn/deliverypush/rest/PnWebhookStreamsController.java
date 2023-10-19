@@ -51,7 +51,7 @@ public class PnWebhookStreamsController implements StreamsApi {
     @Override
     public Mono<ResponseEntity<StreamMetadataResponse>> getEventStream(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, ServerWebExchange exchange) {
         MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
-        log.info("[enter] getEventStream xPagopaPnCxId={} uuid={}", xPagopaPnCxId, streamId.toString());
+        log.info("[enter] getEventStream xPagopaPnCxId={} streamId={}", xPagopaPnCxId, streamId.toString());
 
         return MDCUtils.addMDCToContextAndExecute(
                 webhookService.getEventStream(xPagopaPnCxId, streamId)
