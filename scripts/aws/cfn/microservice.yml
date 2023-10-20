@@ -607,6 +607,11 @@ Parameters:
     Type: Number
     Description: b2b waf limit
 
+  WebWafLimit:
+    Default: 600000
+    Type: Number
+    Description: b2b waf limit
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -700,7 +705,6 @@ Resources:
         ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
         ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'
-        ContainerEnvEntry63: !Sub 'PN_DELIVERYPUSH_B2B_WAF_LIMIT=${B2bWafLimit}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -869,7 +873,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery--push-web'
         IntendedUsage: WEB 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: 600000
+        Limit: !Ref WebWafLimit
         EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   #########################################################
