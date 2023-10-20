@@ -610,7 +610,7 @@ Parameters:
   WebWafLimit:
     Default: 600000
     Type: Number
-    Description: b2b waf limit
+    Description: web waf limit
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
