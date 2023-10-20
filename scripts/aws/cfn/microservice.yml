@@ -602,6 +602,11 @@ Parameters:
     Type: String
     Description: 'pn-delivery-push clientId for communication with pn-f24'
 
+  B2bWafLimit:
+    Default: 600000
+    Type: Number
+    Description: b2b waf limit
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -695,6 +700,7 @@ Resources:
         ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
         ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'
+        ContainerEnvEntry63: !Sub 'PN_DELIVERYPUSH_B2B_WAF_LIMIT=${B2bWafLimit}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -807,7 +813,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-push-b2b'
         IntendedUsage: B2B 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
-        Limit: 600000
+        Limit: !Ref B2bWafLimit
 
   # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
   DeliveryProgressMicroservicePublicAPI:
