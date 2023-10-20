@@ -113,6 +113,11 @@ exports.mapEvents = async (events) => {
       resultElementBody.recIndex &&
       resultElementBody.notificationStepCost
     ) {
+      console.log(
+        "Mapped message for the queue: %j",
+        JSON.stringify(resultElement)
+      );
+
       result.push(resultElement);
     } else {
       console.error(
