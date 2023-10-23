@@ -121,7 +121,6 @@ class NotificationRefusedActionHandlerTest {
 
         final int recIndex = 0;
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(notification.getIun())
                 .updateResults(Collections.singletonList(UpdateNotificationCostResultInt.builder()
                         .result(UpdateNotificationCostResultInt.ResultEnum.OK)
                         .paymentsInfoForRecipient(PaymentsInfoForRecipientInt.builder()
@@ -199,7 +198,6 @@ class NotificationRefusedActionHandlerTest {
 
         final int recIndex = 0;
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(notification.getIun())
                 .updateResults(Collections.singletonList(UpdateNotificationCostResultInt.builder()
                         .result(UpdateNotificationCostResultInt.ResultEnum.KO)
                         .paymentsInfoForRecipient(PaymentsInfoForRecipientInt.builder()
@@ -279,7 +277,6 @@ class NotificationRefusedActionHandlerTest {
         final int recIndex = 0;
         final String iun = notification.getIun();
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(iun)
                 .updateResults(Collections.singletonList(UpdateNotificationCostResultInt.builder()
                         .result(UpdateNotificationCostResultInt.ResultEnum.RETRY)
                         .paymentsInfoForRecipient(PaymentsInfoForRecipientInt.builder()

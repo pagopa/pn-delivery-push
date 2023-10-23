@@ -41,7 +41,7 @@ public class PaymentUtils {
     }
 
     public static void handleResponse(NotificationInt notification, UpdateNotificationCostResponseInt updateNotificationCostResponse) {
-        log.debug("Start handle update cost response {}", updateNotificationCostResponse.getIun());
+        log.debug("Start handle update cost response");
 
         updateNotificationCostResponse.getUpdateResults().forEach(response -> {
             PaymentsInfoForRecipientInt paymentsInfo = response.getPaymentsInfoForRecipient();

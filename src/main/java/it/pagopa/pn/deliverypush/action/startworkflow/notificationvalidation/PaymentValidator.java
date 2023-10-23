@@ -75,7 +75,7 @@ public class PaymentValidator {
     }
 
     private static void handleResponse(NotificationInt notification, UpdateNotificationCostResponseInt updateNotificationCostResponse) {
-        log.debug("Start handle update and validation cost response {}", updateNotificationCostResponse.getIun());
+        log.debug("Start handle update and validation cost response");
         
         updateNotificationCostResponse.getUpdateResults().forEach(response -> {
             PaymentsInfoForRecipientInt paymentsInfo = response.getPaymentsInfoForRecipient();

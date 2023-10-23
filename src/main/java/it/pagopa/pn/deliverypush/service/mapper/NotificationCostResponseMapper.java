@@ -43,11 +43,9 @@ public class NotificationCostResponseMapper {
     }
 
     public static UpdateNotificationCostResponseInt externalToInternal(UpdateNotificationCostResponse updateNotificationCostResponse) {
-        UpdateNotificationCostResponseInt.UpdateNotificationCostResponseIntBuilder builder  = UpdateNotificationCostResponseInt.builder()
-                .iun(updateNotificationCostResponse.getIun());
 
         List<UpdateNotificationCostResultInt> updateResults = new ArrayList<>();
-
+        
         updateNotificationCostResponse.getUpdateResults().forEach(elem ->
                 updateResults.add(UpdateNotificationCostResultInt.builder()
                         .paymentsInfoForRecipient(
@@ -61,7 +59,7 @@ public class NotificationCostResponseMapper {
                         .build())
         );
 
-        return builder.updateResults(updateResults)
+        return UpdateNotificationCostResponseInt.builder().updateResults(updateResults)
                 .build();
     }
     

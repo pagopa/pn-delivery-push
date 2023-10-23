@@ -188,7 +188,6 @@ class PaymentValidatorTest {
 
         final int recIndex = 0;
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(notification.getIun())
                 .updateResults(Collections.singletonList(UpdateNotificationCostResultInt.builder()
                         .result(UpdateNotificationCostResultInt.ResultEnum.KO)
                         .paymentsInfoForRecipient(PaymentsInfoForRecipientInt.builder()
@@ -260,7 +259,6 @@ class PaymentValidatorTest {
 
         final int recIndex = 0;
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(notification.getIun())
                 .updateResults(Collections.singletonList(UpdateNotificationCostResultInt.builder()
                         .result(UpdateNotificationCostResultInt.ResultEnum.RETRY)
                         .paymentsInfoForRecipient(PaymentsInfoForRecipientInt.builder()
@@ -331,7 +329,6 @@ class PaymentValidatorTest {
 
         final int recIndex = 0;
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(notification.getIun())
                 .updateResults(Collections.singletonList(UpdateNotificationCostResultInt.builder()
                         .result(UpdateNotificationCostResultInt.ResultEnum.OK)
                         .paymentsInfoForRecipient(PaymentsInfoForRecipientInt.builder()
@@ -451,7 +448,6 @@ class PaymentValidatorTest {
                         .build());
 
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(notification.getIun())
                 .updateResults(updateNotificationCostResultList).build();
 
         Mockito.when(notificationProcessCostService.setNotificationStepCost(
@@ -563,7 +559,6 @@ class PaymentValidatorTest {
                         .build());
 
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(notification.getIun())
                 .updateResults(updateNotificationCostResultList).build();
 
         Mockito.when(notificationProcessCostService.setNotificationStepCost(
