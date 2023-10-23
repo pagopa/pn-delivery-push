@@ -62,7 +62,6 @@ class PnExternalRegistriesClientReactiveImplTest extends MockAWSObjectsTest {
         String requestJson = mapper.writeValueAsString(request);
 
         UpdateNotificationCostResponse response = new UpdateNotificationCostResponse();
-        response.setIun(iun);
         response.setUpdateResults(Collections.singletonList(
                 new UpdateNotificationCostResult()
                         .creditorTaxId(paymentsInfoForRecipient.getCreditorTaxId())

@@ -11,6 +11,5 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 public class UpdateNotificationCostResponseInt {
-    private String iun;
     private List<UpdateNotificationCostResultInt> updateResults;
 }

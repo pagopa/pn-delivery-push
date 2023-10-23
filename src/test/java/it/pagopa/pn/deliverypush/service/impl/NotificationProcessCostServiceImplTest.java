@@ -71,7 +71,6 @@ class NotificationProcessCostServiceImplTest {
         UpdateCostPhaseInt updateCostPhase = UpdateCostPhaseInt.VALIDATION;
         
         UpdateNotificationCostResponse updateNotificationCostResponse = new UpdateNotificationCostResponse();
-        updateNotificationCostResponse.setIun(iun);
         updateNotificationCostResponse.addUpdateResultsItem(
                 new UpdateNotificationCostResult()
                         .creditorTaxId(paymentsInfoForRecipient.getCreditorTaxId())
@@ -87,7 +86,6 @@ class NotificationProcessCostServiceImplTest {
         
         //THEN
         Assertions.assertNotNull(updateNotificationCostResponseInt);
-        Assertions.assertEquals(updateNotificationCostResponseInt.getIun(), iun);
         Assertions.assertNotNull(updateNotificationCostResponseInt.getUpdateResults());
         Assertions.assertNotNull(updateNotificationCostResponseInt.getUpdateResults().get(0));
         

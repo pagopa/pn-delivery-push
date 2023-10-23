@@ -27,7 +27,6 @@ public class PnExternalRegistriesClientReactiveMock implements PnExternalRegistr
     @Override
     public Mono<UpdateNotificationCostResponse> updateNotificationCost(UpdateNotificationCostRequest updateNotificationCostRequest) {
         UpdateNotificationCostResponse response = new UpdateNotificationCostResponse();
-        response.setIun(updateNotificationCostRequest.getIun());
         
         List<UpdateNotificationCostResult> updateResults =  new ArrayList<>();
         

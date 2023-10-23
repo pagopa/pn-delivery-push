@@ -232,7 +232,6 @@ class NotificationCancellationServiceImplTest {
 
         final int recIndex = 0;
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(notification.getIun())
                 .updateResults(Collections.singletonList(UpdateNotificationCostResultInt.builder()
                         .result(UpdateNotificationCostResultInt.ResultEnum.KO)
                         .paymentsInfoForRecipient(PaymentsInfoForRecipientInt.builder()
@@ -311,7 +310,6 @@ class NotificationCancellationServiceImplTest {
 
         final int recIndex = 0;
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
-                .iun(iun)
                 .updateResults(Collections.singletonList(UpdateNotificationCostResultInt.builder()
                         .result(UpdateNotificationCostResultInt.ResultEnum.RETRY)
                         .paymentsInfoForRecipient(PaymentsInfoForRecipientInt.builder()
