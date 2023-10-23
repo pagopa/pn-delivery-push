@@ -3,6 +3,10 @@ package it.pagopa.pn.deliverypush.dto.timeline.details;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,16 +23,18 @@ public class SimpleRegisteredLetterDetailsInt extends BaseRegisteredLetterDetail
     private Integer envelopeWeight;
 
     protected String prepareRequestId;
+    private List<String> f24Attachments;
 
     @Override
     public String toLog() {
         return String.format(
-                "recIndex=%d physicalAddress=%s analogCost=%d productType=%s prepareRequestId=%s",
+                "recIndex=%d physicalAddress=%s analogCost=%d productType=%s prepareRequestId=%s f24Attachments=%s",
                 recIndex,
                 AuditLogUtils.SENSITIVE,
                 analogCost,
                 productType,
-                prepareRequestId
+                prepareRequestId,
+                !CollectionUtils.isEmpty(f24Attachments) ? String.join(",", f24Attachments) : Collections.emptyList()
         );
     }
 }

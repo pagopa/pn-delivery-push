@@ -31,7 +31,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @CustomLog
 public class AttachmentUtils {
     private static final String VALIDATE_ATTACHMENT_PROCESS = "Validate attachment";
-    private static final String F24_URL_PREFIX = "f24set:///";
+    private static final String F24_URL_PREFIX = "f24set://";
     private final SafeStorageService safeStorageService;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 

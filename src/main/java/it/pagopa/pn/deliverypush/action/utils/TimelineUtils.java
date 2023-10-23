@@ -317,7 +317,8 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildSendSimpleRegisteredLetterTimelineElement(Integer recIndex, NotificationInt notification, PhysicalAddressInt address,
-                                                                                  SendResponse sendResponse, String productType, String prepareRequestId) {
+                                                                                  SendResponse sendResponse, String productType, String prepareRequestId,
+                                                                                  List<String> replacedF24AttachmentUrls) {
         log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
@@ -335,6 +336,7 @@ public class TimelineUtils {
                 .numberOfPages(sendResponse.getNumberOfPages())
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
                 .prepareRequestId(prepareRequestId)
+                .f24Attachments(replacedF24AttachmentUrls)
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()

@@ -246,6 +246,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
      */
     @NotNull
     private List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, SendAttachmentMode sendAttachmentMode, Boolean isPrepareFlow, List<String> replacedF24AttachmentUrls) {
+        log.info("retrieveAttachments iun={} recIndex={} sendAttachmentMode={} isPrepareFlow={} replacedF24AttachmentUrls={}", notification.getIun(), recIndex, sendAttachmentMode, isPrepareFlow, replacedF24AttachmentUrls);
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
         List<String> attachments = new ArrayList<>();
@@ -254,7 +255,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
         NotificationRecipientInt notificationRecipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
-        return switch (sendAttachmentMode) {
+        List<String> res = switch (sendAttachmentMode) {
             case AAR -> attachments;
             case AAR_DOCUMENTS -> {
                 attachments.addAll(attachmentUtils.getNotificationAttachments(notification));
@@ -265,7 +266,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 yield attachments;
             }
         };
-
+        log.info("retrieveAttachments iun={} recIndex={} attachmentsToSend={}", notification.getIun(), recIndex, res);
+        return res;
     }
 
     @Override
@@ -293,7 +295,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                         new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
                                 receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
 
-                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendResponse, productType, prepareRequestId);
+                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendResponse, productType, prepareRequestId, replacedF24AttachmentUrls);
                 log.info("Registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
 
