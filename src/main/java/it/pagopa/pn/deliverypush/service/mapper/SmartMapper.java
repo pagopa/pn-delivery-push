@@ -74,11 +74,7 @@ public class SmartMapper {
         modelMapper.addMappings(notificationViewedDetailPropertyMap);
         modelMapper.addMappings(sendDigitalProgrressDetailPropertyMap);
 
-        TypeMap<TimelineElementInternal, TimelineElementInternal> typeMap =
-            modelMapper.createTypeMap(TimelineElementInternal.class, TimelineElementInternal.class);
-
-        // Define the mappings on the type map
-        typeMap.setPostConverter(timestampReplacer);
+        modelMapper.createTypeMap(TimelineElementInternal.class, TimelineElementInternal.class).setPostConverter(timestampReplacer);
 
         List<BiFunction> postMappingTransformers = new ArrayList<>();
         postMappingTransformers.add( (source, result)-> {
