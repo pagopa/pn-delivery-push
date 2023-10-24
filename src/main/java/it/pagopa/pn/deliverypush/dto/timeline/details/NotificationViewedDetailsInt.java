@@ -3,6 +3,8 @@ package it.pagopa.pn.deliverypush.dto.timeline.details;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import lombok.*;
 
+import java.time.Instant;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -10,17 +12,19 @@ import lombok.*;
 @Builder( toBuilder = true )
 @EqualsAndHashCode
 @ToString
-public class NotificationViewedDetailsInt implements RecipientRelatedTimelineElementDetails, PersonalInformationRelatedTimelineElement{
+public class NotificationViewedDetailsInt implements RecipientRelatedTimelineElementDetails, PersonalInformationRelatedTimelineElement, ElementTimestampTimelineElementDetails{
     private int recIndex;
     private Integer notificationCost;
     private String raddType;
     private String raddTransactionId;
     private DelegateInfoInt delegateInfo;
+    private Instant eventTimestamp;
     
     public String toLog() {
         return String.format(
-                "recIndex=%d",
-                recIndex
+                "recIndex=%d eventTimestamp=%s",
+                recIndex,
+                eventTimestamp
         );
     }
     
@@ -46,5 +50,10 @@ public class NotificationViewedDetailsInt implements RecipientRelatedTimelineEle
         if(delegateInfo != null){
             delegateInfo.setDenomination(denomination);
         }
+    }
+
+    @Override
+    public Instant getElementTimestamp() {
+        return eventTimestamp;
     }
 }

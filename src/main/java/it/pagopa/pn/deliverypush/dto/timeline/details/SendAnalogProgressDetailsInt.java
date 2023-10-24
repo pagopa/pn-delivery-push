@@ -13,7 +13,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineElementDetails, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private Instant notificationDate;
     private String deliveryFailureCause;
@@ -31,5 +31,10 @@ public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineEle
                 deliveryDetailCode,
                 attachments
         );
+    }
+
+    @Override
+    public Instant getElementTimestamp() {
+        return notificationDate;
     }
 }

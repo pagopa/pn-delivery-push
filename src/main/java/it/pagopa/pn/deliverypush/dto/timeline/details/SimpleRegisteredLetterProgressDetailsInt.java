@@ -13,7 +13,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SimpleRegisteredLetterProgressDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class SimpleRegisteredLetterProgressDetailsInt implements RecipientRelatedTimelineElementDetails, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private Instant notificationDate;
     private String deliveryFailureCause;
@@ -31,5 +31,10 @@ public class SimpleRegisteredLetterProgressDetailsInt implements RecipientRelate
                 deliveryDetailCode,
                 attachments
         );
+    }
+
+    @Override
+    public Instant getElementTimestamp() {
+        return notificationDate;
     }
 }
