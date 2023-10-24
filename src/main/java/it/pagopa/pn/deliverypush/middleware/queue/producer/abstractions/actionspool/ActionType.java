@@ -17,7 +17,7 @@ public enum ActionType {
     }
   },
 
-  NOTIFICATION_REFUSED(NotificationValidationActionDetails.class) {
+  NOTIFICATION_REFUSED(NotificationRefusedActionDetails.class) {
     @Override
     public String buildActionId(Action action) {
       return String.format("notification_refused_iun_%s",
