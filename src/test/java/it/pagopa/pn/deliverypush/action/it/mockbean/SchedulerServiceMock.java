@@ -4,11 +4,13 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
@@ -42,7 +44,7 @@ public class SchedulerServiceMock implements SchedulerService {
   private final DocumentCreationResponseHandler documentCreationResponseHandler;
   private final NotificationValidationActionHandler notificationValidationActionHandler;
   private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
-  private final PnDeliveryClientMock pnDeliveryClientMock;
+  private final NotificationRefusedActionHandler notificationRefusedActionHandler;
 
   public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
                               @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
@@ -54,7 +56,7 @@ public class SchedulerServiceMock implements SchedulerService {
                               @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
                               @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
                               @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
-                              @Lazy PnDeliveryClientMock pnDeliveryClientMock) {
+                              @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler) {
     this.digitalWorkFlowHandler = digitalWorkFlowHandler;
     this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
     this.analogWorkflowHandler = analogWorkflowHandler;
@@ -65,7 +67,7 @@ public class SchedulerServiceMock implements SchedulerService {
     this.documentCreationResponseHandler = documentCreationResponseHandler;
     this.notificationValidationActionHandler = notificationValidationActionHandler;
     this.receivedLegalFactCreationRequest = receivedLegalFactCreationRequest;
-    this.pnDeliveryClientMock = pnDeliveryClientMock;
+    this.notificationRefusedActionHandler = notificationRefusedActionHandler;
   }
 
   @Override
@@ -82,6 +84,10 @@ public class SchedulerServiceMock implements SchedulerService {
           case START_RECIPIENT_WORKFLOW -> 
                   startWorkflowForRecipientHandler.startNotificationWorkflowForRecipient(iun, recIndex,
                   (RecipientsWorkflowDetails) actionDetails);
+          case NOTIFICATION_REFUSED ->{
+            NotificationRefusedActionDetails notificationRefusedActionDetails = (NotificationRefusedActionDetails) actionDetails;
+            notificationRefusedActionHandler.notificationRefusedHandler(iun, notificationRefusedActionDetails.getErrors(),dateToSchedule);
+          }
           case CHOOSE_DELIVERY_MODE ->
                   chooseDeliveryModeHandler.chooseDeliveryTypeAndStartWorkflow(iun, recIndex);
           case ANALOG_WORKFLOW ->

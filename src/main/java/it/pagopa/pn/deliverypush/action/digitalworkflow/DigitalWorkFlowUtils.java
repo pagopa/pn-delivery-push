@@ -324,7 +324,6 @@ public class DigitalWorkFlowUtils {
         );
         return this.timelineService.getTimelineByIunTimelineId(notification.getIun(), elementIdForSearch, false);
     }
-    
 
     private String addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         String timelineId = element.getElementId();

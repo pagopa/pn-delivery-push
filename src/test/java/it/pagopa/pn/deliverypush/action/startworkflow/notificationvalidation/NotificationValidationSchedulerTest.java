@@ -1,15 +1,13 @@
 package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
-import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,16 +27,12 @@ class NotificationValidationSchedulerTest {
     private PnDeliveryPushConfigs configs;
     @Mock
     private InstantNowSupplier instantNowSupplier;
-    @Mock
-    private TimelineService timelineService;
-    @Mock
-    private TimelineUtils timelineUtils;
 
     private NotificationValidationScheduler notificationValidationScheduler;
 
     @BeforeEach
     public void setup() {
-        notificationValidationScheduler = new NotificationValidationScheduler(schedulerService, configs, instantNowSupplier, timelineService, timelineUtils);
+        notificationValidationScheduler = new NotificationValidationScheduler(schedulerService, configs, instantNowSupplier);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -66,7 +60,7 @@ class NotificationValidationSchedulerTest {
         
         //WHEN
         int retryAttempt = 0;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, null, Instant.now());
         
         //THEN
         Instant schedulingDate = now.plus(intervalsDuration[retryAttempt]);
@@ -87,7 +81,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, null);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, null, Instant.now());
 
         //THEN
         Instant schedulingDate = now.plus(intervalsDuration[retryAttempt - 1]);
@@ -107,7 +101,7 @@ class NotificationValidationSchedulerTest {
 
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null, Instant.now());
 
         //THEN
         Instant schedulingDate = now.plus(DEFAULT_INTERVAL);
@@ -125,17 +119,14 @@ class NotificationValidationSchedulerTest {
 
         Instant now = Instant.now();
         Mockito.when(instantNowSupplier.get()).thenReturn(now);
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
-                .thenReturn(timelineElementInternal);
-
+        
         //WHEN
         int retryAttempt = 2;
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt,null, Instant.now());
 
         //THEN
-        Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.eq(notification.getIun()), Mockito.any(Instant.class),
+                Mockito.eq(ActionType.NOTIFICATION_REFUSED), Mockito.any(NotificationRefusedActionDetails.class));
     }
 
     @ExtendWith(SpringExtension.class)
@@ -150,16 +141,13 @@ class NotificationValidationSchedulerTest {
         Instant now = Instant.now();
         Mockito.when(instantNowSupplier.get()).thenReturn(now);
 
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(Mockito.any(NotificationInt.class), Mockito.any()))
-                .thenReturn(timelineElementInternal);
-
         //WHEN
         int retryAttempt = 2;
         PnValidationFileNotFoundException ex = new PnValidationFileNotFoundException( "file non trovato", new Throwable() );
-        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, ex);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, retryAttempt, ex, Instant.now());
 
         //THEN
-        Mockito.verify(timelineService).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.eq(notification.getIun()), Mockito.any(Instant.class),
+                Mockito.eq(ActionType.NOTIFICATION_REFUSED), Mockito.any(NotificationRefusedActionDetails.class));
     }
 }

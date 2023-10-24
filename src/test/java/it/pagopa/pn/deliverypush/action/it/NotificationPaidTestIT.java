@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
@@ -151,7 +152,10 @@ import static org.awaitility.Awaitility.with;
         AddressManagerResponseHandler.class,
         NotificationPaidTestIT.SpringTestConfiguration.class,
         F24Validator.class,
-        F24ClientMock.class
+        F24ClientMock.class,
+        PnExternalRegistriesClientReactiveMock.class,
+        PaymentValidator.class,
+        NotificationRefusedActionHandler.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)

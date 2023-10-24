@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
@@ -828,6 +829,23 @@ public class TestUtils {
 
         ConsoleAppenderCustom.initializeLog();
     }
+
+    public static void verifyPaymentInfo(NotificationInt notification, int recIndex, List<PaymentsInfoForRecipientInt> paymentsInfoForRecipientsCaptured) {
+        notification.getRecipients().forEach(rec ->
+                rec.getPayments().forEach(payment -> {
+                    final PagoPaInt paymentPagoPA = payment.getPagoPA();
+                    if(paymentPagoPA != null && paymentPagoPA.getApplyCost()){
+                        Optional<PaymentsInfoForRecipientInt> paymentsInfoForRecipient = paymentsInfoForRecipientsCaptured.stream()
+                                .filter(x -> x.getCreditorTaxId().equals(paymentPagoPA.getCreditorTaxId()) &&
+                                        x.getNoticeCode().equals(paymentPagoPA.getNoticeCode()) &&
+                                        x.getRecIndex().equals(recIndex)).findFirst();
+
+                        Assertions.assertTrue(paymentsInfoForRecipient.isPresent());
+                    }
+                })
+        );
+    }
+
 
     public static NotificationRecipientInt getNotificationRecipientInt() {
         return NotificationRecipientInt.builder()
