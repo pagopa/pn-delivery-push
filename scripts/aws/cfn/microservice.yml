@@ -637,6 +637,16 @@ Parameters:
     Type: String
     Description: 'pn-delivery-push clientId for communication with pn-f24'
 
+  B2bWafLimit:
+    Default: 600000
+    Type: Number
+    Description: b2b waf limit
+
+  WebWafLimit:
+    Default: 600000
+    Type: Number
+    Description: web waf limit
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -844,7 +854,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-push-b2b'
         IntendedUsage: B2B 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
-        Limit: 600000
+        Limit: !Ref B2bWafLimit
 
   # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
   DeliveryProgressMicroservicePublicAPI:
@@ -900,7 +910,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery--push-web'
         IntendedUsage: WEB 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: 600000
+        Limit: !Ref WebWafLimit
         EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   #########################################################
