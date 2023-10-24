@@ -11,7 +11,6 @@ import java.util.function.BiFunction;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.modelmapper.convention.MatchingStrategies;
 
 public class SmartMapper {
@@ -39,12 +38,20 @@ public class SmartMapper {
         }
     };
 
-    static PropertyMap<SendDigitalProgressDetailsInt, TimelineElementDetailsV20> sendDigitalProgrressDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<SendDigitalProgressDetailsInt, TimelineElementDetailsV20> sendDigitalProgressDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getEventTimestamp());
         }
     };
+
+    static PropertyMap<NotificationPaidDetailsInt, TimelineElementDetailsV20> notificationPaidDetailPropertyMap = new PropertyMap<>() {
+        @Override
+        protected void configure() {
+            skip(destination.getEventTimestamp());
+        }
+    };
+
     static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV20> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
         @Override
         protected void configure() {
@@ -52,7 +59,7 @@ public class SmartMapper {
         }
     };
     static Converter<TimelineElementInternal, TimelineElementInternal>
-            timestampReplacer =
+            timelineElementInternalTimestampConverter =
             ctx -> {
                 // se il detail estende l'interfaccia e l'elementTimestamp non è nullo, lo sovrascrivo nel source originale
                 if (ctx.getSource().getDetails() instanceof ElementTimestampTimelineElementDetails elementTimestampTimelineElementDetails
@@ -72,9 +79,10 @@ public class SmartMapper {
         modelMapper.addMappings(addressDetailPropertyMap);
         modelMapper.addMappings(prepareAnalogDomicileFailureDetailsInt);
         modelMapper.addMappings(notificationViewedDetailPropertyMap);
-        modelMapper.addMappings(sendDigitalProgrressDetailPropertyMap);
+        modelMapper.addMappings(sendDigitalProgressDetailPropertyMap);
+        modelMapper.addMappings(notificationPaidDetailPropertyMap);
 
-        modelMapper.createTypeMap(TimelineElementInternal.class, TimelineElementInternal.class).setPostConverter(timestampReplacer);
+        modelMapper.createTypeMap(TimelineElementInternal.class, TimelineElementInternal.class).setPostConverter(timelineElementInternalTimestampConverter);
 
         List<BiFunction> postMappingTransformers = new ArrayList<>();
         postMappingTransformers.add( (source, result)-> {
