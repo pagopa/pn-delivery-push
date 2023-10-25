@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.startworkflow;
 
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -9,9 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -20,13 +17,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
 
-import static org.mockito.Mockito.doThrow;
-
 class ReceivedLegalFactCreationResponseHandlerTest {
     @Mock
     private NotificationService notificationService;
-    @Mock
-    private AttachmentUtils attachmentUtils;
     @Mock
     private TimelineService timelineService;
     @Mock
@@ -38,8 +31,7 @@ class ReceivedLegalFactCreationResponseHandlerTest {
 
     @BeforeEach
     public void setup() {
-        handler = new ReceivedLegalFactCreationResponseHandler(notificationService, attachmentUtils,
-                timelineService, timelineUtils, scheduleRecipientWorkflow);
+        handler = new ReceivedLegalFactCreationResponseHandler(notificationService, timelineService, timelineUtils, scheduleRecipientWorkflow);
     }
     
     @ExtendWith(SpringExtension.class)
@@ -64,29 +56,6 @@ class ReceivedLegalFactCreationResponseHandlerTest {
         Mockito.verify(scheduleRecipientWorkflow).startScheduleRecipientWorkflow(notification);
     }
 
-    @ExtendWith(SpringExtension.class)
-    @Test
-    void handleReceivedLegalFactCreationResponseKO() {
-        //GIVEN
-        String legalFactId = "legalFactId";
-        NotificationInt notification = getNotification();
-        String iun = notification.getIun();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
-        
-        attachmentUtils.changeAttachmentsStatusToAttached(notification);
-        doThrow(new RuntimeException("ex")).when(attachmentUtils).changeAttachmentsStatusToAttached(Mockito.any(NotificationInt.class));
-
-        //WHEN
-        Assertions.assertThrows(RuntimeException.class, () -> {
-            handler.handleReceivedLegalFactCreationResponse(iun, legalFactId);
-        });
-        
-        //THEN
-        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(TimelineElementInternal.class), Mockito.any(NotificationInt.class));
-        Mockito.verify(timelineUtils, Mockito.never()).buildAcceptedRequestTimelineElement(notification, legalFactId);
-        Mockito.verify(scheduleRecipientWorkflow, Mockito.never()).startScheduleRecipientWorkflow(notification);
-    }
 
     private NotificationInt getNotification() {
         return NotificationInt.builder()
