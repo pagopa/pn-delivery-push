@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.startworkflow;
 
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -20,11 +21,15 @@ public class ReceivedLegalFactCreationRequest {
     private final DocumentCreationRequestService documentCreationRequestService;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
+    private final AttachmentUtils attachmentUtils;
     private final NotificationService notificationService;
     
     public void saveNotificationReceivedLegalFacts(String iun) {
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-                
+
+        // cambio lo stato degli attachment in ATTACHED
+        attachmentUtils.changeAttachmentsStatusToAttached(notification);
+
         // Invio richiesta di creazione di atto opponibile a terzi di avvenuta ricezione da parte di PN a SafeStorage
         String legalFactId = saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(notification);
 
