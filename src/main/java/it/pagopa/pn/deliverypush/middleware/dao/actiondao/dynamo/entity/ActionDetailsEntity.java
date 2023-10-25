@@ -5,6 +5,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttri
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 import java.time.Instant;
+import java.util.List;
 
 @Builder( toBuilder = true )
 @NoArgsConstructor
@@ -21,6 +22,6 @@ public class ActionDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("timelineId")}))  private String timelineId;
     @Getter(onMethod=@__({@DynamoDbAttribute("retryAttempt")}))  private int retryAttempt;
     @Getter(onMethod=@__({@DynamoDbAttribute("startWorkflowTime")}))  private Instant startWorkflowTime;
-    @Getter(onMethod=@__({@DynamoDbAttribute("errors")}))  private NotificationRefusedActionErrorEntity errors;
+    @Getter(onMethod=@__({@DynamoDbAttribute("errors")}))  private List<NotificationRefusedActionErrorEntity> errors;
     
 }
