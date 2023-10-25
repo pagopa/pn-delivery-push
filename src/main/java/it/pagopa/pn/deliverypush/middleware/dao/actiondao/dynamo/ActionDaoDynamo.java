@@ -33,7 +33,7 @@ import java.util.Set;
 @Component
 @Slf4j
 @ConditionalOnProperty(name = ActionDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
-public class ActionDaoDynamo implements ActionDao {
+public class ActionDaoDynamo implements ActionDao { 
     private final ActionEntityDao actionEntityDao;
     private final FutureActionEntityDao futureActionEntityDao;
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
