@@ -95,12 +95,12 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         TimelineElementCategoryInt category = TimelineElementCategoryInt.NOTIFICATION_VIEWED;
         String elementId = "001";
-        Instant eventTimestamp = Instant.parse("2021-09-16T15:24:00.00Z");
         TimelineElementDetailsInt details = buildTimelineElementDetailsInt();
 
         TimelineElementInternal expected = buildTimelineElementInternal(notification);
-        TimelineElementInternal actual = timelineUtils.buildTimeline(notification, category, elementId, eventTimestamp, details);
+        TimelineElementInternal actual = timelineUtils.buildTimeline(notification, category, elementId, details);
 
+        actual.setTimestamp(expected.getTimestamp());// unico campo che sarà diverso, essendo istant.now
         Assertions.assertEquals(expected, actual);
     }
 
