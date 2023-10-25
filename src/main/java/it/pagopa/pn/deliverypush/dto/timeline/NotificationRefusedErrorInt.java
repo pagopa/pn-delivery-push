@@ -2,12 +2,12 @@ package it.pagopa.pn.deliverypush.dto.timeline;
 
 import lombok.*;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 @EqualsAndHashCode
-@AllArgsConstructor
-@NoArgsConstructor
 @ToString
 public class NotificationRefusedErrorInt {
     private String errorCode;
