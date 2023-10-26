@@ -164,7 +164,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         }
     }
 
-    private static boolean checkIfLegalFactCanBeViewed(NotificationInt notification, String senderReceiverId, CxTypeAuthFleet cxType, TimelineElementInternal timeEl) {
+    private boolean checkIfLegalFactCanBeViewed(NotificationInt notification, String senderReceiverId, CxTypeAuthFleet cxType, TimelineElementInternal timeEl) {
         if (cxType == CxTypeAuthFleet.PA)
             return true;
         else if (timeEl.getDetails() instanceof RecipientRelatedTimelineElementDetails recipientRelatedTimelineElementDetails) {
