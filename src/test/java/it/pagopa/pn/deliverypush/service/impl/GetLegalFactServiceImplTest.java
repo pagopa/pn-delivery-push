@@ -12,6 +12,8 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
@@ -30,6 +32,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -118,8 +121,201 @@ class GetLegalFactServiceImplTest {
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(recipientInt);
 
+        Mockito.when(authUtils.checkUserPaAndMandateAuthorizationAndRetrieveRealRecipientId(Mockito.any(NotificationInt.class), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(TAX_ID + "ANON");
 
         List<LegalFactListElement> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+
+        assertEquals(legalFactsExpectedResult, result);
+    }
+
+    @Test
+    void getLegalFactsSuccessFilteredPF() {
+        List<LegalFactListElement> legalFactsExpectedResult = List.of(
+                LegalFactListElement.builder()
+                        .iun(IUN)
+                        .legalFactsId(LegalFactsId.builder()
+                                .key(KEY+"all")
+                                .category(LegalFactCategory.SENDER_ACK)
+                                .build()
+                        ).build(),
+                LegalFactListElement.builder()
+                        .iun(IUN)
+                        .taxId(TAX_ID)
+                        .legalFactsId(LegalFactsId.builder()
+                                .key(KEY)
+                                .category(LegalFactCategory.RECIPIENT_ACCESS)
+                                .build()
+                        ).build()
+        );
+
+        Set<TimelineElementInternal> timelineElementsResult = Set.of(TimelineElementInternal.builder()
+                .iun(IUN)
+                .details(NotificationViewedDetailsInt.builder()
+                        .recIndex(0)
+                        .build())
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .elementId("element_id")
+                .timestamp(Instant.EPOCH.plusMillis(100))
+                .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder()
+                        .key(KEY)
+                        .category(LegalFactCategoryInt.RECIPIENT_ACCESS)
+                        .build())
+                ).build(),
+                TimelineElementInternal.builder()
+                        .iun(IUN)
+                        .details(GetAddressInfoDetailsInt.builder()
+                                .recIndex(1)
+                                .build())
+                        .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                        .elementId("element_id")
+                        .timestamp(Instant.EPOCH.plusMillis(10))
+                        .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder()
+                                .key(KEY+"1")
+                                .category(LegalFactCategoryInt.RECIPIENT_ACCESS)
+                                .build())
+                        ).build(),
+                TimelineElementInternal.builder()
+                        .iun(IUN)
+                        .details(NotificationRequestAcceptedDetailsInt.builder()
+                                .build())
+                        .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                        .elementId("element_id")
+                        .timestamp(Instant.EPOCH.plusMillis(1))
+                        .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder()
+                                .key(KEY+"all")
+                                .category(LegalFactCategoryInt.SENDER_ACK)
+                                .build())
+                        ).build()
+        );
+
+        Mockito.when(timelineService.getTimeline(anyString(), anyBoolean()))
+                .thenReturn(timelineElementsResult);
+
+        NotificationRecipientInt recipientInt = NotificationRecipientInt.builder()
+                .taxId(TAX_ID)
+                .internalId(TAX_ID + "ANON")
+                .build();
+        NotificationRecipientInt recipientInt1 = NotificationRecipientInt.builder()
+                .taxId(TAX_ID+"1")
+                .internalId(TAX_ID + "ANON1")
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(IUN)
+                .withNotificationRecipients(List.of(recipientInt, recipientInt1))
+                .build();
+
+        Mockito.when(notificationService.getNotificationByIun(anyString()))
+                .thenReturn(notification);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt()))
+                .thenReturn(recipientInt);
+
+        Mockito.when(authUtils.checkUserPaAndMandateAuthorizationAndRetrieveRealRecipientId(Mockito.any(NotificationInt.class), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(TAX_ID + "ANON");
+
+
+        List<LegalFactListElement> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+
+        assertEquals(legalFactsExpectedResult, result);
+    }
+
+    @Test
+    void getLegalFactsSuccessFilteredPA() {
+        List<LegalFactListElement> legalFactsExpectedResult = List.of(
+                LegalFactListElement.builder()
+                        .iun(IUN)
+                        .legalFactsId(LegalFactsId.builder()
+                                .key(KEY+"all")
+                                .category(LegalFactCategory.SENDER_ACK)
+                                .build()
+                        ).build(),
+                LegalFactListElement.builder()
+                        .iun(IUN)
+                        .taxId(TAX_ID)
+                        .legalFactsId(LegalFactsId.builder()
+                                .key(KEY+"1")
+                                .category(LegalFactCategory.RECIPIENT_ACCESS)
+                                .build()
+                        ).build(),
+                LegalFactListElement.builder()
+                        .iun(IUN)
+                        .taxId(TAX_ID)
+                        .legalFactsId(LegalFactsId.builder()
+                                .key(KEY)
+                                .category(LegalFactCategory.RECIPIENT_ACCESS)
+                                .build()
+                        ).build()
+        );
+
+        Set<TimelineElementInternal> timelineElementsResult = Set.of(TimelineElementInternal.builder()
+                        .iun(IUN)
+                        .details(NotificationViewedDetailsInt.builder()
+                                .recIndex(0)
+                                .build())
+                        .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                        .elementId("element_id")
+                        .timestamp(Instant.EPOCH.plusMillis(100))
+                        .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder()
+                                .key(KEY)
+                                .category(LegalFactCategoryInt.RECIPIENT_ACCESS)
+                                .build())
+                        ).build(),
+                TimelineElementInternal.builder()
+                        .iun(IUN)
+                        .details(GetAddressInfoDetailsInt.builder()
+                                .recIndex(1)
+                                .build())
+                        .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                        .elementId("element_id")
+                        .timestamp(Instant.EPOCH.plusMillis(10))
+                        .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder()
+                                .key(KEY+"1")
+                                .category(LegalFactCategoryInt.RECIPIENT_ACCESS)
+                                .build())
+                        ).build(),
+                TimelineElementInternal.builder()
+                        .iun(IUN)
+                        .details(NotificationRequestAcceptedDetailsInt.builder()
+                                .build())
+                        .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                        .elementId("element_id")
+                        .timestamp(Instant.EPOCH.plusMillis(1))
+                        .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder()
+                                .key(KEY+"all")
+                                .category(LegalFactCategoryInt.SENDER_ACK)
+                                .build())
+                        ).build()
+        );
+
+        Mockito.when(timelineService.getTimeline(anyString(), anyBoolean()))
+                .thenReturn(timelineElementsResult);
+
+        NotificationRecipientInt recipientInt = NotificationRecipientInt.builder()
+                .taxId(TAX_ID)
+                .internalId(TAX_ID + "ANON")
+                .build();
+        NotificationRecipientInt recipientInt1 = NotificationRecipientInt.builder()
+                .taxId(TAX_ID+"1")
+                .internalId(TAX_ID + "ANON1")
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(IUN)
+                .withNotificationRecipients(List.of(recipientInt, recipientInt1))
+                .build();
+
+        Mockito.when(notificationService.getNotificationByIun(anyString()))
+                .thenReturn(notification);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt()))
+                .thenReturn(recipientInt);
+
+        Mockito.when(authUtils.checkUserPaAndMandateAuthorizationAndRetrieveRealRecipientId(Mockito.any(NotificationInt.class), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn("PARECIPIENTID");
+
+        List<LegalFactListElement> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PA, null);
 
         assertEquals(legalFactsExpectedResult, result);
     }
