@@ -128,12 +128,12 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId, cxType, cxGroups);
+        String recipientId = authUtils.checkUserPaAndMandateAuthorizationAndRetrieveRealRecipientId(notification, senderReceiverId, mandateId, cxType, cxGroups);
         PnAuditLogEventType eventType = AuditLogUtils.getAuditLogEventType(notification, senderReceiverId, mandateId);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(eventType, "GetLegalFacts iun={} senderReceiverId={} mandateId={}", iun, senderReceiverId, mandateId)
+                .before(eventType, "GetLegalFacts iun={} senderReceiverId={} mandateId={} resolvedRecipientId={}", iun, senderReceiverId, mandateId,recipientId)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -142,6 +142,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             List<LegalFactListElement> legalFacts = timelineElements
                     .stream()
                     .filter( timeEl -> timeEl.getLegalFactsIds() != null )
+                    .filter( timeEl -> checkIfLegalFactCanBeViewed(notification, recipientId, cxType, timeEl))
                     .sorted( Comparator.comparing(TimelineElementInternal::getTimestamp))
                     .flatMap( timeEl -> timeEl.getLegalFactsIds().stream().map(
                             lfId -> LegalFactListElement.builder()
@@ -151,16 +152,25 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                                     .build()
                     ))
                     .toList();
-            
+
             log.debug("legalFacts List={}" ,legalFacts );
 
             logEvent.generateSuccess().log();
-            
+
             return legalFacts;
         } catch (Exception exc) {
             logEvent.generateFailure("Exception in getLegalFact", exc).log();
             throw exc;
         }
+    }
+
+    private static boolean checkIfLegalFactCanBeViewed(NotificationInt notification, String senderReceiverId, CxTypeAuthFleet cxType, TimelineElementInternal timeEl) {
+        if (cxType == CxTypeAuthFleet.PA)
+            return true;
+        else if (timeEl.getDetails() instanceof RecipientRelatedTimelineElementDetails recipientRelatedTimelineElementDetails) {
+            return senderReceiverId.equals(notification.getRecipients().get(recipientRelatedTimelineElementDetails.getRecIndex()).getInternalId());
+        } else
+            return true;
     }
 
     private String readRecipientId( TimelineElementInternal timelineElement, NotificationInt notification ) {
