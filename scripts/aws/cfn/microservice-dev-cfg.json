@@ -10,7 +10,7 @@
     "SchedulingDaysSuccessAnalogRefinement": "4m", 
     "SchedulingDaysFailureAnalogRefinement": "4m", 
     "WebhookScanInterval": "60000",
-    "WebhookMaxLength": "10",
+    "WebhookMaxLength": "50",
     "ExternalChannelDigitalRetryCount": "3",
     "ExternalChannelDigitalRetryDelay": "10m",
     "ExternalChannelDigitalSendNoResponseTimeout": "26h",
