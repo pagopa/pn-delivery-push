@@ -42,12 +42,23 @@ public class ViewNotification {
                                             Instant eventTimestamp) {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
         if(delegateInfo != null){
-            return attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList()
+            return changeAttachmentRetentionIfNotRefined(notification, recIndex)
                     .then(getDelegateInfoAndHandleLegalFactCreation(notification, recipient, recIndex, raddInfo, delegateInfo, eventTimestamp));
         } else {
-            return attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList()
+            return changeAttachmentRetentionIfNotRefined(notification, recIndex)
                     .then(handleLegalFactCreation(notification, recipient, recIndex, raddInfo, eventTimestamp, null));
         }
+    }
+
+    private Mono<Void> changeAttachmentRetentionIfNotRefined(NotificationInt notification, Integer recIndex){
+
+        if (timelineUtils.checkIsNotificationRefined(notification.getIun(), recIndex))
+        {
+            log.info("No need to change attachment retention, notification is already REFINED iun={} recIndex={}", notification.getIun(), recIndex);
+            return Mono.empty();
+        }
+
+        return attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).collectList().then();
     }
 
     private Mono<Void> getDelegateInfoAndHandleLegalFactCreation(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
