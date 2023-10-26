@@ -1218,6 +1218,19 @@ public class TimelineUtils {
         return true;
     }
 
+    public boolean checkIsNotificationRefined(String iun, Integer recIndex) {
+        log.debug("checkIsNotificationRefined - iun={} recIndex={}", iun, recIndex);
+        String elementId = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        Optional<TimelineElementInternal> notificationRefinedRequestOpt = timelineService.getTimelineElement(iun, elementId);
+
+        return notificationRefinedRequestOpt.isPresent();
+    }
+
     public boolean checkIsNotificationCancellationRequested(String iun) {
         String elementId = NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
             EventId.builder()
