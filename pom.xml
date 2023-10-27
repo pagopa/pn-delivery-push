@@ -648,11 +648,10 @@
 						</configuration>
 					</execution>
 					
-
-					<!-- OPEN API CLIENT PN-EXTERNAL-REGISTRY -->
+					<!-- OPEN API CLIENT PN-EXTERNAL-REGISTRY IO-->
 					<execution>
 						<phase>generate-resources</phase>
-						<id>generate-client-pn-external-registry</id>
+						<id>generate-client-pn-external-registry-io</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
@@ -677,6 +676,7 @@
 							</configOptions>
 						</configuration>
 					</execution>
+					
 					<execution>
 						<phase>generate-resources</phase>
 						<id>generate-client-pn-external-registry-selfcare-private</id>
@@ -704,7 +704,39 @@
 							</configOptions>
 						</configuration>
 					</execution>
-					
+
+					<!-- OPEN API CLIENT PN-EXTERNAL-REGISTRY PAYMENTS-->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-external-registry-payments</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-external-registries/8e674e57267c0fae36cc6e94ad600d9536cfcdd9/docs/openapi/pn-payment-info-internal-v1.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>webclient</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+							<configOptions>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalregistry-reactive.api</apiPackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.externalregistry-reactive.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
+
 					<!-- OPEN API CLIENT PN-NATIONAL-REGISTRIES REACTIVE-->
 					<execution>
 						<phase>generate-resources</phase>

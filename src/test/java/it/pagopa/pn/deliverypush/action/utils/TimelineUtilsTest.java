@@ -975,6 +975,26 @@ class TimelineUtilsTest {
     }
 
     @Test
+    void checkIsNotificationRefined() {
+        String iun = "IUN-checkIsNotificationRefined";
+
+        Mockito.when(timelineService.getTimelineElement(Mockito.eq(iun), Mockito.anyString())).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
+
+        boolean isNotificationRefined = timelineUtils.checkIsNotificationRefined (iun, 0);
+        Assertions.assertTrue(isNotificationRefined);
+    }
+
+    @Test
+    void checkIsNotificationRefinedFalse() {
+        String iun = "IUN-checkIsNotificationRefinedFalse";
+
+        Mockito.when(timelineService.getTimelineElement(Mockito.eq(iun), Mockito.anyString())).thenReturn(Optional.empty());
+
+        boolean isNotificationRefined = timelineUtils.checkIsNotificationRefined (iun, 0);
+        Assertions.assertFalse(isNotificationRefined);
+    }
+
+    @Test
     void buildCancelRequestTimelineElement() {
         NotificationInt notification = buildNotification();
 

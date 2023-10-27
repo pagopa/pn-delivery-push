@@ -48,6 +48,7 @@ public class NotificationMapper {
                 .notificationFeePolicy(NotificationFeePolicy.fromValue(sentNotification.getNotificationFeePolicy().getValue()))
                 .amount(sentNotification.getAmount())
                 .paymentExpirationDate(paymentExpirationDate)
+                .pagoPaIntMode(sentNotification.getPagoPaIntMode() != null ? PagoPaIntMode.valueOf(sentNotification.getPagoPaIntMode().getValue()) : null)
                 .build();
     }
 
@@ -102,6 +103,9 @@ public class NotificationMapper {
         String formattedString = time.format(formatter);
         sentNotification.setPaymentExpirationDate(formattedString);
         
+        if(notification.getPagoPaIntMode() != null){
+            sentNotification.setPagoPaIntMode(SentNotificationV21.PagoPaIntModeEnum.valueOf(notification.getPagoPaIntMode().getValue()));
+        }
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(
                     SentNotificationV21.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )

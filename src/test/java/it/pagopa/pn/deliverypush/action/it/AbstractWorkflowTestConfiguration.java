@@ -10,6 +10,7 @@ import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
@@ -123,7 +124,7 @@ public class AbstractWorkflowTestConfiguration {
                                                          @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
                                                          @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
                                                          @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
-                                                         @Lazy PnDeliveryClientMock pnDeliveryClientMock
+                                                         @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler
     ) {
         return new SchedulerServiceMock(
                 digitalWorkFlowHandler,
@@ -136,7 +137,7 @@ public class AbstractWorkflowTestConfiguration {
                 documentCreationResponseHandler,
                 notificationValidationActionHandler,
                 receivedLegalFactCreationRequest,
-                pnDeliveryClientMock);
+                notificationRefusedActionHandler);
     }
 
     

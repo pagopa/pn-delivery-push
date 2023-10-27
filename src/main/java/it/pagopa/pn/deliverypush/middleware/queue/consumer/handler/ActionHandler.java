@@ -5,11 +5,13 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
+import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
@@ -44,6 +46,7 @@ public class ActionHandler {
     private final NotificationValidationActionHandler notificationValidationActionHandler;
     private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
     private final NotificationCancellationActionHandler notificationCancellationActionHandler;
+    private final NotificationRefusedActionHandler notificationRefusedActionHandler;
     private final TimelineUtils timelineUtils;
 
     @Bean
@@ -305,8 +308,8 @@ public class ActionHandler {
                 log.debug("Handle action pnDeliveryPushNotificationValidation, with content {}", message);
                 Action action = message.getPayload();
                 HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
-
                 log.logStartingProcess(processName);
+                
                 checkNotificationCancelledAndExecute(
                         action,
                         a -> notificationValidationActionHandler.validateNotification(a.getIun(), (NotificationValidationActionDetails) a.getDetails() )
@@ -364,6 +367,29 @@ public class ActionHandler {
         };
     }
 
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushNotificationRefused(){
+        final String processName = "NOTIFICATION REFUSED";
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushNotificationRefused, with content {}", message);
+                Action action = message.getPayload();
+                HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
+
+                log.logStartingProcess(processName);
+                NotificationRefusedActionDetails details = (NotificationRefusedActionDetails) action.getDetails();
+
+                notificationRefusedActionHandler.notificationRefusedHandler(action.getIun(), details.getErrors(), action.getNotBefore());
+                log.logEndingProcess(processName);
+            } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+    
     private void checkNotificationCancelledAndExecute(Action action, Consumer<Action> functionToCall) {
         if (! timelineUtils.checkIsNotificationCancellationRequested(action.getIun())) {
             functionToCall.accept(action);

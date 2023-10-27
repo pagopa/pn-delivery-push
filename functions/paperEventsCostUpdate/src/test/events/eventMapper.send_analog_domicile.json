@@ -1,0 +1,36 @@
+{
+    "tableName": "pn-Timelines",
+    "eventName": "INSERT",
+    "dynamodb": {
+        "NewImage": {
+            "iun": {
+                "S": "VWKQ-WQNT-VJZG-202308-K-1"
+            },
+            "category": {
+                "S": "SEND_ANALOG_DOMICILE"
+            },
+            "timelineElementId": {
+                "S": "SEND_ANALOG_DOMICILE.IUN_VWKQ-WQNT-VJZG-202308-K-1.RECINDEX_0.ATTEMPT_0"
+            },
+            "notificationSentAt": {
+                "S": "2023-08-08T17:23:32.640258864Z"
+            },
+            "timestamp": {
+                "S": "2023-08-09T01:23:56.803455499Z"
+            },
+            "paId": {
+                "S": "5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce"
+            },
+            "details": {
+                "M": {
+                    "recIndex": {
+                        "N": "0"
+                    },
+                    "analogCost": {
+                        "N": "926"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPayme
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 
 import java.util.List;
+import java.util.UUID;
 
 
 public class NotificationRecipientTestBuilder {
@@ -61,7 +62,7 @@ public class NotificationRecipientTestBuilder {
     
     public NotificationRecipientInt build() {
         if(taxId == null){
-            taxId = "generatedTestTaxId";
+            taxId = "GeneratedTaxId_" +UUID.randomUUID();
         }
         
         if(internalId == null){

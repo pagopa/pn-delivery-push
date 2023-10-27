@@ -16,6 +16,16 @@ public enum ActionType {
               details.getRetryAttempt());
     }
   },
+
+  NOTIFICATION_REFUSED(NotificationRefusedActionDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("notification_refused_iun_%s",
+              action.getIun()
+      );
+    }
+  },
+  
   NOTIFICATION_CANCELLATION(NotHandledDetails.class) {
     @Override
     public String buildActionId(Action action) {
@@ -116,7 +126,7 @@ public enum ActionType {
 
   private final Class<? extends ActionDetails> detailsJavaClass;
 
-  private ActionType(Class<? extends ActionDetails> detailsJavaClass) {
+  ActionType(Class<? extends ActionDetails> detailsJavaClass) {
     this.detailsJavaClass = detailsJavaClass;
   }
 

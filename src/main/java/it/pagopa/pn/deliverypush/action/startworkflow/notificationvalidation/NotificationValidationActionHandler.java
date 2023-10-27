@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -13,7 +14,6 @@ import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
@@ -52,7 +52,8 @@ public class NotificationValidationActionHandler {
     private final SchedulerService schedulerService;
     private final PnDeliveryPushConfigs cfg;
     private final F24Validator f24Validator;
-
+    private final PaymentValidator paymentValidator;
+    
     public void validateNotification(String iun, NotificationValidationActionDetails details){
         log.debug("Start validateNotification - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
@@ -60,6 +61,8 @@ public class NotificationValidationActionHandler {
         PnAuditLogEvent logEvent = generateAuditLog(notification, FIRST_VALIDATION_STEP);
         
         try {
+            paymentValidator.validatePayments(notification, details.getStartWorkflowTime());
+            
             attachmentUtils.validateAttachment(notification);
             
             if(cfg.isCheckCfEnabled()){
@@ -85,13 +88,13 @@ public class NotificationValidationActionHandler {
         } catch (PnValidationFileNotFoundException ex){
             if(cfg.isSafeStorageFileNotFoundRetry())
                 logEvent.generateWarning("Validation need to be rescheduled - iun={} ex=", notification.getIun(), ex).log();
-            handlePnValidationFileNotFoundException(iun, details, notification, ex);
+            handlePnValidationFileNotFoundException(iun, details, notification, ex, details.getStartWorkflowTime());
         } catch (PnValidationException ex){
             logEvent.generateWarning("Notification is not valid - iun={} ex=", notification.getIun(), ex).log();
             handleValidationError(notification, ex);
         } catch (RuntimeException ex){
             logEvent.generateWarning("Validation need to be rescheduled - iun={} ex=", notification.getIun(), ex).log();
-            handleRuntimeException(iun, details, notification, ex);
+            handleRuntimeException(iun, details, notification, ex, details.getStartWorkflowTime());
         }
     }
 
@@ -105,13 +108,13 @@ public class NotificationValidationActionHandler {
                         .anyMatch(paymentInfoIntV2 -> paymentInfoIntV2.getF24() != null));
     }
 
-    private void handleRuntimeException(String iun, NotificationValidationActionDetails details, NotificationInt notification, RuntimeException ex) {
+    private void handleRuntimeException(String iun, NotificationValidationActionDetails details, NotificationInt notification, RuntimeException ex, Instant startWorkflowTime) {
         log.warn(String.format("RuntimeException in validateNotification - iun=%s", iun), ex);
         log.info("Notification validation need to be rescheduled for ex={} - iun={}", ex, iun);
-        notificationValidationScheduler.scheduleNotificationValidation(notification, details.getRetryAttempt(), ex);
+        notificationValidationScheduler.scheduleNotificationValidation(notification, details.getRetryAttempt(), ex, startWorkflowTime);
     }
 
-    private void handlePnValidationFileNotFoundException(String iun, NotificationValidationActionDetails details, NotificationInt notification, PnValidationFileNotFoundException ex) {
+    private void handlePnValidationFileNotFoundException(String iun, NotificationValidationActionDetails details, NotificationInt notification, PnValidationFileNotFoundException ex, Instant startWorkflowTime) {
     /* Per la PnValidationFileNotFoundException la notifica non viene portata in rifiutata MA è prevista una gestione ad hoc. Questo avviene 
        perchè al momento non c'è possibilità di distinguere un 404 dovuto ad un mancato caricamento file da parte della PA (che dovrebbe portare
        regolarmente la notifica in rifiutata) e un 404 dovuto ad un ritardo nel caricamento del file nel bucket corretto da parte di
@@ -120,7 +123,7 @@ public class NotificationValidationActionHandler {
         log.warn(String.format("File not found exception in validateNotification - iun=%s", iun), ex);
         if(cfg.isSafeStorageFileNotFoundRetry()) {
             log.info("Notification validation need to be rescheduled  - iun={}", iun);
-            notificationValidationScheduler.scheduleNotificationValidation(notification, details.getRetryAttempt(), ex);
+            notificationValidationScheduler.scheduleNotificationValidation(notification, details.getRetryAttempt(), ex, startWorkflowTime);
         } else {
             handleValidationError(notification, ex);
         }
@@ -158,7 +161,6 @@ public class NotificationValidationActionHandler {
         List<NotificationRefusedErrorInt> errors = new ArrayList<>();
         if (Objects.nonNull( ex.getProblem() )) {
             ex.getProblem().getErrors().forEach( elem -> {
-                //Per sviluppi futuri si può pensare d'inserire questo intero oggetto in timeline
                 NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
                         .errorCode(elem.getCode())
                         .detail(elem.getDetail())
@@ -167,12 +169,20 @@ public class NotificationValidationActionHandler {
                 errors.add(notificationRefusedError);
             });
         }
+
         log.info("Notification refused, errors {} - iun {}", errors, notification.getIun());
-        addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
+        scheduleNotificationRefused(notification.getIun(), errors);
     }
-    
-    private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
-        timelineService.addTimelineElement(element, notification);
+
+    public void scheduleNotificationRefused(String iun, List<NotificationRefusedErrorInt> errors) {
+        Instant schedulingDate = Instant.now();
+
+        NotificationRefusedActionDetails details = NotificationRefusedActionDetails.builder()
+                .errors(errors)
+                .build();
+
+        log.debug("Scheduling Notification refused schedulingDate={} - iun={}", schedulingDate, iun);
+        schedulerService.scheduleEvent(iun, schedulingDate, ActionType.NOTIFICATION_REFUSED, details);
     }
 
     public void handleValidateF24Response(PnF24MetadataValidationEndEventPayload metadataValidationEndEvent) {

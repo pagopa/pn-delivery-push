@@ -103,6 +103,7 @@ public class PnDeliveryPushConfigs {
 
     private String sendAnalogNotificationAttachments;
     private String sendSimpleRegisteredLetterAttachments;
+    private int pagoPaNotificationBaseCost;
 
     @Data
     public static class Topics {

@@ -45,22 +45,44 @@ public class AuthUtils {
                                                    String mandateId,
                                                    CxTypeAuthFleet cxType,
                                                    List<String> cxGroups) {
+       checkUserPaAndMandateAuthorizationAndRetrieveRealRecipientId(notification, senderRecipientId, mandateId, cxType, cxGroups);
+    }
+
+    //
+
+    /**
+     * Viene verificata l'autorizzazione di accesso a una determinata risorsa da parte del sender/recipient o se presente del delegato
+     * @param notification notifica
+     * @param senderRecipientId id recipient
+     * @param mandateId id delega
+     * @param cxType tipo recipient
+     * @param cxGroups gruppi
+     * @return li recipientId passato nel caso di PA o PF/PG senza delega. Il recipientID del delegante nel caso in cui sia passato il mandateId
+     */
+    public String checkUserPaAndMandateAuthorizationAndRetrieveRealRecipientId(NotificationInt notification,
+                                                   String senderRecipientId,
+                                                   String mandateId,
+                                                   CxTypeAuthFleet cxType,
+                                                   List<String> cxGroups) {
         String paId = notification.getSender().getPaId();
         String iun = notification.getIun();
 
+        String realRecipientId = null;
         log.info("Start CheckUserPaAndMandateAuthorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
 
         if (StringUtils.hasText(mandateId)) {
             String rootPaId = externalRegistryClient.getRootSenderId(paId);
-            checkAuthForMandate(notification, senderRecipientId, mandateId, rootPaId, iun, cxType, cxGroups);
+            realRecipientId = checkAuthForMandate(notification, senderRecipientId, mandateId, rootPaId, iun, cxType, cxGroups);
         } else {
             checkAuthForSenderAndRecipients(notification, senderRecipientId, paId, iun, cxType, cxGroups);
+            realRecipientId = senderRecipientId;
         }
 
-        log.info("End Check authorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
+        log.info("End Check authorization - iun={} senderRecipientId={} paId={} mandateId={} realRecipientId={}", iun, senderRecipientId, paId, mandateId, realRecipientId);
+        return realRecipientId;
     }
 
-    private void checkAuthForMandate(NotificationInt notification,
+    private String checkAuthForMandate(NotificationInt notification,
                                      String senderRecipientId,
                                      String mandateId,
                                      String paId,
@@ -77,9 +99,12 @@ public class AuthUtils {
             log.debug("Mandate is present - iun={} senderRecipientId={} paId={} mandateId={} cxType={} cxGroups={}",
                     iun, senderRecipientId, paId, mandateId, cxType, cxGroups);
             verifyMandateAuth(notification, senderRecipientId, mandateId, paId, iun, listMandateIdDto.get(0));
-        } else {
+            return listMandateIdDto.get(0).getDelegator();
+        }
+        else {
             String message = String.format("Unable to find valid mandate - iun=%s delegate=%s cxType=%s cxGroups=%s with mandateId=%s", iun, senderRecipientId, cxType, cxGroups, mandateId);
             handleError(message);
+            return null; // tanto non ci arriva qui
         }
     }
 
