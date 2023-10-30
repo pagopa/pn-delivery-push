@@ -16,6 +16,6 @@ class NotificationViewedDetailsIntTest {
 
     @Test
     void toLog() {
-        Assertions.assertEquals("recIndex=1", detailsInt.toLog());
+        Assertions.assertEquals("recIndex=1 eventTimestamp=null", detailsInt.toLog());
     }
 }
