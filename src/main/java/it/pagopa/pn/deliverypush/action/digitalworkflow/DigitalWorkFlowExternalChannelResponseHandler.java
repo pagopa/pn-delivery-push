@@ -390,7 +390,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
         PnDeliveryPushConfigs.ExternalChannel externalChannelConfig = this.pnDeliveryPushConfigs.getExternalChannel();
         if (externalChannelConfig.getDigitalCodesFatallog().contains(eventCodeValue)){
-            log.error("FATAL!!!!: received eventcode {} from external-channel, should check why!!", eventCodeValue);
+            log.warn("FATAL!!!!: received eventcode {} from external-channel, should check why!!", eventCodeValue);
         }
 
         if (externalChannelConfig.getDigitalCodesProgress().contains(eventCodeValue)){
