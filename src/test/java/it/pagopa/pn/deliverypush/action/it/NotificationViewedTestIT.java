@@ -526,7 +526,7 @@ class NotificationViewedTestIT {
 
         Assertions.assertTrue(notificationViewTimelineElementOpt.isPresent());
         TimelineElementInternal notificationViewTimelineElement = notificationViewTimelineElementOpt.get();
-        Assertions.assertEquals(notificationViewDate, notificationViewTimelineElement.getTimestamp());
+        Assertions.assertEquals(notificationViewDate, ((NotificationViewedDetailsInt)notificationViewTimelineElement.getDetails()).getEventTimestamp());
     }
 
     private void checkNotificationViewTimelineElement(String iun,
@@ -544,7 +544,7 @@ class NotificationViewedTestIT {
         Assertions.assertTrue(timelineElementInternalOpt.isPresent());
         TimelineElementInternal timelineElement = timelineElementInternalOpt.get();
         Assertions.assertEquals(iun, timelineElement.getIun());
-        Assertions.assertEquals(notificationViewDate, timelineElement.getTimestamp());
+        Assertions.assertEquals(notificationViewDate, ((NotificationViewedDetailsInt)timelineElement.getDetails()).getEventTimestamp());
 
         NotificationViewedDetailsInt details = (NotificationViewedDetailsInt) timelineElement.getDetails();
         Assertions.assertEquals(recIndex, details.getRecIndex());

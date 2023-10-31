@@ -16,7 +16,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SendDigitalFeedbackDetailsInt implements DigitalAddressRelatedTimelineElement, DigitalAddressSourceRelatedTimelineElement {
+public class SendDigitalFeedbackDetailsInt implements DigitalAddressRelatedTimelineElement, DigitalAddressSourceRelatedTimelineElement, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private LegalDigitalAddressInt digitalAddress;
     private DigitalAddressSourceInt digitalAddressSource;
@@ -37,5 +37,10 @@ public class SendDigitalFeedbackDetailsInt implements DigitalAddressRelatedTimel
                 requestTimelineId,
                 deliveryDetailCode
         );
+    }
+
+    @Override
+    public Instant getElementTimestamp() {
+        return notificationDate;
     }
 }

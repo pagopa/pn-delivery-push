@@ -3,14 +3,13 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DownstreamIdInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareAnalogDomicileFailureDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV20;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -98,5 +97,69 @@ class SmartMapperTest {
         ret = SmartMapper.mapToClass(altro, TimelineElementDetailsV20.class);
 
         Assertions.assertNull(ret.getNotRefinedRecipientIndexes());
+    }
+
+
+    @Test
+    void testTimelineElementInternalMappingTransformer(){
+        Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
+
+        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
+
+        TimelineElementInternal source = TimelineElementInternal.builder()
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(elementTimestamp)
+                .details(SendDigitalFeedbackDetailsInt.builder()
+                        .notificationDate(eventTimestamp)
+                        .build())
+                .build();
+
+        TimelineElementInternal ret = SmartMapper.mapToClass(source, TimelineElementInternal.class);
+
+
+        Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
+    }
+
+
+    @Test
+    void testTimelineElementInternalMappingTransformerNo1(){
+        Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
+
+        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
+
+        TimelineElementInternal source = TimelineElementInternal.builder()
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(elementTimestamp)
+                .details(SendDigitalFeedbackDetailsInt.builder()
+                        .notificationDate(null)
+                        .build())
+                .build();
+
+        TimelineElementInternal ret = SmartMapper.mapToClass(source, TimelineElementInternal.class);
+
+
+        Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
+    }
+
+    @Test
+    void testTimelineElementInternalMappingTransformerNo2(){
+        Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
+
+        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
+
+        TimelineElementInternal source = TimelineElementInternal.builder()
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(elementTimestamp)
+                .details(AarGenerationDetailsInt.builder()
+                        .build())
+                .build();
+
+        TimelineElementInternal ret = SmartMapper.mapToClass(source, TimelineElementInternal.class);
+
+
+        Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
     }
 }

@@ -2,10 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.*;
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import org.junit.jupiter.api.*;
@@ -62,9 +59,13 @@ class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
         fileCreationRequest.setStatus("SAVED");
         fileCreationRequest.setDocumentType("PN_AAR");
         fileCreationRequest.setContentType("application/pdf");
-        fileCreationRequest.setContent(new byte[0]);
 
-        String requestJson = mapper.writeValueAsString(fileCreationRequest);
+        FileCreationRequest fileCreationRequestExpected = new FileCreationRequest();
+        fileCreationRequestExpected.setStatus("SAVED");
+        fileCreationRequestExpected.setDocumentType("PN_AAR");
+        fileCreationRequestExpected.setContentType("application/pdf");
+
+        String requestJson = mapper.writeValueAsString(fileCreationRequestExpected);
 
         FileCreationResponse fileCreationResponse = new FileCreationResponse();
         fileCreationResponse.setSecret("secret");
