@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
@@ -24,7 +23,6 @@ import static it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl.S
 @Slf4j
 public class ReceivedLegalFactCreationResponseHandler {
     private final NotificationService notificationService;
-    private final AttachmentUtils attachmentUtils;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
@@ -37,9 +35,6 @@ public class ReceivedLegalFactCreationResponseHandler {
         try {
             log.info("Start handleReceivedLegalFactCreationResponse recipientWorkflow process - iun={} legalFactId={}", iun, legalFactId);
             NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-            // cambio lo stato degli attachment in ATTACHED
-            attachmentUtils.changeAttachmentsStatusToAttached(notification);
 
             addTimelineElement(timelineUtils.buildAcceptedRequestTimelineElement(notification, legalFactId), notification);
 

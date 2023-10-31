@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-commons</artifactId>
-			<version>2.2.0</version>
+			<version>2.2.2</version>
 		</dependency>
 		
 		<dependency>
@@ -267,7 +267,7 @@
 						</configuration>
 					</execution>
 					
-					<!-- OPEN API PN-DELIVERY-PUSH-->
+					<!-- OPEN API PN-DELIVERY-PUSH  -->
 					<execution>
 						<phase>generate-resources</phase>
 						<id>pn-internal-delivery-push</id>

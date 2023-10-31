@@ -17,7 +17,7 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineElementDetails, 
-        NewAddressRelatedTimelineElement, PhysicalAddressRelatedTimelineElement {
+        NewAddressRelatedTimelineElement, PhysicalAddressRelatedTimelineElement, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private PhysicalAddressInt physicalAddress;
     private ServiceLevelInt serviceLevel;
@@ -46,5 +46,10 @@ public class SendAnalogFeedbackDetailsInt implements RecipientRelatedTimelineEle
                 deliveryDetailCode,
                 attachments
         );
+    }
+
+    @Override
+    public Instant getElementTimestamp() {
+        return notificationDate;
     }
 }

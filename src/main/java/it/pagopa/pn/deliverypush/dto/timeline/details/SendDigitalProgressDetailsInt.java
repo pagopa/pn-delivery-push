@@ -15,7 +15,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class SendDigitalProgressDetailsInt implements DigitalSendTimelineElementDetails {
+public class SendDigitalProgressDetailsInt implements DigitalSendTimelineElementDetails, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private LegalDigitalAddressInt  digitalAddress;
     private DigitalAddressSourceInt digitalAddressSource;
@@ -27,10 +27,11 @@ public class SendDigitalProgressDetailsInt implements DigitalSendTimelineElement
     private boolean shouldRetry;
     private Boolean isFirstSendRetry;
     private String relatedFeedbackTimelineId;
+    private Instant eventTimestamp;
     
     public String toLog() {
         return String.format(
-                "recIndex=%d deliveryDetailCode=%s digitalAddress=%s shouldRetry=%b digitalAddressSource=%s retryNumber=%d isFirstSendRetry=%s relatedFeedbackTimelineId=%s",
+                "recIndex=%d deliveryDetailCode=%s digitalAddress=%s shouldRetry=%b digitalAddressSource=%s retryNumber=%d isFirstSendRetry=%s relatedFeedbackTimelineId=%s eventTimestamp=%s",
                 recIndex,
                 deliveryDetailCode,
                 AuditLogUtils.SENSITIVE,
@@ -38,7 +39,13 @@ public class SendDigitalProgressDetailsInt implements DigitalSendTimelineElement
                 digitalAddressSource.getValue(),
                 retryNumber,
                 isFirstSendRetry,
-                relatedFeedbackTimelineId
+                relatedFeedbackTimelineId,
+                eventTimestamp
         );
+    }
+
+    @Override
+    public Instant getElementTimestamp() {
+        return eventTimestamp;
     }
 }

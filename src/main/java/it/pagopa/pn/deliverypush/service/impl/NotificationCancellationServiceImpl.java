@@ -40,12 +40,13 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
 
     private final NotificationService notificationService;
+    private final PaperNotificationFailedService paperNotificationFailedService;
     private final AuthUtils authUtils;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private AuditLogService auditLogService;
     private NotificationProcessCostService notificationProcessCostService;
-    
+
     @Override
     public Mono<StatusDetailInt> startCancellationProcess(String iun, String paId, CxTypeAuthFleet cxType) {
 
@@ -58,7 +59,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
                 )
                 .doOnError(err -> logEvent.generateFailure("Error in cancellation process iun={} paId={}", iun, paId, err).log());
     }
-    
+
     public void completeCancellationProcess(String iun){
         log.debug("Start cancelNotification - iun={}", iun);
         PnAuditLogEvent logEvent = generateAuditLog(iun, SECOND_CANCELLATION_STEP);
@@ -75,7 +76,11 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
             } else {
                 log.debug("don't need to update notification cost - iun={}", iun);
             }
-            
+
+            // elimino le righe di paper notification failed
+            notification.getRecipients().forEach(recipient ->
+                    paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), iun));
+
             // salvo l'evento in timeline
             addCanceledTimelineElement(notification);
 
@@ -103,7 +108,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
             handleResponse(notification, updateNotificationCostResponse);
         }
     }
-    
+
     private void addCanceledTimelineElement(NotificationInt notification) {
         TimelineElementInternal cancelledTimelineElement = timelineUtils.buildCancelledTimelineElement(notification);
         // salvo l'evento in timeline
