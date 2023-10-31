@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.timelinedao;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
-class TimelineEntityDaoDynamoTestIT {
+class TimelineEntityDaoDynamoTestIT extends MockActionPoolTest {
     @Autowired
     private TimelineEntityDao timelineEntityDao;
     

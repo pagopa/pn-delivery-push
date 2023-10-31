@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.api.dto.events.PnExtRegistryIOSentMessageEvent;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.action.iosentmessage.IOSentMessageHandler;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,7 +20,7 @@ import java.util.function.Consumer;
 
 @FunctionalSpringBootTest
 @Import(LocalStackTestConfig.class)
-class IOSentMessageEventHandlerTestIT {
+class IOSentMessageEventHandlerTestIT extends MockActionPoolTest {
 
     @Autowired
     private FunctionCatalog functionCatalog;

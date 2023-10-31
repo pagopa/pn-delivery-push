@@ -4,7 +4,6 @@ import com.amazonaws.services.sqs.AmazonSQSAsync;
 import io.awspring.cloud.autoconfigure.messaging.SqsAutoConfiguration;
 import it.pagopa.pn.api.dto.events.MomProducer;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.PnEventInboundService;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionEvent;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookEvent;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -13,7 +12,7 @@ import org.springframework.cloud.function.context.config.ContextFunctionCatalogA
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 @EnableAutoConfiguration(exclude= {SqsAutoConfiguration.class, ContextFunctionCatalogAutoConfiguration.class})
-public abstract class MockAWSObjectsTest {
+public abstract class MockAWSObjectsTest extends MockActionPoolTest {
 
     @MockBean(name = "actionsEventProducer")
     private MomProducer<ActionEvent> actionsEventProducer;
@@ -32,8 +31,4 @@ public abstract class MockAWSObjectsTest {
 
     @MockBean
     private DynamoDbClient dynamoDbClient;
-
-    @MockBean
-    private ActionsPool actionsPool;
-
 }
