@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.AsyncF24Event;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.MetadataValidationEndEvent;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.F24ResponseHandler;
@@ -19,7 +20,7 @@ import java.util.function.Consumer;
 
 @FunctionalSpringBootTest
 @Import(LocalStackTestConfig.class)
-class F24EventHandlerTest {
+class F24EventHandlerTest extends MockActionPoolTest {
 
     @Autowired
     private FunctionCatalog functionCatalog;

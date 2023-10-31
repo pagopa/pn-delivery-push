@@ -2,21 +2,22 @@ package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineCounterEntity;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 
 @ExtendWith(SpringExtension.class)
@@ -28,8 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
-class TimelineCounterEntityDaoDynamoTestIT {
-
+class TimelineCounterEntityDaoDynamoTestIT extends MockActionPoolTest {
     @Autowired
     private TimelineCounterEntityDao dao;
 

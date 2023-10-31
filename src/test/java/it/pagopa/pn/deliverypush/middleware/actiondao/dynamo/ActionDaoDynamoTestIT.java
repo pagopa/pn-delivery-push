@@ -5,6 +5,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.ActionDaoDynamo;
@@ -37,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
-class ActionDaoDynamoTestIT {
+class ActionDaoDynamoTestIT extends MockActionPoolTest {
     @Autowired
     private ActionDao actionDao;
     

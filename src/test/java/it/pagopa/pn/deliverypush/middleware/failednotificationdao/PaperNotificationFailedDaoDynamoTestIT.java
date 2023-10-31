@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.failednotificationdao;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedEntityDao;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
-class PaperNotificationFailedDaoDynamoTestIT {
+class PaperNotificationFailedDaoDynamoTestIT extends MockActionPoolTest {
 
     @Autowired
     private PaperNotificationFailedDao specificDao;

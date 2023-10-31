@@ -6,6 +6,7 @@ import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.*;
 
 @FunctionalSpringBootTest
 @Import(LocalStackTestConfig.class)
-class NotificationPaidEventHandlerTestIT {
+class NotificationPaidEventHandlerTestIT extends MockActionPoolTest{
 
     @Autowired
     private FunctionCatalog functionCatalog;
