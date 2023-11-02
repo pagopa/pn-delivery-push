@@ -45,8 +45,11 @@ import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationSer
 import static org.mockito.ArgumentMatchers.*;
 
 class NotificationCancellationServiceImplTest {
+
     @Mock
     private NotificationService notificationService;
+    @Mock
+    private PaperNotificationFailedService paperNotificationFailedService;
     @Mock
     private AuthUtils authUtils;
     @Mock
@@ -62,7 +65,7 @@ class NotificationCancellationServiceImplTest {
     
     @BeforeEach
     public void init(){
-        notificationCancellationService = new NotificationCancellationServiceImpl(notificationService,authUtils, timelineService, timelineUtils, auditLogService, notificationProcessCostService);
+        notificationCancellationService = new NotificationCancellationServiceImpl(notificationService, paperNotificationFailedService, authUtils, timelineService, timelineUtils, auditLogService, notificationProcessCostService);
     }
     
     @Test
@@ -214,7 +217,7 @@ class NotificationCancellationServiceImplTest {
                 .withPagoPaIntMode(PagoPaIntMode.ASYNC)
                 .withPaFee(100)
                 .build();
-        
+
         final TimelineElementInternal timelineElement = TimelineElementInternal.builder()
                 .details(NotificationCancelledDetailsInt.builder()
                         .build())
@@ -250,7 +253,7 @@ class NotificationCancellationServiceImplTest {
                 Mockito.any(Instant.class),
                 Mockito.any(UpdateCostPhaseInt.class)
         )).thenReturn(Mono.just(response));
-        
+
         //WHEN
         notificationCancellationService.completeCancellationProcess(notification.getIun());
 
@@ -332,7 +335,7 @@ class NotificationCancellationServiceImplTest {
         //WHEN
         Assertions.assertThrows(PnPaymentUpdateRetryException.class,
                 () -> notificationCancellationService.completeCancellationProcess(iun));
-        
+
         //THEN
         Mockito.verify(notificationService).removeAllNotificationCostsByIun(iun);
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.eq(notification));
@@ -352,7 +355,7 @@ class NotificationCancellationServiceImplTest {
         List<PaymentsInfoForRecipientInt> paymentsInfoForRecipientsCaptured = paymentForRecipientListCaptor.getValue();
         verifyPaymentInfo(notification, recIndex, paymentsInfoForRecipientsCaptured);
     }
-    
+
     @Test
     @ExtendWith(SpringExtension.class)
     void cancelNotificationNotPagoPaAsync() {
@@ -398,13 +401,14 @@ class NotificationCancellationServiceImplTest {
         notificationCancellationService.completeCancellationProcess(notification.getIun());
 
         //THEN
+        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), "iun");
         Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
         Mockito.verify(notificationService).removeAllNotificationCostsByIun(notification.getIun());
         Mockito.verify(auditLogEvent).generateSuccess();
 
         Mockito.verify(notificationProcessCostService, Mockito.never()).setNotificationStepCost(
                 Mockito.eq(NotificationCancellationServiceImpl.NOTIFICATION_CANCELLED_COST),
-                Mockito.eq(notification.getIun()), 
+                Mockito.eq(notification.getIun()),
                 Mockito.any(),
                 Mockito.any(Instant.class),
                 Mockito.any(Instant.class),
@@ -448,12 +452,13 @@ class NotificationCancellationServiceImplTest {
         notificationCancellationService.completeCancellationProcess(notification.getIun());
 
         //THEN
+        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), "iun");
         Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
         Mockito.verify(notificationService).removeAllNotificationCostsByIun(notification.getIun());
         Mockito.verify(auditLogEvent).generateSuccess();
     }
-    
-    
+
+
     @Test
     @ExtendWith(SpringExtension.class)
     void cancelNotificationException() {
@@ -475,7 +480,7 @@ class NotificationCancellationServiceImplTest {
         Assert.assertThrows(NullPointerException.class, ()-> notificationCancellationService.completeCancellationProcess(iun));
 
         //THEN
-
+        Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipient.getInternalId(), "iun");
         Mockito.verify(auditLogEvent).generateFailure(Mockito.anyString(), Mockito.anyString(), Mockito.any());
     }
 

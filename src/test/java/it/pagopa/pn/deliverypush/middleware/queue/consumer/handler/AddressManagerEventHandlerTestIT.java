@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.AnalogAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.NormalizeItemsResult;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.NormalizeResult;
@@ -19,7 +20,7 @@ import java.util.function.Consumer;
 
 @FunctionalSpringBootTest
 @Import(LocalStackTestConfig.class)
-class AddressManagerEventHandlerTestIT {
+class AddressManagerEventHandlerTestIT extends MockActionPoolTest {
 
     @Autowired
     private FunctionCatalog functionCatalog;

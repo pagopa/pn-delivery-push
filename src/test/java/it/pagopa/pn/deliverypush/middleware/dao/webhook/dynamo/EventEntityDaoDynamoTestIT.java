@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
+import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
@@ -40,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
-class EventEntityDaoDynamoTestIT {
+class EventEntityDaoDynamoTestIT extends MockActionPoolTest {
 
     Duration d = Duration.ofMillis(30000);
 

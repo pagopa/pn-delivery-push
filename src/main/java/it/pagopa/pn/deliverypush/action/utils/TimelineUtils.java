@@ -71,41 +71,12 @@ public class TimelineUtils {
     public TimelineElementInternal buildTimeline(NotificationInt notification,
                                                  TimelineElementCategoryInt category,
                                                  String elementId,
-                                                 Instant eventTimestamp,
-                                                 TimelineElementDetailsInt details) {
-
-        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
-                .legalFactsIds(Collections.emptyList());
-
-        return buildTimeline( notification, category, elementId, eventTimestamp, details, timelineBuilder );
-    }
-
-    public TimelineElementInternal buildTimeline(NotificationInt notification,
-                                                 TimelineElementCategoryInt category,
-                                                 String elementId,
                                                  TimelineElementDetailsInt details,
                                                  TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder) {
         return timelineBuilder
                 .iun(notification.getIun())
                 .category(category)
                 .timestamp(Instant.now())
-                .elementId(elementId)
-                .details(details)
-                .paId(notification.getSender().getPaId())
-                .notificationSentAt(notification.getSentAt())
-                .build();
-    }
-
-    public TimelineElementInternal buildTimeline(NotificationInt notification, 
-                                                 TimelineElementCategoryInt category,
-                                                 String elementId,
-                                                 Instant eventTimestamp,
-                                                 TimelineElementDetailsInt details,
-                                                 TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder) {
-        return timelineBuilder
-                .iun(notification.getIun())
-                .category(category)
-                .timestamp(eventTimestamp)
                 .elementId(elementId)
                 .details(details)
                 .paId(notification.getSender().getPaId())
@@ -134,7 +105,6 @@ public class TimelineUtils {
 
         return buildTimeline(notification, TimelineElementCategoryInt.VALIDATED_F24, correlationId, null);
     }
-    
     public TimelineElementInternal buildValidateAndNormalizeAddressTimelineElement(NotificationInt notification, String elementId) {
         log.debug("buildValidateAddressTimelineElement - iun={}", notification.getIun());
         
@@ -224,7 +194,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(  (digitalMessageReference!=null && digitalMessageReference.getLocation()!=null)?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
         
-        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, digitalAddressFeedback.getEventTimestamp(), details, timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK, elementId, details, timelineBuilder);
     }
 
     public TimelineElementInternal buildDigitalProgressFeedbackTimelineElement(NotificationInt notification,
@@ -250,9 +220,10 @@ public class TimelineUtils {
         SendDigitalProgressDetailsInt details = SendDigitalProgressDetailsInt.builder()
                 .digitalAddress(digitalAddressFeedback.getDigitalAddress())
                 .digitalAddressSource(digitalAddressFeedback.getDigitalAddressSource())
+                .eventTimestamp(digitalAddressFeedback.getEventTimestamp()) // non si è potuto salvare in notificationDate perchè era già usato (erroneamente ora...) da un istant.now
                 .retryNumber(digitalAddressFeedback.getRetryNumber())
                 .recIndex(recIndex)
-                .notificationDate(instantNowSupplier.get())
+                .notificationDate(instantNowSupplier.get()) // di fatto non è più usato ora che il timestamp del timelinelement coincide con instant.now.
                 .deliveryDetailCode(eventCode.getValue())
                 .shouldRetry(shouldRetry)
                 .sendingReceipts(
@@ -270,7 +241,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( (digitalMessageReference!=null && digitalMessageReference.getLocation()!=null)?singleLegalFactId(digitalMessageReference.getLocation(), LegalFactCategoryInt.PEC_RECEIPT):null );
 
-        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, digitalAddressFeedback.getEventTimestamp(), details, timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, elementId, details, timelineBuilder);
     }
 
     public TimelineElementInternal buildProbableDateSchedulingAnalogTimelineElement(Integer recIndex, NotificationInt notification,
@@ -376,8 +347,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( legalFactsListEntryIds );
 
-        return buildTimeline( notification, TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS, elementId, sendEventInt.getStatusDateTime(),
-                details, timelineBuilder );
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS, elementId, details, timelineBuilder );
     }
 
     public TimelineElementInternal buildPrepareDigitalNotificationTimelineElement(NotificationInt notification, Integer recIndex,
@@ -659,8 +629,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( legalFactsListEntryIds );
 
-        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, elementId, sendEventInt.getStatusDateTime(),
-                details, timelineBuilder );
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, elementId, details, timelineBuilder );
     }
 
     public TimelineElementInternal buildAnalogSuccessAttemptTimelineElement(NotificationInt notification, List<AttachmentDetailsInt> attachments,
@@ -696,8 +665,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( legalFactsListEntryIds );
 
-        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId, sendEventInt.getStatusDateTime(),
-                details, timelineBuilder );
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId, details, timelineBuilder );
     }
 
     private List<LegalFactsIdInt> getLegalFactsIdList(List<AttachmentDetailsInt> attachments) {
@@ -748,8 +716,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( legalFactsListEntryIds );
 
-        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId, sendEventInt.getStatusDateTime(),
-                details, timelineBuilder );
+        return buildTimeline( notification, TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, elementId, details, timelineBuilder );
     }
 
     public TimelineElementInternal  buildNotificationViewedTimelineElement(
@@ -771,6 +738,7 @@ public class TimelineUtils {
         NotificationViewedDetailsInt details = NotificationViewedDetailsInt.builder()
                 .recIndex(recIndex)
                 .notificationCost(notificationCost)
+                .eventTimestamp(eventTimestamp)
                 .raddType(raddInfo != null ? raddInfo.getType() : null)
                 .raddTransactionId(raddInfo != null ? raddInfo.getTransactionId() : null)
                 .delegateInfo(delegateInfo)
@@ -779,8 +747,7 @@ public class TimelineUtils {
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds( singleLegalFactId( legalFactId, LegalFactCategoryInt.RECIPIENT_ACCESS ) );
 
-        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_VIEWED, elementId, eventTimestamp,
-                details, timelineBuilder);
+        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_VIEWED, elementId, details, timelineBuilder);
     }
 
     public TimelineElementInternal  buildNotificationViewedLegalFactCreationRequestTimelineElement(
@@ -977,6 +944,7 @@ public class TimelineUtils {
         NotificationPaidDetailsInt details = NotificationPaidDetailsInt.builder()
                 .recIndex(notificationPaidInt.getRecipientIdx())
                 .recipientType(notificationPaidInt.getRecipientType().getValue())
+                .eventTimestamp(notificationPaidInt.getPaymentDate())
                 .amount(notificationPaidInt.getAmount())
                 .creditorTaxId(notificationPaidInt.getCreditorTaxId())
                 .noticeCode(notificationPaidInt.getNoticeCode())
@@ -991,7 +959,6 @@ public class TimelineUtils {
                 notification,
                 PAYMENT,
                 elementId,
-                notificationPaidInt.getPaymentDate(),
                 details, 
                 timelineBuilder
         );
