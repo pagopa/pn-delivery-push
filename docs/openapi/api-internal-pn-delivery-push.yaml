@@ -1,18 +1,11 @@
 openapi: 3.0.3
 info:
-  termsOfService: https://termofservice.it
   title: 'API di pn-delivery-push esposte ad altri microservizi'
   x-summary: 'API di pn-delivery-push esposte ad altri microservizi'
   x-api-id: api-internal-pn-delivery-push
   version: '1.0.0'
   description: >- 
     Da fare
-
-  contact:
-    email: pn@pagopa.it
-  license:
-    name: Licenza di PN
-    url: 'https://da-definire/'
 servers:
 - url: https://api.pn.pagopa.it
   description: Ambiente di produzione
