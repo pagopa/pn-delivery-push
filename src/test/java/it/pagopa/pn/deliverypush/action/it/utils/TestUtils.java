@@ -37,12 +37,14 @@ import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -790,11 +792,40 @@ public class TestUtils {
         return ste[depth].getMethodName();
     }
 
+    public static String getMethodNameAndClassName(final int depth) {
+        final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        return ste[depth].getClassName()+"."+ste[depth].getMethodName();
+    }
+    
     public static String getRandomIun() {
+        int level = 3; 
+        String callerMethod = getMethodName(level);
+        return getIun(callerMethod);
+    }
+
+    public static String getRandomIun(int level) {
+        level+=2;
+        String callerMethod = getMethodName(level);
+        return getIun(callerMethod);
+    }
+    
+    public static void writeExecutionTime(Instant startTime){
+        Duration spentTime = getTimeSpent(startTime);
+        String callerMethod = getMethodNameAndClassName(3);
+        log.info("[TEST] Spent time is {} for {}", spentTime, callerMethod);
+    }
+
+    private static Duration getTimeSpent(Instant start) {
+        Instant end = Instant.now();
+        return Duration.between(start, end);
+    }
+
+    @NotNull
+    private static String getIun(String callerMethod) {
         Random rand = new Random();
         int upperbound = 10000;
         int int_random = rand.nextInt(upperbound);
-        return "XX_" + int_random;
+        return "iun-" + callerMethod + "_" + int_random;
     }
 
 
