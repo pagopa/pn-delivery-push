@@ -1,16 +1,24 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaIntMode;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationAttachmentBodyRef;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationAttachmentDigests;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationDocument;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipientV21;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV21;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import org.jetbrains.annotations.NotNull;
-
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 
 public class NotificationMapper {
@@ -47,6 +55,7 @@ public class NotificationMapper {
                 .recipients(listNotificationRecipientInt)
                 .notificationFeePolicy(NotificationFeePolicy.fromValue(sentNotification.getNotificationFeePolicy().getValue()))
                 .amount(sentNotification.getAmount())
+                .group(sentNotification.getGroup())
                 .paymentExpirationDate(paymentExpirationDate)
                 .pagoPaIntMode(sentNotification.getPagoPaIntMode() != null ? PagoPaIntMode.valueOf(sentNotification.getPagoPaIntMode().getValue()) : null)
                 .build();
