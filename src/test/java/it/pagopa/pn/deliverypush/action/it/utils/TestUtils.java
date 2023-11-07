@@ -798,23 +798,11 @@ public class TestUtils {
     }
     
     public static String getRandomIun() {
-        int level = 3; 
-        String callerMethod = getMethodName(level);
-        return getIun(callerMethod);
-    }
-
-    public static String getRandomIun(int level) {
-        level+=2;
+        int level = 4; 
         String callerMethod = getMethodName(level);
         return getIun(callerMethod);
     }
     
-    public static void writeExecutionTime(Instant startTime){
-        Duration spentTime = getTimeSpent(startTime);
-        String callerMethod = getMethodNameAndClassName(3);
-        log.info("[TEST] Spent time is {} for {}", spentTime, callerMethod);
-    }
-
     private static Duration getTimeSpent(Instant start) {
         Instant end = Instant.now();
         return Duration.between(start, end);
