@@ -67,8 +67,8 @@ class LegalFactPdfGeneratorTest {
         pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://www.dev.notifichedigitali.it/");
         pnDeliveryPushConfigs.getWebapp().setFaqSendHash("send-cosa-e");
         pnDeliveryPushConfigs.getWebapp().setFaqCompletionMomentHash("perfezionamento");
-        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://cittadini.dev.notifichedigitali.it/");
-        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://imprese.dev.notifichedigitali.it/");
+        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://cittadini.notifichedigitali.it/");
+        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://imprese.notifichedigitali.it/");
         pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("?aar");
         pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
         pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
@@ -214,13 +214,56 @@ class LegalFactPdfGeneratorTest {
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void generateNotificationAARMVPTest() throws IOException {
+    void generateNotificationAAR_RADDPFTest() throws IOException {
         Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
 
-        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAARMVP.pdf");
-        NotificationInt notificationInt = buildNotification();
+        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PF.pdf");
+        NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                .paId("TEST_PA_ID")
+                .paTaxId("TEST_TAX_ID")
+                .paDenomination("Polizia Municipale del Comune Molto Deridente di Acquaviva Delle Fonti di Puglia")
+                .build();
+
+        NotificationInt notificationInt = NotificationInt.builder()
+                .sender(notificationSenderInt)
+                .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                .iun("Example_IUN_1234_Test")
+                .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vehicula arcu eu mi tempus, eget vehicula lacus lobortis. Nunc aenean.")
+                .build();
         String quickAccessToken = "test";
-        NotificationRecipientInt recipient = notificationInt.getRecipients().get(0);
+        NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                .recipientType(RecipientTypeInt.PF)
+                .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
+                .taxId("RSSMRA80A01H501U")
+                .build();
+        Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+        System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void generateNotificationAAR_RADDPGTest() throws IOException {
+        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
+
+        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PG.pdf");
+        NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                .paId("TEST_PA_ID")
+                .paTaxId("TEST_TAX_ID")
+                .paDenomination("Polizia Municipale del Comune Molto Deridente di Acquaviva Delle Fonti di Puglia")
+                .build();
+
+        NotificationInt notificationInt = NotificationInt.builder()
+                .sender(notificationSenderInt)
+                .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                .iun("Example_IUN_1234_Test")
+                .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vehicula arcu eu mi tempus, eget vehicula lacus lobortis. Nunc aenean.")
+                .build();
+        String quickAccessToken = "test";
+        NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                .recipientType(RecipientTypeInt.PG)
+                .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
+                .taxId("RSSMRA80A01H501U")
+                .build();
         Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
         System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
     }
@@ -231,11 +274,11 @@ class LegalFactPdfGeneratorTest {
     void generateNotificationAARPGTest() throws IOException {
         Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
 
-        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PG.pdf");
 
         NotificationInt notificationInt = buildNotification();
         String quickAccessToken = "test";
-        NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType(RecipientTypeInt.PF).build();
+        NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType(RecipientTypeInt.PG).build();
         Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
         System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
     }
