@@ -37,7 +37,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 
-public class NormalizeAddressHandlerTest {
+class NormalizeAddressHandlerTest {
 
     @Mock
     private TimelineService timelineService;
@@ -58,7 +58,7 @@ public class NormalizeAddressHandlerTest {
     }
 
     @Test
-    public void testHandleNormalizedAddressResponse() {
+    void testHandleNormalizedAddressResponse() {
 
         //GIVEN
         NormalizeItemsResultInt normalizeItemsResult = NormalizeItemsResultInt.builder()
