@@ -56,7 +56,6 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private final PaperSendModeUtils paperSendModeUtils;
     private final AttachmentUtils attachmentUtils;
 
-
     /**
      * Send registered letter to external channel
      * to use when all pec send fails

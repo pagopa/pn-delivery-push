@@ -46,6 +46,7 @@ import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
+import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import it.pagopa.pn.deliverypush.utils.UUIDCreatorUtils;
 import org.junit.jupiter.api.Assertions;
@@ -155,7 +156,8 @@ import static org.awaitility.Awaitility.with;
         F24ClientMock.class,
         PnExternalRegistriesClientReactiveMock.class,
         PaymentValidator.class,
-        NotificationRefusedActionHandler.class
+        NotificationRefusedActionHandler.class,
+        PaperSendModeUtils.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
