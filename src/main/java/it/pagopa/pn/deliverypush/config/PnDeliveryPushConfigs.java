@@ -102,10 +102,6 @@ public class PnDeliveryPushConfigs {
     private boolean checkCfEnabled;
 
     private String f24CxId;
-
-    private String sendAnalogNotificationAttachments;
-    
-    private String sendSimpleRegisteredLetterAttachments;
     
     private int pagoPaNotificationBaseCost;
 

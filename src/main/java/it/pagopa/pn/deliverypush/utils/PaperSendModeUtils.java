@@ -32,18 +32,15 @@ public class PaperSendModeUtils {
     private PaperSendMode getCorrectPaperSendModeFromDate(Instant time, List<PaperSendMode> paperSendModesList) {
         List<PaperSendMode> paperSendModesListSorted = new ArrayList<>(paperSendModesList);
         Collections.sort(paperSendModesListSorted);
-        Instant lastInstant = Instant.EPOCH;
-        PaperSendMode correctConfiguration = null;
-
-        for (PaperSendMode elem : paperSendModesListSorted) {
-            if (time.isAfter(lastInstant) && time.isBefore(elem.getStartConfigurationTime())) {
-                break;
-            } else {
-                correctConfiguration = elem;
+        
+        for(int i = paperSendModesListSorted.size() - 1; i >=0; i--){
+            PaperSendMode elem = paperSendModesListSorted.get(i);
+            if(time.equals(elem.getStartConfigurationTime()) || time.isAfter(elem.getStartConfigurationTime())){
+                return elem;
             }
         }
         
-        return correctConfiguration;
+        return null;
     }
 
     private List<PaperSendMode> getPaperSendModeFromString(List<String> paperSendModeStringList) {
