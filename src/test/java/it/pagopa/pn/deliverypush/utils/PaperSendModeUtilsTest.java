@@ -178,4 +178,16 @@ class PaperSendModeUtilsTest {
         Assertions.assertEquals(correctAarTemplateType, paperSendMode.getAarTemplateType());
     }
 
+    @Test
+    void noConfiguration() {
+        List<String> configurationList = new ArrayList<>();
+        
+        Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(configurationList);
+
+        Instant time = Instant.now();
+        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(time);
+
+        Assertions.assertNull(paperSendMode);
+    }
+
 }

@@ -24,14 +24,18 @@ public class PaperSendModeUtils {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
     public PaperSendMode getPaperSendMode(Instant time){
+        log.debug("Start getPaperSendMode for time={}", time);
         List<String> paperSendModeStringList = pnDeliveryPushConfigs.getPaperSendMode();
         List<PaperSendMode> paperSendModesList = getPaperSendModeFromString(paperSendModeStringList);
-        return getCorrectPaperSendModeFromDate(time, paperSendModesList);
+        PaperSendMode paperSendMode =  getCorrectPaperSendModeFromDate(time, paperSendModesList);
+        log.debug("End getPaperSendMode. PaperSendMode for time={} is {}", time, paperSendMode);
+        return paperSendMode;
     }
 
     private PaperSendMode getCorrectPaperSendModeFromDate(Instant time, List<PaperSendMode> paperSendModesList) {
         List<PaperSendMode> paperSendModesListSorted = new ArrayList<>(paperSendModesList);
         Collections.sort(paperSendModesListSorted);
+        log.debug("PaperSendModesListSorted is {}", paperSendModesListSorted);
         
         for(int i = paperSendModesListSorted.size() - 1; i >=0; i--){
             PaperSendMode elem = paperSendModesListSorted.get(i);
@@ -39,11 +43,11 @@ public class PaperSendModeUtils {
                 return elem;
             }
         }
-        
         return null;
     }
 
     private List<PaperSendMode> getPaperSendModeFromString(List<String> paperSendModeStringList) {
+
         return paperSendModeStringList.stream().map( elem -> {
             String[] arrayObj = elem.split(SEPARATOR);
             String configStartDate = arrayObj[INDEX_START_DATE];
