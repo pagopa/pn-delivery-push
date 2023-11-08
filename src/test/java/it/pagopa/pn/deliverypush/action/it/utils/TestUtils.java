@@ -683,6 +683,37 @@ public class TestUtils {
                 ))
                 .build();
     }
+
+    public static NotificationInt getNotificationMultiRecipient() {
+        return NotificationInt.builder()
+                .iun("IUN_01")
+                .paProtocolNumber("protocol_01")
+                .sender(NotificationSenderInt.builder()
+                        .paId(" pa_02")
+                        .build()
+                )
+                .recipients(Arrays.asList(
+                        NotificationRecipientInt.builder()
+                                .taxId("testIdRecipient")
+                                .internalId("test")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(LegalDigitalAddressInt.builder()
+                                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                        .address("account@dominio.it")
+                                        .build())
+                                .build(),
+                        NotificationRecipientInt.builder()
+                                .taxId("testIdRecipient")
+                                .internalId("test")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(LegalDigitalAddressInt.builder()
+                                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                        .address("account@dominio.it")
+                                        .build())
+                                .build()
+                ))
+                .build();
+    }
     
     public static String getMethodName(final int depth) {
         final StackTraceElement[] ste = Thread.currentThread().getStackTrace();
