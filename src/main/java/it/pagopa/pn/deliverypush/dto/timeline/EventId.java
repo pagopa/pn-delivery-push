@@ -5,7 +5,12 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 
 @NoArgsConstructor
@@ -28,4 +33,5 @@ public class EventId {
     private String noticeCode;
     private Boolean isFirstSendRetry;
     private String relatedTimelineId;
+    private Boolean optin;
 }
