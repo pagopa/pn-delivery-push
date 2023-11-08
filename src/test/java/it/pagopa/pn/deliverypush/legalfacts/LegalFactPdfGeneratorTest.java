@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
+import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,8 +49,8 @@ class LegalFactPdfGeneratorTest {
     private static final Path TEST_DIR_PATH = Paths.get(TEST_DIR_NAME);
 
     @Mock
-    private MVPParameterConsumer mvpParameterConsumer;
-
+    private PaperSendModeUtils paperSendModeUtils;
+    
     private LegalFactGenerator pdfUtils;
 
     @BeforeEach
@@ -79,7 +80,7 @@ class LegalFactPdfGeneratorTest {
         pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setPr("Roma");
         pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setCountry("Italia");
 
-        pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, mvpParameterConsumer);
+        pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, paperSendModeUtils);
 
         //create target test folder, if not exists
         if (Files.notExists(TEST_DIR_PATH)) {
@@ -201,9 +202,7 @@ class LegalFactPdfGeneratorTest {
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void generateNotificationAARTest() throws IOException {
-        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
-
+    void generateNotificationAARTest() {
         Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
         NotificationInt notificationInt = buildNotification();
         String quickAccessToken = "test";
@@ -214,22 +213,7 @@ class LegalFactPdfGeneratorTest {
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void generateNotificationAARMVPTest() throws IOException {
-        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
-
-        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAARMVP.pdf");
-        NotificationInt notificationInt = buildNotification();
-        String quickAccessToken = "test";
-        NotificationRecipientInt recipient = notificationInt.getRecipients().get(0);
-        Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
-        System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
-    }
-
-
-    @Test
-    @ExtendWith(SpringExtension.class)
     void generateNotificationAARPGTest() throws IOException {
-        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
 
         Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
 
