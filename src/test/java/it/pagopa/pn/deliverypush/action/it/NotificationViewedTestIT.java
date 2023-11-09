@@ -47,6 +47,7 @@ import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
+import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -155,7 +156,8 @@ import static org.mockito.ArgumentMatchers.eq;
         F24ClientMock.class,
         PnExternalRegistriesClientReactiveMock.class,
         PaymentValidator.class,
-        NotificationRefusedActionHandler.class
+        NotificationRefusedActionHandler.class,
+        PaperSendModeUtils.class
 })
 @TestPropertySource("classpath:/application-test.properties")
 @EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
