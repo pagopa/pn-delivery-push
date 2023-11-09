@@ -289,7 +289,7 @@ public class LegalFactGenerator {
         }else {
             //In mvp viene generato un AAR senza QrCode
             return documentComposition.executePdfTemplate(
-                    DocumentComposition.TemplateType.AAR_NOTIFICATION_MVP,
+                    DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD,
                     templateModel
             );
         }
