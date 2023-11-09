@@ -221,7 +221,7 @@ class LegalFactPdfGeneratorTest {
         NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                 .paId("TEST_PA_ID")
                 .paTaxId("TEST_TAX_ID")
-                .paDenomination("Polizia Municipale del Comune Molto Deridente di Acquaviva Delle Fonti di Puglia")
+                .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
                 .build();
 
         NotificationInt notificationInt = NotificationInt.builder()
@@ -249,7 +249,7 @@ class LegalFactPdfGeneratorTest {
         NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                 .paId("TEST_PA_ID")
                 .paTaxId("TEST_TAX_ID")
-                .paDenomination("Polizia Municipale del Comune Molto Deridente di Acquaviva Delle Fonti di Puglia")
+                .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
                 .build();
 
         NotificationInt notificationInt = NotificationInt.builder()
@@ -263,6 +263,34 @@ class LegalFactPdfGeneratorTest {
                 .recipientType(RecipientTypeInt.PG)
                 .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
                 .taxId("RSSMRA80A01H501U")
+                .build();
+        Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+        System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void generateNotificationAAR_RADD_NumericPGTest() throws IOException {
+        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
+
+        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_numericPG.pdf");
+        NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                .paId("TEST_PA_ID")
+                .paTaxId("TEST_TAX_ID")
+                .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
+                .build();
+
+        NotificationInt notificationInt = NotificationInt.builder()
+                .sender(notificationSenderInt)
+                .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                .iun("Example_IUN_1234_Test")
+                .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vehicula arcu eu mi tempus, eget vehicula lacus lobortis. Nunc aenean.")
+                .build();
+        String quickAccessToken = "test";
+        NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                .recipientType(RecipientTypeInt.PG)
+                .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
+                .taxId("15376371009")
                 .build();
         Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
         System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
