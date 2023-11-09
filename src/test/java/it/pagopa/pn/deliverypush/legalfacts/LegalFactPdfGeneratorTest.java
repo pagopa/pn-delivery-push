@@ -66,7 +66,7 @@ class LegalFactPdfGeneratorTest {
                 InstantNowSupplier instantNowSupplier = new InstantNowSupplier();
                 pnDeliveryPushConfigs.setWebapp(new PnDeliveryPushConfigs.Webapp());
                 pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq");
-                pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://www.dev.notifichedigitali.it/");
+                pnDeliveryPushConfigs.getWebapp().setLandingUrl("https://www.notifichedigitali.pagopa.it/");
                 pnDeliveryPushConfigs.getWebapp().setFaqSendHash("send-cosa-e");
                 pnDeliveryPushConfigs.getWebapp().setFaqCompletionMomentHash("perfezionamento");
                 pnDeliveryPushConfigs.getWebapp()
@@ -258,7 +258,7 @@ class LegalFactPdfGeneratorTest {
                                 .sender(notificationSenderInt)
                                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
                                 .iun("Example_IUN_1234_Test")
-                                .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vehicula arcu eu mi tempus, eget vehicula lacus lobortis. Nunc aenean.")
+                                .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
                                 .build();
                 String quickAccessToken = "test";
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
@@ -289,7 +289,7 @@ class LegalFactPdfGeneratorTest {
                                 .sender(notificationSenderInt)
                                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
                                 .iun("Example_IUN_1234_Test")
-                                .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vehicula arcu eu mi tempus, eget vehicula lacus lobortis. Nunc aenean.")
+                                .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
                                 .build();
                 String quickAccessToken = "test";
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
@@ -320,7 +320,7 @@ class LegalFactPdfGeneratorTest {
                                 .sender(notificationSenderInt)
                                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
                                 .iun("Example_IUN_1234_Test")
-                                .subject("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww")
+                                .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
                                 .build();
                 String quickAccessToken = "test";
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
