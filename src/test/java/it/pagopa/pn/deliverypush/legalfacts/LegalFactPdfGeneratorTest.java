@@ -7,10 +7,9 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -20,6 +19,8 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
+import it.pagopa.pn.deliverypush.utils.PaperSendMode;
+import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class LegalFactPdfGeneratorTest {
     private static final Path TEST_DIR_PATH = Paths.get(TEST_DIR_NAME);
 
     @Mock
-    private MVPParameterConsumer mvpParameterConsumer;
+    private PaperSendModeUtils paperSendModeUtils;
 
     private LegalFactGenerator pdfUtils;
 
@@ -79,7 +80,7 @@ class LegalFactPdfGeneratorTest {
         pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setPr("Roma");
         pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setCountry("Italia");
 
-        pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, mvpParameterConsumer);
+        pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplier, paperSendModeUtils);
 
         //create target test folder, if not exists
         if (Files.notExists(TEST_DIR_PATH)) {
@@ -201,9 +202,12 @@ class LegalFactPdfGeneratorTest {
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void generateNotificationAARTest() throws IOException {
-        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
-
+    void generateNotificationAARTest() {
+        Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                        .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .build()
+        );
+        
         Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
         NotificationInt notificationInt = buildNotification();
         String quickAccessToken = "test";
@@ -214,9 +218,12 @@ class LegalFactPdfGeneratorTest {
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void generateNotificationAAR_RADDPFTest() throws IOException {
-        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
-
+    void generateNotificationAAR_RADDPFTest() {
+        Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
+                .build()
+        );
+        
         Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PF.pdf");
         NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                 .paId("TEST_PA_ID")
@@ -243,8 +250,11 @@ class LegalFactPdfGeneratorTest {
     @Test
     @ExtendWith(SpringExtension.class)
     void generateNotificationAAR_RADDPGTest() throws IOException {
-        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(true);
-
+        Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
+                .build()
+        );
+        
         Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PG.pdf");
         NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                 .paId("TEST_PA_ID")
@@ -271,9 +281,11 @@ class LegalFactPdfGeneratorTest {
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void generateNotificationAARPGTest() throws IOException {
-        Mockito.when(mvpParameterConsumer.isMvp(Mockito.anyString())).thenReturn(false);
-
+    void generateNotificationAARPGTest() {
+        Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .build()
+        );
         Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PG.pdf");
 
         NotificationInt notificationInt = buildNotification();

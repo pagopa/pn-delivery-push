@@ -39,7 +39,6 @@ public class DocumentComposition {
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
         AAR_NOTIFICATION("documents_composition_templates/NotificationAAR.html"),
         AAR_NOTIFICATION_RADD("documents_composition_templates/NotificationAAR_RADD.html"),
-    	AAR_NOTIFICATION_MVP("documents_composition_templates/NotificationAAR_MVP.html"),
         AAR_NOTIFICATION_EMAIL("documents_composition_templates/NotificationAARForEMAIL.html"),
         AAR_NOTIFICATION_PEC("documents_composition_templates/NotificationAARForPEC.html"),
         AAR_NOTIFICATION_SUBJECT("documents_composition_templates/NotificationAARSubject.txt"),
