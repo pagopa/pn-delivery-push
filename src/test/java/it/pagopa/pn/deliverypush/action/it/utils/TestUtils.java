@@ -454,7 +454,7 @@ public class TestUtils {
             fileCreationWithContentRequest.setContentType("application/pdf");
             fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
-            safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
+            safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256()).block();
         }
     }
 

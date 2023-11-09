@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
@@ -200,6 +201,18 @@ class LegalFactPdfGeneratorTest {
         System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
     }
 
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void generateNotificationAarError() {
+        Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(null);
+
+        Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+        NotificationInt notificationInt = buildNotification();
+        String quickAccessToken = "test";
+        NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType(RecipientTypeInt.PF).build();
+        Assertions.assertThrows(PnInternalException.class, () -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+    }
+    
     @Test
     @ExtendWith(SpringExtension.class)
     void generateNotificationAARTest() {

@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
@@ -24,6 +25,7 @@ import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.utils.PaperSendMode;
 import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -311,6 +313,23 @@ class PaperChannelServiceImplTest {
         Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void prepareAnalogNotificationErrorNoConfiguration() {
+        //GIVEN
+        NotificationInt notificationInt = newNotification("taxid");
+
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        
+        Mockito.when(paperChannelUtils.buildPrepareAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_1");
+
+        Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(null);
+        
+        // WHEN
+        Assertions.assertThrows(PnInternalException.class, () -> paperChannelService.prepareAnalogNotification(notificationInt, 0, 1));
     }
 
     @ExtendWith(MockitoExtension.class)

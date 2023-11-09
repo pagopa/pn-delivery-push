@@ -296,7 +296,7 @@ public class LegalFactGenerator {
                     templateModel
             );
         } else {
-            String msg = String.format("There isn't correct configuration for iun=%s sentAt=%s", notification.getIun(), notification.getSentAt());
+            String msg = String.format("There isn't correct AAR configuration for date=%s - iun=%s", notification.getSentAt(), notification.getIun());
             log.error(msg);
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND);
         }
