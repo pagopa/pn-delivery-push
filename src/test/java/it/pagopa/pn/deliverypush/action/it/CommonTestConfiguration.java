@@ -26,6 +26,7 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForR
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -36,14 +37,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.unit.DataSize;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
@@ -141,8 +147,7 @@ import java.time.Instant;
         NotificationCancellationActionHandler.class
 })
 @ExtendWith(SpringExtension.class)
-@TestPropertySource("classpath:/application-test.properties")
-@EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
+@TestPropertySource("classpath:/application-testIT.properties")
 @DirtiesContext
 public class CommonTestConfiguration {
     @TestConfiguration
@@ -176,11 +181,15 @@ public class CommonTestConfiguration {
     AddressManagerClientMock addressManagerClientMock;
     @Autowired
     F24ClientMock f24ClientMock;
-
+    @Autowired
+    PnDeliveryPushConfigs cfg;
+    
     @BeforeEach
     public void setup() {
-
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+
+        setcCommonsConfigurationPropertiesForTest(cfg);
+
         ConsoleAppenderCustom.initializeLog();
 
         TestUtils.initializeAllMockClient(
@@ -196,6 +205,67 @@ public class CommonTestConfiguration {
                 addressManagerClientMock,
                 f24ClientMock
         );
+    }
+
+    private void setcCommonsConfigurationPropertiesForTest(PnDeliveryPushConfigs cfg) {
+        // Impostazione delle proprietà TimeParams
+        TimeParams times = new TimeParams();
+        times.setWaitingForReadCourtesyMessage(Duration.ofSeconds(1));
+        times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
+        times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(1));
+        times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(1));
+        times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(1));
+        times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
+        times.setNotificationNonVisibilityTime("21:00");
+        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofSeconds(1));
+        Mockito.when(cfg.getTimeParams()).thenReturn(times);
+
+        // Impostazione delle proprietà PaperChannel
+        PnDeliveryPushConfigs.PaperChannel paperChannel = new PnDeliveryPushConfigs.PaperChannel();
+        PnDeliveryPushConfigs.SenderAddress senderAddress = new PnDeliveryPushConfigs.SenderAddress();
+        senderAddress.setFullname("PagoPA S.p.A.");
+        senderAddress.setAddress("Via Sardegna n. 38");
+        senderAddress.setZipcode("00187");
+        senderAddress.setCity("Roma");
+        senderAddress.setPr("Roma");
+        senderAddress.setCountry("Italia");
+        paperChannel.setSenderAddress(senderAddress);
+        Mockito.when(cfg.getPaperChannel()).thenReturn(paperChannel);
+
+        // Impostazione delle proprietà Webapp
+        PnDeliveryPushConfigs.Webapp webapp = new PnDeliveryPushConfigs.Webapp();
+        webapp.setDirectAccessUrlTemplatePhysical("http://localhost:8090/dist/direct_access_pf");
+        webapp.setDirectAccessUrlTemplateLegal("http://localhost:8090/dist/direct_access_pg");
+        webapp.setFaqUrlTemplateSuffix("faq.html");
+        webapp.setQuickAccessUrlAarDetailSuffix("notifica?aar");
+        webapp.setLandingUrl("https://www.dev.pn.pagopa.it");
+        Mockito.when(cfg.getWebapp()).thenReturn(webapp);
+
+        // Impostazione delle proprietà ExternalChannel
+        PnDeliveryPushConfigs.ExternalChannel externalChannel = new PnDeliveryPushConfigs.ExternalChannel();
+        externalChannel.setDigitalCodesProgress(Collections.singletonList("C001"));
+        externalChannel.setDigitalCodesRetryable(Arrays.asList("C008", "C010"));
+        externalChannel.setDigitalCodesSuccess(Collections.singletonList("C003"));
+        externalChannel.setDigitalCodesFail(Arrays.asList("C002", "C004", "C006", "C009"));
+        externalChannel.setDigitalCodesFatallog(Arrays.asList("C008", "C010"));
+        externalChannel.setDigitalRetryCount(-1);
+        externalChannel.setDigitalRetryDelay(Duration.ofMinutes(10));
+        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofHours(26));
+        Mockito.when(cfg.getExternalChannel()).thenReturn(externalChannel);
+
+        // Impostazione delle proprietà di retention degli allegati
+        Mockito.when(cfg.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
+
+        // Impostazione delle proprietà di validazione PDF
+        Mockito.when(cfg.isCheckPdfValidEnabled()).thenReturn(true);
+        Mockito.when(cfg.getCheckPdfSize()).thenReturn(DataSize.ofMegabytes(200));
+
+        // Impostazione delle proprietà di PaperSendMode
+        List<String> paperSendModeList = new ArrayList<>();
+        paperSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
+        paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
+
+        Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList);
     }
 
 }

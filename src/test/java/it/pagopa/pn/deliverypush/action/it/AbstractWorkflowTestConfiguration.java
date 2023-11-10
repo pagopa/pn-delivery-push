@@ -48,6 +48,10 @@ import java.io.IOException;
 public class AbstractWorkflowTestConfiguration {
 
     @Bean
+    public PnDeliveryPushConfigs pnDeliveryPushConfigsTest() {
+        return Mockito.mock(PnDeliveryPushConfigs.class);
+    }
+    @Bean
     public PnDeliveryClient testPnDeliveryClient( PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
         return new PnDeliveryClientMock(pnDataVaultClientReactiveMock);
     }
@@ -89,12 +93,6 @@ public class AbstractWorkflowTestConfiguration {
     public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc , @Lazy PaperSendModeUtils paperSendModeUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
-//        PnDeliveryPushConfigs pnDeliveryPushConfigs =  Mockito.mock(PnDeliveryPushConfigs.class);
-//        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(new PnDeliveryPushConfigs.Webapp());
-//        pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("aar=%s");
-//        pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq.html");
-//        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.it");
-//        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://notifichedigitali.legal.it");
         return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  pnDeliveryPushConfigs, new InstantNowSupplier(), paperSendModeUtils);
     }
     
