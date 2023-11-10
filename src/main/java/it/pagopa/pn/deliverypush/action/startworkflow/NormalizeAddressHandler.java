@@ -18,6 +18,7 @@ import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -33,8 +34,8 @@ public class NormalizeAddressHandler {
         log.debug("Start handleNormalizedAddressResponse - iun={}", notification.getIun());
 
         List<NotificationRecipientAddressesDtoInt> listNormalizedAddress = new ArrayList<>();
-        
-        normalizeItemsResult.getResultItems().forEach( result ->{
+        //Sorted for datavault
+        normalizeItemsResult.getResultItems().stream().sorted(Comparator.comparingInt(elem -> Integer.parseInt(elem.getId()))).forEach(result ->{
             int recIndex = Integer.parseInt(result.getId());
             NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
