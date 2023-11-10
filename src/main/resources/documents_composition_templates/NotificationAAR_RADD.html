@@ -310,11 +310,14 @@
     <div id="main__subject" class="strong">
       ${notification.subject}
     </div>
-    <div class="eight-px">Ricevi questo avviso di avvenuta ricezione in qualità di <#if recipient.recipientType=="PF">
+    <div class="eight-px">Ricevi questo avviso di avvenuta ricezione in qualità di
+      <#if recipient.recipientType=="PF">
         privato cittadino con Codice Fiscale
         <#else>
           persona giuridica con Codice Fiscale
-      </#if> ${recipient.taxId}.</div>
+      </#if>
+      ${recipient.taxId}.
+    </div>
     <div id="main__disclaimer" class="ten-px">
       Hai ricevuto su SEND - Servizio Notifiche Digitali una notifica da parte di ${notification.sender.paDenomination}.
       Una notifica è una comunicazione a valore legale. È composta da questo avviso di avvenuta ricezione e da uno o più
@@ -325,7 +328,7 @@
 
   <div class="row">
     <div class="heading ten-px">Visualizzali online - gratis</div>
-    <div class="relative-box" style="height: 22mm;">
+    <div class="relative-box" style="height: 20mm;">
       <div id="view-online-box">
         <div class="section-list">
           <ol>
@@ -337,85 +340,113 @@
         </div>
       </div>
       <div id="io-notifications">
-        <div class="rounded-box relative-box">
-          <img id="io-notifications__image" src="images/io-on-light.png" />
-          <div id="io-notifications__content" class="eight-px">
-            Scarica l’app IO e attiva il servizio SEND - Notifiche digitali. Se riceverai nuove notifiche, potrai
-            visualizzare i documenti e pagare eventuali spese direttamente in app.
+        <#if recipient.recipientType=="PF">
+          <div class="rounded-box relative-box">
+            <img id="io-notifications__image" src="images/io-on-light.png" />
+            <div id="io-notifications__content" class="eight-px">
+              Scarica l’app IO e attiva il servizio SEND - Notifiche digitali. Se riceverai nuove notifiche, potrai
+              visualizzare i documenti e pagare eventuali spese direttamente in app.
+            </div>
           </div>
-        </div>
+          <#else>
+
+        </#if>
+
       </div>
     </div>
   </div>
 
   <div class="row">
-    <div class="relative-box" style="height: 100mm;">
-      <div id="poste-box">
-        <div class="heading ten-px">
-          Ritirali in Ufficio Postale - A Pagamento
-        </div>
-        <div class="section-list">
-          <ol>
-            <li>Vai in qualsiasi Ufficio Postale e richiedi il servizio “Stampa notifica” (disponibile anche senza SPID
-              o CIE)</li>
-            <li>Allo sportello, mostra:
-              <ul id="square-list">
-                <li>questo avviso di avvenuta ricezione</li>
-                <li>un tuo documento di riconoscimento</li>
-                <li>il tuo Codice Fiscale</li>
-                <li>se hai ricevuto la notifica in qualità di persona giuridica, un documento che attesti il tuo ruolo
-                  di legale rappresentante</li>
-              </ul>
-            </li>
-            <li>Paga il corrispettivo e ritira i documenti notificati</li>
-          </ol>
-        </div>
-        <div class="eight-px" style="padding-left: 2.5mm; line-height: normal;">Un volta usufruito del servizio “Stampa
-          Notifica”, non potrai
-          richiedere una nuova stampa degli stessi documenti. Puoi consultare i termini e le condizioni del servizio
-          “Stampa Notifica” su <b>poste.it</b> e in Ufficio Postale.</div>
-        <div id="send-info">
-          <div class="rounded-box relative-box">
-            <div id="send-info__content" class="eight-px">
-              SEND è uno strumento che rende l’invio di notifiche da parte della Pubblica Amministrazione sicuro,
-              efficiente ed economico. Per saperne di più, visita il sito <b><a
-                  href="${sendURL}">${sendURLLAbel}</a></b>
-            </div>
-          </div>
-        </div>
-
+    <#if recipient.recipientType=="PF">
+      <div class="relative-box" style="height: 96mm;">
+        <#else>
+          <div class="relative-box" style="height: 102mm;">
+    </#if>
+    <div id="poste-box">
+      <div class="heading ten-px">
+        Ritirali in Ufficio Postale - A Pagamento
       </div>
-      <div id="mandate-box">
-        <div class="heading ten-px">
-          Vuoi delegare qualcuno al ritiro?
-        </div>
-        <div id="mandate-box__content">
-          Io, ${recipient.denomination} ${recipient.taxId}, delego
-          <div class="eight-px border-bottom">
-            Nome e Cognome
+      <div class="section-list">
+        <ol>
+          <li>Vai in qualsiasi Ufficio Postale e richiedi il servizio “Stampa notifica” (disponibile anche senza SPID
+            o CIE)</li>
+          <li>Allo sportello, mostra:
+            <ul id="square-list">
+              <li>questo avviso di avvenuta ricezione</li>
+              <li>un tuo documento di riconoscimento</li>
+              <li>il tuo Codice Fiscale</li>
+              <#if recipient.recipientType=="PF">
+                <#else>
+                  <li>un documento che attesti il tuo
+                    ruolo
+                    di legale rappresentante</li>
+              </#if>
+            </ul>
+          </li>
+          <li>Paga il corrispettivo e ritira i documenti notificati</li>
+        </ol>
+      </div>
+      <div class="eight-px" style="padding-left: 2.5mm; line-height: normal;">Un volta usufruito del servizio “Stampa
+        Notifica”, non potrai
+        richiedere una nuova stampa degli stessi documenti. Puoi consultare i termini e le condizioni del servizio
+        “Stampa Notifica” su <b>poste.it</b> e in Ufficio Postale.</div>
+      <div id="send-info">
+        <div class="rounded-box relative-box">
+          <div id="send-info__content" class="eight-px">
+            SEND è uno strumento che rende l’invio di notifiche da parte della Pubblica Amministrazione sicuro,
+            efficiente ed economico. Per saperne di più, visita il sito <b><a href="${sendURL}">${sendURLLAbel}</a></b>
           </div>
-          <div class="eight-px border-bottom">
-            Codice Fiscale
-          </div>
-          a ritirare in Ufficio Postale i documenti notificati.
-          <div class="eight-px border-bottom">
-            Firma
-          </div>
-        </div>
-        <div class="section-list">
-          Allo sportello, la persona delegata dovrà mostrare:
-          <ul id="square-list">
-            <li>questo avviso con la delega compilata e firmata</li>
-            <li>un suo documento di riconoscimento</li>
-            <li>il suo Codice Fiscale</li>
-            <li>una copia o l’originale del tuo Codice Fiscale e di un tuo documento di riconoscimento</li>
-            <li>se hai ricevuto la notifica in qualità di persona giuridica, un documento che attesti il tuo ruolo di
-              legale rappresentante</li>
-          </ul>
         </div>
       </div>
 
     </div>
+    <div id="mandate-box">
+      <div class="heading ten-px">
+        Vuoi delegare qualcuno al ritiro?
+      </div>
+      <div id="mandate-box__content">
+        <#if recipient.recipientType=="PF">
+          Io, ${recipient.denomination} ${recipient.taxId}, delego
+          <#else>
+            <div>
+              Io,
+              <span style="width: 86mm; display: inline-block; margin-top: 0;" class="eight-px border-bottom">
+                Nome e Cognome
+              </span>
+              in qualità di rappresentante legale di ${recipient.denomination} ${recipient.taxId}, delego
+            </div>
+        </#if>
+
+        <div class="eight-px border-bottom">
+          Nome e Cognome
+        </div>
+        <div class="eight-px border-bottom">
+          Codice Fiscale
+        </div>
+        a ritirare in Ufficio Postale i documenti notificati.
+        <div class="eight-px border-bottom">
+          Firma
+        </div>
+      </div>
+      <div class="section-list">
+        Allo sportello, la persona delegata dovrà mostrare:
+        <ul id="square-list">
+          <li>questo avviso con la delega compilata e firmata</li>
+          <li>un suo documento di riconoscimento</li>
+          <li>il suo Codice Fiscale</li>
+          <li>una copia o l’originale del tuo Codice Fiscale e di un tuo documento di riconoscimento</li>
+          <#if recipient.recipientType=="PF">
+            <#else>
+              <li>un documento che attesti il tuo ruolo
+                di
+                legale rappresentante</li>
+          </#if>
+
+        </ul>
+      </div>
+    </div>
+
+  </div>
   </div>
 
   <div class="row">
