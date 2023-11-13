@@ -44,13 +44,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AbstractWorkflowTestConfiguration {
 
     @Bean
-    public PnDeliveryPushConfigs pnDeliveryPushConfigsTest() {
-        return Mockito.mock(PnDeliveryPushConfigs.class);
+    public PnDeliveryPushConfigs pnDeliveryPushConfigs() {
+        PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+
+        // Base configuration
+        List<String> paperSendModeList = new ArrayList<>();
+        paperSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
+        paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
+        Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(paperSendModeList);
+        
+        return pnDeliveryPushConfigs;
     }
+    
     @Bean
     public PnDeliveryClient testPnDeliveryClient( PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
         return new PnDeliveryClientMock(pnDataVaultClientReactiveMock);

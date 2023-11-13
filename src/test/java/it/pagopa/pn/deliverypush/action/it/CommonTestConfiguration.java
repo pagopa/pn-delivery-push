@@ -130,13 +130,12 @@ import java.util.List;
         AddressManagerClientMock.class,
         NormalizeAddressHandler.class,
         AddressManagerResponseHandler.class,
-        DigitalTestIT.SpringTestConfiguration.class,
+        CommonTestConfiguration.SpringTestConfiguration.class,
         F24Validator.class,
         F24ClientMock.class,
         PnExternalRegistriesClientReactiveMock.class,
         PaymentValidator.class,
         NotificationRefusedActionHandler.class,
-        PaperSendModeUtils.class,
         F24ResponseHandler.class,
         PaperChannelMock.class,
         NotificationPaidHandler.class,
@@ -144,7 +143,8 @@ import java.util.List;
         AuthUtils.class,
         MandateServiceImpl.class,
         MandateClientMock.class,
-        NotificationCancellationActionHandler.class
+        NotificationCancellationActionHandler.class,
+        PaperSendModeUtils.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")

@@ -1412,7 +1412,6 @@ class AnalogTestIT extends CommonTestConfiguration{
     }
 
     @Test
-    @Ignore
     void checkConfigurationWithAttachmentAndOldAAR() {
  /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
