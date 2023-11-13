@@ -170,7 +170,7 @@ public class DigitalWorkFlowHandler {
 
     public void checkAndSendNotification(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt nextAddressInfo) {
         String iun = notification.getIun();
-        log.debug("Get notification and recipient completed - iun={} id={}", iun, recIndex);
+        log.debug("Start checkAndSendNotification - iun={} id={}", iun, recIndex);
 
         if (DigitalAddressSourceInt.GENERAL.equals(nextAddressInfo.getDigitalAddressSource())) {
             log.info("Address is general - iun={} id={}", iun, recIndex);
@@ -343,6 +343,8 @@ public class DigitalWorkFlowHandler {
     }
     
     private void handleDigitalAddressNotPresent(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo, String iun) {
+        log.debug("handleDigitalAddressNotPresent - iun={} id={}", iun, recIndex);
+
         //Se l'indirizzo recuperato da base dati è nullo
         if(addressInfo.getRelatedFeedbackTimelineId() != null){
             //E si tratta del secondo tentativo nel secondo ciclo d'invii a valle del primo tentativo (del secondo ciclo, cioè la ripetizione del primo) andato a buon fine
