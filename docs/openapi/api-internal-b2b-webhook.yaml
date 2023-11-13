@@ -524,6 +524,7 @@ paths:
         - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
+        - $ref: '#/components/parameters/queryWithDetail'
       responses:
         '200':
           description: OK
@@ -640,6 +641,14 @@ components:
         minLength: 38
         maxLength: 38
         pattern: ^0\d{37}$
+    queryWithDetail:
+      description: >-
+        Indica se recuperare anche il dettaglio della timeline relativo ad un certo evento di stream.
+      name: withTimelineDetail
+      in: query
+      required: false
+      schema:
+        type: boolean
     pathStreamId:
       description: >-
         Identificativo dello stream di eventi
@@ -738,6 +747,29 @@ components:
 
     ###  - EVENTI GENERATI DA PN
     ###################################
+
+    ProgressResponseV2:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProgressResponseElementV2'
+
+    ProgressResponseElementV2:
+      type: object
+      allOf:
+        $ref: '#/components/schemas/ProgressResponseElement'
+      properties:
+        timelineElement:
+          description: 'Eventuale dettaglio associato, se espressamente richiesto tramite il flag withTimelineDetail'
+          type: object
+          additionalProperties: false
+            properties:
+              elementId:
+                type: string
+                description: >-
+                  Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in
+                  maniera univoca l'elemento di timeline
+              details:
+                $ref: $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementDetailsV20'
 
     ProgressResponse:
       type: array
