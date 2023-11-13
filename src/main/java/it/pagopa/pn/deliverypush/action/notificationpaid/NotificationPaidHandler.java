@@ -68,9 +68,7 @@ public class NotificationPaidHandler {
     }
 
     private Optional<TimelineElementInternal> getNotificationPaidTimelineElement(String iun, String elementId) {
-
         return timelineService.getTimelineElement(iun, elementId);
-
     }
 
 }

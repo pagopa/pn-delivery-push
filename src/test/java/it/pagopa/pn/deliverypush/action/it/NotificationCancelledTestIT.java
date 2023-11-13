@@ -1,32 +1,14 @@
 package it.pagopa.pn.deliverypush.action.it;
 
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
-import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
-import it.pagopa.pn.deliverypush.action.completionworkflow.*;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
-import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
-import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
-import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
-import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.*;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
-import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
-import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
-import it.pagopa.pn.deliverypush.action.utils.*;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -44,27 +26,21 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.Reci
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
+<<<<<<< HEAD
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
+=======
+import it.pagopa.pn.deliverypush.service.TimelineService;
+>>>>>>> 4e3bc35f4e99d219f6af7ce4c631aa9aea1e8006
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -75,6 +51,7 @@ import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 
+<<<<<<< HEAD
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
@@ -178,120 +155,21 @@ class NotificationCancelledTestIT {
         }
     }
 
+=======
+class NotificationCancelledTestIT extends CommonTestConfiguration{
+>>>>>>> 4e3bc35f4e99d219f6af7ce4c631aa9aea1e8006
     @SpyBean
-    private LegalFactGenerator legalFactGenerator;
-
+    LegalFactGenerator legalFactGenerator;
+    @Autowired
+    StartWorkflowHandler startWorkflowHandler;
+    @Autowired
+    NotificationUtils notificationUtils;
+    @Autowired
+    NotificationViewedRequestHandler notificationViewedRequestHandler;
+    @Autowired
+    StatusUtils statusUtils;
     @SpyBean
-    private ExternalChannelMock externalChannelMock;
-
-    @SpyBean
-    private PaperChannelMock paperChannelMock;
-
-    @Autowired
-    private StartWorkflowHandler startWorkflowHandler;
-    
-    @Autowired
-    private InstantNowSupplier instantNowSupplier;
-    
-    @Autowired
-    private SafeStorageClientMock safeStorageClientMock;
-    
-    @Autowired
-    private PnDeliveryClientMock pnDeliveryClientMock;
-
-    @Autowired
-    private PnDeliveryClientReactiveMock pnDeliveryClientReactiveMock;
-
-    @Autowired
-    private UserAttributesClientMock addressBookMock;
-
-    @Autowired
-    private NationalRegistriesClientMock nationalRegistriesClientMock;
-    
-    @Autowired
-    private TimelineDaoMock timelineDaoMock;
-
-    @Autowired
-    private TimelineCounterDaoMock timelineCounterDaoMock;
-
-    @Autowired
-    private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
-
-    @Autowired
-    private NotificationUtils notificationUtils;
-
-    @Autowired
-    private PnDataVaultClientMock pnDataVaultClientMock;
-   
-    @Autowired
-    private NotificationViewedRequestHandler notificationViewedRequestHandler;
-
-    @Autowired
-    private StatusUtils statusUtils;
-
-    @SpyBean
-    private SaveLegalFactsService legalFactStore;
-
-    @SpyBean
-    private PaperNotificationFailedService paperNotificationFailedService;
-
-    @SpyBean
-    private TimelineService timelineService;
-
-    @Autowired
-    private PaperChannelResponseHandler paperChannelResponseHandler;
-
-    @Autowired
-    private AnalogWorkflowPaperChannelResponseHandler analogWorkflowPaperChannelResponseHandler;
-
-    @Autowired
-    private PaperChannelService paperChannelService;
-
-    @Autowired
-    private PaperChannelUtils paperChannelUtils;
-
-    @Autowired
-    private AuditLogService auditLogService;
-
-    @MockBean
-    private MandateService mandateService;
-
-    @Autowired
-    private NotificationCancellationService notificationCancellationService;
-
-    @Autowired
-    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
-
-    @Autowired
-    private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
-
-    @Autowired
-    private AddressManagerClientMock addressManagerClientMock;
-
-    @Autowired
-    private NotificationCancellationActionHandler notificationCancellationActionHandler;
-
-    @Autowired
-    private F24ClientMock f24ClientMock;
-
-    @BeforeEach
-    public void setup() {
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
-        TestUtils.initializeAllMockClient(
-                safeStorageClientMock,
-                pnDeliveryClientMock,
-                addressBookMock,
-                nationalRegistriesClientMock,
-                timelineDaoMock,
-                paperNotificationFailedDaoMock,
-                pnDataVaultClientMock,
-                pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock,
-                addressManagerClientMock,
-                f24ClientMock
-        );
-    }
+    TimelineService timelineService;
 
     @Test
     void notificationCancelled() {

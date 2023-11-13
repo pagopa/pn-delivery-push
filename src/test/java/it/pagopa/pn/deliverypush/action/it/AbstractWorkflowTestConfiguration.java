@@ -44,9 +44,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AbstractWorkflowTestConfiguration {
 
+    @Bean
+    public PnDeliveryPushConfigs pnDeliveryPushConfigs() {
+        PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+
+        // Base configuration
+        List<String> paperSendModeList = new ArrayList<>();
+        paperSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
+        paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
+        Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(paperSendModeList);
+        
+        return pnDeliveryPushConfigs;
+    }
+    
     @Bean
     public PnDeliveryClient testPnDeliveryClient( PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
         return new PnDeliveryClientMock(pnDataVaultClientReactiveMock);
@@ -89,12 +104,15 @@ public class AbstractWorkflowTestConfiguration {
     public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc , @Lazy PaperSendModeUtils paperSendModeUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
+<<<<<<< HEAD
 //        PnDeliveryPushConfigs pnDeliveryPushConfigs =  Mockito.mock(PnDeliveryPushConfigs.class);
 //        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(new PnDeliveryPushConfigs.Webapp());
 //        pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("aar=%s");
 //        pnDeliveryPushConfigs.getWebapp().setFaqUrlTemplateSuffix("faq.html");
 //        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplatePhysical("https://notifichedigitali.it");
 //        pnDeliveryPushConfigs.getWebapp().setDirectAccessUrlTemplateLegal("https://notifichedigitali.legal.it");
+=======
+>>>>>>> 4e3bc35f4e99d219f6af7ce4c631aa9aea1e8006
         return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  pnDeliveryPushConfigs, new InstantNowSupplier(), paperSendModeUtils);
     }
     

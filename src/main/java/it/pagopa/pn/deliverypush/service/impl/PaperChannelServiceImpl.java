@@ -381,7 +381,11 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 case SIMPLE_REGISTERED_LETTER -> paperSendMode.getSimpleRegisteredLetterSendAttachmentMode();
             };
         }else {
+<<<<<<< HEAD
             String msg = String.format("There isn't correct configuration for iun=%s sentAt=%s", notification.getIun(), notification.getSentAt());
+=======
+            String msg = String.format("There isn't correct Send Analog configuration date=%s - iun=%s sentAt", notification.getSentAt(),  notification.getIun());
+>>>>>>> 4e3bc35f4e99d219f6af7ce4c631aa9aea1e8006
             log.error(msg);
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND);
         }
