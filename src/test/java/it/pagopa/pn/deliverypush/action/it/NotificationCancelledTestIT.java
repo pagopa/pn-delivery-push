@@ -38,7 +38,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
@@ -48,10 +47,10 @@ import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
+import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -73,7 +72,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -158,6 +156,7 @@ import static org.mockito.ArgumentMatchers.eq;
         AuthUtils.class,
         MandateServiceImpl.class,
         NotificationCancellationActionHandler.class,
+        PaperSendModeUtils.class,
         NotificationCancelledTestIT.SpringTestConfiguration.class
 })
 @TestPropertySource("classpath:/application-test.properties")

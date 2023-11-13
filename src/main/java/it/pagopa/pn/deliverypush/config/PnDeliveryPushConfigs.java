@@ -96,7 +96,9 @@ public class PnDeliveryPushConfigs {
     private boolean checkPdfValidEnabled;
     private Duration actionTtl;
     private boolean checkCfEnabled;
-    
+
+    private List<String> paperSendMode;
+
     @Data
     public static class Topics {
 
@@ -232,9 +234,7 @@ public class PnDeliveryPushConfigs {
     public static class LegalFacts {
         private SanitizeMode sanitizeMode;
     }
-
-    private String sendNotificationAttachments;
-
+    
     private boolean safeStorageFileNotFoundRetry;
 
 }

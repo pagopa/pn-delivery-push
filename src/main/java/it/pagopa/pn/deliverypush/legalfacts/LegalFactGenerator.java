@@ -1,11 +1,11 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import com.amazonaws.util.IOUtils;
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.FileUtils;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -15,6 +15,8 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
+import it.pagopa.pn.deliverypush.utils.PaperSendMode;
+import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,12 +28,15 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND;
 
 @Component
 @Slf4j
@@ -76,7 +81,7 @@ public class LegalFactGenerator {
     private final PhysicalAddressWriter physicalAddressWriter;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final InstantNowSupplier instantNowSupplier;
-    private final MVPParameterConsumer mvpParameterConsumer;
+    private final PaperSendModeUtils paperSendModeUtils;
     private static final String TEMPLATES_DIR_NAME = "documents_composition_templates";
 
     private static final String SEND_LOGO_BASE64 =  readLocalImagesInBase64(TEMPLATES_DIR_NAME + "/images/aar-logo-short-small.png");
@@ -87,13 +92,13 @@ public class LegalFactGenerator {
             PhysicalAddressWriter physicalAddressWriter,
             PnDeliveryPushConfigs pnDeliveryPushConfigs,
             InstantNowSupplier instantNowSupplier,
-            MVPParameterConsumer mvpParameterConsumer) {
+            PaperSendModeUtils paperSendModeUtils) {
         this.documentComposition = documentComposition;
         this.instantWriter = instantWriter;
         this.physicalAddressWriter = physicalAddressWriter;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.instantNowSupplier = instantNowSupplier;
-        this.mvpParameterConsumer = mvpParameterConsumer;
+        this.paperSendModeUtils = paperSendModeUtils;
     }
 
 
@@ -275,18 +280,17 @@ public class LegalFactGenerator {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
 
+        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(notification.getSentAt());
 
-        if( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( notification.getSender().getPaTaxId() ) ) ){
+        if(paperSendMode != null){
             return documentComposition.executePdfTemplate(
-                    DocumentComposition.TemplateType.AAR_NOTIFICATION,
+                    paperSendMode.getAarTemplateType(),
                     templateModel
             );
-        }else {
-            //In mvp viene generato un AAR senza QrCode
-            return documentComposition.executePdfTemplate(
-                    DocumentComposition.TemplateType.AAR_NOTIFICATION_MVP,
-                    templateModel
-            );
+        } else {
+            String msg = String.format("There isn't correct AAR configuration for date=%s - iun=%s", notification.getSentAt(), notification.getIun());
+            log.error(msg);
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND);
         }
 
     }
