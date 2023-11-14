@@ -345,7 +345,7 @@ paths:
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
 
-  '/delivery-progresses/streams':
+  '/delivery-progresses/v2.0/streams':
     parameters:                                               # NO EXTERNAL
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -413,7 +413,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/delivery-progresses/streams/{streamId}':
+  '/delivery-progresses/v2.0/streams/{streamId}':
     parameters:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -508,7 +508,7 @@ paths:
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
     ############################################################################################
 
-  '/delivery-progresses/streams/{streamId}/events':
+  '/delivery-progresses/v2.0/streams/{streamId}/events':
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -771,18 +771,16 @@ components:
       allOf:
         $ref: '#/components/schemas/ProgressResponseElement'
       properties:
-        timelineElement:
-          description: 'Eventuale dettaglio associato, se espressamente richiesto tramite il flag withTimelineDetail'
-          type: object
-          additionalProperties: false
-            properties:
-              elementId:
-                type: string
-                description: >-
-                  Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in
-                  maniera univoca l'elemento di timeline
-              details:
-                $ref: $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementDetailsV20'
+        elementId:
+          type: string
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in
+            maniera univoca l'elemento di timeline
+        details:
+          $ref: $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementDetailsV20'
+          description: >-
+                      Dettagli relativi all'evento di timeline. Possono essere recuperati con il flag withTimelineDetail a true, se l'apiKey è abilitata per lo stream
+
 
     ProgressResponse:
       type: array
