@@ -557,6 +557,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Not allowed to consume details
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
@@ -687,6 +693,13 @@ components:
           enum:
             - STATUS
             - TIMELINE
+        groups:
+          description: >-
+            rappresenta l'elenco degli id gruppi abilitati a richiedere i dettagli. Una apiKey può richiedere i dettagli dello stream solo se non ha gruppi o se tutti i gruppi dello stream sono presenti nella apiKey.
+          type: array
+          items:
+            type: string
+            minLength: 0
         filterValues:
           description: >-
             rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi a v1
