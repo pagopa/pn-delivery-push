@@ -312,9 +312,9 @@
     </div>
     <div class="eight-px">Ricevi questo avviso di avvenuta ricezione in qualità di
       <#if recipient.recipientType=="PF">
-        privato cittadino con Codice Fiscale
+        <b>persona fisica</b> con Codice Fiscale
         <#else>
-          persona giuridica con Codice Fiscale
+          <b>persona giuridica</b> con Codice Fiscale
       </#if>
       ${recipient.taxId}.
     </div>
@@ -327,7 +327,7 @@
   </div>
 
   <div class="row">
-    <div class="heading ten-px">Visualizzali online - gratis</div>
+    <div class="heading ten-px">Visualizza i documenti online - gratis</div>
     <div class="relative-box" style="height: 20mm;">
       <div id="view-online-box">
         <div class="section-list">
@@ -450,7 +450,7 @@
   </div>
 
   <div class="row">
-    <div class="eight-px">I documenti sono disponibili per 120 giorni dalla data di perfezionamento della notifica. Per
+    <div class="eight-px">Hai 120 giorni dalla data di perfezionamento della notifica per ottenere i documenti. Per
       conoscerla, vai su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></div>
   </div>
 </body>
