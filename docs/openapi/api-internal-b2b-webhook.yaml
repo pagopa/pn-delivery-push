@@ -544,7 +544,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProgressResponseV2"
+                $ref: "#/components/schemas/ProgressResponseV20"
         '429':
           description: Too Many Requests
           headers:
@@ -634,8 +634,8 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'    # NO EXTERNAL
     uidAuthFleet:                                                                                                                                               # NO EXTERNAL
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'     # NO EXTERNAL
-    cxGroupsAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'
+    cxGroupsAuthFleet:                                                                                                                                          # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
 
 
     ############################################################################################
@@ -767,15 +767,15 @@ components:
     ###  - EVENTI GENERATI DA PN
     ###################################
 
-    ProgressResponseV2:
+    ProgressResponseV20:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV2'
+        $ref: '#/components/schemas/ProgressResponseElementV20'
 
-    ProgressResponseElementV2:
+    ProgressResponseElementV20:
       type: object
       allOf:
-        $ref: '#/components/schemas/ProgressResponseElement'
+        - $ref: '#/components/schemas/ProgressResponseElement'
       properties:
         elementId:
           type: string
@@ -783,7 +783,7 @@ components:
             Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in
             maniera univoca l'elemento di timeline
         details:
-          $ref: $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementDetailsV20'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementDetailsV20'
           description: >-
                       Dettagli relativi all'evento di timeline. Possono essere recuperati con il flag withTimelineDetail a true, se l'apiKey è abilitata per lo stream
 
