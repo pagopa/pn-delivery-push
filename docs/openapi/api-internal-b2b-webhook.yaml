@@ -350,6 +350,7 @@ paths:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
+      - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
     post:
       summary: Crea nuovo stream di eventi
       description: >-
@@ -418,6 +419,7 @@ paths:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
+      - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/pathStreamId'        
     get:
       summary: Leggi metadati dello stream
@@ -522,6 +524,7 @@ paths:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
         - $ref: '#/components/parameters/queryWithDetail'
@@ -596,6 +599,7 @@ paths:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL                 # NOT YET IMPLEMENTED
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL                 # NOT YET IMPLEMENTED
         - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL                 # NOT YET IMPLEMENTED
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'     # NO EXTERNAL                 # NOT YET IMPLEMENTED
       requestBody:                                                                            # NOT YET IMPLEMENTED
         required: true                                                                        # NOT YET IMPLEMENTED
         content:                                                                              # NOT YET IMPLEMENTED
@@ -630,6 +634,8 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'    # NO EXTERNAL
     uidAuthFleet:                                                                                                                                               # NO EXTERNAL
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'     # NO EXTERNAL
+    cxGroupsAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'
 
 
     ############################################################################################
