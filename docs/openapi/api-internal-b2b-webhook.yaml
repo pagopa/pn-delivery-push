@@ -1,6 +1,6 @@
 # di seguito le variabili che possono subire variazioni in caso di modifiche all'applicazione, da ricercare in base all'ID
 # <span id="webhookMaxLength">50</span> pn.delivery-push.webhook.max-length = lunghezza massima della response degli eventi
-# <span id="webhookMaxStreams">5</span> pn.delivery-push.webhook.max-streams = numero massimo di stream confgurabili per PA
+# <span id="webhookMaxStreams">10</span> pn.delivery-push.webhook.max-streams = numero massimo di stream confgurabili per PA
 # <span id="webhookTtl">7</span> pn.delivery-push.webhook.ttl = retention per gli eventi webhook PN-2264
 openapi: 3.0.3
 info:
@@ -12,7 +12,7 @@ info:
 #  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
   description: >- 
     I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
-    automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">5</span> configurazioni di flussi per singola PA</strong></font> su 
+    automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">10</span> configurazioni di flussi per singola PA</strong></font> su
     informazioni relative a: <br/>
       - cambiamento di stato della notifica;  <br/>
       - inserimento di elementi nella timeline. <br/>
