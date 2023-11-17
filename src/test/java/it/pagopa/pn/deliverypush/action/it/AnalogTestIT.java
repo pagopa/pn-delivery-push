@@ -34,7 +34,6 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -219,7 +218,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()

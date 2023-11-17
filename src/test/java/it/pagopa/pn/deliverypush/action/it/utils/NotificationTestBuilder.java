@@ -78,7 +78,7 @@ public class NotificationTestBuilder {
 
     public NotificationInt build() {
         if(iun == null){
-            iun = TestUtils.getRandomIun();
+            iun = TestUtils.getRandomIun(4);
         }
         
         if(paId == null){

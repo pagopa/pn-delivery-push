@@ -8,7 +8,6 @@ import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotif
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -66,10 +64,8 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
     @Test
     void findByPa() {
         //Given
-        String streamId = UUID.randomUUID().toString();
         List<StreamEntity> addressesEntities = new ArrayList<>();
         int N = 4;
-        Instant instant = Instant.now();
         for(int i = 0;i<N;i++)
         {
             StreamEntity ae = newStream(UUID.randomUUID().toString());
