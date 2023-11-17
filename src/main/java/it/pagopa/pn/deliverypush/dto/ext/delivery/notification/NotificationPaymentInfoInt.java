@@ -11,6 +11,5 @@ import lombok.*;
 public class NotificationPaymentInfoInt {
     private String noticeCode;
     private String creditorTaxId;
-
     private NotificationDocumentInt pagoPaForm;
 }

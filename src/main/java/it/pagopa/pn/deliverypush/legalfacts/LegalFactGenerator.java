@@ -123,7 +123,6 @@ public class LegalFactGenerator {
                 DocumentComposition.TemplateType.REQUEST_ACCEPTED,
                 templateModel
             );
-
     }
 
     private List<String> extractNotificationAttachmentDigests(NotificationInt notification) {

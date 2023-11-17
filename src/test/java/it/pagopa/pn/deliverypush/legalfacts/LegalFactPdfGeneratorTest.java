@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
@@ -206,32 +207,122 @@ class LegalFactPdfGeneratorTest {
 	
 	@Test
 	@ExtendWith(SpringExtension.class)
-	void generateNotificationAARMVPTest() throws IOException {
+        void generateNotificationAarError() {
+                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(null);
+                
+                NotificationInt notificationInt = buildNotification();
+                String quickAccessToken = "test";
+                NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType(RecipientTypeInt.PF).build();
+                Assertions.assertThrows(PnInternalException.class, () -> pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken));
+        }
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAAR_RADDPFTest() {
 		Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
 				.aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
 				.build());
 
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAARMVP.pdf");
-		NotificationInt notificationInt = buildNotification();
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PF.pdf");
+                NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                                .paId("TEST_PA_ID")
+                                .paTaxId("TEST_TAX_ID")
+                                .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
+                                .build();
+
+                NotificationInt notificationInt = NotificationInt.builder()
+                                .sender(notificationSenderInt)
+                                .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                                .iun("Example_IUN_1234_Test")
+                                .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
+                                .build();
 		String quickAccessToken = "test";
-		NotificationRecipientInt recipient = notificationInt.getRecipients().get(0);
-		Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                                .recipientType(RecipientTypeInt.PF)
+                                .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
+                                .taxId("RSSMRA80A01H501U")
+                                .build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAAR_RADDPGTest() throws IOException {
+                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
+                                .build());
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PG.pdf");
+                NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                                .paId("TEST_PA_ID")
+                                .paTaxId("TEST_TAX_ID")
+                                .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
+                                .build();
+
+                NotificationInt notificationInt = NotificationInt.builder()
+                                .sender(notificationSenderInt)
+                                .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                                .iun("Example_IUN_1234_Test")
+                                .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
+                                .build();
+                String quickAccessToken = "test";
+                NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                                .recipientType(RecipientTypeInt.PG)
+                                .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
+                                .taxId("RSSMRA80A01H501U")
+                                .build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAAR_RADD_NumericPGTest() throws IOException {
+                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                        .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
+                        .build());
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_numericPG.pdf");
+                NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                                .paId("TEST_PA_ID")
+                                .paTaxId("TEST_TAX_ID")
+                                .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
+                                .build();
+
+                NotificationInt notificationInt = NotificationInt.builder()
+                                .sender(notificationSenderInt)
+                                .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                                .iun("Example_IUN_1234_Test")
+                                .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
+                                .build();
+                String quickAccessToken = "test";
+                NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                                .recipientType(RecipientTypeInt.PG)
+                                .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
+                                .taxId("15376371009")
+                                .build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
 		System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
 	}
 
 
 	@Test
 	@ExtendWith(SpringExtension.class)
-    void generateNotificationAARPGTest() throws IOException {
+        void generateNotificationAARPGTest() {
 		Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
 				.aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
 				.build());
 		
-		Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PG.pdf");
 
         NotificationInt notificationInt = buildNotification();
 		String quickAccessToken = "test";
-		NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder().recipientType( RecipientTypeInt.PF ).build();
+                NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder()
+                                .recipientType(RecipientTypeInt.PG).build();
         Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
         System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
     }
@@ -249,8 +340,7 @@ class LegalFactPdfGeneratorTest {
 					out.println(element);
 					out.close();
 					System.out.println("element "+element);
-				}
-		);
+                });
 
 		System.out.print("*** AAR EMAIL BODY successfully created");
 	}
@@ -269,8 +359,7 @@ class LegalFactPdfGeneratorTest {
 					out.println(element);
 
 					System.out.println("element "+element);
-				}
-		);
+                });
 
 		System.out.print("*** AAR EMAIL BODY successfully created");
 	}
@@ -290,8 +379,7 @@ class LegalFactPdfGeneratorTest {
 					out.close();
 		
 					System.out.println("element "+element);
-				}
-		);
+                });
 	}
 
 	@Test
@@ -313,8 +401,7 @@ class LegalFactPdfGeneratorTest {
 		Assertions.assertDoesNotThrow(() ->{
 					String element = pdfUtils.generateNotificationAARForSMS(notificationInt);
 					System.out.println("Notification AAR for SMS is "+element);
-				}
-		);
+                });
 
 		System.out.print("*** AAR SMS successfully created");
 	}
@@ -383,15 +470,12 @@ class LegalFactPdfGeneratorTest {
 							.ref( NotificationDocumentInt.Ref.builder()
 									.key("doc00")
 									.versionToken("v01_doc00")
-									.build()
-							)
+									.build())
 							.digests(NotificationDocumentInt.Digests.builder()
-									.sha256((Base64Utils.encodeToString("sha256_doc01".getBytes())))
-									.build()
-									)
-							.build()
-						)
-				)
+									.sha256((Base64Utils.encodeToString(
+											"sha256_doc01".getBytes())))
+									.build())
+								.build()))
 				.recipients(buildRecipients())
 				.build();
 	}
