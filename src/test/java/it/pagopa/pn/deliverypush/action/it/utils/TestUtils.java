@@ -4,17 +4,13 @@ import it.pagopa.pn.commons.utils.DateFormatUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
@@ -44,7 +40,6 @@ import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -829,17 +824,16 @@ public class TestUtils {
         return ste[depth].getClassName()+"."+ste[depth].getMethodName();
     }
 
-    public static String getRandomIun() {
-        int level = 4;
+    public static String getRandomIun(int level) {
         String callerMethod = getMethodName(level);
         return getIun(callerMethod);
     }
 
-    private static Duration getTimeSpent(Instant start) {
-        Instant end = Instant.now();
-        return Duration.between(start, end);
+    public static String getRandomIun() {
+        String callerMethod = getMethodName(3);
+        return getIun(callerMethod);
     }
-
+    
     @NotNull
     private static String getIun(String callerMethod) {
         Random rand = new Random();

@@ -73,7 +73,7 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
         String taxId = "testTaxId";
