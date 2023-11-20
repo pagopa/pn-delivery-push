@@ -190,6 +190,28 @@ public class AttachmentUtils {
                 });
     }
 
+    public List<String> getNotificationAttachments(NotificationInt notification) {
+        return notification.getDocuments().stream().map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey())).toList();
+    }
+
+    public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient) {
+        List<String> attachments = new ArrayList<>(getNotificationAttachments(notification));
+        
+        attachments.addAll(getNotificationPagoPaPayments(recipient));
+
+        return attachments;
+    }
+
+    private List<String> getNotificationPagoPaPayments(NotificationRecipientInt recipient) {
+        List<String> attachment = new ArrayList<>();
+        
+        if(recipient.getPayment() != null && recipient.getPayment().getPagoPaForm() != null && recipient.getPayment().getPagoPaForm().getRef() != null){
+            attachment.add(FileUtils.getKeyWithStoragePrefix(recipient.getPayment().getPagoPaForm().getRef().getKey()));
+        }
+        
+        return attachment;
+    }
+    
     private List<NotificationDocumentInt> getAllAttachmentByRecipient(NotificationInt notification, NotificationRecipientInt recipient)
     {
         List<NotificationDocumentInt> notificationDocuments = new ArrayList<>(notification.getDocuments());

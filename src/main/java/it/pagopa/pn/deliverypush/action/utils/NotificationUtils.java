@@ -13,7 +13,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Slf4j
 public class NotificationUtils {
     
-    public int getRecipientIndexFromTaxId(NotificationInt notification, String taxId){
+    public static int getRecipientIndexFromTaxId(NotificationInt notification, String taxId){
         int index = 0;
 
         for (NotificationRecipientInt recipientNot : notification.getRecipients()) {
