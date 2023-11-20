@@ -55,6 +55,8 @@ public class PnDeliveryPushConfigs {
 
     private Instant actionPoolEpoch;
 
+    private Duration actionPoolBeforeDelay;
+
     private Webhook webhook;
     
     private Webapp webapp;
