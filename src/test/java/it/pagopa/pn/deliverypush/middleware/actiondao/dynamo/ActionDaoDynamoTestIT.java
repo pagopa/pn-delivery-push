@@ -235,7 +235,7 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
 
         // non si riesce a mockare TransactWriteItemsEnhancedRequest
         Assertions.assertDoesNotThrow(() ->
-                actionDao.addActionIfAbsent(action, timeslot)
+                actionDao.addActionAndFutureActionIfAbsent(action, timeslot)
         );
     }
 
@@ -268,16 +268,61 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
 
         // non si riesce a mockare TransactWriteItemsEnhancedRequest
         Assertions.assertDoesNotThrow(() ->
-                actionDao.addActionIfAbsent(action, timeslot)
+                actionDao.addActionAndFutureActionIfAbsent(action, timeslot)
         );
 
         Assertions.assertDoesNotThrow(() ->
-                actionDao.addActionIfAbsent(action, timeslot)
+                actionDao.addActionAndFutureActionIfAbsent(action, timeslot)
         );
 
         // JUnit assertions
         List<ILoggingEvent> logsList = listAppender.list;
         assertEquals("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId=Test_addIfAbsentFailSilent_iun01_digital_workflow_e_1_timelineid_ cancellationReason is CancellationReason(Code=ConditionalCheckFailed, Message=The conditional request failed)", logsList.get(0)
+                .getFormattedMessage());
+        assertEquals(Level.WARN, logsList.get(0)
+                .getLevel());
+    }
+
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void addOnlyActionIfAbsentFailSilent() {
+        String timeslot = "2022-08-30T16:04:13.913859900Z";
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_addIfAbsentFailSilent_iun01")
+                .recipientIndex(1)
+                .type(ActionType.DIGITAL_WORKFLOW_RETRY_ACTION);
+        String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(
+                actionBuilder.build());
+
+        Action action = actionBuilder.actionId(actionId).build();
+
+
+        // get Logback Logger
+        Logger fooLogger = (Logger) LoggerFactory.getLogger(ActionDaoDynamo.class);
+
+        // create and start a ListAppender
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+
+        // add the appender to the logger
+        // addAppender is outdated now
+        ((ch.qos.logback.classic.Logger)fooLogger).addAppender(listAppender);
+
+
+        // non si riesce a mockare TransactWriteItemsEnhancedRequest
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.addOnlyActionIfAbsent(action)
+        );
+
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.addOnlyActionIfAbsent(action)
+        );
+
+        // JUnit assertions
+        List<ILoggingEvent> logsList = listAppender.list;
+        assertEquals("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId=Test_addIfAbsentFailSilent_iun01_digital_workflow_e_1_timelineid_ ", logsList.get(0)
                 .getFormattedMessage());
         assertEquals(Level.WARN, logsList.get(0)
                 .getLevel());

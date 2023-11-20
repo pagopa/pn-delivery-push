@@ -49,18 +49,29 @@ public class ActionsPoolImpl implements ActionsPool {
         this.timeToBreak = timeToBreak;
     }
 
+    /**
+     * Schedula la action. Se la action si riferisce ad un istante passato (o molto vicino), si procede
+     * a salvare solo il record di action senza future, e a inserire direttametne in coda.
+     *
+     * @param action da schedulare
+     */
     @Override
     public void scheduleFutureAction(Action action) {
-        if ( Instant.now().isAfter( action.getNotBefore() )) {
-            action = action.toBuilder()
-                        .notBefore( Instant.now().plusSeconds(1))
-                        .build();
-        }
+        boolean isFutureSchedule = Instant.now().plus(configs.getActionPoolBeforeDelay()).isBefore(action.getNotBefore());
+
         final String timeSlot = computeTimeSlot( action.getNotBefore() );
         action = action.toBuilder()
                 .timeslot( timeSlot)
                 .build();
-        actionService.addAction( action, timeSlot);
+
+        if (isFutureSchedule) {
+            actionService.addActionAndFutureActionIfAbsent(action, timeSlot);
+        }
+        else {
+            actionService.addOnlyActionIfAbsent(action);
+            addToActionsQueue(action);
+        }
+
     }
 
     @Override

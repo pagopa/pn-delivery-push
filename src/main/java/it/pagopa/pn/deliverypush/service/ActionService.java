@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ActionService {
-    void addAction(Action action, String timeSlot );
+    void addActionAndFutureActionIfAbsent(Action action, String timeSlot);
+
+    void addOnlyActionIfAbsent(Action action);
 
     Optional<Action> getActionById(String actionId );
 
