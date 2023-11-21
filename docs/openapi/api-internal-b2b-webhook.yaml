@@ -345,7 +345,7 @@ paths:
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
 
-  '/delivery-progresses/v2.0/streams':
+  '/delivery-progresses/v2.2/streams':
     parameters:                                               # NO EXTERNAL
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -367,14 +367,14 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/StreamCreationRequest"
+                $ref: "#/components/schemas/StreamCreationRequestV22"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponse"
+                $ref: "#/components/schemas/StreamMetadataResponseV22"
         '400':
           description: Invalid input
           content:
@@ -414,7 +414,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/delivery-progresses/v2.0/streams/{streamId}':
+  '/delivery-progresses/v2.2/streams/{streamId}':
     parameters:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -435,7 +435,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponse"
+                $ref: "#/components/schemas/StreamMetadataResponseV22"
         '400':
           description: Invalid input
           content:
@@ -460,14 +460,14 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/StreamCreationRequest"
+                $ref: "#/components/schemas/StreamUpdateRequestV22"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponse"
+                $ref: "#/components/schemas/StreamMetadataResponseV22"
         '400':
           description: Invalid input
           content:
@@ -510,7 +510,7 @@ paths:
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
     ############################################################################################
 
-  '/delivery-progresses/v2.0/streams/{streamId}/events':
+  '/delivery-progresses/v2.2/streams/{streamId}/events':
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -544,7 +544,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProgressResponseV20"
+                $ref: "#/components/schemas/ProgressResponseV22"
         '429':
           description: Too Many Requests
           headers:
@@ -678,14 +678,52 @@ components:
     ############################################################################################
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
-    StreamCreationRequest:
-      description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche.
+    StreamCreationRequestV22:
+      description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche. Lo stream verrà creato nello stato ENABLED
       type: object
       required:
         - title
         - eventType
+        - groups
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV22'
+        - type: object
+          properties:
+            version:
+              description: >-
+                versione di base dello stream. Di default viene valorizzato in base alla versione api utilizzata.
+                In fase di creazione è possibile specificare una versione diversa. Nello stream saranno presenti gli eventi fino alla versione desiderata (quindi v22 includerà anche v10, v20, v21).
+                Tramite il campo filterValues è comunque possibile sovrascrivere questa impostazione.
+              type: string
+              pattern: ^v\d\d\d?$
+            replacedStreamId:
+              description: >-
+                opzionale, eventuale streamId che viene sostituito da questo. Se specificato, lo stream sarà messo nello stato DISABLED contestualmente alla creazione del nuovo stream,
+                permettendo di consumare tutti gli eventi del vecchio stream senza che ne vengano aggiunti di nuovi. Inoltre, il nuovo stream partirà da un eventId successivo rispetto al vecchio stream.
+              type: string
+              format: uuid
+
+    StreamUpdateRequestV22:
+      description: Richiesta di modifica di uno stream di eventi di avanzamento delle notifiche.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV22'
+        - type: object
+          properties:
+            status:
+              description: >-
+                stato dello stream. E' possibile disabilitare (DISABLED) uno stream. Uno stream disabilitato non registra nuovi eventi, ma permette di leggere gli eventi presenti.
+                Non è possibile riabilitare uno stream.
+              type: string
+              enum:
+                - ENABLED
+                - DISABLED
+
+    StreamRequestV22:
+      description: Struttura comune per eventi di creazione/aggiornamento di uno stream di eventi di avanzamento delle notifiche.
+      type: object
       properties:
-        title: 
+        title:
           description: Nome sintetico dello stream
           type: string
           maxLength: 256
@@ -701,25 +739,33 @@ components:
             - TIMELINE
         groups:
           description: >-
-            rappresenta l'elenco degli id gruppi abilitati a richiedere i dettagli. Una apiKey può richiedere i dettagli dello stream solo se non ha gruppi o se tutti i gruppi dello stream sono presenti nella apiKey.
+            rappresenta l'elenco degli id gruppi abilitati a richiedere i dettagli. Una apiKey può consumare uno stream solo se non ha gruppi o se tutti i gruppi dello stream sono presenti nella apiKey.
+            Se viene specificato array vuoto, si noti che solo apiKey senza gruppi potranno consumare lo stream.
+            Mentre tramite il placeholder "*" come elemento, permette di indicare che qualsiasi gruppo può consumare lo stream.
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/StreamGroup'
             minLength: 0
         filterValues:
           description: >-
-            rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi a v1
+            rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi alla versione dello stream.
+            Se specificati invece, avranno priorità rispetto agli eventi della versione (quindi se sono un sottoinsieme, si riceveranno solo quelli. Se si specificano eventi introdotti in versioni più recenti, questi saranno inviati)
           type: array
           items:
             type: string
             minLength: 4
             maxLength: 256
             pattern: ^[A-Z_]+$
+
+    StreamGroup:
+      type: string
+      description: >-
+        Identificativo del gruppo. Tramite il placeholder "*", permette di indicare che qualsiasi gruppo può consumare lo stream.
     
-    StreamMetadataResponse:
+    StreamMetadataResponseV22:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamCreationRequest'
+        - $ref: '#/components/schemas/StreamUpdateRequestV22'
         - type: object
           required:
             - streamId
@@ -735,6 +781,11 @@ components:
               description: Timestamp in cui il flusso di eventi è stato attivato
               type: string
               format: date-time
+            version:
+              description: >-
+                versione di base dello stream.
+              type: string
+              pattern: ^v\d\d\d?$
     
     StreamListResponse:
       description: Elenco di flussi di eventi
@@ -767,47 +818,21 @@ components:
     ###  - EVENTI GENERATI DA PN
     ###################################
 
-    ProgressResponseV20:
+    ProgressResponseV22:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV20'
+        $ref: '#/components/schemas/ProgressResponseElementV22'
 
-    ProgressResponseElementV20:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/ProgressResponseElement'
-      properties:
-        elementId:
-          type: string
-          description: >-
-            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in
-            maniera univoca l'elemento di timeline
-        details:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementDetailsV20'
-          description: >-
-                      Dettagli relativi all'evento di timeline. Possono essere recuperati con il flag withTimelineDetail a true, se l'apiKey è abilitata per lo stream
-
-
-    ProgressResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/ProgressResponseElement'
-
-    ProgressResponseElement:
+    ProgressResponseElementV22:
       type: object
       required:
         - eventId
-        - timestamp
+        - element
       properties:
         eventId:
           description: >-
             Elemento che garantisce univocità e ordinamento temporale all'interno dello stream
           type: string
-        timestamp:
-          description: Istante a cui è avvenuto l'evento
-          type: string
-          format: date-time
-
         notificationRequestId:
           description: Identificativo della richiesta di notifica
           type: string
@@ -818,50 +843,11 @@ components:
           type: string
           maxLength: 25
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
-
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
-        timelineEventCategory:
-#          apparentemente non retrocompatibile ma gli stream continueranno a mandare category della versione 1 fino ad esplicita modifica delle config da parte della PA
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20'
-        recipientIndex:
-          type: integer
-          format: int32
-          minimum: 0
-          description: Indice del destinatario al quale si riferisce l'evento
-        analogCost:
-          type: integer
-          format: int32
-          description: Eventuale costo in eurocent associato all'evento
-        channel:
-          type: string
-          description: >-
-            Canale a cui si riferisce l'evento. I valori previsti sono:
-            - Per eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL
-            - Per eventi legati all'invio digitale: PEC
-            - Per eventi legati all'invio analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890
-            - Per eventi legati all'invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER
+        element:
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
 
-        legalfactIds:
-          type: array
-          items:
-            type: string
-          example: ["PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q", "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"]
-          description: chiavi degli eventuali allegati associati all'evento
-
-        validationErrors:
-          type: array
-          description: eventuali errori di validazione associati all'evento
-          items:
-            $ref: '#/components/schemas/RefusedReason'
-
-    RefusedReason:
-      type: object
-      properties:
-        errorCode:
-          type: string
-        detail:
-          type: string
     
     ###  - EVENTI GENERATI DALLA P.A.
     ###################################
