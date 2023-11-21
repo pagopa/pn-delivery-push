@@ -690,7 +690,9 @@ components:
             replacedStreamId:
               description: >-
                 opzionale, eventuale streamId che viene sostituito da questo. Se specificato, lo stream sarà messo nello stato DISABLED contestualmente alla creazione del nuovo stream,
-                permettendo di consumare tutti gli eventi del vecchio stream senza che ne vengano aggiunti di nuovi. Inoltre, il nuovo stream partirà da un eventId successivo rispetto al vecchio stream.
+                permettendo di consumare tutti gli eventi del vecchio stream senza che ne vengano aggiunti di nuovi.
+                Inoltre, il nuovo stream partirà da un eventId successivo rispetto al vecchio stream (anche se non "esattamente" successivo
+                per evitare sovrapposizioni con eventuali eventi salvati durante il cambio di configurazione).
               type: string
               format: uuid
 
@@ -752,6 +754,7 @@ components:
       type: string
       description: >-
         Identificativo del gruppo. Tramite il placeholder "*", permette di indicare che qualsiasi gruppo può consumare lo stream.
+        Il placeholder "*" può essere usato solo da apiKey che non hanno gruppi associati.
     
     StreamMetadataResponseV22:
       description: Configurazioni di un flusso di eventi
