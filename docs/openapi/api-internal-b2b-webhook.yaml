@@ -527,7 +527,6 @@ paths:
         - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
-        - $ref: '#/components/parameters/queryWithDetail'
       responses:
         '200':
           description: OK
@@ -653,14 +652,6 @@ components:
         minLength: 38
         maxLength: 38
         pattern: ^0\d{37}$
-    queryWithDetail:
-      description: >-
-        Indica se recuperare anche il dettaglio della timeline relativo ad un certo evento di stream.
-      name: withTimelineDetail
-      in: query
-      required: false
-      schema:
-        type: boolean
     pathStreamId:
       description: >-
         Identificativo dello stream di eventi
