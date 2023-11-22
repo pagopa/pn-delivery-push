@@ -525,6 +525,7 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/queryV10'         # NO EXTERNAL
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
       responses:
@@ -663,6 +664,13 @@ components:
         format: uuid
         #minLength: 36
         #maxLength: 36
+    queryV10:                                                                      # NO EXTERNAL
+      description: Flag che indica che la chiamata è per v1, popolato a true dalla lambda      # NO EXTERNAL
+      name: isV10                                                                                # NO EXTERNAL
+      in: query                                                                                           # NO EXTERNAL
+      required: false                                                                                     # NO EXTERNAL
+      schema:                                                                                             # NO EXTERNAL
+        type: boolean                                                                                     # NO EXTERNAL
 
   schemas:
     
@@ -705,7 +713,9 @@ components:
           properties:
             status:
               description: >-
-                stato dello stream. E' possibile disabilitare (DISABLED) uno stream. Uno stream disabilitato non registra nuovi eventi, ma permette di leggere gli eventi presenti.
+                stato dello stream. E' possibile disabilitare (DISABLED) uno stream.
+                Uno stream disabilitato non registra nuovi eventi, ma permette di leggere gli eventi presenti.
+                Sebbene il cambio di stato sia normalmente real-time, in rari casi è possibile che vengano registrati degli eventi al massimo fino ai successivi 10 minuti.
                 Non è possibile riabilitare uno stream.
               type: string
               enum:
@@ -734,7 +744,6 @@ components:
           description: >-
             rappresenta l'elenco degli id gruppi abilitati a richiedere i dettagli. Una apiKey può consumare uno stream solo se non ha gruppi o se tutti i gruppi dello stream sono presenti nella apiKey.
             Se viene specificato array vuoto, si noti che solo apiKey senza gruppi potranno consumare lo stream.
-            Mentre tramite il placeholder "*" come elemento, permette di indicare che qualsiasi gruppo può consumare lo stream.
           type: array
           items:
             $ref: '#/components/schemas/StreamGroup'
@@ -753,8 +762,7 @@ components:
     StreamGroup:
       type: string
       description: >-
-        Identificativo del gruppo. Tramite il placeholder "*", permette di indicare che qualsiasi gruppo può consumare lo stream.
-        Il placeholder "*" può essere usato solo da apiKey che non hanno gruppi associati.
+        Identificativo del gruppo.
     
     StreamMetadataResponseV22:
       description: Configurazioni di un flusso di eventi
@@ -841,6 +849,23 @@ components:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         element:
           $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
+        # proprietà necessarie per retrocompatibilità nel transitorio, ma che non saranno esposte nella V22 # NO EXTERNAL
+        # potranno essere eliminate al termine del tempo di permanenza degli eventi TTL                    # NO EXTERNAL
+        timestamp:                                                                                         # NO EXTERNAL
+          type: string                                                                                     # NO EXTERNAL
+          format: date-time                                                                                # NO EXTERNAL
+        timelineEventCategory:                                                                             # NO EXTERNAL
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20'                # NO EXTERNAL
+        recipientIndex:                                                                                    # NO EXTERNAL
+          type: integer                                                                                    # NO EXTERNAL
+          format: int32                                                                                    # NO EXTERNAL
+          minimum: 0                                                                                       # NO EXTERNAL
+        analogCost:                                                                                        # NO EXTERNAL
+          type: integer                                                                                    # NO EXTERNAL
+          format: int32                                                                                    # NO EXTERNAL
+        channel:                                                                                           # NO EXTERNAL
+          type: string                                                                                     # NO EXTERNAL
+
 
     
     ###  - EVENTI GENERATI DALLA P.A.
