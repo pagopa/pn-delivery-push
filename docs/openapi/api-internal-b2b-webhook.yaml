@@ -351,6 +351,7 @@ paths:
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+      - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
     post:
       summary: Crea nuovo stream di eventi
       description: >-
@@ -420,6 +421,7 @@ paths:
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+      - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
       - $ref: '#/components/parameters/pathStreamId'        
     get:
       summary: Leggi metadati dello stream
@@ -460,7 +462,7 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/StreamUpdateRequestV22"
+                $ref: "#/components/schemas/StreamRequestV22"
       responses:
         '200':
           description: OK
@@ -505,6 +507,42 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  '/delivery-progresses/v2.2/streams/{streamId}/action/disable':
+    patch:
+      summary: Disabilita uno stream
+      description: >-
+        Permette di disabilitare uno stream. Da uno stream disabilitato è possibile leggere gli eventi presenti nello stream salvati prima
+        della disabilitazione, ma non ne saranno aggiunti di nuovi. Non è possibile modificare o riabilitare uno stream disabilitato.
+        La disabilitazione dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi.
+      tags:
+        - Streams
+      operationId: disableEventStream
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
+        - $ref: '#/components/parameters/pathStreamId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StreamMetadataResponseV22"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
     ############################################################################################
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
@@ -525,7 +563,7 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/queryV10'         # NO EXTERNAL
+        - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
       responses:
@@ -664,13 +702,15 @@ components:
         format: uuid
         #minLength: 36
         #maxLength: 36
-    queryV10:                                                                      # NO EXTERNAL
-      description: Flag che indica che la chiamata è per v1, popolato a true dalla lambda      # NO EXTERNAL
-      name: isV10                                                                                # NO EXTERNAL
-      in: query                                                                                           # NO EXTERNAL
+    headerApiVersion:                                                                                     # NO EXTERNAL
+      name: x-pagopa-pn-api-version                                                                       # NO EXTERNAL
+      in: header                                                                                          # NO EXTERNAL
+      description: Api version                                                                            # NO EXTERNAL
       required: false                                                                                     # NO EXTERNAL
       schema:                                                                                             # NO EXTERNAL
-        type: boolean                                                                                     # NO EXTERNAL
+        type: string                                                                                      # NO EXTERNAL
+        pattern: ^v\d\d\d?$                                                                               # NO EXTERNAL
+    
 
   schemas:
     
@@ -678,53 +718,31 @@ components:
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
     StreamCreationRequestV22:
-      description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche. Lo stream verrà creato nello stato ENABLED
+      description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche. Lo stream verrà creato nello stato abilitato
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV22'
+        - type: object
+          properties:
+            replacedStreamId:
+              description: >-
+                opzionale, eventuale streamId che viene sostituito da questo. Se specificato, lo stream indicato sarà disabilitato contestualmente alla creazione del nuovo stream,
+                permettendo di consumare tutti gli eventi del vecchio stream senza che ne vengano aggiunti di nuovi.
+                Inoltre, il nuovo stream partirà da un eventId successivo rispetto al vecchio stream (anche se non "esattamente" successivo
+                per evitare sovrapposizioni con eventuali eventi salvati durante il cambio di configurazione).
+                La creazione del nuovo stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi del precedente stream.
+              type: string
+              format: uuid
+
+    StreamRequestV22:
+      description: >-
+        Struttura comune per eventi di creazione/aggiornamento di uno stream di eventi di avanzamento delle notifiche.
+        L'aggiornamento delle proprietà dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi.
       type: object
       required:
         - title
         - eventType
         - groups
-      allOf:
-        - $ref: '#/components/schemas/StreamRequestV22'
-        - type: object
-          properties:
-            version:
-              description: >-
-                versione di base dello stream. Di default viene valorizzato in base alla versione api utilizzata.
-                In fase di creazione è possibile specificare una versione diversa. Nello stream saranno presenti gli eventi fino alla versione desiderata (quindi v22 includerà anche v10, v20, v21).
-                Tramite il campo filterValues è comunque possibile sovrascrivere questa impostazione.
-              type: string
-              pattern: ^v\d\d\d?$
-            replacedStreamId:
-              description: >-
-                opzionale, eventuale streamId che viene sostituito da questo. Se specificato, lo stream sarà messo nello stato DISABLED contestualmente alla creazione del nuovo stream,
-                permettendo di consumare tutti gli eventi del vecchio stream senza che ne vengano aggiunti di nuovi.
-                Inoltre, il nuovo stream partirà da un eventId successivo rispetto al vecchio stream (anche se non "esattamente" successivo
-                per evitare sovrapposizioni con eventuali eventi salvati durante il cambio di configurazione).
-              type: string
-              format: uuid
-
-    StreamUpdateRequestV22:
-      description: Richiesta di modifica di uno stream di eventi di avanzamento delle notifiche.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/StreamRequestV22'
-        - type: object
-          properties:
-            status:
-              description: >-
-                stato dello stream. E' possibile disabilitare (DISABLED) uno stream.
-                Uno stream disabilitato non registra nuovi eventi, ma permette di leggere gli eventi presenti.
-                Sebbene il cambio di stato sia normalmente real-time, in rari casi è possibile che vengano registrati degli eventi al massimo fino ai successivi 10 minuti.
-                Non è possibile riabilitare uno stream.
-              type: string
-              enum:
-                - ENABLED
-                - DISABLED
-
-    StreamRequestV22:
-      description: Struttura comune per eventi di creazione/aggiornamento di uno stream di eventi di avanzamento delle notifiche.
-      type: object
       properties:
         title:
           description: Nome sintetico dello stream
@@ -742,8 +760,8 @@ components:
             - TIMELINE
         groups:
           description: >-
-            rappresenta l'elenco degli id gruppi abilitati a richiedere i dettagli. Una apiKey può consumare uno stream solo se non ha gruppi o se tutti i gruppi dello stream sono presenti nella apiKey.
-            Se viene specificato array vuoto, si noti che solo apiKey senza gruppi potranno consumare lo stream.
+            rappresenta l'elenco degli id gruppi abilitati a richiedere i dettagli. Una apiKey può consumare o modificare uno stream solo se non ha gruppi o se tutti i gruppi dello stream sono presenti nella apiKey.
+            Se viene specificato array vuoto, si noti che solo apiKey senza gruppi potranno consumare o modificare lo stream.
           type: array
           items:
             $ref: '#/components/schemas/StreamGroup'
@@ -767,7 +785,7 @@ components:
     StreamMetadataResponseV22:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamUpdateRequestV22'
+        - $ref: '#/components/schemas/StreamRequestV22'
         - type: object
           required:
             - streamId
@@ -781,6 +799,10 @@ components:
               #maxLength: 36
             activationDate:
               description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
+            disabledDate:
+              description: Timestamp in cui il flusso di eventi è stato disabilitato
               type: string
               format: date-time
             version:
