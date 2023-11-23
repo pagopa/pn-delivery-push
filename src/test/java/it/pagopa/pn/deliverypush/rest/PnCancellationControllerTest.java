@@ -1,5 +1,10 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_ALREADY_CANCELLED;
+import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_CANCELLATION_ACCEPTED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.cancellation.StatusDetailInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
@@ -18,11 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_ALREADY_CANCELLED;
-import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_CANCELLATION_ACCEPTED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-
 @WebFluxTest(PnCancellationController.class)
 class PnCancellationControllerTest {
     private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
@@ -34,7 +34,7 @@ class PnCancellationControllerTest {
     @Test
     void notificationCancellation() {
         // GIVEN
-        Mockito.when(notificationCancellationService.startCancellationProcess(anyString(), anyString(), any(CxTypeAuthFleet.class)))
+        Mockito.when(notificationCancellationService.startCancellationProcess(anyString(), anyString(), any(CxTypeAuthFleet.class), any()))
                 .thenReturn(Mono.just(StatusDetailInt.builder()
                         .code(NOTIFICATION_CANCELLATION_ACCEPTED)
                         .level("INFO")
@@ -64,7 +64,7 @@ class PnCancellationControllerTest {
     @Test
     void notificationCancellationAlreadyCancelled() {
         // GIVEN
-        Mockito.when(notificationCancellationService.startCancellationProcess(anyString(), anyString(), any(CxTypeAuthFleet.class)))
+        Mockito.when(notificationCancellationService.startCancellationProcess(anyString(), anyString(), any(CxTypeAuthFleet.class), any()))
                 .thenReturn(Mono.just(StatusDetailInt.builder()
                         .code(NOTIFICATION_ALREADY_CANCELLED)
                         .level("WARN")
@@ -96,7 +96,7 @@ class PnCancellationControllerTest {
     @Test
     void notificationCancellationNotFound() {
         // GIVEN
-        Mockito.when(notificationCancellationService.startCancellationProcess(anyString(), anyString(), any(CxTypeAuthFleet.class)))
+        Mockito.when(notificationCancellationService.startCancellationProcess(anyString(), anyString(), any(CxTypeAuthFleet.class), any()))
                 .thenReturn(Mono.error(new PnNotFoundException("","","")));
 
         // WHEN
@@ -116,7 +116,7 @@ class PnCancellationControllerTest {
     @Test
     void notificationCancellationError() {
         // GIVEN
-        Mockito.when(notificationCancellationService.startCancellationProcess(anyString(), anyString(), any(CxTypeAuthFleet.class)))
+        Mockito.when(notificationCancellationService.startCancellationProcess(anyString(), anyString(), any(CxTypeAuthFleet.class), any()))
                 .thenReturn(Mono.error(new PnInternalException("test", "test")));
 
         // WHEN

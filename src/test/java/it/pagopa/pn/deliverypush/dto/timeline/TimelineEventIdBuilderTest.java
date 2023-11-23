@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.dto.timeline;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
@@ -111,6 +112,38 @@ class TimelineEventIdBuilderTest {
                 .recIndex(0)
                 .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
                 .build());
+
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+
+        String elementIdFromIunAndRecIndex = TimelineEventId.SEND_COURTESY_MESSAGE.buildSearchEventIdByIunAndRecipientIndex(IUN, 0);
+
+        //vecchia versione 123456789_send_courtesy_message_0_type_
+        assertThat(elementIdFromIunAndRecIndex).isEqualTo("SEND_COURTESY_MESSAGE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0");
+
+    }
+
+    @Test
+    void buildSEND_COURTESY_MESSAGE_OPTINTest() {
+        //vecchia versione 123456789_send_courtesy_message_0_type_SMS
+        String timeLineEventIdExpected = "SEND_COURTESY_MESSAGE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.COURTESYADDRESSTYPE_APPIO.OPTIN";
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+            .withCategory(TimelineEventId.SEND_COURTESY_MESSAGE.getValue())
+            .withIun(IUN)
+            .withRecIndex(0)
+            .withCourtesyAddressType(COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+            .withOptin(Boolean.TRUE)
+            .build();
+
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId
+            .builder()
+            .iun(IUN)
+            .recIndex(0)
+            .courtesyAddressType(COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+            .optin(Boolean.TRUE)
+            .build());
 
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
