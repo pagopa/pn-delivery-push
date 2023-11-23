@@ -1,30 +1,13 @@
 package it.pagopa.pn.deliverypush.action.it;
 
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
-import it.pagopa.pn.deliverypush.action.completionworkflow.*;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
-import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
-import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
-import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.*;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
-import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
-import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
-import it.pagopa.pn.deliverypush.action.utils.*;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
@@ -33,30 +16,15 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.impl.*;
-import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
-import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Base64Utils;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,193 +33,27 @@ import java.util.UUID;
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static it.pagopa.pn.deliverypush.action.it.mockbean.F24ClientMock.F24_VALIDATION_FAIL;
 import static org.awaitility.Awaitility.await;
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {
-        StartWorkflowHandler.class,
-        StartWorkflowForRecipientHandler.class,
-        AnalogWorkflowHandler.class,
-        ChooseDeliveryModeHandler.class,
-        DigitalWorkFlowHandler.class,
-        DigitalWorkFlowExternalChannelResponseHandler.class,
-        AnalogFailureDeliveryCreationResponseHandler.class,
-        PaperChannelServiceImpl.class,
-        PaperChannelUtils.class,
-        PaperChannelResponseHandler.class,
-        AnalogWorkflowPaperChannelResponseHandler.class,
-        AuditLogServiceImpl.class,
-        CompletionWorkFlowHandler.class,
-        NationalRegistriesResponseHandler.class,
-        NationalRegistriesServiceImpl.class,
-        ExternalChannelServiceImpl.class,
-        IoServiceImpl.class,
-        NotificationProcessCostServiceImpl.class,
-        SafeStorageServiceImpl.class,
-        ExternalChannelResponseHandler.class,
-        RefinementHandler.class,
-        DigitalWorkFlowUtils.class,
-        CourtesyMessageUtils.class,
-        AarUtils.class,
-        CompletelyUnreachableUtils.class,
-        ExternalChannelUtils.class,
-        AnalogWorkflowUtils.class,
-        ChooseDeliveryModeUtils.class,
-        TimelineUtils.class,
-        StatusUtils.class,
-        PublicRegistryUtils.class,
-        NotificationUtils.class,
-        PecDeliveryWorkflowLegalFactsGenerator.class,
-        AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
-        RefinementScheduler.class,
-        RegisteredLetterSender.class,
-        NotificationServiceImpl.class,
-        StatusServiceImpl.class,
-        PaperNotificationFailedServiceImpl.class,
-        TimeLineServiceImpl.class,
-        ConfidentialInformationServiceImpl.class,
-        AddressBookServiceImpl.class,
-        AttachmentUtils.class,
-        PaperNotificationFailedDaoMock.class,
-        TimelineDaoMock.class,
-        TimelineCounterDaoMock.class,
-        ExternalChannelMock.class,
-        PaperNotificationFailedDaoMock.class,
-        PnDataVaultClientMock.class,
-        MVPParameterConsumer.class,
-        PnDeliveryClientReactiveMock.class,
-        PnDataVaultClientReactiveMock.class,
-        DocumentCreationRequestServiceImpl.class,
-        DocumentCreationRequestDaoMock.class,
-        SafeStorageResponseHandler.class,
-        DocumentCreationResponseHandler.class,
-        ReceivedLegalFactCreationResponseHandler.class,
-        ScheduleRecipientWorkflow.class,
-        AarCreationResponseHandler.class,
-        NotificationViewLegalFactCreationResponseHandler.class,
-        NotificationCost.class,
-        DigitalDeliveryCreationResponseHandler.class,
-        FailureWorkflowHandler.class,
-        SuccessWorkflowHandler.class,
-        NotificationValidationActionHandler.class,
-        TaxIdPivaValidator.class,
-        ReceivedLegalFactCreationRequest.class,
-        NotificationValidationScheduler.class,
-        DigitalWorkflowFirstSendRepeatHandler.class,
-        SendAndUnscheduleNotification.class,
-        AddressValidator.class,
-        AddressManagerServiceImpl.class,
-        AddressManagerClientMock.class,
-        NormalizeAddressHandler.class,
-        AddressManagerResponseHandler.class,
-        ValidationTestIT.SpringTestConfiguration.class,
-        F24Validator.class,
-        F24ClientMock.class,
-        F24ResponseHandler.class,
-        PnExternalRegistriesClientReactiveMock.class,
-        PaymentValidator.class,
-        NotificationRefusedActionHandler.class
-})
-@TestPropertySource(
-        locations ="classpath:/application-test.properties",
-        properties = "pn.delivery-push.validation-document-test=true"
-)
-@EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
-@DirtiesContext
-class ValidationTestIT {
-    
-    @TestConfiguration
-    static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
-    }
 
+class ValidationTestIT extends CommonTestConfiguration{
     @Autowired
-    private StartWorkflowHandler startWorkflowHandler;
-
+    StartWorkflowHandler startWorkflowHandler;
     @Autowired
-    private TimelineService timelineService;
-
-    @Autowired
-    private InstantNowSupplier instantNowSupplier;
-    
+    TimelineService timelineService;
     @SpyBean
-    private ExternalChannelMock externalChannelMock;
-
+    ExternalChannelMock externalChannelMock;
     @SpyBean
-    private PaperChannelMock paperChannelMock;
-
+    PaperChannelMock paperChannelMock;
     @Autowired
-    private SafeStorageClientMock safeStorageClientMock;
-
-
+    SafeStorageClientMock safeStorageClientMock;
     @Autowired
-    private PnDeliveryClientMock pnDeliveryClientMock;
-
+    PnDeliveryClientMock pnDeliveryClientMock;
     @Autowired
-    private UserAttributesClientMock addressBookMock;
-
+    UserAttributesClientMock addressBookMock;
     @Autowired
-    private NationalRegistriesClientMock nationalRegistriesClientMock;
-
+    NationalRegistriesClientMock nationalRegistriesClientMock;
     @Autowired
-    private TimelineDaoMock timelineDaoMock;
-
-    @Autowired
-    private TimelineCounterDaoMock timelineCounterDaoMock;
-
-    @Autowired
-    private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
-
-    @Autowired
-    private NotificationUtils notificationUtils;
-
-    @Autowired
-    private PnDataVaultClientMock pnDataVaultClientMock;
-
-    @Autowired
-    private PaperChannelResponseHandler paperChannelResponseHandler;
-
-    @Autowired
-    private AnalogWorkflowPaperChannelResponseHandler analogWorkflowPaperChannelResponseHandler;
-
-    @Autowired
-    private PaperChannelService paperChannelService;
-
-    @Autowired
-    private PaperChannelUtils paperChannelUtils;
-
-    @Autowired
-    private AuditLogService auditLogService;
-
-    @Autowired
-    private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
-
-    @Autowired
-    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
-
-    @Autowired
-    private AddressManagerClientMock addressManagerClientMock;
-
-    @Autowired
-    private F24ClientMock f24ClientMock;
-
-    @BeforeEach
-    public void setup() {
-        //Mock for get current date
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-        ConsoleAppenderCustom.initializeLog();
-
-        TestUtils.initializeAllMockClient(
-                safeStorageClientMock,
-                pnDeliveryClientMock,
-                addressBookMock,
-                nationalRegistriesClientMock,
-                timelineDaoMock,
-                paperNotificationFailedDaoMock,
-                pnDataVaultClientMock,
-                pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock,
-                addressManagerClientMock,
-                f24ClientMock
-        );
-    }
+    NotificationUtils notificationUtils;
+    
     @Test
     void differentShaRefusedTest() throws PnIdConflictException {
         // GIVEN

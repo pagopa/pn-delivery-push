@@ -55,6 +55,8 @@ public class PnDeliveryPushConfigs {
 
     private Instant actionPoolEpoch;
 
+    private Duration actionPoolBeforeDelay;
+
     private Webhook webhook;
     
     private Webapp webapp;
@@ -96,14 +98,16 @@ public class PnDeliveryPushConfigs {
     private DataSize checkPdfSize;
 
     private boolean checkPdfValidEnabled;
+    
     private Duration actionTtl;
+    
     private boolean checkCfEnabled;
 
     private String f24CxId;
-
-    private String sendAnalogNotificationAttachments;
-    private String sendSimpleRegisteredLetterAttachments;
+    
     private int pagoPaNotificationBaseCost;
+
+    private List<String> paperSendMode;
 
     @Data
     public static class Topics {

@@ -1,31 +1,17 @@
 package it.pagopa.pn.deliverypush.action.it;
 
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
-import it.pagopa.pn.deliverypush.action.completionworkflow.*;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
-import it.pagopa.pn.deliverypush.action.it.mockbean.*;
+import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
+import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.PaperChannelMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.TimelineDaoMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
-import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
-import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
-import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
-import it.pagopa.pn.deliverypush.action.notificationview.ViewNotification;
-import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.*;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.*;
-import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationResponseHandler;
-import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
-import it.pagopa.pn.deliverypush.action.utils.*;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -37,6 +23,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
@@ -44,234 +31,45 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.impl.*;
-import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Duration;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.with;
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {
-        StartWorkflowHandler.class,
-        StartWorkflowForRecipientHandler.class,
-        AnalogWorkflowHandler.class,
-        ChooseDeliveryModeHandler.class,
-        DigitalWorkFlowHandler.class,
-        DigitalWorkFlowExternalChannelResponseHandler.class,
-        AnalogFailureDeliveryCreationResponseHandler.class,
-        CompletionWorkFlowHandler.class,
-        NationalRegistriesResponseHandler.class,
-        ExternalChannelResponseHandler.class,
-        PaperChannelServiceImpl.class,
-        PaperChannelUtils.class,
-        PaperChannelResponseHandler.class,
-        AnalogWorkflowPaperChannelResponseHandler.class,
-        NationalRegistriesServiceImpl.class,
-        AuditLogServiceImpl.class,
-        ExternalChannelServiceImpl.class,
-        IoServiceImpl.class,
-        NotificationProcessCostServiceImpl.class,
-        SafeStorageServiceImpl.class,
-        RefinementHandler.class,
-        NotificationViewedRequestHandler.class,
-        DigitalWorkFlowUtils.class,
-        CourtesyMessageUtils.class,
-        AarUtils.class,
-        ExternalChannelUtils.class,
-        CompletelyUnreachableUtils.class,
-        AnalogWorkflowUtils.class,
-        TimelineUtils.class,
-        PublicRegistryUtils.class,
-        ChooseDeliveryModeUtils.class,
-        NotificationUtils.class,
-        NotificationServiceImpl.class,
-        TimeLineServiceImpl.class,
-        PaperNotificationFailedServiceImpl.class,
-        StatusServiceImpl.class,
-        ConfidentialInformationServiceImpl.class,
-        AddressBookServiceImpl.class,
-        AttachmentUtils.class,
-        StatusUtils.class,
-        PecDeliveryWorkflowLegalFactsGenerator.class,
-        AnalogDeliveryFailureWorkflowLegalFactsGenerator.class,
-        RefinementScheduler.class,
-        RegisteredLetterSender.class,
-        PaperNotificationFailedDaoMock.class,
-        TimelineDaoMock.class,
-        TimelineCounterDaoMock.class,
-        ExternalChannelMock.class,
-        PaperNotificationFailedDaoMock.class,
-        PnDataVaultClientMock.class,
-        MVPParameterConsumer.class,
-        NotificationCost.class,
-        ViewNotification.class,
-        PnDataVaultClientReactiveMock.class,
-        PnDeliveryClientReactiveMock.class,
-        DocumentCreationRequestServiceImpl.class,
-        DocumentCreationRequestDaoMock.class,
-        SafeStorageResponseHandler.class,
-        DocumentCreationResponseHandler.class,
-        ReceivedLegalFactCreationResponseHandler.class,
-        ScheduleRecipientWorkflow.class,
-        AarCreationResponseHandler.class,
-        NotificationViewLegalFactCreationResponseHandler.class,
-        DigitalDeliveryCreationResponseHandler.class,
-        FailureWorkflowHandler.class,
-        SuccessWorkflowHandler.class,
-        NotificationValidationActionHandler.class,
-        TaxIdPivaValidator.class,
-        ReceivedLegalFactCreationRequest.class,
-        NotificationValidationScheduler.class,
-        DigitalWorkflowFirstSendRepeatHandler.class,
-        SendAndUnscheduleNotification.class,
-        AddressValidator.class,
-        AddressManagerServiceImpl.class,
-        AddressManagerClientMock.class,
-        NormalizeAddressHandler.class,
-        AddressManagerResponseHandler.class,
-        AnalogTestIT.SpringTestConfiguration.class,
-        F24Validator.class,
-        F24ClientMock.class,
-        PnExternalRegistriesClientReactiveMock.class,
-        PaymentValidator.class,
-        NotificationRefusedActionHandler.class
-})
-@TestPropertySource("classpath:/application-test.properties")
-@EnableConfigurationProperties(value = PnDeliveryPushConfigs.class)
-@DirtiesContext
-class AnalogTestIT {
-    @TestConfiguration
-    static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
-        public SpringTestConfiguration() {
-            super();
-        }
-    }
 
+class AnalogTestIT extends CommonTestConfiguration{
     @SpyBean
-    private LegalFactGenerator legalFactGenerator;
-
+    LegalFactGenerator legalFactGenerator;
     @SpyBean
-    private ExternalChannelMock externalChannelMock;
-
+    ExternalChannelMock externalChannelMock;
     @SpyBean
-    private PaperChannelMock paperChannelMock;
-
+    PaperChannelMock paperChannelMock;
     @SpyBean
-    private CompletionWorkFlowHandler completionWorkflow;
-
+    CompletionWorkFlowHandler completionWorkflow;
     @Autowired
-    private StartWorkflowHandler startWorkflowHandler;
-
+    StartWorkflowHandler startWorkflowHandler;
     @Autowired
-    private PaperChannelResponseHandler paperChannelResponseHandler;
-
+    TimelineService timelineService;
     @Autowired
-    private AnalogWorkflowPaperChannelResponseHandler analogWorkflowPaperChannelResponseHandler;
-
+    NotificationUtils notificationUtils;
     @Autowired
-    private TimelineService timelineService;
-
-    @Autowired
-    private InstantNowSupplier instantNowSupplier;
-
-    @Autowired
-    private SafeStorageClientMock safeStorageClientMock;
+    StatusUtils statusUtils;
     
-    @Autowired
-    private PnDeliveryClientMock pnDeliveryClientMock;
-
-    @Autowired
-    private UserAttributesClientMock addressBookMock;
-
-    @Autowired
-    private NationalRegistriesClientMock nationalRegistriesClientMock;
-    
-    @Autowired
-    private TimelineDaoMock timelineDaoMock;
-
-    @Autowired
-    private TimelineCounterDaoMock timelineCounterDaoMock;
-
-    @Autowired
-    private NotificationUtils notificationUtils;
-
-    @Autowired
-    private PaperNotificationFailedDaoMock paperNotificationFailedDaoMock;
-    
-    @Autowired
-    private PnDataVaultClientMock pnDataVaultClientMock;
-    
-    @Autowired
-    private PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
-
-    @Autowired
-    private PaperChannelService paperChannelService;
-
-    @Autowired
-    private PaperChannelUtils paperChannelUtils;
-
-    @Autowired
-    private StatusUtils statusUtils;
-
-    @Autowired
-    private AuditLogService auditLogService;
-
-    @Autowired
-    private DocumentCreationRequestDaoMock documentCreationRequestDaoMock;
-    
-    @Autowired
-    private AddressManagerClientMock addressManagerClientMock;
-
-    @Autowired
-    private F24ClientMock f24ClientMock;
-    
-    @BeforeEach
-    public void setup() {
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-        ConsoleAppenderCustom.initializeLog();
-
-
-        TestUtils.initializeAllMockClient(
-                safeStorageClientMock,
-                pnDeliveryClientMock,
-                addressBookMock,
-                nationalRegistriesClientMock,
-                timelineDaoMock,
-                paperNotificationFailedDaoMock,
-                pnDataVaultClientMock,
-                pnDataVaultClientReactiveMock,
-                documentCreationRequestDaoMock,
-                addressManagerClientMock,
-                f24ClientMock
-        );
-    }
-
-
-
     @Test
     void notificationViewedPaPhysicalAddressSend() {
  /*
@@ -420,7 +218,7 @@ class AnalogTestIT {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String iun = "IUN01";
+        String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
@@ -596,8 +394,6 @@ class AnalogTestIT {
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
-        //Viene verificata la presenza del secondo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dal postino
-        //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
         
         //Viene verificato l'effettivo invio delle due notifiche verso paperChannel
         Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(Mockito.any(PaperChannelPrepareRequest.class));
@@ -730,11 +526,6 @@ class AnalogTestIT {
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito da pa
         TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress1, 0, timelineService);
-
-        /*
-        Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dall'investigazione
-            checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_OK, 1);
-        */
 
         //Vengono verificati il numero di send verso external channel
         Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(Mockito.any(PaperChannelPrepareRequest.class));
@@ -1311,8 +1102,6 @@ class AnalogTestIT {
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, rec1Index, paPhysicalAddress1, 0, timelineService);
-        //Viene verificata la presenza del secondo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dal postino
-        //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
 
         //Viene verificato l'effettivo invio delle due notifiche verso paperChannel
         Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(
@@ -1534,8 +1323,6 @@ class AnalogTestIT {
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, rec1Index, paPhysicalAddress1, 0, timelineService);
-        //Viene verificata la presenza del secondo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dal postino
-        //checkSendToExtChannel(iun, TestUtils.PHYSICAL_ADDRESS_FAILURE_BOTH, 1);
 
         //Viene verificato l'effettivo invio delle due notifiche verso paperChannel
         Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(
@@ -1621,6 +1408,128 @@ class AnalogTestIT {
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
 
         ConsoleAppenderCustom.checkLogs();
+    }
+
+    @Test
+    void checkConfigurationWithAttachmentAndOldAAR() {
+ /*
+       - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
+       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
+       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
+       
+       - Pa physical address presente ed effettua invio con successo
+     */
+
+        PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                .build();
+
+        String taxId01 = "TAXID01";
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId01)
+                .withInternalId("ANON_"+taxId01)
+                .withPhysicalAddress(paPhysicalAddress)
+                .build();
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
+                .withNotificationRecipient(recipient)
+                .build();
+        
+        pnDeliveryClientMock.addNotification(notification);
+
+        String iun = notification.getIun();
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(iun);
+
+        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+        
+        //Viene create una lista di tutti gli attachment che ci si aspetta siano stati spediti -> documenti notifica + aar
+        String aarKey = getAarKey(notification, recIndex);
+        List <String> listDocumentKey = notificationDocumentList.stream().map(elem -> elem.getRef().getKey()).toList();
+        final List<String> listAttachmentExpectedToSend = getListAllAttachmentExpectedToSend(listDocumentKey, aarKey);
+
+        //Vengono ottenuti gli attachment inviati nella richiesta di PREPARE verso paperChannel
+        final List<String> prepareAttachmentKeySent = getSentAttachmentKeyFromPrepare();
+        //Viene verificata che gli attachment inviati in fase di PREPARE siano esattamente quelli attesi
+        checkSentAndExpectedAttachmentAreEquals(listAttachmentExpectedToSend, prepareAttachmentKeySent);
+
+        //Vengono ottenuti gli attachment inviati nella richiesta di SEND verso paperChannel
+        final List<String> sendAttachmentKeySent = getSentAttachmentKeyFromPrepare();
+        //Viene verificata che gli attachment inviati in fase di SEND siano esattamente quelli attesi
+        checkSentAndExpectedAttachmentAreEquals(listAttachmentExpectedToSend, sendAttachmentKeySent);
+        
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
+    }
+
+    private static void checkSentAndExpectedAttachmentAreEquals(List<String> listAttachmentExpectedToSend, List<String> prepareAttachmentKeySent) {
+        Assertions.assertEquals(listAttachmentExpectedToSend.size(), prepareAttachmentKeySent.size());
+        listAttachmentExpectedToSend.forEach(attachmentExpectedToSend -> {
+            Assertions.assertTrue(prepareAttachmentKeySent.contains(attachmentExpectedToSend));
+        });
+    }
+
+    @NotNull
+    private static List<String> getListAllAttachmentExpectedToSend(List<String> listDocumentKey, String aarKey) {
+        List<String> listAttachmentExpectedToSend = new ArrayList<>();
+        if(listDocumentKey != null){
+            listAttachmentExpectedToSend.addAll(listDocumentKey);
+        }
+        if(aarKey != null){
+            listAttachmentExpectedToSend.add(aarKey);
+        }
+
+        return replaceSafeStorageKeyFromListAttachment(listAttachmentExpectedToSend);
+    }
+
+    private List<String> getSentAttachmentKeyFromPrepare() {
+        ArgumentCaptor<PaperChannelPrepareRequest> paperChannelPrepareRequestCaptor = ArgumentCaptor.forClass(PaperChannelPrepareRequest.class);
+        Mockito.verify(paperChannelMock, Mockito.times(1)).prepare(paperChannelPrepareRequestCaptor.capture());
+        PaperChannelPrepareRequest paperChannelPrepareRequest = paperChannelPrepareRequestCaptor.getValue();
+        List<String> sentAttachmentKey = paperChannelPrepareRequest.getAttachments();
+        //Viene sempre rimossa la stringa safeStorage
+        return replaceSafeStorageKeyFromListAttachment(sentAttachmentKey);
+    }
+    
+    private List<String> getSentAttachmentKeyFromSend() {
+        ArgumentCaptor<PaperChannelSendRequest> paperChannelSendRequestCaptor = ArgumentCaptor.forClass(PaperChannelSendRequest.class);
+        Mockito.verify(paperChannelMock, Mockito.times(1)).send(paperChannelSendRequestCaptor.capture());
+        PaperChannelSendRequest paperChannelSendRequest = paperChannelSendRequestCaptor.getValue();
+        List<String> sentAttachmentKey = paperChannelSendRequest.getAttachments();
+        //Viene sempre rimossa la stringa safeStorage
+        return replaceSafeStorageKeyFromListAttachment(sentAttachmentKey);
+    }
+    
+    private String getAarKey(NotificationInt notification, Integer recIndex) {
+        String elementId = TimelineEventId.AAR_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+        Optional<AarCreationRequestDetailsInt> aarElementDetailsOpt =  timelineService.getTimelineElementDetails(notification.getIun(), elementId, AarCreationRequestDetailsInt.class);
+        return aarElementDetailsOpt.map(AarCreationRequestDetailsInt::getAarKey).orElse(null);
+    }
+
+    @NotNull
+    private static List<String> replaceSafeStorageKeyFromListAttachment(List<String> attachments) {
+        return attachments.stream().map( attachment -> attachment.replace(SAFE_STORAGE_URL_PREFIX, "")).toList();
     }
 
 }
