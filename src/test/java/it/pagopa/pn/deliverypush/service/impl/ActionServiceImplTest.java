@@ -28,13 +28,24 @@ class ActionServiceImplTest {
     }
 
     @Test
-    void addAction() {
+    void addActionAndFutureActionIfAbsent() {
         Action action = buildAction();
         String time = "2021-09-16T15:24:00.00Z";
 
-        actionService.addAction(action, time);
+        actionService.addActionAndFutureActionIfAbsent(action, time);
 
-        Mockito.verify(actionDao, Mockito.times(1)).addActionIfAbsent(action, time);
+        Mockito.verify(actionDao, Mockito.times(1)).addActionAndFutureActionIfAbsent(action, time);
+    }
+
+
+    @Test
+    void addOnlyActionIfAbsent() {
+        Action action = buildAction();
+        String time = "2021-09-16T15:24:00.00Z";
+
+        actionService.addOnlyActionIfAbsent(action);
+
+        Mockito.verify(actionDao, Mockito.times(1)).addOnlyActionIfAbsent(action);
     }
 
     @Test
