@@ -51,6 +51,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.awaitility.Awaitility.setDefaultTimeout;
+
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
         StartWorkflowForRecipientHandler.class,
@@ -186,6 +188,8 @@ public class CommonTestConfiguration {
     
     @BeforeEach
     public void setup() {
+        setDefaultTimeout(Duration.ofSeconds(60));
+
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         setcCommonsConfigurationPropertiesForTest(cfg);
