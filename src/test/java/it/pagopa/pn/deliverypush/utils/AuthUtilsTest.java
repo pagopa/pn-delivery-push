@@ -1,5 +1,11 @@
 package it.pagopa.pn.deliverypush.utils;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -9,22 +15,16 @@ import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.MandateService;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 class AuthUtilsTest {
 
@@ -295,7 +295,7 @@ class AuthUtilsTest {
     }
 
     @Test
-    void checkPaId() {
+    void checkPaIdAndGroup() {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
@@ -308,12 +308,12 @@ class AuthUtilsTest {
 
         //WHEN
         assertDoesNotThrow(() ->
-                authUtils.checkPaId(notification, paId, CxTypeAuthFleet.PA).block()
+                authUtils.checkPaIdAndGroup(notification, paId, CxTypeAuthFleet.PA, new ArrayList<>()).block()
         );
     }
 
     @Test
-    void checkPaIdErrorCxType() {
+    void checkPaIdAndGroupErrorCxType() {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
@@ -324,14 +324,14 @@ class AuthUtilsTest {
 
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId, sentAt);
         
-        Mono<Void> monoResp =  authUtils.checkPaId(notification, paId, CxTypeAuthFleet.PG);
+        Mono<Void> monoResp =  authUtils.checkPaIdAndGroup(notification, paId, CxTypeAuthFleet.PG, new ArrayList<>());
         
         //WHEN
         assertThrows(PnNotFoundException.class, monoResp::block);
     }
 
     @Test
-    void checkPaIdErrorPaId() {
+    void checkPaIdAndGroupErrorGroup() {
         //GIVEN
         String iun = "iun";
         String taxId = "testTaxId";
@@ -342,7 +342,46 @@ class AuthUtilsTest {
 
         NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId, sentAt);
 
-        Mono<Void> monoResp = authUtils.checkPaId(notification, "anotherPaId", CxTypeAuthFleet.PA);
+        List<String> groups = new ArrayList<>();
+        groups.add("noway");
+        Mono<Void> monoResp =  authUtils.checkPaIdAndGroup(notification, paId, CxTypeAuthFleet.PA, groups);
+
+        //WHEN
+        assertThrows(PnNotFoundException.class, monoResp::block);
+    }
+    @Test
+    void checkPaIdAndGroupOKGroup() {
+        //GIVEN
+        String iun = "iun";
+        String taxId = "testTaxId";
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
+        String paId = "paId01";
+
+        Instant sentAt = Instant.now();
+
+        NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId, sentAt);
+
+        List<String> groups = new ArrayList<>();
+        groups.add("group1");
+        groups.add("group2");
+
+        //WHEN
+        assertDoesNotThrow(() -> authUtils.checkPaIdAndGroup(notification, paId, CxTypeAuthFleet.PA, groups));
+    }
+
+    @Test
+    void checkPaIdAndGroupErrorPaId() {
+        //GIVEN
+        String iun = "iun";
+        String taxId = "testTaxId";
+        String taxIdAnon = Base64Utils.encodeToString(taxId.getBytes());
+        String paId = "paId01";
+
+        Instant sentAt = Instant.now();
+
+        NotificationInt notification = getNotification(iun, taxId, taxIdAnon, paId, sentAt);
+
+        Mono<Void> monoResp = authUtils.checkPaIdAndGroup(notification, "anotherPaId", CxTypeAuthFleet.PA, new ArrayList<>());
         
         //WHEN
         assertThrows(PnNotFoundException.class, monoResp::block);
@@ -358,6 +397,7 @@ class AuthUtilsTest {
                 .withSentAt(sentAt)
                 .withIun(iun)
                 .withPaId(paId)
+                .withGroup("group1")
                 .withNotificationRecipient(recipient)
                 .build();
     }
