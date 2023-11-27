@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
+import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
@@ -47,6 +48,7 @@ public class ActionHandler {
     private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
     private final NotificationCancellationActionHandler notificationCancellationActionHandler;
     private final NotificationRefusedActionHandler notificationRefusedActionHandler;
+    private final CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
     private final TimelineUtils timelineUtils;
 
     @Bean
@@ -390,6 +392,29 @@ public class ActionHandler {
             }
         };
     }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushCheckAttachmentRetention(){
+        final String processName = "CHECK ATTACHMENT RETENTION";
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushCheckAttachmentRetention, with content {}", message);
+                Action action = message.getPayload();
+                HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
+
+                log.logStartingProcess(processName);
+
+                checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(action.getIun());
+                log.logEndingProcess(processName);
+            } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+    
     
     private void checkNotificationCancelledAndExecute(Action action, Consumer<Action> functionToCall) {
         if (! timelineUtils.checkIsNotificationCancellationRequested(action.getIun())) {
