@@ -38,7 +38,7 @@ public class CheckAttachmentRetentionHandler {
             scheduleCheckAttachmentRetentionBeforeExpiration(iun);
             
             int attachmentTimeToAddAfterExpiration = (int) configs.getTimeParams().getAttachmentTimeToAddAfterExpiration().toDays();
-            attachmentUtils.changeAttachmentsRetention(notification, attachmentTimeToAddAfterExpiration).collectList().block();
+            attachmentUtils.changeAttachmentsRetention(notification, attachmentTimeToAddAfterExpiration).blockLast();
         }else{
             log.info("Notification is already refined, don't need to update retention - iun={} ", iun);
         }
