@@ -41,6 +41,16 @@ public enum ActionType {
       );
     }
   },
+
+  CHECK_ATTACHMENT_RETENTION(NotHandledDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("check_attachment_retention_iun_%s_scheduling-date_%s",
+              action.getIun(),
+              action.getNotBefore()
+      );
+    }
+  },
   
   START_RECIPIENT_WORKFLOW(RecipientsWorkflowDetails.class) {
     @Override

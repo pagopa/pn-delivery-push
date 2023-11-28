@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
@@ -45,7 +46,8 @@ public class SchedulerServiceMock implements SchedulerService {
   private final NotificationValidationActionHandler notificationValidationActionHandler;
   private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
   private final NotificationRefusedActionHandler notificationRefusedActionHandler;
-
+  private final CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
+  
   public SchedulerServiceMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
                               @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
                               @Lazy AnalogWorkflowHandler analogWorkflowHandler,
@@ -56,7 +58,8 @@ public class SchedulerServiceMock implements SchedulerService {
                               @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
                               @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
                               @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
-                              @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler) {
+                              @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
+                              @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler) {
     this.digitalWorkFlowHandler = digitalWorkFlowHandler;
     this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
     this.analogWorkflowHandler = analogWorkflowHandler;
@@ -68,6 +71,7 @@ public class SchedulerServiceMock implements SchedulerService {
     this.notificationValidationActionHandler = notificationValidationActionHandler;
     this.receivedLegalFactCreationRequest = receivedLegalFactCreationRequest;
     this.notificationRefusedActionHandler = notificationRefusedActionHandler;
+    this.checkAttachmentRetentionHandler = checkAttachmentRetentionHandler;
   }
 
   @Override
@@ -106,15 +110,16 @@ public class SchedulerServiceMock implements SchedulerService {
                   notificationValidationActionHandler.validateNotification(iun, (NotificationValidationActionDetails) actionDetails);
           case SCHEDULE_RECEIVED_LEGALFACT_GENERATION ->
                   receivedLegalFactCreationRequest.saveNotificationReceivedLegalFacts(iun);
+          case CHECK_ATTACHMENT_RETENTION ->
+                  checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun);
           default ->
                   log.error("[TEST] actionType not found {}", actionType);
         }
       });
     }));
-
   }
 
-  private void waitSchedulingTime(Instant dateToSchedule) throws InterruptedException {
+  private void waitSchedulingTime(Instant dateToSchedule) {
     log.info("[TEST] DateToSchedule {} instantNow = {}", dateToSchedule, Instant.now());
 
     await()
