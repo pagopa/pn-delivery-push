@@ -14,4 +14,7 @@ public class TimeParams {
     private Duration secondNotificationWorkflowWaitingTime;
     private String notificationNonVisibilityTime;
     private Duration timeToAddInNonVisibilityTimeCase;
+    private Duration attachmentRetentionTimeAfterValidation;
+    private Duration checkAttachmentTimeBeforeExpiration;
+    private Duration attachmentTimeToAddAfterExpiration;
 }

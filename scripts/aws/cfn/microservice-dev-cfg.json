@@ -40,8 +40,8 @@
     "NotificationCancellationActionInsertLambdaBatchSize": "20",
     "EnhancedWebSecurityEnabled": "true",
     "PagoPaNotificationBaseCost": "100",
-    "attachmentRetentionDaysAfterValidation": "120",
-    "checkAttachmentDaysBeforeExpiration": "10",
-    "attachmentDaysToAddAfterExpiration": "120"
+    "attachmentRetentionTimeAfterValidation": "120",
+    "checkAttachmentTimeBeforeExpiration": "10",
+    "attachmentTimeToAddAfterExpiration": "120"
   }
 }

@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -20,11 +21,11 @@ import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -85,10 +86,12 @@ class CheckAttachmentRetentionHandlerTest {
         );
         Mockito.when(timelineService.getTimeline(notification.getIun(), false)).thenReturn(timeline);
 
-        final int retentionDaysAfterValidation = 120;
-        final int checkAttachmentDaysBeforeExpiration = 10;
-        Mockito.when(configs.getAttachmentDaysToAddAfterExpiration()).thenReturn(retentionDaysAfterValidation);
-        Mockito.when(configs.getCheckAttachmentDaysBeforeExpiration()).thenReturn(checkAttachmentDaysBeforeExpiration);
+        Duration retentionAfterExpiration = Duration.ofDays(120);
+        Duration checkAttachmentDaysBeforeExpiration = Duration.ofDays(10);
+        TimeParams times = new TimeParams();
+        times.setAttachmentTimeToAddAfterExpiration(retentionAfterExpiration);
+        times.setCheckAttachmentTimeBeforeExpiration(checkAttachmentDaysBeforeExpiration);
+        Mockito.when(configs.getTimeParams()).thenReturn(times);
         
         Mockito.when(attachmentUtils.changeAttachmentsRetention(Mockito.any(), Mockito.anyInt())).thenReturn(Flux.empty());
         
@@ -96,17 +99,18 @@ class CheckAttachmentRetentionHandlerTest {
         checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(notification.getIun());
         
         //THEN
-        verifySchedulingNextCheckAttachment(notification, retentionDaysAfterValidation, checkAttachmentDaysBeforeExpiration);
-        Mockito.verify(attachmentUtils).changeAttachmentsRetention(notification, configs.getAttachmentDaysToAddAfterExpiration());
+        verifySchedulingNextCheckAttachment(notification, retentionAfterExpiration, checkAttachmentDaysBeforeExpiration);
+        
+        Mockito.verify(attachmentUtils).changeAttachmentsRetention(notification, (int) configs.getTimeParams().getAttachmentTimeToAddAfterExpiration().toDays());
     }
 
-    private void verifySchedulingNextCheckAttachment(NotificationInt notification, int retentionDaysAfterValidation, int checkAttachmentDaysBeforeExpiration) {
+    private void verifySchedulingNextCheckAttachment(NotificationInt notification, Duration retentionDaysAfterValidation, Duration checkAttachmentDaysBeforeExpiration) {
         ArgumentCaptor<Instant> checkAttachmentDateCaptor = ArgumentCaptor.forClass(Instant.class);
         Mockito.verify(schedulerService).scheduleEvent(Mockito.eq(notification.getIun()), checkAttachmentDateCaptor.capture(), Mockito.eq(ActionType.CHECK_ATTACHMENT_RETENTION));
         Instant checkAttachmentDateScheduled = checkAttachmentDateCaptor.getValue();
 
-        int checkAttachmentDaysToWait = retentionDaysAfterValidation - checkAttachmentDaysBeforeExpiration;
-        Instant checkAttachmentDateExpected = Instant.now().plus(checkAttachmentDaysToWait, ChronoUnit.DAYS);
+        Duration checkAttachmentDaysToWait = retentionDaysAfterValidation.minus(checkAttachmentDaysBeforeExpiration);
+        Instant checkAttachmentDateExpected = Instant.now().plus(checkAttachmentDaysToWait);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 .withZone(ZoneId.from(ZoneOffset.UTC));

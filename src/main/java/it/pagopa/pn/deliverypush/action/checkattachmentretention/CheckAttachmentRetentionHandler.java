@@ -12,8 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @Component
 @AllArgsConstructor
@@ -36,17 +36,22 @@ public class CheckAttachmentRetentionHandler {
             
             //Viene aggiornata la retention degli attachment e inserita una nuova action che, nuovamente, agisca in caso di retention in scadenza
             scheduleCheckAttachmentRetentionBeforeExpiration(iun);
-            attachmentUtils.changeAttachmentsRetention(notification, configs.getAttachmentDaysToAddAfterExpiration()).collectList().block();
+            
+            int attachmentTimeToAddAfterExpiration = (int) configs.getTimeParams().getAttachmentTimeToAddAfterExpiration().toDays();
+            attachmentUtils.changeAttachmentsRetention(notification, attachmentTimeToAddAfterExpiration).collectList().block();
         }else{
             log.info("Notification is already refined, don't need to update retention - iun={} ", iun);
         }
     }
 
     private void scheduleCheckAttachmentRetentionBeforeExpiration(String iun) {
+        Duration attachmentTimeToAddAfterExpiration = configs.getTimeParams().getAttachmentTimeToAddAfterExpiration();
+        Duration checkAttachmentTimeBeforeExpiration = configs.getTimeParams().getCheckAttachmentTimeBeforeExpiration();
         log.debug("Start scheduleCheckAttachmentRetentionBeforeExpiration - attachmentDaysToAddAfterExpiration={} checkAttachmentDaysBeforeExpiration={} iun={}",
-                configs.getAttachmentDaysToAddAfterExpiration(), configs.getCheckAttachmentDaysBeforeExpiration(), iun);
-        int checkAttachmentDaysToWait = configs.getAttachmentDaysToAddAfterExpiration() - configs.getCheckAttachmentDaysBeforeExpiration();
-        Instant checkAttachmentDate = Instant.now().plus(checkAttachmentDaysToWait, ChronoUnit.DAYS);
+                attachmentTimeToAddAfterExpiration, checkAttachmentTimeBeforeExpiration, iun);
+        
+        Duration checkAttachmentTimeToWait = attachmentTimeToAddAfterExpiration.minus(checkAttachmentTimeBeforeExpiration);
+        Instant checkAttachmentDate = Instant.now().plus(checkAttachmentTimeToWait);
 
         log.info("Scheduling checkAttachmentRetention schedulingDate={} - iun={}", checkAttachmentDate, iun);
         schedulerService.scheduleEvent(iun, checkAttachmentDate, ActionType.CHECK_ATTACHMENT_RETENTION);

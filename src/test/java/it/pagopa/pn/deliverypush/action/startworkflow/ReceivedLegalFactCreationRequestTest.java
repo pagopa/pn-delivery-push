@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,11 +19,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
 import static org.mockito.Mockito.doThrow;
 
@@ -60,10 +61,12 @@ class ReceivedLegalFactCreationRequestTest {
         
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
 
-        final int retentionDaysAfterValidation = 120;
-        final int checkAttachmentDaysBeforeExpiration = 10;
-        Mockito.when(pnDeliveryPushConfigs.getAttachmentRetentionDaysAfterValidation()).thenReturn(retentionDaysAfterValidation);
-        Mockito.when(pnDeliveryPushConfigs.getCheckAttachmentDaysBeforeExpiration()).thenReturn(checkAttachmentDaysBeforeExpiration);
+        Duration retentionDaysAfterValidation = Duration.ofDays(120);
+        Duration checkAttachmentDaysBeforeExpiration = Duration.ofDays(10);
+        TimeParams times = new TimeParams();
+        times.setAttachmentRetentionTimeAfterValidation(retentionDaysAfterValidation);
+        times.setCheckAttachmentTimeBeforeExpiration(checkAttachmentDaysBeforeExpiration);
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         String legalFactId = "testLegId";
         Mockito.when(saveLegalFactsService.sendCreationRequestForNotificationReceivedLegalFact(notification)).thenReturn(legalFactId);
@@ -82,8 +85,8 @@ class ReceivedLegalFactCreationRequestTest {
         Mockito.verify(schedulerService).scheduleEvent(Mockito.eq(notification.getIun()), checkAttachmentDateCaptor.capture(), Mockito.eq(ActionType.CHECK_ATTACHMENT_RETENTION));
         Instant checkAttachmentDateScheduled = checkAttachmentDateCaptor.getValue();
 
-        int checkAttachmentDaysToWait = retentionDaysAfterValidation - checkAttachmentDaysBeforeExpiration;
-        Instant checkAttachmentDateExpected = Instant.now().plus(checkAttachmentDaysToWait, ChronoUnit.DAYS);
+        Duration checkAttachmentDaysToWait = retentionDaysAfterValidation.minus(checkAttachmentDaysBeforeExpiration);
+        Instant checkAttachmentDateExpected = Instant.now().plus(checkAttachmentDaysToWait);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 .withZone(ZoneId.from(ZoneOffset.UTC));

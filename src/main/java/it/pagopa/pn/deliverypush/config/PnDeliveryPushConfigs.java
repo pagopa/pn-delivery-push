@@ -108,12 +108,6 @@ public class PnDeliveryPushConfigs {
     private int pagoPaNotificationBaseCost;
 
     private List<String> paperSendMode;
-
-    private Integer attachmentRetentionDaysAfterValidation;
-    
-    private Integer checkAttachmentDaysBeforeExpiration;
-    
-    private Integer attachmentDaysToAddAfterExpiration;
     
     @Data
     public static class Topics {

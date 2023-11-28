@@ -52,15 +52,15 @@ Parameters:
     Type: String
     Description: 'Refinement time for Analog workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
   
-  AttachmentRetentionDaysAfterValidation:
+  AttachmentRetentionTimeAfterValidation:
     Type: String
     Description: 'Attachment retention (in days) which is applied after validation. Note: This number is defined on safeStorage, so a change to these properties does not imply a change to effective file retention'
   
-  CheckAttachmentDaysBeforeExpiration:
+  CheckAttachmentTimeBeforeExpiration:
     Type: String
     Description: 'Defines how long before the attachment retention expires the attachments must be checked (to possibly extend the retention)'
   
-  AttachmentDaysToAddAfterExpiration:
+  AttachmentTimeToAddAfterExpiration:
     Type: String
     Description: 'Defines the number of days to add to attachment retention, when system realize that it is expiring'
 
@@ -747,9 +747,9 @@ Resources:
         ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'
         ContainerEnvEntry63: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONBASECOST=${PagoPaNotificationBaseCost}'
-        ContainerEnvEntry64: !Sub 'PN_DELIVERYPUSH_ATTACHMENTRETENTIONDAYSAFTERVALIDATION=${AttachmentRetentionDaysAfterValidation}'
-        ContainerEnvEntry65: !Sub 'PN_DELIVERYPUSH_CHECKATTACHMENTDAYSBEFOREEXPIRATION=${CheckAttachmentDaysBeforeExpiration}'
-        ContainerEnvEntry66: !Sub 'PN_DELIVERYPUSH_ATTACHMENTDAYSTOADDAFTEREXPIRATION=${AttachmentDaysToAddAfterExpiration}'
+        ContainerEnvEntry64: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTRETENTIONTIMEAFTERVALIDATION=${AttachmentRetentionTimeAfterValidation}'
+        ContainerEnvEntry65: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_CHECKATTACHMENTTIMEBEFOREEXPIRATION=${CheckAttachmentTimeBeforeExpiration}'
+        ContainerEnvEntry66: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTTIMETOADDAFTEREXPIRATION=${AttachmentTimeToAddAfterExpiration}'
         
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets

@@ -10,6 +10,7 @@ import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
@@ -133,7 +134,8 @@ public class AbstractWorkflowTestConfiguration {
                                                          @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
                                                          @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
                                                          @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
-                                                         @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler
+                                                         @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
+                                                         @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler
     ) {
         return new SchedulerServiceMock(
                 digitalWorkFlowHandler,
@@ -146,7 +148,8 @@ public class AbstractWorkflowTestConfiguration {
                 documentCreationResponseHandler,
                 notificationValidationActionHandler,
                 receivedLegalFactCreationRequest,
-                notificationRefusedActionHandler);
+                notificationRefusedActionHandler,
+                checkAttachmentRetentionHandler);
     }
 
     

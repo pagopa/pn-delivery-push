@@ -12,8 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @Component
 @AllArgsConstructor
@@ -51,12 +51,15 @@ public class ReceivedLegalFactCreationRequest {
     }
 
     private void scheduleCheckAttachmentRetentionBeforeExpiration(String iun) {
-        log.debug("Start scheduleCheckAttachmentRetentionBeforeExpiration - attachmentRetentionDaysAfterValidation={} checkAttachmentDaysBeforeExpiration={} iun={}",
-                configs.getAttachmentRetentionDaysAfterValidation(), configs.getCheckAttachmentDaysBeforeExpiration(), iun);
-        int checkAttachmentDaysToWait = configs.getAttachmentRetentionDaysAfterValidation() - configs.getCheckAttachmentDaysBeforeExpiration();
-        Instant checkAttachmentDate = Instant.now().plus(checkAttachmentDaysToWait, ChronoUnit.DAYS);
+        Duration attachmentRetentionTimeAfterValidation = configs.getTimeParams().getAttachmentRetentionTimeAfterValidation();
+        Duration checkAttachmentTimeBeforeExpiration = configs.getTimeParams().getCheckAttachmentTimeBeforeExpiration();
+        log.info("Start scheduleCheckAttachmentRetentionBeforeExpiration - attachmentRetentionDaysAfterValidation={} checkAttachmentDaysBeforeExpiration={} iun={}",
+                attachmentRetentionTimeAfterValidation,checkAttachmentTimeBeforeExpiration, iun);
         
-        log.debug("Scheduling checkAttachmentRetention schedulingDate={} - iun={}", checkAttachmentDate, iun);
+        Duration checkAttachmentTimeToWait = attachmentRetentionTimeAfterValidation.minus(checkAttachmentTimeBeforeExpiration);
+        Instant checkAttachmentDate = Instant.now().plus(checkAttachmentTimeToWait);
+        
+        log.info("Scheduling checkAttachmentRetention schedulingDate={} - iun={}", checkAttachmentDate, iun);
         schedulerService.scheduleEvent(iun, checkAttachmentDate, ActionType.CHECK_ATTACHMENT_RETENTION);
     }
 }
