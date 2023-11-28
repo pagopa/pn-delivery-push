@@ -18,8 +18,8 @@ public class ThreadPool {
     
     public static void killThreads() {
         // Ferma la ThreadPool
-        executor.shutdown();
-        awaitTermination();
+        executor.shutdownNow();
+   //     awaitTermination();
 
         executor = createNewThreadPool();
     }
