@@ -54,15 +54,15 @@ Parameters:
   
   AttachmentRetentionTimeAfterValidation:
     Type: String
-    Description: 'Attachment retention (in days) which is applied after validation. Note: This number is defined on safeStorage, so a change to these properties does not imply a change to effective file retention'
+    Description: 'Attachment retention after validation. Note: This number is defined on safeStorage, so a change to these properties does not imply a change to effective file retention'
   
   CheckAttachmentTimeBeforeExpiration:
     Type: String
-    Description: 'Defines how long before the attachment retention expires the attachments must be checked (to possibly extend the retention)'
+    Description: 'Defines how long before the attachment retention expires need to start "check attachment retention"'
   
   AttachmentTimeToAddAfterExpiration:
     Type: String
-    Description: 'Defines the number of days to add to attachment retention, when system realize that it is expiring'
+    Description: 'Time to add when attachment retention is expiring'
 
   ApiDnsName:
     Type: String
