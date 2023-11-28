@@ -1,16 +1,16 @@
 package it.pagopa.pn.deliverypush.action.checkattachmentretention;
 
+import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,43 +26,33 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 class CheckAttachmentRetentionHandlerTest {
     @Mock
     private NotificationService notificationService;
     @Mock
-    private TimelineService timelineService;
-    @Mock
     private AttachmentUtils attachmentUtils;
     @Mock
     private PnDeliveryPushConfigs configs;
     @Mock
     private SchedulerService schedulerService;
+    @Mock
+    private TimelineUtils timelineUtils;
+
     @InjectMocks
     private CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
     
     @Test
-    void notificationAlreadyRefined() {
+    void notificationAlreadyRefinedSingleRecipient() {
         //GIVEN
-        String iun = "testIun";
+        NotificationInt notification = NotificationTestBuilder.builder().build();
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+        String iun = notification.getIun();
         
-        Set<TimelineElementInternal> timeline = new HashSet<>();
-        timeline.add(
-                TimelineElementInternal.builder()
-                        .iun(iun)
-                        .category(TimelineElementCategoryInt.REFINEMENT)
-                        .build()
-        );
-        timeline.add(
-                TimelineElementInternal.builder()
-                        .iun(iun)
-                        .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
-                        .build()
-        );
-        Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, 0)).thenReturn(true);
         
         //WHEN
         checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun);
@@ -72,19 +62,46 @@ class CheckAttachmentRetentionHandlerTest {
     }
 
     @Test
-    void checkChangeAttachmentRetention() {
+    void notificationAlreadyRefinedMultiRecipient() {
         //GIVEN
-        NotificationInt notification = NotificationTestBuilder.builder().build();
+        NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder().build();
+        NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder().build();
+        List<NotificationRecipientInt> recipients = new ArrayList<>();
+        recipients.add(recipient1);
+        recipients.add(recipient2);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationRecipients(recipients)
+                .build();
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
-        
-        Set<TimelineElementInternal> timeline = new HashSet<>();
-        timeline.add(
-                TimelineElementInternal.builder()
-                        .iun(notification.getIun())
-                        .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
-                        .build()
-        );
-        Mockito.when(timelineService.getTimeline(notification.getIun(), false)).thenReturn(timeline);
+        String iun = notification.getIun();
+
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, 0)).thenReturn(true);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, 1)).thenReturn(true);
+
+        //WHEN
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun);
+
+        //THEN
+        Mockito.verify(attachmentUtils, Mockito.never()).changeAttachmentsRetention(Mockito.any(), Mockito.anyInt());
+    }
+
+    @Test
+    void checkChangeAttachmentRetentionMultiRecipient() {
+        //GIVEN
+        NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder().build();
+        NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder().build();
+        List<NotificationRecipientInt> recipients = new ArrayList<>();
+        recipients.add(recipient1);
+        recipients.add(recipient2);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationRecipients(recipients)
+                .build();
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(notification.getIun(), 0)).thenReturn(false);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(notification.getIun(), 1)).thenReturn(true);
 
         Duration retentionAfterExpiration = Duration.ofDays(120);
         Duration checkAttachmentDaysBeforeExpiration = Duration.ofDays(10);
@@ -101,6 +118,32 @@ class CheckAttachmentRetentionHandlerTest {
         //THEN
         verifySchedulingNextCheckAttachment(notification, retentionAfterExpiration, checkAttachmentDaysBeforeExpiration);
         
+        Mockito.verify(attachmentUtils).changeAttachmentsRetention(notification, (int) configs.getTimeParams().getAttachmentTimeToAddAfterExpiration().toDays());
+    }
+
+    @Test
+    void checkChangeAttachmentRetentionSingleRecipient() {
+        //GIVEN
+        NotificationInt notification = NotificationTestBuilder.builder().build();
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(notification.getIun(), 0)).thenReturn(false);
+
+        Duration retentionAfterExpiration = Duration.ofDays(120);
+        Duration checkAttachmentDaysBeforeExpiration = Duration.ofDays(10);
+        TimeParams times = new TimeParams();
+        times.setAttachmentTimeToAddAfterExpiration(retentionAfterExpiration);
+        times.setCheckAttachmentTimeBeforeExpiration(checkAttachmentDaysBeforeExpiration);
+        Mockito.when(configs.getTimeParams()).thenReturn(times);
+
+        Mockito.when(attachmentUtils.changeAttachmentsRetention(Mockito.any(), Mockito.anyInt())).thenReturn(Flux.empty());
+
+        //WHEN
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(notification.getIun());
+
+        //THEN
+        verifySchedulingNextCheckAttachment(notification, retentionAfterExpiration, checkAttachmentDaysBeforeExpiration);
+
         Mockito.verify(attachmentUtils).changeAttachmentsRetention(notification, (int) configs.getTimeParams().getAttachmentTimeToAddAfterExpiration().toDays());
     }
 

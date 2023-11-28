@@ -109,7 +109,7 @@ class CheckAttachmentRetentionIT extends CommonTestConfiguration {
                 .atMost(200, TimeUnit.SECONDS)
                 .untilAsserted(() -> Assertions.assertTrue(Instant.now().isAfter(dateToWait)));
         
-        //Viene quindi verificato che il metodo di check attacment sia stato effettivamente richiamato ...
+        //Viene quindi verificato che il metodo di check attachment sia stato effettivamente richiamato ...
         Mockito.verify(checkAttachmentRetentionHandler).handleCheckAttachmentRetentionBeforeExpiration(iun);
         //... ma che non abbia effettuato l'update della retention perchè la notifica è già perfezionata (per presa visione)
         Mockito.verify(attachmentUtils, Mockito.times(1)).changeAttachmentsRetention(Mockito.eq(notification), Mockito.anyInt());
