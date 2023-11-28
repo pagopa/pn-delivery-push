@@ -41,7 +41,7 @@
     "EnhancedWebSecurityEnabled": "true",
     "PagoPaNotificationBaseCost": "100",
     "AttachmentRetentionTimeAfterValidation": "3m",
-    "CheckAttachmentTimeBeforeExpiration": "1",
-    "AttachmentTimeToAddAfterExpiration": "3m"
+    "CheckAttachmentTimeBeforeExpiration": "1m",
+    "AttachmentTimeToAddAfterExpiration": "120d"
   }
 }
