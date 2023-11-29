@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
+import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
@@ -50,6 +51,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.awaitility.Awaitility.setDefaultTimeout;
 
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
@@ -144,7 +147,8 @@ import java.util.List;
         MandateServiceImpl.class,
         MandateClientMock.class,
         NotificationCancellationActionHandler.class,
-        PaperSendModeUtils.class
+        PaperSendModeUtils.class,
+        CheckAttachmentRetentionHandler.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")
@@ -186,6 +190,8 @@ public class CommonTestConfiguration {
     
     @BeforeEach
     public void setup() {
+        setDefaultTimeout(Duration.ofSeconds(60));
+
         Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
 
         setcCommonsConfigurationPropertiesForTest(cfg);
@@ -218,6 +224,10 @@ public class CommonTestConfiguration {
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         times.setNotificationNonVisibilityTime("21:00");
         times.setTimeToAddInNonVisibilityTimeCase(Duration.ofSeconds(1));
+        times.setAttachmentRetentionTimeAfterValidation(Duration.ofDays(120));
+        times.setCheckAttachmentTimeBeforeExpiration(Duration.ofDays(10));
+        times.setAttachmentTimeToAddAfterExpiration(Duration.ofDays(120));
+        
         Mockito.when(cfg.getTimeParams()).thenReturn(times);
 
         // Impostazione delle proprietà PaperChannel
@@ -266,6 +276,7 @@ public class CommonTestConfiguration {
         paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
 
         Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList);
+
     }
 
 }

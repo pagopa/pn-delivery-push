@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
@@ -64,7 +65,9 @@ class ActionHandlerTest {
     private ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
     @Mock
     private NotificationRefusedActionHandler notificationRefusedActionHandler;
-    
+    @Mock
+    private CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
+
     @Mock
     private TimelineUtils timelineUtils;
 
@@ -286,6 +289,22 @@ class ActionHandlerTest {
         verify(notificationRefusedActionHandler).notificationRefusedHandler(action.getIun(), details.getErrors(), action.getNotBefore());
     }
 
+    @Test
+    void pnDeliveryPushCheckAttachmentRetention() {
+        //GIVEN
+        Message<Action> message = getActionMessage();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
+
+        //WHEN
+        Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushCheckAttachmentRetention();
+        consumer.accept(message);
+
+        //THEN
+        Action action = message.getPayload();
+
+        verify(checkAttachmentRetentionHandler).handleCheckAttachmentRetentionBeforeExpiration(action.getIun());
+    }
+
     @NotNull
     private static Message<Action> getActionRefusedMessage() {
         return new Message<>() {
@@ -325,7 +344,8 @@ class ActionHandlerTest {
         Action action = message.getPayload();
         verify(receivedLegalFactCreationRequest).saveNotificationReceivedLegalFacts(action.getIun());
     }
-
+    
+    
     @NotNull
     private static Message<Action> getActionMessage() {
         return new Message<>() {

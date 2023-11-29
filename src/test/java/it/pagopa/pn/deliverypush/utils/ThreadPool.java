@@ -18,7 +18,7 @@ public class ThreadPool {
     
     public static void killThreads() {
         // Ferma la ThreadPool
-        executor.shutdown();
+        executor.shutdownNow();
         awaitTermination();
 
         executor = createNewThreadPool();
@@ -35,6 +35,6 @@ public class ThreadPool {
     }
 
     private static ExecutorService createNewThreadPool() {
-        return Executors.newFixedThreadPool(10);
+        return Executors.newScheduledThreadPool(20);
     }
 }

@@ -108,7 +108,7 @@ public class PnDeliveryPushConfigs {
     private int pagoPaNotificationBaseCost;
 
     private List<String> paperSendMode;
-
+    
     @Data
     public static class Topics {
 
