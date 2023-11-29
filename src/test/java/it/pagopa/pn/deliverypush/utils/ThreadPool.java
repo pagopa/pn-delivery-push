@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class ThreadPool {
+public class ThreadPool { 
     private static ExecutorService executor = createNewThreadPool();
     
     private ThreadPool() {}
