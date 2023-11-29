@@ -871,11 +871,9 @@ components:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         element:
           $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
-        # proprietà necessaria per retrocompatibilità con la v10, ma che non saranno esposte nella V22 # NO EXTERNAL
-        channel:                                                                                           # NO EXTERNAL
-          type: string                                                                                     # NO EXTERNAL
         # proprietà necessarie per retrocompatibilità nel transitorio, ma che non saranno esposte nella V22 # NO EXTERNAL
-        # potranno essere eliminate al termine del tempo di permanenza degli eventi TTL                    # NO EXTERNAL
+        # potranno essere eliminate quando la Timeline verrà aggiornata e verrà aggiunto il serviceLevel   # NO EXTERNAL
+        # nel detail di AnalogProgressDetail                                                               # NO EXTERNAL
         timestamp:                                                                                         # NO EXTERNAL
           type: string                                                                                     # NO EXTERNAL
           format: date-time                                                                                # NO EXTERNAL
@@ -888,6 +886,9 @@ components:
         analogCost:                                                                                        # NO EXTERNAL
           type: integer                                                                                    # NO EXTERNAL
           format: int32                                                                                    # NO EXTERNAL
+        channel:                                                                                           # NO EXTERNAL
+          type: string                                                                                     # NO EXTERNAL
+
 
     
     ###  - EVENTI GENERATI DALLA P.A.
