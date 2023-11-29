@@ -224,9 +224,9 @@ public class CommonTestConfiguration {
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         times.setNotificationNonVisibilityTime("21:00");
         times.setTimeToAddInNonVisibilityTimeCase(Duration.ofSeconds(1));
-        times.setAttachmentRetentionTimeAfterValidation(Duration.ofDays(120));
-        times.setCheckAttachmentTimeBeforeExpiration(Duration.ofDays(10));
-        times.setAttachmentTimeToAddAfterExpiration(Duration.ofDays(120));
+        times.setAttachmentRetentionTimeAfterValidation(Duration.ofSeconds(5));
+        times.setCheckAttachmentTimeBeforeExpiration(Duration.ofSeconds(2));
+        times.setAttachmentTimeToAddAfterExpiration(Duration.ofSeconds(5));
         
         Mockito.when(cfg.getTimeParams()).thenReturn(times);
 

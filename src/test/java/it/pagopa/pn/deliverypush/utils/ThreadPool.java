@@ -1,9 +1,11 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.testcontainers.shaded.com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -35,6 +37,9 @@ public class ThreadPool {
     }
 
     private static ExecutorService createNewThreadPool() {
-        return Executors.newScheduledThreadPool(20);
+        ThreadFactory namedThreadFactory =
+                new ThreadFactoryBuilder().setNameFormat("test-IT-%d").build();
+
+        return Executors.newScheduledThreadPool(20, namedThreadFactory);
     }
 }

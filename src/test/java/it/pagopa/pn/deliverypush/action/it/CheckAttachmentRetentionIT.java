@@ -92,7 +92,7 @@ class CheckAttachmentRetentionIT extends CommonTestConfiguration {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che non sia stato inserito l'elemento SENDERACK_CREATION_REQUEST
-        String timelineId = TimelineEventId.SENDERACK_CREATION_REQUEST.buildEventId(
+        String timelineId = TimelineEventId.REQUEST_ACCEPTED.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .build()
