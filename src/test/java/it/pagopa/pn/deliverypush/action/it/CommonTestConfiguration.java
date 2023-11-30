@@ -235,7 +235,7 @@ public class CommonTestConfiguration {
         times.setTimeToAddInNonVisibilityTimeCase(Duration.ofSeconds(1));
         times.setAttachmentRetentionTimeAfterValidation(Duration.ofSeconds(5));
         times.setCheckAttachmentTimeBeforeExpiration(Duration.ofSeconds(2));
-        times.setAttachmentTimeToAddAfterExpiration(Duration.ofSeconds(5));
+        times.setAttachmentTimeToAddAfterExpiration(Duration.ofSeconds(50));
         
         Mockito.when(cfg.getTimeParams()).thenReturn(times);
 
@@ -269,7 +269,7 @@ public class CommonTestConfiguration {
         externalChannel.setDigitalCodesFatallog(Arrays.asList("C008", "C010"));
         externalChannel.setDigitalRetryCount(-1);
         externalChannel.setDigitalRetryDelay(Duration.ofMinutes(10));
-        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofSeconds(10));
+        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofSeconds(50));
         Mockito.when(cfg.getExternalChannel()).thenReturn(externalChannel);
 
         // Impostazione delle proprietà di retention degli allegati
