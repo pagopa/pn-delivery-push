@@ -24,9 +24,8 @@ public class ActionPoolMock {
         this.futureAction = new ArrayList<>();
     }
     
-    @Scheduled(fixedRate = 500)
+    @Scheduled(fixedRate = 500) //500 millis
     protected void pollForFutureActions() {
-        log.info("[TEST] started new scheduled task");
         try {
             handleExpiredAction();
         }catch (Exception ex){
@@ -36,19 +35,17 @@ public class ActionPoolMock {
     
     public void addAction(Action action){
         int index = Collections.binarySearch(futureAction, action, Comparator.comparing(Action::getNotBefore));
-
         if (index < 0) {
             // Se l'indice è negativo, lo convertiamo in un indice valido per l'inserimento.
             index = -(index + 1);
         }
-
         futureAction.add(index, action);
     }
     
     public void handleExpiredAction(){
-        
         boolean expired = true;
         int i = 0;
+        
         while (expired && i < futureAction.size()) {
             Action action = futureAction.get(i);
             
