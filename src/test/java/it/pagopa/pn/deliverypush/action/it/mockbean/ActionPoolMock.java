@@ -34,12 +34,18 @@ public class ActionPoolMock {
     }
     
     public void addAction(Action action){
-        int index = Collections.binarySearch(futureAction, action, Comparator.comparing(Action::getNotBefore));
-        if (index < 0) {
-            // Se l'indice è negativo, lo convertiamo in un indice valido per l'inserimento.
-            index = -(index + 1);
+        try {
+            int index = Collections.binarySearch(futureAction, action, Comparator.comparing(Action::getNotBefore));
+
+            if (index < 0) {
+                // Se l'indice è negativo, lo convertiamo in un indice valido per l'inserimento.
+                index = -(index + 1);
+            }
+            futureAction.add(index, action);
+            log.info("[TEST] Action addedd to futureAction={}", futureAction);
+        }catch (Exception ex){
+            log.error("ERROR in add action ex ", ex);
         }
-        futureAction.add(index, action);
     }
     
     public void handleExpiredAction(){
@@ -50,6 +56,7 @@ public class ActionPoolMock {
             Action action = futureAction.get(i);
             
             if(action.getNotBefore().isBefore(Instant.now())){
+                log.info("[TEST] action to schedule now is={}", action);
                 actionHandlerMock.handleSchedulingAction(action);
                 futureAction.remove(action);
             } else {

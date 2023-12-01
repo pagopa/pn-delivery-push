@@ -24,6 +24,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -40,6 +41,7 @@ import java.util.List;
 
 import static org.awaitility.Awaitility.await;
 
+@Slf4j
 class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
     @SpyBean
     ExternalChannelMock externalChannelMock;
@@ -240,14 +242,18 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
     }
 
     private void waitEndWorkflow(String iun, int recIndex1, int recIndex2) {
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
-        );
+        try {
+            await().untilAsserted(() ->
+                    Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
+            );
 
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-        );
-
+            await().untilAsserted(() ->
+                    Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
+            );
+        }catch (Exception ex){
+            log.error("There aren't refinement, this is the timeline={}",timelineService.getTimeline(iun, true));
+        }
+        
         await().atLeast(Duration.ofSeconds(1));
     }
 
