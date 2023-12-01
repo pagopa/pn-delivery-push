@@ -124,11 +124,10 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
+    public ActionHandlerMock ActionHandlerMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
                                                          @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
                                                          @Lazy AnalogWorkflowHandler analogWorkflowHandler,
                                                          @Lazy RefinementHandler refinementHandler,
-                                                         @Lazy InstantNowSupplier instantNowSupplier,
                                                          @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
                                                          @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
                                                          @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
@@ -137,12 +136,11 @@ public class AbstractWorkflowTestConfiguration {
                                                          @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
                                                          @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler
     ) {
-        return new SchedulerServiceMock(
+        return new ActionHandlerMock(
                 digitalWorkFlowHandler,
                 digitalWorkFlowRetryHandler,
                 analogWorkflowHandler,
                 refinementHandler,
-                instantNowSupplier,
                 startWorkflowForRecipientHandler, 
                 chooseDeliveryModeHandler, 
                 documentCreationResponseHandler,
@@ -150,6 +148,11 @@ public class AbstractWorkflowTestConfiguration {
                 receivedLegalFactCreationRequest,
                 notificationRefusedActionHandler,
                 checkAttachmentRetentionHandler);
+    }
+    
+    @Bean
+    public SchedulerServiceMock schedulerServiceMockMock(@Lazy ActionPoolMock actionPoolMock) {
+        return new SchedulerServiceMock(actionPoolMock);
     }
 
     

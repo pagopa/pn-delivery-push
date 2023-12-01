@@ -67,7 +67,6 @@ public class TestUtils {
     }
 
     public static void checkSendCourtesyAddressFromTimeline(String iun, Integer recIndex, List<CourtesyDigitalAddressInt> courtesyAddresses, TimelineService timelineService) {
-        int index = 0;
         for (CourtesyDigitalAddressInt digitalAddress : courtesyAddresses) {
             String eventId = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(
                     EventId.builder()
@@ -81,7 +80,6 @@ public class TestUtils {
             SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
             Assertions.assertEquals(digitalAddress.getAddress(), sendCourtesyMessageDetails.getDigitalAddress().getAddress());
             Assertions.assertEquals(digitalAddress.getType(), sendCourtesyMessageDetails.getDigitalAddress().getType());
-            index++;
         }
     }
 
@@ -853,7 +851,8 @@ public class TestUtils {
                                                PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock,
                                                DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
                                                AddressManagerClientMock addressManagerClientMock,
-                                               F24ClientMock f24ClientMock
+                                               F24ClientMock f24ClientMock,
+                                               ActionPoolMock actionPoolMock
     ) {
 
         log.info("CLEARING MOCKS");
@@ -871,7 +870,8 @@ public class TestUtils {
         documentCreationRequestDaoMock.clear();
         addressManagerClientMock.clear();
         f24ClientMock.clear();
-
+        actionPoolMock.clear();
+        
         ConsoleAppenderCustom.initializeLog();
     }
 
