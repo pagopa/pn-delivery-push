@@ -513,7 +513,8 @@ paths:
       description: >-
         Permette di disabilitare uno stream. Da uno stream disabilitato è possibile leggere gli eventi presenti nello stream salvati prima
         della disabilitazione, ma non ne saranno aggiunti di nuovi. Non è possibile modificare o riabilitare uno stream disabilitato.
-        La disabilitazione dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi.
+        La disabilitazione dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi. Infine, uno stream disabilitato non 
+        rientra nel conteggio degli stream massimi, e verrà automaticamente cancellato trascorso il tempo massimo di disponibilità degli eventi.
       tags:
         - Streams
       operationId: disableEventStream
