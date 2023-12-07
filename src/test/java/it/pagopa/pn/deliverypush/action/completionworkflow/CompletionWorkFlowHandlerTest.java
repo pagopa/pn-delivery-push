@@ -76,12 +76,13 @@ class CompletionWorkFlowHandlerTest {
         final EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
 
         String legalFactId = "legalFactsId";
-        Mockito.when( pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, endWorkflowStatus, notificationDate ) ).thenReturn(legalFactId);
         final TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().elementId("test").build();
+        Mockito.when( pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, endWorkflowStatus, notificationDate, timelineElementInternal.getElementId() ) ).thenReturn(legalFactId);
+
         Mockito.when(timelineUtils.buildDigitalDeliveryLegalFactCreationRequestTimelineElement(notification, recIndex, endWorkflowStatus, notificationDate, recipient.getDigitalDomicile(), legalFactId)).thenReturn(timelineElementInternal);
 
         //WHEN
-        handler.completionSuccessDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile());
+        handler.completionSuccessDigitalWorkflow(notification, recIndex, notificationDate, recipient.getDigitalDomicile(), timelineElementInternal.getElementId());
          
         //THEN
         Mockito.verify(timelineUtils).buildDigitalDeliveryLegalFactCreationRequestTimelineElement(

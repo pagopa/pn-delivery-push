@@ -32,8 +32,12 @@ public class PecDeliveryWorkflowLegalFactsGenerator {
         this.notificationUtils = notificationUtils;
     }
 
-    public String generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant completionWorkflowDate) {
+    public String generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant completionWorkflowDate, String lastDigitalFeedbackTimelineElementId) {
         Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun(), true);
+
+        if ( timeline.stream().noneMatch( t -> lastDigitalFeedbackTimelineElementId.equals(t.getElementId())) ) {
+            // genera exception
+        }
 
         List<TimelineElementInternal> timelineByTimestampSorted = timeline.stream()
                 .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))

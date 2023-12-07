@@ -35,11 +35,11 @@ public class CompletionWorkFlowHandler {
     private final DocumentCreationRequestService documentCreationRequestService;
     private final FailureWorkflowHandler failureWorkflowHandler;
 
-    public String completionFailureDigitalWorkflow(NotificationInt notification, Integer recIndex) {
+    public String completionFailureDigitalWorkflow(NotificationInt notification, Integer recIndex, String lastDigitalFeedbackTimelineElementId) {
         log.info("Digital workflow completed with status {} IUN {} id {}", EndWorkflowStatus.FAILURE, notification.getIun(), recIndex);
         Instant completionWorkflowDate = Instant.now();
         String legalFactId = pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, EndWorkflowStatus.FAILURE, 
-                completionWorkflowDate);
+                completionWorkflowDate, lastDigitalFeedbackTimelineElementId);
 
         TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalDeliveryLegalFactCreationRequestTimelineElement(notification, recIndex,  EndWorkflowStatus.FAILURE, 
                 completionWorkflowDate, null, legalFactId);
@@ -72,9 +72,9 @@ public class CompletionWorkFlowHandler {
     /**
      * Handle necessary steps to complete the digital workflow
      */
-    public String completionSuccessDigitalWorkflow(NotificationInt notification, Integer recIndex, Instant completionWorkflowDate, LegalDigitalAddressInt address) {
+    public String completionSuccessDigitalWorkflow(NotificationInt notification, Integer recIndex, Instant completionWorkflowDate, LegalDigitalAddressInt address, String lastDigitalFeedbackTimelineElementId) {
         log.info("Digital workflow completed with status {} IUN {} id {}", EndWorkflowStatus.SUCCESS, notification.getIun(), recIndex);
-        String legalFactId = pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, EndWorkflowStatus.SUCCESS, completionWorkflowDate);
+        String legalFactId = pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, EndWorkflowStatus.SUCCESS, completionWorkflowDate, lastDigitalFeedbackTimelineElementId);
 
         TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalDeliveryLegalFactCreationRequestTimelineElement(notification, recIndex,  EndWorkflowStatus.SUCCESS, completionWorkflowDate, address, legalFactId);
         timelineService.addTimelineElement(timelineElementInternal, notification);

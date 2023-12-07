@@ -160,7 +160,7 @@ public class TestUtils {
         ArgumentCaptor<LegalDigitalAddressInt> addressCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(invocationsNumber)).completionSuccessDigitalWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), addressCaptor.capture());
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), addressCaptor.capture(), Mockito.anyString());
 
         List<Integer> recIndexCaptorValue = recIndexCaptor.getAllValues();
         List<NotificationInt> notificationCaptorValue = notificationCaptor.getAllValues();
@@ -194,7 +194,7 @@ public class TestUtils {
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(1)).completionFailureDigitalWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture()
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.anyString()
         );
         Assertions.assertEquals(iun, notificationCaptor.getValue().getIun());
         Assertions.assertEquals(recIndex, recIndexCaptor.getValue());
@@ -208,7 +208,7 @@ public class TestUtils {
         ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
 
         Mockito.verify(completionWorkflow, Mockito.times(numberOfCompletedWorkflow)).completionFailureDigitalWorkflow(
-                notificationCaptor.capture(), recIndexCaptor.capture()
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.anyString()
         );
     }
 

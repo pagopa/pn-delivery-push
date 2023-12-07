@@ -236,7 +236,8 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                         digitalResultInfos.getNotification(),
                         digitalResultInfos.getRecIndex(),
                         digitalResultInfos.getResponse().getEventTimestamp(),
-                        digitalResultInfos.getDigitalAddressInt()
+                        digitalResultInfos.getDigitalAddressInt(),
+                        sendDigitalFeedbackTimelineId
                 );
 
                 logEvent.generateSuccess("Pec sent successfully, completion workflow timelineId={}", timelineId).log();

@@ -142,7 +142,7 @@ public class DigitalWorkFlowHandler {
         } else {
             //Sono stati già effettuati tutti i tentativi possibili, la notificazione è quindi fallita
             log.info("All attempts were unsuccessful. Digital workflow is failed, lastAttemptDate={} - iun={} id={}", lastAttemptMade.getLastAttemptDate(), iun, recIndex);
-            completionWorkflow.completionFailureDigitalWorkflow(notification, recIndex);
+            completionWorkflow.completionFailureDigitalWorkflow(notification, recIndex, timelineId);
         }
     }
 
@@ -330,7 +330,8 @@ public class DigitalWorkFlowHandler {
                         notification,
                         recIndex,
                         timelineElement.getTimestamp(),
-                        sendDigitalDetailsInt.getDigitalAddress()
+                        sendDigitalDetailsInt.getDigitalAddress(),
+                        timelineElement.getElementId()
                 );
             }else {
                 log.info("First attempt was not sent successfully. Go to next step - iun={} id={}",
@@ -374,7 +375,8 @@ public class DigitalWorkFlowHandler {
                     notification,
                     recIndex,
                     timelineElement.getTimestamp(),
-                    sendDigitalDetailsInt.getDigitalAddress()
+                    sendDigitalDetailsInt.getDigitalAddress(),
+                    timelineElement.getElementId()
             );
         }else {
             return false;
