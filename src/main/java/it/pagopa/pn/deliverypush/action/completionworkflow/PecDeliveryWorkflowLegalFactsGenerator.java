@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -33,7 +34,11 @@ public class PecDeliveryWorkflowLegalFactsGenerator {
     }
 
     public String generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(NotificationInt notification, Integer recIndex, EndWorkflowStatus status, Instant completionWorkflowDate) {
-        Set<TimelineElementInternal> timeline = timelineService.getTimeline(notification.getIun(), true);
+        Set<TimelineElementInternal> timeline = timelineService.getTimelineStrongly(notification.getIun(), true);
+
+        if(CollectionUtils.isEmpty(timeline)) {
+            // generate exception
+        }
 
         List<TimelineElementInternal> timelineByTimestampSorted = timeline.stream()
                 .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))

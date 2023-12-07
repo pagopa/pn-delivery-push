@@ -73,7 +73,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
 
         List<TimelineElementInternal> timeline = getTimeline(notification.getIun(), recIndex);
 
-        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
+        Mockito.when(timelineService.getTimelineStrongly(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
         
         EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
@@ -120,7 +120,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
 
         List<TimelineElementInternal> timeline = getTimelineWithRegisteredLetter(notification.getIun(), recIndex);
 
-        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
+        Mockito.when(timelineService.getTimelineStrongly(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
         //WHEN

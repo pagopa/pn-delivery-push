@@ -159,6 +159,14 @@ public class TimelineDaoMock implements TimelineDao {
     }
 
     @Override
+    public Set<TimelineElementInternal> getTimelineStrongly(String iun) {
+        return timelineList.stream()
+                .filter(
+                        timelineElement -> iun.equals(timelineElement.getIun())
+                ).collect(Collectors.toSet());
+    }
+
+    @Override
     public Set<TimelineElementInternal> getTimelineFilteredByElementId(String iun, String timelineId) {
         return timelineList.stream()
                 .filter(

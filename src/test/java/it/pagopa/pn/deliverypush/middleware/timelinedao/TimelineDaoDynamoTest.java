@@ -294,6 +294,13 @@ class TimelineDaoDynamoTest {
         }
 
         @Override
+        public Set<TimelineElementEntity> findByIunStrongly(String iun) {
+            return this.store.values().stream()
+                    .filter(el -> iun.equals(el.getIun()))
+                    .collect(Collectors.toSet());
+        }
+
+        @Override
         public Set<TimelineElementEntity> searchByIunAndElementId(String iun, String elementId) {
             return this.store.values().stream()
                     .filter(el -> iun.equals(el.getIun()) && el.getTimelineElementId().startsWith(elementId))

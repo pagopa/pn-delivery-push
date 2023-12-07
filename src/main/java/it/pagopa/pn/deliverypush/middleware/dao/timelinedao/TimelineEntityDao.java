@@ -10,6 +10,8 @@ public interface TimelineEntityDao extends KeyValueStore<Key, TimelineElementEnt
 
     Set<TimelineElementEntity> findByIun(String iun );
 
+    Set<TimelineElementEntity> findByIunStrongly(String iun );
+
     /**
      * Ricerca le timeline per IUN e per elementId con ricerca "INIZIA PER"
      * @param iun iun della notifica
