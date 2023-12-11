@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.completionworkflow;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -16,6 +17,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.util.*;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
 
 @Component
 @Slf4j
@@ -38,6 +41,8 @@ public class PecDeliveryWorkflowLegalFactsGenerator {
 
         if(CollectionUtils.isEmpty(timeline)) {
             // generate exception
+            log.error("generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact failed, timeline is not present - iun={} id={}", notification.getIun(), recIndex);
+            throw new PnInternalException("generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact timeline is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
         }
 
         List<TimelineElementInternal> timelineByTimestampSorted = timeline.stream()

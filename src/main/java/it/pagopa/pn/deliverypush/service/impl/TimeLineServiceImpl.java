@@ -233,28 +233,27 @@ public class TimeLineServiceImpl implements TimelineService {
     public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("GetTimeline - iun={} ", iun);
         Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimeline(iun);
-
-        if (confidentialInfoRequired) {
-            setConfidentialInfo(iun, setTimelineElements);
-        }
+        setConfidentialInfo(confidentialInfoRequired, iun, setTimelineElements);
         return setTimelineElements;
     }
 
-    private void setConfidentialInfo(String iun, Set<TimelineElementInternal> setTimelineElements) {
-        Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
-        mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
+    private void setConfidentialInfo(boolean confidentialInfoRequired, String iun, Set<TimelineElementInternal> setTimelineElements) {
+        if (confidentialInfoRequired) {
+            Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
+            mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
 
-        if (mapConfOtp.isPresent()) {
-            Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
+            if (mapConfOtp.isPresent()) {
+                Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
 
-            setTimelineElements.forEach(
-                    timelineElementInt -> {
-                        ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
-                        if (dtoInt != null) {
-                            enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
+                setTimelineElements.forEach(
+                        timelineElementInt -> {
+                            ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
+                            if (dtoInt != null) {
+                                enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
+                            }
                         }
-                    }
-            );
+                );
+            }
         }
     }
 
@@ -262,10 +261,7 @@ public class TimeLineServiceImpl implements TimelineService {
     public Set<TimelineElementInternal> getTimelineStrongly(String iun, boolean confidentialInfoRequired) {
         log.debug("GetTimelineStrongly - iun={} ", iun);
         Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimelineStrongly(iun);
-
-        if (confidentialInfoRequired) {
-            setConfidentialInfo(iun, setTimelineElements);
-        }
+        setConfidentialInfo(confidentialInfoRequired, iun, setTimelineElements);
         return setTimelineElements;
     }
 
@@ -273,11 +269,7 @@ public class TimeLineServiceImpl implements TimelineService {
     public Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired) {
         log.debug("getTimelineByIunTimelineId - iun={} timelineId={}", iun, timelineId);
         Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimelineFilteredByElementId(iun, timelineId);
-
-        if (confidentialInfoRequired) {
-            setConfidentialInfo(iun, setTimelineElements);
-        }
-
+        setConfidentialInfo(confidentialInfoRequired, iun, setTimelineElements);
         return setTimelineElements;
     }
 
