@@ -84,31 +84,7 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
        
        - Pa physical address presente ed effettua invio con successo
         */
-
-        Instant sentNotificationTime = Instant.now();
-
-        //Viene valorizzata la configurazione vecchia, cioè INSTANT.NOW meno 10 giorni
-        PaperSendMode notCurrentConf = PaperSendMode.builder()
-                .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.DAYS))
-                .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
-                .build();
-        final String notCurrentConfString = getStringConfiguration(notCurrentConf);
-
-        //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 1 giorni
-        PaperSendMode currentConf = PaperSendMode.builder()
-                .startConfigurationTime(sentNotificationTime.minus(1, ChronoUnit.DAYS))
-                .analogSendAttachmentMode(SendAttachmentMode.AAR)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
-                .build();
-        final String currentConfString = getStringConfiguration(currentConf);
-
-        List<String> paperSendModeList = new ArrayList<>();
-        paperSendModeList.add(notCurrentConfString);
-        paperSendModeList.add(currentConfString);
-
-        //Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList);
-
+        
         PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
                 .build();

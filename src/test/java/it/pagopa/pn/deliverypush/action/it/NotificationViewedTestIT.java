@@ -20,7 +20,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
@@ -31,7 +30,6 @@ import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
@@ -51,8 +50,6 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
     LegalFactGenerator legalFactGenerator;
     @Autowired
     StartWorkflowHandler startWorkflowHandler;
-    @Autowired
-    NotificationUtils notificationUtils;
     @Autowired
     NotificationViewedRequestHandler notificationViewedRequestHandler;
     @Autowired
@@ -65,7 +62,6 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
     TimelineService timelineService;
     
     @Test
-    @Disabled("unpredictable behavior")
     void notificationViewedFromDelegate() {
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
@@ -125,7 +121,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         pnDataVaultClientReactiveMock.insertBaseRecipientDto(baseRecipientDto);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -149,6 +145,10 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
 
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
+        await().until(
+                isPaperNotificationDeleted(iun, recipient)
         );
         
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
@@ -193,7 +193,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         ConsoleAppenderCustom.checkLogs();
     }
 
-    @Disabled("fail only in build fase")
+    @Test
     void notificationViewed(){
         //GIVEN
         LegalDigitalAddressInt platformAddress = LegalDigitalAddressInt.builder()
@@ -242,7 +242,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -260,10 +260,8 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
                 Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
         
-        String internalId = recipient.getInternalId();
-        
-        await().untilAsserted(() -> 
-                Assertions.assertThrows(PnNotFoundException.class, () -> paperNotificationFailedService.getPaperNotificationByRecipientId(internalId, false))
+        await().until(
+                isPaperNotificationDeleted(iun, recipient)
         );
         
         //Viene effettuata la verifica che i processi correlati alla visualizzazione siano avvenuti
@@ -271,7 +269,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification), eq(recipient), eq(null), Mockito.any(Instant.class));
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
-        //Simulazione seconda visualizzazione della notifica
+        //Viene simulata nuovamente la visualizzazione della notifica
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, Instant.now());
 
         checkIsNotificationViewed(iun, recIndex, notificationViewDate);
@@ -354,7 +352,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
                 .address("digitalDomicile1@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
-
+        
         String taxId01 = "TAXID01";
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
@@ -402,8 +400,8 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
 
         String iun = notification.getIun();
-        Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        Integer recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -425,7 +423,13 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
                                         .recIndex(recIndex1)
                                         .build()
                         )).isPresent()
+                        
                 )
+        );
+        
+        //Viene atteso fino a che non viene richiamato il metodo deleteNotificationFailed di paperNotificationFailedService (ultimo step di validazione)
+        await().until(
+                isPaperNotificationDeleted(iun, recipient1)
         );
         
         checkIsNotificationViewed(iun, recIndex1, notificationViewDate1);
@@ -434,6 +438,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         checkNotificationViewTimelineElement(iun, recIndex1, notificationViewDate1, null);
 
         Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient1), Mockito.eq(null), Mockito.any(Instant.class));
+        
         Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient1.getInternalId(), iun);
 
         //Simulazione visualizzazione della notifica per il secondo recipient
@@ -451,6 +456,11 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
                         )).isPresent()
                 )
         );
+
+        //Viene atteso fino a che non viene richiamato il metodo deleteNotificationFailed di paperNotificationFailedService (ultimo step di validazione)
+        await().until(
+                isPaperNotificationDeleted(iun, recipient2)
+        );
         
         checkIsNotificationViewed(iun, recIndex2, notificationViewDate2);
 
@@ -466,4 +476,20 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
 
         ConsoleAppenderCustom.checkLogs();
     }
+
+    // Questo metodo restituisce una callable, e verifica se paperNotificationFailedService.deleteNotificationFailed è stato richiamato, ritornando true o false a seconda del caso
+    private Callable<Boolean> isPaperNotificationDeleted(String iun, NotificationRecipientInt recipient) {
+        return () -> {
+            try {
+                // Verifica se il metodo è stato chiamato
+                Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), iun);
+                // Se non viene lanciata un'eccezione, il metodo è stato chiamato
+                return true;
+            } catch (Throwable t) {
+                // Eccezione lanciata se il metodo non è stato chiamato
+                return false;
+            }
+        };
+    }
+
 }

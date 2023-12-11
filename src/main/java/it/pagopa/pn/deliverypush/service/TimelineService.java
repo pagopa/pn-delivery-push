@@ -27,6 +27,8 @@ public interface TimelineService {
     Optional<TimelineElementInternal> getTimelineElementForSpecificRecipient(String iun, int recIndex, TimelineElementCategoryInt category);
     
     Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired);
+
+    Set<TimelineElementInternal> getTimelineStrongly(String iun, boolean confidentialInfoRequired);
     
     Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired);
 

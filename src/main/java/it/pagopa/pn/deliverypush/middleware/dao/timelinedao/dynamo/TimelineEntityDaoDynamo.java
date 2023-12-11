@@ -15,6 +15,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 import java.util.Collections;
@@ -43,6 +44,16 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
         return pageIterableToSet(table.query( queryByHashKey ));
     }
 
+    @Override
+    public Set<TimelineElementEntity> findByIunStrongly(String iun) {
+        Key hashKey = Key.builder().partitionValue(iun).build();
+        QueryConditional queryByHashKey = keyEqualTo( hashKey );
+        QueryEnhancedRequest enhancedRequest = QueryEnhancedRequest.builder()
+                .queryConditional(queryByHashKey)
+                .consistentRead(true) // Imposta la consistenza forte
+                .build();
+        return pageIterableToSet(table.query( enhancedRequest ));
+    }
 
     @Override
     public Set<TimelineElementEntity> searchByIunAndElementId(String iun, String elementId) {

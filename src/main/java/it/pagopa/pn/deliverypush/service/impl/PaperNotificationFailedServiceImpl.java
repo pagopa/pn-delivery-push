@@ -46,7 +46,7 @@ public class PaperNotificationFailedServiceImpl implements PaperNotificationFail
 
     @Override
     public void deleteNotificationFailed(String recipientId, String iun) {
-        log.info("Paper notification failed start recipientId={} iun={}", recipientId, iun);
+        log.info("PaperNotificationFailed delete for recipientId={} iun={}", recipientId, iun);
         paperNotificationFailedDao.deleteNotificationFailed(recipientId, iun);
     }
 

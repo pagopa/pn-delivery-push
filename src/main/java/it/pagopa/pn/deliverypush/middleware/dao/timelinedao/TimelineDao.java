@@ -15,6 +15,8 @@ public interface TimelineDao {
 
     Set<TimelineElementInternal> getTimeline(String iun );
 
+    Set<TimelineElementInternal> getTimelineStrongly(String iun );
+
     Set<TimelineElementInternal> getTimelineFilteredByElementId(String iun , String timelineId);
 
     void deleteTimeline( String iun );
