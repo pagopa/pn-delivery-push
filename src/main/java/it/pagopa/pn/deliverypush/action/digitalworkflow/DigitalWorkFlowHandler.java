@@ -168,28 +168,28 @@ public class DigitalWorkFlowHandler {
                 nextAddressInfo.getSentAttemptMade() == 1;
     }
 
-    public void checkAndSendNotification(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt nextAddressInfo) {
+    public void checkAndSendNotification(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo) {
         String iun = notification.getIun();
         log.debug("Start checkAndSendNotification - iun={} id={}", iun, recIndex);
 
-        if (DigitalAddressSourceInt.GENERAL.equals(nextAddressInfo.getDigitalAddressSource())) {
+        if (DigitalAddressSourceInt.GENERAL.equals(addressInfo.getDigitalAddressSource())) {
             log.info("Address is general - iun={} id={}", iun, recIndex);
             nationalRegistriesService.sendRequestForGetDigitalGeneralAddress(
                     notification,
                     recIndex,
                     ContactPhaseInt.SEND_ATTEMPT,
-                    nextAddressInfo.getSentAttemptMade(), 
-                    nextAddressInfo.getRelatedFeedbackTimelineId()
+                    addressInfo.getSentAttemptMade(), 
+                    addressInfo.getRelatedFeedbackTimelineId()
             );//general address need async call to get it
         } else {
             log.debug("Address source is not general - iun={} id={}", iun, recIndex);
 
             //Viene ottenuto l'indirizzo a partire dalla source
-            LegalDigitalAddressInt destinationAddress = digitalWorkFlowUtils.getAddressFromSource(nextAddressInfo.getDigitalAddressSource(), recIndex, notification);
-            nextAddressInfo = nextAddressInfo.toBuilder().digitalAddress(destinationAddress).build();
+            LegalDigitalAddressInt destinationAddress = digitalWorkFlowUtils.getAddressFromSource(addressInfo.getDigitalAddressSource(), recIndex, notification);
+            addressInfo = addressInfo.toBuilder().digitalAddress(destinationAddress).build();
             log.debug("Get address completed - iun={} id={}", iun, recIndex);
             //Viene Effettuato il check dell'indirizzo e l'eventuale send
-            checkAddressAndSend(notification, recIndex, nextAddressInfo);
+            checkAddressAndSend(notification, recIndex, addressInfo);
         }
     }
 
@@ -406,15 +406,10 @@ public class DigitalWorkFlowHandler {
         scheduleNextWorkFlowExecuteAction(iun, recIndex, addressInfo, null);
     }
 
-    void nextWorkflowStep(DigitalResultInfos digitalResultInfos) {
+    void nextWorkflowStep(String iun, int recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
         //Non è stato possibile effettuare la notificazione, si passa al prossimo step del workflow
-
-        DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
-                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
-                .lastAttemptDate(digitalResultInfos.getTimelineElementInternal().getTimestamp())
-                .build();
-
-        scheduleNextWorkFlowExecuteAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), lastAttemptMade, null);
+        
+        scheduleNextWorkFlowExecuteAction(iun, recIndex, lastAttemptMade, null);
     }
 
     private DigitalAddressInfoSentAttempt getDigitalAddressInfo(ScheduleDigitalWorkflowDetailsInt scheduleDigitalWorkflow) {

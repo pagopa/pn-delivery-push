@@ -43,7 +43,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -75,7 +74,7 @@ class DigitalTestIT extends CommonTestConfiguration {
     PnExternalRegistryClient pnExternalRegistryClient;
     
     @Test
-    void completeFailWithRegisteredLetterAlreadyViewedCourtesyEmail() throws IOException {
+    void completeFailWithRegisteredLetterAlreadyViewedCourtesyEmail() {
         /*
        - Platform address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il platformAddress in addressBookEntry con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
        - Special address presente e invio fallito per entrambi gli invii (Ottenuto valorizzando il digitalDomicile del recipient con ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
@@ -143,7 +142,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         pnDeliveryClientMock.addNotification(notification);
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -285,7 +284,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         pnDeliveryClientMock.addNotification(notification);
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -404,7 +403,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -523,15 +522,13 @@ class DigitalTestIT extends CommonTestConfiguration {
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->{
-            Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils));
-        });
+        await().untilAsserted(() -> Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils)));
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -673,14 +670,21 @@ class DigitalTestIT extends CommonTestConfiguration {
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->{
+                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    );
+                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+                }
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -768,14 +772,21 @@ class DigitalTestIT extends CommonTestConfiguration {
         pnDeliveryClientMock.addNotification(notification);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->{
+                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    );
+                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+                }
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -876,14 +887,21 @@ class DigitalTestIT extends CommonTestConfiguration {
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->{
+                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    );
+                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+                }
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -981,14 +999,21 @@ class DigitalTestIT extends CommonTestConfiguration {
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->{
+                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    );
+                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+                }
         );
         
         //Viene verificata la presenza dell'indirizzo di piattaforma
@@ -1078,7 +1103,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -1191,14 +1216,21 @@ class DigitalTestIT extends CommonTestConfiguration {
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->{
+                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    );
+                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+                }
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -1334,16 +1366,23 @@ class DigitalTestIT extends CommonTestConfiguration {
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
-        );
         
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->{
+                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    );
+                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+                }
+        );
+
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -1465,15 +1504,21 @@ class DigitalTestIT extends CommonTestConfiguration {
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
+        await().untilAsserted(() ->{
+                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    );
+                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+                }
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo

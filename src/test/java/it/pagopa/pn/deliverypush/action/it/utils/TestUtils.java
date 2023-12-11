@@ -379,6 +379,34 @@ public class TestUtils {
         return true;
     }
 
+    public static boolean checkIsPresentDigitalSuccessWorkflow(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+        
+        return timelineElementOpt.isPresent();
+    }
+
+    public static boolean checkIsPresentDigitalFailure(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        return timelineElementOpt.isPresent();
+    }
+    
     public static Optional<TimelineElementInternal> getRefinement(String iun, Integer recIndex, TimelineService timelineService) {
         return timelineService.getTimelineElement(
                 iun,

@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachment
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.SendDigitalFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
@@ -125,16 +126,17 @@ public class AbstractWorkflowTestConfiguration {
     
     @Bean
     public ActionHandlerMock ActionHandlerMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                                         @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
-                                                         @Lazy AnalogWorkflowHandler analogWorkflowHandler,
-                                                         @Lazy RefinementHandler refinementHandler,
-                                                         @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
-                                                         @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
-                                                         @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
-                                                         @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
-                                                         @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
-                                                         @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
-                                                         @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler
+                                               @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
+                                               @Lazy AnalogWorkflowHandler analogWorkflowHandler,
+                                               @Lazy RefinementHandler refinementHandler,
+                                               @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
+                                               @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
+                                               @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
+                                               @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
+                                               @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
+                                               @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
+                                               @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler, 
+                                               @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler
     ) {
         return new ActionHandlerMock(
                 digitalWorkFlowHandler,
@@ -147,7 +149,8 @@ public class AbstractWorkflowTestConfiguration {
                 notificationValidationActionHandler,
                 receivedLegalFactCreationRequest,
                 notificationRefusedActionHandler,
-                checkAttachmentRetentionHandler);
+                checkAttachmentRetentionHandler,
+                sendDigitalFinalStatusResponseHandler);
     }
     
     @Bean
