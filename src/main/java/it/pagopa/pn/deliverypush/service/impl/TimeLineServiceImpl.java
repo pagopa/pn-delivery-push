@@ -261,7 +261,7 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public Set<TimelineElementInternal> getTimelineStrongly(String iun, boolean confidentialInfoRequired) {
         log.debug("GetTimelineStrongly - iun={} ", iun);
-        Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimeline(iun);
+        Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimelineStrongly(iun);
 
         if (confidentialInfoRequired) {
             setConfidentialInfo(iun, setTimelineElements);
