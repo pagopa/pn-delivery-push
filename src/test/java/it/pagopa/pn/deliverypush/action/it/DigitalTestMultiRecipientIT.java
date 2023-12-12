@@ -244,12 +244,12 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
     private void waitEndWorkflow(String iun, int recIndex1, int recIndex2) {
         try {
             await().untilAsserted(() -> Assertions.assertTrue(
-                    TestUtils.checkIsPresentDigitalSuccessWorkflow(iun, recIndex1, timelineService) || 
+                    TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex1, timelineService) || 
                             TestUtils.checkIsPresentDigitalFailure(iun, recIndex1, timelineService)
             ));
 
             await().untilAsserted(() -> Assertions.assertTrue(
-                    TestUtils.checkIsPresentDigitalSuccessWorkflow(iun, recIndex2, timelineService) ||
+                    TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex2, timelineService) ||
                             TestUtils.checkIsPresentDigitalFailure(iun, recIndex2, timelineService)
             ));
         }catch (Exception ex){
@@ -382,13 +382,12 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
         nationalRegistriesClientMock.addDigital(recipient2.getTaxId(), pbDigitalAddress2);
 
-        int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        int recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        int recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
         
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che non sia presente il REFINEMENT per il secondo recipient
         await().untilAsserted(() ->
             Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex1, timelineService) && TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
         );
@@ -886,7 +885,7 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
 
         //Viene atteso fino a che l'ultimo elemento di timeline utile non sia stato inserito
         await().untilAsserted(() -> Assertions.assertTrue(
-                TestUtils.checkIsPresentDigitalFailure(iun, recIndex2, timelineService)
+                TestUtils.checkIsPresentDigitalFailureWorkflowAndRefinement(iun, recIndex2, timelineService)
         ));
         
         //Viene verificato il numero di send PEC verso external channel
@@ -1056,7 +1055,7 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
 
         //Viene atteso fino a che l'ultimo elemento di timeline utile non sia stato inserito
         await().untilAsserted(() -> Assertions.assertTrue(
-                TestUtils.checkIsPresentDigitalFailure(iun, recIndex2, timelineService)
+                TestUtils.checkIsPresentDigitalFailureWorkflowAndRefinement(iun, recIndex2, timelineService)
         ));
 
         //Viene verificato il numero di send PEC verso external channel

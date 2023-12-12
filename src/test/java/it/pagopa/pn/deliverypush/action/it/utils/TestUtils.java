@@ -379,8 +379,8 @@ public class TestUtils {
         return true;
     }
 
-    public static boolean checkIsPresentDigitalSuccessWorkflow(String iun, Integer recIndex, TimelineService timelineService) {
-        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+    public static boolean checkIsPresentDigitalSuccessWorkflowAndRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> digitalSuccessOpt = timelineService.getTimelineElement(
                 iun,
                 TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
                         EventId.builder()
@@ -390,9 +390,106 @@ public class TestUtils {
                 )
         );
         
-        return timelineElementOpt.isPresent();
+        if(digitalSuccessOpt.isPresent()){
+            return timelineService.getTimelineElement(
+                    iun,
+                    TimelineEventId.REFINEMENT.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    )
+            ).isPresent();
+        }
+        
+        return false;
     }
 
+    public static boolean checkIsPresentDigitalFailureWorkflowAndRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> digitalFailureOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        if(digitalFailureOpt.isPresent()){
+            log.info("Digital failure workflow is present");
+
+            final boolean refinementOpt = timelineService.getTimelineElement(
+                    iun,
+                    TimelineEventId.REFINEMENT.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    )
+            ).isPresent();
+
+            log.info("Refinement is present={}", refinementOpt);
+
+            return refinementOpt;
+        }
+
+        log.info("Digital failure workflow is not present");
+        return false;
+    }
+
+    public static boolean checkIsPresentAnalogSuccessWorkflowAndRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> analogSuccessOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        if(analogSuccessOpt.isPresent()){
+            return timelineService.getTimelineElement(
+                    iun,
+                    TimelineEventId.REFINEMENT.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    )
+            ).isPresent();
+        }
+
+        return false;
+    }
+
+    public static boolean checkIsPresentAnalogFailureWorkflowAndRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> analogFailure = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        if(analogFailure.isPresent()){
+            return timelineService.getTimelineElement(
+                    iun,
+                    TimelineEventId.REFINEMENT.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    )
+            ).isPresent();
+        }
+
+        return false;
+    }
+    
     public static boolean checkIsPresentDigitalFailure(String iun, Integer recIndex, TimelineService timelineService) {
         Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
                 iun,

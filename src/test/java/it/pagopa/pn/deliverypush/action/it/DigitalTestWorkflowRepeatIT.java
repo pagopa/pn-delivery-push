@@ -114,7 +114,7 @@ class DigitalTestWorkflowRepeatIT extends CommonTestConfiguration {
 
         //Viene atteso fino a che l'ultimo elemento di timeline utile non sia stato inserito
         await().untilAsserted(() -> Assertions.assertTrue(
-                TestUtils.checkIsPresentDigitalSuccessWorkflow(iun, recIndex, timelineService)
+                TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService)
         ));
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -261,7 +261,7 @@ class DigitalTestWorkflowRepeatIT extends CommonTestConfiguration {
         
         //Viene atteso fino a che l'ultimo elemento di timeline utile non sia stato inserito
         await().untilAsserted(() -> Assertions.assertTrue(
-                TestUtils.checkIsPresentDigitalSuccessWorkflow(iun, recIndex, timelineService)
+                TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService)
         ));
         
 
@@ -409,7 +409,7 @@ class DigitalTestWorkflowRepeatIT extends CommonTestConfiguration {
 
         //Viene atteso fino a che l'ultimo elemento di timeline utile non sia stato inserito
         await().untilAsserted(() -> Assertions.assertTrue(
-                TestUtils.checkIsPresentDigitalSuccessWorkflow(iun, recIndex, timelineService)
+                TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService)
         ));
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -574,7 +574,7 @@ class DigitalTestWorkflowRepeatIT extends CommonTestConfiguration {
 
         //Viene atteso fino a che l'ultimo elemento di timeline utile non sia stato inserito
         await().untilAsserted(() -> Assertions.assertTrue(
-                TestUtils.checkIsPresentDigitalSuccessWorkflow(iun, recIndex, timelineService)
+                TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService)
         ));
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo

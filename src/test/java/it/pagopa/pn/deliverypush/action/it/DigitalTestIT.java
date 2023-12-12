@@ -20,7 +20,6 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -146,17 +145,10 @@ class DigitalTestIT extends CommonTestConfiguration {
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-
-        String timelineId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex)
-                        .build()
-        );
-
+        
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalFailure(iun, recIndex, timelineService))
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -288,17 +280,10 @@ class DigitalTestIT extends CommonTestConfiguration {
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-
-        String timelineId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex)
-                        .build()
-        );
-
+        
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalFailure(iun, recIndex, timelineService))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -408,9 +393,8 @@ class DigitalTestIT extends CommonTestConfiguration {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalFailureWorkflowAndRefinement(iun, recIndex, timelineService))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -528,7 +512,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() -> Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils)));
+        await().untilAsserted(() -> Assertions.assertTrue(TestUtils.checkIsPresentDigitalFailureWorkflowAndRefinement(iun, recIndex, timelineService)));
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -676,16 +660,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
-        await().untilAsserted(() ->{
-                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
-                            EventId.builder()
-                                    .iun(iun)
-                                    .recIndex(recIndex)
-                                    .build()
-                    );
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
-                }
-        );
+        await().untilAsserted(() -> Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService)));
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
         TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
@@ -778,15 +753,8 @@ class DigitalTestIT extends CommonTestConfiguration {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
-        await().untilAsserted(() ->{
-                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
-                            EventId.builder()
-                                    .iun(iun)
-                                    .recIndex(recIndex)
-                                    .build()
-                    );
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
-                }
+        await().untilAsserted(() -> 
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -893,15 +861,8 @@ class DigitalTestIT extends CommonTestConfiguration {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
-        await().untilAsserted(() ->{
-                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
-                            EventId.builder()
-                                    .iun(iun)
-                                    .recIndex(recIndex)
-                                    .build()
-                    );
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
-                }
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -1005,15 +966,8 @@ class DigitalTestIT extends CommonTestConfiguration {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
-        await().untilAsserted(() ->{
-                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
-                            EventId.builder()
-                                    .iun(iun)
-                                    .recIndex(recIndex)
-                                    .build()
-                    );
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
-                }
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService))
         );
         
         //Viene verificata la presenza dell'indirizzo di piattaforma
@@ -1108,9 +1062,8 @@ class DigitalTestIT extends CommonTestConfiguration {
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -1222,15 +1175,8 @@ class DigitalTestIT extends CommonTestConfiguration {
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
-        await().untilAsserted(() ->{
-                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
-                            EventId.builder()
-                                    .iun(iun)
-                                    .recIndex(recIndex)
-                                    .build()
-                    );
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
-                }
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService))
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -1372,15 +1318,8 @@ class DigitalTestIT extends CommonTestConfiguration {
         startWorkflowHandler.startWorkflow(iun);
         
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
-        await().untilAsserted(() ->{
-                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
-                            EventId.builder()
-                                    .iun(iun)
-                                    .recIndex(recIndex)
-                                    .build()
-                    );
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
-                }
+        await().untilAsserted(() ->
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService))
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
@@ -1511,13 +1450,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
         await().untilAsserted(() ->{
-                    String timelineId = TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
-                            EventId.builder()
-                                    .iun(iun)
-                                    .recIndex(recIndex)
-                                    .build()
-                    );
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+                    Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService));
                 }
         );
         
