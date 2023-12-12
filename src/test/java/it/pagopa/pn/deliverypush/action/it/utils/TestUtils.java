@@ -417,9 +417,7 @@ public class TestUtils {
         );
 
         if(digitalFailureOpt.isPresent()){
-            log.info("Digital failure workflow is present");
-
-            final boolean refinementOpt = timelineService.getTimelineElement(
+            return timelineService.getTimelineElement(
                     iun,
                     TimelineEventId.REFINEMENT.buildEventId(
                             EventId.builder()
@@ -428,13 +426,8 @@ public class TestUtils {
                                     .build()
                     )
             ).isPresent();
-
-            log.info("Refinement is present={}", refinementOpt);
-
-            return refinementOpt;
         }
 
-        log.info("Digital failure workflow is not present");
         return false;
     }
 

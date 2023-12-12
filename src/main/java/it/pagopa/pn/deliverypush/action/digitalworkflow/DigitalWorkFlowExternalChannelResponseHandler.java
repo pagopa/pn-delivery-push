@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Set;
 
@@ -211,10 +210,9 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
                 .build();
         
         String iun = digitalResultInfos.getNotification().getIun();
-        Instant schedulingDate = Instant.now().plus(3, ChronoUnit.SECONDS);
         
-        schedulerService.scheduleEvent(
-                iun, schedulingDate, ActionType.SEND_DIGITAL_FINAL_STATUS_RESPONSE, details
+        schedulerService.scheduleEventNowOnlyIfAbsent(
+                iun, ActionType.SEND_DIGITAL_FINAL_STATUS_RESPONSE, details
         );
     }
     

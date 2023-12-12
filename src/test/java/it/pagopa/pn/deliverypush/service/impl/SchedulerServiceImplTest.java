@@ -50,7 +50,7 @@ class SchedulerServiceImplTest {
 
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
 
-        Mockito.verify(actionsPool, Mockito.times(1)).scheduleFutureAction(action);
+        Mockito.verify(actionsPool, Mockito.times(1)).startActionOrScheduleFutureAction(action);
     }
 
     @Test
@@ -66,7 +66,7 @@ class SchedulerServiceImplTest {
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
         
         //THEN
-        Mockito.verify(actionsPool, Mockito.never()).scheduleFutureAction(action);
+        Mockito.verify(actionsPool, Mockito.never()).startActionOrScheduleFutureAction(action);
     }
     
 
