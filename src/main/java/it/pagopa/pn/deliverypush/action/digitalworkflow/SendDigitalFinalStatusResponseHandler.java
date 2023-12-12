@@ -35,6 +35,8 @@ public class SendDigitalFinalStatusResponseHandler {
         if(sendDigitalFeedbackDetailsOpt.isPresent()){
             SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails = sendDigitalFeedbackDetailsOpt.get();
 
+            details = setCorrectDigitalAddressToDetails(details, sendDigitalFeedbackDetails);
+
             switch (sendDigitalFeedbackDetails.getResponseStatus()) {
                 case OK -> handleSuccessfulSending(iun, sendDigitalFeedbackDetails, details);
                 case KO -> handleNotSuccessfulSending(iun, sendDigitalFeedbackDetails, details);
@@ -50,6 +52,20 @@ public class SendDigitalFinalStatusResponseHandler {
             log.error(msg);
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
         }
+    }
+
+    private static SendDigitalFinalStatusResponseDetails setCorrectDigitalAddressToDetails(SendDigitalFinalStatusResponseDetails details, SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails) {
+        DigitalAddressInfoSentAttempt digitalAddressInfoSentAttemptDetail = details.getLastAttemptAddressInfo()
+                .toBuilder()
+                .digitalAddress(sendDigitalFeedbackDetails.getDigitalAddress())
+                .digitalAddressSource(sendDigitalFeedbackDetails.getDigitalAddressSource())
+                .build();
+
+        details = details.toBuilder()
+                .lastAttemptAddressInfo(
+                        digitalAddressInfoSentAttemptDetail
+                ).build();
+        return details;
     }
 
     private void handleSuccessfulSending(String iun, SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails, SendDigitalFinalStatusResponseDetails details) {

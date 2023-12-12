@@ -194,16 +194,13 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         }
     }
 
-
     private void scheduleSendDigitalFinalStatusResponseHandling(
             DigitalWorkFlowHandler.DigitalResultInfos digitalResultInfos,
             String digitalAddressTimelineId,
             String alreadyPresentRelatedFeedbackTimelineId){
         SendDigitalFinalStatusResponseDetails details = SendDigitalFinalStatusResponseDetails.builder()
                 .lastAttemptAddressInfo(
-                        DigitalAddressInfoSentAttempt.builder()
-                                .digitalAddressSource(digitalResultInfos.getDigitalAddressSourceInt())
-                                .digitalAddress(digitalResultInfos.getDigitalAddressInt())
+                        DigitalAddressInfoSentAttempt.builder() //Non vengono qui storicizzati dati sensibili relativi all'address, verrano poi recuperati dall'elemento di timeline SEND_DIGITAL_FEEDBACK
                                 .lastAttemptDate(digitalResultInfos.getTimelineElementInternal().getTimestamp())
                                 .sentAttemptMade(digitalResultInfos.getRetryNumber())
                                 .relatedFeedbackTimelineId(digitalAddressTimelineId)

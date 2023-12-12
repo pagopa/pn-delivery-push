@@ -84,9 +84,8 @@ class DigitalWorkFlowHandlerTest {
                 schedulerService, digitalWorkFlowUtils, completionWorkflow, nationalRegistriesService, instantNowSupplier,
                 pnDeliveryPushConfigs, digitalWorkflowFirstSendRepeatHandler);
 
-        handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, completionWorkflow, pnDeliveryPushConfigs, handler, auditLogService, sendAndUnscheduleNotification);
+        handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, pnDeliveryPushConfigs, auditLogService, sendAndUnscheduleNotification);
         handlerRetry = new DigitalWorkFlowRetryHandler(notificationService, digitalWorkFlowUtils, sendAndUnscheduleNotification, handlerExtChannel);
-
     }
 
 
@@ -700,14 +699,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(auditLogEvent.generateSuccess(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(0);
-
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
-                .thenReturn(DigitalAddressInfoSentAttempt.builder()
-                        .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
-                        .sentAttemptMade(0)
-                        .lastAttemptDate(Instant.now())
-                        .build());
-
+        
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
 
@@ -1586,14 +1578,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
         
-
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
-                .thenReturn(DigitalAddressInfoSentAttempt.builder()
-                        .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
-                        .sentAttemptMade(0)
-                        .lastAttemptDate(Instant.now())
-                        .build());
-
+        
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
@@ -1667,13 +1652,6 @@ class DigitalWorkFlowHandlerTest {
                 .thenReturn( Optional.of(element ) );
 
 
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
-                .thenReturn(DigitalAddressInfoSentAttempt.builder()
-                        .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
-                        .sentAttemptMade(0)
-                        .lastAttemptDate(Instant.now())
-                        .build());
-
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
@@ -1745,14 +1723,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
-
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
-                .thenReturn(DigitalAddressInfoSentAttempt.builder()
-                        .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
-                        .sentAttemptMade(0)
-                        .lastAttemptDate(Instant.now())
-                        .build());
-
+        
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
