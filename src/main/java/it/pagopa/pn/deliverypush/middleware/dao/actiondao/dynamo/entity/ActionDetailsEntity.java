@@ -23,5 +23,7 @@ public class ActionDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("retryAttempt")}))  private int retryAttempt;
     @Getter(onMethod=@__({@DynamoDbAttribute("startWorkflowTime")}))  private Instant startWorkflowTime;
     @Getter(onMethod=@__({@DynamoDbAttribute("errors")}))  private List<NotificationRefusedActionErrorEntity> errors;
-    
+    @Getter(onMethod=@__({@DynamoDbAttribute("isFirstSendRetry")}))  private Boolean isFirstSendRetry;
+    @Getter(onMethod=@__({@DynamoDbAttribute("alreadyPresentRelatedFeedbackTimelineId")}))  private String alreadyPresentRelatedFeedbackTimelineId;
+    @Getter(onMethod=@__({@DynamoDbAttribute("lastAttemptAddressInfo")}))  private DigitalAddressInfoSentAttemptEntity lastAttemptAddressInfo;
 }

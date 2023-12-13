@@ -122,7 +122,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -253,22 +253,22 @@ class AnalogTestIT extends CommonTestConfiguration{
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-
-        String timelineId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex)
-                        .build()
-        );
         
         //Dal momento che l'ultimo elemento di timeline non viene inserito in prossimità della fine del workflow viene utilizzato un delay
-        with().pollDelay(5, SECONDS).await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
-        );
+        with().pollDelay(5, SECONDS).await().untilAsserted(() ->{
+            String timelineId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
+                    EventId.builder()
+                            .iun(iun)
+                            .recIndex(recIndex)
+                            .build()
+            );
+            
+            Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+        });
         
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
@@ -285,7 +285,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         //Viene verificato che la notifica sia stata visualizzata
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
-                TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
                         EventId.builder()
                                 .iun(iun)
                                 .recIndex(recIndex)
@@ -365,20 +365,16 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-
-/*        try {
-            Thread.sleep(100000000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }*/
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(
+                        TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, recIndex, timelineService)
+                )
         );
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
@@ -503,14 +499,15 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(notification.getIun());
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(
+                        TestUtils.checkIsPresentAnalogSuccessWorkflowAndRefinement(iun, recIndex, timelineService)
+                )
         );
         
         //Viene verificato che non sia stato inviato alcun messaggio di cortesia
@@ -635,21 +632,17 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
-        Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        Integer recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che per i due recipient non si vada in refinement
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(
-                        iun,
-                        TimelineEventId.REFINEMENT.buildEventId(
-                                EventId.builder()
-                                        .iun(iun)
-                                        .recIndex(recIndex1)
-                                        .build())).isPresent())
+                Assertions.assertTrue(
+                        TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, recIndex1, timelineService)
+                )
         );
 
         await().untilAsserted(() ->
@@ -845,31 +838,18 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
-        Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        Integer recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che per entrambi i recipient non sia stato raggiunto il refinement
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(
-                        iun,
-                        TimelineEventId.REFINEMENT.buildEventId(
-                                EventId.builder()
-                                        .iun(iun)
-                                        .recIndex(recIndex1)
-                                        .build())).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex1, timelineService))
         );
 
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(
-                        iun,
-                        TimelineEventId.REFINEMENT.buildEventId(
-                                EventId.builder()
-                                        .iun(iun)
-                                        .recIndex(recIndex2)
-                                        .build())).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, recIndex2, timelineService))
         );
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
@@ -1060,21 +1040,14 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
-        Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer rec2Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        Integer rec1Index = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer rec2Index = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(
-                        iun,
-                        TimelineEventId.REFINEMENT.buildEventId(
-                                EventId.builder()
-                                        .iun(iun)
-                                        .recIndex(rec1Index)
-                                        .build())).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, rec1Index, timelineService))
 
         );
 
@@ -1271,27 +1244,16 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
-        Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer rec2Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        Integer rec1Index = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer rec2Index = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-/*        try {
-            Thread.sleep(1000000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }*/
-        String timelineId1 = TimelineEventId.REFINEMENT.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(rec1Index)
-                        .build()
-        );
-
+        
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId1).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, rec1Index, timelineService))
         );
 
         String timelineId2 = TimelineEventId.REFINEMENT.buildEventId(
