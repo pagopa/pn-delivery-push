@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
@@ -40,6 +42,26 @@ class SchedulerServiceImplTest {
         schedulerService = new SchedulerServiceImpl(actionsPool, webhooksPool, clock, timelineUtils);
     }
 
+    
+    @Test
+    void scheduleEventScheduleNowIfAbsent() {
+        final ActionType actionType = ActionType.SEND_DIGITAL_FINAL_STATUS_RESPONSE;
+        
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString()))
+                .thenReturn(false);
+
+
+        schedulerService.scheduleEventNowOnlyIfAbsent("01", actionType,    SendDigitalFinalStatusResponseDetails.builder()
+                .lastAttemptAddressInfo(
+                        DigitalAddressInfoSentAttempt.builder()
+                                .relatedFeedbackTimelineId("relatedFeedback")
+                                .build()
+                )
+                .build());
+
+        Mockito.verify(actionsPool, Mockito.times(1)).scheduleFutureAction(Mockito.any(Action.class));
+    }
+    
     @Test
     void scheduleEvent() {
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);

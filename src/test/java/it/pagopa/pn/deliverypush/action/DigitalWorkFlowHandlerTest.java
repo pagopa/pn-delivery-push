@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
@@ -21,6 +22,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.*;
@@ -716,7 +718,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
-
+        
         // STEP 3 - non torna retry, ci si aspetta un retry
         // GIVEN
         Mockito.clearInvocations(digitalWorkFlowUtils);
@@ -843,6 +845,20 @@ class DigitalWorkFlowHandlerTest {
         Mockito.verify( auditLogEvent).generateWarning(Mockito.any(), Mockito.any());
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
+        
+        ArgumentCaptor<ActionDetails> actionDetailsCaptor = ArgumentCaptor.forClass(ActionDetails.class);
+        
+        Mockito.verify( schedulerService, Mockito.times(2)).scheduleEventNowOnlyIfAbsent(
+                Mockito.eq(notification.getIun()), 
+                Mockito.eq(ActionType.SEND_DIGITAL_FINAL_STATUS_RESPONSE),
+                actionDetailsCaptor.capture());
+
+        List<ActionDetails> actionDetailsList = actionDetailsCaptor.getAllValues();
+
+        actionDetailsList.forEach( elem -> {
+            SendDigitalFinalStatusResponseDetails sendDigitalFinalStatusResponseDetails = (SendDigitalFinalStatusResponseDetails) elem;
+            Assertions.assertNull(sendDigitalFinalStatusResponseDetails.getLastAttemptAddressInfo().getDigitalAddress());
+        });
 
     }
 

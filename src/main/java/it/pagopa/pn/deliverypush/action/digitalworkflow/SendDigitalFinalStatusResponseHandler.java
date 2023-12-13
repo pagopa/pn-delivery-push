@@ -35,7 +35,7 @@ public class SendDigitalFinalStatusResponseHandler {
         if(sendDigitalFeedbackDetailsOpt.isPresent()){
             SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails = sendDigitalFeedbackDetailsOpt.get();
 
-            details = setCorrectDigitalAddressToDetails(details, sendDigitalFeedbackDetails);
+            details = setDigitalAddressToDetails(details, sendDigitalFeedbackDetails);
 
             switch (sendDigitalFeedbackDetails.getResponseStatus()) {
                 case OK -> handleSuccessfulSending(iun, sendDigitalFeedbackDetails, details);
@@ -54,7 +54,7 @@ public class SendDigitalFinalStatusResponseHandler {
         }
     }
 
-    private static SendDigitalFinalStatusResponseDetails setCorrectDigitalAddressToDetails(SendDigitalFinalStatusResponseDetails details, SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails) {
+    private static SendDigitalFinalStatusResponseDetails setDigitalAddressToDetails(SendDigitalFinalStatusResponseDetails details, SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails) {
         DigitalAddressInfoSentAttempt digitalAddressInfoSentAttemptDetail = details.getLastAttemptAddressInfo()
                 .toBuilder()
                 .digitalAddress(sendDigitalFeedbackDetails.getDigitalAddress())
@@ -127,6 +127,7 @@ public class SendDigitalFinalStatusResponseHandler {
                 //verifico se il primo tentativo è andato a buon fine ed eventualmente completo il workflow con successo
                 boolean completedWorkflowSuccess = digitalWorkFlowHandler.checkFirstAttemptAndCompleteWorkflow(
                         notification, recIndex, details.getAlreadyPresentRelatedFeedbackTimelineId(), iun);
+                
                 if(! completedWorkflowSuccess){
                     log.info("Workflow is not completed, need to start next action - iun={} id={}", iun, recIndex );
 
