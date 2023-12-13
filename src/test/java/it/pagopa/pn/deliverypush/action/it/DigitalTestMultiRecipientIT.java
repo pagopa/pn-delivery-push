@@ -150,13 +150,13 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
         nationalRegistriesClientMock.addDigital(recipient2.getTaxId(), pbDigitalAddress2);
 
         String iun = notification.getIun();
-        int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        int recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        int recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che non sia presente il REFINEMENT per entrambi i recipient
+        // Viene atteso fino a che non sia completato il workflow per entrambi i recipient
         waitEndWorkflow(iun, recIndex1, recIndex2);
 
         //Viene verificato il numero di send PEC verso external channel
@@ -243,13 +243,15 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
 
     private void waitEndWorkflow(String iun, int recIndex1, int recIndex2) {
         try {
-            await().untilAsserted(() ->
-                    Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
-            );
+            await().untilAsserted(() -> Assertions.assertTrue(
+                    TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex1, timelineService) || 
+                            TestUtils.checkIsPresentDigitalFailure(iun, recIndex1, timelineService)
+            ));
 
-            await().untilAsserted(() ->
-                    Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-            );
+            await().untilAsserted(() -> Assertions.assertTrue(
+                    TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex2, timelineService) ||
+                            TestUtils.checkIsPresentDigitalFailure(iun, recIndex2, timelineService)
+            ));
         }catch (Exception ex){
             log.error("There aren't refinement, this is the timeline={}",timelineService.getTimeline(iun, true));
         }
@@ -380,13 +382,12 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
         nationalRegistriesClientMock.addDigital(recipient2.getTaxId(), pbDigitalAddress2);
 
-        int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        int recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        int recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
         
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che non sia presente il REFINEMENT per il secondo recipient
         await().untilAsserted(() ->
             Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex1, timelineService) && TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
         );
@@ -871,8 +872,8 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
 
-        int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        int recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        int recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -882,11 +883,11 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
                 Assertions.assertTrue(TestUtils.checkIsPresentViewed(iun, recIndex1, timelineService))
        );
 
-        // Viene atteso fino a che non sia presente il Refinement per il secondo recipient
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-        );
-
+        //Viene atteso fino a che l'ultimo elemento di timeline utile non sia stato inserito
+        await().untilAsserted(() -> Assertions.assertTrue(
+                TestUtils.checkIsPresentDigitalFailureWorkflowAndRefinement(iun, recIndex2, timelineService)
+        ));
+        
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
@@ -1041,26 +1042,21 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
 
-        int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        int recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        int recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        String timelineId = TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex1)
-                        .build()
-        );
+        //Viene atteso fino a che l'ultimo elemento di timeline utile non sia stato inserito
+        await().untilAsserted(() -> Assertions.assertTrue(
+                TestUtils.checkIsPresentDigitalFailure(iun, recIndex1, timelineService)
+        ));
 
-        await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
-        );
-
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-        );
+        //Viene atteso fino a che l'ultimo elemento di timeline utile non sia stato inserito
+        await().untilAsserted(() -> Assertions.assertTrue(
+                TestUtils.checkIsPresentDigitalFailureWorkflowAndRefinement(iun, recIndex2, timelineService)
+        ));
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -1200,8 +1196,8 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
 
         pnDeliveryClientMock.addNotification(notification);
 
-        int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        int recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        int recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -1321,28 +1317,20 @@ class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
         pnDeliveryClientMock.addNotification(notification);
 
         String iun = notification.getIun();
-        int recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        int recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        int recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        int recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex1, timelineService))
-        );
+        // Viene atteso fino a che non sia completato il workflow per entrambi i recipient
+        waitEndWorkflow(iun, recIndex1, recIndex2);
 
-        await().untilAsserted(() ->
-                Assertions.assertTrue(TestUtils.checkIsPresentRefinement(iun, recIndex2, timelineService))
-        );
-        
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
         ArgumentCaptor<LegalDigitalAddressInt> digitalAddressEventCaptor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
         Mockito.verify(externalChannelMock, Mockito.times(2)).sendLegalNotification(notificationIntEventCaptor.capture(), Mockito.any(), digitalAddressEventCaptor.capture(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-
-        // Viene atteso fino a che non sia presente il REFINEMENT per entrambi i recipient
-        waitEndWorkflow(iun, recIndex1, recIndex2);
-
+        
         //CHECK PRIMO RECIPIENT
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo per il primo recipient

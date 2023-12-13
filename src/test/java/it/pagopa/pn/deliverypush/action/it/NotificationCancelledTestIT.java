@@ -116,7 +116,6 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
         Instant notificationViewDate2 = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, 0, null, notificationViewDate2);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().atLeast(Duration.ofSeconds(1));
 
         await().untilAsserted(() ->
@@ -259,9 +258,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
                 .build();
 
         pnDataVaultClientReactiveMock.insertBaseRecipientDto(baseRecipientDto);
-
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-
+        
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
@@ -367,10 +364,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
-
-        Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
-
+        
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 

@@ -151,7 +151,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         NotificationCancellationActionHandler.class,
         PaperSendModeUtils.class,
         CheckAttachmentRetentionHandler.class,
-        ActionPoolMock.class
+        ActionPoolMock.class,
+        SendDigitalFinalStatusResponseHandler.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")
