@@ -11,7 +11,7 @@ import java.time.Instant;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
-public class NotificationPaidDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class NotificationPaidDetailsInt implements RecipientRelatedTimelineElementDetails, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private String recipientType;
     private Integer amount;
@@ -24,5 +24,10 @@ public class NotificationPaidDetailsInt implements RecipientRelatedTimelineEleme
     @Override
     public String toLog() {
         return this.toString(); // non ha info sensibili
+    }
+
+    @Override
+    public Instant getElementTimestamp() {
+        return eventTimestamp;
     }
 }

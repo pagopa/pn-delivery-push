@@ -1,11 +1,15 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV20;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 import org.modelmapper.Converter;
@@ -110,5 +114,28 @@ public class SmartMapper {
     }
 
 
+    public static TimelineElementInternal mapTimelineInternal(TimelineElementInternal source, Set<TimelineElementInternal> timelineElementInternalSet) {
+        TimelineElementInternal result = mapToClass(source, TimelineElementInternal.class );
+
+        if( result != null
+                && result.getCategory() == TimelineElementCategoryInt.REFINEMENT
+                && result.getDetails() instanceof RecipientRelatedTimelineElementDetails refinementTimelineElementDetails) {
+
+            // cerco l'evento di SCHEDULE_REFINEMENT nel set per lo stesso recIndex
+            TimelineElementInternal scheduleRefinementTimelineElment = timelineElementInternalSet.stream().filter(e ->
+                    e.getCategory() == TimelineElementCategoryInt.SCHEDULE_REFINEMENT &&
+                            e.getDetails() instanceof RecipientRelatedTimelineElementDetails scheduleRefinementTimelineElementDetails &&
+                            scheduleRefinementTimelineElementDetails.getRecIndex() == refinementTimelineElementDetails.getRecIndex()
+                    ).findFirst().orElseThrow(() -> new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT));
+
+            if(scheduleRefinementTimelineElment.getDetails() instanceof ScheduleRefinementDetailsInt scheduleRefinementTimelineElementDetails){
+                result.setTimestamp(scheduleRefinementTimelineElementDetails.getSchedulingDate());
+            }else{
+                throw new PnInternalException("INVALID SCHEDULING DETAILS", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
+            }
+        }
+
+        return result;
+    }
 
 }

@@ -324,7 +324,7 @@ public class TimeLineServiceImpl implements TimelineService {
                                                        NotificationStatusInt currentStatus) {
 
         var timelineList = timelineElements.stream()
-                .map(t -> SmartMapper.mapToClass(t, TimelineElementInternal.class)) // rimappo su se stessa, per sistemare eventuali campi interni
+                .map(t -> SmartMapper.mapTimelineInternal(t, timelineElements)) // rimappo su se stessa, per sistemare eventuali campi interni
                 .sorted(Comparator.naturalOrder())
                 .filter(this::isNotDiagnosticTimelineElement)
                 .map(TimelineElementMapper::internalToExternal)

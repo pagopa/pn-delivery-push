@@ -84,7 +84,7 @@ public class WebhookUtils {
         // calcolo vecchio e nuovo stato in base allo storico "di quel momento"
         StatusService.NotificationStatusUpdate notificationStatusUpdate = statusService.computeStatusChange(event.get(), filteredPreviousTimelineElementInternalSet, notificationInt);
         return RetrieveTimelineResult.builder()
-                .event(SmartMapper.mapToClass(event.get(), TimelineElementInternal.class))  //bisogna cmq rimappare l'evento per sistemare le date
+                .event(SmartMapper.mapTimelineInternal(event.get(), timelineElementInternalSet))  //bisogna cmq rimappare l'evento per sistemare le date
                 .notificationStatusUpdate(notificationStatusUpdate)
                 .notificationInt(notificationInt)
                 .build();
