@@ -11,7 +11,10 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -119,6 +122,42 @@ class SmartMapperTest {
 
 
         Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
+    }
+
+    @Test
+    void testMapTimelineInternalTransformer(){
+        Instant refinementTimestamp = Instant.EPOCH.plusMillis(100);
+        Instant scheduleRefinementTimestamp = Instant.EPOCH.plusMillis(500);
+
+        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
+
+
+        TimelineElementInternal refinementElement = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.REFINEMENT)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(refinementTimestamp)
+                .details( RefinementDetailsInt.builder()
+                        .recIndex(0)
+                        .build())
+                .build();
+
+        TimelineElementInternal scheduleRefinementElement = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SCHEDULE_REFINEMENT)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(Instant.now())
+                .details( ScheduleRefinementDetailsInt.builder()
+                        .recIndex(0)
+                        .schedulingDate(scheduleRefinementTimestamp)
+                        .build())
+                .build();
+
+        TimelineElementInternal ret = SmartMapper.mapTimelineInternal(refinementElement, Set.of(scheduleRefinementElement));
+
+        Assertions.assertNotEquals(refinementTimestamp, ret.getTimestamp());
+        Assertions.assertNotEquals(eventTimestamp, ret.getTimestamp());
+        Assertions.assertEquals(scheduleRefinementTimestamp, ret.getTimestamp());
     }
 
 
