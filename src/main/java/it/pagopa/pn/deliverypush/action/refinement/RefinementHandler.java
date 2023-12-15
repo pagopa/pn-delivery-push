@@ -46,24 +46,16 @@ public class RefinementHandler {
             Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, false);
 
             //FIND TIMELINE ELEMENT
-            Instant viewedDate = timeline.stream().filter(e ->
-                    e.getCategory() == TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST &&
-                            e.getDetails() instanceof RecipientRelatedTimelineElementDetails scheduleRefinementTimelineElementDetails &&
-                            scheduleRefinementTimelineElementDetails.getRecIndex() == recIndex
-            ).findFirst().map(notificationViewCreationRequestTimelineElem -> {
+            Instant viewedDate = timelineUtils.getNotificationViewCreationRequest(iun,recIndex).map(notificationViewCreationRequestTimelineElem -> {
                 if(notificationViewCreationRequestTimelineElem.getDetails() instanceof NotificationViewedCreationRequestDetailsInt notificationViewedCreationRequestDetails) {
                     return notificationViewedCreationRequestDetails.getEventTimestamp();
                 }
                 return null;
             }).orElse(null);
 
-            Instant refinementDate = timeline.stream().filter(e ->
-                    e.getCategory() == TimelineElementCategoryInt.SCHEDULE_REFINEMENT &&
-                            e.getDetails() instanceof RecipientRelatedTimelineElementDetails scheduleRefinementTimelineElementDetails &&
-                            scheduleRefinementTimelineElementDetails.getRecIndex() == recIndex
-            ).findFirst().map(scheduleRefinementTimelineElem -> {
+            Instant refinementDate = timelineUtils.getScheduleRefinement(iun,recIndex).map(scheduleRefinementTimelineElem -> {
                 if(scheduleRefinementTimelineElem.getDetails() instanceof ScheduleRefinementDetailsInt scheduleRefinementTimelineElementDetails) {
-                   return scheduleRefinementTimelineElementDetails.getSchedulingDate();
+                    return scheduleRefinementTimelineElementDetails.getSchedulingDate();
                 }
                 return null;
             }).orElse(null);

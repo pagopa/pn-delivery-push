@@ -1174,6 +1174,7 @@ public class TimelineUtils {
         return true;
     }
 
+
     public boolean checkIsNotificationRefined(String iun, Integer recIndex) {
         log.debug("checkIsNotificationRefined - iun={} recIndex={}", iun, recIndex);
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
@@ -1240,8 +1241,18 @@ public class TimelineUtils {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
-    private Optional<TimelineElementInternal> getNotificationViewCreationRequest(String iun, Integer recIndex) {
+    public Optional<TimelineElementInternal> getNotificationViewCreationRequest(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        return timelineService.getTimelineElement(iun, elementId);
+    }
+
+    public Optional<TimelineElementInternal> getScheduleRefinement(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.SCHEDULE_REFINEMENT_WORKFLOW.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
