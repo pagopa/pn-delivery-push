@@ -43,7 +43,6 @@ public class RefinementHandler {
         if( !isNotificationViewed ) {
             addRefinementElement(iun, recIndex, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
         } else {
-            Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, false);
 
             //FIND TIMELINE ELEMENT
             Instant viewedDate = timelineUtils.getNotificationViewCreationRequest(iun,recIndex).map(notificationViewCreationRequestTimelineElem -> {
