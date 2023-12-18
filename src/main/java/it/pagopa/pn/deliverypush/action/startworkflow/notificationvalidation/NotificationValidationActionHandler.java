@@ -53,7 +53,7 @@ public class NotificationValidationActionHandler {
     private final PnDeliveryPushConfigs cfg;
     private final F24Validator f24Validator;
     private final PaymentValidator paymentValidator;
-    //quickWorkAroundForPNXYZ
+    //quickWorkAroundForPN-9116
     private final SendMoreThan20GramsParameterConsumer parameterConsumer;
     private final SafeStorageService safeStorageService;
     private final DocumentComposition documentComposition;
@@ -89,8 +89,8 @@ public class NotificationValidationActionHandler {
                 ).block();
             }
 
-            //quickWorkAroundForPNXYZ
-            quickWorkAroundForPNXYZ(notification);
+            //quickWorkAroundForPN-9116
+            quickWorkAroundForPN9116(notification);
 
         } catch (PnValidationFileNotFoundException ex){
             if(cfg.isSafeStorageFileNotFoundRetry())
@@ -246,9 +246,9 @@ public class NotificationValidationActionHandler {
 
     /**
      *
-     * quickWorkAroundForPNXYZ
+     * quickWorkAroundForPN-9116
      */
-    private void quickWorkAroundForPNXYZ(NotificationInt notification) {
+    private void quickWorkAroundForPN9116(NotificationInt notification) {
         if(!canSendMoreThan20Grams(notification.getSender().getPaTaxId())) {
             final String errorDetail = String.format( "Validation failed, sender paTaxId=%s can't send more than 20 grams.", notification.getSender().getPaTaxId());
             if(haveSomePayments(notification)) {

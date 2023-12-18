@@ -154,7 +154,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         CheckAttachmentRetentionHandler.class,
         ActionPoolMock.class,
         SendDigitalFinalStatusResponseHandler.class,
-        //quickWorkAroundForPNXYZ
+        //quickWorkAroundForPN-9116
         SendMoreThan20GramsParameterConsumer.class
 })
 @ExtendWith(SpringExtension.class)
@@ -290,7 +290,7 @@ public class CommonTestConfiguration {
 
         Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList);
 
-        //quickWorkAroundForPNXYZ
+        //quickWorkAroundForPN-9116
         Mockito.when(cfg.isSendMoreThan20GramsDefaultValue()).thenReturn(true);
 
     }

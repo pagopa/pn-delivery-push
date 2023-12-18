@@ -64,7 +64,7 @@ class NotificationValidationActionHandlerTest {
     @Mock
     private PnDeliveryPushConfigs cfg;
 
-    //quickWorkAroundForPNXYZ
+    //quickWorkAroundForPN-9116
     @Mock
     private SendMoreThan20GramsParameterConsumer sendMoreThan20GramsParameterConsumer;
 
@@ -80,7 +80,7 @@ class NotificationValidationActionHandlerTest {
                 timelineService, timelineUtils, notificationService,
                 notificationValidationScheduler, addressValidator, auditLogService, normalizeAddressHandler,
                 schedulerService, cfg, f24Validator, paymentValidator,
-                //quickWorkAroundForPNXYZ
+                //quickWorkAroundForPN-9116
                 sendMoreThan20GramsParameterConsumer,
                 safeStorageService, documentComposition);
     }

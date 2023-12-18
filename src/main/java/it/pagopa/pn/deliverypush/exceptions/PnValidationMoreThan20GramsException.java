@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  *
- * quickWorkAroundForPNXYZ
+ * quickWorkAroundForPN-9116
  */
 public class PnValidationMoreThan20GramsException extends PnValidationException {
     public PnValidationMoreThan20GramsException(String detail) {
