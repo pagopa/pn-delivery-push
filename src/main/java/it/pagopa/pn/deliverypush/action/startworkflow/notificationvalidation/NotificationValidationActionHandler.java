@@ -10,23 +10,23 @@ import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDeta
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
+import it.pagopa.pn.deliverypush.exceptions.*;
+import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -53,6 +53,10 @@ public class NotificationValidationActionHandler {
     private final PnDeliveryPushConfigs cfg;
     private final F24Validator f24Validator;
     private final PaymentValidator paymentValidator;
+    //quickWorkAroundForPNXYZ
+    private final SendMoreThan20GramsParameterConsumer parameterConsumer;
+    private final SafeStorageService safeStorageService;
+    private final DocumentComposition documentComposition;
     
     public void validateNotification(String iun, NotificationValidationActionDetails details){
         log.debug("Start validateNotification - iun={}", iun);
@@ -84,6 +88,9 @@ public class NotificationValidationActionHandler {
                         addressValidator.requestValidateAndNormalizeAddresses(notification)
                 ).block();
             }
+
+            //quickWorkAroundForPNXYZ
+            quickWorkAroundForPNXYZ(notification);
 
         } catch (PnValidationFileNotFoundException ex){
             if(cfg.isSafeStorageFileNotFoundRetry())
@@ -235,5 +242,63 @@ public class NotificationValidationActionHandler {
             handleValidationError(notification, ex);
         }
 
+    }
+
+    /**
+     *
+     * quickWorkAroundForPNXYZ
+     */
+    private void quickWorkAroundForPNXYZ(NotificationInt notification) {
+        if(!canSendMoreThan20Grams(notification.getSender().getPaTaxId())) {
+            final String errorDetail = String.format( "Validation failed, sender paTaxId=%s can't send more than 20 grams.", notification.getSender().getPaTaxId());
+            if(haveSomePayments(notification)) {
+                throw new PnValidationMoreThan20GramsException(errorDetail + " Some attachment payments");
+            }
+            int numberOfDocuments = notification.getDocuments().size();
+            switch (numberOfDocuments) {
+                case 1: checkDocumentsMaxPageNumber(notification, 4);
+                case 2: checkDocumentsMaxPageNumber(notification, 2);
+                default: throw new PnValidationMoreThan20GramsException(errorDetail + " More than two documents");
+            }
+        }
+    }
+
+    private void checkDocumentsMaxPageNumber(NotificationInt notification, int maxPages) {
+        for (NotificationDocumentInt doc : notification.getDocuments() ) {
+            NotificationDocumentInt.Ref ref = doc.getRef();
+            FileDownloadResponseInt fd = MDCUtils.addMDCToContextAndExecute(
+                            safeStorageService.getFile(ref.getKey(), false)
+                                    .onErrorResume(PnFileNotFoundException.class, this::handleNotFoundError))
+                    .block();
+            byte[] pieceOfContent = safeStorageService.downloadPieceOfContent(fd.getKey(), fd.getDownload().getUrl(), -1).block();
+            int actualPages = documentComposition.getNumberOfPageFromPdfBytes(pieceOfContent);
+            if (actualPages > maxPages) {
+                final String errorDetail = String.format( "Validation failed, sender paTaxId=%s can't send document=%s with page=%s. Max pages=%s",
+                        notification.getSender().getPaTaxId(),
+                        fd.getKey(),
+                        actualPages,
+                        maxPages
+                );
+                throw new PnValidationMoreThan20GramsException(errorDetail);
+            }
+        }
+    }
+
+    @NotNull
+    private Mono<FileDownloadResponseInt> handleNotFoundError(PnFileNotFoundException ex) {
+        //log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, ex.getMessage());
+        return Mono.error(
+                new PnValidationFileNotFoundException(
+                        ex.getMessage(),
+                        ex.getCause()
+                )
+        );
+    }
+
+    private boolean haveSomePayments(NotificationInt notification) {
+        return notification.getRecipients().stream().anyMatch( recipientInt -> !CollectionUtils.isEmpty(recipientInt.getPayments()));
+    }
+    private boolean canSendMoreThan20Grams(String paTaxId) {
+        return parameterConsumer.isPaEnabledToSendMoreThan20Grams(paTaxId);
     }
 }

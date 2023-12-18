@@ -314,6 +314,13 @@ Parameters:
     AllowedValues: [ true, false ]
     Default: false
 
+  #quickWorkAroundForPNXYZ
+  SendMoreThan20GramsDefaultValue:
+    Type: String
+    Description: ''
+    AllowedValues: [ true, false ]
+    Default: false
+
   RetentionAttachmentDaysAfterRefinement:
     Type: String
     Description: 'Number of days after which an attachment can be deleted from the effective date (viewing or expiration of time)'
@@ -750,6 +757,8 @@ Resources:
         ContainerEnvEntry64: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTRETENTIONTIMEAFTERVALIDATION=${AttachmentRetentionTimeAfterValidation}'
         ContainerEnvEntry65: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_CHECKATTACHMENTTIMEBEFOREEXPIRATION=${CheckAttachmentTimeBeforeExpiration}'
         ContainerEnvEntry66: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTTIMETOADDAFTEREXPIRATION=${AttachmentTimeToAddAfterExpiration}'
+        #quickWorkAroundForPNXYZ
+        ContainerEnvEntry67: !Sub 'PN_DELIVERYPUSH_SENDMORETHAN20GRAMSDEFAULTVALUE=${SendMoreThan20GramsDefaultValue}'
         
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets

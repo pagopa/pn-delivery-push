@@ -10,15 +10,13 @@ import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.*;
+import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.exceptions.*;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,12 +64,25 @@ class NotificationValidationActionHandlerTest {
     @Mock
     private PnDeliveryPushConfigs cfg;
 
+    //quickWorkAroundForPNXYZ
+    @Mock
+    private SendMoreThan20GramsParameterConsumer sendMoreThan20GramsParameterConsumer;
+
+    @Mock
+    private SafeStorageService safeStorageService;
+
+    @Mock
+    private DocumentComposition documentComposition;
+
     @BeforeEach
     public void setup() {
         handler = new NotificationValidationActionHandler(attachmentUtils, taxIdPivaValidator,
                 timelineService, timelineUtils, notificationService,
                 notificationValidationScheduler, addressValidator, auditLogService, normalizeAddressHandler,
-                schedulerService, cfg, f24Validator, paymentValidator);
+                schedulerService, cfg, f24Validator, paymentValidator,
+                //quickWorkAroundForPNXYZ
+                sendMoreThan20GramsParameterConsumer,
+                safeStorageService, documentComposition);
     }
 
     @ExtendWith(SpringExtension.class)
