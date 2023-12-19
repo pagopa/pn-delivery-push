@@ -60,13 +60,9 @@ public class StatusUtils {
                                                                       int numberOfRecipients, 
                                                                       Instant notificationCreatedAt) {
 
-        //Map REFINEMENT per cambio timestamp
-        Set<TimelineElementInternal> timelineElementListMapped = timelineElementList.stream().map(elem -> {
-            if (elem.getCategory() == TimelineElementCategoryInt.REFINEMENT) {
-                elem = mapTimelineInternal(elem, timelineElementList);
-            }
-            return elem;
-        }).collect(Collectors.toSet());
+        //Map TimelineElementInternal per cambio timestamp con business timestamp
+        Set<TimelineElementInternal> timelineElementListMapped = timelineElementList.stream()
+                .map(elem -> mapTimelineInternal(elem, timelineElementList)).collect(Collectors.toSet());
 
 
         //La timeline ricevuta in ingresso è relativa a tutta la notifica e non al singolo recipient
