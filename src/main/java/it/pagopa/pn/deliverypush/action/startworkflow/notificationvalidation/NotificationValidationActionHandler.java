@@ -256,9 +256,9 @@ public class NotificationValidationActionHandler {
             }
             int numberOfDocuments = notification.getDocuments().size();
             switch (numberOfDocuments) {
-                case 1: checkDocumentsMaxPageNumber(notification, 4);
-                case 2: checkDocumentsMaxPageNumber(notification, 2);
-                default: throw new PnValidationMoreThan20GramsException(errorDetail + " More than two documents");
+                case 1 -> checkDocumentsMaxPageNumber(notification, 4);
+                case 2 -> checkDocumentsMaxPageNumber(notification, 2);
+                default -> throw new PnValidationMoreThan20GramsException(errorDetail + " More than two documents");
             }
         }
     }
@@ -286,7 +286,6 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private Mono<FileDownloadResponseInt> handleNotFoundError(PnFileNotFoundException ex) {
-        //log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, ex.getMessage());
         return Mono.error(
                 new PnValidationFileNotFoundException(
                         ex.getMessage(),
