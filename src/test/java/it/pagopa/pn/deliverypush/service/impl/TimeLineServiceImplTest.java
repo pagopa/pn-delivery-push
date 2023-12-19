@@ -751,6 +751,7 @@ class TimeLineServiceImplTest {
                 .elementId(elementId)
                 .iun(iun)
                 .details( details )
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE )
                 .build();
     }
 
@@ -772,6 +773,7 @@ class TimeLineServiceImplTest {
         SendAnalogProgressDetailsInt details =  SendAnalogProgressDetailsInt.builder()
                 .recIndex(0)
                 .deliveryDetailCode("CON080")
+                .notificationDate(timestamp)
                 .build();
         return TimelineElementInternal.builder()
                 .elementId(elementId)
@@ -784,6 +786,7 @@ class TimeLineServiceImplTest {
     
     private TimelineElementInternal getSendPaperFeedbackTimelineElement(String iun, String elementId, Instant timestamp) {
          SendAnalogFeedbackDetailsInt details =  SendAnalogFeedbackDetailsInt.builder()
+                 .notificationDate(timestamp)
                 .newAddress(
                         PhysicalAddressInt.builder()
                                 .province("province")

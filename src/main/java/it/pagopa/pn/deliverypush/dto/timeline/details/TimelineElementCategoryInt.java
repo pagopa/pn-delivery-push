@@ -22,13 +22,13 @@ public enum TimelineElementCategoryInt {
     SEND_DIGITAL_FEEDBACK(SendDigitalFeedbackDetailsInt.class, TimelineElementCategoryV20.SEND_DIGITAL_FEEDBACK.getValue(), TimelineElementCategoryInt.PRIORITY_AFTER, TimelineElementCategoryInt.VERSION_10),
     SEND_DIGITAL_PROGRESS(SendDigitalProgressDetailsInt.class, TimelineElementCategoryV20.SEND_DIGITAL_PROGRESS.getValue(), TimelineElementCategoryInt.VERSION_10),
     REFINEMENT(RefinementDetailsInt.class, TimelineElementCategoryV20.REFINEMENT.getValue(), TimelineElementCategoryInt.VERSION_10),
-    SCHEDULE_REFINEMENT(ScheduleRefinementDetailsInt.class, TimelineElementCategoryV20.SCHEDULE_REFINEMENT.getValue(), TimelineElementCategoryInt.VERSION_10),
+    SCHEDULE_REFINEMENT(ScheduleRefinementDetailsInt.class, TimelineElementCategoryV20.SCHEDULE_REFINEMENT.getValue(),TimelineElementCategoryInt.PRIORITY_SCHEDULE_REFINEMENT, TimelineElementCategoryInt.VERSION_10),
     DIGITAL_DELIVERY_CREATION_REQUEST(DigitalDeliveryCreationRequestDetailsInt.class, TimelineElementCategoryV20.DIGITAL_DELIVERY_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_10),
     DIGITAL_SUCCESS_WORKFLOW(DigitalSuccessWorkflowDetailsInt.class, TimelineElementCategoryV20.DIGITAL_SUCCESS_WORKFLOW.getValue(), TimelineElementCategoryInt.VERSION_10),
     DIGITAL_FAILURE_WORKFLOW(DigitalFailureWorkflowDetailsInt.class, TimelineElementCategoryV20.DIGITAL_FAILURE_WORKFLOW.getValue(), TimelineElementCategoryInt.VERSION_10),
-    ANALOG_SUCCESS_WORKFLOW(AnalogSuccessWorkflowDetailsInt.class, TimelineElementCategoryV20.ANALOG_SUCCESS_WORKFLOW.getValue(), TimelineElementCategoryInt.VERSION_10),
-    ANALOG_FAILURE_WORKFLOW(AnalogFailureWorkflowDetailsInt.class, TimelineElementCategoryV20.ANALOG_FAILURE_WORKFLOW.getValue(), TimelineElementCategoryInt.VERSION_10),
-    COMPLETELY_UNREACHABLE_CREATION_REQUEST(CompletelyUnreachableCreationRequestDetails.class, TimelineElementCategoryV20.COMPLETELY_UNREACHABLE_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_10),
+    ANALOG_SUCCESS_WORKFLOW(AnalogSuccessWorkflowDetailsInt.class, TimelineElementCategoryV20.ANALOG_SUCCESS_WORKFLOW.getValue(),TimelineElementCategoryInt.PRIORITY_ANALOG_SUCCESS_WORKFLOW, TimelineElementCategoryInt.VERSION_10),
+    ANALOG_FAILURE_WORKFLOW(AnalogFailureWorkflowDetailsInt.class, TimelineElementCategoryV20.ANALOG_FAILURE_WORKFLOW.getValue(),TimelineElementCategoryInt.PRIORITY_ANALOG_FAILURE_WORKFLOW, TimelineElementCategoryInt.VERSION_10),
+    COMPLETELY_UNREACHABLE_CREATION_REQUEST(CompletelyUnreachableCreationRequestDetails.class, TimelineElementCategoryV20.COMPLETELY_UNREACHABLE_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.PRIORITY_COMPLETELY_UNREACHABLE_CREATION_REQUEST, TimelineElementCategoryInt.VERSION_10),
     PREPARE_SIMPLE_REGISTERED_LETTER(BaseRegisteredLetterDetailsInt.class, TimelineElementCategoryV20.PREPARE_SIMPLE_REGISTERED_LETTER.getValue(), TimelineElementCategoryInt.VERSION_10),
     SEND_SIMPLE_REGISTERED_LETTER(SimpleRegisteredLetterDetailsInt.class, TimelineElementCategoryV20.SEND_SIMPLE_REGISTERED_LETTER.getValue(), TimelineElementCategoryInt.VERSION_10),
     NOTIFICATION_VIEWED_CREATION_REQUEST(NotificationViewedCreationRequestDetailsInt.class, TimelineElementCategoryV20.NOTIFICATION_VIEWED_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_10),
@@ -37,9 +37,9 @@ public enum TimelineElementCategoryInt {
     PREPARE_ANALOG_DOMICILE_FAILURE(PrepareAnalogDomicileFailureDetailsInt.class, TimelineElementCategoryV20.PREPARE_ANALOG_DOMICILE_FAILURE.getValue(), TimelineElementCategoryInt.VERSION_20),
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategoryV20.SEND_ANALOG_DOMICILE.getValue(), TimelineElementCategoryInt.VERSION_10),
     SEND_ANALOG_PROGRESS(SendAnalogProgressDetailsInt.class, TimelineElementCategoryV20.SEND_ANALOG_PROGRESS.getValue(), TimelineElementCategoryInt.VERSION_10),
-    SEND_ANALOG_FEEDBACK(SendAnalogFeedbackDetailsInt.class, TimelineElementCategoryV20.SEND_ANALOG_FEEDBACK.getValue(), TimelineElementCategoryInt.PRIORITY_AFTER, TimelineElementCategoryInt.VERSION_10),
+    SEND_ANALOG_FEEDBACK(SendAnalogFeedbackDetailsInt.class, TimelineElementCategoryV20.SEND_ANALOG_FEEDBACK.getValue(), TimelineElementCategoryInt.PRIORITY_SEND_ANALOG_FEEDBACK, TimelineElementCategoryInt.VERSION_10),
     PAYMENT(NotificationPaidDetailsInt.class, TimelineElementCategoryV20.PAYMENT.getValue(), TimelineElementCategoryInt.VERSION_10),
-    COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategoryV20.COMPLETELY_UNREACHABLE.getValue(), TimelineElementCategoryInt.VERSION_10),
+    COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategoryV20.COMPLETELY_UNREACHABLE.getValue(),TimelineElementCategoryInt.PRIORITY_COMPLETELY_UNREACHABLET, TimelineElementCategoryInt.VERSION_10),
     REQUEST_REFUSED(RequestRefusedDetailsInt.class, TimelineElementCategoryV20.REQUEST_REFUSED.getValue(), TimelineElementCategoryInt.VERSION_10),
     AAR_CREATION_REQUEST(AarCreationRequestDetailsInt.class, TimelineElementCategoryV20.AAR_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_10),
     AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategoryV20.AAR_GENERATION.getValue(), TimelineElementCategoryInt.VERSION_10),
@@ -53,6 +53,13 @@ public enum TimelineElementCategoryInt {
     private final String value;
     private final int priority;
     private final int version;
+
+    public static final int PRIORITY_SEND_ANALOG_FEEDBACK = 30;
+    public static final int PRIORITY_ANALOG_SUCCESS_WORKFLOW = 40;
+    public static final int PRIORITY_ANALOG_FAILURE_WORKFLOW = 40;
+    public static final int PRIORITY_COMPLETELY_UNREACHABLE_CREATION_REQUEST = 50;
+    public static final int PRIORITY_COMPLETELY_UNREACHABLET = 60;
+    public static final int PRIORITY_SCHEDULE_REFINEMENT = 70;
 
     public static final int PRIORITY_BEFORE = 10;
     public static final int PRIORITY_AFTER = 20;
