@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONSTATUSFAILED;
 import static it.pagopa.pn.deliverypush.service.mapper.SmartMapper.mapTimelineInternal;
@@ -58,8 +59,18 @@ public class StatusUtils {
     public List<NotificationStatusHistoryElementInt> getStatusHistory(Set<TimelineElementInternal> timelineElementList, 
                                                                       int numberOfRecipients, 
                                                                       Instant notificationCreatedAt) {
+
+        //Map REFINEMENT per cambio timestamp
+        Set<TimelineElementInternal> timelineElementListMapped = timelineElementList.stream().map(elem -> {
+            if (elem.getCategory() == TimelineElementCategoryInt.REFINEMENT) {
+                elem = mapTimelineInternal(elem, timelineElementList);
+            }
+            return elem;
+        }).collect(Collectors.toSet());
+
+
         //La timeline ricevuta in ingresso è relativa a tutta la notifica e non al singolo recipient
-        List<TimelineElementInternal> timelineByTimestampSorted = timelineElementList.stream()
+        List<TimelineElementInternal> timelineByTimestampSorted = timelineElementListMapped.stream()
                 .sorted(Comparator.naturalOrder())
                 .toList();
     
@@ -76,10 +87,6 @@ public class StatusUtils {
             
             TimelineElementCategoryInt category = timelineElement.getCategory();
 
-            //Map REFINEMENT per cambio timestamp
-            if(category == TimelineElementCategoryInt.REFINEMENT){
-                timelineElement = mapTimelineInternal(timelineElement,timelineElementList);
-            }
 
             if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains( category ) || FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains( category ) ) {
                 //Vengono contati il numero di workflow completate per entrambi i recipient, sia in caso di successo che di fallimento
