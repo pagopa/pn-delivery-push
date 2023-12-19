@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONSTATUSFAILED;
+import static it.pagopa.pn.deliverypush.service.mapper.SmartMapper.mapTimelineInternal;
 
 @Component
 public class StatusUtils {
@@ -74,7 +75,12 @@ public class StatusUtils {
         for (TimelineElementInternal timelineElement : timelineByTimestampSorted) {
             
             TimelineElementCategoryInt category = timelineElement.getCategory();
-            
+
+            //Map REFINEMENT per cambio timestamp
+            if(category == TimelineElementCategoryInt.REFINEMENT){
+                timelineElement = mapTimelineInternal(timelineElement,timelineElementList);
+            }
+
             if( SUCCES_DELIVERY_WORKFLOW_CATEGORY.contains( category ) || FAILURE_DELIVERY_WORKFLOW_CATEGORY.contains( category ) ) {
                 //Vengono contati il numero di workflow completate per entrambi i recipient, sia in caso di successo che di fallimento
                 numberOfCompletedWorkflow += 1;

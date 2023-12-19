@@ -43,7 +43,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
@@ -65,7 +64,7 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
         MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.TIMELINE_KEY);
-        
+
         log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 
@@ -85,7 +84,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
-                
+
                 // aggiorna lo stato su pn-delivery se i due stati differiscono
                 if (!notificationStatuses.getOldStatus().equals(notificationStatuses.getNewStatus())) {
                     statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
@@ -96,9 +95,9 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
                 logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
-                
+
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
-                
+
                 return timelineInsertSkipped;
             } catch (Exception ex) {
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
@@ -201,18 +200,18 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public <T> Optional<T> getTimelineElementDetailForSpecificRecipient(String iun, int recIndex, boolean confidentialInfoRequired, TimelineElementCategoryInt category, Class<T> timelineDetailsClass) {
         log.debug("getTimelineElementDetailForSpecificIndex - IUN={} and recIndex={}", iun, recIndex);
-        
+
         Optional<TimelineElementInternal> timelineElementOpt = this.timelineDao.getTimeline(iun)
                 .stream().filter(x -> x.getCategory().equals(category))
                 .filter(x -> {
-                    
+
                     if ( timelineDetailsClass.isInstance(x.getDetails()) && x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails){
                         return recRelatedTimelineElementDetails.getRecIndex() == recIndex;
                     }
                     return false;
                 })
                 .findFirst();
-        
+
         if (timelineElementOpt.isPresent()) {
             TimelineElementInternal timelineElement = timelineElementOpt.get();
 
@@ -229,7 +228,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
         return Optional.empty();
     }
-    
+
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("GetTimeline - iun={} ", iun);
@@ -277,10 +276,8 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("getTimelineAndStatusHistory Start - iun={} ", iun);
-        
-        Set<TimelineElementInternal> timelineElementsTmp = getTimeline(iun, true);
-        Set<TimelineElementInternal> timelineElements = timelineElementsTmp.stream().map(t -> SmartMapper.mapTimelineInternal(t, timelineElementsTmp)).collect(Collectors.toSet());
 
+        Set<TimelineElementInternal> timelineElements = getTimeline(iun, true);
 
         List<NotificationStatusHistoryElementInt> statusHistory = statusUtils
                 .getStatusHistory(timelineElements, numberOfRecipients, createdAt);
@@ -327,7 +324,7 @@ public class TimeLineServiceImpl implements TimelineService {
                                                        NotificationStatusInt currentStatus) {
 
         var timelineList = timelineElements.stream()
-                //.map(t -> SmartMapper.mapTimelineInternal(t, timelineElements)) // rimappo su se stessa, per sistemare eventuali campi interni
+                .map(t -> SmartMapper.mapTimelineInternal(t, timelineElements)) // rimappo su se stessa, per sistemare eventuali campi interni
                 .sorted(Comparator.naturalOrder())
                 .filter(this::isNotDiagnosticTimelineElement)
                 .map(TimelineElementMapper::internalToExternal)
