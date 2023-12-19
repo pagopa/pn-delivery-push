@@ -31,7 +31,7 @@ public class SendMoreThan20GramsParameterConsumer {
     }
 
     public Boolean isPaEnabledToSendMoreThan20Grams(String paTaxId) {
-        log.debug( "Start isSendActive for paTaxId={}", paTaxId );
+        log.debug( "Start isPaEnabledToSendMoreThan20Grams for paTaxId={}", paTaxId );
 
         Optional<PaTaxIdCanSendMoreThan20Grams[]> optionalPaTaxIdCanSendMoreThan20Grams = parameterConsumer.getParameterValue(
                 PARAMETER_STORE_MAP_PA_SEND_MORE, PaTaxIdCanSendMoreThan20Grams[].class);
