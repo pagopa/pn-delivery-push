@@ -120,7 +120,7 @@ class SmartMapperTest {
 
         TimelineElementInternal ret = SmartMapper.mapToClass(source, TimelineElementInternal.class);
 
-
+        Assertions.assertNotSame(ret, source);
         Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
     }
 
@@ -155,10 +155,15 @@ class SmartMapperTest {
 
         TimelineElementInternal ret = SmartMapper.mapTimelineInternal(refinementElement, Set.of(scheduleRefinementElement));
 
+        Assertions.assertNotSame(ret , refinementElement);
+        Assertions.assertNotEquals(ret.getTimestamp(),refinementElement.getTimestamp());
         Assertions.assertNotEquals(refinementTimestamp, ret.getTimestamp());
         Assertions.assertNotEquals(eventTimestamp, ret.getTimestamp());
         Assertions.assertEquals(scheduleRefinementTimestamp, ret.getTimestamp());
     }
+
+
+
 
 
     @Test
