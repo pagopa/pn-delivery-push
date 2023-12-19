@@ -112,9 +112,22 @@ public class SmartMapper {
         return result;
     }
 
+    private static  TimelineElementInternal mapTimelineInternal(TimelineElementInternal source ){
+        TimelineElementInternal result;
+        if( source != null) {
+            result = new TimelineElementInternal();
+            modelMapper.map(source, result );
+
+            result = (TimelineElementInternal) postMappingTransformer.apply(source, result);
+        } else {
+            result = null;
+        }
+        return result;
+    }
+
 
     public static TimelineElementInternal mapTimelineInternal(TimelineElementInternal source, Set<TimelineElementInternal> timelineElementInternalSet) {
-        TimelineElementInternal result = mapToClass(source, TimelineElementInternal.class );
+        TimelineElementInternal result = mapTimelineInternal(source);
 
         if( result != null
                 && result.getCategory() == TimelineElementCategoryInt.REFINEMENT
