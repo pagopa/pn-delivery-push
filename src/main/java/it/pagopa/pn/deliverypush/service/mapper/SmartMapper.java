@@ -147,8 +147,6 @@ public class SmartMapper {
                     if(details != null){
                         log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {} ", result.getCategory(), result.getTimestamp(), details.getNotificationDate());
                         result.setTimestamp(details.getNotificationDate());
-                    }else{
-                        log.error("SEARCH LAST SEND_ANALOG_FEEDBACK DETAILS NULL element {}",result);
                     }
                 }
                 case ANALOG_SUCCESS_WORKFLOW, ANALOG_FAILURE_WORKFLOW, COMPLETELY_UNREACHABLE_CREATION_REQUEST, COMPLETELY_UNREACHABLE -> {
