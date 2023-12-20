@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Converter;
@@ -131,7 +130,6 @@ public class SmartMapper {
 
     public static TimelineElementInternal mapTimelineInternal(TimelineElementInternal source, Set<TimelineElementInternal> timelineElementInternalSet) {
         TimelineElementInternal result = mapTimelineInternal(source);
-
         if(result != null) {
             switch (result.getCategory()) {
                 case SEND_ANALOG_PROGRESS -> {
@@ -141,23 +139,35 @@ public class SmartMapper {
                 }
                 case SEND_ANALOG_FEEDBACK -> {
                     SendAnalogFeedbackDetailsInt details = (SendAnalogFeedbackDetailsInt) result.getDetails();
-                    log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {} ", result.getCategory(), result.getTimestamp(), details.getNotificationDate());
+                    log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {}  ", result.getCategory(), result.getTimestamp(), details.getNotificationDate());
                     result.setTimestamp(details.getNotificationDate());
                 }
-                case SCHEDULE_REFINEMENT, ANALOG_SUCCESS_WORKFLOW, ANALOG_FAILURE_WORKFLOW, COMPLETELY_UNREACHABLE_CREATION_REQUEST, COMPLETELY_UNREACHABLE -> {
-                    SendAnalogFeedbackDetailsInt details = findLastSendAnalogFeedbackDetails(result, timelineElementInternalSet);
+                case SCHEDULE_REFINEMENT ->{
+                    SendAnalogFeedbackDetailsInt details = findLastSendAnalogFeedbackDetails((RecipientRelatedTimelineElementDetails)result.getDetails(), timelineElementInternalSet);
                     if(details != null){
                         log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {} ", result.getCategory(), result.getTimestamp(), details.getNotificationDate());
                         result.setTimestamp(details.getNotificationDate());
                     }else{
-                        log.debug("SEARCH LAST SEND_ANALOG_FEEDBACK DETAILS NULL element {}",result);
+                        log.error("SEARCH LAST SEND_ANALOG_FEEDBACK DETAILS NULL element {}",result);
+                    }
+                }
+                case ANALOG_SUCCESS_WORKFLOW, ANALOG_FAILURE_WORKFLOW, COMPLETELY_UNREACHABLE_CREATION_REQUEST, COMPLETELY_UNREACHABLE -> {
+                    SendAnalogFeedbackDetailsInt details = findLastSendAnalogFeedbackDetails((RecipientRelatedTimelineElementDetails)result.getDetails(), timelineElementInternalSet);
+                    if(details != null){
+                        log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {} ", result.getCategory(), result.getTimestamp(), details.getNotificationDate());
+                        result.setTimestamp(details.getNotificationDate());
+                    }else{
+                        log.error("SEARCH LAST SEND_ANALOG_FEEDBACK DETAILS NULL element {}",result);
+                        throw new PnInternalException("SEND_ANALOG_FEEDBACK NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
                     }
                 }
                 case REFINEMENT -> {
-                    ScheduleRefinementDetailsInt details = findScheduleRefinementDetails(result,timelineElementInternalSet);
+                    ScheduleRefinementDetailsInt details = findScheduleRefinementDetails((RecipientRelatedTimelineElementDetails)result.getDetails(),timelineElementInternalSet);
                     if(details != null){
                         log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {}", result.getCategory(), result.getTimestamp(), details.getSchedulingDate());
                         result.setTimestamp(details.getSchedulingDate());
+                    }else{
+                        throw new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
                     }
                 }
                 default -> log.debug("NOTHING TO MAP: element category {} ", result.getCategory());
@@ -167,14 +177,11 @@ public class SmartMapper {
         return result;
     }
 
-    private static ScheduleRefinementDetailsInt findScheduleRefinementDetails(TimelineElementInternal elementInternal, Set<TimelineElementInternal> timelineElementInternalSet) {
-        int recIndex;
-
-        if(elementInternal.getDetails() instanceof RecipientRelatedTimelineElementDetails relatedTimelineElementDetails){
-            recIndex = relatedTimelineElementDetails.getRecIndex();
-        }else{
-            return null;
+    private static ScheduleRefinementDetailsInt findScheduleRefinementDetails(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
+        if(elementDetails == null){
+            throw new PnInternalException("ELEMENT DETAILS NULL", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
         }
+        int recIndex = elementDetails.getRecIndex();
 
         TimelineElementInternal scheduleRefinementTimelineElment = timelineElementInternalSet.stream().filter(e ->
                 e.getCategory() == TimelineElementCategoryInt.SCHEDULE_REFINEMENT &&
@@ -185,14 +192,11 @@ public class SmartMapper {
         return (ScheduleRefinementDetailsInt) scheduleRefinementTimelineElment.getDetails();
     }
 
-    private static SendAnalogFeedbackDetailsInt findLastSendAnalogFeedbackDetails(TimelineElementInternal elementInternal, Set<TimelineElementInternal> timelineElementInternalSet) {
-        int recIndex;
-
-        if(elementInternal.getDetails() instanceof RecipientRelatedTimelineElementDetails relatedTimelineElementDetails){
-            recIndex = relatedTimelineElementDetails.getRecIndex();
-        }else{
-            return null;
+    private static SendAnalogFeedbackDetailsInt findLastSendAnalogFeedbackDetails(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
+        if(elementDetails == null){
+            throw new PnInternalException("ELEMENT DETAILS NULL", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
         }
+        int recIndex = elementDetails.getRecIndex();
 
         TimelineElementInternal lastSendAnalogFeedback = timelineElementInternalSet.stream().filter(e ->
                 e.getCategory() == TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK &&
