@@ -163,6 +163,30 @@ class SmartMapperTest {
     }
 
 
+    @Test
+    void testMapTimelineInternalMapTimelineInternaNotificationView(){
+        Instant notificationViewedTimestamp = Instant.EPOCH.plusMillis(100);
+        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
+
+
+        TimelineElementInternal notificationViewedElement = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(notificationViewedTimestamp)
+                .details( NotificationViewedDetailsInt.builder()
+                        .recIndex(0)
+                        .eventTimestamp(eventTimestamp)
+                        .build())
+                .build();
+
+
+        TimelineElementInternal ret = SmartMapper.mapTimelineInternal(notificationViewedElement, Set.of(notificationViewedElement));
+
+        Assertions.assertNotSame(ret , notificationViewedElement);
+        Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
+    }
+
 
 
 

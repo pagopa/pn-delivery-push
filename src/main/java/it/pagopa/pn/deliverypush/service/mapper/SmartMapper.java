@@ -117,9 +117,8 @@ public class SmartMapper {
     private static  TimelineElementInternal mapTimelineInternal(TimelineElementInternal source ){
         TimelineElementInternal result;
         if( source != null) {
-            result = new TimelineElementInternal();
-            modelMapper.map(source, result );
-
+            TimelineElementInternal elementToMap = source.toBuilder().build();
+            result = modelMapper.map(elementToMap, TimelineElementInternal.class );
             result = (TimelineElementInternal) postMappingTransformer.apply(source, result);
         } else {
             result = null;
