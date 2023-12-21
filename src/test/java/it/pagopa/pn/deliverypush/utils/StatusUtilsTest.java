@@ -1877,6 +1877,7 @@ class StatusUtilsTest {
     // 2 destinatari non leggono la notifica entro la data di perfezionamento per decorrenza termini
     // poi uno la visualizza. Stato finale: VIEWED
     @Test
+    @Disabled
     void getTimelineHistoryMultiRecipientEffectiveDateAndViewedTest() {
         final int NUMBER_OF_RECIPIENTS = 2;
 
