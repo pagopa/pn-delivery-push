@@ -250,20 +250,22 @@ public class NotificationValidationActionHandler {
      */
     private void quickWorkAroundForPN9116(NotificationInt notification) {
         if(!canSendMoreThan20Grams(notification.getSender().getPaTaxId())) {
-            final String errorDetail = String.format( "Validation failed, sender paTaxId=%s can't send more than 20 grams.", notification.getSender().getPaTaxId());
+            final String errorDetail = String.format( "Validation failed, sender paTaxId=%s can't send mail with more than 3 sheets (20 grams).", notification.getSender().getPaTaxId());
             if(haveSomePayments(notification)) {
-                throw new PnValidationMoreThan20GramsException(errorDetail + " Some attachment payments");
+                throw new PnValidationMoreThan20GramsException(errorDetail + " Payment attachments are disabled");
             }
             int numberOfDocuments = notification.getDocuments().size();
             switch (numberOfDocuments) {
-                case 1 -> checkDocumentsMaxPageNumber(notification, 4);
-                case 2 -> checkDocumentsMaxPageNumber(notification, 2);
-                default -> throw new PnValidationMoreThan20GramsException(errorDetail + " More than two documents");
+                case 1 -> checkDocumentsMaxPageNumber(notification, 4, "The attachment document exceed 4 pages. [paTaxId=%s, document=%s, actualPages=%s, maxPages=%s]");
+                case 2 -> checkDocumentsMaxPageNumber(notification, 2, "One of two documents exceed one sheet. [paTaxId=%s, document=%s, actualPages=%s, maxPages=%s]");
+                default -> throw new PnValidationMoreThan20GramsException(errorDetail
+                        + " " + numberOfDocuments +
+                        " documents and an AAR exceed 3 sheets");
             }
         }
     }
 
-    private void checkDocumentsMaxPageNumber(NotificationInt notification, int maxPages) {
+    private void checkDocumentsMaxPageNumber(NotificationInt notification, int maxPages, String messageFormat) {
         for (NotificationDocumentInt doc : notification.getDocuments() ) {
             NotificationDocumentInt.Ref ref = doc.getRef();
             FileDownloadResponseInt fd = MDCUtils.addMDCToContextAndExecute(
@@ -273,7 +275,7 @@ public class NotificationValidationActionHandler {
             byte[] pieceOfContent = safeStorageService.downloadPieceOfContent(fd.getKey(), fd.getDownload().getUrl(), -1).block();
             int actualPages = documentComposition.getNumberOfPageFromPdfBytes(pieceOfContent);
             if (actualPages > maxPages) {
-                final String errorDetail = String.format( "Validation failed, sender paTaxId=%s can't send document=%s with page=%s. Max pages=%s",
+                final String errorDetail = String.format(messageFormat,
                         notification.getSender().getPaTaxId(),
                         fd.getKey(),
                         actualPages,

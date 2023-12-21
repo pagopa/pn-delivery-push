@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class PnValidationMoreThan20GramsException extends PnValidationException {
     public PnValidationMoreThan20GramsException(String detail) {
-        super("Validazione fallita, mittente non puó inviare piú di 20 grammi di allegati",
+        super("Validazione fallita, mittente non autorizzato ad inviare avvisi cartacei con piú di 3 fogli (20 grammi)",
                 List.of(ProblemError.builder()
                         .code(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.SENDER_DISABLED_MORE_THAN_20_GRAMS.getValue())
                         .detail(detail)
