@@ -71,6 +71,9 @@ class RefinementSchedulerTest {
         TimeParams times = new TimeParams();
         times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(10));
+
+        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
+
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessDigitalRefinement());
         
@@ -106,7 +109,9 @@ class RefinementSchedulerTest {
         TimeParams times = new TimeParams();
         times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofDays(10));
+
         times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(1));
+
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessDigitalRefinement());
         schedulingDateOk = schedulingDateOk.plus(times.getTimeToAddInNonVisibilityTimeCase());
@@ -138,6 +143,9 @@ class RefinementSchedulerTest {
         TimeParams times = new TimeParams();
         times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysSuccessDigitalRefinement(Duration.ofSeconds(10));
+
+        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
+
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessDigitalRefinement());
 
@@ -167,6 +175,9 @@ class RefinementSchedulerTest {
         TimeParams times = new TimeParams();
         times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysFailureDigitalRefinement(Duration.ofSeconds(20));
+
+        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
+
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysFailureDigitalRefinement());
         
@@ -198,6 +209,9 @@ class RefinementSchedulerTest {
         TimeParams times = new TimeParams();
         times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(10));
+
+        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
+
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessAnalogRefinement());
         
@@ -228,6 +242,9 @@ class RefinementSchedulerTest {
         TimeParams times = new TimeParams();
         times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(10));
+
+        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
+
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysFailureAnalogRefinement());
         
@@ -260,6 +277,9 @@ class RefinementSchedulerTest {
         TimeParams times = new TimeParams();
         times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(10));
+
+        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
+
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessAnalogRefinement());
 
@@ -301,6 +321,9 @@ class RefinementSchedulerTest {
         TimeParams times = new TimeParams();
         times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(10));
+
+        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
+
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessAnalogRefinement());
 
