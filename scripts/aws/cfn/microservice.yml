@@ -317,8 +317,11 @@ Parameters:
   #quickWorkAroundForPN-9116
   SendMoreThan20GramsDefaultValue:
     Type: String
-    Description: ''
+    Description: |
+      Valore di default dell'abilitazione ad inviare notifche con piú di 2 fogli oltre l'AAR (20 grammi).
+      Il valore di abilitazione puó essere sovrascritto dal Parameter Store MapPaSendMoreThan20Grams nel parametro canSendMoreThan20Grams.
     AllowedValues: [ true, false ]
+    Default: false
 
   RetentionAttachmentDaysAfterRefinement:
     Type: String
