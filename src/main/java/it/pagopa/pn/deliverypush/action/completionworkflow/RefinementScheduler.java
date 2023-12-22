@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
@@ -95,12 +96,28 @@ public class RefinementScheduler {
 
         //Se la notifica è già stata visualizzata, non viene schedulato il perfezionamento per decorrenza termini dal momento che la notifica è già stata perfezionata per visione
         if( !isNotificationAlreadyViewed ){
-            log.info("Schedule refinement in date={} - iun={} id={}", schedulingDate, notification.getIun(), recIndex);
-            addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex, schedulingDate), notification );
-            scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
+            addScheduledTimelineElementAndScheduleRefinement(notification, recIndex, schedulingDate);
         }else {
-            log.info("Notification is already viewed or paid, refinement will not be scheduled - iun={} id={}", notification.getIun(), recIndex);
+            //Se la visualizzazione è successiva alla data in cui si sarebbe dovuto verificare il perfezionamento quest'ultimo viene comunque schedulato
+            Instant viewedDate = timelineUtils.getNotificationViewCreationRequest(notification.getIun(),recIndex).map(notificationViewCreationRequestTimelineElem -> {
+                if(notificationViewCreationRequestTimelineElem.getDetails() instanceof NotificationViewedCreationRequestDetailsInt notificationViewedCreationRequestDetails) {
+                    return notificationViewedCreationRequestDetails.getEventTimestamp();
+                }
+                return null;
+            }).orElse(null);
+            
+            if( schedulingDate != null && viewedDate != null && viewedDate.isAfter(schedulingDate) ) {
+                addScheduledTimelineElementAndScheduleRefinement(notification, recIndex, schedulingDate);
+            }else{
+                log.info("Notification is already viewed or paid, refinement will not be scheduled - iun={} id={}", notification.getIun(), recIndex);
+            }
         }
+    }
+
+    private void addScheduledTimelineElementAndScheduleRefinement(NotificationInt notification, Integer recIndex, Instant schedulingDate) {
+        log.info("Schedule refinement in date={} - iun={} id={}", schedulingDate, notification.getIun(), recIndex);
+        addTimelineElement( timelineUtils.buildScheduleRefinement(notification, recIndex, schedulingDate), notification);
+        scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
     }
 
     private Instant getSchedulingDate(Instant completionWorkflowDate, Duration scheduleTime, String iun) {

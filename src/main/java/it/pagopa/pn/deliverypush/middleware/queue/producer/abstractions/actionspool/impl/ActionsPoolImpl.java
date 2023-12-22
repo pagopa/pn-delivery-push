@@ -50,13 +50,34 @@ public class ActionsPoolImpl implements ActionsPool {
     }
 
     /**
+     * Schedula la action sempre e comunque utilizzando la tabella futureAction qualsiasi sia il notBefore
+     *
+     * @param action da schedulare
+     */
+    @Override
+    public void scheduleFutureAction(Action action) {
+        if ( Instant.now().isAfter( action.getNotBefore() )) {
+            action = action.toBuilder()
+                    .notBefore( Instant.now().plusSeconds(1))
+                    .build();
+        }
+        
+        final String timeSlot = computeTimeSlot( action.getNotBefore() );
+        action = action.toBuilder()
+                .timeslot( timeSlot)
+                .build();
+        
+        actionService.addActionAndFutureActionIfAbsent(action, timeSlot);
+    }
+    
+    /**
      * Schedula la action. Se la action si riferisce ad un istante passato (o molto vicino), si procede
      * a salvare solo il record di action senza future, e a inserire direttametne in coda.
      *
      * @param action da schedulare
      */
     @Override
-    public void scheduleFutureAction(Action action) {
+    public void startActionOrScheduleFutureAction(Action action) {
         boolean isFutureSchedule = Instant.now().plus(configs.getActionPoolBeforeDelay()).isBefore(action.getNotBefore());
 
         final String timeSlot = computeTimeSlot( action.getNotBefore() );

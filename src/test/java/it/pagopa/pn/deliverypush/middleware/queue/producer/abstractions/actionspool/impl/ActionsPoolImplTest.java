@@ -49,6 +49,24 @@ class ActionsPoolImplTest {
     }
 
     @Test
+    void scheduleFutureAction() {
+        //GIVEN
+        final Instant now = Instant.now();
+        Action action = Action.builder()
+                .iun("01")
+                .actionId("001")
+                .recipientIndex(0)
+                .notBefore(now.minus(Duration.ofSeconds(10)))
+                .type(ActionType.ANALOG_WORKFLOW)
+                .build();
+        
+        //WHEN
+        actionsPool.scheduleFutureAction(action);
+        //THEN
+        Mockito.verify(actionService).addActionAndFutureActionIfAbsent(Mockito.any(Action.class), Mockito.anyString());
+    }
+    
+    @Test
     void loadActionById() {
         String actionId = "001";
         Action action = Action.builder()
@@ -165,7 +183,7 @@ class ActionsPoolImplTest {
 
 
         //WHEN
-        actionsPool.scheduleFutureAction(action);
+        actionsPool.startActionOrScheduleFutureAction(action);
         //THEN
         Mockito.verify(actionService).addOnlyActionIfAbsent(Mockito.any(Action.class));
         Mockito.verify(actionsQueue).push(Mockito.any(ActionEvent.class));
@@ -186,7 +204,7 @@ class ActionsPoolImplTest {
 
 
         //WHEN
-        actionsPool.scheduleFutureAction(action);
+        actionsPool.startActionOrScheduleFutureAction(action);
         //THEN
         Mockito.verify(actionService).addActionAndFutureActionIfAbsent(Mockito.any(Action.class), Mockito.anyString());
         Mockito.verify(actionsQueue, Mockito.never()).push(Mockito.any(ActionEvent.class));

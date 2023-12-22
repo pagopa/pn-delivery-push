@@ -73,6 +73,11 @@ public class SchedulerServiceMock implements SchedulerService {
   }
 
   @Override
+  public void scheduleEventNowOnlyIfAbsent(String iun, ActionType actionType, ActionDetails actionDetails) {
+    this.scheduleEvent(iun, null, Instant.now(), actionType, actionDetails);
+  }
+
+  @Override
   public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType){
     this.scheduleEvent(iun, null, dateToSchedule, actionType);
   }

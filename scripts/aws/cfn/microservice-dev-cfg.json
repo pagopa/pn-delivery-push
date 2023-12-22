@@ -13,7 +13,7 @@
     "WebhookMaxLength": "50",
     "ExternalChannelDigitalRetryCount": "3",
     "ExternalChannelDigitalRetryDelay": "10m",
-    "ExternalChannelDigitalSendNoResponseTimeout": "26h",
+    "ExternalChannelDigitalSendNoResponseTimeout": "48h",
     "NotificationNonVisibilityTime": "21:00",
     "TimeToAddInNonVisibilityTimeCase": "5m",
     "IsMvpDefaultValue": "false",

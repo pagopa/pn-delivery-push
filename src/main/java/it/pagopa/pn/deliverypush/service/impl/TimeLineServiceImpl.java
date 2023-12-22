@@ -64,7 +64,7 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
         MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.TIMELINE_KEY);
-        
+
         log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
 
@@ -84,7 +84,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
-                
+
                 // aggiorna lo stato su pn-delivery se i due stati differiscono
                 if (!notificationStatuses.getOldStatus().equals(notificationStatuses.getNewStatus())) {
                     statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
@@ -95,9 +95,9 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
                 logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
-                
+
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
-                
+
                 return timelineInsertSkipped;
             } catch (Exception ex) {
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
@@ -200,18 +200,18 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public <T> Optional<T> getTimelineElementDetailForSpecificRecipient(String iun, int recIndex, boolean confidentialInfoRequired, TimelineElementCategoryInt category, Class<T> timelineDetailsClass) {
         log.debug("getTimelineElementDetailForSpecificIndex - IUN={} and recIndex={}", iun, recIndex);
-        
+
         Optional<TimelineElementInternal> timelineElementOpt = this.timelineDao.getTimeline(iun)
                 .stream().filter(x -> x.getCategory().equals(category))
                 .filter(x -> {
-                    
+
                     if ( timelineDetailsClass.isInstance(x.getDetails()) && x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails){
                         return recRelatedTimelineElementDetails.getRecIndex() == recIndex;
                     }
                     return false;
                 })
                 .findFirst();
-        
+
         if (timelineElementOpt.isPresent()) {
             TimelineElementInternal timelineElement = timelineElementOpt.get();
 
@@ -228,12 +228,16 @@ public class TimeLineServiceImpl implements TimelineService {
 
         return Optional.empty();
     }
-    
+
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("GetTimeline - iun={} ", iun);
         Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimeline(iun);
+        setConfidentialInfo(confidentialInfoRequired, iun, setTimelineElements);
+        return setTimelineElements;
+    }
 
+    private void setConfidentialInfo(boolean confidentialInfoRequired, String iun, Set<TimelineElementInternal> setTimelineElements) {
         if (confidentialInfoRequired) {
             Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
             mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
@@ -251,6 +255,13 @@ public class TimeLineServiceImpl implements TimelineService {
                 );
             }
         }
+    }
+
+    @Override
+    public Set<TimelineElementInternal> getTimelineStrongly(String iun, boolean confidentialInfoRequired) {
+        log.debug("GetTimelineStrongly - iun={} ", iun);
+        Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimelineStrongly(iun);
+        setConfidentialInfo(confidentialInfoRequired, iun, setTimelineElements);
         return setTimelineElements;
     }
 
@@ -258,34 +269,16 @@ public class TimeLineServiceImpl implements TimelineService {
     public Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired) {
         log.debug("getTimelineByIunTimelineId - iun={} timelineId={}", iun, timelineId);
         Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimelineFilteredByElementId(iun, timelineId);
-
-        if (confidentialInfoRequired) {
-            Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
-            mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
-
-            if (mapConfOtp.isPresent()) {
-                Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
-
-                setTimelineElements.forEach(
-                        timelineElementInt -> {
-                            ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
-                            if (dtoInt != null) {
-                                enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
-                            }
-                        }
-                );
-            }
-        }
-
+        setConfidentialInfo(confidentialInfoRequired, iun, setTimelineElements);
         return setTimelineElements;
     }
 
     @Override
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("getTimelineAndStatusHistory Start - iun={} ", iun);
-        
+
         Set<TimelineElementInternal> timelineElements = getTimeline(iun, true);
-        
+
         List<NotificationStatusHistoryElementInt> statusHistory = statusUtils
                 .getStatusHistory(timelineElements, numberOfRecipients, createdAt);
 
@@ -331,7 +324,7 @@ public class TimeLineServiceImpl implements TimelineService {
                                                        NotificationStatusInt currentStatus) {
 
         var timelineList = timelineElements.stream()
-                .map(t -> SmartMapper.mapToClass(t, TimelineElementInternal.class)) // rimappo su se stessa, per sistemare eventuali campi interni
+                .map(t -> SmartMapper.mapTimelineInternal(t, timelineElements)) // rimappo su se stessa, per sistemare eventuali campi interni
                 .sorted(Comparator.naturalOrder())
                 .filter(this::isNotDiagnosticTimelineElement)
                 .map(TimelineElementMapper::internalToExternal)
