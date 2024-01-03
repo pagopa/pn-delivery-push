@@ -42,6 +42,7 @@
     "PagoPaNotificationBaseCost": "100",
     "AttachmentRetentionTimeAfterValidation": "3m",
     "CheckAttachmentTimeBeforeExpiration": "1m",
-    "AttachmentTimeToAddAfterExpiration": "120d"
+    "AttachmentTimeToAddAfterExpiration": "120d",
+    "SendMoreThan20GramsDefaultValue": "false"
   }
 }
