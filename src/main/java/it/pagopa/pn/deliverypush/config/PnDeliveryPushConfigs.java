@@ -108,6 +108,8 @@ public class PnDeliveryPushConfigs {
     private int pagoPaNotificationBaseCost;
 
     private List<String> paperSendMode;
+    //quickWorkAroundForPN-9116
+    private boolean sendMoreThan20GramsDefaultValue;
     
     @Data
     public static class Topics {

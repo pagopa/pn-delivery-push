@@ -26,6 +26,7 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationRespon
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
@@ -152,7 +153,9 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         PaperSendModeUtils.class,
         CheckAttachmentRetentionHandler.class,
         ActionPoolMock.class,
-        SendDigitalFinalStatusResponseHandler.class
+        SendDigitalFinalStatusResponseHandler.class,
+        //quickWorkAroundForPN-9116
+        SendMoreThan20GramsParameterConsumer.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")
@@ -286,6 +289,9 @@ public class CommonTestConfiguration {
         paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
 
         Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList);
+
+        //quickWorkAroundForPN-9116
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue()).thenReturn(true);
 
     }
 

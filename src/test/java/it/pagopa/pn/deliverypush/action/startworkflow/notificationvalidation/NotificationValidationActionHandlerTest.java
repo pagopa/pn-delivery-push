@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
 import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEventPayload;
 import it.pagopa.pn.api.dto.events.PnF24MetadataValidationIssue;
+import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
@@ -10,15 +11,16 @@ import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.*;
+import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.exceptions.*;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -66,12 +69,24 @@ class NotificationValidationActionHandlerTest {
     @Mock
     private PnDeliveryPushConfigs cfg;
 
+    @Mock
+    private SafeStorageService safeStorageService;
+
+    @Mock
+    private DocumentComposition documentComposition;
+
     @BeforeEach
     public void setup() {
+        //quickWorkAroundForPN-9116
+        ParameterConsumer parameterConsumerMock = Mockito.mock(ParameterConsumer.class);
+        SendMoreThan20GramsParameterConsumer sendMoreThan20GramsParameterConsumer = new SendMoreThan20GramsParameterConsumer(parameterConsumerMock, cfg);
         handler = new NotificationValidationActionHandler(attachmentUtils, taxIdPivaValidator,
                 timelineService, timelineUtils, notificationService,
                 notificationValidationScheduler, addressValidator, auditLogService, normalizeAddressHandler,
-                schedulerService, cfg, f24Validator, paymentValidator);
+                schedulerService, cfg, f24Validator, paymentValidator,
+                //quickWorkAroundForPN-9116
+                sendMoreThan20GramsParameterConsumer,
+                safeStorageService, documentComposition);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -79,6 +94,9 @@ class NotificationValidationActionHandlerTest {
     void validateNotificationOK() {
         //GIVEN
         Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+        // quickWorkAroundForPN-9116
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue())
                 .thenReturn(true);
 
         NotificationInt notification = TestUtils.getNotification();
@@ -106,11 +124,86 @@ class NotificationValidationActionHandlerTest {
 
     }
 
+    // quickWorkAroundForPN-9116
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void validateNotificationKO() {
+        //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue())
+                .thenReturn(false);
+
+        NotificationInt notificationBefore = TestUtils.getNotification();
+        NotificationInt notification = notificationBefore.toBuilder().documents(List.of(NotificationDocumentInt.builder()
+                        .ref( NotificationDocumentInt.Ref.builder()
+                                .key("key")
+                                .build() )
+                .build()))
+                .build();
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+
+        NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
+                .retryAttempt(1)
+                .build();
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+
+        Mockito.when(addressValidator.requestValidateAndNormalizeAddresses(notification)).thenReturn(Mono.empty());
+
+        Mockito.when(safeStorageService.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(Mono.just(FileDownloadResponseInt.builder()
+                .key("key")
+                .checksum("sha256")
+                .contentLength(BigDecimal.TEN)
+                .download(FileDownloadInfoInt.builder()
+                        .url("url")
+                        .build())
+                .contentType("contentType")
+                .build()));
+        Mockito.when(safeStorageService.downloadPieceOfContent(Mockito.anyString(), Mockito.anyString(), Mockito.anyLong())).thenReturn(downloadPieceOfContent(true));
+
+        Mockito.when(documentComposition.getNumberOfPageFromPdfBytes(Mockito.any())).thenReturn(5);
+
+        //handler.validateNotification(notification.getIun(), details);
+        PnAuditLogEvent pnAuditLogEventWarn = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(pnAuditLogEventWarn);
+        //WHEN
+        handler.validateNotification(notification.getIun(), details);
+
+        Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
+
+    }
+
+    public Mono<byte[]> downloadPieceOfContent(boolean isPdf) {
+        byte[] res = new byte[8];
+        res[0] = 0x25;
+        res[1] = 0x50;
+        res[2] = 0x44;
+        res[3] = 0x46;
+        res[4] = 0x2D;
+        res[5] = 0x2D;
+        res[6] = 0x2D;
+        res[7] = 0x2D;
+
+        if (!isPdf)
+            res[1] = 0x2D;
+
+        return Mono.just(res);
+    }
+
     @ExtendWith(SpringExtension.class)
     @Test
     void validateNotificationOKF24() {
         //GIVEN
         Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+        // quickWorkAroundForPN-9116
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue())
                 .thenReturn(true);
 
         NotificationInt notification = TestUtils.getNotificationV2WithF24();
