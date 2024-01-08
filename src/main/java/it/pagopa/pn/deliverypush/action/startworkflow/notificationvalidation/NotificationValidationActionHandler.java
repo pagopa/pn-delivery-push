@@ -73,7 +73,8 @@ public class NotificationValidationActionHandler {
                 taxIdPivaValidator.validateTaxIdPiva(notification);
             }
 
-            logEvent.generateSuccess().log();
+            //quickWorkAroundForPN-9116
+            quickWorkAroundForPN9116(notification);
 
             if (f24Exists(notification)) {
                 //La validazione del F24 è async
@@ -89,8 +90,7 @@ public class NotificationValidationActionHandler {
                 ).block();
             }
 
-            //quickWorkAroundForPN-9116
-            quickWorkAroundForPN9116(notification);
+            logEvent.generateSuccess().log();
 
         } catch (PnValidationFileNotFoundException ex){
             if(cfg.isSafeStorageFileNotFoundRetry())
