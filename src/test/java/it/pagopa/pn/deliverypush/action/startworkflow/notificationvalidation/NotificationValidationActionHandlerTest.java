@@ -376,6 +376,8 @@ class NotificationValidationActionHandlerTest {
         //GIVEN
         Mockito.when(cfg.isCheckCfEnabled())
                 .thenReturn(false);
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue())
+                .thenReturn(true);
 
         NotificationInt notification = TestUtils.getNotificationV2();
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
