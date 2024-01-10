@@ -71,13 +71,13 @@ class RefinementHandlerTest {
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
         when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
-        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
+        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
         when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
         
         refinementHandler.handleRefinement(iun, recIndex);
         
         Mockito.verify(timelineUtils, Mockito.times(1)).buildRefinementTimelineElement(notification,
-                recIndex, 100);
+                recIndex, 100, true);
         
     }
 
@@ -91,7 +91,7 @@ class RefinementHandlerTest {
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.TRUE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
         when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
-        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
+        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
 
         TimelineElementInternal viewedTimelineElement = new TimelineElementInternal();
         viewedTimelineElement.setCategory(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST);
@@ -112,7 +112,7 @@ class RefinementHandlerTest {
         refinementHandler.handleRefinement(iun, recIndex);
 
         Mockito.verify(timelineUtils, Mockito.times(1)).buildRefinementTimelineElement(notification,
-                recIndex, 100);
+                recIndex, 100,false);
 
     }
 
@@ -145,7 +145,7 @@ class RefinementHandlerTest {
         refinementHandler.handleRefinement(iun, recIndex);
 
         Mockito.verify(timelineUtils, Mockito.never()).buildRefinementTimelineElement(notification,
-                recIndex, 100);
+                recIndex, 100,true);
 
     }
 
