@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.abstractions.KeyValueStore;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface TimelineEntityDao extends KeyValueStore<Key, TimelineElementEntity> {
@@ -11,6 +12,8 @@ public interface TimelineEntityDao extends KeyValueStore<Key, TimelineElementEnt
     Set<TimelineElementEntity> findByIun(String iun );
 
     Set<TimelineElementEntity> findByIunStrongly(String iun );
+
+    Optional<TimelineElementEntity> getTimelineElementStrongly(String iun, String timelineId);
 
     /**
      * Ricerca le timeline per IUN e per elementId con ricerca "INIZIA PER"
