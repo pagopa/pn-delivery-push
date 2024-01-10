@@ -12,14 +12,12 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
@@ -53,6 +51,19 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
                 .consistentRead(true) // Imposta la consistenza forte
                 .build();
         return pageIterableToSet(table.query( enhancedRequest ));
+    }
+
+    @Override
+    public Optional<TimelineElementEntity> getTimelineElmentStrongly(String iun, String timelineId) {
+        GetItemEnhancedRequest request = GetItemEnhancedRequest.builder()
+                .key(key -> Key.builder()
+                        .partitionValue(iun)
+                        .sortValue(timelineId)
+                        .build())
+                .consistentRead(true)
+                .build();
+
+        return Optional.ofNullable(table.getItem(request));
     }
 
     @Override

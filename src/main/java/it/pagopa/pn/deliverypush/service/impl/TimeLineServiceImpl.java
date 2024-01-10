@@ -143,6 +143,18 @@ public class TimeLineServiceImpl implements TimelineService {
         log.debug("GetTimelineElement - IUN={} and timelineId={}", iun, timelineId);
 
         Optional<TimelineElementInternal> timelineElementInternalOpt = timelineDao.getTimelineElement(iun, timelineId);
+        return addConfidentialInformationIfTimelineElementIsPresent(iun, timelineId, timelineElementInternalOpt);
+    }
+
+    @Override
+    public Optional<TimelineElementInternal> getTimelineElementStrongly(String iun, String timelineId) {
+        log.debug("GetTimelineElement - IUN= {} and timelineId= {}", iun, timelineId);
+
+        Optional<TimelineElementInternal> timelineElementInternalOpt = timelineDao.getTimelineElementStrongly(iun, timelineId);
+        return addConfidentialInformationIfTimelineElementIsPresent(iun, timelineId, timelineElementInternalOpt);
+    }
+
+    private Optional<TimelineElementInternal> addConfidentialInformationIfTimelineElementIsPresent(String iun, String timelineId, Optional<TimelineElementInternal> timelineElementInternalOpt){
         if (timelineElementInternalOpt.isPresent()) {
             TimelineElementInternal timelineElementInt = timelineElementInternalOpt.get();
 

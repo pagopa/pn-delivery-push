@@ -46,7 +46,7 @@ class NotificationCostTest {
         int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(timelineElementInternal));
+        Mockito.when(timelineService.getTimelineElementStrongly(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(timelineElementInternal));
         
         //WHEN
         Mono<Optional<Integer>> monoCostOpt = notificationCost.getNotificationCost(notification, recIndex);
@@ -67,7 +67,7 @@ class NotificationCostTest {
                 .build();
         int recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
-        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(timelineService.getTimelineElementStrongly(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
         int expectedCost = 10;
         Mockito.when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(expectedCost));
 
