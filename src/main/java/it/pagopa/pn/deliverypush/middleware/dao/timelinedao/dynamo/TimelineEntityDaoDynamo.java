@@ -54,12 +54,11 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
     }
 
     @Override
-    public Optional<TimelineElementEntity> getTimelineElmentStrongly(String iun, String timelineId) {
+    public Optional<TimelineElementEntity> getTimelineElementStrongly(String iun, String timelineId) {
         GetItemEnhancedRequest request = GetItemEnhancedRequest.builder()
-                .key(key -> Key.builder()
-                        .partitionValue(iun)
-                        .sortValue(timelineId)
-                        .build())
+                .key(key -> key
+                    .partitionValue(iun)
+                    .sortValue(timelineId))
                 .consistentRead(true)
                 .build();
 

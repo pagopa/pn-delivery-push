@@ -13,7 +13,7 @@ public interface TimelineEntityDao extends KeyValueStore<Key, TimelineElementEnt
 
     Set<TimelineElementEntity> findByIunStrongly(String iun );
 
-    Optional<TimelineElementEntity>  getTimelineElmentStrongly(String iun, String timelineId);
+    Optional<TimelineElementEntity> getTimelineElementStrongly(String iun, String timelineId);
 
     /**
      * Ricerca le timeline per IUN e per elementId con ricerca "INIZIA PER"

@@ -113,7 +113,7 @@ public class TimelineDaoDynamo implements TimelineDao {
 
     @Override
     public Optional<TimelineElementInternal> getTimelineElementStrongly(String iun, String timelineId) {
-        return entityDao.getTimelineElmentStrongly(iun, timelineId)
+        return entityDao.getTimelineElementStrongly(iun, timelineId)
                 .map(entity2dto::entityToDto);
     }
 
