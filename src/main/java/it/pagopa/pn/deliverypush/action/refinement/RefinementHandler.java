@@ -41,7 +41,7 @@ public class RefinementHandler {
 
         //Se la notifica è già stata visualizzata non viene perfezionata per decorrenza termini in quanto è già stata perfezionata per presa visione
         if( !isNotificationViewed ) {
-            addRefinementElement(iun, recIndex, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement());
+            addRefinementElement(iun, recIndex, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement(),true);
         } else {
 
             //FIND TIMELINE ELEMENT
@@ -61,14 +61,14 @@ public class RefinementHandler {
 
             //Se la notifica è già stata visualizzata ma in data precedente a quella del perfezionamento l'evento viene comunque generato
             if( refinementDate != null && viewedDate != null && viewedDate.isAfter(refinementDate) ) {
-                addRefinementElement(iun, recIndex,null);
+                addRefinementElement(iun, recIndex,null, false);
             } else {
                 log.info("Notification is already viewed or paid, refinement will not start - iun={} id={}", iun, recIndex);
             }
         }
     }
 
-    private void addRefinementElement(String iun, Integer recIndex,  Integer attachmentRetention) {
+    private void addRefinementElement(String iun, Integer recIndex,  Integer attachmentRetention, Boolean addNotificationCost) {
         log.info("Handle refinement - iun {} id {}", iun, recIndex);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
@@ -83,7 +83,7 @@ public class RefinementHandler {
                             return Mono.just(res);
                         })
                         .flatMap( notificationCost ->
-                                Mono.fromCallable( () -> timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost))
+                                Mono.fromCallable( () -> timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost, addNotificationCost))
                                         .flatMap( timelineElementInternal ->
                                                 Mono.fromRunnable( () -> addTimelineElement(timelineElementInternal, notification))
                                                         .doOnSuccess( res -> log.info( "addTimelineElement OK {}", notification.getIun()))

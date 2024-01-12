@@ -823,20 +823,24 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, elementId, details);
     }
 
-    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex, Integer notificationCost) {
+
+    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex, Integer notificationCost, Boolean addNotificationCost) {
         log.debug("buildRefinementTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
-        
+
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
-        
+
         RefinementDetailsInt details = RefinementDetailsInt.builder()
                 .recIndex(recIndex)
-                .notificationCost(notificationCost)
                 .build();
-        
+
+        if(Boolean.TRUE.equals(addNotificationCost)){
+            details.setNotificationCost(notificationCost);
+        }
+
         return buildTimeline(notification, TimelineElementCategoryInt.REFINEMENT, elementId, details);
     }
     

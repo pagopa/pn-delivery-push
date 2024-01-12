@@ -558,7 +558,7 @@ class TimelineUtilsTest {
         Integer notificationCost = 100;
 
         TimelineElementInternal actual = timelineUtils.buildRefinementTimelineElement(
-                notification, recIndex, notificationCost
+                notification, recIndex, notificationCost,true
         );
         String timelineEventIdExpected = "REFINEMENT#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
