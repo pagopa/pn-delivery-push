@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.REQUEST_ACCEPTED;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
 
 @Component
@@ -1205,6 +1206,20 @@ public class TimelineUtils {
         log.debug("NotificationCancelled value is={}", isNotificationCancelled);
 
         return isNotificationCancelled;
+    }
+
+    public boolean checkIsNotificationAccepted(String iun) {
+        String elementId = REQUEST_ACCEPTED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        Set<TimelineElementInternal> notificationElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
+
+        boolean isNotificationAccepted = notificationElements != null && !notificationElements.isEmpty();
+        log.debug("NotificationAccepted value is={}", isNotificationAccepted);
+
+        return isNotificationAccepted;
     }
 
     private List<Integer> notRefinedRecipientIndexes(NotificationInt notification){

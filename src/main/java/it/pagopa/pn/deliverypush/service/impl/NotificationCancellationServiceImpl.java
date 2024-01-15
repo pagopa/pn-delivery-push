@@ -41,6 +41,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
     public static final String NOTIFICATION_ALREADY_CANCELLED = "NOTIFICATION_ALREADY_CANCELLED";
     public static final String NOTIFICATION_CANCELLATION_ACCEPTED = "NOTIFICATION_CANCELLATION_ACCEPTED";
+    public static final String NOTIFICATION_REFUSED = "NOTIFICATION_REFUSED";
 
 
     private final NotificationService notificationService;
@@ -138,23 +139,33 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
     private StatusDetailInt beginCancellationProcess(NotificationInt notification, PnAuditLogEvent logEvent)
     {
-        if (!timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
-            addCancellationRequestTimelineElement(notification);
-            logEvent.generateSuccess().log();
+        if(timelineUtils.checkIsNotificationAccepted(notification.getIun())) {
+            if (!timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
+                addCancellationRequestTimelineElement(notification);
+                logEvent.generateSuccess().log();
+                return StatusDetailInt.builder()
+                        .code(NOTIFICATION_CANCELLATION_ACCEPTED)
+                        .level("INFO")
+                        .detail("La richiesta di annullamento è stata presa in carico")
+                        .build();
+            }
+            else
+            {
+                logEvent.generateWarning("Notification already cancelled iun={}", notification.getIun()).log();
+                return StatusDetailInt.builder()
+                        .code(NOTIFICATION_ALREADY_CANCELLED)
+                        .level("WARN")
+                        .detail("E' già presente una richiesta di annullamento per questa notifica")
+                        .build();
+            }
+        } else {
+            logEvent.generateWarning("Notification refused iun={}", notification.getIun()).log();
             return StatusDetailInt.builder()
-                    .code(NOTIFICATION_CANCELLATION_ACCEPTED)
-                    .level("INFO")
-                    .detail("La richiesta di annullamento è stata presa in carico")
-                    .build();
-        }
-        else
-        {
-            logEvent.generateWarning("Notification already cancelled iun={}", notification.getIun()).log();
-            return StatusDetailInt.builder()
-                    .code(NOTIFICATION_ALREADY_CANCELLED)
+                    .code(NOTIFICATION_REFUSED)
                     .level("WARN")
-                    .detail("E' già presente una richiesta di annullamento per questa notifica")
+                    .detail("Notifica rifiutata")
                     .build();
         }
+
     }
 }
