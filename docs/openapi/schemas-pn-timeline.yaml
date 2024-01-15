@@ -49,6 +49,7 @@ components:
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+          * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
 #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
 #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
 #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
@@ -94,6 +95,7 @@ components:
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
+        - NOTIFICATION_RADD_RETRIEVED
 
     TimelineElementV20:
       type: object
@@ -137,6 +139,7 @@ components:
         - "$ref": "#/components/schemas/GetAddressInfoDetails"
         - "$ref": "#/components/schemas/NotificationViewedCreationRequestDetails"
         - "$ref": "#/components/schemas/NotificationViewedDetails"
+        - "$ref": "#/components/schemas/NotificationRADDRetrievedDetails"
         - "$ref": "#/components/schemas/PublicRegistryCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
         - "$ref": "#/components/schemas/RefinementDetails"
@@ -322,7 +325,28 @@ components:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
           $ref: '#/components/schemas/DelegateInfo'
-        
+
+    NotificationRADDRetrievedDetails:
+      type: object
+      required:
+        - recIndex
+        - raddType
+        - raddTransactionId
+        - eventTimestamp
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        eventTimestamp:
+          type: string
+          description: Data evento
+          format: date-time
+
     NotificationViewedDetails:
       type: object
       required:
@@ -343,6 +367,10 @@ components:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
           $ref: '#/components/schemas/DelegateInfo'
+        eventTimestamp:
+          type: string
+          description: Data evento visualizzazione
+          format: date-time
 
     PublicRegistryCallDetails:
       type: object
@@ -931,6 +959,9 @@ components:
         registeredLetterCode:
           type: string
           description: Codice della raccomandata
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+
 
     SimpleRegisteredLetterProgressDetails:
       type: object
@@ -1105,6 +1136,7 @@ components:
       description: |
         tipo di Rete Anti Digital Divide <br/>
         __FSU__: Fornitore Servizio Universale <br/>
+        __ALT__: Fornitore RADD Alternativa <br/>
 
     RaddTransactionId:
       type: string
