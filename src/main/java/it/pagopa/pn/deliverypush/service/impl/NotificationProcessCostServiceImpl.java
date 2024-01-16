@@ -80,7 +80,7 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
                     && recIndex == timelineElementRec.getRecIndex()){
                 
                 if ( timelineElement.getDetails() instanceof NotificationViewedCreationRequestDetailsInt ){
-                    notificationViewDate = timelineElement.getTimestamp();
+                    notificationViewDate = ((NotificationViewedCreationRequestDetailsInt) timelineElement.getDetails()).getEventTimestamp();
                 } else {
                     refinementDate = getRefinementDate(recIndex, refinementDate, timelineElement);
                 }

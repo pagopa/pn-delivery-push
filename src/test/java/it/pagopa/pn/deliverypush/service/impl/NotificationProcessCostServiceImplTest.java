@@ -327,10 +327,11 @@ class NotificationProcessCostServiceImplTest {
                 .details(refinementDetails)
                 .build();
 
+        Instant instant = Instant.now().plus(Duration.ofSeconds(1000));
         TimelineElementInternal notificationView = TimelineElementInternal.builder()
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
-                .timestamp(Instant.now().plus(Duration.ofSeconds(1000)))
-                .details(NotificationViewedCreationRequestDetailsInt.builder().build())
+                .timestamp(instant)
+                .details(NotificationViewedCreationRequestDetailsInt.builder().eventTimestamp(instant).build())
                 .build();
         
         Set<TimelineElementInternal> timelineElements = new HashSet<>(Arrays.asList(requestAccepted, firsAnalogSend, scheduleRefinement, notificationView));
@@ -383,10 +384,12 @@ class NotificationProcessCostServiceImplTest {
                         .build())
                 .build();
 
+        Instant instant = Instant.now();
         TimelineElementInternal notificationViewRec0 = TimelineElementInternal.builder()
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
-                .timestamp(Instant.now())
+                .timestamp(instant)
                 .details(NotificationViewedCreationRequestDetailsInt.builder()
+                        .eventTimestamp(instant)
                         .recIndex(recIndex0)
                         .build())
                 .build();
@@ -395,6 +398,7 @@ class NotificationProcessCostServiceImplTest {
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
                 .timestamp(Instant.now().plus(Duration.ofDays(1)))
                 .details(NotificationViewedCreationRequestDetailsInt.builder()
+                        .eventTimestamp(instant)
                         .recIndex(recIndex1)
                         .build())
                 .build();
@@ -450,10 +454,11 @@ class NotificationProcessCostServiceImplTest {
                 .details(refinementDetails)
                 .build();
 
+        Instant instant = Instant.now().plus(Duration.ofSeconds(1000));
         TimelineElementInternal notificationView = TimelineElementInternal.builder()
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
-                .timestamp(Instant.now().plus(Duration.ofSeconds(1000)))
-                .details(NotificationViewedCreationRequestDetailsInt.builder().build())
+                .timestamp(instant)
+                .details(NotificationViewedCreationRequestDetailsInt.builder().eventTimestamp(instant).build())
                 .build();
 
         Set<TimelineElementInternal> timelineElements = new HashSet<>(Arrays.asList(requestAccepted, firsAnalogSend, scheduleRefinement, notificationView));
@@ -507,10 +512,11 @@ class NotificationProcessCostServiceImplTest {
                 .details(refinementDetails)
                 .build();
 
+        Instant instant = Instant.now().plus(Duration.ofSeconds(1000));
         TimelineElementInternal notificationView = TimelineElementInternal.builder()
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
-                .timestamp(Instant.now().plus(Duration.ofSeconds(1000)))
-                .details(NotificationViewedCreationRequestDetailsInt.builder().build())
+                .timestamp(instant)
+                .details(NotificationViewedCreationRequestDetailsInt.builder().eventTimestamp(instant).build())
                 .build();
 
         Set<TimelineElementInternal> timelineElements = new HashSet<>(Arrays.asList(requestAccepted, firsAnalogSend, scheduleRefinement, notificationView));
