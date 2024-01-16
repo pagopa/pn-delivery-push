@@ -139,7 +139,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
     private StatusDetailInt beginCancellationProcess(NotificationInt notification, PnAuditLogEvent logEvent)
     {
-        if(timelineUtils.checkIsNotificationAccepted(notification.getIun())) {
+        if(!timelineUtils.checkIsNotificationRefused(notification.getIun())) {
             if (!timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
                 addCancellationRequestTimelineElement(notification);
                 logEvent.generateSuccess().log();

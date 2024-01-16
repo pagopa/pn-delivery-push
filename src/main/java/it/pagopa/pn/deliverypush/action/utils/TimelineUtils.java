@@ -24,8 +24,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.*;
 
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.REQUEST_ACCEPTED;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.*;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
 
 @Component
@@ -1208,18 +1207,18 @@ public class TimelineUtils {
         return isNotificationCancelled;
     }
 
-    public boolean checkIsNotificationAccepted(String iun) {
-        String elementId = REQUEST_ACCEPTED.buildEventId(
+    public boolean checkIsNotificationRefused(String iun) {
+        String elementId = REQUEST_REFUSED.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .build());
 
         Set<TimelineElementInternal> notificationElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
 
-        boolean isNotificationAccepted = notificationElements != null && !notificationElements.isEmpty();
-        log.debug("NotificationAccepted value is={}", isNotificationAccepted);
+        boolean isNotificationRefused = notificationElements != null && !notificationElements.isEmpty();
+        log.debug("NotificationRefused value is={}", isNotificationRefused);
 
-        return isNotificationAccepted;
+        return isNotificationRefused;
     }
 
     private List<Integer> notRefinedRecipientIndexes(NotificationInt notification){

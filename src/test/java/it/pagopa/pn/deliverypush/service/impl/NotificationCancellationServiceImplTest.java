@@ -96,8 +96,8 @@ class NotificationCancellationServiceImplTest {
                 .thenReturn(timelineElementInternal);
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun()))
                 .thenReturn(false);
-        Mockito.when(timelineUtils.checkIsNotificationAccepted(notification.getIun()))
-                .thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationRefused(notification.getIun()))
+                .thenReturn(false);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(1)))
@@ -129,8 +129,8 @@ class NotificationCancellationServiceImplTest {
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
 
-        Mockito.when(timelineUtils.checkIsNotificationAccepted(notification.getIun()))
-                .thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationRefused(notification.getIun()))
+                .thenReturn(false);
 
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun()))
                 .thenReturn(true);
@@ -165,8 +165,8 @@ class NotificationCancellationServiceImplTest {
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
 
-        Mockito.when(timelineUtils.checkIsNotificationAccepted(notification.getIun()))
-                .thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationRefused(notification.getIun()))
+                .thenReturn(true);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(1)))
