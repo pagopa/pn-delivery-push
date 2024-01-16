@@ -12,9 +12,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
@@ -251,7 +249,7 @@ public class NotificationValidationActionHandler {
     private void quickWorkAroundForPN9116(NotificationInt notification) {
         if(!canSendMoreThan20Grams(notification.getSender().getPaTaxId())) {
             final String errorDetail = String.format( "Validation failed, sender paTaxId=%s can't send mail with more than 3 sheets (20 grams).", notification.getSender().getPaTaxId());
-            if(haveSomePayments(notification)) {
+            if(haveSomePaymentsAttachment(notification)) {
                 throw new PnValidationMoreThan20GramsException(errorDetail + " Payment attachments are disabled");
             }
             int numberOfDocuments = notification.getDocuments().size();
@@ -296,9 +294,28 @@ public class NotificationValidationActionHandler {
         );
     }
 
-    private boolean haveSomePayments(NotificationInt notification) {
-        return notification.getRecipients().stream().anyMatch( recipientInt -> !CollectionUtils.isEmpty(recipientInt.getPayments()));
+    private boolean haveSomePaymentsAttachment(NotificationInt notification) {
+        return notification.getRecipients().stream().anyMatch( recipient -> haveSomeF24Payments(recipient.getPayments()) || haveSomePagoPaPaymentsAttachment(recipient.getPayments()) );
     }
+
+    private boolean haveSomePagoPaPaymentsAttachment(List<NotificationPaymentInfoInt> payments) {
+        if (!CollectionUtils.isEmpty(payments)) {
+            return payments.stream().anyMatch( payment -> havePagoPaAttachment(payment.getPagoPA()) );
+        }
+        return false;
+    }
+
+    private boolean havePagoPaAttachment(PagoPaInt pagoPaInt) {
+        return Objects.nonNull( pagoPaInt.getAttachment() );
+    }
+
+    private boolean haveSomeF24Payments(List<NotificationPaymentInfoInt> payments) {
+        if (!CollectionUtils.isEmpty(payments)) {
+            return payments.stream().anyMatch( payment -> Objects.nonNull(payment.getF24()) );
+        }
+        return false;
+    }
+
     private boolean canSendMoreThan20Grams(String paTaxId) {
         return parameterConsumer.isPaEnabledToSendMoreThan20Grams(paTaxId);
     }
