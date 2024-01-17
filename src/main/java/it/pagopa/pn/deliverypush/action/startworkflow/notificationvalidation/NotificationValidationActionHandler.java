@@ -295,10 +295,9 @@ public class NotificationValidationActionHandler {
     }
 
     private boolean haveSomePaymentsAttachment(NotificationInt notification) {
-        if (notification.getRecipients().stream().anyMatch( recipient -> !CollectionUtils.isEmpty(recipient.getPayments()))) {
-            return notification.getRecipients().stream().anyMatch(recipient -> haveSomeF24Payments(recipient.getPayments()) || haveSomePagoPaPaymentsAttachment(recipient.getPayments()));
-        }
-        return false;
+        return notification.getRecipients().stream()
+                .filter(recipient -> !CollectionUtils.isEmpty(recipient.getPayments()))
+                .anyMatch(recipient -> haveSomeF24Payments(recipient.getPayments()) || haveSomePagoPaPaymentsAttachment(recipient.getPayments()));
     }
 
     private boolean haveSomePagoPaPaymentsAttachment(List<NotificationPaymentInfoInt> payments) {
