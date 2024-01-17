@@ -12,8 +12,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -169,7 +168,116 @@ class NotificationValidationActionHandlerTest {
 
         Mockito.when(documentComposition.getNumberOfPageFromPdfBytes(Mockito.any())).thenReturn(5);
 
-        //handler.validateNotification(notification.getIun(), details);
+        PnAuditLogEvent pnAuditLogEventWarn = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(pnAuditLogEventWarn);
+        //WHEN
+        handler.validateNotification(notification.getIun(), details);
+
+        Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
+
+    }
+
+    // quickWorkAroundForPN-9116
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void validateNotificationOKWithPaymentNoAttachment() {
+        //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+        // quickWorkAroundForPN-9116
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue())
+                .thenReturn(false);
+
+        NotificationInt notificationBefore = TestUtils.getNotification();
+        NotificationInt notification = notificationBefore.toBuilder()
+                .documents(List.of(NotificationDocumentInt.builder()
+                        .ref( NotificationDocumentInt.Ref.builder()
+                                .key("key")
+                                .build() )
+                        .build())
+                )
+                .recipients(List.of(NotificationRecipientInt.builder()
+                        .payments(List.of(NotificationPaymentInfoInt.builder()
+                                .pagoPA(PagoPaInt.builder()
+                                        .creditorTaxId("creditorTaxId")
+                                        .noticeCode("noticeCode")
+                                        .build())
+                                .build()))
+                        .build()))
+                .build();
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+
+        NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
+                .retryAttempt(1)
+                .build();
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+
+        Mockito.when(addressValidator.requestValidateAndNormalizeAddresses(notification)).thenReturn(Mono.empty());
+
+        Mockito.when(safeStorageService.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(Mono.just(FileDownloadResponseInt.builder()
+                .key("key")
+                .checksum("sha256")
+                .contentLength(BigDecimal.TEN)
+                .download(FileDownloadInfoInt.builder()
+                        .url("url")
+                        .build())
+                .contentType("contentType")
+                .build()));
+        Mockito.when(safeStorageService.downloadPieceOfContent(Mockito.anyString(), Mockito.anyString(), Mockito.anyLong())).thenReturn(downloadPieceOfContent(true));
+
+        Mockito.when(documentComposition.getNumberOfPageFromPdfBytes(Mockito.any())).thenReturn(1);
+
+        //WHEN
+        handler.validateNotification(notification.getIun(), details);
+
+        //THEN
+        Mockito.verify(attachmentUtils).validateAttachment(notification);
+        Mockito.verify(auditLogEvent, times(2)).generateSuccess();
+        Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
+
+    }
+
+    // quickWorkAroundForPN-9116
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void validateNotificationKOWithPayment() {
+        //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue())
+                .thenReturn(false);
+
+        NotificationInt notificationBefore = TestUtils.getNotification();
+        NotificationInt notification = notificationBefore.toBuilder()
+                .recipients(List.of(NotificationRecipientInt.builder()
+                                .payments(List.of(NotificationPaymentInfoInt.builder()
+                                                .pagoPA(PagoPaInt.builder()
+                                                        .creditorTaxId("creditorTaxId")
+                                                        .noticeCode("noticeCode")
+                                                        .attachment(NotificationDocumentInt.builder().build())
+                                                        .build())
+                                        .build()))
+                        .build()))
+                .build();
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+
+        NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
+                .retryAttempt(1)
+                .build();
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+
         PnAuditLogEvent pnAuditLogEventWarn = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(pnAuditLogEventWarn);
         //WHEN

@@ -295,14 +295,14 @@ public class NotificationValidationActionHandler {
     }
 
     private boolean haveSomePaymentsAttachment(NotificationInt notification) {
-        return notification.getRecipients().stream().anyMatch( recipient -> haveSomeF24Payments(recipient.getPayments()) || haveSomePagoPaPaymentsAttachment(recipient.getPayments()) );
+        if (notification.getRecipients().stream().anyMatch( recipient -> !CollectionUtils.isEmpty(recipient.getPayments()))) {
+            return notification.getRecipients().stream().anyMatch(recipient -> haveSomeF24Payments(recipient.getPayments()) || haveSomePagoPaPaymentsAttachment(recipient.getPayments()));
+        }
+        return false;
     }
 
     private boolean haveSomePagoPaPaymentsAttachment(List<NotificationPaymentInfoInt> payments) {
-        if (!CollectionUtils.isEmpty(payments)) {
-            return payments.stream().anyMatch( payment -> havePagoPaAttachment(payment.getPagoPA()) );
-        }
-        return false;
+        return payments.stream().anyMatch( payment -> havePagoPaAttachment(payment.getPagoPA()) );
     }
 
     private boolean havePagoPaAttachment(PagoPaInt pagoPaInt) {
@@ -310,10 +310,7 @@ public class NotificationValidationActionHandler {
     }
 
     private boolean haveSomeF24Payments(List<NotificationPaymentInfoInt> payments) {
-        if (!CollectionUtils.isEmpty(payments)) {
-            return payments.stream().anyMatch( payment -> Objects.nonNull(payment.getF24()) );
-        }
-        return false;
+        return payments.stream().anyMatch( payment -> Objects.nonNull(payment.getF24()) );
     }
 
     private boolean canSendMoreThan20Grams(String paTaxId) {
