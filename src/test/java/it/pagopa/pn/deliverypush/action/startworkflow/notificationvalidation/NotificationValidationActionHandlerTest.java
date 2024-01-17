@@ -287,6 +287,46 @@ class NotificationValidationActionHandlerTest {
 
     }
 
+    // quickWorkAroundForPN-9116
+    @ExtendWith(SpringExtension.class)
+    @Test
+    void validateNotificationKOWithF24() {
+        //GIVEN
+        Mockito.when(cfg.isCheckCfEnabled())
+                .thenReturn(true);
+
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue())
+                .thenReturn(false);
+
+        NotificationInt notificationBefore = TestUtils.getNotification();
+        NotificationInt notification = notificationBefore.toBuilder()
+                .recipients(List.of(NotificationRecipientInt.builder()
+                        .payments(List.of(NotificationPaymentInfoInt.builder()
+                                .f24(F24Int.builder().build())
+                                .build()))
+                        .build()))
+                .build();
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+
+        NotificationValidationActionDetails details = NotificationValidationActionDetails.builder()
+                .retryAttempt(1)
+                .build();
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+
+        PnAuditLogEvent pnAuditLogEventWarn = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(pnAuditLogEventWarn);
+        //WHEN
+        handler.validateNotification(notification.getIun(), details);
+
+        Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
+
+    }
+
     public Mono<byte[]> downloadPieceOfContent(boolean isPdf) {
         byte[] res = new byte[8];
         res[0] = 0x25;
