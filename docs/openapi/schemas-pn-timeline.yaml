@@ -4,7 +4,7 @@ components:
     TimelineElementId:
       type: string
     
-    TimelineElementCategoryV20:
+    TimelineElementCategoryV23:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
@@ -97,7 +97,7 @@ components:
         - PREPARE_ANALOG_DOMICILE_FAILURE
         - NOTIFICATION_RADD_RETRIEVED
 
-    TimelineElementV20:
+    TimelineElementV23:
       type: object
       additionalProperties: false
       properties:
@@ -119,11 +119,11 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV20'
+          $ref: '#/components/schemas/TimelineElementCategoryV23'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV20'
+          $ref: '#/components/schemas/TimelineElementDetailsV23'
 
-    TimelineElementDetailsV20:
+    TimelineElementDetailsV23:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
@@ -143,7 +143,7 @@ components:
         - "$ref": "#/components/schemas/PublicRegistryCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
         - "$ref": "#/components/schemas/RefinementDetails"
-        - "$ref": "#/components/schemas/RequestRefusedDetailsV20"
+        - "$ref": "#/components/schemas/RequestRefusedDetailsV23"
         - "$ref": "#/components/schemas/ScheduleAnalogWorkflowDetails"
         - "$ref": "#/components/schemas/ScheduleDigitalWorkflowDetails"
         - "$ref": "#/components/schemas/ScheduleRefinementDetails"
@@ -160,7 +160,7 @@ components:
         - "$ref": "#/components/schemas/AarCreationRequestDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
-        - "$ref": "#/components/schemas/NotificationPaidDetailsV20"
+        - "$ref": "#/components/schemas/NotificationPaidDetailsV23"
         - "$ref": "#/components/schemas/SendAnalogProgressDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
@@ -427,14 +427,14 @@ components:
           type: integer
           format: int64
 
-    RequestRefusedDetailsV20:
+    RequestRefusedDetailsV23:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedErrorV20'
+            $ref: '#/components/schemas/NotificationRefusedErrorV23'
 
     ScheduleAnalogWorkflowDetails:
       type: object
@@ -899,7 +899,7 @@ components:
           type: string
           description: Motivazione casistica non gestita
 
-    NotificationPaidDetailsV20:
+    NotificationPaidDetailsV23:
       type: object
       required:
         - recIndex
@@ -1187,7 +1187,7 @@ components:
           type: string
           format: date-time
 
-    NotificationRefusedErrorV20:
+    NotificationRefusedErrorV23:
       type: object
       properties:
         errorCode:
