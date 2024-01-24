@@ -318,7 +318,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: "#/components/schemas/LegalFactDownloadMetadataWithContentTypeResponse"
         '400':
           description: Invalid input
           content:
@@ -772,3 +772,17 @@ components:
           description: data di probabile inizio del workflow analogico
           type: string
           format: date-time
+
+    ############################################################################################
+    ###           INFORMAZIONI SUI LEGAL FACT                                                ###
+    ############################################################################################
+
+    LegalFactDownloadMetadataWithContentTypeResponse:
+      description: oltre alle informazioni dei legalfact, torna anche il contentType
+      allOf:
+        - $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+        - type: object
+          properties:
+            contentType:
+              description: il contentType del file
+              type: string
