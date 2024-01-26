@@ -8,10 +8,10 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
@@ -66,7 +66,7 @@ public class WebhookServiceImpl implements WebhookService {
     }
 
     @Override
-    public Mono<StreamMetadataResponse> createEventStream(String xPagopaPnCxId, Mono<StreamCreationRequest> streamCreationRequest) {
+    public Mono<StreamMetadataResponseV23> createEventStream(String xPagopaPnCxId, Mono<StreamCreationRequestV23> streamCreationRequest) {
         return streamCreationRequest
                 .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), r))
                 .flatMap(dto -> streamEntityDao.findByPa(xPagopaPnCxId)
@@ -92,7 +92,7 @@ public class WebhookServiceImpl implements WebhookService {
     }
 
     @Override
-    public Mono<StreamMetadataResponse> getEventStream(String xPagopaPnCxId, UUID streamId) {
+    public Mono<StreamMetadataResponseV23> getEventStream(String xPagopaPnCxId, UUID streamId) {
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
                 .map(EntityToDtoStreamMapper::entityToDto);
     }
@@ -104,7 +104,7 @@ public class WebhookServiceImpl implements WebhookService {
     }
 
     @Override
-    public Mono<StreamMetadataResponse> updateEventStream(String xPagopaPnCxId, UUID streamId, Mono<StreamCreationRequest> streamCreationRequest) {
+    public Mono<StreamMetadataResponseV23> updateEventStream(String xPagopaPnCxId, UUID streamId, Mono<StreamCreationRequestV23> streamCreationRequest) {
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
                 .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to update this streamId " + streamId)))
                 .then(streamCreationRequest)
@@ -124,7 +124,7 @@ public class WebhookServiceImpl implements WebhookService {
                 .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
                 .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
                 .map(res -> {
-                    List<ProgressResponseElement> eventList = res.getEvents().stream().map(ProgressResponseElementMapper::internalToExternal).sorted(Comparator.comparing(ProgressResponseElement::getEventId)).toList();
+                    List<ProgressResponseElementV23> eventList = res.getEvents().stream().map(ProgressResponseElementMapper::internalToExternal).sorted(Comparator.comparing(ProgressResponseElementV23::getEventId)).toList();
 
                     int currentRetryAfter = res.getLastEventIdRead() == null ? retryAfter : 0;
 
@@ -171,8 +171,8 @@ public class WebhookServiceImpl implements WebhookService {
             return Mono.empty();
         }
 
-        StreamCreationRequest.EventTypeEnum eventType = StreamCreationRequest.EventTypeEnum.fromValue(stream.getEventType());
-        if (eventType == StreamCreationRequest.EventTypeEnum.STATUS
+        StreamCreationRequestV23.EventTypeEnum eventType = StreamCreationRequestV23.EventTypeEnum.fromValue(stream.getEventType());
+        if (eventType == StreamCreationRequestV23.EventTypeEnum.STATUS
                 && newStatus.equals(oldStatus))
         {
             log.info("skipping saving webhook event for stream={} because old and new status are same status={} iun={}", stream.getStreamId(), newStatus, timelineElementInternal.getIun());
@@ -182,11 +182,11 @@ public class WebhookServiceImpl implements WebhookService {
         String timelineEventCategory = timelineElementInternal.getCategory().getValue();
 
         Set<String> filteredValues = new LinkedHashSet<>();
-        if (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE) {
+        if (eventType == StreamCreationRequestV23.EventTypeEnum.TIMELINE) {
             filteredValues = stream.getFilterValues()== null || stream.getFilterValues().isEmpty()
                 ? defaultCategories
                 : stream.getFilterValues();
-        } else if (eventType == StreamCreationRequest.EventTypeEnum.STATUS){
+        } else if (eventType == StreamCreationRequestV23.EventTypeEnum.STATUS){
             filteredValues = stream.getFilterValues() == null || stream.getFilterValues().isEmpty()
                 ? defaultNotificationStatuses
                 : stream.getFilterValues();
@@ -194,8 +194,8 @@ public class WebhookServiceImpl implements WebhookService {
 
         // e poi c'è il caso in cui lo stream ha un filtro sugli eventi interessati
         // se è nullo/vuoto o contiene lo stato, vuol dire che devo salvarlo
-        if ( (eventType == StreamCreationRequest.EventTypeEnum.STATUS && filteredValues.contains(newStatus))
-                || (eventType == StreamCreationRequest.EventTypeEnum.TIMELINE && filteredValues.contains(timelineEventCategory)))
+        if ( (eventType == StreamCreationRequestV23.EventTypeEnum.STATUS && filteredValues.contains(newStatus))
+                || (eventType == StreamCreationRequestV23.EventTypeEnum.TIMELINE && filteredValues.contains(timelineEventCategory)))
         {
             return saveEventWithAtomicIncrement(stream, newStatus, timelineElementInternal, notificationInt);
         }

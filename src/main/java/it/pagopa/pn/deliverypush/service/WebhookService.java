@@ -1,24 +1,24 @@
 package it.pagopa.pn.deliverypush.service;
 
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
 public interface WebhookService {
-    Mono<StreamMetadataResponse> createEventStream(String xPagopaPnCxId, Mono<StreamCreationRequest> streamCreationRequest);
+    Mono<StreamMetadataResponseV23> createEventStream(String xPagopaPnCxId, Mono<StreamCreationRequestV23> streamCreationRequest);
 
     Mono<Void> deleteEventStream(String xPagopaPnCxId, UUID streamId);
 
-    Mono<StreamMetadataResponse> getEventStream(String xPagopaPnCxId, UUID streamId);
+    Mono<StreamMetadataResponseV23> getEventStream(String xPagopaPnCxId, UUID streamId);
 
     Flux<StreamListElement> listEventStream(String xPagopaPnCxId);
 
-    Mono<StreamMetadataResponse> updateEventStream(String xPagopaPnCxId, UUID streamId, Mono<StreamCreationRequest> streamCreationRequest);
+    Mono<StreamMetadataResponseV23> updateEventStream(String xPagopaPnCxId, UUID streamId, Mono<StreamCreationRequestV23> streamCreationRequest);
 
     Mono<ProgressResponseElementDto> consumeEventStream(String xPagopaPnCxId, UUID streamId, String lastEventId);
 

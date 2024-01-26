@@ -28,7 +28,7 @@ components:
           * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
           * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
           * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
-          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo 
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
           * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
@@ -41,7 +41,7 @@ components:
           * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
           * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
-          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
@@ -104,7 +104,7 @@ components:
         elementId:
           type: string
           description: >-
-            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in 
+            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in
             maniera univoca l'elemento di timeline
         timestamp:
           type: string
@@ -253,7 +253,7 @@ components:
         legalfactId:
           type: string
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
-          
+
     DigitalSuccessWorkflowDetails:
       type: object
       required:
@@ -350,7 +350,7 @@ components:
           description: Data evento
           format: date-time
 
-    NotificationViewedDetails:
+    NotificationViewedDetailsV23:
       type: object
       required:
         - recIndex
@@ -796,7 +796,7 @@ components:
         registeredLetterCode:
           type: string
           description: Codice della raccomandata
-          
+
 
     BaseRegisteredLetterDetails:
       type: object
@@ -864,7 +864,7 @@ components:
           type: integer
           description: numero di pagine del PDF generato
           format: int32
-    
+
     AarGenerationDetails:
       type: object
       required:
@@ -934,7 +934,7 @@ components:
           type: boolean
           description: Indica se la data di pagamento é certa
 
-    SendAnalogProgressDetails:
+    SendAnalogProgressDetailsV23:
       type: object
       required:
         - recIndex
@@ -1097,14 +1097,14 @@ components:
       enum:
         - AR_REGISTERED_LETTER
         - REGISTERED_LETTER_890
-          
+
     ResponseStatus:
       type: string
       description: stato risposta ricevuta da externalChannel
       enum:
         - OK
         - KO
-    
+
     ContactPhase:
       type: string
       description: Fase in cui è avvenuta la richiesta
@@ -1125,7 +1125,7 @@ components:
       enum:
         - SUCCESS
         - FAILURE
-    
+
     SendingReceipt:
       type: object
       properties:

@@ -5,7 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV23;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class SmartMapper {
     private SmartMapper (){}
 
 
-    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV20> addressDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV23> addressDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getNewAddress());
@@ -38,28 +38,28 @@ public class SmartMapper {
     };
 
 
-    static PropertyMap<NotificationViewedDetailsInt, TimelineElementDetailsV20> notificationViewedDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<NotificationViewedDetailsInt, TimelineElementDetailsV23> notificationViewedDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getEventTimestamp());
         }
     };
 
-    static PropertyMap<SendDigitalProgressDetailsInt, TimelineElementDetailsV20> sendDigitalProgressDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<SendDigitalProgressDetailsInt, TimelineElementDetailsV23> sendDigitalProgressDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getEventTimestamp());
         }
     };
 
-    static PropertyMap<NotificationPaidDetailsInt, TimelineElementDetailsV20> notificationPaidDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<NotificationPaidDetailsInt, TimelineElementDetailsV23> notificationPaidDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getEventTimestamp());
         }
     };
 
-    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV20> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
+    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV23> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getPhysicalAddress());
@@ -93,8 +93,8 @@ public class SmartMapper {
 
         List<BiFunction> postMappingTransformers = new ArrayList<>();
         postMappingTransformers.add( (source, result)-> {
-            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV20){
-                ((TimelineElementDetailsV20) result).setNotRefinedRecipientIndexes(null);
+            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV23){
+                ((TimelineElementDetailsV23) result).setNotRefinedRecipientIndexes(null);
             }
             return result;
         });
