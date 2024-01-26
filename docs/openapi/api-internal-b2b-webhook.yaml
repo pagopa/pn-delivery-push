@@ -416,14 +416,14 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/StreamCreationRequestV22"
+                $ref: "#/components/schemas/StreamCreationRequestV23"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV22"
+                $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
           content:
@@ -485,7 +485,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV22"
+                $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
           content:
@@ -510,14 +510,14 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/StreamRequestV22"
+                $ref: "#/components/schemas/StreamRequestV23"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV22"
+                $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
           content:
@@ -579,7 +579,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV22"
+                $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
           content:
@@ -631,7 +631,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProgressResponseV22"
+                $ref: "#/components/schemas/ProgressResponseV23"
         '429':
           description: Too Many Requests
           headers:
@@ -766,11 +766,11 @@ components:
     ############################################################################################
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
-    StreamCreationRequestV22:
+    StreamCreationRequestV23:
       description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV22'
+        - $ref: '#/components/schemas/StreamRequestV23'
         - type: object
           properties:
             replacedStreamId:
@@ -783,7 +783,7 @@ components:
               type: string
               format: uuid
 
-    StreamRequestV22:
+    StreamRequestV23:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di eventi di avanzamento delle notifiche.
         L'aggiornamento delle proprietà dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi.
@@ -831,10 +831,10 @@ components:
       description: >-
         Identificativo del gruppo.
     
-    StreamMetadataResponseV22:
+    StreamMetadataResponseV23:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV22'
+        - $ref: '#/components/schemas/StreamRequestV23'
         - type: object
           required:
             - streamId
@@ -891,12 +891,12 @@ components:
     ###  - EVENTI GENERATI DA PN
     ###################################
 
-    ProgressResponseV22:
+    ProgressResponseV23:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV22'
+        $ref: '#/components/schemas/ProgressResponseElementV23'
 
-    ProgressResponseElementV22:
+    ProgressResponseElementV23:
       type: object
       required:
         - eventId
@@ -920,7 +920,7 @@ components:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         element:
           $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
-        # proprietà necessarie per retrocompatibilità nel transitorio, ma che non saranno esposte nella V22 # NO EXTERNAL
+        # proprietà necessarie per retrocompatibilità nel transitorio, ma che non saranno esposte nella V23 # NO EXTERNAL
         # potranno essere eliminate quando non saranno più presenti eventi della v1                        # NO EXTERNAL
         timestamp:                                                                                         # NO EXTERNAL
           type: string                                                                                     # NO EXTERNAL
