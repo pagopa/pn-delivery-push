@@ -31,6 +31,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationRefusedMapper;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -41,8 +42,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -193,5 +192,14 @@ public class WebhookUtils {
         private StatusService.NotificationStatusUpdate notificationStatusUpdate;
         private TimelineElementInternal event;
         private NotificationInt notificationInt;
+    }
+
+    public static boolean checkGroups(List<String> toCheckGroups, List<String> allowedGroups){
+        return (isEmpty(toCheckGroups) && isEmpty(allowedGroups)) ||
+            allowedGroups.containsAll(toCheckGroups);
+    }
+
+    private static boolean isEmpty(List list){
+        return list == null || list.isEmpty();
     }
 }

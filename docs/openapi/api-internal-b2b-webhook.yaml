@@ -350,6 +350,7 @@ paths:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
+      - $ref: '#/components/parameters/cxGroupsAuthFleet'     # NO EXTERNAL IVAN: chiedere a fabrizio, lo schema lo definisce required false
     post:
       summary: Crea nuovo stream di eventi
       description: >-
@@ -366,14 +367,14 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/StreamCreationRequest"
+                $ref: "#/components/schemas/StreamCreationRequestv23"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponse"
+                $ref: "#/components/schemas/StreamMetadataResponsev23"
         '400':
           description: Invalid input
           content:
@@ -418,7 +419,8 @@ paths:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
-      - $ref: '#/components/parameters/pathStreamId'        
+      - $ref: '#/components/parameters/cxGroupsAuthFleet'     # NO EXTERNAL IVAN: chiedere a fabrizio, lo schema lo definisce required false
+      - $ref: '#/components/parameters/pathStreamId'
     get:
       summary: Leggi metadati dello stream
       description: >-
@@ -433,7 +435,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponse"
+                $ref: "#/components/schemas/StreamMetadataResponsev23"
         '400':
           description: Invalid input
           content:
@@ -458,14 +460,14 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/StreamCreationRequest"
+                $ref: "#/components/schemas/StreamUpdateRequestv23"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponse"
+                $ref: "#/components/schemas/StreamMetadataResponsev23"
         '400':
           description: Invalid input
           content:
@@ -623,7 +625,8 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'    # NO EXTERNAL
     uidAuthFleet:                                                                                                                                               # NO EXTERNAL
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'     # NO EXTERNAL
-
+    cxGroupsAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroupsAuthFleet'     # NO EXTERNAL
 
     ############################################################################################
     ###                                   PARAMETRI STREAMS                                  ###
@@ -687,7 +690,36 @@ components:
             minLength: 4
             maxLength: 256
             pattern: ^[A-Z_]+$
-    
+    StreamCreationRequestv23:
+      description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche.
+      type: object
+      required:
+        - title
+        - eventType
+      properties:
+        title:
+          description: Nome sintetico dello stream
+          type: string
+          maxLength: 256
+          pattern: ^.*$
+        eventType:
+          description: |-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        filterValues:
+          description: rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi a v1
+          type: array
+          items:
+            type: string
+            minLength: 4
+            maxLength: 256
+            pattern: ^[A-Z_]+$
+
     StreamMetadataResponse:
       description: Configurazioni di un flusso di eventi
       allOf:
@@ -707,7 +739,53 @@ components:
               description: Timestamp in cui il flusso di eventi è stato attivato
               type: string
               format: date-time
-    
+    StreamMetadataResponsev23:
+      description: Configurazioni di un flusso di eventi
+      allOf:
+        - $ref: '#/components/schemas/StreamCreationRequestv23'
+        - type: object
+          required:
+            - streamId
+            - activationDate
+          properties:
+            streamId:
+              description: Identificativo del flusso di eventi
+              type: string
+              format: uuid
+            activationDate:
+              description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
+    StreamUpdateRequestv23:
+      description: Richiesta di aggiornamento di uno stream di eventi di avanzamento delle notifiche.
+      type: object
+      required:
+        - title
+        - eventType
+      properties:
+        title:
+          description: Nome sintetico dello stream
+          type: string
+          maxLength: 256
+          pattern: ^.*$
+        eventType:
+          description: |-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        filterValues:
+          description: rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi a v1
+          type: array
+          items:
+            type: string
+            minLength: 4
+            maxLength: 256
+            pattern: ^[A-Z_]+$
+
     StreamListResponse:
       description: Elenco di flussi di eventi
       type: array
@@ -774,6 +852,68 @@ components:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
 #          apparentemente non retrocompatibile ma gli stream continueranno a mandare category della versione 1 fino ad esplicita modifica delle config da parte della PA
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20'
+        recipientIndex:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Indice del destinatario al quale si riferisce l'evento
+        analogCost:
+          type: integer
+          format: int32
+          description: Eventuale costo in eurocent associato all'evento
+        channel:
+          type: string
+          description: >-
+            Canale a cui si riferisce l'evento. I valori previsti sono:
+            - Per eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL
+            - Per eventi legati all'invio digitale: PEC
+            - Per eventi legati all'invio analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890
+            - Per eventi legati all'invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER
+
+        legalfactIds:
+          type: array
+          items:
+            type: string
+          example: ["PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q", "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"]
+          description: chiavi degli eventuali allegati associati all'evento
+
+        validationErrors:
+          type: array
+          description: eventuali errori di validazione associati all'evento
+          items:
+            $ref: '#/components/schemas/RefusedReason'
+
+    ProgressResponseElementv23:
+      type: object
+      required:
+        - eventId
+        - timestamp
+      properties:
+        eventId:
+          description: >-
+            Elemento che garantisce univocità e ordinamento temporale all'interno dello stream
+          type: string
+        timestamp:
+          description: Istante a cui è avvenuto l'evento
+          type: string
+          format: date-time
+
+        notificationRequestId:
+          description: Identificativo della richiesta di notifica
+          type: string
+        iun:
+          description: >-
+            Identificativo della notifica, presente solo se la richiesta di notifica è 
+            stata accettata.
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+
+        newStatus:
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+        timelineEventCategory:
+          #          apparentemente non retrocompatibile ma gli stream continueranno a mandare category della versione 1 fino ad esplicita modifica delle config da parte della PA
           $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20'
         recipientIndex:
           type: integer

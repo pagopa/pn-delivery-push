@@ -5,7 +5,10 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
-import it.pagopa.pn.deliverypush.service.WebhookService;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponsev23;
+import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
+import java.util.Collections;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,9 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.UUID;
-
 
 @WebFluxTest(PnWebhookStreamsController.class)
 class PnWebhookStreamsControllerTest {
@@ -29,13 +29,13 @@ class PnWebhookStreamsControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private WebhookService service;
+    private WebhookStreamsService service;
 
     @Test
     void createEventStreamOk() {
 
-        Mockito.when(service.createEventStream(Mockito.anyString(), Mockito.any()))
-                .thenReturn(Mono.just(new StreamMetadataResponse()));
+        Mockito.when(service.createEventStream(Mockito.anyString(), Mockito.any(),Mockito.anyString(), Mockito.any()))
+                .thenReturn(Mono.just(new StreamMetadataResponsev23()));
         StreamCreationRequest request = StreamCreationRequest.builder()
                 .eventType(StreamCreationRequest.EventTypeEnum.STATUS)
                 .build();
@@ -55,12 +55,12 @@ class PnWebhookStreamsControllerTest {
                 .expectStatus().isOk()
                 .expectBody(StreamMetadataResponse.class);
 
-        Mockito.verify(service).createEventStream(Mockito.anyString(), Mockito.any());
+        Mockito.verify(service).createEventStream(Mockito.anyString(), Mockito.any(),Mockito.anyString(), Mockito.any());
     }
 
     @Test
     void createEventStreamKoRuntimeEx() {
-        Mockito.when(service.createEventStream(Mockito.anyString(), Mockito.any()))
+        Mockito.when(service.createEventStream(Mockito.anyString(), Mockito.any(),Mockito.anyString(), Mockito.any()))
                 .thenThrow(new RuntimeException());
 
         webTestClient.post()
@@ -87,7 +87,7 @@ class PnWebhookStreamsControllerTest {
     @Test
     void deleteEventStream() {
         String streamId = UUID.randomUUID().toString();
-        Mockito.when(service.deleteEventStream(Mockito.anyString(), Mockito.any(UUID.class)))
+        Mockito.when(service.deleteEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class)))
                 .thenReturn(Mono.empty());
 
         webTestClient.delete()
@@ -102,13 +102,13 @@ class PnWebhookStreamsControllerTest {
                 .exchange()
                 .expectStatus().isNoContent();
 
-        Mockito.verify(service).deleteEventStream(Mockito.anyString(), Mockito.any(UUID.class));
+        Mockito.verify(service).deleteEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class));
     }
     
     @Test
     void deleteEventStreamKoRuntime() {
         String streamId = UUID.randomUUID().toString();
-        Mockito.when(service.deleteEventStream(Mockito.anyString(), Mockito.any(UUID.class)))
+        Mockito.when(service.deleteEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class)))
                 .thenThrow(new NullPointerException());
 
         webTestClient.delete()
@@ -134,8 +134,8 @@ class PnWebhookStreamsControllerTest {
     @Test
     void getEventStream() {
         String streamId = UUID.randomUUID().toString();
-        Mockito.when(service.getEventStream(Mockito.anyString(), Mockito.any()))
-                .thenReturn(Mono.just(new StreamMetadataResponse()));
+        Mockito.when(service.getEventStream(Mockito.anyString(), Mockito.any(),Mockito.anyString(), Mockito.any(UUID.class)))
+                .thenReturn(Mono.just(new StreamMetadataResponsev23()));
 
         webTestClient.get()
                 .uri( "/delivery-progresses/streams/{streamId}".replace("{streamId}", streamId) )
@@ -150,13 +150,13 @@ class PnWebhookStreamsControllerTest {
                 .expectStatus().isOk()
                 .expectBody(StreamMetadataResponse.class);
 
-        Mockito.verify(service).getEventStream(Mockito.anyString(), Mockito.any(UUID.class));
+        Mockito.verify(service).getEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class));
     }
 
     @Test
     void getEventStreamKoRuntime() {
         String streamId = UUID.randomUUID().toString();
-        Mockito.when(service.getEventStream(Mockito.anyString(), Mockito.any()))
+        Mockito.when(service.getEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class)))
                 .thenThrow(new NullPointerException());
 
         webTestClient.get()
@@ -194,14 +194,14 @@ class PnWebhookStreamsControllerTest {
                 .expectStatus().isOk()
                 .expectBodyList(StreamListElement.class);
 
-        Mockito.verify(service).listEventStream(Mockito.anyString());
+        Mockito.verify(service).listEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString());
     }
 
     @Test
     void updateEventStream() {
         String streamId = UUID.randomUUID().toString();
-        Mockito.when(service.updateEventStream(Mockito.anyString(), Mockito.any(UUID.class), Mockito.any()))
-                .thenReturn(Mono.just(new StreamMetadataResponse()));
+        Mockito.when(service.updateEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class), Mockito.any()))
+                .thenReturn(Mono.just(new StreamMetadataResponsev23()));
 
         webTestClient.put()
                 .uri( "/delivery-progresses/streams/{streamId}".replace("{streamId}", streamId) )
@@ -217,13 +217,13 @@ class PnWebhookStreamsControllerTest {
                 .expectStatus().isOk()
                 .expectBody(StreamMetadataResponse.class);
 
-        Mockito.verify(service).updateEventStream(Mockito.anyString(), Mockito.any(UUID.class), Mockito.any());
+        Mockito.verify(service).updateEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class), Mockito.any());
     }
 
     @Test
     void updateEventStreamKoRuntimeEx() {
         String streamId = UUID.randomUUID().toString();
-        Mockito.when(service.updateEventStream(Mockito.anyString(), Mockito.any(UUID.class), Mockito.any()))
+        Mockito.when(service.updateEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class), Mockito.any()))
                 .thenThrow(new NullPointerException());
 
         webTestClient.put()
