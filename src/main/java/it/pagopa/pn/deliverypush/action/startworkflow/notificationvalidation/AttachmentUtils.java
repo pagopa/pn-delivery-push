@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
@@ -22,7 +21,9 @@ import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
@@ -266,9 +267,8 @@ public class AttachmentUtils {
     }
 
     private Integer retrieveCost(NotificationInt notificationInt, int recipientIdx) {
-        return notificationProcessCostService.notificationProcessCost(notificationInt.getIun(), recipientIdx, notificationInt.getNotificationFeePolicy(), true, notificationInt.getPaFee())
-                    .map(NotificationProcessCost::getCost)
-                    .block();
+        return notificationProcessCostService.notificationProcessCostF24(notificationInt.getIun(), recipientIdx, notificationInt.getNotificationFeePolicy(), true, notificationInt.getPaFee(), notificationInt.getVat())
+                .block();
     }
 
     private boolean checkIsPDF(byte[] data) {

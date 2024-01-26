@@ -34,14 +34,15 @@ public class PnNotificationProcessCostController implements NotificationProcessC
             log.warn("Notification already cancelled, returning 404 iun={} recIdx={}", iun, recIndex);
             throw new PnNotificationCancelledException();
         }
-
-        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee)
+        
+        //TODO Aggiornare il valore del campo vat con quello che si riceverà in ingresso dal WS
+        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee, null)
                 .map(response -> ResponseEntity.ok().body(mapResponse(response)));
     }
 
     private NotificationProcessCostResponse mapResponse(NotificationProcessCost response) {
         return NotificationProcessCostResponse.builder()
-        .amount(response.getCost())
+        .amount(null) //TODO Modificare con i valori corretti
         .refinementDate(response.getRefinementDate())
         .notificationViewDate(response.getNotificationViewDate())
         .build();
