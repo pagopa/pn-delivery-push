@@ -921,7 +921,7 @@ components:
         element:
           $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
         # proprietà necessarie per retrocompatibilità nel transitorio, ma che non saranno esposte nella V23 # NO EXTERNAL
-        # potranno essere eliminate quando non saranno più presenti eventi della v1                        # NO EXTERNAL
+        # potranno essere eliminate (assieme al RefusedReason) quando non saranno più presenti eventi della v1 # NO EXTERNAL
         timestamp:                                                                                         # NO EXTERNAL
           type: string                                                                                     # NO EXTERNAL
           format: date-time                                                                                # NO EXTERNAL
@@ -936,9 +936,26 @@ components:
           format: int32                                                                                    # NO EXTERNAL
         channel:                                                                                           # NO EXTERNAL
           type: string                                                                                     # NO EXTERNAL
+        legalfactIds:                                                                                      # NO EXTERNAL
+          type: array                                                                                      # NO EXTERNAL
+          items:                                                                                           # NO EXTERNAL
+            type: string                                                                                   # NO EXTERNAL
+          example: ["PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q", "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"]  # NO EXTERNAL
+          description: chiavi degli eventuali allegati associati all'evento                                # NO EXTERNAL
+        validationErrors:                                                                                  # NO EXTERNAL
+          type: array                                                                                      # NO EXTERNAL
+          description: eventuali errori di validazione associati all'evento                                # NO EXTERNAL
+          items:                                                                                           # NO EXTERNAL
+            $ref: '#/components/schemas/RefusedReason'                                                     # NO EXTERNAL
 
+    RefusedReason:                                                                                         # NO EXTERNAL
+      type: object                                                                                         # NO EXTERNAL
+      properties:                                                                                          # NO EXTERNAL
+        errorCode:                                                                                         # NO EXTERNAL
+          type: string                                                                                     # NO EXTERNAL
+        detail:                                                                                            # NO EXTERNAL
+          type: string                                                                                     # NO EXTERNAL
 
-    
     ###  - EVENTI GENERATI DALLA P.A.
     ###################################
     ExternalEventsRequest:                                                              # NOT YET IMPLEMENTED
