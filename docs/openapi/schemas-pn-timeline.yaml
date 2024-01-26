@@ -4,7 +4,7 @@ components:
     TimelineElementId:
       type: string
     
-    TimelineElementCategoryV20:
+    TimelineElementCategoryV23:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
@@ -28,7 +28,7 @@ components:
           * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
           * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
           * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
-          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo 
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
           * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
@@ -41,7 +41,7 @@ components:
           * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
           * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
-          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
@@ -49,6 +49,7 @@ components:
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+          * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
 #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
 #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
 #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
@@ -94,15 +95,16 @@ components:
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
+        - NOTIFICATION_RADD_RETRIEVED
 
-    TimelineElementV20:
+    TimelineElementV23:
       type: object
       additionalProperties: false
       properties:
         elementId:
           type: string
           description: >-
-            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in 
+            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in
             maniera univoca l'elemento di timeline
         timestamp:
           type: string
@@ -117,11 +119,11 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV20'
+          $ref: '#/components/schemas/TimelineElementCategoryV23'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV20'
+          $ref: '#/components/schemas/TimelineElementDetailsV23'
 
-    TimelineElementDetailsV20:
+    TimelineElementDetailsV23:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
@@ -136,11 +138,12 @@ components:
         - "$ref": "#/components/schemas/DigitalSuccessWorkflowDetails"
         - "$ref": "#/components/schemas/GetAddressInfoDetails"
         - "$ref": "#/components/schemas/NotificationViewedCreationRequestDetails"
-        - "$ref": "#/components/schemas/NotificationViewedDetails"
+        - "$ref": "#/components/schemas/NotificationViewedDetailsV23"
+        - "$ref": "#/components/schemas/NotificationRADDRetrievedDetails"
         - "$ref": "#/components/schemas/PublicRegistryCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
         - "$ref": "#/components/schemas/RefinementDetails"
-        - "$ref": "#/components/schemas/RequestRefusedDetailsV20"
+        - "$ref": "#/components/schemas/RequestRefusedDetailsV23"
         - "$ref": "#/components/schemas/ScheduleAnalogWorkflowDetails"
         - "$ref": "#/components/schemas/ScheduleDigitalWorkflowDetails"
         - "$ref": "#/components/schemas/ScheduleRefinementDetails"
@@ -157,8 +160,8 @@ components:
         - "$ref": "#/components/schemas/AarCreationRequestDetails"
         - "$ref": "#/components/schemas/AarGenerationDetails"
         - "$ref": "#/components/schemas/NotHandledDetails"
-        - "$ref": "#/components/schemas/NotificationPaidDetailsV20"
-        - "$ref": "#/components/schemas/SendAnalogProgressDetails"
+        - "$ref": "#/components/schemas/NotificationPaidDetailsV23"
+        - "$ref": "#/components/schemas/SendAnalogProgressDetailsV23"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterProgressDetails"
         - "$ref": "#/components/schemas/ProbableDateAnalogWorkflowDetails"
         - "$ref": "#/components/schemas/NotificationCancellationRequestDetails"
@@ -250,7 +253,7 @@ components:
         legalfactId:
           type: string
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
-          
+
     DigitalSuccessWorkflowDetails:
       type: object
       required:
@@ -322,8 +325,32 @@ components:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
           $ref: '#/components/schemas/DelegateInfo'
-        
-    NotificationViewedDetails:
+
+    NotificationRADDRetrievedDetails:
+      type: object
+      required:
+        - recIndex
+        - raddType
+        - raddTransactionId
+        - eventTimestamp
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        coverFileKey:
+          type: string
+          description: Chiave per recupero da safe-storage del documento copertina stampato da RADD
+        eventTimestamp:
+          type: string
+          description: Data evento
+          format: date-time
+
+    NotificationViewedDetailsV23:
       type: object
       required:
         - recIndex
@@ -343,6 +370,10 @@ components:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
           $ref: '#/components/schemas/DelegateInfo'
+        eventTimestamp:
+          type: string
+          description: Data evento visualizzazione
+          format: date-time
 
     PublicRegistryCallDetails:
       type: object
@@ -399,14 +430,14 @@ components:
           type: integer
           format: int64
 
-    RequestRefusedDetailsV20:
+    RequestRefusedDetailsV23:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedErrorV20'
+            $ref: '#/components/schemas/NotificationRefusedErrorV23'
 
     ScheduleAnalogWorkflowDetails:
       type: object
@@ -765,7 +796,7 @@ components:
         registeredLetterCode:
           type: string
           description: Codice della raccomandata
-          
+
 
     BaseRegisteredLetterDetails:
       type: object
@@ -833,7 +864,7 @@ components:
           type: integer
           description: numero di pagine del PDF generato
           format: int32
-    
+
     AarGenerationDetails:
       type: object
       required:
@@ -871,7 +902,7 @@ components:
           type: string
           description: Motivazione casistica non gestita
 
-    NotificationPaidDetailsV20:
+    NotificationPaidDetailsV23:
       type: object
       required:
         - recIndex
@@ -903,7 +934,7 @@ components:
           type: boolean
           description: Indica se la data di pagamento é certa
 
-    SendAnalogProgressDetails:
+    SendAnalogProgressDetailsV23:
       type: object
       required:
         - recIndex
@@ -931,6 +962,9 @@ components:
         registeredLetterCode:
           type: string
           description: Codice della raccomandata
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+
 
     SimpleRegisteredLetterProgressDetails:
       type: object
@@ -1063,14 +1097,14 @@ components:
       enum:
         - AR_REGISTERED_LETTER
         - REGISTERED_LETTER_890
-          
+
     ResponseStatus:
       type: string
       description: stato risposta ricevuta da externalChannel
       enum:
         - OK
         - KO
-    
+
     ContactPhase:
       type: string
       description: Fase in cui è avvenuta la richiesta
@@ -1091,7 +1125,7 @@ components:
       enum:
         - SUCCESS
         - FAILURE
-    
+
     SendingReceipt:
       type: object
       properties:
@@ -1105,6 +1139,7 @@ components:
       description: |
         tipo di Rete Anti Digital Divide <br/>
         __FSU__: Fornitore Servizio Universale <br/>
+        __ALT__: Fornitore RADD Alternativa <br/>
 
     RaddTransactionId:
       type: string
@@ -1155,7 +1190,7 @@ components:
           type: string
           format: date-time
 
-    NotificationRefusedErrorV20:
+    NotificationRefusedErrorV23:
       type: object
       properties:
         errorCode:
