@@ -43,6 +43,9 @@
     "AttachmentRetentionTimeAfterValidation": "3m",
     "CheckAttachmentTimeBeforeExpiration": "1m",
     "AttachmentTimeToAddAfterExpiration": "120d",
-    "SendMoreThan20GramsDefaultValue": "false"
+    "SendMoreThan20GramsDefaultValue": "false",
+    "PnCronAnalyzer": "* */1 * * * *",
+    "WireTapLogActivation": "false",
+    "MountEfs": "false"
   }
 }
