@@ -1,19 +1,18 @@
 package it.pagopa.pn.deliverypush.config;
 
+import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
+
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.unit.DataSize;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-
-import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
@@ -110,7 +109,8 @@ public class PnDeliveryPushConfigs {
     private List<String> paperSendMode;
     //quickWorkAroundForPN-9116
     private boolean sendMoreThan20GramsDefaultValue;
-    
+
+    private long disableTtl;
     @Data
     public static class Topics {
 

@@ -14,14 +14,16 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToSt
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
 @Service
 @Slf4j
@@ -48,8 +50,14 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     @Override
     public Mono<StreamMetadataResponseV23> createEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, Mono<StreamCreationRequestV23> streamCreationRequest) {
         return streamCreationRequest
-            .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), r))
-            .flatMap(dto -> streamEntityDao.findByPa(xPagopaPnCxId)
+            .map(r -> Tuples.of (DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), r)
+                , r.getReplacedStreamId() != null ? r.getReplacedStreamId().toString() : ""))
+            .flatMap(t2 -> {
+
+                if (StringUtils.isNotBlank(t2.getT2())){
+                    disableEventStream(xPagopaPnCxId,xPagopaPnCxGroups,xPagopaPnApiVersion,UUID.fromString(t2.getT2()));
+                }
+                return streamEntityDao.findByPa(xPagopaPnCxId)
                 .collectList().flatMap(list -> {
                     if (list.size() >= maxStreams) {
                         return Mono.error(new PnWebhookMaxStreamsCountReachedException());
@@ -57,7 +65,8 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                     else {
                         return Mono.empty();
                     }
-                }).thenReturn(dto))
+                }).thenReturn(t2.getT1());
+            })
             .flatMap(streamEntityDao::save)
             .map(EntityToDtoStreamMapper::entityToDto);
     }
@@ -65,9 +74,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     @Override
     public Mono<Void> deleteEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
 
-        //IVAN: qui dobbiamo inserire check su permessi gruppo?
         return filterEntity(xPagopaPnCxId,xPagopaPnCxGroups,streamId)
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + String.join(",",xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)))
             .flatMap(filteredEntity ->
                  streamEntityDao.delete(xPagopaPnCxId, streamId.toString())
                     .then(Mono.fromSupplier(() -> {
@@ -91,8 +98,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     @Override
     public Mono<StreamMetadataResponseV23> updateEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId, Mono<StreamRequestV23> streamRequest) {
 
-        return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to update this streamId " + streamId)))
+        return filterEntity(xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .then(streamRequest)
             .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
             .map(entity -> {
@@ -105,7 +111,14 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     @Override
     public Mono<StreamMetadataResponseV23> disableEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
-        throw new NotImplementedException("da fare!");
+        return filterEntity(xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+            .filter(streamEntity -> streamEntity.getDisabledDate() == null)
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled")))
+            .flatMap(filteredEntity ->{
+                filteredEntity.setDisabledDate(Instant.now());
+                filteredEntity.setTtl(10000L + pnDeliveryPushConfigs.getDisableTtl());//TODO: IVAN: "attuale scadenza degli eventi"?
+                return streamEntityDao.save(filteredEntity);
+            }).map(EntityToDtoStreamMapper::entityToDto);
     }
 
 }

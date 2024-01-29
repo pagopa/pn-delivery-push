@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamRequestV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
+import it.pagopa.pn.deliverypush.utils.Constants;
 import java.util.Set;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,8 @@ public class DtoToEntityStreamMapper {
         StreamEntity streamEntity = new StreamEntity(paId, streamId);
         streamEntity.setEventType(dto.getEventType().getValue());
         streamEntity.setTitle(dto.getTitle());
+        streamEntity.setVersion(Constants.API_CURR_VERSION);
+        streamEntity.setGroups(dto.getGroups());
         if (dto.getFilterValues() != null && !dto.getFilterValues().isEmpty())
             streamEntity.setFilterValues(Set.copyOf(dto.getFilterValues()));
         else

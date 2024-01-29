@@ -295,6 +295,9 @@ Resources:
         - AttributeName: "sortKey"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
