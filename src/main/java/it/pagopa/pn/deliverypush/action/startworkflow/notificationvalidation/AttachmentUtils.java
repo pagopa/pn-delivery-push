@@ -265,7 +265,7 @@ public class AttachmentUtils {
         Integer cost = null;
         Integer vat = null;
         
-        // Se almeno uno dei pagamenti F24 ha applyCost = true, devo calcolare il costo della notifica
+        // Se almeno uno dei pagamenti F24 ha applyCost = true, devo calcolare il costo della notifica e valorizzare il campo vat se presente
         if(f24PaymentsRequireCost) {
             cost = retrieveCost(notification, recIndex);
             vat = notification.getVat();
