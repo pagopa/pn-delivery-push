@@ -42,7 +42,7 @@ public class PnNotificationProcessCostController implements NotificationProcessC
 
     private NotificationProcessCostResponse mapResponse(NotificationProcessCost response) {
         return NotificationProcessCostResponse.builder()
-        .amount(null) //TODO Modificare con i valori corretti
+        .amount(response.getPartialCost()) //TODO Modificare con i valori corretti
         .refinementDate(response.getRefinementDate())
         .notificationViewDate(response.getNotificationViewDate())
         .build();

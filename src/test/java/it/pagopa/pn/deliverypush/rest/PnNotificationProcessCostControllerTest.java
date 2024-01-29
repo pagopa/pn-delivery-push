@@ -50,7 +50,7 @@ class PnNotificationProcessCostControllerTest {
 
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
 
-        Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, null, 22))
+        Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, null, null))
                 .thenReturn(Mono.just(notificationCost));
         
         webTestClient.get()
@@ -69,7 +69,7 @@ class PnNotificationProcessCostControllerTest {
                 elem -> {
                     NotificationProcessCostResponse response = elem.getResponseBody();
                     assert response != null;
-                    Assertions.assertEquals(notificationCost.getTotalCost(),response.getAmount());
+                    Assertions.assertEquals(notificationCost.getPartialCost(),response.getAmount());
                     Assertions.assertEquals(notificationCost.getNotificationViewDate(),response.getNotificationViewDate());
                     Assertions.assertEquals(notificationCost.getRefinementDate(),response.getRefinementDate());
                 }

@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
@@ -22,7 +21,10 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -59,8 +61,7 @@ class AttachmentUtilsTest {
         safeStorageService = Mockito.mock(SafeStorageService.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         NotificationProcessCostService notificationProcessCostService = Mockito.mock(NotificationProcessCostService.class);
-        NotificationProcessCost procesCost = NotificationProcessCost.builder().partialCost(1).totalCost(2).build();
-        Mockito.when(notificationProcessCostService.notificationProcessCost(any(), anyInt(), any(), anyBoolean(), anyInt(), anyInt())).thenReturn(Mono.just(procesCost));
+        Mockito.when(notificationProcessCostService.notificationProcessCostF24(any(), anyInt(), any(), anyInt(), anyInt())).thenReturn(Mono.just(2));
         attachmentUtils = new AttachmentUtils(safeStorageService, pnDeliveryPushConfigs, notificationProcessCostService);
         notificationUtils = Mockito.mock(NotificationUtils.class);
     }
@@ -384,7 +385,8 @@ class AttachmentUtilsTest {
         //WHEN
         List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, true, Collections.emptyList());
         List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, false, Collections.emptyList());
-
+        
+        //THEN
         Assertions.assertEquals(3, attachmentsRecipient1.size());
         Assertions.assertEquals(2, attachmentsRecipient2.size());
         Assertions.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
@@ -536,6 +538,7 @@ class AttachmentUtilsTest {
                 .paProtocolNumber("302011681384967158")
                 .subject("notifica analogica con cucumber")
                 .paFee(1)
+                .vat(22)
                 .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER)
                 .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .documents(List.of(NotificationDocumentInt.builder()
