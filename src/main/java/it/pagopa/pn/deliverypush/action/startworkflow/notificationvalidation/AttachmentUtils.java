@@ -267,7 +267,7 @@ public class AttachmentUtils {
     }
 
     private Integer retrieveCost(NotificationInt notificationInt, int recipientIdx) {
-        return notificationProcessCostService.notificationProcessCostF24(notificationInt.getIun(), recipientIdx, notificationInt.getNotificationFeePolicy(), true, notificationInt.getPaFee(), notificationInt.getVat())
+        return notificationProcessCostService.notificationProcessCostF24(notificationInt.getIun(), recipientIdx, notificationInt.getNotificationFeePolicy(), notificationInt.getPaFee(), notificationInt.getVat())
                 .block();
     }
 
