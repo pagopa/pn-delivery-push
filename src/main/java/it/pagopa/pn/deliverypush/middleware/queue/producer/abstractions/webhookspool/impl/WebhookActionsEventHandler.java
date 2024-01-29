@@ -1,25 +1,22 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_WEBHOOK_EVENTFAILED;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
-import it.pagopa.pn.deliverypush.service.WebhookService;
+import it.pagopa.pn.deliverypush.service.WebhookEventsService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_WEBHOOK_EVENTFAILED;
-
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class WebhookActionsEventHandler {
 
-    private final WebhookService webhookService;
-
-    public WebhookActionsEventHandler(WebhookService webhookService) {
-        this.webhookService = webhookService;
-    }
+    private final WebhookEventsService webhookService;
 
     public void handleEvent(WebhookAction evt ) {
         log.info( "Received WEBHOOK-ACTION actionType={}", evt.getType());

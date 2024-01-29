@@ -3,10 +3,10 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestv23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponsev23;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamUpdateRequestv23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamRequestV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.DtoToEntityStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoStreamMapper;
@@ -46,7 +46,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
     }
     @Override
-    public Mono<StreamMetadataResponsev23> createEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, Mono<StreamCreationRequestv23> streamCreationRequest) {
+    public Mono<StreamMetadataResponseV23> createEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, Mono<StreamCreationRequestV23> streamCreationRequest) {
         return streamCreationRequest
             .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), r))
             .flatMap(dto -> streamEntityDao.findByPa(xPagopaPnCxId)
@@ -77,7 +77,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     }
 
     @Override
-    public Mono<StreamMetadataResponsev23> getEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
+    public Mono<StreamMetadataResponseV23> getEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
             .map(EntityToDtoStreamMapper::entityToDto);
     }
@@ -88,16 +88,12 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
             .map(EntityToStreamListDtoStreamMapper::entityToDto);
     }
 
-    //IVAN: Qui abbiamo introdotto lo StreamUpdateRequest ... prima veniva utilizzato StreamCreationRequest, corretto?
     @Override
-    public Mono<StreamMetadataResponsev23> updateEventStream(String xPagopaPnCxId,
-        List<String> xPagopaPnCxGroups,
-        String xPagopaPnApiVersion,
-        UUID streamId,
-        Mono<StreamUpdateRequestv23> streamUpdateRequest) {
+    public Mono<StreamMetadataResponseV23> updateEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId, Mono<StreamRequestV23> streamRequest) {
+
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to update this streamId " + streamId)))
-            .then(streamUpdateRequest)
+            .then(streamRequest)
             .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
             .map(entity -> {
                 entity.setEventAtomicCounter(null);
@@ -108,7 +104,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     }
 
     @Override
-    public Mono<StreamMetadataResponsev23> disableEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
+    public Mono<StreamMetadataResponseV23> disableEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
         throw new NotImplementedException("da fare!");
     }
 

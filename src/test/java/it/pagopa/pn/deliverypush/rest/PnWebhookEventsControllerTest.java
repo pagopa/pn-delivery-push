@@ -4,11 +4,14 @@ import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategoryV20;
-import it.pagopa.pn.deliverypush.service.WebhookService;
+import it.pagopa.pn.deliverypush.service.WebhookEventsService;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
 @WebFluxTest(PnWebhookEventsController.class)
 class PnWebhookEventsControllerTest {
 
@@ -32,12 +30,12 @@ class PnWebhookEventsControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private WebhookService service;
+    private WebhookEventsService service;
 
     @Test
     void consumeEventStreamOk() {
         String streamId = UUID.randomUUID().toString();
-        List<ProgressResponseElement> timelineElements = Collections.singletonList(ProgressResponseElement.builder()
+        List<ProgressResponseElementV23> timelineElements = Collections.singletonList(ProgressResponseElementV23.builder()
                 .timestamp( Instant.now() )
                 .eventId( "event_id" )
                 .iun("")
@@ -50,7 +48,7 @@ class PnWebhookEventsControllerTest {
                 .progressResponseElementList(timelineElements)
                 .build();
 
-        Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any()))
+        Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.anyString(),Mockito.any(UUID.class), Mockito.anyString()))
                 .thenReturn(Mono.just(dto ));
         Instant createdAt = Instant.now();
 
@@ -67,9 +65,9 @@ class PnWebhookEventsControllerTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().valueEquals("retry-after", "0")
-                .expectBodyList(ProgressResponseElement.class);
+                .expectBodyList(ProgressResponseElementV23.class);
 
-        Mockito.verify(service).consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any());
+        Mockito.verify(service).consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.anyString(),Mockito.any(UUID.class), Mockito.anyString());
 
     }
 
@@ -77,7 +75,7 @@ class PnWebhookEventsControllerTest {
     void consumeEventStreamKoRuntimeEx() {
         String streamId = UUID.randomUUID().toString();
 
-        Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any()))
+        Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.anyString(),Mockito.any(UUID.class), Mockito.anyString()))
                 .thenThrow(new NullPointerException());
 
         webTestClient.get()
@@ -103,7 +101,7 @@ class PnWebhookEventsControllerTest {
     @Test
     void consumeEventStreamKoBadRequest() {
 
-        Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any()))
+        Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.anyString(),Mockito.any(UUID.class), Mockito.anyString()))
                 .thenThrow(new NullPointerException());
 
         webTestClient.get()

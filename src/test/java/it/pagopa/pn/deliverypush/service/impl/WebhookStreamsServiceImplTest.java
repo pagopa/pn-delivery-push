@@ -9,14 +9,13 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDtov23;
+import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestv23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponsev23;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamUpdateRequestv23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamRequestV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.EventEntityBatch;
@@ -84,9 +83,9 @@ class WebhookStreamsServiceImplTest {
     void createEventStream() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
-        StreamCreationRequestv23 req = new StreamCreationRequestv23();
+        StreamCreationRequestV23 req = new StreamCreationRequestV23();
         req.setTitle("titolo");
-        req.setEventType(StreamCreationRequestv23.EventTypeEnum.STATUS);
+        req.setEventType(StreamCreationRequestV23.EventTypeEnum.STATUS);
         req.setFilterValues(null);
 
         String uuid = UUID.randomUUID().toString();
@@ -112,7 +111,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        StreamMetadataResponsev23 res = webhookStreamsService.createEventStream(xpagopacxid, null, "",Mono.just(req)).block(d);
+        StreamMetadataResponseV23 res = webhookStreamsService.createEventStream(xpagopacxid, null, "",Mono.just(req)).block(d);
 
         //THEN
         assertNotNull(res);
@@ -125,9 +124,9 @@ class WebhookStreamsServiceImplTest {
     void createEventStreamMaxReached() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
-        StreamCreationRequestv23 req = new StreamCreationRequestv23();
+        StreamCreationRequestV23 req = new StreamCreationRequestV23();
         req.setTitle("titolo");
-        req.setEventType(StreamCreationRequestv23.EventTypeEnum.STATUS);
+        req.setEventType(StreamCreationRequestV23.EventTypeEnum.STATUS);
         req.setFilterValues(null);
 
         String uuid = UUID.randomUUID().toString();
@@ -155,7 +154,7 @@ class WebhookStreamsServiceImplTest {
         Mockito.when(streamEntityDao.save(Mockito.any())).thenReturn(Mono.just(entity));
 
         //WHEN
-        Mono<StreamMetadataResponsev23> mono = webhookStreamsService.createEventStream(xpagopacxid, null,"",Mono.just(req));
+        Mono<StreamMetadataResponseV23> mono = webhookStreamsService.createEventStream(xpagopacxid, null,"",Mono.just(req));
         assertThrows(PnWebhookMaxStreamsCountReachedException.class, () -> mono.block(d));
 
         //THEN
@@ -194,9 +193,9 @@ class WebhookStreamsServiceImplTest {
     void updateEventStreamNotAllowed() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
-        StreamUpdateRequestv23 req = new StreamUpdateRequestv23();
+        StreamRequestV23 req = new StreamRequestV23();
         req.setTitle("titolo");
-        req.setEventType(StreamUpdateRequestv23.EventTypeEnum.STATUS);
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
         req.setFilterValues(null);
 
         UUID uuidd = UUID.randomUUID();
@@ -214,7 +213,7 @@ class WebhookStreamsServiceImplTest {
         Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
 
 
-        Mono<StreamMetadataResponsev23> mono = webhookStreamsService.updateEventStream(xpagopacxid, null,"",uuidd, Mono.just(req));
+        Mono<StreamMetadataResponseV23> mono = webhookStreamsService.updateEventStream(xpagopacxid, null,"",uuidd, Mono.just(req));
         assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
 
         //THEN
@@ -233,7 +232,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
 
@@ -242,7 +241,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        StreamMetadataResponsev23 res = webhookStreamsService.getEventStream(xpagopacxid, null,"",uuidd).block(d);
+        StreamMetadataResponseV23 res = webhookStreamsService.getEventStream(xpagopacxid, null,"",uuidd).block(d);
 
         //THEN
         assertNotNull(res);
@@ -261,7 +260,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
 
@@ -269,7 +268,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
 
@@ -293,9 +292,9 @@ class WebhookStreamsServiceImplTest {
     void updateEventStream() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
-        StreamUpdateRequestv23 req = new StreamUpdateRequestv23();
+        StreamRequestV23 req = new StreamRequestV23();
         req.setTitle("titolo");
-        req.setEventType(StreamUpdateRequestv23.EventTypeEnum.STATUS);
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
         req.setFilterValues(null);
 
         UUID uuidd = UUID.randomUUID();
@@ -314,7 +313,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        StreamMetadataResponsev23 res = webhookStreamsService.updateEventStream(xpagopacxid, null,"",uuidd, Mono.just(req)).block(d);
+        StreamMetadataResponseV23 res = webhookStreamsService.updateEventStream(xpagopacxid, null,"",uuidd, Mono.just(req)).block(d);
 
         //THEN
         assertNotNull(res);
@@ -335,7 +334,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
 
@@ -376,7 +375,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        ProgressResponseElementDtov23 res = webhookEventsService.consumeEventStream(xpagopacxid,null,"", uuidd, lasteventid, false).block(d);
+        ProgressResponseElementDto res = webhookEventsService.consumeEventStream(xpagopacxid,null,"", uuidd, lasteventid).block(d);
 
         //THEN
         assertNotNull(res);
@@ -399,7 +398,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
 
@@ -441,7 +440,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        ProgressResponseElementDtov23 res = webhookEventsService.consumeEventStream(xpagopacxid,null,"", uuidd, lasteventid, false).block(d);
+        ProgressResponseElementDto res = webhookEventsService.consumeEventStream(xpagopacxid,null,"", uuidd, lasteventid).block(d);
 
         //THEN
         assertNotNull(res);
@@ -466,7 +465,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        Mono<ProgressResponseElementDtov23> mono = webhookEventsService.consumeEventStream(xpagopacxid,null,"", uuidd, lasteventid, false);
+        Mono<ProgressResponseElementDto> mono = webhookEventsService.consumeEventStream(xpagopacxid,null,"", uuidd, lasteventid);
         assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
 
         //THEN
@@ -489,7 +488,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(1L);
@@ -499,7 +498,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
@@ -598,7 +597,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.getFilterValues().add(NotificationStatusInt.ACCEPTED.getValue());
         entity.setActivationDate(Instant.now());
@@ -609,7 +608,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
@@ -710,7 +709,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.getFilterValues().add(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         entity.setActivationDate(Instant.now());
@@ -721,7 +720,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
@@ -813,7 +812,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
 //        entity.getFilterValues().add(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         entity.setActivationDate(Instant.now());
@@ -824,7 +823,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
@@ -970,7 +969,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         list.add(entity);
@@ -979,7 +978,7 @@ class WebhookStreamsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponse.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(Set.of(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW.getValue()));
         entity.setActivationDate(Instant.now());
 

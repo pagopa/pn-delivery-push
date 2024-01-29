@@ -1,28 +1,27 @@
 package it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto;
 
+import java.util.Collections;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-
 class StreamCreationRequestTest {
 
-    private StreamCreationRequest request;
+    private StreamCreationRequestV23 request;
 
     @BeforeEach
     void setUp() {
-        request = new StreamCreationRequest();
-        request.setEventType(StreamCreationRequest.EventTypeEnum.STATUS);
+        request = new StreamCreationRequestV23();
+        request.setEventType(StreamCreationRequestV23.EventTypeEnum.STATUS);
         request.setFilterValues(Collections.singletonList("001"));
         request.setTitle("001");
     }
 
     @Test
     void title() {
-        StreamCreationRequest expected = StreamCreationRequest.builder()
+        StreamCreationRequestV23 expected = StreamCreationRequestV23.builder()
                 .title("001")
-                .eventType(StreamCreationRequest.EventTypeEnum.STATUS)
+                .eventType(StreamCreationRequestV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
                 .build();
         Assertions.assertEquals(expected, request.title("001"));
@@ -35,24 +34,24 @@ class StreamCreationRequestTest {
 
     @Test
     void eventType() {
-        StreamCreationRequest expected = StreamCreationRequest.builder()
+        StreamCreationRequestV23 expected = StreamCreationRequestV23.builder()
                 .title("001")
-                .eventType(StreamCreationRequest.EventTypeEnum.STATUS)
+                .eventType(StreamCreationRequestV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
                 .build();
-        Assertions.assertEquals(expected, request.eventType(StreamCreationRequest.EventTypeEnum.STATUS));
+        Assertions.assertEquals(expected, request.eventType(StreamCreationRequestV23.EventTypeEnum.STATUS));
     }
 
     @Test
     void getEventType() {
-        Assertions.assertEquals(StreamCreationRequest.EventTypeEnum.STATUS, request.getEventType());
+        Assertions.assertEquals(StreamCreationRequestV23.EventTypeEnum.STATUS, request.getEventType());
     }
 
     @Test
     void filterValues() {
-        StreamCreationRequest expected = StreamCreationRequest.builder()
+        StreamCreationRequestV23 expected = StreamCreationRequestV23.builder()
                 .title("001")
-                .eventType(StreamCreationRequest.EventTypeEnum.STATUS)
+                .eventType(StreamCreationRequestV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
                 .build();
         Assertions.assertEquals(expected, request.filterValues(Collections.singletonList("001")));
@@ -65,9 +64,9 @@ class StreamCreationRequestTest {
 
     @Test
     void testEquals() {
-        StreamCreationRequest expected = StreamCreationRequest.builder()
+        StreamCreationRequestV23 expected = StreamCreationRequestV23.builder()
                 .title("001")
-                .eventType(StreamCreationRequest.EventTypeEnum.STATUS)
+                .eventType(StreamCreationRequestV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
                 .build();
         Assertions.assertEquals(Boolean.TRUE, expected.equals(request));

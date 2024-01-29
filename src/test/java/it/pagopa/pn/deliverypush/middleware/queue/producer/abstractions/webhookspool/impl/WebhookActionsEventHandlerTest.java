@@ -2,25 +2,24 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhook
 
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
-import it.pagopa.pn.deliverypush.service.WebhookService;
+import it.pagopa.pn.deliverypush.service.WebhookEventsService;
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-
 class WebhookActionsEventHandlerTest {
 
     @Mock
-    private WebhookService webhookService;
+    private WebhookEventsService webhookService;
 
     private WebhookActionsEventHandler handler;
 
     @BeforeEach
     public void setup() {
-        webhookService = Mockito.mock(WebhookService.class);
+        webhookService = Mockito.mock(WebhookEventsService.class);
         handler = new WebhookActionsEventHandler(webhookService);
     }
 
