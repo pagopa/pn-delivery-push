@@ -395,6 +395,24 @@ class AttachmentUtilsTest {
         Assertions.assertEquals(attachmentsRecipient2.get(1), FileUtils.getKeyWithStoragePrefix(notification.getRecipients().get(recIndexRecipient2).getPayments().get(0).getPagoPA().getAttachment().getRef().getKey()));
     }
 
+    @Test
+    void f24UrlTest() {
+        //GIVEN
+        String iun = "testIun";
+        Integer recIndex = 0;
+        Integer cost = 10;
+        Integer vat = 22;
+                
+        //WHEN
+        String f24Url = attachmentUtils.getF24Url(iun, recIndex, cost, vat);
+
+        //THEN
+        Assertions.assertNotNull(f24Url);
+        Assertions.assertTrue(f24Url.contains("?cost="+cost));
+        Assertions.assertTrue(f24Url.contains("?vat="+vat));
+    }
+
+
     private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
         return NotificationTestBuilder.builder()
                 .withIun("iun_01")
@@ -535,6 +553,7 @@ class AttachmentUtilsTest {
                 ).build();
 
         return NotificationInt.builder()
+                .iun("iun")
                 .paProtocolNumber("302011681384967158")
                 .subject("notifica analogica con cucumber")
                 .paFee(1)
