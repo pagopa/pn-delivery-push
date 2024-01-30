@@ -14,7 +14,7 @@ public class NotificationProcessCost {
     private int partialCost;
     private Integer totalCost;
     private int analogCost;
-    private int sendBaseCost;
+    private int sendFee;
     private Integer vat;
     private Integer paFee;
     private Instant notificationViewDate;

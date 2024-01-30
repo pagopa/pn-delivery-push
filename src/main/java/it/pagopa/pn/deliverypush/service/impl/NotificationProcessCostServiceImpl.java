@@ -114,7 +114,7 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
                 .partialCost(notificationProcessPartialCost)
                 .totalCost(notificationProcessTotalCost)
                 .analogCost(analogCost)
-                .sendBaseCost(PAGOPA_NOTIFICATION_BASE_COST)
+                .sendFee(PAGOPA_NOTIFICATION_BASE_COST)
                 .vat(vat)
                 .paFee(paFee)
                 .notificationViewDate(notificationViewDate)
