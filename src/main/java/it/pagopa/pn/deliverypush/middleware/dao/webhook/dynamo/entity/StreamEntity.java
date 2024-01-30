@@ -28,7 +28,7 @@ public class StreamEntity {
     public static final String COL_EVENT_CURRENT_COUNTER = "eventAtomicCounter";
 
     //IVAN: private o public
-    private static final String COL_DISABLED_DATE = "disabledDate";
+    public static final String COL_DISABLED_DATE = "disabledDate";
     private static final String COL_VERSION = "version";
     private static final String COL_GROUPS = "groups";
     private static final String COL_TTL = "ttl";

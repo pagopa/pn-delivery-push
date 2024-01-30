@@ -25,7 +25,10 @@ public abstract class WebhookServiceImpl {
                 new PnNotFoundException("Not found"
                     , String.format("Stream %s non found for Pa %s",streamId.toString(),xPagopaPnCxId)
                     , ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND)))
-            .filter(streamEntity -> WebhookUtils.checkGroups(xPagopaPnCxGroups, streamEntity.getGroups()))
+            .filter(streamEntity -> {
+                boolean ret = WebhookUtils.checkGroups(xPagopaPnCxGroups, streamEntity.getGroups());
+                return ret;
+            })
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + String.join(",",xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)));
     }
 
