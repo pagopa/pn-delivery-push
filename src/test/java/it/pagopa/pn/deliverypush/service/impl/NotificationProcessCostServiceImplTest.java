@@ -702,7 +702,7 @@ class NotificationProcessCostServiceImplTest {
 
     private static void checkCostData(NotificationProcessCost notificationProcessCostResponse, int analogCost, Integer vat, Integer paFee) {
         Assertions.assertEquals(analogCost, notificationProcessCostResponse.getAnalogCost());
-        Assertions.assertEquals(PAGOPA_NOTIFICATION_BASE_COST, notificationProcessCostResponse.getPagoPaBaseCost());
+        Assertions.assertEquals(PAGOPA_NOTIFICATION_BASE_COST, notificationProcessCostResponse.getSendBaseBaseCost());
         Assertions.assertEquals(vat, notificationProcessCostResponse.getVat());
         Assertions.assertEquals(paFee, notificationProcessCostResponse.getPaFee());
     }
