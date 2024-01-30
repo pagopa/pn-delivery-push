@@ -18,10 +18,9 @@ public interface NotificationProcessCostService {
                                                                            Instant eventStorageTimestamp,
                                                                            UpdateCostPhaseInt updateCostPhase);
     
-    Mono<Integer> getPagoPaNotificationBaseCost();
-
+    Mono<Integer> getSendFeeAsync();
     int getNotificationBaseCost(int paFee);
-
+    int getSendFee();
     Mono<Integer> notificationProcessCostF24(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Integer paFee, Integer vat);
 
     Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost, Integer paFee, Integer vat);

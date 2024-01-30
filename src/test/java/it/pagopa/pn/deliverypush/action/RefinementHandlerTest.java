@@ -70,7 +70,7 @@ class RefinementHandlerTest {
         when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
+        when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
         when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
         when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
         
@@ -90,7 +90,7 @@ class RefinementHandlerTest {
 
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.TRUE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
+        when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
         when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
 
         TimelineElementInternal viewedTimelineElement = new TimelineElementInternal();
@@ -158,7 +158,7 @@ class RefinementHandlerTest {
 
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
+        when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
 
         assertThrows(RuntimeException.class, () -> {
             refinementHandler.handleRefinement(iun, recIndex);

@@ -25,7 +25,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import static it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST;
 
 class NotificationProcessCostServiceImplTest {
     @Mock
@@ -37,18 +36,18 @@ class NotificationProcessCostServiceImplTest {
     
     private NotificationProcessCostService service;
 
+    Integer notificationCost = 100;
     @BeforeEach
     void setUp() {
+        Mockito.when(cfg.getPagoPaNotificationBaseCost()).thenReturn(notificationCost);
+
         service = new NotificationProcessCostServiceImpl(timelineService, pnExternalRegistriesClientReactive, cfg);
     }
     
     @Test
     @ExtendWith(SpringExtension.class)
     void getPagoPaNotificationBaseCost() {
-        Integer notificationCost = 100;
-        Mockito.when(cfg.getPagoPaNotificationBaseCost()).thenReturn(notificationCost);
-        
-        Integer pagoPaBaseCost = service.getPagoPaNotificationBaseCost().block();
+        Integer pagoPaBaseCost = service.getSendFeeAsync().block();
 
         Assertions.assertEquals(notificationCost, pagoPaBaseCost);
     }
@@ -146,11 +145,11 @@ class NotificationProcessCostServiceImplTest {
         
         //THEN
         int notificationProcessPartialCostExpected = getNotificationProcessPartialCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST, 
+                service.getSendFee(), 
                 simpleRegisteredLetterCost
         );
         int notificationProcessTotalCostExpected = getNotificationProcessTotalCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST, 
+                service.getSendFee(), 
                 simpleRegisteredLetterCost,
                 paFee,
                 vat
@@ -197,11 +196,11 @@ class NotificationProcessCostServiceImplTest {
         ).block();
 
         int notificationProcessPartialCostExpected = getNotificationProcessPartialCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 0
         );
         int notificationProcessTotalCostExpected = getNotificationProcessTotalCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 0,
                 paFee,
                 vat
@@ -281,12 +280,12 @@ class NotificationProcessCostServiceImplTest {
         int analogCost = firstAnalogCost + secondAnalogCost;
 
         int notificationProcessPartialCostExpected = getNotificationProcessPartialCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 analogCost
         );
         
         Integer notificationProcessTotalCostExpected = getNotificationProcessTotalCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 analogCost,
                 paFee,
                 vat
@@ -358,12 +357,12 @@ class NotificationProcessCostServiceImplTest {
         int analogCost = firstAnalogCost;
         
         int notificationProcessPartialCostExpected = getNotificationProcessPartialCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 analogCost
         );
 
         Integer notificationProcessTotalCostExpected = getNotificationProcessTotalCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 analogCost,
                 paFee,
                 vat
@@ -442,12 +441,12 @@ class NotificationProcessCostServiceImplTest {
         int analogCost = firstAnalogCost;
 
         int notificationProcessPartialCostExpected = getNotificationProcessPartialCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 analogCost
         );
 
         Integer notificationProcessTotalCostExpected = getNotificationProcessTotalCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 analogCost,
                 paFee,
                 vat
@@ -534,12 +533,12 @@ class NotificationProcessCostServiceImplTest {
         int analogCost = analogCostRec0;
 
         int notificationProcessPartialCostExpected = getNotificationProcessPartialCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 analogCost
         );
 
         Integer notificationProcessTotalCostExpected = getNotificationProcessTotalCostExpected(
-                PAGOPA_NOTIFICATION_BASE_COST,
+                service.getSendFee(),
                 analogCost,
                 paFee,
                 vat
@@ -700,9 +699,9 @@ class NotificationProcessCostServiceImplTest {
         Assertions.assertEquals(notificationProcessTotalCostExpected, notificationProcessCostResponse.getTotalCost());
     }
 
-    private static void checkCostData(NotificationProcessCost notificationProcessCostResponse, int analogCost, Integer vat, Integer paFee) {
+    private void checkCostData(NotificationProcessCost notificationProcessCostResponse, int analogCost, Integer vat, Integer paFee) {
         Assertions.assertEquals(analogCost, notificationProcessCostResponse.getAnalogCost());
-        Assertions.assertEquals(PAGOPA_NOTIFICATION_BASE_COST, notificationProcessCostResponse.getSendFee());
+        Assertions.assertEquals(service.getSendFee(), notificationProcessCostResponse.getSendFee());
         Assertions.assertEquals(vat, notificationProcessCostResponse.getVat());
         Assertions.assertEquals(paFee, notificationProcessCostResponse.getPaFee());
     }

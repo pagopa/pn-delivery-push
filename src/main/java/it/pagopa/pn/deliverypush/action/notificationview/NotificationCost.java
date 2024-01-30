@@ -39,7 +39,7 @@ public class NotificationCost {
         return Mono.fromCallable( () -> timelineService.getTimelineElementStrongly(notification.getIun(), elementId))
                 .flatMap( timelineElementOpt -> {
                     if(timelineElementOpt.isEmpty()){
-                        return notificationProcessCostService.getPagoPaNotificationBaseCost().map(Optional::of);
+                        return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
                     }else {
                         return Mono.just(notificationCostOpt);
                     }

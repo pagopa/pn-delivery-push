@@ -13,7 +13,6 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregi
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationCostResponseMapper;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -24,22 +23,34 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-@AllArgsConstructor
 @Slf4j
 public class NotificationProcessCostServiceImpl implements NotificationProcessCostService {
-    public static final int PAGOPA_NOTIFICATION_BASE_COST = 100;
+    private final int sendFee;
     private final TimelineService timelineService;
     private final PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive;
-    private final PnDeliveryPushConfigs cfg;
-
-    @Override
-    public Mono<Integer> getPagoPaNotificationBaseCost() {
-        return Mono.just(cfg.getPagoPaNotificationBaseCost());
+    
+    public NotificationProcessCostServiceImpl(TimelineService timelineService,
+                                              PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive, 
+                                              PnDeliveryPushConfigs cfg
+    ) {
+        this.timelineService = timelineService;
+        this.pnExternalRegistriesClientReactive = pnExternalRegistriesClientReactive;
+        this.sendFee = cfg.getPagoPaNotificationBaseCost();
     }
 
     @Override
+    public Mono<Integer> getSendFeeAsync() {
+        return Mono.just(sendFee);
+    }
+
+    @Override
+    public int getSendFee() {
+        return sendFee;
+    }
+    
+    @Override
     public int getNotificationBaseCost(int paFee) {
-        return paFee + cfg.getPagoPaNotificationBaseCost();
+        return paFee + sendFee;
     }
     
     public Mono<UpdateNotificationCostResponseInt> setNotificationStepCost(int notificationStepCost,
@@ -95,11 +106,11 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
         //Se la notificationFeePolicy è DELIVERY_MODE e il noticeCode/F24 per il quale si sta richiedendo il costo notificazione ha il flag applyCost a true ...
         if(NotificationFeePolicy.DELIVERY_MODE.equals(notificationFeePolicy) && Boolean.TRUE.equals(applyCost)) {
             //... viene valorizzato sempre il costo parziale di notificazione (senza iva e pafee) ...
-            notificationProcessPartialCost = PAGOPA_NOTIFICATION_BASE_COST + analogCost;
+            notificationProcessPartialCost = sendFee + analogCost;
             if (vat != null && paFee != null) {
                 //... se inoltre, iva e pafee sono valorizzati, viene calcolato anche il costo totale di notificazione (con iva e pafee)
                 Integer analogCostWithVat = getAnalogCostWithVat(vat, analogCost);
-                notificationProcessTotalCost = PAGOPA_NOTIFICATION_BASE_COST + analogCostWithVat + paFee;
+                notificationProcessTotalCost = sendFee + analogCostWithVat + paFee;
             } else {
                 //... se invece iva e pafee non sono valorizzati viene ritornato null. Vale solo per le sole notifiche precedenti alla v2,1 in cui
                 // non risultavano presenti tali campi, dalla v2,1 in poi i campi ci sono ed è previsto sempre un default
@@ -108,13 +119,13 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
         }
         
         log.info("End getNotificationProcessCost: notificationFeePolicy={} analogCost={} notificationBaseCost={} notificationProcessPartialCost={} notificationProcessTotalCost={} paFeeCost={} notificationViewDate={}, refinementDate={} - iun={} id={}",
-                notificationFeePolicy, analogCost, PAGOPA_NOTIFICATION_BASE_COST, notificationProcessPartialCost, notificationProcessTotalCost, paFee, notificationViewDate, refinementDate, iun, recIndex);
+                notificationFeePolicy, analogCost, sendFee, notificationProcessPartialCost, notificationProcessTotalCost, paFee, notificationViewDate, refinementDate, iun, recIndex);
 
         return NotificationProcessCost.builder()
                 .partialCost(notificationProcessPartialCost)
                 .totalCost(notificationProcessTotalCost)
                 .analogCost(analogCost)
-                .sendFee(PAGOPA_NOTIFICATION_BASE_COST)
+                .sendFee(sendFee)
                 .vat(vat)
                 .paFee(paFee)
                 .notificationViewDate(notificationViewDate)
