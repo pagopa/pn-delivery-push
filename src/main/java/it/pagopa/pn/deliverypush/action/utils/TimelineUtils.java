@@ -16,15 +16,16 @@ import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.*;
 
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.*;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.REQUEST_REFUSED;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
 
 @Component
@@ -33,11 +34,14 @@ public class TimelineUtils {
 
     private final InstantNowSupplier instantNowSupplier;
     private final TimelineService timelineService;
-
+    private final NotificationProcessCostService notificationProcessCostService;
+    
     public TimelineUtils(InstantNowSupplier instantNowSupplier,
-                         TimelineService timelineService) {
+                         TimelineService timelineService,
+                         NotificationProcessCostService notificationProcessCostService) {
         this.instantNowSupplier = instantNowSupplier;
         this.timelineService = timelineService;
+        this.notificationProcessCostService = notificationProcessCostService;
     }
 
     public TimelineElementInternal buildTimeline(NotificationInt notification,
@@ -874,7 +878,7 @@ public class TimelineUtils {
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
                 .refusalReasons(errors)
                 .numberOfRecipients( numberOfRecipients )
-                .notificationCost( NotificationProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST * numberOfRecipients )
+                .notificationCost( notificationProcessCostService.getSendFee() * numberOfRecipients )
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);
@@ -1103,7 +1107,7 @@ public class TimelineUtils {
                 .iun(notification.getIun())
                 .build());
         NotificationCancelledDetailsInt details = NotificationCancelledDetailsInt.builder().
-            notificationCost(NotificationProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST * notRefined.size()).
+            notificationCost(notificationProcessCostService.getSendFee() * notRefined.size()).
             notRefinedRecipientIndexes(notRefined).
             build();
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLED, elementId, details);
