@@ -543,7 +543,7 @@ components:
         maximum: 100
     vat:
       description: IVA espressa in percentuale imposta al mittente sulla notifica analogica
-      name: paFee
+      name: vat
       in: query
       schema:
         type: integer
@@ -698,11 +698,11 @@ components:
       required:
         - partialPrice
       properties:
-        partialPrice:
+        partialCost:
           description: Costo totale di notificazione che non include la paFee e vat
           type: integer
           format: int32
-        totalPrice:
+        totalCost:
           description: Costo totale di notificazione che include la paFee e vat applicato ai costi cartacei. Presente solo se entrambi i campi paFee e vat sono stati valorizzati
           type: integer
           format: int32
@@ -710,6 +710,11 @@ components:
           type: integer
           description: >-
             Costo espresso in eurocent che la PA imputa per la notifica
+          format: int32
+        sendFee:
+          type: integer
+          description: >-
+            Costo espresso in eurocent a copertura dei costi di gestione di SEND
           format: int32
         vat:
           type: integer

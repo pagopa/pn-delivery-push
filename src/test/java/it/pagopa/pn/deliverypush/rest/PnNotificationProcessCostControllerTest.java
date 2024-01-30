@@ -69,7 +69,7 @@ class PnNotificationProcessCostControllerTest {
                 elem -> {
                     NotificationProcessCostResponse response = elem.getResponseBody();
                     assert response != null;
-                    Assertions.assertEquals(notificationCost.getPartialCost(),response.getAmount());
+                    Assertions.assertEquals(notificationCost.getPartialCost(),response.getPartialCost());
                     Assertions.assertEquals(notificationCost.getNotificationViewDate(),response.getNotificationViewDate());
                     Assertions.assertEquals(notificationCost.getRefinementDate(),response.getRefinementDate());
                 }
