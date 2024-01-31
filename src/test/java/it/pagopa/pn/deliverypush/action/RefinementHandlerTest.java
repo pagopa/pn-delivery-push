@@ -71,13 +71,22 @@ class RefinementHandlerTest {
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
         when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
-        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
+        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(Instant.EPOCH.plusMillis(10)))).thenReturn(TimelineElementInternal.builder().build());
         when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
-        
+
+
+        TimelineElementInternal scheduleRefinementTimelineElement = new TimelineElementInternal();
+        scheduleRefinementTimelineElement.setCategory(TimelineElementCategoryInt.SCHEDULE_REFINEMENT);
+        ScheduleRefinementDetailsInt scheduleRefinementDetailsInt = new ScheduleRefinementDetailsInt();
+        scheduleRefinementDetailsInt.setSchedulingDate(Instant.EPOCH.plusMillis(10));
+        scheduleRefinementTimelineElement.setDetails(scheduleRefinementDetailsInt);
+
+        Mockito.when(timelineUtils.getScheduleRefinement(Mockito.anyString(), Mockito.anyInt())).thenReturn(Optional.of(scheduleRefinementTimelineElement));
+
         refinementHandler.handleRefinement(iun, recIndex);
         
         Mockito.verify(timelineUtils, Mockito.times(1)).buildRefinementTimelineElement(notification,
-                recIndex, 100, true);
+                recIndex, 100, true, Instant.EPOCH.plusMillis(10));
         
     }
 
@@ -91,7 +100,7 @@ class RefinementHandlerTest {
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.TRUE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
         when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
-        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
+        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(Instant.EPOCH.plusMillis(10)))).thenReturn(TimelineElementInternal.builder().build());
 
         TimelineElementInternal viewedTimelineElement = new TimelineElementInternal();
         viewedTimelineElement.setCategory(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST);
@@ -112,7 +121,7 @@ class RefinementHandlerTest {
         refinementHandler.handleRefinement(iun, recIndex);
 
         Mockito.verify(timelineUtils, Mockito.times(1)).buildRefinementTimelineElement(notification,
-                recIndex, 100,false);
+                recIndex, 100,false, Instant.EPOCH.plusMillis(10));
 
     }
 
@@ -137,7 +146,7 @@ class RefinementHandlerTest {
         TimelineElementInternal scheduleRefinementTimelineElement = new TimelineElementInternal();
         scheduleRefinementTimelineElement.setCategory(TimelineElementCategoryInt.SCHEDULE_REFINEMENT);
         ScheduleRefinementDetailsInt scheduleRefinementDetailsInt = new ScheduleRefinementDetailsInt();
-        scheduleRefinementDetailsInt.setSchedulingDate(Instant.now());
+        scheduleRefinementDetailsInt.setSchedulingDate(Instant.EPOCH.plusMillis(10));
         scheduleRefinementTimelineElement.setDetails(scheduleRefinementDetailsInt);
 
         Mockito.when(timelineUtils.getScheduleRefinement(Mockito.anyString(), Mockito.anyInt())).thenReturn(Optional.of(scheduleRefinementTimelineElement));
@@ -145,7 +154,7 @@ class RefinementHandlerTest {
         refinementHandler.handleRefinement(iun, recIndex);
 
         Mockito.verify(timelineUtils, Mockito.never()).buildRefinementTimelineElement(notification,
-                recIndex, 100,true);
+                recIndex, 100,true, Instant.EPOCH.plusMillis(10));
 
     }
 

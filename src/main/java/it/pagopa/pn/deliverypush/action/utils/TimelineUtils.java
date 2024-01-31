@@ -826,7 +826,7 @@ public class TimelineUtils {
     }
 
 
-    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex, Integer notificationCost, Boolean addNotificationCost) {
+    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex, Integer notificationCost, Boolean addNotificationCost, Instant refinementDate) {
         log.debug("buildRefinementTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
@@ -837,6 +837,7 @@ public class TimelineUtils {
 
         RefinementDetailsInt details = RefinementDetailsInt.builder()
                 .recIndex(recIndex)
+                .eventTimestamp(refinementDate)
                 .build();
 
         if(Boolean.TRUE.equals(addNotificationCost)){

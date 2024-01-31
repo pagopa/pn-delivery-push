@@ -558,16 +558,18 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         Integer recIndex = 1;
         Integer notificationCost = 100;
+        Instant refDate = Instant.EPOCH.plusMillis(10);
 
         TimelineElementInternal actual = timelineUtils.buildRefinementTimelineElement(
-                notification, recIndex, notificationCost,true
+                notification, recIndex, notificationCost,true, refDate
         );
         String timelineEventIdExpected = "REFINEMENT#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
-                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
+                () -> Assertions.assertEquals(Instant.EPOCH.plusMillis(10), ((RefinementDetailsInt)actual.getDetails()).getEventTimestamp())
         );
     }
 

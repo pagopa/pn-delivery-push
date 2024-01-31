@@ -41,7 +41,15 @@ public class RefinementHandler {
 
         //Se la notifica è già stata visualizzata non viene perfezionata per decorrenza termini in quanto è già stata perfezionata per presa visione
         if( !isNotificationViewed ) {
-            addRefinementElement(iun, recIndex, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement(),true);
+            // recupero la refinementDate dall'element dello schedule refinement
+            Instant refinementDate = timelineUtils.getScheduleRefinement(iun,recIndex).map(scheduleRefinementTimelineElem -> {
+                if(scheduleRefinementTimelineElem.getDetails() instanceof ScheduleRefinementDetailsInt scheduleRefinementTimelineElementDetails) {
+                    return scheduleRefinementTimelineElementDetails.getSchedulingDate();
+                }
+                return null;
+            }).orElse(null);
+
+            addRefinementElement(iun, recIndex, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement(),true, refinementDate);
         } else {
 
             //FIND TIMELINE ELEMENT
@@ -61,14 +69,14 @@ public class RefinementHandler {
 
             //Se la notifica è già stata visualizzata ma in data precedente a quella del perfezionamento l'evento viene comunque generato
             if( refinementDate != null && viewedDate != null && viewedDate.isAfter(refinementDate) ) {
-                addRefinementElement(iun, recIndex,null, false);
+                addRefinementElement(iun, recIndex,null, false, refinementDate);
             } else {
                 log.info("Notification is already viewed or paid, refinement will not start - iun={} id={}", iun, recIndex);
             }
         }
     }
 
-    private void addRefinementElement(String iun, Integer recIndex,  Integer attachmentRetention, Boolean addNotificationCost) {
+    private void addRefinementElement(String iun, Integer recIndex,  Integer attachmentRetention, Boolean addNotificationCost, Instant refinementDate) {
         log.info("Handle refinement - iun {} id {}", iun, recIndex);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
@@ -83,7 +91,7 @@ public class RefinementHandler {
                             return Mono.just(res);
                         })
                         .flatMap( notificationCost ->
-                                Mono.fromCallable( () -> timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost, addNotificationCost))
+                                Mono.fromCallable( () -> timelineUtils.buildRefinementTimelineElement(notification, recIndex, notificationCost, addNotificationCost, refinementDate))
                                         .flatMap( timelineElementInternal ->
                                                 Mono.fromRunnable( () -> addTimelineElement(timelineElementInternal, notification))
                                                         .doOnSuccess( res -> log.info( "addTimelineElement OK {}", notification.getIun()))
