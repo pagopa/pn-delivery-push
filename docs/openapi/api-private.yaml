@@ -696,7 +696,7 @@ components:
         Contiene il costo del processo di notificazione e l'eventuale data di perfezionamento della notifica
       type: object
       required:
-        - partialPrice
+        - partialCost
       properties:
         partialCost:
           description: Costo totale di notificazione che non include la paFee e vat
