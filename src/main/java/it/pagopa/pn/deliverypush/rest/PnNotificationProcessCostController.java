@@ -28,6 +28,7 @@ public class PnNotificationProcessCostController implements NotificationProcessC
                                                                                           NotificationFeePolicy notificationFeePolicy,
                                                                                           Boolean applyCost,
                                                                                           Integer paFee,
+                                                                                          Integer vat,
                                                                                           final ServerWebExchange exchange) {
         if (timelineUtils.checkIsNotificationCancellationRequested(iun))
         {
@@ -35,17 +36,21 @@ public class PnNotificationProcessCostController implements NotificationProcessC
             throw new PnNotificationCancelledException();
         }
         
-        //TODO Aggiornare il valore del campo vat con quello che si riceverà in ingresso dal WS
-        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee, null)
+        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee, vat)
                 .map(response -> ResponseEntity.ok().body(mapResponse(response)));
     }
 
     private NotificationProcessCostResponse mapResponse(NotificationProcessCost response) {
         return NotificationProcessCostResponse.builder()
-        .amount(response.getPartialCost()) //TODO Modificare con i valori corretti
-        .refinementDate(response.getRefinementDate())
-        .notificationViewDate(response.getNotificationViewDate())
-        .build();
+                .partialCost(response.getPartialCost())
+                .totalCost(response.getTotalCost())
+                .analogCost(response.getAnalogCost())
+                .vat(response.getVat())
+                .paFee(response.getPaFee())
+                .sendFee(response.getSendFee())
+                .refinementDate(response.getRefinementDate())
+                .notificationViewDate(response.getNotificationViewDate())
+                .build();
     }
 
 }
