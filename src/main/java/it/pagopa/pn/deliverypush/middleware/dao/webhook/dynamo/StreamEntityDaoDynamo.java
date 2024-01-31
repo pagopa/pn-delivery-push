@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -152,7 +153,7 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
 
     private StreamEntity disableStream(StreamEntity streamEntity){
         streamEntity.setDisabledDate(Instant.now());
-        streamEntity.setTtl(10000L+pnDeliveryPushConfigs.getDisableTtl());//TODO: IVAN sentire Fabrizio
+        streamEntity.setTtl(Instant.now().plus(pnDeliveryPushConfigs.getWebhook().getDisableTtl()).atZone(ZoneId.systemDefault()).toEpochSecond());
 
         return streamEntity;
     }

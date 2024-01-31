@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
@@ -8,7 +10,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamL
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamRequestV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
-import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.DtoToEntityStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToStreamListDtoStreamMapper;
@@ -22,6 +23,7 @@ import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.helpers.MessageFormatter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -52,14 +54,21 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     @Override
     public Mono<StreamMetadataResponseV23> createEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, Mono<StreamCreationRequestV23> streamCreationRequest) {
 
-        return streamCreationRequest
-            .map(r -> Tuples.of (DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), r)
+        return streamCreationRequest.doOnNext(payload-> {
+            String msg = "createEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, payload={}";
+            String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, payload.toString()};
+            generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).log();
+        }).map(r -> Tuples.of (DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), r)
                 , r.getReplacedStreamId() != null ? r.getReplacedStreamId().toString() : ""))
             .flatMap(t2 -> {
                 return WebhookUtils.checkGroups(t2.getT1().getGroups(),xPagopaPnCxGroups)?
                     (StringUtils.isBlank(t2.getT2()) ? streamEntityDao.save(t2.getT1()) : streamEntityDao.replace(t2.getT1(), t2.getT2()))
                     : Mono.error(new PnWebhookForbiddenException("Not Allowed groups "+groupString(t2.getT1().getGroups()))); //TODO: IVAN, vedere tutti i messaggi
-            }).map(EntityToDtoStreamMapper::entityToDto);
+            }).map(EntityToDtoStreamMapper::entityToDto).doOnSuccess(ok->{
+                //log ok
+            }).doOnError(err->{
+                //log error
+            });
     }
 
     @Override
@@ -118,8 +127,14 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     }
 
     @NotNull
-    private PnAuditLogEvent generateAuditLog(StreamEntity streamEntity) {
+    private PnAuditLogEvent generateAuditLog( PnAuditLogEventType pnAuditLogEventType, String message, String[] arguments) {
         PnAuditLogEvent pnAuditLogEvent = null;
-        return pnAuditLogEvent;
+        String logMessage = MessageFormatter.arrayFormat(message, arguments).getMessage();
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent;
+        logEvent = auditLogBuilder.before(pnAuditLogEventType, "{}", logMessage)
+            .build();
+        logEvent.log();
+        return logEvent;
     }
 }

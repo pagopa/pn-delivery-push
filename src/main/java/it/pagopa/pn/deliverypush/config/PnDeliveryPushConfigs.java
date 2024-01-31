@@ -110,7 +110,6 @@ public class PnDeliveryPushConfigs {
     //quickWorkAroundForPN-9116
     private boolean sendMoreThan20GramsDefaultValue;
 
-    private long disableTtl;
     @Data
     public static class Topics {
 
@@ -145,6 +144,7 @@ public class PnDeliveryPushConfigs {
         private Integer readBufferDelay;
         private Integer maxStreams;
         private Duration ttl;
+        private Duration disableTtl;
     }
 
     @Data
