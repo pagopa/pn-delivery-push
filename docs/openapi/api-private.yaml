@@ -706,6 +706,10 @@ components:
           description: Costo totale di notificazione che include la paFee e vat applicato ai costi cartacei. Presente solo se entrambi i campi paFee e vat sono stati valorizzati
           type: integer
           format: int32
+        analogCost:
+          description: Costo totale degli avvisi in formato cartaceo (senza iva)
+          type: integer
+          format: int32
         paFee:
           type: integer
           description: >-

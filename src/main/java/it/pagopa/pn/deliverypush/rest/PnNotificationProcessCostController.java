@@ -44,6 +44,7 @@ public class PnNotificationProcessCostController implements NotificationProcessC
         return NotificationProcessCostResponse.builder()
                 .partialCost(response.getPartialCost())
                 .totalCost(response.getTotalCost())
+                .analogCost(response.getAnalogCost())
                 .vat(response.getVat())
                 .paFee(response.getPaFee())
                 .sendFee(response.getSendFee())
