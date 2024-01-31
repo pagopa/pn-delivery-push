@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -43,8 +44,8 @@ public class ChooseDeliveryModeUtils {
         timelineService.addTimelineElement(element, notification);
     }
 
-    public void addScheduleAnalogWorkflowToTimeline(Integer recIndex, NotificationInt notification) {
-        TimelineElementInternal element = timelineUtils.buildScheduleAnalogWorkflowTimeline(notification, recIndex);
+    public void addScheduleAnalogWorkflowToTimeline(Integer recIndex, NotificationInt notification, Instant schedulingDate) {
+        TimelineElementInternal element = timelineUtils.buildScheduleAnalogWorkflowTimeline(notification, recIndex, schedulingDate);
         timelineService.addTimelineElement(element, notification);
     }
 

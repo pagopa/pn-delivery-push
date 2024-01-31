@@ -38,27 +38,6 @@ public class SmartMapper {
     };
 
 
-    static PropertyMap<NotificationViewedDetailsInt, TimelineElementDetailsV23> notificationViewedDetailPropertyMap = new PropertyMap<>() {
-        @Override
-        protected void configure() {
-            skip(destination.getEventTimestamp());
-        }
-    };
-
-    static PropertyMap<SendDigitalProgressDetailsInt, TimelineElementDetailsV23> sendDigitalProgressDetailPropertyMap = new PropertyMap<>() {
-        @Override
-        protected void configure() {
-            skip(destination.getEventTimestamp());
-        }
-    };
-
-    static PropertyMap<NotificationPaidDetailsInt, TimelineElementDetailsV23> notificationPaidDetailPropertyMap = new PropertyMap<>() {
-        @Override
-        protected void configure() {
-            skip(destination.getEventTimestamp());
-        }
-    };
-
     static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV23> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
         @Override
         protected void configure() {
@@ -85,9 +64,6 @@ public class SmartMapper {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         modelMapper.addMappings(addressDetailPropertyMap);
         modelMapper.addMappings(prepareAnalogDomicileFailureDetailsInt);
-        modelMapper.addMappings(notificationViewedDetailPropertyMap);
-        modelMapper.addMappings(sendDigitalProgressDetailPropertyMap);
-        modelMapper.addMappings(notificationPaidDetailPropertyMap);
 
         modelMapper.createTypeMap(TimelineElementInternal.class, TimelineElementInternal.class).setPostConverter(timelineElementInternalTimestampConverter);
 

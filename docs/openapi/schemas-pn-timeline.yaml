@@ -449,6 +449,10 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        schedulingDate:
+          type: string
+          description: Data prevista per l'inizio dell'invio analogico
+          format: date-time
 
     ScheduleDigitalWorkflowDetails:
       type: object
@@ -471,6 +475,10 @@ components:
           format: int32
         lastAttemptDate:
           type: string
+          format: date-time
+        schedulingDate:
+          type: string
+          description: Data prevista per il prossimo tentativo di invio digitale per il source
           format: date-time
 
     ScheduleRefinementDetails:

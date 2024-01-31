@@ -65,9 +65,9 @@ class ChooseDeliveryModeUtilsTest {
 
         NotificationInt notificationInt = buildNotification();
 
-        Mockito.when(timelineUtils.buildScheduleAnalogWorkflowTimeline(notificationInt, recIndex)).thenReturn(timelineElementInternal);
+        Mockito.when(timelineUtils.buildScheduleAnalogWorkflowTimeline(notificationInt, recIndex, Instant.EPOCH.plusMillis(10))).thenReturn(timelineElementInternal);
 
-        chooseDeliveryModeUtils.addScheduleAnalogWorkflowToTimeline(recIndex, notificationInt);
+        chooseDeliveryModeUtils.addScheduleAnalogWorkflowToTimeline(recIndex, notificationInt, Instant.EPOCH.plusMillis(10));
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notificationInt);
     }
