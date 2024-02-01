@@ -137,7 +137,7 @@ components:
         - "$ref": "#/components/schemas/DigitalFailureWorkflowDetails"
         - "$ref": "#/components/schemas/DigitalSuccessWorkflowDetails"
         - "$ref": "#/components/schemas/GetAddressInfoDetails"
-        - "$ref": "#/components/schemas/NotificationViewedCreationRequestDetails"
+        - "$ref": "#/components/schemas/NotificationViewedCreationRequestDetailsV23"
         - "$ref": "#/components/schemas/NotificationViewedDetailsV23"
         - "$ref": "#/components/schemas/NotificationRADDRetrievedDetails"
         - "$ref": "#/components/schemas/PublicRegistryCallDetails"
