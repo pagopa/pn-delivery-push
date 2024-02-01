@@ -158,7 +158,7 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
     private StreamEntity disableStream(StreamEntity streamEntity){
         streamEntity.setDisabledDate(Instant.now());
         streamEntity.setTtl(Instant.now().plus(pnDeliveryPushConfigs.getWebhook().getDisableTtl()).atZone(ZoneId.systemDefault()).toEpochSecond());
-
+        streamEntity.setEventAtomicCounter(null);
         return streamEntity;
     }
 }

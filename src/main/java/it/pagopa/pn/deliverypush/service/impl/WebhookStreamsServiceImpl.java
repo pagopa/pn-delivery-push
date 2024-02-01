@@ -137,4 +137,8 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         logEvent.log();
         return logEvent;
     }
+
+    private String getApiVersion(String xPagopaPnApiVersion){
+        return StringUtils.isNotBlank(xPagopaPnApiVersion) ? xPagopaPnApiVersion : pnDeliveryPushConfigs.getWebhook().getCurrentVersion();
+    }
 }
