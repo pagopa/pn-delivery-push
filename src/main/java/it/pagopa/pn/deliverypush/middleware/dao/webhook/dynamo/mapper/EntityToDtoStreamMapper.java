@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper;
 
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
-import it.pagopa.pn.deliverypush.utils.Constants;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -11,8 +11,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EntityToDtoStreamMapper {
-
-    private EntityToDtoStreamMapper(){}
+    private static String firstVersion;
+    private EntityToDtoStreamMapper(PnDeliveryPushConfigs pnDeliveryPushConfigs){
+        firstVersion = pnDeliveryPushConfigs.getWebhook().getFirstVersion();
+    }
 
     public static StreamMetadataResponseV23 entityToDto(StreamEntity entity ) {
         StreamMetadataResponseV23 streamMetadataResponse = new StreamMetadataResponseV23();
@@ -22,7 +24,7 @@ public class EntityToDtoStreamMapper {
         streamMetadataResponse.setTitle(entity.getTitle());
         streamMetadataResponse.setFilterValues(List.copyOf(Objects.requireNonNullElse(entity.getFilterValues(), new HashSet<>())));
         streamMetadataResponse.setGroups(entity.getGroups());
-        streamMetadataResponse.setVersion(entity.getVersion() != null ? entity.getVersion() : Constants.API_FIRST_VERSION);
+        streamMetadataResponse.setVersion(entity.getVersion() != null ? entity.getVersion() : firstVersion);
         return streamMetadataResponse;
     }
 

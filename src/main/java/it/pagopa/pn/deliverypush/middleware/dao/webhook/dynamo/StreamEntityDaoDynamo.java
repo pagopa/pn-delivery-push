@@ -129,21 +129,25 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled")))
             .flatMap(foundEntity-> {
 
-            UpdateItemEnhancedRequest updateRequest = UpdateItemEnhancedRequest.builder(StreamEntity.class)
-                .item(disableStream(foundEntity))
-                .build();
+                StreamEntity replacedEntity = new StreamEntity(foundEntity.getPaId(), foundEntity.getStreamId());
 
-            PutItemEnhancedRequest createRequest = PutItemEnhancedRequest.builder(StreamEntity.class)
-                .item(entity)
-                .build();
+                UpdateItemEnhancedRequest updateRequest = UpdateItemEnhancedRequest.builder(StreamEntity.class)
+                    .item(disableStream(replacedEntity))
+                    .ignoreNulls(true)
+                    .build();
 
-            TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
-                .addUpdateItem(table, updateRequest)
-                .addPutItem(table, createRequest)
-                .build();
-            var f = dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest);
-            return Mono.fromFuture(f.thenApply(r->entity));
-        });
+                PutItemEnhancedRequest createRequest = PutItemEnhancedRequest.builder(StreamEntity.class)
+                    .item(entity)
+                    .build();
+
+                TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
+                    .addUpdateItem(table, updateRequest)
+                    .addPutItem(table, createRequest)
+                    .build();
+
+                var f = dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest);
+                return Mono.fromFuture(f.thenApply(r->entity));
+            });
     }
 
     @Override
