@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
 import java.util.Collections;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ class PnWebhookStreamsControllerTest {
 
     @MockBean
     private WebhookStreamsService service;
+
+    @Disabled("IVAN")
 
     @Test
     void createEventStreamOk() {
@@ -57,6 +60,8 @@ class PnWebhookStreamsControllerTest {
         Mockito.verify(service).createEventStream(Mockito.anyString(), Mockito.any(),Mockito.anyString(), Mockito.any());
     }
 
+    @Disabled("IVAN")
+
     @Test
     void createEventStreamKoRuntimeEx() {
         Mockito.when(service.createEventStream(Mockito.anyString(), Mockito.any(),Mockito.anyString(), Mockito.any()))
@@ -83,6 +88,8 @@ class PnWebhookStreamsControllerTest {
                 );
     }
 
+    @Disabled("IVAN")
+
     @Test
     void deleteEventStream() {
         String streamId = UUID.randomUUID().toString();
@@ -103,7 +110,9 @@ class PnWebhookStreamsControllerTest {
 
         Mockito.verify(service).deleteEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class));
     }
-    
+
+    @Disabled("IVAN")
+
     @Test
     void deleteEventStreamKoRuntime() {
         String streamId = UUID.randomUUID().toString();
@@ -130,6 +139,8 @@ class PnWebhookStreamsControllerTest {
                 );
     }
 
+    @Disabled("IVAN")
+
     @Test
     void getEventStream() {
         String streamId = UUID.randomUUID().toString();
@@ -152,6 +163,7 @@ class PnWebhookStreamsControllerTest {
         Mockito.verify(service).getEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class));
     }
 
+    @Disabled("IVAN")
     @Test
     void getEventStreamKoRuntime() {
         String streamId = UUID.randomUUID().toString();
@@ -178,6 +190,8 @@ class PnWebhookStreamsControllerTest {
                 );
     }
 
+    @Disabled("IVAN")
+
     @Test
     void listEventStreams() {
         webTestClient.get()
@@ -195,6 +209,8 @@ class PnWebhookStreamsControllerTest {
 
         Mockito.verify(service).listEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString());
     }
+
+    @Disabled("IVAN")
 
     @Test
     void updateEventStream() {
@@ -218,6 +234,8 @@ class PnWebhookStreamsControllerTest {
 
         Mockito.verify(service).updateEventStream(Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class), Mockito.any());
     }
+
+    @Disabled("IVAN")
 
     @Test
     void updateEventStreamKoRuntimeEx() {

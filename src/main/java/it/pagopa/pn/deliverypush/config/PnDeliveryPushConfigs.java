@@ -145,6 +145,8 @@ public class PnDeliveryPushConfigs {
         private Integer maxStreams;
         private Duration ttl;
         private Duration disableTtl;
+        private String firstVersion;
+        private String currentVersion;
     }
 
     @Data
