@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.EventEntityBatch;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
@@ -48,6 +49,7 @@ class WebhookStreamsServiceImplTest {
     private StreamEntityDao streamEntityDao;
     private EventEntityDao eventEntityDao;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private PnExternalRegistryClient pnExternalRegistryClient;
     private SchedulerService schedulerService;
     private WebhookStreamsService webhookStreamsService;
     private WebhookEventsService webhookEventsService;
@@ -66,6 +68,7 @@ class WebhookStreamsServiceImplTest {
         timelineService = Mockito.mock(TimelineService.class);
         notificationService = Mockito.mock(NotificationService.class);
         webhookUtils = Mockito.mock(WebhookUtils.class);
+        pnExternalRegistryClient = Mockito.mock(PnExternalRegistryClient.class);
 
         PnDeliveryPushConfigs.Webhook webhook = new PnDeliveryPushConfigs.Webhook();
         webhook.setScheduleInterval(1000L);
@@ -76,7 +79,7 @@ class WebhookStreamsServiceImplTest {
         webhook.setTtl(Duration.ofDays(30));
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
-        webhookStreamsService = new WebhookStreamsServiceImpl(streamEntityDao, schedulerService, pnDeliveryPushConfigs);
+        webhookStreamsService = new WebhookStreamsServiceImpl(streamEntityDao, schedulerService, pnDeliveryPushConfigs, pnExternalRegistryClient);
     }
 
     @Test

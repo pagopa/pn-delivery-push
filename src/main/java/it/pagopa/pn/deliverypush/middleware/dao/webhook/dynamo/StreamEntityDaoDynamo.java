@@ -131,6 +131,7 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
 
             UpdateItemEnhancedRequest updateRequest = UpdateItemEnhancedRequest.builder(StreamEntity.class)
                 .item(disableStream(foundEntity))
+                .ignoreNulls(true)
                 .build();
 
             PutItemEnhancedRequest createRequest = PutItemEnhancedRequest.builder(StreamEntity.class)

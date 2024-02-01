@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
+import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
@@ -13,6 +14,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.DtoToEntityStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoStreamMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToStreamListDtoStreamMapper;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
@@ -36,10 +38,14 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     private final SchedulerService schedulerService;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    public WebhookStreamsServiceImpl (StreamEntityDao streamEntityDao, SchedulerService schedulerService, PnDeliveryPushConfigs pnDeliveryPushConfigs){
+    private final PnExternalRegistryClient pnExternalRegistryClient;
+
+    public WebhookStreamsServiceImpl (StreamEntityDao streamEntityDao, SchedulerService schedulerService
+        , PnDeliveryPushConfigs pnDeliveryPushConfigs, PnExternalRegistryClient pnExternalRegistryClient){
         super(streamEntityDao);
         this.schedulerService = schedulerService;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.pnExternalRegistryClient = pnExternalRegistryClient;
     }
 
     private int maxStreams;
@@ -48,26 +54,34 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     @PostConstruct
     private void postConstruct() {
         PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
-        this.maxStreams = webhookConf.getScheduleInterval().intValue();
+        this.maxStreams = webhookConf.getMaxStreams().intValue();
         this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
     }
     @Override
     public Mono<StreamMetadataResponseV23> createEventStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, Mono<StreamCreationRequestV23> streamCreationRequest) {
 
+//        pnExternalRegistryClient.
         return streamCreationRequest.doOnNext(payload-> {
             String msg = "createEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, payload={}";
             String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, payload.toString()};
             generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).log();
-        }).map(r -> Tuples.of (DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), r)
+        }).flatMap(x->
+                (x.getReplacedStreamId() == null ? checkStreamCount(xPagopaPnCxId) : Mono.just(Boolean.TRUE)).then(Mono.just(x))
+        ).map(r -> Tuples.of (
+            DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), r)
                 , r.getReplacedStreamId() != null ? r.getReplacedStreamId().toString() : ""))
             .flatMap(t2 -> {
                 return WebhookUtils.checkGroups(t2.getT1().getGroups(),xPagopaPnCxGroups)?
                     (StringUtils.isBlank(t2.getT2()) ? streamEntityDao.save(t2.getT1()) : streamEntityDao.replace(t2.getT1(), t2.getT2()))
                     : Mono.error(new PnWebhookForbiddenException("Not Allowed groups "+groupString(t2.getT1().getGroups()))); //TODO: IVAN, vedere tutti i messaggi
-            }).map(EntityToDtoStreamMapper::entityToDto).doOnSuccess(ok->{
-                //log ok
+            }).map(EntityToDtoStreamMapper::entityToDto).doOnSuccess(newEntity->{
+                String msg = "createEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, payload={}";
+                String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, newEntity.toString()};
+                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateSuccess().log();
             }).doOnError(err->{
-                //log error
+                String msg = "createEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={} ";
+                String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion};
+                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateFailure("error creating stream").log();
             });
     }
 
@@ -122,6 +136,18 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
             );
     }
 
+    private Mono<Boolean> checkStreamCount(String xPagopaPnCxId){
+        return streamEntityDao.findByPa(xPagopaPnCxId)
+                .collectList().flatMap(list -> {
+                    if (list.size() >= maxStreams) {
+                        return Mono.error(new PnWebhookMaxStreamsCountReachedException());
+                    }
+                    else {
+                        return Mono.just(Boolean.TRUE);
+                    }
+                });
+    }
+
     private String groupString(List<String> groups){
         return String.join(",",groups);
     }
@@ -134,7 +160,6 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         PnAuditLogEvent logEvent;
         logEvent = auditLogBuilder.before(pnAuditLogEventType, "{}", logMessage)
             .build();
-        logEvent.log();
         return logEvent;
     }
 }
