@@ -7,19 +7,22 @@ info:
   termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
   title: 'Piattaforma Notifiche: API B2B avanzamento notifiche'
   x-summary: 'API B2B avanzamento notifiche'
-  version: '1.0.0'
+  version: '2.3.0'
   x-api-id: api-internal-b2b-webhook # NO EXTERNAL
 #  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
   description: >- 
     I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
-    automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">10</span> configurazioni di flussi per singola PA</strong></font> su
+    automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">10</span> configurazioni di flussi attive per singola PA</strong></font> su
     informazioni relative a: <br/>
       - cambiamento di stato della notifica;  <br/>
       - inserimento di elementi nella timeline. <br/>
     
     Per ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni 
     cambiamenti di stato o determinati eventi di timeline di maggiore interesse.</br><strong>In assenza del filtro
-    verranno restituiti tutti gli elementi relativi alla v1.</strong>
+    verranno restituiti tutti gli elementi relativi alla v2.3.</strong>
+    E' possibile limitare l'accesso ad uno stream solo ad alcuni gruppi, in questo modo:
+      - nello stream compariranno solo eventi relativi alle notifiche dei gruppi
+      - solo api-key "master" (senza gruppi) o api-key con visibilità sui gruppi dello stream possano modificarlo e consumarlo.
     </br>Si consiglia di creare gli stream prima dell'invio delle notifiche perché gli stati o gli eventi di 
     timeline vengono registrati solo successivamente alla creazione dello stream.</br>
     </br>
@@ -30,6 +33,7 @@ info:
     {
       "title": "NotificationCancelled",
       "eventType": "STATUS",
+      "groups": [],
       "filterValues": [
         "CANCELLED"
       ]
@@ -43,6 +47,7 @@ info:
     {
       "title": "NotificationAcceptedOrDelivered",
       "eventType": "STATUS",
+      "groups": [],
       "filterValues": [
         "ACCEPTED","DELIVERED"
       ]
@@ -56,11 +61,41 @@ info:
     {
       "title": "TimelineNotificationViewed",
       "eventType": "TIMELINE",
+      "groups": [],
       "filterValues": [
         "NOTIFICATION_VIEWED"
       ]
     }
     ``
+    </br></br>
+    __Esempio:__
+    - Stream contenente tutti gli eventi per le notifiche create con il gruppo "contravvenzioni":
+    </br></br>
+    ``
+    {
+      "title": "TimelineNotificationViewed",
+      "eventType": "TIMELINE",
+      "groups": ["contravvenzioni"],
+      "filterValues": []
+    }
+    ``
+    NB: solo api-key "master" o con il gruppo "contravvenzioni" possono creare e consumare questo stream.
+    </br></br>
+    __Esempio:__
+    - Stream contenente tutti gli eventi di timeline NOTIFICATION_VIEWED per le notifiche create con il gruppo "contravvenzioni" e "tasse":
+    </br></br>
+    ``
+    {
+      "title": "TimelineNotificationViewed",
+      "eventType": "TIMELINE",
+      "groups": ["contravvenzioni", "tasse"],
+      "filterValues": [
+        "NOTIFICATION_VIEWED"
+      ]
+    }
+    ``
+    NB: solo api-key "master" o con i gruppi "contravvenzioni" e "tasse" possono creare e consumare questo stream.
+    Un'api-key con il SOLO gruppo "contravvenzioni" infatti non potrà creare o accedere a questo stream.
     </br></br>
     
     Gli stati della notifica che possono essere inseriti come __filterValues__ sono i seguenti: 
@@ -131,6 +166,12 @@ info:
           <li><strong>PREPARE_ANALOG_DOMICILE_FAILURE</strong><em>Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel</em></li>
         </ul>
       </details>
+      <details>
+        <summary>Eventi di timeline - v2.3 (tutti gli elementi v1 + v2 + gli elementi seguenti)</summary>
+        <ul>
+          <li><strong>NOTIFICATION_RADD_RETRIEVED</strong><em>Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica</em></li>
+        </ul>
+      </details>
     </br>
     Di seguito un esempio di creazione e successiva interrogazione dello stream: 
 
@@ -182,7 +223,7 @@ info:
 
       A questo punto si potrà capire, sempre dal valore del <code>retry-after</code> contenuto nell'header</br> se chiamare subito il servizio ed inserire il <code>lastEventId</code> di questa ulteriore chiamata</br> o attendere il tempo indicato nell'header</br>
 
-      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV20) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
+      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV23) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
 
       </td>
       <td>
@@ -192,8 +233,9 @@ info:
         {                                           {
           "title": "stream-status-prova",             "title": "stream-timeline-prova",
           "eventType": "STATUS",                      "eventType": "TIMELINE",
+          "groups": [],                               "groups": ["contravvenzioni"],
           "filterValues": [                           "filterValues": [
-              "ACCEPTED"                                  "REQUEST_ACCEPTED"
+              "EFFECTIVE_DATE"                           "REFINEMENT"
           ]                                           ]
         }                                           }
         
@@ -202,13 +244,15 @@ info:
         {                                           {
             "title": "stream-status-prova",           "title": "stream-timeline-prova",
             "eventType": "STATUS",                    "eventType": "TIMELINE",
+            "groups": [],                             "groups": ["contravvenzioni"],
             "filterValues": [                         "filterValues": [
-                "ACCEPTED"                                "REQUEST_ACCEPTED"
+              "EFFECTIVE_DATE"                                "REFINEMENT"
             ],                                        ],
             "streamId":                               "streamId": 
-            "4e6d5e59-85fc-4ef7-bad8",                "6d87ree59-31ff-2rr7-lok1",
-            "activationDate":                         "activationDate": 
-            "2022-12-12T14:52:23.362454Z"             "2022-12-12T14:53:23.362454Z"
+             "4e6d5e59-85fc-4ef7-bad8",                "6d87ree59-31ff-2rr7-lok1",
+            "activationDate":                         "activationDate":
+             "2022-12-12T14:52:23.362454Z",             "2022-12-12T14:53:23.362454Z",
+            "version": "v23"                          "version": "v23"
         }                                           }  
       
       </br>
@@ -221,18 +265,20 @@ info:
         [
             {
                 "eventId": "0000000000000000000001",
-                "timestamp": "2022-12-06T08:14:26.140041Z",
                 "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
                 "iun": "ABCD-ABCD-ABCD-202212-V-1",
-                "newStatus": "ACCEPTED",
-                "timelineEventCategory": "REQUEST_ACCEPTED",
-                "recipientIndex": "0",
-                "analogCost": "0",
-                "channel": "PEC",
-                "legalfactIds": [
-                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
-                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
-                ]
+                "newStatus": "EFFECTIVE_DATE",
+                "timelineEventCategory": "REFINEMENT",
+                "element": {
+                   "timestamp": "2022-12-06T08:14:26.140041Z",
+                    elementId: "REFINEMENT.IUN_ABCD-ABCD-ABCD-202212-V-1.RECINDEX_0",
+                    legalFactsIds: [],
+                    category:"REFINEMENT",
+                    details: {
+                      "recIndex": 0,
+                      "notificationCost": 100
+                    }
+                }
             }, 
             ... // altri eventi nell'array
         ]
@@ -250,21 +296,23 @@ info:
         Headers: { "retry-after": "60000" }
 
         [
-            {
-                "eventId": "0000000000000000000011",
-                "timestamp": "2022-12-07T10:13:22.158041Z",
-                "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
-                "iun": "ABCD-ABCD-ABCD-202212-V-1",
-                "newStatus": "DELIVERED",
-                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW",
-                "recipientIndex": "0",
-                "analogCost": "0",
-                "channel": "PEC",
-                "legalfactIds": [
-                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
-                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
-                ]
-            }, 
+          {
+            "eventId": "0000000000000000000011",
+            "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
+            "iun": "ABCD-ABCD-ABCD-202212-V-1",
+            "newStatus": "EFFECTIVE_DATE",
+            "timelineEventCategory": "REFINEMENT",
+            "element": {
+               "timestamp": "2022-12-06T08:14:26.140041Z",
+                elementId: "REFINEMENT.IUN_ABCD-ABCD-ABCD-202212-V-1.RECINDEX_0",
+                legalFactsIds: [],
+                category:"REFINEMENT",
+                details: {
+                  "recIndex": 0,
+                  "notificationCost": 100
+                }
+            }
+          },
             ... // altri eventi nell'array
         ]
       
@@ -285,6 +333,7 @@ info:
       - [Leggere i metadati dello stream](#/Streams/retrieveEventStream) <br/>
       - [Modifica](#/Streams/updateEventStream) <br/>
       - [Cancellazione](#/Streams/removeEventStream) <br/>
+      - [Disabilitazione](#/Streams/disableEventStream) Uno stream disabilitato non può essere riabilitato, ma è possibile consumare gli eventuali eventi. Sarà eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span> giorni<br/>
 
     Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream) 
     filtrati in base alla configurazione impostata negli streams.
@@ -297,8 +346,7 @@ info:
     se in un dato secondo avvengano più eventi contemporaneamente, nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati
     gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br>
     Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br>
-    <font color="red"><strong>Nella prima versione di Piattaforma Notifiche non verrà implementata la segregazione dei gruppi e pertanto le informazioni presenti all'interno di uno stream saranno accessibili a tutte le apiKey della stessa PA; Si evidenzia comunque che gli eventi esposti dalle stream sono anonimizzati e non contengono informazioni personali o sensibili dei soggetti impattati dagli eventi.</font></strong></br>
-    <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV20)__ </font>
+    <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV23)__ </font>
 
     </br>
     </br>
@@ -345,7 +393,7 @@ paths:
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
 
-  '/delivery-progresses/v2.2/streams':
+  '/delivery-progresses/v2.3/streams':
     parameters:                                               # NO EXTERNAL
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -368,16 +416,28 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/StreamCreationRequestV22"
+                $ref: "#/components/schemas/StreamCreationRequestV23"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV22"
+                $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: ReplacedId Stream not found
           content:
             application/problem+json:
               schema:
@@ -415,7 +475,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/delivery-progresses/v2.2/streams/{streamId}':
+  '/delivery-progresses/v2.3/streams/{streamId}':
     parameters:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -437,9 +497,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV22"
+                $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
           content:
             application/problem+json:
               schema:
@@ -462,16 +534,28 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/StreamRequestV22"
+                $ref: "#/components/schemas/StreamRequestV23"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV22"
+                $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
           content:
             application/problem+json:
               schema:
@@ -500,6 +584,18 @@ paths:
             application/problem+json:
               schema:
                 $ref: './remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
@@ -507,7 +603,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/delivery-progresses/v2.2/streams/{streamId}/action/disable':
+  '/delivery-progresses/v2.3/streams/{streamId}/action/disable':
     patch:
       summary: Disabilita uno stream
       description: >-
@@ -531,9 +627,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV22"
+                $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
           content:
             application/problem+json:
               schema:
@@ -549,7 +657,7 @@ paths:
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
     ############################################################################################
 
-  '/delivery-progresses/v2.2/streams/{streamId}/events':
+  '/delivery-progresses/v2.3/streams/{streamId}/events':
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -583,7 +691,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProgressResponseV22"
+                $ref: "#/components/schemas/ProgressResponseV23"
         '429':
           description: Too Many Requests
           headers:
@@ -601,6 +709,12 @@ paths:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '403':
           description: Not allowed to consume details
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
           content:
             application/problem+json:
               schema:
@@ -718,11 +832,11 @@ components:
     ############################################################################################
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
-    StreamCreationRequestV22:
+    StreamCreationRequestV23:
       description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV22'
+        - $ref: '#/components/schemas/StreamRequestV23'
         - type: object
           properties:
             replacedStreamId:
@@ -735,7 +849,7 @@ components:
               type: string
               format: uuid
 
-    StreamRequestV22:
+    StreamRequestV23:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di eventi di avanzamento delle notifiche.
         L'aggiornamento delle proprietà dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi.
@@ -783,10 +897,10 @@ components:
       description: >-
         Identificativo del gruppo.
     
-    StreamMetadataResponseV22:
+    StreamMetadataResponseV23:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV22'
+        - $ref: '#/components/schemas/StreamRequestV23'
         - type: object
           required:
             - streamId
@@ -843,12 +957,12 @@ components:
     ###  - EVENTI GENERATI DA PN
     ###################################
 
-    ProgressResponseV22:
+    ProgressResponseV23:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV22'
+        $ref: '#/components/schemas/ProgressResponseElementV23'
 
-    ProgressResponseElementV22:
+    ProgressResponseElementV23:
       type: object
       required:
         - eventId
@@ -871,15 +985,14 @@ components:
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         element:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
-        # proprietà necessarie per retrocompatibilità nel transitorio, ma che non saranno esposte nella V22 # NO EXTERNAL
-        # potranno essere eliminate quando la Timeline verrà aggiornata e verrà aggiunto il serviceLevel   # NO EXTERNAL
-        # nel detail di AnalogProgressDetail                                                               # NO EXTERNAL
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
+        # proprietà necessarie per retrocompatibilità nel transitorio, ma che non saranno esposte nella V23 # NO EXTERNAL
+        # potranno essere eliminate (assieme al RefusedReason) quando non saranno più presenti eventi della v1 # NO EXTERNAL
         timestamp:                                                                                         # NO EXTERNAL
           type: string                                                                                     # NO EXTERNAL
           format: date-time                                                                                # NO EXTERNAL
         timelineEventCategory:                                                                             # NO EXTERNAL
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20'                # NO EXTERNAL
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV23'                # NO EXTERNAL
         recipientIndex:                                                                                    # NO EXTERNAL
           type: integer                                                                                    # NO EXTERNAL
           format: int32                                                                                    # NO EXTERNAL
@@ -889,9 +1002,26 @@ components:
           format: int32                                                                                    # NO EXTERNAL
         channel:                                                                                           # NO EXTERNAL
           type: string                                                                                     # NO EXTERNAL
+        legalfactIds:                                                                                      # NO EXTERNAL
+          type: array                                                                                      # NO EXTERNAL
+          items:                                                                                           # NO EXTERNAL
+            type: string                                                                                   # NO EXTERNAL
+          example: ["PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q", "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"]  # NO EXTERNAL
+          description: chiavi degli eventuali allegati associati all'evento                                # NO EXTERNAL
+        validationErrors:                                                                                  # NO EXTERNAL
+          type: array                                                                                      # NO EXTERNAL
+          description: eventuali errori di validazione associati all'evento                                # NO EXTERNAL
+          items:                                                                                           # NO EXTERNAL
+            $ref: '#/components/schemas/RefusedReason'                                                     # NO EXTERNAL
 
+    RefusedReason:                                                                                         # NO EXTERNAL
+      type: object                                                                                         # NO EXTERNAL
+      properties:                                                                                          # NO EXTERNAL
+        errorCode:                                                                                         # NO EXTERNAL
+          type: string                                                                                     # NO EXTERNAL
+        detail:                                                                                            # NO EXTERNAL
+          type: string                                                                                     # NO EXTERNAL
 
-    
     ###  - EVENTI GENERATI DALLA P.A.
     ###################################
     ExternalEventsRequest:                                                              # NOT YET IMPLEMENTED
