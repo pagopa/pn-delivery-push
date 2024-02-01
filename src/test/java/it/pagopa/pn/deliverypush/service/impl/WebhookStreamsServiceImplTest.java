@@ -88,6 +88,7 @@ class WebhookStreamsServiceImplTest {
     void createEventStream() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
         StreamCreationRequestV23 req = new StreamCreationRequestV23();
         req.setTitle("titolo");
         req.setEventType(StreamCreationRequestV23.EventTypeEnum.STATUS);
@@ -116,7 +117,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        StreamMetadataResponseV23 res = webhookService.createEventStream(xpagopacxid, null,null, Mono.just(req)).block(d);
+        StreamMetadataResponseV23 res = webhookService.createEventStream(xpagopapnuid,xpagopacxid, null,null, Mono.just(req)).block(d);
 
         //THEN
         assertNotNull(res);
@@ -129,6 +130,7 @@ class WebhookStreamsServiceImplTest {
     void createEventStreamMaxReached() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
         StreamCreationRequestV23 req = new StreamCreationRequestV23();
         req.setTitle("titolo");
         req.setEventType(StreamCreationRequestV23.EventTypeEnum.STATUS);
@@ -159,7 +161,7 @@ class WebhookStreamsServiceImplTest {
         Mockito.when(streamEntityDao.save(Mockito.any())).thenReturn(Mono.just(entity));
 
         //WHEN
-        Mono<StreamMetadataResponseV23> mono = webhookService.createEventStream(xpagopacxid,null,null, Mono.just(req));
+        Mono<StreamMetadataResponseV23> mono = webhookService.createEventStream(xpagopapnuid, xpagopacxid,null,null, Mono.just(req));
         assertThrows(PnWebhookMaxStreamsCountReachedException.class, () -> mono.block(d));
 
         //THEN
@@ -170,6 +172,7 @@ class WebhookStreamsServiceImplTest {
     void deleteEventStream() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
 
 
         UUID uuidd = UUID.randomUUID();
@@ -188,7 +191,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        webhookService.deleteEventStream(xpagopacxid, null,null,uuidd).block(d);
+        webhookService.deleteEventStream(xpagopapnuid,xpagopacxid, null,null,uuidd).block(d);
 
         //THEN
         Mockito.verify(streamEntityDao).delete(xpagopacxid, uuid);
@@ -198,6 +201,7 @@ class WebhookStreamsServiceImplTest {
     void updateEventStreamNotAllowed() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
         StreamRequestV23 req = new StreamRequestV23();
         req.setTitle("titolo");
         req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
@@ -218,7 +222,7 @@ class WebhookStreamsServiceImplTest {
         Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
 
 
-        Mono<StreamMetadataResponseV23> mono = webhookService.updateEventStream(xpagopacxid,null,null, uuidd, Mono.just(req));
+        Mono<StreamMetadataResponseV23> mono = webhookService.updateEventStream(xpagopapnuid,xpagopacxid,null,null, uuidd, Mono.just(req));
         assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
 
         //THEN
@@ -229,6 +233,7 @@ class WebhookStreamsServiceImplTest {
     void getEventStream() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
 
 
         UUID uuidd = UUID.randomUUID();
@@ -246,7 +251,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        StreamMetadataResponseV23 res = webhookService.getEventStream(xpagopacxid,null,null, uuidd).block(d);
+        StreamMetadataResponseV23 res = webhookService.getEventStream(xpagopapnuid,xpagopacxid,null,null, uuidd).block(d);
 
         //THEN
         assertNotNull(res);
@@ -257,6 +262,7 @@ class WebhookStreamsServiceImplTest {
     void listEventStream() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
 
 
         UUID uuidd = UUID.randomUUID();
@@ -285,7 +291,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        List<StreamListElement> res = webhookService.listEventStream(xpagopacxid,null,null).collectList().block(d);
+        List<StreamListElement> res = webhookService.listEventStream(xpagopapnuid, xpagopacxid,null,null).collectList().block(d);
 
         //THEN
         assertNotNull(res);
@@ -297,6 +303,7 @@ class WebhookStreamsServiceImplTest {
     void updateEventStream() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
         StreamRequestV23 req = new StreamRequestV23();
         req.setTitle("titolo");
         req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
@@ -318,7 +325,7 @@ class WebhookStreamsServiceImplTest {
 
 
         //WHEN
-        StreamMetadataResponseV23 res = webhookService.updateEventStream(xpagopacxid, null,null, uuidd, Mono.just(req)).block(d);
+        StreamMetadataResponseV23 res = webhookService.updateEventStream(xpagopapnuid,xpagopacxid, null,null, uuidd, Mono.just(req)).block(d);
 
         //THEN
         assertNotNull(res);

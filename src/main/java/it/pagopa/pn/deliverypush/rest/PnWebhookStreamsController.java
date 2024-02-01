@@ -35,7 +35,7 @@ public class PnWebhookStreamsController implements StreamsApi {
         log.info("[enter] createEventStream xPagopaPnCxId={} xPagopaPnCxGroups={}", xPagopaPnCxId, xPagopaPnCxGroups);
 
         return MDCUtils.addMDCToContextAndExecute(
-            webhookStreamsService.createEventStream(xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion, streamCreationRequestV23)
+            webhookStreamsService.createEventStream(xPagopaPnUid, xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion, streamCreationRequestV23)
                         .map(ResponseEntity::ok));
     }
 
@@ -46,7 +46,7 @@ public class PnWebhookStreamsController implements StreamsApi {
         log.info("[enter] deleteEventStream xPagopaPnCxId={} uuid={}", xPagopaPnCxId, streamId.toString());
 
         return MDCUtils.addMDCToContextAndExecute(
-                webhookStreamsService.deleteEventStream(xPagopaPnCxId, xPagopaPnCxGroups,xPagopaPnApiVersion, streamId)
+                webhookStreamsService.deleteEventStream(xPagopaPnUid, xPagopaPnCxId, xPagopaPnCxGroups,xPagopaPnApiVersion, streamId)
                         .then(Mono.just(ResponseEntity.noContent().build()))
         );
     }
@@ -57,7 +57,7 @@ public class PnWebhookStreamsController implements StreamsApi {
         log.info("[enter] getEventStream xPagopaPnCxId={} streamId={}", xPagopaPnCxId, streamId.toString());
 
         return MDCUtils.addMDCToContextAndExecute(
-            webhookStreamsService.getEventStream(xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion, streamId)
+            webhookStreamsService.getEventStream(xPagopaPnUid, xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion, streamId)
                         .map(ResponseEntity::ok)
         );
     }
@@ -65,7 +65,7 @@ public class PnWebhookStreamsController implements StreamsApi {
     @Override
     public Mono<ResponseEntity<Flux<StreamListElement>>> listEventStreams(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion,  final ServerWebExchange exchange) {
         log.info("[enter] listEventStreams xPagopaPnCxId={}", xPagopaPnCxId);
-        return Mono.fromSupplier(() -> ResponseEntity.ok(webhookStreamsService.listEventStream(xPagopaPnCxId,xPagopaPnCxGroups, xPagopaPnApiVersion)));
+        return Mono.fromSupplier(() -> ResponseEntity.ok(webhookStreamsService.listEventStream(xPagopaPnUid, xPagopaPnCxId,xPagopaPnCxGroups, xPagopaPnApiVersion)));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class PnWebhookStreamsController implements StreamsApi {
         log.info("[enter] updateEventStream xPagopaPnCxId={} uuid={}", xPagopaPnCxId, streamId.toString());
 
         return MDCUtils.addMDCToContextAndExecute(
-            webhookStreamsService.updateEventStream(xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion, streamId, streamRequestV23)
+            webhookStreamsService.updateEventStream(xPagopaPnUid, xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion, streamId, streamRequestV23)
                         .map(ResponseEntity::ok)
         );
     }
@@ -85,7 +85,7 @@ public class PnWebhookStreamsController implements StreamsApi {
         log.info("[enter] disableEventStream xPagopaPnCxId={} uuid={} xPagopaPnCxGroups={}", xPagopaPnCxId, streamId.toString(), String.join(",", xPagopaPnCxGroups));
 
         return MDCUtils.addMDCToContextAndExecute(
-            webhookStreamsService.disableEventStream(xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion, streamId)
+            webhookStreamsService.disableEventStream(xPagopaPnUid, xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion, streamId)
                 .map(ResponseEntity::ok)
         );
     }
