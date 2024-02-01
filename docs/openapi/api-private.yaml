@@ -615,7 +615,7 @@ components:
           type: string
           description: identificativo anonimizzato del destinatario
         raddType:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddType'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddTypeV23'
         raddBusinessTransactionId:
           $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddTransactionId'
         raddBusinessTransactionDate:

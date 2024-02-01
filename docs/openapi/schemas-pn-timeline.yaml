@@ -320,7 +320,7 @@ components:
           description: Data ricezione richiesta visualizzazione notifica
           format: date-time
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -339,7 +339,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         eventTimestamp:
@@ -362,7 +362,7 @@ components:
           type: integer
           format: int64
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -1151,7 +1151,7 @@ components:
         system:
           type: string
 
-    RaddType:
+    RaddTypeV23:
       type: string
       description: |
         tipo di Rete Anti Digital Divide <br/>

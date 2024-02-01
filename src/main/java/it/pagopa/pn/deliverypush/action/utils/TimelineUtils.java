@@ -606,6 +606,7 @@ public class TimelineUtils {
                 .attachments(attachments)
                 .sendRequestId(sendRequestId)
                 .registeredLetterCode(sendEventInt.getRegisteredLetterCode())
+                .serviceLevel(sendPaperDetails.getServiceLevel())
                 .build();
 
         List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);
