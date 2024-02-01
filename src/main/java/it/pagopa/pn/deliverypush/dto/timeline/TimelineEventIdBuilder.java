@@ -1,10 +1,11 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
+import static java.lang.Boolean.TRUE;
+
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
-
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
@@ -43,6 +44,8 @@ public class TimelineEventIdBuilder {
     private String paymentCode = "";
 
     private String isFirstSendRetry = "";
+
+    private String optin = "";
     
     public TimelineEventIdBuilder withIun(@Nullable String iun) {
         if(iun != null)
@@ -117,7 +120,14 @@ public class TimelineEventIdBuilder {
             this.isFirstSendRetry = DELIMITER.concat("REPEAT_").concat(retry.toString());
         return this;
     }
-    
+
+    public TimelineEventIdBuilder withOptin(Boolean optin) {
+        if (TRUE.equals(optin)){
+            this.optin = ".OPTIN";
+        }
+        return this;
+    }
+
     public String build() {
         return new StringBuilder()
                 .append(category)
@@ -132,6 +142,7 @@ public class TimelineEventIdBuilder {
                 .append(progressIndex)
                 .append(correlationId)
                 .append(paymentCode)
+                .append(optin)
                 .toString();
     }
 

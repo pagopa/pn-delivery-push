@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.completionworkflow;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -29,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PecDeliveryWorkflowLegalFactsGeneratorTest {
     @Mock
@@ -73,7 +75,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
 
         List<TimelineElementInternal> timeline = getTimeline(notification.getIun(), recIndex);
 
-        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
+        Mockito.when(timelineService.getTimelineStrongly(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
         
         EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
@@ -94,6 +96,36 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
                 completionWorkflowDate
         );
 
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void generatePecDeliveryWorkflowLegalFactException() {
+        //GIVEN
+
+        int recIndex = 0;
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("taxId")
+                .withInternalId("ANON_"+"taxId")
+                .withPhysicalAddress(
+                        PhysicalAddressBuilder.builder()
+                                .withAddress("_Via Nuova")
+                                .build()
+                )
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun("iun")
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        Mockito.when(timelineService.getTimelineStrongly(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>());
+
+        EndWorkflowStatus status = EndWorkflowStatus.SUCCESS;
+        Instant completionWorkflowDate = Instant.now();
+
+        assertThrows(PnInternalException.class, () -> pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, status, completionWorkflowDate));
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -120,7 +152,7 @@ class PecDeliveryWorkflowLegalFactsGeneratorTest {
 
         List<TimelineElementInternal> timeline = getTimelineWithRegisteredLetter(notification.getIun(), recIndex);
 
-        Mockito.when(timelineService.getTimeline(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
+        Mockito.when(timelineService.getTimelineStrongly(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(new HashSet<>(timeline));
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
         //WHEN

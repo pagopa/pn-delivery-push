@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
+import static org.awaitility.Awaitility.await;
+
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
@@ -13,18 +15,16 @@ import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.utils.ThreadPool;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
-import org.springframework.context.annotation.Lazy;
-
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-
-import static org.awaitility.Awaitility.await;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.context.annotation.Lazy;
 
 @Slf4j
 public class TimelineDaoMock implements TimelineDao {
@@ -87,7 +87,7 @@ public class TimelineDaoMock implements TimelineDao {
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateCancelNotificationString)){
                 //Viene simulata la cancellazione della notifica prima di uno specifico inserimento in timeline
                 log.debug("[TEST] Simulate cancel notification {}", dto);
-                notificationCancellationService.startCancellationProcess( dto.getIun(), dto.getPaId(), CxTypeAuthFleet.PA).block();
+                notificationCancellationService.startCancellationProcess( dto.getIun(), dto.getPaId(), CxTypeAuthFleet.PA, new ArrayList<>()).block();
                 // bisogna anche generare l'action
 
                 ThreadPool.start(new Thread(() -> {
@@ -116,7 +116,7 @@ public class TimelineDaoMock implements TimelineDao {
             if (notificationRecipientInt.getTaxId().endsWith(simulateAfterCancelNotificationString)) {
                 //Viene simulata la cancellazione della notifica DOPO di uno specifico inserimento in timeline
                 log.debug("[TEST] Simulate after cancel notification {}", dto);
-                notificationCancellationService.startCancellationProcess(dto.getIun(), dto.getPaId(), CxTypeAuthFleet.PA).block();
+                notificationCancellationService.startCancellationProcess(dto.getIun(), dto.getPaId(), CxTypeAuthFleet.PA, new ArrayList<>()).block();
                 // bisogna anche generare l'action
 
                 ThreadPool.start(new Thread(() -> {
@@ -151,7 +151,20 @@ public class TimelineDaoMock implements TimelineDao {
     }
 
     @Override
+    public Optional<TimelineElementInternal> getTimelineElementStrongly(String iun, String timelineId) {
+        return timelineList.stream().filter(timelineElement -> timelineId.equals(timelineElement.getElementId()) && iun.equals(timelineElement.getIun())).findFirst();
+    }
+
+    @Override
     public Set<TimelineElementInternal> getTimeline(String iun) {
+        return timelineList.stream()
+                .filter(
+                        timelineElement -> iun.equals(timelineElement.getIun())
+                ).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<TimelineElementInternal> getTimelineStrongly(String iun) {
         return timelineList.stream()
                 .filter(
                         timelineElement -> iun.equals(timelineElement.getIun())

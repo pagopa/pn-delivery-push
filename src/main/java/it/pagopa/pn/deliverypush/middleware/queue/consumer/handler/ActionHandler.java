@@ -3,13 +3,12 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
+import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
-import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
-import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
-import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
+import it.pagopa.pn.deliverypush.action.details.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.SendDigitalFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
@@ -47,8 +46,10 @@ public class ActionHandler {
     private final ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
     private final NotificationCancellationActionHandler notificationCancellationActionHandler;
     private final NotificationRefusedActionHandler notificationRefusedActionHandler;
+    private final CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
     private final TimelineUtils timelineUtils;
-
+    private final SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
+    
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
         final String processName = "START RECIPIENT WORKFLOW";
@@ -382,6 +383,50 @@ public class ActionHandler {
                 NotificationRefusedActionDetails details = (NotificationRefusedActionDetails) action.getDetails();
 
                 notificationRefusedActionHandler.notificationRefusedHandler(action.getIun(), details.getErrors(), action.getNotBefore());
+                log.logEndingProcess(processName);
+            } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushCheckAttachmentRetention(){
+        final String processName = "CHECK ATTACHMENT RETENTION";
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushCheckAttachmentRetention, with content {}", message);
+                Action action = message.getPayload();
+                HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
+
+                log.logStartingProcess(processName);
+
+                checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(action.getIun());
+                log.logEndingProcess(processName);
+            } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushSendDigitalFinalStatusResponse(){
+        final String processName = "SEND DIGITAL FINAL STATUS RESPONSE";
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushSendDigitalFinalStatusResponse, with content {}", message);
+                Action action = message.getPayload();
+                HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
+
+                log.logStartingProcess(processName);
+                
+                sendDigitalFinalStatusResponseHandler.handleSendDigitalFinalStatusResponse(action.getIun(), (SendDigitalFinalStatusResponseDetails) action.getDetails());
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());

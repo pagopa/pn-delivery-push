@@ -55,6 +55,8 @@ public class PnDeliveryPushConfigs {
 
     private Instant actionPoolEpoch;
 
+    private Duration actionPoolBeforeDelay;
+
     private Webhook webhook;
     
     private Webapp webapp;
@@ -106,7 +108,9 @@ public class PnDeliveryPushConfigs {
     private int pagoPaNotificationBaseCost;
 
     private List<String> paperSendMode;
-
+    //quickWorkAroundForPN-9116
+    private boolean sendMoreThan20GramsDefaultValue;
+    
     @Data
     public static class Topics {
 

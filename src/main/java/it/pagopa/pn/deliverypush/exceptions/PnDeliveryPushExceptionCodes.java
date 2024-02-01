@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.exceptions;
 
 import it.pagopa.pn.commons.exceptions.PnExceptionsCodes;
+import lombok.Getter;
 
 public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
@@ -63,7 +64,9 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERYPUSH_PAPERCHANNELSENDCOSTCHANGED = "PN_DELIVERYPUSH_PAPERCHANNELSENDCOSTCHANGED";
     public static final String ERROR_CODE_DELIVERYPUSH_PAYMENT_UPDATE_RETRY_EXCEPTION = "ERROR_CODE_DELIVERYPUSH_PAYMENTUPDATERETRYEXCEPTION";
     public static final String ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND = "ERROR_CODE_DELIVERYPUSH_CONFIGURATIONNOTFOUND";
+    public static final String ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT = "ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT";
 
+    @Getter
     public enum NotificationRefusedErrorCodeInt {
         FILE_NOTFOUND("FILE_NOTFOUND"),
 
@@ -83,16 +86,14 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
         RECIPIENT_ID_NOT_VALID("RECIPIENT_ID_NOT_VALID"),
 
-        PAYMENT_NOT_VALID("PAYMENT_NOT_VALID");
+        PAYMENT_NOT_VALID("PAYMENT_NOT_VALID"),
+        //quickWorkAroundForPN-9116
+        SENDER_DISABLED_MORE_THAN_20_GRAMS("SENDER_DISABLED_MORE_THAN_20_GRAMS");
 
         private final String value;
 
         NotificationRefusedErrorCodeInt(String value) {
             this.value = value;
-        }
-
-        public String getValue() {
-            return value;
         }
 
         @Override

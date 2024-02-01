@@ -16,19 +16,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.*;
+import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.CancellationReason;
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore.ATTRIBUTE_NOT_EXISTS;
 
 @Component
 @Slf4j
@@ -60,7 +61,30 @@ public class ActionDaoDynamo implements ActionDao {
     }
 
     @Override
-    public void addActionIfAbsent(Action action, String timeSlot) {
+    public void addOnlyActionIfAbsent(Action action) {
+        String expression = String.format(
+                "%s(%s)",
+                ATTRIBUTE_NOT_EXISTS,
+                ActionEntity.FIELD_ACTION_ID
+        );
+
+        Expression conditionExpressionPut = Expression.builder()
+                .expression(expression)
+                .build();
+
+        PutItemEnhancedRequest<ActionEntity> request = PutItemEnhancedRequest.builder( ActionEntity.class )
+                .item(DtoToEntityActionMapper.dtoToEntity(action, actionTtl) )
+                .conditionExpression( conditionExpressionPut )
+                .build();
+        try {
+            dynamoDbTableAction.putItem(request);
+        }catch (ConditionalCheckFailedException ex){
+            log.warn("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId={} ", action.getActionId(), ex);
+        }
+    }
+
+    @Override
+    public void addActionAndFutureActionIfAbsent(Action action, String timeSlot) {
         try {
             TransactPutItemEnhancedRequest<ActionEntity> putItemEnhancedRequest = actionEntityDao.preparePutIfAbsent(DtoToEntityActionMapper.dtoToEntity(action, actionTtl));
             TransactPutItemEnhancedRequest<FutureActionEntity> putItemEnhancedRequestFuture = futureActionEntityDao.preparePut(DtoToEntityFutureActionMapper.dtoToEntity(action,timeSlot));

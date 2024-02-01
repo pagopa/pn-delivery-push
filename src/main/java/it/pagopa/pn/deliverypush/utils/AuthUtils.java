@@ -1,21 +1,20 @@
 package it.pagopa.pn.deliverypush.utils;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
+
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.mandate.MandateDtoInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.MandateService;
+import java.time.Instant;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.List;
-
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
 
 @Slf4j
 @Component
@@ -179,12 +178,14 @@ public class AuthUtils {
         }
     }
 
-    public Mono<Void> checkPaId(NotificationInt notification, String senderPaId, CxTypeAuthFleet cxType) {
+    public Mono<Void> checkPaIdAndGroup(NotificationInt notification, String senderPaId, CxTypeAuthFleet cxType, List<String> xPagopaPnCxGroups) {
         log.debug("Start checkPaId - iun={} senderPaId={} cxType={}", notification.getIun(), senderPaId, cxType);
         String paId = notification.getSender().getPaId();
+        String paGroup = notification.getGroup();
 
         return Mono.just(senderPaId)
-                .filter(pa -> CxTypeAuthFleet.PA.equals(cxType) && pa.equals(paId))
+                .filter(pa -> CxTypeAuthFleet.PA.equals(cxType) && pa.equals(paId)
+                    && (CollectionUtils.isEmpty(xPagopaPnCxGroups ) || xPagopaPnCxGroups.contains(paGroup)) )
                 .doOnNext(validPa -> log.info("checkPaId validation success - iun={} paId={}", notification.getIun(), senderPaId))
                 .switchIfEmpty(Mono.error(() -> {
                     String message = String.format("SenderPaId %s haven't authorization to cancel notification - iun=%s", senderPaId, notification.getIun());

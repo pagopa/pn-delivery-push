@@ -10,23 +10,21 @@ import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDeta
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
+import it.pagopa.pn.deliverypush.exceptions.*;
+import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -53,6 +51,10 @@ public class NotificationValidationActionHandler {
     private final PnDeliveryPushConfigs cfg;
     private final F24Validator f24Validator;
     private final PaymentValidator paymentValidator;
+    //quickWorkAroundForPN-9116
+    private final SendMoreThan20GramsParameterConsumer parameterConsumer;
+    private final SafeStorageService safeStorageService;
+    private final DocumentComposition documentComposition;
     
     public void validateNotification(String iun, NotificationValidationActionDetails details){
         log.debug("Start validateNotification - iun={}", iun);
@@ -69,7 +71,8 @@ public class NotificationValidationActionHandler {
                 taxIdPivaValidator.validateTaxIdPiva(notification);
             }
 
-            logEvent.generateSuccess().log();
+            //quickWorkAroundForPN-9116
+            quickWorkAroundForPN9116(notification);
 
             if (f24Exists(notification)) {
                 //La validazione del F24 è async
@@ -84,6 +87,8 @@ public class NotificationValidationActionHandler {
                         addressValidator.requestValidateAndNormalizeAddresses(notification)
                 ).block();
             }
+
+            logEvent.generateSuccess().log();
 
         } catch (PnValidationFileNotFoundException ex){
             if(cfg.isSafeStorageFileNotFoundRetry())
@@ -235,5 +240,79 @@ public class NotificationValidationActionHandler {
             handleValidationError(notification, ex);
         }
 
+    }
+
+    /**
+     *
+     * quickWorkAroundForPN-9116
+     */
+    private void quickWorkAroundForPN9116(NotificationInt notification) {
+        if(!canSendMoreThan20Grams(notification.getSender().getPaTaxId())) {
+            final String errorDetail = String.format( "Validation failed, sender paTaxId=%s can't send mail with more than 3 sheets (20 grams).", notification.getSender().getPaTaxId());
+            if(haveSomePaymentsAttachment(notification)) {
+                throw new PnValidationMoreThan20GramsException(errorDetail + " Payment attachments are disabled");
+            }
+            int numberOfDocuments = notification.getDocuments().size();
+            switch (numberOfDocuments) {
+                case 1 -> checkDocumentsMaxPageNumber(notification, 4, "The attachment document exceed 4 pages. [paTaxId=%s, document=%s, actualPages=%s, maxPages=%s]");
+                case 2 -> checkDocumentsMaxPageNumber(notification, 2, "One of two documents exceed one sheet. [paTaxId=%s, document=%s, actualPages=%s, maxPages=%s]");
+                default -> throw new PnValidationMoreThan20GramsException(errorDetail
+                        + " " + numberOfDocuments +
+                        " documents and an AAR exceed 3 sheets");
+            }
+        }
+    }
+
+    private void checkDocumentsMaxPageNumber(NotificationInt notification, int maxPages, String messageFormat) {
+        for (NotificationDocumentInt doc : notification.getDocuments() ) {
+            NotificationDocumentInt.Ref ref = doc.getRef();
+            FileDownloadResponseInt fd = MDCUtils.addMDCToContextAndExecute(
+                            safeStorageService.getFile(ref.getKey(), false)
+                                    .onErrorResume(PnFileNotFoundException.class, this::handleNotFoundError))
+                    .block();
+            byte[] pieceOfContent = safeStorageService.downloadPieceOfContent(fd.getKey(), fd.getDownload().getUrl(), -1).block();
+            int actualPages = documentComposition.getNumberOfPageFromPdfBytes(pieceOfContent);
+            if (actualPages > maxPages) {
+                final String errorDetail = String.format(messageFormat,
+                        notification.getSender().getPaTaxId(),
+                        fd.getKey(),
+                        actualPages,
+                        maxPages
+                );
+                throw new PnValidationMoreThan20GramsException(errorDetail);
+            }
+        }
+    }
+
+    @NotNull
+    private Mono<FileDownloadResponseInt> handleNotFoundError(PnFileNotFoundException ex) {
+        return Mono.error(
+                new PnValidationFileNotFoundException(
+                        ex.getMessage(),
+                        ex.getCause()
+                )
+        );
+    }
+
+    private boolean haveSomePaymentsAttachment(NotificationInt notification) {
+        return notification.getRecipients().stream()
+                .filter(recipient -> !CollectionUtils.isEmpty(recipient.getPayments()))
+                .anyMatch(recipient -> haveSomeF24Payments(recipient.getPayments()) || haveSomePagoPaPaymentsAttachment(recipient.getPayments()));
+    }
+
+    private boolean haveSomePagoPaPaymentsAttachment(List<NotificationPaymentInfoInt> payments) {
+        return payments.stream().anyMatch( payment -> havePagoPaAttachment(payment.getPagoPA()) );
+    }
+
+    private boolean havePagoPaAttachment(PagoPaInt pagoPaInt) {
+        return Objects.nonNull( pagoPaInt.getAttachment() );
+    }
+
+    private boolean haveSomeF24Payments(List<NotificationPaymentInfoInt> payments) {
+        return payments.stream().anyMatch( payment -> Objects.nonNull(payment.getF24()) );
+    }
+
+    private boolean canSendMoreThan20Grams(String paTaxId) {
+        return parameterConsumer.isPaEnabledToSendMoreThan20Grams(paTaxId);
     }
 }

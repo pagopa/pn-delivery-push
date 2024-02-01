@@ -69,8 +69,6 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
                         recipient.setPhysicalAddress(physicalAddress);
                     }
                 }
-
-                log.info("[TEST] recipient address returned is {}", recipient.getPhysicalAddress());
                 
                 recIndex ++;
             }

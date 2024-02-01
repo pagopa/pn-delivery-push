@@ -160,6 +160,8 @@ public class DocumentComposition {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PdfRendererBuilder builder = new PdfRendererBuilder();
+        builder.usePdfUaAccessbility(true);
+        builder.usePdfAConformance(PdfRendererBuilder.PdfAConformance.PDFA_3_A);
         builder.withW3cDocument( w3cDoc, baseUri);
         
         builder.toStream(baos);

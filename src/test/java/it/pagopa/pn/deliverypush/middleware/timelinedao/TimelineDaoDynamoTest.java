@@ -88,6 +88,51 @@ class TimelineDaoDynamoTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    void successfullyInsertAndRetrieveStrongly() {
+        // GIVEN
+        String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
+
+        String id1 = "sender_ack";
+        TimelineElementInternal row1 = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(id1)
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .details( NotificationRequestAcceptedDetailsInt.builder().build() )
+                .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
+                .build();
+        String id2 = "SendDigitalDetails";
+        TimelineElementInternal row2 = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(id2)
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details( SendDigitalDetailsInt.builder().build() )
+                .timestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
+                .build();
+
+        // WHEN
+        dao.addTimelineElementIfAbsent(row1);
+        dao.addTimelineElementIfAbsent(row2);
+
+        // THEN
+        // check first row
+        Optional<TimelineElementInternal> retrievedRow1 = dao.getTimelineElement(iun, id1);
+        Assertions.assertTrue(retrievedRow1.isPresent());
+        Assertions.assertEquals(row1, retrievedRow1.get());
+
+        // check second row
+        Optional<TimelineElementInternal> retrievedRow2 = dao.getTimelineElement(iun, id2);
+        Assertions.assertTrue(retrievedRow2.isPresent());
+        Assertions.assertEquals(row2, retrievedRow2.get());
+
+        // check full retrieve
+        Set<TimelineElementInternal> result = dao.getTimelineStrongly(iun);
+        Assertions.assertEquals(Set.of(row1, row2), result);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
     void successfullyInsertAndRetrieveWithPhysicalAddress() {
         // GIVEN
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
@@ -291,6 +336,20 @@ class TimelineDaoDynamoTest {
             return this.store.values().stream()
                     .filter(el -> iun.equals(el.getIun()))
                     .collect(Collectors.toSet());
+        }
+
+        @Override
+        public Set<TimelineElementEntity> findByIunStrongly(String iun) {
+            return this.store.values().stream()
+                    .filter(el -> iun.equals(el.getIun()))
+                    .collect(Collectors.toSet());
+        }
+
+        @Override
+        public Optional<TimelineElementEntity> getTimelineElementStrongly(String iun, String timelineId) {
+            return this.store.values().stream()
+                    .filter(el -> iun.equals(el.getIun()) && el.getTimelineElementId().startsWith(timelineId))
+                    .findFirst();
         }
 
         @Override

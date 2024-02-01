@@ -10,9 +10,11 @@ import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.SendDigitalFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
@@ -123,30 +125,37 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public SchedulerServiceMock schedulerServiceMockMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                                         @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
-                                                         @Lazy AnalogWorkflowHandler analogWorkflowHandler,
-                                                         @Lazy RefinementHandler refinementHandler,
-                                                         @Lazy InstantNowSupplier instantNowSupplier,
-                                                         @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
-                                                         @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
-                                                         @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
-                                                         @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
-                                                         @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
-                                                         @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler
+    public ActionHandlerMock ActionHandlerMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
+                                               @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
+                                               @Lazy AnalogWorkflowHandler analogWorkflowHandler,
+                                               @Lazy RefinementHandler refinementHandler,
+                                               @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
+                                               @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
+                                               @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
+                                               @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
+                                               @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
+                                               @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
+                                               @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler, 
+                                               @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler
     ) {
-        return new SchedulerServiceMock(
+        return new ActionHandlerMock(
                 digitalWorkFlowHandler,
                 digitalWorkFlowRetryHandler,
                 analogWorkflowHandler,
                 refinementHandler,
-                instantNowSupplier,
                 startWorkflowForRecipientHandler, 
                 chooseDeliveryModeHandler, 
                 documentCreationResponseHandler,
                 notificationValidationActionHandler,
                 receivedLegalFactCreationRequest,
-                notificationRefusedActionHandler);
+                notificationRefusedActionHandler,
+                checkAttachmentRetentionHandler,
+                sendDigitalFinalStatusResponseHandler);
+    }
+    
+    @Bean
+    public SchedulerServiceMock schedulerServiceMockMock(@Lazy ActionPoolMock actionPoolMock) {
+        return new SchedulerServiceMock(actionPoolMock);
     }
 
     

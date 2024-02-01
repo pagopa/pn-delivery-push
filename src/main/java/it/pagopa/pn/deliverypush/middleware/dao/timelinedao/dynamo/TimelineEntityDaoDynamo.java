@@ -12,13 +12,12 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
@@ -43,6 +42,28 @@ public class TimelineEntityDaoDynamo  extends AbstractDynamoKeyValueStore<Timeli
         return pageIterableToSet(table.query( queryByHashKey ));
     }
 
+    @Override
+    public Set<TimelineElementEntity> findByIunStrongly(String iun) {
+        Key hashKey = Key.builder().partitionValue(iun).build();
+        QueryConditional queryByHashKey = keyEqualTo( hashKey );
+        QueryEnhancedRequest enhancedRequest = QueryEnhancedRequest.builder()
+                .queryConditional(queryByHashKey)
+                .consistentRead(true) // Imposta la consistenza forte
+                .build();
+        return pageIterableToSet(table.query( enhancedRequest ));
+    }
+
+    @Override
+    public Optional<TimelineElementEntity> getTimelineElementStrongly(String iun, String timelineId) {
+        GetItemEnhancedRequest request = GetItemEnhancedRequest.builder()
+                .key(key -> key
+                    .partitionValue(iun)
+                    .sortValue(timelineId))
+                .consistentRead(true)
+                .build();
+
+        return Optional.ofNullable(table.getItem(request));
+    }
 
     @Override
     public Set<TimelineElementEntity> searchByIunAndElementId(String iun, String elementId) {

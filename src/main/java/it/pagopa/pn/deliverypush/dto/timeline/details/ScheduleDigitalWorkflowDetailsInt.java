@@ -19,6 +19,8 @@ public class ScheduleDigitalWorkflowDetailsInt implements RecipientRelatedTimeli
     private DigitalAddressSourceInt digitalAddressSource;
     private Integer sentAttemptMade;
     private Instant lastAttemptDate;
+    private Instant schedulingDate;
+
 
     public String toLog() {
         return String.format(

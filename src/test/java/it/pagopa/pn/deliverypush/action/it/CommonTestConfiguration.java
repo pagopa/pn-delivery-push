@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
+import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
@@ -25,6 +26,7 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationRespon
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
@@ -36,8 +38,10 @@ import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -50,6 +54,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.awaitility.Awaitility.setDefaultTimeout;
 
 @ContextConfiguration(classes = {
         StartWorkflowHandler.class,
@@ -144,11 +150,17 @@ import java.util.List;
         MandateServiceImpl.class,
         MandateClientMock.class,
         NotificationCancellationActionHandler.class,
-        PaperSendModeUtils.class
+        PaperSendModeUtils.class,
+        CheckAttachmentRetentionHandler.class,
+        ActionPoolMock.class,
+        SendDigitalFinalStatusResponseHandler.class,
+        //quickWorkAroundForPN-9116
+        SendMoreThan20GramsParameterConsumer.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")
 @DirtiesContext
+@EnableScheduling
 public class CommonTestConfiguration {
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
@@ -156,7 +168,8 @@ public class CommonTestConfiguration {
             super();
         }
     }
-    
+    @Autowired
+    ActionPoolMock actionPoolMock;
     @Autowired
     SafeStorageClientMock safeStorageClientMock;
     @Autowired
@@ -186,8 +199,13 @@ public class CommonTestConfiguration {
     
     @BeforeEach
     public void setup() {
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        setDefaultTimeout(Duration.ofSeconds(60));
 
+        // Viene creato un oggetto Answer per ottenere l'istante corrente al momento della chiamata ...
+        Answer<Instant> answer = invocation -> Instant.now();
+        // e configurato Mockito per restituire l'istante corrente al momento della chiamata
+        Mockito.when(instantNowSupplier.get()).thenAnswer(answer);
+        
         setcCommonsConfigurationPropertiesForTest(cfg);
 
         ConsoleAppenderCustom.initializeLog();
@@ -203,7 +221,8 @@ public class CommonTestConfiguration {
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
                 addressManagerClientMock,
-                f24ClientMock
+                f24ClientMock,
+                actionPoolMock
         );
     }
 
@@ -218,6 +237,10 @@ public class CommonTestConfiguration {
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(1));
         times.setNotificationNonVisibilityTime("21:00");
         times.setTimeToAddInNonVisibilityTimeCase(Duration.ofSeconds(1));
+        times.setAttachmentRetentionTimeAfterValidation(Duration.ofSeconds(5));
+        times.setCheckAttachmentTimeBeforeExpiration(Duration.ofSeconds(2));
+        times.setAttachmentTimeToAddAfterExpiration(Duration.ofSeconds(50));
+        
         Mockito.when(cfg.getTimeParams()).thenReturn(times);
 
         // Impostazione delle proprietà PaperChannel
@@ -250,7 +273,7 @@ public class CommonTestConfiguration {
         externalChannel.setDigitalCodesFatallog(Arrays.asList("C008", "C010"));
         externalChannel.setDigitalRetryCount(-1);
         externalChannel.setDigitalRetryDelay(Duration.ofMinutes(10));
-        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofHours(26));
+        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofSeconds(50));
         Mockito.when(cfg.getExternalChannel()).thenReturn(externalChannel);
 
         // Impostazione delle proprietà di retention degli allegati
@@ -266,6 +289,10 @@ public class CommonTestConfiguration {
         paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
 
         Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList);
+
+        //quickWorkAroundForPN-9116
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue()).thenReturn(true);
+
     }
 
 }

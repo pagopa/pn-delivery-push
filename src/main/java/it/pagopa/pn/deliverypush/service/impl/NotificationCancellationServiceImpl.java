@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import static it.pagopa.pn.deliverypush.action.utils.PaymentUtils.handleResponse;
+
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.utils.PaymentUtils;
@@ -13,18 +15,20 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaIntMode;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.deliverypush.service.*;
+import it.pagopa.pn.deliverypush.service.AuditLogService;
+import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
+import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.List;
-
-import static it.pagopa.pn.deliverypush.action.utils.PaymentUtils.handleResponse;
 
 @Service
 @AllArgsConstructor
@@ -37,6 +41,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
     public static final String NOTIFICATION_ALREADY_CANCELLED = "NOTIFICATION_ALREADY_CANCELLED";
     public static final String NOTIFICATION_CANCELLATION_ACCEPTED = "NOTIFICATION_CANCELLATION_ACCEPTED";
+    public static final String NOTIFICATION_REFUSED = "NOTIFICATION_REFUSED";
 
 
     private final NotificationService notificationService;
@@ -48,13 +53,13 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
     private NotificationProcessCostService notificationProcessCostService;
 
     @Override
-    public Mono<StatusDetailInt> startCancellationProcess(String iun, String paId, CxTypeAuthFleet cxType) {
+    public Mono<StatusDetailInt> startCancellationProcess(String iun, String paId, CxTypeAuthFleet cxType, List<String> xPagopaPnCxGroups) {
 
         PnAuditLogEvent logEvent = generateAuditLog(iun, FIRST_CANCELLATION_STEP);
         
         return notificationService.getNotificationByIunReactive(iun)
                 .flatMap(notification -> 
-                        authUtils.checkPaId(notification, paId, cxType)
+                        authUtils.checkPaIdAndGroup(notification, paId, cxType, xPagopaPnCxGroups)
                                 .then(Mono.fromSupplier(() -> beginCancellationProcess(notification, logEvent)))
                 )
                 .doOnError(err -> logEvent.generateFailure("Error in cancellation process iun={} paId={}", iun, paId, err).log());
@@ -134,23 +139,33 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
     private StatusDetailInt beginCancellationProcess(NotificationInt notification, PnAuditLogEvent logEvent)
     {
-        if (!timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
-            addCancellationRequestTimelineElement(notification);
-            logEvent.generateSuccess().log();
+        if(!timelineUtils.checkIsNotificationRefused(notification.getIun())) {
+            if (!timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
+                addCancellationRequestTimelineElement(notification);
+                logEvent.generateSuccess().log();
+                return StatusDetailInt.builder()
+                        .code(NOTIFICATION_CANCELLATION_ACCEPTED)
+                        .level("INFO")
+                        .detail("La richiesta di annullamento è stata presa in carico")
+                        .build();
+            }
+            else
+            {
+                logEvent.generateWarning("Notification already cancelled iun={}", notification.getIun()).log();
+                return StatusDetailInt.builder()
+                        .code(NOTIFICATION_ALREADY_CANCELLED)
+                        .level("WARN")
+                        .detail("E' già presente una richiesta di annullamento per questa notifica")
+                        .build();
+            }
+        } else {
+            logEvent.generateWarning("Notification refused iun={}", notification.getIun()).log();
             return StatusDetailInt.builder()
-                    .code(NOTIFICATION_CANCELLATION_ACCEPTED)
-                    .level("INFO")
-                    .detail("La richiesta di annullamento è stata presa in carico")
-                    .build();
-        }
-        else
-        {
-            logEvent.generateWarning("Notification already cancelled iun={}", notification.getIun()).log();
-            return StatusDetailInt.builder()
-                    .code(NOTIFICATION_ALREADY_CANCELLED)
+                    .code(NOTIFICATION_REFUSED)
                     .level("WARN")
-                    .detail("E' già presente una richiesta di annullamento per questa notifica")
+                    .detail("Notifica rifiutata")
                     .build();
         }
+
     }
 }

@@ -1,11 +1,14 @@
 package it.pagopa.pn.deliverypush.dto.ext.delivery.notification;
 
-
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import lombok.*;
-
 import java.time.Instant;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,4 +30,5 @@ public class NotificationInt {
     private NotificationFeePolicy notificationFeePolicy;
     private Instant paymentExpirationDate;
     private PagoPaIntMode pagoPaIntMode;
+    private String group;
 }

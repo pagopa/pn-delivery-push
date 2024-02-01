@@ -52,6 +52,18 @@ Parameters:
     Type: String
     Description: 'Refinement time for Analog workflow failure. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
   
+  AttachmentRetentionTimeAfterValidation:
+    Type: String
+    Description: 'Attachment retention after validation. Note: This number is defined on safeStorage, so a change to these properties does not imply a change to effective file retention'
+  
+  CheckAttachmentTimeBeforeExpiration:
+    Type: String
+    Description: 'Defines how long before the attachment retention expires need to start "check attachment retention"'
+  
+  AttachmentTimeToAddAfterExpiration:
+    Type: String
+    Description: 'Time to add when attachment retention is expiring'
+
   ApiDnsName:
     Type: String
     Description: 'The DNS name used for B2B rest API.'
@@ -299,6 +311,15 @@ Parameters:
   IsLollipopActive:
     Type: String
     Description: 'lollipop authorization activation flag'
+    AllowedValues: [ true, false ]
+    Default: false
+
+  #quickWorkAroundForPN-9116
+  SendMoreThan20GramsDefaultValue:
+    Type: String
+    Description: |
+      Valore di default dell'abilitazione ad inviare notifche con piú di 2 fogli oltre l'AAR (20 grammi).
+      Il valore di abilitazione puó essere sovrascritto dal Parameter Store MapPaSendMoreThan20Grams nel parametro canSendMoreThan20Grams.
     AllowedValues: [ true, false ]
     Default: false
 
@@ -735,7 +756,12 @@ Resources:
         ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'
         ContainerEnvEntry63: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONBASECOST=${PagoPaNotificationBaseCost}'
-      
+        ContainerEnvEntry64: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTRETENTIONTIMEAFTERVALIDATION=${AttachmentRetentionTimeAfterValidation}'
+        ContainerEnvEntry65: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_CHECKATTACHMENTTIMEBEFOREEXPIRATION=${CheckAttachmentTimeBeforeExpiration}'
+        ContainerEnvEntry66: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTTIMETOADDAFTEREXPIRATION=${AttachmentTimeToAddAfterExpiration}'
+        #quickWorkAroundForPN-9116
+        ContainerEnvEntry67: !Sub 'PN_DELIVERYPUSH_SENDMORETHAN20GRAMSDEFAULTVALUE=${SendMoreThan20GramsDefaultValue}'
+        
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -800,6 +826,7 @@ Resources:
               - 'ssm:GetParameters'
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendMoreThan20Grams'
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -815,12 +842,6 @@ Resources:
               - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
               - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
               - !Sub "${DocumentCreationRequestTableArn}"
-          - Effect: Allow
-            Action:
-              - ssm:GetParameter
-              - ssm:GetParameters
-            Resource:
-              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
   
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
   DeliveryPushMicroservicePublicAPI:

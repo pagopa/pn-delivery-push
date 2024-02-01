@@ -112,6 +112,12 @@ public class TimelineDaoDynamo implements TimelineDao {
     }
 
     @Override
+    public Optional<TimelineElementInternal> getTimelineElementStrongly(String iun, String timelineId) {
+        return entityDao.getTimelineElementStrongly(iun, timelineId)
+                .map(entity2dto::entityToDto);
+    }
+
+    @Override
     public Set<TimelineElementInternal> getTimeline(String iun) {
         return entityDao.findByIun(iun)
                 .stream()
@@ -119,6 +125,13 @@ public class TimelineDaoDynamo implements TimelineDao {
                 .collect(Collectors.toSet());
     }
 
+    @Override
+    public Set<TimelineElementInternal> getTimelineStrongly(String iun) {
+        return entityDao.findByIunStrongly(iun)
+                .stream()
+                .map(entity2dto::entityToDto)
+                .collect(Collectors.toSet());
+    }
 
     @Override
     public Set<TimelineElementInternal> getTimelineFilteredByElementId(String iun, String elementId) {

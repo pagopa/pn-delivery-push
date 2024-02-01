@@ -13,7 +13,11 @@ public interface TimelineDao {
     
     Optional<TimelineElementInternal> getTimelineElement( String iun, String timelineId );
 
+    Optional<TimelineElementInternal> getTimelineElementStrongly(String iun, String timelineId);
+
     Set<TimelineElementInternal> getTimeline(String iun );
+
+    Set<TimelineElementInternal> getTimelineStrongly(String iun );
 
     Set<TimelineElementInternal> getTimelineFilteredByElementId(String iun , String timelineId);
 

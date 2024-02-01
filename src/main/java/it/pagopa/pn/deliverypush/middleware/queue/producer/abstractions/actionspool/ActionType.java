@@ -41,6 +41,16 @@ public enum ActionType {
       );
     }
   },
+
+  CHECK_ATTACHMENT_RETENTION(NotHandledDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("check_attachment_retention_iun_%s_scheduling-date_%s",
+              action.getIun(),
+              action.getNotBefore()
+      );
+    }
+  },
   
   START_RECIPIENT_WORKFLOW(RecipientsWorkflowDetails.class) {
     @Override
@@ -73,15 +83,13 @@ public enum ActionType {
     }
   },
 
-
   DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION(NotHandledDetails.class) {
     @Override
     public String buildActionId(Action action) {
       return String.format("%s_digital_workflow_execute_e_%d_timelineid_%s", action.getIun(), action.getRecipientIndex(), action.getTimelineId() == null ? "" : action.getTimelineId());
     }
   },
-
-
+  
   DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION(NotHandledDetails.class) {
     @Override
     public String buildActionId(Action action) {
@@ -95,6 +103,17 @@ public enum ActionType {
     public String buildActionId(Action action) {
       return String.format("%s_digital_workflow_retry_e_%d_%s", action.getIun(),
           action.getRecipientIndex(), action.getTimelineId() == null ? "" : action.getTimelineId());
+    }
+  },
+
+  SEND_DIGITAL_FINAL_STATUS_RESPONSE(SendDigitalFinalStatusResponseDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      SendDigitalFinalStatusResponseDetails details = (SendDigitalFinalStatusResponseDetails) action.getDetails();
+
+      return String.format("%s_send_digital_final_status_response_feedback-timeline-id_%s", 
+              action.getIun(),
+              details.getLastAttemptAddressInfo().getRelatedFeedbackTimelineId());
     }
   },
 

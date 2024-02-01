@@ -1,13 +1,18 @@
 package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
+import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import org.springframework.util.Base64Utils;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 
 public class NotificationTestBuilder {
     private String iun;
@@ -18,6 +23,8 @@ public class NotificationTestBuilder {
     private List<NotificationDocumentInt> notificationDocument;
     private PagoPaIntMode pagoPaIntMode;
     private Integer paFee;
+
+    private String group;
     
     public NotificationTestBuilder() {
         sentAt = Instant.now();
@@ -76,9 +83,14 @@ public class NotificationTestBuilder {
         return this;
     }
 
+    public NotificationTestBuilder withGroup(String group1) {
+        this.group = group1;
+        return this;
+    }
+
     public NotificationInt build() {
         if(iun == null){
-            iun = TestUtils.getRandomIun();
+            iun = TestUtils.getRandomIun(4);
         }
         
         if(paId == null){
@@ -111,6 +123,25 @@ public class NotificationTestBuilder {
             pagoPaIntMode = PagoPaIntMode.SYNC;
         }
         
+        if(recipients.isEmpty()){
+            recipients = new ArrayList<>();
+            recipients.add(NotificationRecipientTestBuilder.builder()
+                    .withTaxId("testTaxId")
+                    .withInternalId("ANON_testTaxId")
+                    .withDigitalDomicile(LegalDigitalAddressInt.builder()
+                            .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                            .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                            .build()
+                    )
+                    .withPhysicalAddress(
+                            PhysicalAddressBuilder.builder()
+                                    .withAddress(EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
+                                    .build()
+                    )
+                    .build()
+            );
+        }
+        
         return NotificationInt.builder()
                 .iun(iun)
                 .paProtocolNumber("protocol_01")
@@ -131,6 +162,8 @@ public class NotificationTestBuilder {
                 .documents(notificationDocument)
                 .pagoPaIntMode(pagoPaIntMode)
                 .paFee(paFee)
+                .group(group)
                 .build();
     }
+
 }

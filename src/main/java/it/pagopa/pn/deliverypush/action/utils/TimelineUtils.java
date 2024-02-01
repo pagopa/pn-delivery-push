@@ -1,21 +1,9 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
-import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
-
-import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.SendInformation;
+import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
@@ -25,24 +13,19 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
+import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.util.*;
+
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.*;
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
 
 @Component
 @Slf4j
@@ -266,6 +249,7 @@ public class TimelineUtils {
                 .sendDate(sendDate)
                 .ioSendMessageResult(ioSendMessageResult)
                 .build();
+
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, eventId, details);
     }
@@ -622,6 +606,7 @@ public class TimelineUtils {
                 .attachments(attachments)
                 .sendRequestId(sendRequestId)
                 .registeredLetterCode(sendEventInt.getRegisteredLetterCode())
+                .serviceLevel(sendPaperDetails.getServiceLevel())
                 .build();
 
         List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);
@@ -803,7 +788,7 @@ public class TimelineUtils {
                 details, timelineBuilder);
     }
 
-    public TimelineElementInternal buildScheduleDigitalWorkflowTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptInfo) {
+    public TimelineElementInternal buildScheduleDigitalWorkflowTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptInfo, Instant schedulingDate) {
         log.debug("buildScheduledActionTimeline - iun={} and id={}", notification.getIun(), recIndex);
         String elementId = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
                 EventId.builder()
@@ -819,12 +804,13 @@ public class TimelineUtils {
                 .digitalAddress(lastAttemptInfo.getDigitalAddress())
                 .digitalAddressSource(lastAttemptInfo.getDigitalAddressSource())
                 .sentAttemptMade(lastAttemptInfo.getSentAttemptMade())
+                .schedulingDate(schedulingDate)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_DIGITAL_WORKFLOW, elementId, details);
     }
 
-    public TimelineElementInternal buildScheduleAnalogWorkflowTimeline(NotificationInt notification, Integer recIndex) {
+    public TimelineElementInternal buildScheduleAnalogWorkflowTimeline(NotificationInt notification, Integer recIndex, Instant schedulingDate) {
         log.debug("buildScheduleAnalogWorkflowTimeline - iun={} and id={}", notification.getIun(), recIndex);
         String elementId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
                 EventId.builder()
@@ -834,25 +820,31 @@ public class TimelineUtils {
 
         ScheduleAnalogWorkflowDetailsInt details = ScheduleAnalogWorkflowDetailsInt.builder()
                 .recIndex(recIndex)
+                .schedulingDate(schedulingDate)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, elementId, details);
     }
 
-    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex, Integer notificationCost) {
+
+    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex, Integer notificationCost, Boolean addNotificationCost, Instant refinementDate) {
         log.debug("buildRefinementTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
-        
+
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
                         .recIndex(recIndex)
                         .build());
-        
+
         RefinementDetailsInt details = RefinementDetailsInt.builder()
                 .recIndex(recIndex)
-                .notificationCost(notificationCost)
+                .eventTimestamp(refinementDate)
                 .build();
-        
+
+        if(Boolean.TRUE.equals(addNotificationCost)){
+            details.setNotificationCost(notificationCost);
+        }
+
         return buildTimeline(notification, TimelineElementCategoryInt.REFINEMENT, elementId, details);
     }
     
@@ -1128,14 +1120,19 @@ public class TimelineUtils {
                 .build() );
     }
 
-    public boolean checkNotificationIsViewedOrPaid(String iun, Integer recIndex){
-        log.debug("checkNotificationIsViewedOrPaid - iun={} recIndex={}", iun, recIndex);
+    public boolean checkNotificationIsViewedOrRefinedOrCancelled(String iun, Integer recIndex){
+        log.debug("checkNotificationIsViewedOrPaidOrRefinedOrCancelled - iun={} recIndex={}", iun, recIndex);
 
         boolean isNotificationViewed = checkIsNotificationViewed(iun, recIndex);
 
         if (! isNotificationViewed){
-            log.debug("notification is not viewed need to check if is paid - iun={} recIndex={}", iun, recIndex);
-            return checkIsNotificationPaid(iun, recIndex);
+            log.debug("Notification is not viewed need to check if it is refined - iun={} recIndex={}", iun, recIndex);
+            boolean isNotificationRefined = checkIsNotificationRefined(iun, recIndex);
+            
+            if (! isNotificationRefined){
+                log.debug("Notification is not refined need to check if it is cancelled - iun={} recIndex={}", iun, recIndex);
+                return checkIsNotificationCancellationRequested(iun);
+            }
         }
 
         return true;
@@ -1185,6 +1182,7 @@ public class TimelineUtils {
         return true;
     }
 
+
     public boolean checkIsNotificationRefined(String iun, Integer recIndex) {
         log.debug("checkIsNotificationRefined - iun={} recIndex={}", iun, recIndex);
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
@@ -1194,7 +1192,8 @@ public class TimelineUtils {
                         .build());
 
         Optional<TimelineElementInternal> notificationRefinedRequestOpt = timelineService.getTimelineElement(iun, elementId);
-
+        
+        log.debug("check notification refined is {} - iun={} recIndex={}", notificationRefinedRequestOpt.isPresent(), iun, recIndex);
         return notificationRefinedRequestOpt.isPresent();
     }
 
@@ -1210,6 +1209,20 @@ public class TimelineUtils {
         log.debug("NotificationCancelled value is={}", isNotificationCancelled);
 
         return isNotificationCancelled;
+    }
+
+    public boolean checkIsNotificationRefused(String iun) {
+        String elementId = REQUEST_REFUSED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        Set<TimelineElementInternal> notificationElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
+
+        boolean isNotificationRefused = notificationElements != null && !notificationElements.isEmpty();
+        log.debug("NotificationRefused value is={}", isNotificationRefused);
+
+        return isNotificationRefused;
     }
 
     private List<Integer> notRefinedRecipientIndexes(NotificationInt notification){
@@ -1250,8 +1263,18 @@ public class TimelineUtils {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
-    private Optional<TimelineElementInternal> getNotificationViewCreationRequest(String iun, Integer recIndex) {
+    public Optional<TimelineElementInternal> getNotificationViewCreationRequest(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        return timelineService.getTimelineElement(iun, elementId);
+    }
+
+    public Optional<TimelineElementInternal> getScheduleRefinement(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.SCHEDULE_REFINEMENT_WORKFLOW.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)

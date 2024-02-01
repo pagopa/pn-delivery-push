@@ -1,13 +1,12 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
+import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
-import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
-import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
-import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
+import it.pagopa.pn.deliverypush.action.details.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
+import it.pagopa.pn.deliverypush.action.digitalworkflow.SendDigitalFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
@@ -64,7 +63,11 @@ class ActionHandlerTest {
     private ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest;
     @Mock
     private NotificationRefusedActionHandler notificationRefusedActionHandler;
-    
+    @Mock
+    private CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
+    @Mock
+    private SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
+
     @Mock
     private TimelineUtils timelineUtils;
 
@@ -286,6 +289,22 @@ class ActionHandlerTest {
         verify(notificationRefusedActionHandler).notificationRefusedHandler(action.getIun(), details.getErrors(), action.getNotBefore());
     }
 
+    @Test
+    void pnDeliveryPushCheckAttachmentRetention() {
+        //GIVEN
+        Message<Action> message = getActionMessage();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
+
+        //WHEN
+        Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushCheckAttachmentRetention();
+        consumer.accept(message);
+
+        //THEN
+        Action action = message.getPayload();
+
+        verify(checkAttachmentRetentionHandler).handleCheckAttachmentRetentionBeforeExpiration(action.getIun());
+    }
+
     @NotNull
     private static Message<Action> getActionRefusedMessage() {
         return new Message<>() {
@@ -326,6 +345,21 @@ class ActionHandlerTest {
         verify(receivedLegalFactCreationRequest).saveNotificationReceivedLegalFacts(action.getIun());
     }
 
+    @Test
+    void pnDeliveryPushSendDigitalFinalStatusResponse() {
+        //GIVEN
+        Message<Action> message = getActionMessage();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
+
+        //WHEN
+        Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushSendDigitalFinalStatusResponse();
+        consumer.accept(message);
+
+        //THEN
+        Action action = message.getPayload();
+        verify(sendDigitalFinalStatusResponseHandler).handleSendDigitalFinalStatusResponse(action.getIun(), (SendDigitalFinalStatusResponseDetails) action.getDetails());
+    }
+    
     @NotNull
     private static Message<Action> getActionMessage() {
         return new Message<>() {
