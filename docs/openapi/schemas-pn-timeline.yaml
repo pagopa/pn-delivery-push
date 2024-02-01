@@ -303,7 +303,7 @@ components:
           description: Data tentativo
           format: date-time
 
-    NotificationViewedCreationRequestDetails:
+    NotificationViewedCreationRequestDetailsV23:
       type: object
       required:
         - recIndex
