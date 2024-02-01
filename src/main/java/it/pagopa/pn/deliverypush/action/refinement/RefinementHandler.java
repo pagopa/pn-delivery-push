@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -41,31 +42,14 @@ public class RefinementHandler {
 
         //Se la notifica è già stata visualizzata non viene perfezionata per decorrenza termini in quanto è già stata perfezionata per presa visione
         if( !isNotificationViewed ) {
-            // recupero la refinementDate dall'element dello schedule refinement
-            Instant refinementDate = timelineUtils.getScheduleRefinement(iun,recIndex).map(scheduleRefinementTimelineElem -> {
-                if(scheduleRefinementTimelineElem.getDetails() instanceof ScheduleRefinementDetailsInt scheduleRefinementTimelineElementDetails) {
-                    return scheduleRefinementTimelineElementDetails.getSchedulingDate();
-                }
-                return null;
-            }).orElse(null);
+            Instant refinementDate = retrieveRefinementDate(iun, recIndex);
 
             addRefinementElement(iun, recIndex, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement(),true, refinementDate);
         } else {
 
-            //FIND TIMELINE ELEMENT
-            Instant viewedDate = timelineUtils.getNotificationViewCreationRequest(iun,recIndex).map(notificationViewCreationRequestTimelineElem -> {
-                if(notificationViewCreationRequestTimelineElem.getDetails() instanceof NotificationViewedCreationRequestDetailsInt notificationViewedCreationRequestDetails) {
-                    return notificationViewedCreationRequestDetails.getEventTimestamp();
-                }
-                return null;
-            }).orElse(null);
+            Instant viewedDate = retrieveViewedDate(iun, recIndex);
 
-            Instant refinementDate = timelineUtils.getScheduleRefinement(iun,recIndex).map(scheduleRefinementTimelineElem -> {
-                if(scheduleRefinementTimelineElem.getDetails() instanceof ScheduleRefinementDetailsInt scheduleRefinementTimelineElementDetails) {
-                    return scheduleRefinementTimelineElementDetails.getSchedulingDate();
-                }
-                return null;
-            }).orElse(null);
+            Instant refinementDate = retrieveRefinementDate(iun, recIndex);
 
             //Se la notifica è già stata visualizzata ma in data precedente a quella del perfezionamento l'evento viene comunque generato
             if( refinementDate != null && viewedDate != null && viewedDate.isAfter(refinementDate) ) {
@@ -74,6 +58,39 @@ public class RefinementHandler {
                 log.info("Notification is already viewed or paid, refinement will not start - iun={} id={}", iun, recIndex);
             }
         }
+    }
+
+    @Nullable
+    private Instant retrieveViewedDate(String iun, Integer recIndex) {
+        //FIND TIMELINE ELEMENT
+        Instant viewedDate = timelineUtils.getNotificationViewCreationRequest(iun, recIndex).map(notificationViewCreationRequestTimelineElem -> {
+            if(notificationViewCreationRequestTimelineElem.getDetails() instanceof NotificationViewedCreationRequestDetailsInt notificationViewedCreationRequestDetails) {
+                return notificationViewedCreationRequestDetails.getEventTimestamp();
+            }
+            return null;
+        }).orElse(null);
+
+        log.info("Viewed date iun={} recIndex={} viewedDate={}", iun, recIndex, viewedDate);
+
+        return viewedDate;
+    }
+
+    @Nullable
+    private Instant retrieveRefinementDate(String iun, Integer recIndex) {
+        // recupero la refinementDate dall'element dello schedule refinement
+        Instant refinementDate = timelineUtils.getScheduleRefinement(iun, recIndex).map(scheduleRefinementTimelineElem -> {
+            if(scheduleRefinementTimelineElem.getDetails() instanceof ScheduleRefinementDetailsInt scheduleRefinementTimelineElementDetails) {
+                return scheduleRefinementTimelineElementDetails.getSchedulingDate();
+            }
+            return null;
+        }).orElse(null);
+
+        if (refinementDate == null)
+            log.error("Schedule refinement not found iun={} recIndex={}", iun, recIndex);
+        else
+            log.info("Schedule refinement date iun={} recIndex={} refinementDate={}", iun, recIndex, refinementDate);
+
+        return refinementDate;
     }
 
     private void addRefinementElement(String iun, Integer recIndex,  Integer attachmentRetention, Boolean addNotificationCost, Instant refinementDate) {
