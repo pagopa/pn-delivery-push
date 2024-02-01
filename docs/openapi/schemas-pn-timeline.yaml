@@ -144,8 +144,8 @@ components:
         - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
         - "$ref": "#/components/schemas/RefinementDetailsV23"
         - "$ref": "#/components/schemas/RequestRefusedDetailsV23"
-        - "$ref": "#/components/schemas/ScheduleAnalogWorkflowDetails"
-        - "$ref": "#/components/schemas/ScheduleDigitalWorkflowDetails"
+        - "$ref": "#/components/schemas/ScheduleAnalogWorkflowDetailsV23"
+        - "$ref": "#/components/schemas/ScheduleDigitalWorkflowDetailsV23"
         - "$ref": "#/components/schemas/ScheduleRefinementDetails"
         - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
         - "$ref": "#/components/schemas/PrepareDigitalDetails"
@@ -440,7 +440,7 @@ components:
           items:
             $ref: '#/components/schemas/NotificationRefusedErrorV23'
 
-    ScheduleAnalogWorkflowDetails:
+    ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
         - recIndex
@@ -454,7 +454,7 @@ components:
           description: Data prevista per l'inizio dell'invio analogico
           format: date-time
 
-    ScheduleDigitalWorkflowDetails:
+    ScheduleDigitalWorkflowDetailsV23:
       type: object
       required:
         - recIndex
