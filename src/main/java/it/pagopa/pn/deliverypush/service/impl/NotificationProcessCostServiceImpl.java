@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregi
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationCostResponseMapper;
+import it.pagopa.pn.deliverypush.utils.CostUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -109,7 +110,7 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
             notificationProcessPartialCost = sendFee + analogCost;
             if (vat != null && paFee != null) {
                 //... se inoltre, iva e pafee sono valorizzati, viene calcolato anche il costo totale di notificazione (con iva e pafee)
-                Integer analogCostWithVat = getAnalogCostWithVat(vat, analogCost);
+                Integer analogCostWithVat = CostUtils.getCostWithVat(vat, analogCost);
                 notificationProcessTotalCost = sendFee + analogCostWithVat + paFee;
             } else {
                 //... se invece iva e pafee non sono valorizzati viene ritornato null. Vale solo per le sole notifiche precedenti alla v2,1 in cui
@@ -131,10 +132,6 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
                 .notificationViewDate(notificationViewDate)
                 .refinementDate(refinementDate)
                 .build();
-    }
-
-    private static Integer getAnalogCostWithVat(Integer vat, Integer analogCost) {
-        return vat != null ? analogCost + (analogCost * vat / 100) : null;
     }
 
     @NotNull
