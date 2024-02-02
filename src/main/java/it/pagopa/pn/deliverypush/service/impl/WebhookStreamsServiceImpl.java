@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
@@ -57,11 +58,12 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     }
     @Override
     public Mono<StreamMetadataResponseV23> createEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, Mono<StreamCreationRequestV23> streamCreationRequest) {
-        String msg = "createEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={} ";
-        String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion};
+        String msg = "createEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, request={} ";
+        List<String> args = Arrays.asList(new String[]{xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion});
 
         return streamCreationRequest.doOnNext(payload-> {
-            generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).log();
+            args.add(payload.toString());
+            generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args.toArray(new String[0])).log();
         }).flatMap(x->
                 (x.getReplacedStreamId() == null ? checkStreamCount(xPagopaPnCxId) : Mono.just(Boolean.TRUE)).then(Mono.just(x))
         ).map(r -> Tuples.of (
@@ -78,9 +80,9 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                         : replaceStream(xPagopaPnCxId,xPagopaPnCxGroups,xPagopaPnApiVersion, t2.getT1(), t2.getT2()))
                     : Mono.error(new PnWebhookForbiddenException("Not Allowed groups "+groupString(t2.getT1().getGroups()))); //TODO: IVAN, vedere tutti i messaggi
             }).map(EntityToDtoStreamMapper::entityToDto).doOnSuccess(newEntity->{
-                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateSuccess().log();
+                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args.toArray(new String[0])).generateSuccess().log();
             }).doOnError(err->{
-                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateFailure("error creating stream", err).log();
+                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args.toArray(new String[0])).generateFailure("error creating stream", err).log();
             });
     }
 
@@ -110,8 +112,14 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     @Override
     public Mono<StreamMetadataResponseV23> updateEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId, Mono<StreamRequestV23> streamRequest) {
+        String msg = "updateEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, request={} ";
+        List<String> args = Arrays.asList(new String[]{xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion});
 
-        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+        return streamRequest.doOnNext(payload-> {
+            args.add(payload.toString());
+            generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, args.toArray(new String[0])).log();
+        }).flatMap(request ->
+            filterEntity(xPagopaPnApiVersion, xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .then(streamRequest)
             .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
             .map(entity -> {
@@ -119,7 +127,12 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                 return entity;
             })
             .flatMap(streamEntityDao::update)
-            .map(EntityToDtoStreamMapper::entityToDto);
+            .map(EntityToDtoStreamMapper::entityToDto)
+        ).doOnSuccess(newEntity->{
+            generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, args.toArray(new String[0])).generateSuccess().log();
+        }).doOnError(err->{
+            generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, args.toArray(new String[0])).generateFailure("error updating stream", err).log();
+        });
     }
 
     @Override
