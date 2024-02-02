@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.helpers.MessageFormatter;
@@ -58,12 +59,12 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     }
     @Override
     public Mono<StreamMetadataResponseV23> createEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, Mono<StreamCreationRequestV23> streamCreationRequest) {
-        String msg = "createEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, request={} ";
-        List<String> args = Arrays.asList(new String[]{xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion});
+        String msg = "createEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}";
+        String[] args = {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion};
 
         return streamCreationRequest.doOnNext(payload-> {
-            args.add(payload.toString());
-            generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args.toArray(new String[0])).log();
+            String[] fullArgs = ArrayUtils.add(args, payload.toString());
+            generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg+", request={} ", fullArgs).log();
         }).flatMap(x->
                 (x.getReplacedStreamId() == null ? checkStreamCount(xPagopaPnCxId) : Mono.just(Boolean.TRUE)).then(Mono.just(x))
         ).map(r -> Tuples.of (
@@ -80,9 +81,9 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                         : replaceStream(xPagopaPnCxId,xPagopaPnCxGroups,xPagopaPnApiVersion, t2.getT1(), t2.getT2()))
                     : Mono.error(new PnWebhookForbiddenException("Not Allowed groups "+groupString(t2.getT1().getGroups()))); //TODO: IVAN, vedere tutti i messaggi
             }).map(EntityToDtoStreamMapper::entityToDto).doOnSuccess(newEntity->{
-                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args.toArray(new String[0])).generateSuccess().log();
+                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateSuccess().log();
             }).doOnError(err->{
-                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args.toArray(new String[0])).generateFailure("error creating stream", err).log();
+                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateFailure("error creating stream", err).log();
             });
     }
 
