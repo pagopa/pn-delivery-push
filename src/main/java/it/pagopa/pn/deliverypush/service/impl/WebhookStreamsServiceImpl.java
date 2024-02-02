@@ -37,8 +37,6 @@ import reactor.util.function.Tuples;
 public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements WebhookStreamsService {
 
     private final SchedulerService schedulerService;
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
     private final PnExternalRegistryClient pnExternalRegistryClient;
 
     private int maxStreams;
@@ -46,9 +44,8 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     public WebhookStreamsServiceImpl (StreamEntityDao streamEntityDao, SchedulerService schedulerService
         , PnDeliveryPushConfigs pnDeliveryPushConfigs, PnExternalRegistryClient pnExternalRegistryClient){
-        super(streamEntityDao);
+        super(streamEntityDao, pnDeliveryPushConfigs);
         this.schedulerService = schedulerService;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.pnExternalRegistryClient = pnExternalRegistryClient;
     }
 
@@ -73,7 +70,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
             .flatMap(t2 -> {
                 List<String> allowedGroups = (xPagopaPnCxGroups==null || xPagopaPnCxGroups.isEmpty())
                     ? pnExternalRegistryClient.getGroups(xPagopaPnUid, xPagopaPnCxId)
-                    : t2.getT1().getGroups();
+                    : xPagopaPnCxGroups;
 
                 return WebhookUtils.checkGroups(t2.getT1().getGroups(), allowedGroups)?
                     (StringUtils.isBlank(t2.getT2())
@@ -90,7 +87,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     @Override
     public Mono<Void> deleteEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
 
-        return filterEntity(xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .flatMap(filteredEntity ->
                  streamEntityDao.delete(xPagopaPnCxId, streamId.toString())
                     .then(Mono.fromSupplier(() -> {
@@ -114,7 +111,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     @Override
     public Mono<StreamMetadataResponseV23> updateEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId, Mono<StreamRequestV23> streamRequest) {
 
-        return filterEntity(xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .then(streamRequest)
             .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
             .map(entity -> {
@@ -131,7 +128,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion};
         generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).log();
 
-        return filterEntity(xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .filter(streamEntity -> {
                 return streamEntity.getDisabledDate() == null;
             })

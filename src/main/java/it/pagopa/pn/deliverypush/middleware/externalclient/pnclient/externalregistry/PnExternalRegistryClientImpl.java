@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.exceptions.PnRootIdNonFountException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.InfoPaApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.RootSenderIdApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.SendIoMessageApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.PaGroupStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.RootSenderIdResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
@@ -49,11 +50,9 @@ public class PnExternalRegistryClientImpl implements PnExternalRegistryClient{
     }
 
     @Override
-    @Cacheable("paGroupsCache")
     public List<String> getGroups(String xPagopaPnUid, String xPagopaPnCxId ){
         try  {
-            //TODO: Ivan chiedere a Fabrizio se getGroups o getB2BGroups
-            return infoPaApi.getGroups(xPagopaPnUid, xPagopaPnCxId,null,null)
+            return infoPaApi.getGroups(xPagopaPnUid, xPagopaPnCxId,null, PaGroupStatus.ACTIVE)
                 .stream().map(paGroup -> paGroup.getId())
                 .toList();
         } catch (Exception exc) {

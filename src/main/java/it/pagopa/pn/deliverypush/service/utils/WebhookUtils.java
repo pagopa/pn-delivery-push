@@ -195,7 +195,8 @@ public class WebhookUtils {
     }
 
     public static boolean checkGroups(List<String> toCheckGroups, List<String> allowedGroups){
-        return (isEmpty(toCheckGroups) && isEmpty(allowedGroups)) ||
+        return
+            (isEmpty(toCheckGroups) && isEmpty(allowedGroups)) ||
             allowedGroups.containsAll(toCheckGroups);
     }
 
