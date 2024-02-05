@@ -288,7 +288,7 @@ public class LegalFactGenerator {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
         
-        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(notification.getSentAt());
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
 
         if(pnSendMode != null){
             return documentComposition.executePdfTemplate(

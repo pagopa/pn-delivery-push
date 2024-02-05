@@ -36,7 +36,7 @@ class PnSendModeUtilsTest {
 
         Instant time = correctConfigStartDate.minus(1, ChronoUnit.DAYS);
         //WHEN
-        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(time);
         //THEN
         Assertions.assertNull(pnSendMode);
     }
@@ -57,7 +57,7 @@ class PnSendModeUtilsTest {
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
 
         //WHEN
-        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(time);
         
         //THEN
         Assertions.assertNotNull(pnSendMode);
@@ -89,7 +89,7 @@ class PnSendModeUtilsTest {
 
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
         //WHEN
-        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(time);
         //THEN
         Assertions.assertNotNull(pnSendMode);
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
@@ -119,7 +119,7 @@ class PnSendModeUtilsTest {
 
         Instant time = correctConfigStartDate;
         //WHEN
-        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(time);
         
         //THEN
         Assertions.assertNotNull(pnSendMode);
@@ -151,7 +151,7 @@ class PnSendModeUtilsTest {
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
         
         //WHEN
-        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(time);
         
         //THEN
         Assertions.assertNotNull(pnSendMode);
@@ -185,7 +185,7 @@ class PnSendModeUtilsTest {
         
         Instant time = secondConfStartDate.minus(1, ChronoUnit.SECONDS);
         //WHEN
-        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(time);
         
         //THEN
         Assertions.assertNotNull(pnSendMode);
@@ -203,7 +203,7 @@ class PnSendModeUtilsTest {
         pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs);
 
         Instant time = Instant.now();
-        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(time);
 
         Assertions.assertNull(pnSendMode);
     }
