@@ -33,7 +33,7 @@ import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
-import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -150,7 +150,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         MandateServiceImpl.class,
         MandateClientMock.class,
         NotificationCancellationActionHandler.class,
-        PaperSendModeUtils.class,
+        PnSendModeUtils.class,
         CheckAttachmentRetentionHandler.class,
         ActionPoolMock.class,
         SendDigitalFinalStatusResponseHandler.class,
@@ -283,12 +283,13 @@ public class CommonTestConfiguration {
         Mockito.when(cfg.isCheckPdfValidEnabled()).thenReturn(true);
         Mockito.when(cfg.getCheckPdfSize()).thenReturn(DataSize.ofMegabytes(200));
 
-        // Impostazione delle proprietà di PaperSendMode
-        List<String> paperSendModeList = new ArrayList<>();
-        paperSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
-        paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
+        // Impostazione delle proprietà di PnSendMode
+        List<String> pnSendModeList = new ArrayList<>();
+        pnSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
+        pnSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION_RADD");
 
-        Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList);
+        //Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList); OLD
+        Mockito.when(cfg.getPnSendMode()).thenReturn(pnSendModeList);
 
         //quickWorkAroundForPN-9116
         Mockito.when(cfg.isSendMoreThan20GramsDefaultValue()).thenReturn(true);

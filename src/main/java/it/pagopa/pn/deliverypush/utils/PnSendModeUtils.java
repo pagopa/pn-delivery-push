@@ -14,28 +14,29 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class PaperSendModeUtils {
+public class PnSendModeUtils {
     public static final String SEPARATOR = ";";
     public static final int INDEX_START_DATE = 0;
     public static final int ANALOG_SEND_ATTACHMENT_MODE_INDEX = 1;
     public static final int SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX = 2;
-    public static final int AAR_TEMPLATE_TYPE_INDEX = 3;
+    public static final int DIGITAL_SEND_ATTACHMENT_MODE_INDEX = 3;
+    public static final int AAR_TEMPLATE_TYPE_INDEX = 4;
     
     private final List<PnSendMode> pnSendModesList;
     
-    public PaperSendModeUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs){
-        List<PnSendMode> pnSendModesListNotSorted = getPaperSendModeFromString(pnDeliveryPushConfigs.getPaperSendMode());
+    public PnSendModeUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs){
+        List<PnSendMode> pnSendModesListNotSorted = getPnSendModeFromString(pnDeliveryPushConfigs.getPnSendMode());
         pnSendModesList = getSortedList(pnSendModesListNotSorted);
     }
     
-    public PnSendMode getPaperSendMode(Instant time){
-        log.debug("Start getPaperSendMode for time={}", time);
-        PnSendMode pnSendMode =  getCorrectPaperSendModeFromDate(time, pnSendModesList);
-        log.debug("End getPaperSendMode. PaperSendMode for time={} is {}", time, pnSendMode);
+    public PnSendMode getPnSendMode(Instant time){
+        log.debug("Start getPnSendMode for time={}", time);
+        PnSendMode pnSendMode =  getCorrectPnSendModeFromDate(time, pnSendModesList);
+        log.debug("End getPnSendMode. PnSendMode for time={} is {}", time, pnSendMode);
         return pnSendMode;
     }
 
-    private PnSendMode getCorrectPaperSendModeFromDate(Instant time, List<PnSendMode> pnSendModesList) {
+    private PnSendMode getCorrectPnSendModeFromDate(Instant time, List<PnSendMode> pnSendModesList) {
         for(int i = pnSendModesList.size() - 1; i >=0; i--){
             PnSendMode elem = pnSendModesList.get(i);
             if( time.isAfter(elem.getStartConfigurationTime()) || time.equals(elem.getStartConfigurationTime()) ){
@@ -49,23 +50,25 @@ public class PaperSendModeUtils {
     private static List<PnSendMode> getSortedList(List<PnSendMode> pnSendModesList) {
         List<PnSendMode> pnSendModesListSorted = new ArrayList<>(pnSendModesList);
         Collections.sort(pnSendModesListSorted);
-        log.debug("PaperSendModesListSorted is {}", pnSendModesListSorted);
+        log.debug("PnSendModesListSorted is {}", pnSendModesListSorted);
         return pnSendModesListSorted;
     }
 
-    private List<PnSendMode> getPaperSendModeFromString(List<String> paperSendModeStringList) {
+    private List<PnSendMode> getPnSendModeFromString(List<String> pnSendModeStringList) {
 
-        return paperSendModeStringList.stream().map( elem -> {
+        return pnSendModeStringList.stream().map( elem -> {
             String[] arrayObj = elem.split(SEPARATOR);
             String configStartDate = arrayObj[INDEX_START_DATE];
             String analogSendAttachmentMode = arrayObj[ANALOG_SEND_ATTACHMENT_MODE_INDEX];
             String simpleRegisteredLetterSendAttachmentMode = arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX];
+            String digitalSendAttachmentMode = arrayObj[DIGITAL_SEND_ATTACHMENT_MODE_INDEX];
             String aarTemplateType = arrayObj[AAR_TEMPLATE_TYPE_INDEX];
             
             return PnSendMode.builder()
                     .startConfigurationTime(Instant.parse(configStartDate))
                     .analogSendAttachmentMode(SendAttachmentMode.fromValue(analogSendAttachmentMode))
                     .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.fromValue(simpleRegisteredLetterSendAttachmentMode))
+                    .digitalSendAttachmentMode(SendAttachmentMode.fromValue(digitalSendAttachmentMode))
                     .aarTemplateType(DocumentComposition.TemplateType.valueOf(aarTemplateType))
                     .build();
         }).toList();

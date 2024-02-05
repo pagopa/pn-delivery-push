@@ -14,8 +14,8 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.Up
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
-import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -42,13 +42,13 @@ public class AttachmentUtils {
 
     private final NotificationProcessCostService notificationProcessCostService;
 
-    private final PaperSendModeUtils paperSendModeUtils;
+    private final PnSendModeUtils pnSendModeUtils;
 
-    public AttachmentUtils(SafeStorageService safeStorageService, PnDeliveryPushConfigs pnDeliveryPushConfigs, NotificationProcessCostService notificationProcessCostService, PaperSendModeUtils paperSendModeUtils) {
+    public AttachmentUtils(SafeStorageService safeStorageService, PnDeliveryPushConfigs pnDeliveryPushConfigs, NotificationProcessCostService notificationProcessCostService, PnSendModeUtils pnSendModeUtils) {
         this.safeStorageService = safeStorageService;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.notificationProcessCostService = notificationProcessCostService;
-        this.paperSendModeUtils = paperSendModeUtils;
+        this.pnSendModeUtils = pnSendModeUtils;
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
@@ -305,7 +305,7 @@ public class AttachmentUtils {
     }
 
     public SendAttachmentMode retrieveSendAttachmentMode(NotificationInt notification, NotificationChannelType notificationChannelType) {
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(notification.getSentAt());
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
 
         if(pnSendMode != null){
             return switch (notificationChannelType) {

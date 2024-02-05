@@ -26,6 +26,8 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +50,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private final MVPParameterConsumer mvpParameterConsumer;
     private final AnalogWorkflowUtils analogWorkflowUtils;
     private final AuditLogService auditLogService;
+    private final PnSendModeUtils pnSendModeUtils;
     private final AttachmentUtils attachmentUtils;
 
     /**

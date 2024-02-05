@@ -92,10 +92,11 @@ public class SendAarAttachment extends CommonTestConfiguration{
 
     static String getStringConfiguration(PnSendMode conf) {
         Instant startConfTime = conf.getStartConfigurationTime().truncatedTo(ChronoUnit.SECONDS);
-        return String.format("%s;%s;%s;%s",
+        return String.format("%s;%s;%s;%s;%s",
                 startConfTime,
                 conf.getAnalogSendAttachmentMode(),
                 conf.getSimpleRegisteredLetterSendAttachmentMode(),
+                conf.getDigitalSendAttachmentMode(),
                 conf.getAarTemplateType());
     }
 

@@ -22,7 +22,9 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
-
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +59,8 @@ class PaperChannelServiceImplTest {
     private PaperChannelService paperChannelService;
 
     @Mock
+    private PnSendModeUtils pnSendModeUtils;
+    @Mock
     private AttachmentUtils attachmentUtils;
 
     @BeforeEach
@@ -70,6 +74,7 @@ class PaperChannelServiceImplTest {
                 mvpParameterConsumer,
                 analogWorkflowUtils,
                 auditLogService,
+                pnSendModeUtils,
                 attachmentUtils);
     }
 

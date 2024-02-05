@@ -40,7 +40,7 @@ import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
-import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
@@ -56,10 +56,10 @@ public class AbstractWorkflowTestConfiguration {
         PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
 
         // Base configuration
-        List<String> paperSendModeList = new ArrayList<>();
-        paperSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
-        paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
-        Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(paperSendModeList);
+        List<String> pnSendModeList = new ArrayList<>();
+        pnSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
+        pnSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION_RADD");
+        Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(pnSendModeList);
         
         return pnDeliveryPushConfigs;
     }
@@ -103,10 +103,10 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc , @Lazy PaperSendModeUtils paperSendModeUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc , @Lazy PnSendModeUtils pnSendModeUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
-        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  pnDeliveryPushConfigs, new InstantNowSupplier(), paperSendModeUtils);
+        return new LegalFactGenerator( dc, instantWriter, physicalAddressWriter,  pnDeliveryPushConfigs, new InstantNowSupplier(), pnSendModeUtils);
     }
     
     @Bean

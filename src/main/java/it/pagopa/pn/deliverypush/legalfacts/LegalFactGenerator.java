@@ -16,7 +16,7 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
-import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -82,7 +82,7 @@ public class LegalFactGenerator {
     private final PhysicalAddressWriter physicalAddressWriter;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final InstantNowSupplier instantNowSupplier;
-    private final PaperSendModeUtils paperSendModeUtils;
+    private final PnSendModeUtils pnSendModeUtils;
     private static final String TEMPLATES_DIR_NAME = "documents_composition_templates";
 
     private static final String SEND_LOGO_BASE64 =  readLocalImagesInBase64(TEMPLATES_DIR_NAME + "/images/aar-logo-short-small.png");
@@ -93,13 +93,13 @@ public class LegalFactGenerator {
             PhysicalAddressWriter physicalAddressWriter,
             PnDeliveryPushConfigs pnDeliveryPushConfigs,
             InstantNowSupplier instantNowSupplier,
-            PaperSendModeUtils paperSendModeUtils) {
+            PnSendModeUtils pnSendModeUtils) {
         this.documentComposition = documentComposition;
         this.instantWriter = instantWriter;
         this.physicalAddressWriter = physicalAddressWriter;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.instantNowSupplier = instantNowSupplier;
-        this.paperSendModeUtils = paperSendModeUtils;
+        this.pnSendModeUtils = pnSendModeUtils;
     }
 
 
@@ -288,7 +288,7 @@ public class LegalFactGenerator {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
         
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(notification.getSentAt());
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
 
         if(pnSendMode != null){
             return documentComposition.executePdfTemplate(

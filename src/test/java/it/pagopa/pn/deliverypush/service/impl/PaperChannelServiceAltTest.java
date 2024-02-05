@@ -18,7 +18,7 @@ import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
-import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ class PaperChannelServiceAltTest {
     @Mock
     NotificationProcessCostService notificationProcessCostService;
     @Mock
-    PaperSendModeUtils paperSendModeUtils;
+    PnSendModeUtils pnSendModeUtils;
 
     @BeforeEach
     void setup() {
@@ -66,7 +66,7 @@ class PaperChannelServiceAltTest {
                 safeStorageService,
                 pnDeliveryPushConfigs,
                 notificationProcessCostService,
-                paperSendModeUtils
+                pnSendModeUtils
         );
 
         paperChannelService = new PaperChannelServiceImpl(
@@ -78,6 +78,7 @@ class PaperChannelServiceAltTest {
                 mvpParameterConsumer,
                 analogWorkflowUtils,
                 auditLogService,
+                pnSendModeUtils,
                 attachmentUtils);
     }
 
@@ -92,7 +93,7 @@ class PaperChannelServiceAltTest {
 
         Mockito.when(paperChannelUtils.buildPrepareAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_1");
 
-        Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(null);
+        Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(null);
 
         // WHEN
         Assertions.assertThrows(PnInternalException.class, () -> paperChannelService.prepareAnalogNotification(notificationInt, 0, 1));
