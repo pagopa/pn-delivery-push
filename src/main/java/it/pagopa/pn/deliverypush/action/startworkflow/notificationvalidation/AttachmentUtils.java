@@ -6,12 +6,16 @@ import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
+import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -26,6 +30,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND;
 
 @Component
 @CustomLog
@@ -37,10 +42,13 @@ public class AttachmentUtils {
 
     private final NotificationProcessCostService notificationProcessCostService;
 
-    public AttachmentUtils(SafeStorageService safeStorageService, PnDeliveryPushConfigs pnDeliveryPushConfigs, NotificationProcessCostService notificationProcessCostService) {
+    private final PaperSendModeUtils paperSendModeUtils;
+
+    public AttachmentUtils(SafeStorageService safeStorageService, PnDeliveryPushConfigs pnDeliveryPushConfigs, NotificationProcessCostService notificationProcessCostService, PaperSendModeUtils paperSendModeUtils) {
         this.safeStorageService = safeStorageService;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.notificationProcessCostService = notificationProcessCostService;
+        this.paperSendModeUtils = paperSendModeUtils;
     }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
@@ -294,5 +302,21 @@ public class AttachmentUtils {
             stringBuilder.append(cost);
         }
         return stringBuilder.toString();
+    }
+
+    public SendAttachmentMode retrieveSendAttachmentMode(NotificationInt notification, NotificationChannelType notificationChannelType) {
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(notification.getSentAt());
+
+        if(pnSendMode != null){
+            return switch (notificationChannelType) {
+                case ANALOG_NOTIFICATION -> pnSendMode.getAnalogSendAttachmentMode();
+                case SIMPLE_REGISTERED_LETTER -> pnSendMode.getSimpleRegisteredLetterSendAttachmentMode();
+                case DIGITAL_NOTIFICATION -> pnSendMode.getDigitalSendAttachmentMode();
+            };
+        }else {
+            String msg = String.format("There isn't correct Send Analog configuration date=%s - iun=%s sentAt", notification.getSentAt(),  notification.getIun());
+            log.error(msg);
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND);
+        }
     }
 }
