@@ -33,7 +33,7 @@ import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
-import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -150,7 +150,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         MandateServiceImpl.class,
         MandateClientMock.class,
         NotificationCancellationActionHandler.class,
-        PaperSendModeUtils.class,
+        PnSendModeUtils.class,
         CheckAttachmentRetentionHandler.class,
         ActionPoolMock.class,
         SendDigitalFinalStatusResponseHandler.class,

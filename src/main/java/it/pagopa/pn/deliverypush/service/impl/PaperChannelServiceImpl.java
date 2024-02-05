@@ -28,7 +28,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
-import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +53,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private final MVPParameterConsumer mvpParameterConsumer;
     private final AnalogWorkflowUtils analogWorkflowUtils;
     private final AuditLogService auditLogService;
-    private final PaperSendModeUtils paperSendModeUtils;
+    private final PnSendModeUtils pnSendModeUtils;
     private final AttachmentUtils attachmentUtils;
 
     /**
@@ -373,7 +373,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     }
 
     private SendAttachmentMode retrieveSendAttachmentMode(NotificationInt notification, NotificationChannelType notificationChannelType) {
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(notification.getSentAt());
+        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(notification.getSentAt());
         
         if(pnSendMode != null){
             return switch (notificationChannelType) {

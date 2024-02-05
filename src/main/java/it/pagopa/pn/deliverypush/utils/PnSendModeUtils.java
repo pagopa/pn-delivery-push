@@ -14,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class PaperSendModeUtils {
+public class PnSendModeUtils {
     public static final String SEPARATOR = ";";
     public static final int INDEX_START_DATE = 0;
     public static final int ANALOG_SEND_ATTACHMENT_MODE_INDEX = 1;
@@ -23,8 +23,8 @@ public class PaperSendModeUtils {
     
     private final List<PnSendMode> pnSendModesList;
     
-    public PaperSendModeUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs){
-        List<PnSendMode> pnSendModesListNotSorted = getPaperSendModeFromString(pnDeliveryPushConfigs.getPaperSendMode());
+    public PnSendModeUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs){
+        List<PnSendMode> pnSendModesListNotSorted = getPaperSendModeFromString(pnDeliveryPushConfigs.getPnSendMode());
         pnSendModesList = getSortedList(pnSendModesListNotSorted);
     }
     

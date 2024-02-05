@@ -525,6 +525,11 @@ Parameters:
     Type: String
     Description: 'Configuration for send notification attachment, AAR, and AAR type. Comma separated list made up by: "Configuration start time" (UTC);"Send attachment mode for analog";"Send attachment mode for simple registered letter";"AAR template type"'
 
+  PnSendMode:
+    Default: '1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR;AAR_NOTIFICATION,2023-11-30T23:00:00Z;AAR;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION_RADD'
+    Type: String
+    Description: 'Configuration for send notification attachment, AAR, and AAR type. Comma separated list made up by: "Configuration start time" (UTC);"Send attachment mode for analog";"Send attachment mode for simple registered letter";"Send attachment mode for digitalSend";"AAR template type"'
+
   SafeStorageFileNotFoundRetry:
     Default: false
     Type: String
@@ -792,6 +797,7 @@ Resources:
         ContainerEnvEntry67: !Sub 'PN_DELIVERYPUSH_SENDMORETHAN20GRAMSDEFAULTVALUE=${SendMoreThan20GramsDefaultValue}'
         ContainerEnvEntry68: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
         ContainerEnvEntry69: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
+        ContainerEnvEntry70: !Sub 'PN_DELIVERYPUSH_PNSENDMODE=${PnSendMode}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'

@@ -15,13 +15,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import static it.pagopa.pn.deliverypush.utils.PaperSendModeUtils.*;
+import static it.pagopa.pn.deliverypush.utils.PnSendModeUtils.*;
 
 @ExtendWith(SpringExtension.class)
 class PnSendModeUtilsTest {
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    private PaperSendModeUtils paperSendModeUtils;
+    private PnSendModeUtils pnSendModeUtils;
 
     @Test
     void getPaperSendModeNoConfiguration() {
@@ -32,11 +32,11 @@ class PnSendModeUtilsTest {
         Instant correctConfigStartDate = Instant.parse(arrayObj[INDEX_START_DATE]);
         configurationList.add(firstCorrectConfiguration);
         Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(configurationList);
-        paperSendModeUtils = new PaperSendModeUtils(pnDeliveryPushConfigs);
+        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs);
 
         Instant time = correctConfigStartDate.minus(1, ChronoUnit.DAYS);
         //WHEN
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
         //THEN
         Assertions.assertNull(pnSendMode);
     }
@@ -53,11 +53,11 @@ class PnSendModeUtilsTest {
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
         configurationList.add(firstCorrectConfiguration);
         Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(configurationList);
-        paperSendModeUtils = new PaperSendModeUtils(pnDeliveryPushConfigs);
+        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs);
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
 
         //WHEN
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
         
         //THEN
         Assertions.assertNotNull(pnSendMode);
@@ -85,11 +85,11 @@ class PnSendModeUtilsTest {
         SendAttachmentMode correctSimpleRegisteredLetterSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX]);
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
         Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(configurationList);
-        paperSendModeUtils = new PaperSendModeUtils(pnDeliveryPushConfigs);
+        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs);
 
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
         //WHEN
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
         //THEN
         Assertions.assertNotNull(pnSendMode);
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
@@ -115,11 +115,11 @@ class PnSendModeUtilsTest {
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
 
         Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(configurationList);
-        paperSendModeUtils = new PaperSendModeUtils(pnDeliveryPushConfigs);
+        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs);
 
         Instant time = correctConfigStartDate;
         //WHEN
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
         
         //THEN
         Assertions.assertNotNull(pnSendMode);
@@ -146,12 +146,12 @@ class PnSendModeUtilsTest {
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
 
         Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(configurationList);
-        paperSendModeUtils = new PaperSendModeUtils(pnDeliveryPushConfigs);
+        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs);
 
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
         
         //WHEN
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
         
         //THEN
         Assertions.assertNotNull(pnSendMode);
@@ -178,14 +178,14 @@ class PnSendModeUtilsTest {
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
 
         Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(configurationList);
-        paperSendModeUtils = new PaperSendModeUtils(pnDeliveryPushConfigs);
+        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs);
 
         String[] secondConfObj = secondConfiguration.split(SEPARATOR);
         Instant secondConfStartDate = Instant.parse(secondConfObj[INDEX_START_DATE]);
         
         Instant time = secondConfStartDate.minus(1, ChronoUnit.SECONDS);
         //WHEN
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
         
         //THEN
         Assertions.assertNotNull(pnSendMode);
@@ -200,10 +200,10 @@ class PnSendModeUtilsTest {
         List<String> configurationList = new ArrayList<>();
         
         Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(configurationList);
-        paperSendModeUtils = new PaperSendModeUtils(pnDeliveryPushConfigs);
+        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs);
 
         Instant time = Instant.now();
-        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(time);
 
         Assertions.assertNull(pnSendMode);
     }
