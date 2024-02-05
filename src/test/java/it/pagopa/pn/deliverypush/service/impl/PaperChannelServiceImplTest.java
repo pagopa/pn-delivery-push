@@ -13,18 +13,13 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
-import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,35 +71,6 @@ class PaperChannelServiceImplTest {
                 auditLogService,
                 pnSendModeUtils,
                 attachmentUtils);
-    }
-
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void prepareAnalogNotificationForSimpleRegisteredLetter() {
-        //GIVEN
-        NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
-
-        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
-
-        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
-
-        Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR);
-
-        // WHEN
-        paperChannelService.prepareAnalogNotificationForSimpleRegisteredLetter(notificationInt, 0);
-
-        // THEN
-        Mockito.verify(paperChannelSendClient).prepare(any());
-        Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
-        Mockito.verify(auditLogEvent).log();
-        Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -278,192 +244,6 @@ class PaperChannelServiceImplTest {
         Mockito.verify(paperChannelSendClient,Mockito.never()).prepare(Mockito.any());
     }
 
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void prepareAnalogNotification() {
-        //GIVEN
-        NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
-
-        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
-
-        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-
-        Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR);
-
-        // WHEN
-        paperChannelService.prepareAnalogNotification(notificationInt, 0, 0);
-
-        // THEN
-        Mockito.verify(paperChannelSendClient).prepare(Mockito.any());
-        Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
-        Mockito.verify(auditLogEvent).log();
-        Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void prepareAnalogNotification_nodiscovered() {
-        //GIVEN
-        NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
-
-        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .details(SendAnalogFeedbackDetailsInt.builder()
-                        .build())
-                .build();
-
-
-        TimelineElementInternal timelineElementInternalPrevious = TimelineElementInternal.builder()
-                .details(SendAnalogDetailsInt.builder()
-                        .physicalAddress(PhysicalAddressInt.builder()
-                                .address("via esempio")
-                                .build())
-                        .build())
-                .build();
-
-        Mockito.when(paperChannelUtils.buildPrepareAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_1");
-        Mockito.when(paperChannelUtils.buildSendAnalogFeedbackEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_related");
-        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.any(), Mockito.eq("timeline_id_related"))).thenReturn(timelineElementInternal);
-
-        Mockito.when(paperChannelUtils.buildSendAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_previous_send");
-        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.eq("timeline_id_previous_send"))).thenReturn(timelineElementInternalPrevious);
-
-
-        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-
-        Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR);
-
-        // WHEN
-        paperChannelService.prepareAnalogNotification(notificationInt, 0, 1);
-
-        // THEN
-        Mockito.verify(paperChannelSendClient).prepare(Mockito.any());
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
-        Mockito.verify( auditLogEvent).log();
-        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
-    }
-
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void prepareAnalogNotificationWithDiscovered() {
-        //GIVEN
-        NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
-
-        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .details(SendAnalogFeedbackDetailsInt.builder()
-                        .newAddress(PhysicalAddressInt.builder()
-                                .address("via casa")
-                                .foreignState("italia")
-                                .fullname("mario rossi")
-                                .build())
-                        .build())
-                .build();
-
-        TimelineElementInternal timelineElementInternalPrevious = TimelineElementInternal.builder()
-                .details(SendAnalogDetailsInt.builder()
-                        .physicalAddress(PhysicalAddressInt.builder()
-                                .address("via esempio")
-                                .build())
-                        .build())
-                .build();
-
-        Mockito.when(paperChannelUtils.buildPrepareAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_1");
-        Mockito.when(paperChannelUtils.buildSendAnalogFeedbackEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_related");
-        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.any(), Mockito.eq("timeline_id_related"))).thenReturn(timelineElementInternal);
-
-        Mockito.when(paperChannelUtils.buildSendAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_previous_send");
-        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.eq("timeline_id_previous_send"))).thenReturn(timelineElementInternalPrevious);
-
-        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-
-        Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR_DOCUMENTS);
-
-        // WHEN
-        paperChannelService.prepareAnalogNotification(notificationInt, 0, 1);
-
-        // THEN
-        Mockito.verify(paperChannelSendClient).prepare(Mockito.any());
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
-        Mockito.verify( auditLogEvent).log();
-        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
-    }
-
-
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void prepareAnalogNotificationWithDiscovered_nofullname() {
-        //GIVEN
-        NotificationInt notificationInt = newNotification("taxid");
-        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
-                .generatedAarUrl("http").build();
-
-        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
-        Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .details(SendAnalogFeedbackDetailsInt.builder()
-                        .newAddress(PhysicalAddressInt.builder()
-                                .address("via casa")
-                                .foreignState("italia")
-                                .build())
-                        .build())
-                .build();
-
-
-        TimelineElementInternal timelineElementInternalPrevious = TimelineElementInternal.builder()
-                .details(SendAnalogDetailsInt.builder()
-                        .physicalAddress(PhysicalAddressInt.builder()
-                                .address("via esempio")
-                                .build())
-                        .build())
-                .build();
-
-        Mockito.when(paperChannelUtils.buildPrepareAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_1");
-        Mockito.when(paperChannelUtils.buildSendAnalogFeedbackEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_related");
-        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.any(), Mockito.eq("timeline_id_related"))).thenReturn(timelineElementInternal);
-
-        Mockito.when(paperChannelUtils.buildSendAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_previous_send");
-        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.eq("timeline_id_previous_send"))).thenReturn(timelineElementInternalPrevious);
-
-        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-
-        Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR);
-
-        // WHEN
-        paperChannelService.prepareAnalogNotification(notificationInt, 0, 1);
-
-        // THEN
-        Mockito.verify(paperChannelSendClient).prepare(Mockito.any());
-        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), Mockito.any());
-        Mockito.verify( auditLogEvent).log();
-        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
-    }
 
     @ExtendWith(MockitoExtension.class)
     @Test
@@ -528,7 +308,7 @@ class PaperChannelServiceImplTest {
         Mockito.when(aarUtils.getAarGenerationDetails(Mockito.any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(paperChannelSendClient.send(Mockito.any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
         
