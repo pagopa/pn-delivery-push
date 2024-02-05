@@ -373,7 +373,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     }
 
     private SendAttachmentMode retrieveSendAttachmentMode(NotificationInt notification, NotificationChannelType notificationChannelType) {
-        PnSendMode pnSendMode = pnSendModeUtils.getPaperSendMode(notification.getSentAt());
+        PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
         
         if(pnSendMode != null){
             return switch (notificationChannelType) {
