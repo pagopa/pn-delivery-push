@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -122,8 +123,8 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
     }
 
     @Override
-    public Mono<StreamEntity> replace(StreamEntity entity, String replacedStreamId) {
-        return get(entity.getPaId(), replacedStreamId)
+    public Mono<StreamEntity> replace(StreamEntity entity, UUID replacedStreamId) {
+        return get(entity.getPaId(), replacedStreamId.toString())
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, replace stream invalid")))
             .filter(foundEntity-> foundEntity.getDisabledDate() == null)
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled")))

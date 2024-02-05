@@ -22,7 +22,15 @@ public abstract class WebhookServiceImpl {
     protected final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
 
-    protected Mono<StreamEntity> filterEntity(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
+    protected enum StreamEntityAccessMode {READ, WRITE};
+
+    protected Mono<StreamEntity> getStreamEntityToRead(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
+        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.READ);
+    }
+    protected Mono<StreamEntity> getStreamEntityToWrite(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
+        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.WRITE);
+    }
+    private Mono<StreamEntity> filterEntity(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId, StreamEntityAccessMode mode) {
         final String apiV10 = pnDeliveryPushConfigs.getWebhook().getFirstVersion();
         return streamEntityDao.get(xPagopaPnCxId,streamId.toString())
             .switchIfEmpty(Mono.error(
@@ -31,7 +39,9 @@ public abstract class WebhookServiceImpl {
                     , ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND)))
             .filter(streamEntity ->
                 apiV10.equals(xPagopaPnApiVersion)
-                || WebhookUtils.checkGroups(xPagopaPnCxGroups, streamEntity.getGroups())
+                || (
+                    mode == StreamEntityAccessMode.WRITE ?  WebhookUtils.checkGroups(streamEntity.getGroups(), xPagopaPnCxGroups) : WebhookUtils.checkGroups(xPagopaPnCxGroups, streamEntity.getGroups())
+                )
             ).filter(streamEntity -> xPagopaPnApiVersion.equals(streamEntity.getVersion())
                 || (streamEntity.getVersion() == null && apiV10.equals(xPagopaPnApiVersion))
             )
