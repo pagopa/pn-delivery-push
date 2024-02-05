@@ -296,6 +296,7 @@ public class TimelineUtils {
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
                 .prepareRequestId(prepareRequestId)
                 .f24Attachments(replacedF24AttachmentUrls)
+                .vat(notification.getVat())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -456,6 +457,7 @@ public class TimelineUtils {
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
                 .f24Attachments(replacedF24AttachmentUrls)
                 .prepareRequestId(analogDtoInfo.getPrepareRequestId())
+                .vat(notification.getVat())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
