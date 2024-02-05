@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationPaidMapper;
@@ -60,6 +61,9 @@ class NotificationPaidEventHandlerTestIT extends MockActionPoolTest{
 
     @MockBean
     private UUIDCreatorUtils uuidCreatorUtils;
+    
+    @MockBean
+    private NotificationProcessCostService notificationProcessCostService;
 
     @Test
     void consumeMessageWithPaymentPPANotAlreadyPaid() {
@@ -72,8 +76,9 @@ class NotificationPaidEventHandlerTestIT extends MockActionPoolTest{
         NotificationInt notificationIntMock = buildNotification(IUN);
         Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
         NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload());
-        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
+        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null, notificationProcessCostService).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
 
+        when(notificationProcessCostService.getSendFee()).thenReturn(100);
         when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED)).thenReturn(timelineElementInternalExpected);
         when(timelineService.getTimelineElement(anyString(), anyString())).thenReturn(Optional.empty());
         when(notificationService.getNotificationByIun(IUN)).thenReturn(notificationIntMock);
@@ -98,7 +103,7 @@ class NotificationPaidEventHandlerTestIT extends MockActionPoolTest{
         NotificationInt notificationIntMock = buildNotification(IUN);
         Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
         NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload());
-        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
+        TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null, notificationProcessCostService).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
 
         when(timelineUtils.buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED)).thenReturn(timelineElementInternalExpected);
         when(timelineService.getTimelineElement(anyString(), anyString())).thenReturn(Optional.of(TimelineElementInternal.builder().build()));

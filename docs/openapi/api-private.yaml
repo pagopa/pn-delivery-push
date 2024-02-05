@@ -345,6 +345,7 @@ paths:
         - $ref: '#/components/parameters/queryNotificationFeePolicy'
         - $ref: '#/components/parameters/queryApplyCost'
         - $ref: '#/components/parameters/paFee'
+        - $ref: '#/components/parameters/vat'
       responses:
         '200':
           description: OK
@@ -540,7 +541,16 @@ components:
         format: int32
         minimum: 0
         maximum: 100
-
+    vat:
+      description: IVA espressa in percentuale imposta al mittente sulla notifica analogica
+      name: vat
+      in: query
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 100
+        
   schemas:
 
     cxTypeAuthFleet:
@@ -686,13 +696,35 @@ components:
         Contiene il costo del processo di notificazione e l'eventuale data di perfezionamento della notifica
       type: object
       required:
-        - amount
+        - partialCost
       properties:
-        amount:
-          description: costo notificazione in euro cents
-          example: '200'
+        partialCost:
+          description: Costo totale di notificazione che non include la paFee e vat
           type: integer
           format: int32
+        totalCost:
+          description: Costo totale di notificazione che include la paFee e vat applicato ai costi cartacei. Presente solo se entrambi i campi paFee e vat sono stati valorizzati
+          type: integer
+          format: int32
+        analogCost:
+          description: Costo totale degli avvisi in formato cartaceo (senza iva)
+          type: integer
+          format: int32
+        paFee:
+          type: integer
+          description: >-
+            Costo espresso in eurocent che la PA imputa per la notifica
+          format: int32
+        sendFee:
+          type: integer
+          description: >-
+            Costo espresso in eurocent a copertura dei costi di gestione di SEND
+          format: int32
+        vat:
+          type: integer
+          format: int32
+          description: >-
+            IVA espressa in percentuale imposta al mittente sulla notifica analogica
         refinementDate:
           description: data perfezionamento notifica per decorrenza termini se presente
           type: string
