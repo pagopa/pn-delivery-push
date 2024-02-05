@@ -300,29 +300,61 @@
 
     /* SECOND PAGE */
     #send-explanation {
-      width: 92mm;
-      border: solid #000054 1px;
+      width: 95mm;
+      border: solid #b2b2b2 1px;
       border-radius: 5px;
-      padding: 3mm;
+      padding: 3mm 4mm 3mm 3mm;
+      height: 94mm;
     }
-
-    #howto-explanation {
-      width: 92mm;
-      background-color: #ECECEC;
+    #print-explanation {
+      width: 70mm;
+      border: solid #b2b2b2 1px;
       border-radius: 5px;
-      padding: 3mm;
+      padding: 3mm 4mm 3mm 3mm;
       position: absolute;
       right: 0;
       top: 0;
+      height: 47mm;
+    }
+
+    #send-explanation p {
+      margin-bottom: 2mm;
+    }
+
+    #print-explanation p {
+      margin-bottom: 2mm;
+    }
+    #howto-explanation {
+      width: 93mm;
+      background-color: #ECECEC;
+      border-radius: 5px;
+      padding: 3mm 4mm;
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 94mm;
+    }
+    #io-box_explanation {
+      width: 116mm;
+      background-color: #ECECEC;
+      border-radius: 5px;
+      padding: 3mm 3mm 3mm 0.3mm;
+      height: 47mm;
+    }
+    #howto-explanation p {
+      margin-bottom: 2mm;
+    }
+    #io-box_explanation p {
+      margin-bottom: 2mm;
     }
 
     #advantages-explanation {
       position: absolute;
       text-align: center;
-      margin-top: 5mm;
+      margin-top: 4mm;
       width: 100%;
-      height: 50mm;
-      border: solid #000054 1px;
+      height: 43mm;
+      border: solid #b2b2b2 1px;
       border-radius: 5px;
     }
 
@@ -340,8 +372,14 @@
     }
 
     .advantage-col {
-      width: 25%;
+      width: 47.5mm;
       position: absolute;
+    }
+
+    .advantages-explanation__content {
+      width: 90%;
+      text-align: center;
+      margin: auto;
     }
 
     #io-icon-bgdark {
@@ -362,6 +400,51 @@
       position: absolute;
       left: 71mm;
       margin: 5mm;
+    }
+
+    #howto-explanation .explanation-title, #send-explanation .explanation-title {
+      position: relative;
+      display: table;
+      width: 100%;
+      height: 14mm;
+    }
+    #howto-explanation .explanation-title h4, #send-explanation .explanation-title h4{
+      width: 52mm;
+      display: table-cell;
+      vertical-align: middle;
+    }
+    #howto-explanation .explanation-title img, #send-explanation .explanation-title img {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    #print-explanation .explanation-title {
+      margin-bottom: 2mm;
+    }
+
+    #icon-io_explanation {
+      width: 47mm;
+      position: absolute;
+      bottom: 0;
+    }
+
+    #icon-io_logo {
+      width: 10mm;
+      position: absolute;
+      left: 4mm;
+    }
+
+    #io-explanation {
+      position: absolute;
+      left: 48mm;
+      width: 65mm;
+      top: 4mm;
+    }
+
+    img.message-advantages_explanation {
+      height: 26px;
+      margin-bottom: 4mm;
     }
   </style>
 </head>
@@ -408,7 +491,7 @@
         ${notification.sender.paDenomination}.
         Una notifica è una comunicazione a valore legale. È composta da questo avviso di avvenuta ricezione e da uno o
         più
-        documenti: visualizzali online o ritirali in Ufficio Postale il prima possibile. Il termine per il pagamento, se
+        documenti: visualizzali online o ritirali in un punto autorizzato il prima possibile. Il termine per il pagamento, se
         previsto, e per eventuali impugnazioni è indicato nei documenti.
       </div>
     </div>
@@ -452,11 +535,11 @@
       </#if>
       <div id="poste-box">
         <div class="heading ten-px">
-          Ritirali in Ufficio Postale - A Pagamento
+          Ritirali in un punto autorizzato - A Pagamento
         </div>
         <div class="section-list">
           <ol>
-            <li>Vai in qualsiasi Ufficio Postale e richiedi il servizio “Stampa notifica” (disponibile anche senza SPID
+            <li>Vai in qualsiasi un punto autorizzato e richiedi il servizio “Stampa notifica” (disponibile anche senza SPID
               o CIE)</li>
             <li>Allo sportello, mostra:
               <ul id="square-list">
@@ -476,8 +559,7 @@
         </div>
         <div class="eight-px" style="padding-left: 2.5mm; line-height: normal;">Un volta usufruito del servizio “Stampa
           Notifica”, non potrai
-          richiedere una nuova stampa degli stessi documenti. Puoi consultare i termini e le condizioni del servizio
-          “Stampa Notifica” su <b>poste.it</b> e in Ufficio Postale.</div>
+          richiedere una nuova stampa degli stessi documenti.</div>
         <div id="send-info">
           <div class="rounded-box relative-box">
             <div id="send-info__content" class="eight-px">
@@ -512,7 +594,7 @@
           <div class="eight-px border-bottom">
             Codice Fiscale
           </div>
-          a ritirare in Ufficio Postale i documenti notificati.
+          a ritirare i documenti notificati.
           <div class="eight-px border-bottom">
             Firma
           </div>
@@ -548,7 +630,7 @@
 
 
 
-  <!-- ________________page 2___________________ -->
+  <!-- ________________ PAGE 2 ___________________ -->
   <div style="height: 294mm;">
     <div id="logo-box-right">
       <img id="logo-box-right__logo" src="./images/aar-logo-short-small.png" />
@@ -564,73 +646,87 @@
     <div id="main-page2">
       <div class="relative-box">
         <div id="send-explanation">
-          <img id="message-send_explanation" src="./images/message-icon.png" />
-          <div id="send-explanation__content">
+          <div class="explanation-title">
             <h4 class="ten-px">UN NUOVO MODO DI RICEVERE LE RACCOMANDATE</h4>
-            Finora, per inviarti le comunicazioni a valore legale, un ente pubblico usava quasi sempre la raccomandata
-            cartacea contenente la notifica e i documenti allegati.
-            Oggi puoi riceverle in digitale grazie a SEND, il nuovo Servizio Notifiche Digitali, tramite un avviso che
-            contiene le istruzioni per ottenere i documenti notificati dove ti è più comodo.
-            Per ricevere in digitale le comunicazioni a valore legale vai su [url.notifichedigitali.it] e inserisci i
-            tuoi
-            recapiti: PEC, app IO, indirizzo e-mail o numero di cellulare.
-            In questo modo puoi visualizzare i documenti e pagare eventuali importi direttamente online, risparmiando
-            sui
-            costi di notifica.
+            <img id="message-send_explanation" src="./images/message-icon.png" />
+          </div>
+          <div id="send-explanation__content">
+            <p>Finora, per inviarti le comunicazioni a valore legale, un ente pubblico usava quasi sempre la raccomandata cartacea. Questa includeva la notifica insieme ai documenti allegati.</p>
+            <p>Oggi <strong>puoi riceverle in digitale grazie a SEND</strong>, il nuovo Servizio Notifiche Digitali, tramite un avviso con le istruzioni per ottenere i documenti notificati dove ti è più comodo. </p>
+            <p>Per ricevere in digitale le comunicazioni a valore legale vai su <strong><a
+              href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e inserisci i tuoi recapiti: PEC, app IO, indirizzo e-mail o numero di cellulare. </p>
+            <p>In questo modo potrai visualizzare i documenti e pagare eventuali importi direttamente online, risparmiando sui costi di notifica.</p>
           </div>
         </div>
         <div id="howto-explanation">
-          <img id="icon-howto_explanation" src="./images/howto-icon.png" />
+          <div class="explanation-title">
+            <h4>COSA CAMBIA PER TE</h4>
+            <img id="icon-howto_explanation" src="./images/howto-icon.png" />
+          </div>
           <div id="howto-explanation__content">
-            <h4>UN NUOVO MODO DI RICEVERE LE RACCOMANDATE</h4>
-            Finora, per inviarti le comunicazioni a valore legale, un ente pubblico usava quasi sempre la raccomandata
-            cartacea contenente la notifica e i documenti allegati.
-            Oggi puoi riceverle in digitale grazie a SEND, il nuovo Servizio Notifiche Digitali, tramite un avviso che
-            contiene le istruzioni per ottenere i documenti notificati dove ti è più comodo.
-            Per ricevere in digitale le comunicazioni a valore legale vai su [url.notifichedigitali.it] e inserisci i
-            tuoi
-            recapiti: PEC, app IO, indirizzo e-mail o numero di cellulare.
-            In questo modo puoi visualizzare i documenti e pagare eventuali importi direttamente online, risparmiando
-            sui
-            costi di notifica.
+            <p>Se hai ricevuto questa comunicazione tramite raccomandata cartacea, è perché non hai aperto il messaggio sull’app IO, non hai indicato un altro recapito digitale o non hai letto la notifica online entro i tempi stabiliti.</p>
+            <p>In ogni caso, per leggere i documenti notificati dovrai scegliere se <strong>ottenerli sul sito di SEND, sull’app IO, oppure ritirarli in qualsiasi punto autorizzato</strong>.</p>
+            <p>Poiché il nuovo servizio SEND è in corso di adozione da parte degli enti sul territorio nazionale, potresti  continuare a ricevere alcune raccomandate come è avvenuto finora.</p>
           </div>
         </div>
-
       </div>
-      <div id="advantages" class="relative-box" style="width: 100%; height: 55mm;">
+      <div id="advantages" class="relative-box" style="width: 100%; height: 50mm;">
         <div id="advantages-explanation">
-          <h3>I vantaggi di ricevere le notifiche tramite un canale digitale</h3>
+          <h3>I VANTAGGI DI RICEVERE LE NOTIFICHE TRAMITE UN CANALE DIGITALE</h3>
           <div class="advantage-col" style="left:0">
-            <img class="message-advantages_explanation" src="./images/message-icon.png" />
-            <div id="advantages-explanation__content">
-              Proteggi l’ambiente:
-              meno emissioni per il trasporto e meno carta
+            <img class="message-advantages_explanation" src="./images/moneypig.png" />
+            <div class="advantages-explanation__content">
+              <strong>Ti costa meno</strong>:<br>
+              diminuiscono i costi di notificazione
             </div>
           </div>
           <div class="advantage-col" style="left:25%">
-            <img class="message-advantages_explanation" src="./images/message-icon.png" />
-            <div id="advantages-explanation__content">
-              Proteggi l’ambiente:
-              meno emissioni per il trasporto e meno carta
+            <img class="message-advantages_explanation" src="./images/time.png" />
+            <div class="advantages-explanation__content">
+              <strong>Risparmi tempo</strong>:<br>
+              niente più attese per il ritiro della raccomandata            
             </div>
           </div>
           <div class="advantage-col" style="left:50%">
-            <img class="message-advantages_explanation" src="./images/message-icon.png" />
-            <div id="advantages-explanation__content">
-              Proteggi l’ambiente:
-              meno emissioni per il trasporto e meno carta
+            <img class="message-advantages_explanation" src="./images/world.png" />
+            <div class="advantages-explanation__content">
+              <strong>Non importa dove sei</strong>:<br>
+              trovi le tue notifiche e documenti online o su IO
             </div>
           </div>
           <div class="advantage-col" style="left:75%">
-            <img class="message-advantages_explanation" src="./images/message-icon.png" />
-            <div id="advantages-explanation__content">
-              Proteggi l’ambiente:
+            <img class="message-advantages_explanation" src="./images/sustainable.png" />
+            <div class="advantages-explanation__content">
+              <strong>Proteggi l'ambiente</strong>:<br>
               meno emissioni per il trasporto e meno carta
             </div>
           </div>
         </div>
       </div>
-
+      <div class="relative-box">
+        <div id="io-box_explanation">
+          <img id="icon-io_explanation" src="./images/phone-io.png" />
+          <img id="icon-io_logo" src="./images/io-icon-bgdark.png" />
+          <div id="io-explanation">
+            <div class="explanation-title">
+              <h4>CON L'APP IO CONVIENE</h4>
+            </div>
+            <div id="io-explanation__content">
+              <p>Assicurati di avere attivato il servizio SEND - Notifiche digitali per leggere i documenti notificati direttamente in app.</p>
+              <p>Se non hai IO, <strong>scaricala per ricevere le prossime notifiche e leggere i documenti</strong> direttamente sul tuo dispositivo.</p>
+            </div>
+          </div>
+        </div>
+        <div id="print-explanation">
+          <div class="explanation-title">
+            <h4 class="ten-px">VUOI I DOCUMENTI STAMPATI?</h4>
+          </div>
+          <div id="print-explanation__content">
+            <p>Se non hai SPID o CIE, non hai accesso a una rete internet o preferisci il cartaceo, <strong>puoi ritirare una stampa dei documenti in qualsiasi un punto autorizzato</strong>. </p>
+            <p>Per farlo, segui le istruzioni che trovi sul fronte di questo foglio.</p>
+          </div>
+        </div>
+      </div>
     </div>
 
 
