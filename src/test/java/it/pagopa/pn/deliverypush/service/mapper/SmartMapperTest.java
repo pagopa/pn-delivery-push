@@ -7,7 +7,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV23;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ class SmartMapperTest {
                         .build())
                 .build();
 
-        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV20.class);
+        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV23.class);
         
         Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(sendDigitalDetails.getDigitalAddress().getAddress(), details.getDigitalAddress().getAddress() );
@@ -43,7 +43,7 @@ class SmartMapperTest {
 
     @Test
     void fromExternalToInternalSendDigitalDetails() {
-        var timelineElementDetails = TimelineElementDetailsV20.builder()
+        var timelineElementDetails = TimelineElementDetailsV23.builder()
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSource.PLATFORM)
                 .digitalAddress(DigitalAddress.builder()
@@ -71,7 +71,7 @@ class SmartMapperTest {
                         .build())
                 .build();
 
-        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV20.class);
+        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV23.class);
 
         Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(sendDigitalDetails.getFoundAddress().getAddress(), details.getFoundAddress().getAddress() );
@@ -86,18 +86,18 @@ class SmartMapperTest {
         source.setNotRefinedRecipientIndexes(list);
         source.setNotificationCost(100);
 
-        TimelineElementDetailsV20 ret = SmartMapper.mapToClass(source, TimelineElementDetailsV20.class);
+        TimelineElementDetailsV23 ret = SmartMapper.mapToClass(source, TimelineElementDetailsV23.class);
 
         Assertions.assertEquals(1, ret.getNotRefinedRecipientIndexes().size());
 
         source.getNotRefinedRecipientIndexes().clear();
-        ret = SmartMapper.mapToClass(source, TimelineElementDetailsV20.class);
+        ret = SmartMapper.mapToClass(source, TimelineElementDetailsV23.class);
 
         Assertions.assertEquals(0, ret.getNotRefinedRecipientIndexes().size());
 
         NotHandledDetailsInt altro = new NotHandledDetailsInt();
         altro.setReason("test");
-        ret = SmartMapper.mapToClass(altro, TimelineElementDetailsV20.class);
+        ret = SmartMapper.mapToClass(altro, TimelineElementDetailsV23.class);
 
         Assertions.assertNull(ret.getNotRefinedRecipientIndexes());
     }
