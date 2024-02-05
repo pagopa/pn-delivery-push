@@ -22,6 +22,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -54,14 +55,18 @@ class AttachmentUtilsTest {
     private NotificationUtils notificationUtils;
 
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+
+    private PnSendModeUtils pnSendModeUtils;
+
     @BeforeEach
     void init(){
         safeStorageService = Mockito.mock(SafeStorageService.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        pnSendModeUtils = Mockito.mock(PnSendModeUtils.class);
         NotificationProcessCostService notificationProcessCostService = Mockito.mock(NotificationProcessCostService.class);
         NotificationProcessCost procesCost = NotificationProcessCost.builder().cost(1).build();
         Mockito.when(notificationProcessCostService.notificationProcessCost(any(), anyInt(), any(), anyBoolean(), anyInt())).thenReturn(Mono.just(procesCost));
-        attachmentUtils = new AttachmentUtils(safeStorageService, pnDeliveryPushConfigs, notificationProcessCostService);
+        attachmentUtils = new AttachmentUtils(safeStorageService, pnDeliveryPushConfigs, notificationProcessCostService, pnSendModeUtils);
         notificationUtils = Mockito.mock(NotificationUtils.class);
     }
 
