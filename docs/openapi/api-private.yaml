@@ -272,7 +272,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: "#/components/schemas/LegalFactDownloadMetadataWithContentTypeResponse"
         '400':
           description: Invalid input
           content:
@@ -333,7 +333,7 @@ paths:
 
   '/delivery-push-private/{iun}/notification-process-cost/{recipientIndex}':
     get:
-      summary: Restituisce il costo di notificazione per destinatario 
+      summary: Restituisce il costo di notificazione per destinatario
       description: >-
         Restituisce il costo dell'intero processo di notificazione per un singolo destinatario
       tags:
@@ -371,7 +371,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-                
+
 components:
   parameters:
 
@@ -512,7 +512,7 @@ components:
       required: true
       schema:
         type: integer
-        format: int32            
+        format: int32
 
     queryNotificationFeePolicy:
       description: >-
@@ -550,7 +550,7 @@ components:
         format: int32
         minimum: 0
         maximum: 100
-      
+        
   schemas:
 
     cxTypeAuthFleet:
@@ -684,8 +684,8 @@ components:
       type: string
       enum:
         - AAR
-          
-          
+
+
     ############################################################################################
     ###                              COSTO NOTIFICAZIONE                                     ###
     ############################################################################################
@@ -758,3 +758,17 @@ components:
           description: data di probabile inizio del workflow analogico
           type: string
           format: date-time
+
+    ############################################################################################
+    ###           INFORMAZIONI SUI LEGAL FACT                                                ###
+    ############################################################################################
+
+    LegalFactDownloadMetadataWithContentTypeResponse:
+      description: oltre alle informazioni dei legalfact, torna anche il contentType
+      allOf:
+        - $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+        - type: object
+          properties:
+            contentType:
+              description: il contentType del file
+              type: string
