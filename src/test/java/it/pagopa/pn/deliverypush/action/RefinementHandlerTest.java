@@ -101,7 +101,6 @@ class RefinementHandlerTest {
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.TRUE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
         when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
-        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
 
         TimelineElementInternal viewedTimelineElement = new TimelineElementInternal();
         viewedTimelineElement.setCategory(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST);
