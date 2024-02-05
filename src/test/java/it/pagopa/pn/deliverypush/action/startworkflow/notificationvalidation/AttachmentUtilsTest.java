@@ -61,7 +61,7 @@ class AttachmentUtilsTest {
         safeStorageService = Mockito.mock(SafeStorageService.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         NotificationProcessCostService notificationProcessCostService = Mockito.mock(NotificationProcessCostService.class);
-        Mockito.when(notificationProcessCostService.notificationProcessCostF24(any(), anyInt(), any(), anyInt(), anyInt())).thenReturn(Mono.just(2));
+        Mockito.when(notificationProcessCostService.notificationProcessCostF24(any(), anyInt(), any(), anyInt(), anyInt(), any())).thenReturn(Mono.just(2));
         attachmentUtils = new AttachmentUtils(safeStorageService, pnDeliveryPushConfigs, notificationProcessCostService);
         notificationUtils = Mockito.mock(NotificationUtils.class);
     }

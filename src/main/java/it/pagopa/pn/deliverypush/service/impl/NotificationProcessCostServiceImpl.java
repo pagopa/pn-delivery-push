@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
@@ -23,9 +24,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TOTAL_COST_NOT_PRESENT;
+
 @Service
 @Slf4j
 public class NotificationProcessCostServiceImpl implements NotificationProcessCostService {
+    public static final double MIN_VERSION_PAFEE_VAT_MANDATORY = 2.3;
     private final int sendFee;
     private final TimelineService timelineService;
     private final PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive;
@@ -69,19 +73,38 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
     }
     
     @Override
-    public Mono<Integer> notificationProcessCostF24(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Integer paFee, Integer vat) {
+    public Mono<Integer> notificationProcessCostF24(String iun,
+                                                    int recIndex,
+                                                    NotificationFeePolicy notificationFeePolicy, 
+                                                    Integer paFee,
+                                                    Integer vat,
+                                                    String version
+    ) {
         return Mono.fromCallable(() -> getNotificationProcessCost(iun, recIndex, notificationFeePolicy, true, paFee, vat))
                 .map(notificationProcessCost -> {
+                    log.debug("Get notificationProcessCost response={}", notificationProcessCost);
                     if (notificationProcessCost.getTotalCost() != null){
+                        log.info("For F24 can set notification total cost={} - iun={} id={}",notificationProcessCost.getTotalCost(), iun, recIndex );
                         return notificationProcessCost.getTotalCost();
                     } else {
-                        //F24 fa parte delle v2.1 delle api, che ha default per i campi vat e paFee, il totalCost deve essere sempre Valorizzato! (tranne in alcuni corner-case)
-                        log.warn("[TOTAL_COST_NOT_PRESENT] Notification process totalCost is not present, can't generate F24 - iun={} id={}", iun, recIndex);
+                        log.info("For F24 cannot set notification total cost- iun={} id={}", iun, recIndex);
+                        checkIsPossibileCase(iun, recIndex, notificationFeePolicy, version);
+                        log.info("For F24 can set notification partial cost={} - iun={} id={}", notificationProcessCost.getPartialCost(), iun, recIndex );
                         return notificationProcessCost.getPartialCost();
                     }
                 });
     }
-    
+
+    private static void checkIsPossibileCase(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, String version) {
+        //Dalla versione 2.3 il totalCost deve essere sempre Valorizzato, perchè c'è l'obbligatorietà ed eventualmente default
+        Double numberVersion =  version != null ? Double.valueOf(version) : null;
+        if(NotificationFeePolicy.DELIVERY_MODE.equals(notificationFeePolicy) && numberVersion != null && numberVersion >= MIN_VERSION_PAFEE_VAT_MANDATORY){
+            String msg = String.format("Notification process totalCost is not present and notification version is=%s, can't generate F24 - iun=%s id=%s", version, iun, recIndex);
+            log.error(msg);
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_TOTAL_COST_NOT_PRESENT);
+        }
+    }
+
     @Override
     public Mono<NotificationProcessCost> notificationProcessCost(String iun, int recIndex, NotificationFeePolicy notificationFeePolicy, Boolean applyCost, Integer paFee, Integer vat) {
         return Mono.fromCallable(() -> getNotificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee, vat));
