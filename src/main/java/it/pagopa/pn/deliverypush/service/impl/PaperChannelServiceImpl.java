@@ -379,6 +379,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             return switch (notificationChannelType) {
                 case ANALOG_NOTIFICATION -> pnSendMode.getAnalogSendAttachmentMode();
                 case SIMPLE_REGISTERED_LETTER -> pnSendMode.getSimpleRegisteredLetterSendAttachmentMode();
+                case DIGITAL_NOTIFICATION -> pnSendMode.getDigitalSendAttachmentMode();
             };
         }else {
             String msg = String.format("There isn't correct Send Analog configuration date=%s - iun=%s sentAt", notification.getSentAt(),  notification.getIun());

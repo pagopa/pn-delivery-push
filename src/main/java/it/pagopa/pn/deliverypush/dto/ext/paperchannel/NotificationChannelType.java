@@ -3,7 +3,9 @@ package it.pagopa.pn.deliverypush.dto.ext.paperchannel;
 public enum NotificationChannelType {
 
     SIMPLE_REGISTERED_LETTER("simple-registered-letter"),
-    ANALOG_NOTIFICATION("analog-notification");
+    ANALOG_NOTIFICATION("analog-notification"),
+
+    DIGITAL_NOTIFICATION("digital-notification");
 
     private final String value;
 
