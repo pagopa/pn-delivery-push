@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ZwnXTaZkq3GjN+CzftI3vam2eoc8ZDYzy1nuU9G/KYQ=
+  version: v/Qn8nnGbEIp/LQBb+ybdYlLgSHAQl8HiM0c6/H9K5E=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -507,7 +507,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: '#/components/schemas/TimelineElementCategoryV20'
+          $ref: '#/components/schemas/TimelineElementCategoryV23'
         recipientIndex:
           type: number
           minimum: 0
@@ -634,7 +634,7 @@ components:
         - PAID
         - UNREACHABLE
         - CANCELLED
-    TimelineElementCategoryV20:
+    TimelineElementCategoryV23:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -658,7 +658,7 @@ components:
           * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
           * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
           * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
-          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo 
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
           * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
@@ -671,7 +671,7 @@ components:
           * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
           * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
-          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
@@ -679,6 +679,7 @@ components:
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+          * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -721,6 +722,7 @@ components:
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
+        - NOTIFICATION_RADD_RETRIEVED
   responses: {}
   securitySchemes:
     api_key_openapi:

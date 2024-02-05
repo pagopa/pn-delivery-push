@@ -603,7 +603,7 @@ components:
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
 
 
     ############################################################################################
@@ -625,7 +625,7 @@ components:
           type: string
           description: identificativo anonimizzato del destinatario
         raddType:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddType'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddTypeV23'
         raddBusinessTransactionId:
           $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddTransactionId'
         raddBusinessTransactionDate:

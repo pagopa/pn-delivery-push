@@ -610,6 +610,7 @@ public class TimelineUtils {
                 .attachments(attachments)
                 .sendRequestId(sendRequestId)
                 .registeredLetterCode(sendEventInt.getRegisteredLetterCode())
+                .serviceLevel(sendPaperDetails.getServiceLevel())
                 .build();
 
         List<LegalFactsIdInt> legalFactsListEntryIds = getLegalFactsIdList(attachments);
@@ -791,7 +792,7 @@ public class TimelineUtils {
                 details, timelineBuilder);
     }
 
-    public TimelineElementInternal buildScheduleDigitalWorkflowTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptInfo) {
+    public TimelineElementInternal buildScheduleDigitalWorkflowTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptInfo, Instant schedulingDate) {
         log.debug("buildScheduledActionTimeline - iun={} and id={}", notification.getIun(), recIndex);
         String elementId = TimelineEventId.SCHEDULE_DIGITAL_WORKFLOW.buildEventId(
                 EventId.builder()
@@ -807,12 +808,13 @@ public class TimelineUtils {
                 .digitalAddress(lastAttemptInfo.getDigitalAddress())
                 .digitalAddressSource(lastAttemptInfo.getDigitalAddressSource())
                 .sentAttemptMade(lastAttemptInfo.getSentAttemptMade())
+                .schedulingDate(schedulingDate)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_DIGITAL_WORKFLOW, elementId, details);
     }
 
-    public TimelineElementInternal buildScheduleAnalogWorkflowTimeline(NotificationInt notification, Integer recIndex) {
+    public TimelineElementInternal buildScheduleAnalogWorkflowTimeline(NotificationInt notification, Integer recIndex, Instant schedulingDate) {
         log.debug("buildScheduleAnalogWorkflowTimeline - iun={} and id={}", notification.getIun(), recIndex);
         String elementId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
                 EventId.builder()
@@ -822,13 +824,14 @@ public class TimelineUtils {
 
         ScheduleAnalogWorkflowDetailsInt details = ScheduleAnalogWorkflowDetailsInt.builder()
                 .recIndex(recIndex)
+                .schedulingDate(schedulingDate)
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, elementId, details);
     }
 
 
-    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex, Integer notificationCost, Boolean addNotificationCost) {
+    public TimelineElementInternal  buildRefinementTimelineElement(NotificationInt notification, Integer recIndex, Integer notificationCost, Boolean addNotificationCost, Instant refinementDate) {
         log.debug("buildRefinementTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
@@ -839,6 +842,7 @@ public class TimelineUtils {
 
         RefinementDetailsInt details = RefinementDetailsInt.builder()
                 .recIndex(recIndex)
+                .eventTimestamp(refinementDate)
                 .build();
 
         if(Boolean.TRUE.equals(addNotificationCost)){
