@@ -363,10 +363,10 @@ info:
     name: Licenza di PN
     url: 'https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html'
 servers:
-- url: https://api.notifichedigitali.it
-  description: Ambiente di produzione
-- url: https://api.uat.notifichedigitali.it
-  description: Ambiente di collaudo
+  - url: https://api.notifichedigitali.it
+    description: Ambiente di produzione
+  - url: https://api.uat.notifichedigitali.it
+    description: Ambiente di collaudo
 tags:
   - name: HealthCheck
     description: >-
@@ -415,8 +415,8 @@ paths:
         required: true
         content:
           application/json:
-              schema:
-                $ref: "#/components/schemas/StreamCreationRequestV23"
+            schema:
+              $ref: "#/components/schemas/StreamCreationRequestV23"
       responses:
         '200':
           description: OK
@@ -533,8 +533,8 @@ paths:
         required: true
         content:
           application/json:
-              schema:
-                $ref: "#/components/schemas/StreamRequestV23"
+            schema:
+              $ref: "#/components/schemas/StreamRequestV23"
       responses:
         '200':
           description: OK
@@ -757,8 +757,8 @@ paths:
         required: true                                                                        # NOT YET IMPLEMENTED
         content:                                                                              # NOT YET IMPLEMENTED
           application/json:                                                                   # NOT YET IMPLEMENTED
-              schema:                                                                         # NOT YET IMPLEMENTED
-                $ref: "#/components/schemas/ExternalEventsRequest"                            # NOT YET IMPLEMENTED
+            schema:                                                                         # NOT YET IMPLEMENTED
+              $ref: "#/components/schemas/ExternalEventsRequest"                            # NOT YET IMPLEMENTED
       responses:                                                                              # NOT YET IMPLEMENTED
         '204':                                                                                # NOT YET IMPLEMENTED
           description: OK                                                                     # NOT YET IMPLEMENTED
@@ -774,9 +774,9 @@ paths:
             application/problem+json:                                                         # NOT YET IMPLEMENTED
               schema:                                                                         # NOT YET IMPLEMENTED
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'                 # NOT YET IMPLEMENTED
-  
+
 components:
-  
+
   parameters:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
@@ -825,10 +825,10 @@ components:
       schema:                                                                                             # NO EXTERNAL
         type: string                                                                                      # NO EXTERNAL
         pattern: ^v\d\d\d?$                                                                               # NO EXTERNAL
-    
+
 
   schemas:
-    
+
     ############################################################################################
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
@@ -896,7 +896,7 @@ components:
       type: string
       description: >-
         Identificativo del gruppo.
-    
+
     StreamMetadataResponseV23:
       description: Configurazioni di un flusso di eventi
       allOf:
@@ -925,7 +925,7 @@ components:
                 versione di base dello stream.
               type: string
               pattern: ^v\d\d\d?$
-    
+
     StreamListResponse:
       description: Elenco di flussi di eventi
       type: array
@@ -943,12 +943,12 @@ components:
           format: uuid
           #minLength: 36
           #maxLength: 36
-        title: 
+        title:
           type: string
           maxLength: 256
           pattern: ^.*$
-        
-    
+
+
 
     ############################################################################################
     ###                                  DEFINIZIONI EVENTI                                  ###
@@ -1050,7 +1050,7 @@ components:
       properties:                                                                       # NOT YET IMPLEMENTED
         payment:                                                                        # NOT YET IMPLEMENTED
           $ref: '#/components/schemas/PaymentEvent'                                     # NOT YET IMPLEMENTED
-    
+
     PaymentEvent:                                                                       # NOT YET IMPLEMENTED
       title: Evento di pagamento                                                        # NOT YET IMPLEMENTED
       description: >-                                                                   # NOT YET IMPLEMENTED
@@ -1086,8 +1086,8 @@ components:
         timestamp:                                                                      # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
           format: date-time                                                             # NOT YET IMPLEMENTED
-        
-  
+
+
 #  securitySchemes:        # ONLY EXTERNAL
 #    ApiKeyAuth:           # ONLY EXTERNAL
 #      type: apiKey        # ONLY EXTERNAL
@@ -1096,4 +1096,4 @@ components:
 
 #security:                 # ONLY EXTERNAL
 #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
-              
+
