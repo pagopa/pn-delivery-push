@@ -110,6 +110,7 @@ public class PnDeliveryPushConfigs {
     private List<String> paperSendMode;
 
     private List<String> pnSendMode;
+
     //quickWorkAroundForPN-9116
     private boolean sendMoreThan20GramsDefaultValue;
     

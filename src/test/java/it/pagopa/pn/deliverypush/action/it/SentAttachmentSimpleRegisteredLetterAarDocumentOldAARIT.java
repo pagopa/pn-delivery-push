@@ -40,6 +40,7 @@ class SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT extends SendAarAtt
     static PnSendMode firstCurrentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.MINUTES))
             .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
+            .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
             .build();
 
@@ -48,6 +49,7 @@ class SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT extends SendAarAtt
             .startConfigurationTime(sentNotificationTime.plus(10, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
+            .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
             .build();
 
@@ -67,11 +69,11 @@ class SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT extends SendAarAtt
 
             final String secondConfString = getStringConfiguration(secondConf);
 
-            List<String> paperSendModeList = new ArrayList<>();
-            paperSendModeList.add(firstCurrentConfString);
-            paperSendModeList.add(secondConfString);
+            List<String> pnSendModeList = new ArrayList<>();
+            pnSendModeList.add(firstCurrentConfString);
+            pnSendModeList.add(secondConfString);
 
-            Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(paperSendModeList);
+            Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(pnSendModeList);
 
             return pnDeliveryPushConfigs;
         }

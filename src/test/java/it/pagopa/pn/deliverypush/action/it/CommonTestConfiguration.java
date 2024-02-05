@@ -283,12 +283,13 @@ public class CommonTestConfiguration {
         Mockito.when(cfg.isCheckPdfValidEnabled()).thenReturn(true);
         Mockito.when(cfg.getCheckPdfSize()).thenReturn(DataSize.ofMegabytes(200));
 
-        // Impostazione delle proprietà di PaperSendMode
-        List<String> paperSendModeList = new ArrayList<>();
-        paperSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
-        paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
+        // Impostazione delle proprietà di PnSendMode
+        List<String> pnSendModeList = new ArrayList<>();
+        pnSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
+        pnSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION_RADD");
 
-        Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList);
+        //Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList); OLD
+        Mockito.when(cfg.getPnSendMode()).thenReturn(pnSendModeList);
 
         //quickWorkAroundForPN-9116
         Mockito.when(cfg.isSendMoreThan20GramsDefaultValue()).thenReturn(true);

@@ -54,9 +54,9 @@ public class PnSendModeUtils {
         return pnSendModesListSorted;
     }
 
-    private List<PnSendMode> getPnSendModeFromString(List<String> paperSendModeStringList) {
+    private List<PnSendMode> getPnSendModeFromString(List<String> pnSendModeStringList) {
 
-        return paperSendModeStringList.stream().map( elem -> {
+        return pnSendModeStringList.stream().map( elem -> {
             String[] arrayObj = elem.split(SEPARATOR);
             String configStartDate = arrayObj[INDEX_START_DATE];
             String analogSendAttachmentMode = arrayObj[ANALOG_SEND_ATTACHMENT_MODE_INDEX];
