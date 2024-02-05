@@ -18,7 +18,7 @@ import java.util.List;
 import static it.pagopa.pn.deliverypush.utils.PaperSendModeUtils.*;
 
 @ExtendWith(SpringExtension.class)
-class PaperSendModeUtilsTest {
+class PnSendModeUtilsTest {
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private PaperSendModeUtils paperSendModeUtils;
@@ -36,9 +36,9 @@ class PaperSendModeUtilsTest {
 
         Instant time = correctConfigStartDate.minus(1, ChronoUnit.DAYS);
         //WHEN
-        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
         //THEN
-        Assertions.assertNull(paperSendMode);
+        Assertions.assertNull(pnSendMode);
     }
     
     @Test
@@ -57,14 +57,14 @@ class PaperSendModeUtilsTest {
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
 
         //WHEN
-        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
         
         //THEN
-        Assertions.assertNotNull(paperSendMode);
-        Assertions.assertEquals(correctConfigStartDate, paperSendMode.getStartConfigurationTime());
-        Assertions.assertEquals(correctAnalogSendAttachmentMode, paperSendMode.getAnalogSendAttachmentMode());
-        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, paperSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        Assertions.assertEquals(correctAarTemplateType, paperSendMode.getAarTemplateType());
+        Assertions.assertNotNull(pnSendMode);
+        Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
+        Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
+        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
+        Assertions.assertEquals(correctAarTemplateType, pnSendMode.getAarTemplateType());
     }
 
     @Test
@@ -89,13 +89,13 @@ class PaperSendModeUtilsTest {
 
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
         //WHEN
-        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
         //THEN
-        Assertions.assertNotNull(paperSendMode);
-        Assertions.assertEquals(correctConfigStartDate, paperSendMode.getStartConfigurationTime());
-        Assertions.assertEquals(correctAnalogSendAttachmentMode, paperSendMode.getAnalogSendAttachmentMode());
-        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, paperSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        Assertions.assertEquals(correctAarTemplateType, paperSendMode.getAarTemplateType());
+        Assertions.assertNotNull(pnSendMode);
+        Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
+        Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
+        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
+        Assertions.assertEquals(correctAarTemplateType, pnSendMode.getAarTemplateType());
     }
     
     @Test
@@ -119,14 +119,14 @@ class PaperSendModeUtilsTest {
 
         Instant time = correctConfigStartDate;
         //WHEN
-        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
         
         //THEN
-        Assertions.assertNotNull(paperSendMode);
-        Assertions.assertEquals(correctConfigStartDate, paperSendMode.getStartConfigurationTime());
-        Assertions.assertEquals(correctAnalogSendAttachmentMode, paperSendMode.getAnalogSendAttachmentMode());
-        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, paperSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        Assertions.assertEquals(correctAarTemplateType, paperSendMode.getAarTemplateType());
+        Assertions.assertNotNull(pnSendMode);
+        Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
+        Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
+        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
+        Assertions.assertEquals(correctAarTemplateType, pnSendMode.getAarTemplateType());
     }
 
     @Test
@@ -151,14 +151,14 @@ class PaperSendModeUtilsTest {
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
         
         //WHEN
-        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
         
         //THEN
-        Assertions.assertNotNull(paperSendMode);
-        Assertions.assertEquals(correctConfigStartDate, paperSendMode.getStartConfigurationTime());
-        Assertions.assertEquals(correctAnalogSendAttachmentMode, paperSendMode.getAnalogSendAttachmentMode());
-        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, paperSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        Assertions.assertEquals(correctAarTemplateType, paperSendMode.getAarTemplateType());
+        Assertions.assertNotNull(pnSendMode);
+        Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
+        Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
+        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
+        Assertions.assertEquals(correctAarTemplateType, pnSendMode.getAarTemplateType());
     }
 
     @Test
@@ -185,14 +185,14 @@ class PaperSendModeUtilsTest {
         
         Instant time = secondConfStartDate.minus(1, ChronoUnit.SECONDS);
         //WHEN
-        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
         
         //THEN
-        Assertions.assertNotNull(paperSendMode);
-        Assertions.assertEquals(correctConfigStartDate, paperSendMode.getStartConfigurationTime());
-        Assertions.assertEquals(correctAnalogSendAttachmentMode, paperSendMode.getAnalogSendAttachmentMode());
-        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, paperSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        Assertions.assertEquals(correctAarTemplateType, paperSendMode.getAarTemplateType());
+        Assertions.assertNotNull(pnSendMode);
+        Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
+        Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
+        Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
+        Assertions.assertEquals(correctAarTemplateType, pnSendMode.getAarTemplateType());
     }
 
     @Test
@@ -203,9 +203,9 @@ class PaperSendModeUtilsTest {
         paperSendModeUtils = new PaperSendModeUtils(pnDeliveryPushConfigs);
 
         Instant time = Instant.now();
-        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(time);
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(time);
 
-        Assertions.assertNull(paperSendMode);
+        Assertions.assertNull(pnSendMode);
     }
 
 }

@@ -14,7 +14,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
-import it.pagopa.pn.deliverypush.utils.PaperSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,14 +37,14 @@ class SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT extends SendAarAtt
     static Instant sentNotificationTime = Instant.now();
 
     //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 10 minuti
-    static PaperSendMode firstCurrentConf = PaperSendMode.builder()
+    static PnSendMode firstCurrentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.MINUTES))
             .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
             .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
             .build();
 
     //Viene valorizzata la configurazione futura, cioè INSTANT.NOW più 10 giorni
-    static PaperSendMode secondConf = PaperSendMode.builder()
+    static PnSendMode secondConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.plus(10, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)

@@ -12,7 +12,7 @@ import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.utils.PaperSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
@@ -55,11 +55,11 @@ public class SendAarAttachment extends CommonTestConfiguration{
     }
 
     @NotNull
-    List<String> getListAttachmentExpectedToSend(PaperSendMode currentConf,
-                                                         NotificationInt notification,
-                                                         Integer recIndex,
-                                                         List<NotificationDocumentInt> notificationDocumentList,
-                                                         List<NotificationDocumentInt> pagoPaAttachmentList) {
+    List<String> getListAttachmentExpectedToSend(PnSendMode currentConf,
+                                                 NotificationInt notification,
+                                                 Integer recIndex,
+                                                 List<NotificationDocumentInt> notificationDocumentList,
+                                                 List<NotificationDocumentInt> pagoPaAttachmentList) {
         List<String> listAttachmentExpectedToSend = new ArrayList<>();
 
         if(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS.equals(currentConf.getAnalogSendAttachmentMode()) ||
@@ -90,7 +90,7 @@ public class SendAarAttachment extends CommonTestConfiguration{
         return notificationDocumentList.stream().map(elem -> elem.getRef().getKey()).toList();
     }
 
-    static String getStringConfiguration(PaperSendMode conf) {
+    static String getStringConfiguration(PnSendMode conf) {
         Instant startConfTime = conf.getStartConfigurationTime().truncatedTo(ChronoUnit.SECONDS);
         return String.format("%s;%s;%s;%s",
                 startConfTime,

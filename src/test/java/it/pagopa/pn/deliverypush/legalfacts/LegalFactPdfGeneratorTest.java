@@ -20,7 +20,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
-import it.pagopa.pn.deliverypush.utils.PaperSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -227,7 +227,7 @@ class LegalFactPdfGeneratorTest {
         @Test
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARTest() {
-                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
                                 .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
                                 .build());
 
@@ -255,7 +255,7 @@ class LegalFactPdfGeneratorTest {
         @Test
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADDPFTest() {
-                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
                                 .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
                                 .build());
 
@@ -286,7 +286,7 @@ class LegalFactPdfGeneratorTest {
         @Test
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADDPGTest() throws IOException {
-                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
                                 .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
                                 .build());
 
@@ -317,7 +317,7 @@ class LegalFactPdfGeneratorTest {
         @Test
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADD_NumericPGTest() throws IOException {
-                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
                         .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
                         .build());
 
@@ -348,7 +348,7 @@ class LegalFactPdfGeneratorTest {
         @Test
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARPGTest() {
-                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
                                 .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
                                 .build());
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PG.pdf");

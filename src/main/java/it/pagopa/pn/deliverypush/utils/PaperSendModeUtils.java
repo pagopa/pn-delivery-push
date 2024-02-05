@@ -21,23 +21,23 @@ public class PaperSendModeUtils {
     public static final int SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX = 2;
     public static final int AAR_TEMPLATE_TYPE_INDEX = 3;
     
-    private final List<PaperSendMode> paperSendModesList;
+    private final List<PnSendMode> pnSendModesList;
     
     public PaperSendModeUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs){
-        List<PaperSendMode> paperSendModesListNotSorted = getPaperSendModeFromString(pnDeliveryPushConfigs.getPaperSendMode());
-        paperSendModesList = getSortedList(paperSendModesListNotSorted);
+        List<PnSendMode> pnSendModesListNotSorted = getPaperSendModeFromString(pnDeliveryPushConfigs.getPaperSendMode());
+        pnSendModesList = getSortedList(pnSendModesListNotSorted);
     }
     
-    public PaperSendMode getPaperSendMode(Instant time){
+    public PnSendMode getPaperSendMode(Instant time){
         log.debug("Start getPaperSendMode for time={}", time);
-        PaperSendMode paperSendMode =  getCorrectPaperSendModeFromDate(time, paperSendModesList);
-        log.debug("End getPaperSendMode. PaperSendMode for time={} is {}", time, paperSendMode);
-        return paperSendMode;
+        PnSendMode pnSendMode =  getCorrectPaperSendModeFromDate(time, pnSendModesList);
+        log.debug("End getPaperSendMode. PaperSendMode for time={} is {}", time, pnSendMode);
+        return pnSendMode;
     }
 
-    private PaperSendMode getCorrectPaperSendModeFromDate(Instant time, List<PaperSendMode> paperSendModesList) {
-        for(int i = paperSendModesList.size() - 1; i >=0; i--){
-            PaperSendMode elem = paperSendModesList.get(i);
+    private PnSendMode getCorrectPaperSendModeFromDate(Instant time, List<PnSendMode> pnSendModesList) {
+        for(int i = pnSendModesList.size() - 1; i >=0; i--){
+            PnSendMode elem = pnSendModesList.get(i);
             if( time.isAfter(elem.getStartConfigurationTime()) || time.equals(elem.getStartConfigurationTime()) ){
                 return elem;
             }
@@ -46,14 +46,14 @@ public class PaperSendModeUtils {
     }
 
     @NotNull
-    private static List<PaperSendMode> getSortedList(List<PaperSendMode> paperSendModesList) {
-        List<PaperSendMode> paperSendModesListSorted = new ArrayList<>(paperSendModesList);
-        Collections.sort(paperSendModesListSorted);
-        log.debug("PaperSendModesListSorted is {}", paperSendModesListSorted);
-        return paperSendModesListSorted;
+    private static List<PnSendMode> getSortedList(List<PnSendMode> pnSendModesList) {
+        List<PnSendMode> pnSendModesListSorted = new ArrayList<>(pnSendModesList);
+        Collections.sort(pnSendModesListSorted);
+        log.debug("PaperSendModesListSorted is {}", pnSendModesListSorted);
+        return pnSendModesListSorted;
     }
 
-    private List<PaperSendMode> getPaperSendModeFromString(List<String> paperSendModeStringList) {
+    private List<PnSendMode> getPaperSendModeFromString(List<String> paperSendModeStringList) {
 
         return paperSendModeStringList.stream().map( elem -> {
             String[] arrayObj = elem.split(SEPARATOR);
@@ -62,7 +62,7 @@ public class PaperSendModeUtils {
             String simpleRegisteredLetterSendAttachmentMode = arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX];
             String aarTemplateType = arrayObj[AAR_TEMPLATE_TYPE_INDEX];
             
-            return PaperSendMode.builder()
+            return PnSendMode.builder()
                     .startConfigurationTime(Instant.parse(configStartDate))
                     .analogSendAttachmentMode(SendAttachmentMode.fromValue(analogSendAttachmentMode))
                     .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.fromValue(simpleRegisteredLetterSendAttachmentMode))

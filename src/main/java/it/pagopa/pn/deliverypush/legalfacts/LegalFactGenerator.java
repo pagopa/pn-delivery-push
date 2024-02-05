@@ -15,7 +15,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
-import it.pagopa.pn.deliverypush.utils.PaperSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
@@ -288,11 +288,11 @@ public class LegalFactGenerator {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
         
-        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(notification.getSentAt());
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(notification.getSentAt());
 
-        if(paperSendMode != null){
+        if(pnSendMode != null){
             return documentComposition.executePdfTemplate(
-                    paperSendMode.getAarTemplateType(),
+                    pnSendMode.getAarTemplateType(),
                     templateModel
             );
         } else {

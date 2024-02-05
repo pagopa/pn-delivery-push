@@ -27,7 +27,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
-import it.pagopa.pn.deliverypush.utils.PaperSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
@@ -373,12 +373,12 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     }
 
     private SendAttachmentMode retrieveSendAttachmentMode(NotificationInt notification, NotificationChannelType notificationChannelType) {
-        PaperSendMode paperSendMode = paperSendModeUtils.getPaperSendMode(notification.getSentAt());
+        PnSendMode pnSendMode = paperSendModeUtils.getPaperSendMode(notification.getSentAt());
         
-        if(paperSendMode != null){
+        if(pnSendMode != null){
             return switch (notificationChannelType) {
-                case ANALOG_NOTIFICATION -> paperSendMode.getAnalogSendAttachmentMode();
-                case SIMPLE_REGISTERED_LETTER -> paperSendMode.getSimpleRegisteredLetterSendAttachmentMode();
+                case ANALOG_NOTIFICATION -> pnSendMode.getAnalogSendAttachmentMode();
+                case SIMPLE_REGISTERED_LETTER -> pnSendMode.getSimpleRegisteredLetterSendAttachmentMode();
             };
         }else {
             String msg = String.format("There isn't correct Send Analog configuration date=%s - iun=%s sentAt", notification.getSentAt(),  notification.getIun());
