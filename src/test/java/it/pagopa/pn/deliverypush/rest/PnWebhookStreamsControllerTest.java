@@ -1,10 +1,13 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
 import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
 import java.util.Collections;
 import java.util.UUID;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
@@ -23,6 +27,8 @@ class PnWebhookStreamsControllerTest {
     @Autowired
     WebTestClient webTestClient;
 
+    @MockBean
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     @MockBean
     private WebhookStreamsService service;
 
@@ -80,53 +86,50 @@ class PnWebhookStreamsControllerTest {
 //                );
     }
 
-    @Disabled("IVAN")
     @Test
     void deleteEventStream() {
-//        String streamId = UUID.randomUUID().toString();
-//        Mockito.when(service.deleteEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class)))
-//                .thenReturn(Mono.empty());
-//
-//        webTestClient.delete()
-//                .uri( "/delivery-progresses/streams/{streamId}".replace("{streamId}", streamId) )
-//                .header(HttpHeaders.ACCEPT, "application/problem+json")
-//                .headers(httpHeaders -> {
-//                    httpHeaders.set("x-pagopa-pn-uid","test");
-//                    httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
-//                    httpHeaders.set("x-pagopa-pn-cx-id","test");
-//                    httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
-//                })
-//                .exchange()
-//                .expectStatus().isNoContent();
-//
-//        Mockito.verify(service).deleteEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class));
+        String streamId = UUID.randomUUID().toString();
+        Mockito.when(service.deleteEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class)))
+                .thenReturn(Mono.empty());
+
+        webTestClient.delete()
+                .uri( "/delivery-progresses/streams/{streamId}".replace("{streamId}", streamId) )
+                .header(HttpHeaders.ACCEPT, "application/problem+json")
+                .headers(httpHeaders -> {
+                    httpHeaders.set("x-pagopa-pn-uid","test");
+                    httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
+                    httpHeaders.set("x-pagopa-pn-cx-id","test");
+                    httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
+                })
+                .exchange()
+                .expectStatus().isNotFound();
+
     }
 
-    @Disabled("IVAN")
     @Test
     void deleteEventStreamKoRuntime() {
-//        String streamId = UUID.randomUUID().toString();
-//        Mockito.when(service.deleteEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class)))
-//                .thenThrow(new NullPointerException());
-//
-//        webTestClient.delete()
-//                .uri( "/delivery-progresses/streams/{streamId}".replace("{streamId}", streamId) )
-//                .header(HttpHeaders.ACCEPT, "application/json")
-//                .headers(httpHeaders -> {
-//                    httpHeaders.set("x-pagopa-pn-uid","test");
-//                    httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
-//                    httpHeaders.set("x-pagopa-pn-cx-id","test");
-//                    httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
-//                })
-//                .exchange()
-//                .expectStatus().is4xxClientError()
-//                .expectBody(Problem.class).consumeWith(
-//                        elem -> {
-//                            Problem problem = elem.getResponseBody();
-//                            assert problem != null;
-//                            Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE.value(), problem.getStatus());
-//                        }
-//                );
+        String streamId = UUID.randomUUID().toString();
+        Mockito.when(service.deleteEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.anyString(), Mockito.any(UUID.class)))
+                .thenThrow(new NullPointerException());
+
+        webTestClient.delete()
+                .uri( "/delivery-progresses/streams/{streamId}".replace("{streamId}", streamId) )
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .headers(httpHeaders -> {
+                    httpHeaders.set("x-pagopa-pn-uid","test");
+                    httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
+                    httpHeaders.set("x-pagopa-pn-cx-id","test");
+                    httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
+                })
+                .exchange()
+                .expectStatus().is4xxClientError()
+                .expectBody(Problem.class).consumeWith(
+                        elem -> {
+                            Problem problem = elem.getResponseBody();
+                            assert problem != null;
+                            Assertions.assertEquals(HttpStatus.NOT_ACCEPTABLE.value(), problem.getStatus());
+                        }
+                );
     }
 
     @Disabled("IVAN")
