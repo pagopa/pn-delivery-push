@@ -16,25 +16,25 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class SimpleRegisteredLetterDetailsInt extends BaseRegisteredLetterDetailsInt implements AnalogSendTimelineElement {
-
     private Integer analogCost;
     private String productType;
     private Integer numberOfPages;
     private Integer envelopeWeight;
-
     protected String prepareRequestId;
     private List<String> f24Attachments;
+    private Integer vat;
 
     @Override
     public String toLog() {
         return String.format(
-                "recIndex=%d physicalAddress=%s analogCost=%d productType=%s prepareRequestId=%s f24Attachments=%s",
+                "recIndex=%d physicalAddress=%s analogCost=%d productType=%s prepareRequestId=%s f24Attachments=%s vat=%s",
                 recIndex,
                 AuditLogUtils.SENSITIVE,
                 analogCost,
                 productType,
                 prepareRequestId,
-                !CollectionUtils.isEmpty(f24Attachments) ? String.join(",", f24Attachments) : Collections.emptyList()
+                !CollectionUtils.isEmpty(f24Attachments) ? String.join(",", f24Attachments) : Collections.emptyList(),
+                vat
         );
     }
 }
