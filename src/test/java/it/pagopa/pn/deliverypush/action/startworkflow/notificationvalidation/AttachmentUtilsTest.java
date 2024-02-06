@@ -409,7 +409,7 @@ class AttachmentUtilsTest {
         //THEN
         Assertions.assertNotNull(f24Url);
         Assertions.assertTrue(f24Url.contains("?cost="+cost));
-        Assertions.assertTrue(f24Url.contains("?vat="+vat));
+        Assertions.assertTrue(f24Url.contains("&vat="+vat));
     }
 
 
