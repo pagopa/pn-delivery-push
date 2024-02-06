@@ -225,7 +225,7 @@ describe("event mapper tests", function () {
     let body = JSON.parse(res[0].MessageBody);
     expect(body.iun).equal(iun);
     expect(body.recIndex).equal("0");
-    expect(body.notificationStepCost).equal("1130");
+    expect(body.notificationStepCost).equal(1130);
     expect(body.eventTimestamp).equal("2023-08-09T01:23:56.803455499Z");
     expect(body.eventStorageTimestamp).equal("2023-08-09T01:23:56.803455499Z");
     expect(body.updateCostPhase).equal("SEND_ANALOG_DOMICILE_ATTEMPT_0");
