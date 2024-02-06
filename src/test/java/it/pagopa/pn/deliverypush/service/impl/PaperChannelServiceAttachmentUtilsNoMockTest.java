@@ -77,19 +77,19 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
                 safeStorageService,
                 pnDeliveryPushConfigs,
                 notificationProcessCostService,
-                pnSendModeUtils
+                pnSendModeUtils,
+                aarUtils,
+                notificationUtils
         );
 
         paperChannelService = new PaperChannelServiceImpl(
                 paperChannelUtils,
                 paperChannelSendClient,
                 notificationUtils,
-                aarUtils,
                 timelineUtils,
                 mvpParameterConsumer,
                 analogWorkflowUtils,
                 auditLogService,
-                pnSendModeUtils,
                 attachmentUtils);
     }
 
