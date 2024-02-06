@@ -50,7 +50,7 @@ exports.mapEvents = async (events) => {
     
     let vat = timelineObj.details?.vat ?? undefined;
     let analogCost = timelineObj.details?.analogCost ?? undefined;  
-    let analogCostWithVat = getAnalogCostWithVat(vat, analogCost);
+    let analogCostWithVat = getCostWithVat(vat, analogCost);
     
     console.log("vat="+vat+ " analogCost="+analogCost+" analogCostWithVat="+analogCostWithVat);
 
@@ -135,17 +135,10 @@ exports.mapEvents = async (events) => {
   return result;
 };
 
-function getAnalogCostWithVat(vat, analogCost){
-  let analogCostWithVat = undefined;
-  if(analogCost != null && analogCost != undefined){
-    analogCostWithVat = getCostWithVat(vat, analogCost);
-  }
-  return analogCostWithVat;
-}
 
 function getCostWithVat(vat, cost) {
   let costWithVat = undefined;
-  if (vat != null && vat != undefined && cost != null && cost != undefined) {
+  if (vat && cost) {
       let vatToSum = cost * vat / 100;
       let completeCostWithVat = Number(cost) + Number(vatToSum);
       costWithVat = Math.round(completeCostWithVat);
