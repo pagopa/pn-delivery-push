@@ -17,12 +17,8 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +28,8 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
+
+import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
 
 @Service
 @RequiredArgsConstructor
@@ -105,6 +103,10 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
             }).collectList().then();
     }
     private Mono<Void> processEvent(StreamEntity stream,  String oldStatus, String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
+
+        if (!stream.getGroups().isEmpty() && checkGroups(stream.getGroups(), Collections.singletonList(notificationInt.getGroup()))){
+            return Mono.empty();
+        }
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
         // c'è il caso in cui lo stato non cambia (e se lo stream vuolo solo i cambi di stato, lo ignoro)
         if (!StringUtils.hasText(stream.getEventType()))
