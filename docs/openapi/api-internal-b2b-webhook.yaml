@@ -877,6 +877,8 @@ components:
           description: >-
             rappresenta l'elenco degli id gruppi abilitati a richiedere i dettagli. Una apiKey può consumare o modificare uno stream solo se non ha gruppi o se tutti i gruppi dello stream sono presenti nella apiKey.
             Se viene specificato array vuoto, si noti che solo apiKey senza gruppi potranno consumare o modificare lo stream.
+            Inoltre, nel caso di updateEventStream, la lista dei gruppi presente nello stream deve essere un sottoinsieme dei gruppi passati nella richiesta (in pratica si possono solo aggiungere gruppi a quelli esistenti)
+            oppure entrambi array vuoti.
           type: array
           items:
             $ref: '#/components/schemas/StreamGroup'
