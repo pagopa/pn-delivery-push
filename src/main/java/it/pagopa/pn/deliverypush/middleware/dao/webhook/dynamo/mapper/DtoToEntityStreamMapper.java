@@ -33,6 +33,7 @@ public class DtoToEntityStreamMapper {
     public static StreamEntity dtoToEntity(String paId, String streamId, StreamRequestV23 dto) {
         StreamCreationRequestV23 creationRequestv23 = new StreamCreationRequestV23();
         BeanUtils.copyProperties(dto, creationRequestv23);
+        creationRequestv23.setEventType(StreamCreationRequestV23.EventTypeEnum.fromValue(dto.getEventType().getValue()));
         return dtoToEntity(paId, streamId, creationRequestv23);
     }
 }
