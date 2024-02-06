@@ -280,7 +280,8 @@ public class AttachmentUtils {
                         recipientIdx,
                         notificationInt.getNotificationFeePolicy(),
                         notificationInt.getPaFee(),
-                        notificationInt.getVat()
+                        notificationInt.getVat(),
+                        notificationInt.getVersion()
                 )
                 .block();
     }
