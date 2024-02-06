@@ -17,6 +17,7 @@ class ScheduleDigitalWorkflowDetailsIntTest {
         detailsInt.setLastAttemptDate(instant);
         detailsInt.setRecIndex(1);
         detailsInt.setSentAttemptMade(2);
+        detailsInt.setSchedulingDate(Instant.EPOCH.plusMillis(10));
     }
     @Test
     void toLog() {
@@ -50,10 +51,13 @@ class ScheduleDigitalWorkflowDetailsIntTest {
     }
     @Test
     void testToString() {
-        String expected = "ScheduleDigitalWorkflowDetailsInt(recIndex=1, digitalAddress=LegalDigitalAddressInt(type=null), digitalAddressSource=SPECIAL, sentAttemptMade=2, lastAttemptDate=2021-09-16T15:24:00Z)";
+        String expected = "ScheduleDigitalWorkflowDetailsInt(recIndex=1, digitalAddress=LegalDigitalAddressInt(type=null), digitalAddressSource=SPECIAL, sentAttemptMade=2, lastAttemptDate=2021-09-16T15:24:00Z, schedulingDate=1970-01-01T00:00:00.010Z)";
         Assertions.assertEquals(expected, detailsInt.toString());
     }
     private ScheduleDigitalWorkflowDetailsInt buildScheduleDigitalWorkflowDetailsInt() {
-        return ScheduleDigitalWorkflowDetailsInt.builder().digitalAddress(LegalDigitalAddressInt.builder().address("address").build()).digitalAddressSource(DigitalAddressSourceInt.SPECIAL).recIndex(1).sentAttemptMade(2).lastAttemptDate(instant).build();
+        return ScheduleDigitalWorkflowDetailsInt.builder().digitalAddress(LegalDigitalAddressInt.builder().address("address").build())
+                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL).recIndex(1).sentAttemptMade(2).lastAttemptDate(instant)
+                .schedulingDate(Instant.EPOCH.plusMillis(10))
+                .build();
     }
 }

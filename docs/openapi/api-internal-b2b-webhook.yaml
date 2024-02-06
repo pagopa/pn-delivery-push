@@ -9,8 +9,8 @@ info:
   x-summary: 'API B2B avanzamento notifiche'
   version: '2.3.0'
   x-api-id: api-internal-b2b-webhook # NO EXTERNAL
-  #  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
-  description: >-
+#  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
+  description: >- 
     I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
     automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">10</span> configurazioni di flussi attive per singola PA</strong></font> su
     informazioni relative a: <br/>
@@ -177,20 +177,20 @@ info:
 
       <details>
         <summary>Esempio dello stream</summary>
-    
+      
       <table>
-    
+      
       <tr>
-    
+      
       <td>
-    
+      
       </br>
-    
+      
       ### 1) Creazione dello stream ed inserimento notifica
       In questo esempio creo 2 stream con il servizio di [creazione stream](#/Streams/createEventStream): uno per gli status</br> e l'altro per gli eventi di timeline.</br> Vedesi le request <big><strong>a)</strong></big> di esempio con le relative response <big><strong>b)</strong></big>, Da notare che sono presenti</br> dei filtri per ottenere solo specifici status o eventi; se si vogliono ottenere tutte </br>le variazioni limitatamente agli eventi della v1, non bisogna inserire alcun filtro: 
       <code>"filterValues": []</code></br>      
       Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
-    
+      
       </br>
       </br>
       </br>
@@ -199,20 +199,20 @@ info:
       </br>
       </br>
       </br>
-    
+      
       ### 2) Prima interrogazione degli stream appena creati
-    
+      
       Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">50</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
-    
+      
       A questo punto bisogna controllare il parametro <code>retry-after</code> contenuto nell'header</br> della response per capire quanto tempo attendere prima di richiamare lo stream</br> ed ottenere nuovi risultati: 
       <ul>
       <li>Se <code>retry-after = 0</code> significa che lo stream contiene ulteriori eventi rispetto</br> a quelli che ho appena ottenuto nella response e quindi posso richiamare subito</br> il servizio e consumare gli eventi successivi</li></br>
       <li>se <code>retry-after ≠ 0</code> significa che lo stream NON contiene altri eventi rispetto</br> a quelli che ottenuti in questa chiamata e quindi dovrò attendere la quantità</br> di tempo indicata nel <code>retry-after</code> prima di effettuare un'altra chiamata</br> per consumare ulteriori eventi</li>
       </ul>
-    
+      
       <font color="red"><strong>NOTA:</strong> 
       è importante consumare <strong>SEMPRE</strong> gli eventi che vengono restituiti dallo stream, anche se il <code>retry-after ≠ 0</code>; infatti tale parametro regola la cadenza di chiamata al servizio, mentre il consumo degli eventi deve avvenire in ogni chiamata nella quale si ottengono eventi in risposta.</font>
-    
+      
       </br>
       </br>
       </br>
@@ -227,9 +227,9 @@ info:
 
       </td>
       <td>
-    
+      
       #### a) Request di POST /delivery-progresses/streams
-    
+      
         {                                           {
           "title": "stream-status-prova",             "title": "stream-timeline-prova",
           "eventType": "STATUS",                      "eventType": "TIMELINE",
@@ -238,9 +238,9 @@ info:
               "EFFECTIVE_DATE"                           "REFINEMENT"
           ]                                           ]
         }                                           }
-    
+        
       #### b) Response di POST /delivery-progresses/streams
-    
+        
         {                                           {
             "title": "stream-status-prova",           "title": "stream-timeline-prova",
             "eventType": "STATUS",                    "eventType": "TIMELINE",
@@ -254,12 +254,12 @@ info:
              "2022-12-12T14:52:23.362454Z",             "2022-12-12T14:53:23.362454Z",
             "version": "v23"                          "version": "v23"
         }                                           }  
-    
+      
       </br>
       </br>
 
       #### c) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events
-    
+      
         Headers: { "retry-after": "60000" }
 
         [
@@ -292,7 +292,7 @@ info:
       </br>
 
       #### d) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events</br> chiamato valorizzando nei query params il parametro <code>lastEventId</code> con l'eventId</br> dell'ultimo evento nella precedente chiamata.</br>
-    
+      
         Headers: { "retry-after": "60000" }
 
         [
@@ -315,16 +315,16 @@ info:
           },
             ... // altri eventi nell'array
         ]
-    
+      
       </td>
-    
+      
       </tr>
-    
+      
       </table>
 
       </br>
       </br>
-    
+      
       </details>  
 
     Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
@@ -353,9 +353,9 @@ info:
     
     <h3>Le <strong>FAQ</strong> possono essere consultate al seguente link:
     <a href="https://docs.pagopa.it/f.a.q.-per-integratori/">https://docs.pagopa.it/f.a.q.-per-integratori/</a></h3>
-  
-  
-  
+
+
+    
 
   contact:
     email: pn-supporto-enti@pagopa.it
@@ -430,6 +430,18 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: ReplacedId Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
@@ -470,7 +482,7 @@ paths:
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
-      - $ref: '#/components/parameters/pathStreamId'
+      - $ref: '#/components/parameters/pathStreamId'        
     get:
       summary: Leggi metadati dello stream
       description: >-
@@ -478,7 +490,7 @@ paths:
       tags:
         - Streams
       operationId: getEventStream                             # NO EXTERNAL
-      #      operationId: retrieveEventStream                       # ONLY EXTERNAL
+#      operationId: retrieveEventStream                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -488,6 +500,18 @@ paths:
                 $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
           content:
             application/problem+json:
               schema:
@@ -524,6 +548,18 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
@@ -538,7 +574,7 @@ paths:
       tags:
         - Streams
       operationId: deleteEventStream                          # NO EXTERNAL
-      #      operationId: removeEventStream                         # ONLY EXTERNAL
+#      operationId: removeEventStream                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -548,6 +584,18 @@ paths:
             application/problem+json:
               schema:
                 $ref: './remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
@@ -582,6 +630,18 @@ paths:
                 $ref: "#/components/schemas/StreamMetadataResponseV23"
         '400':
           description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
           content:
             application/problem+json:
               schema:
@@ -653,13 +713,19 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-
+    
 
     ############################################################################################
     ###                INVIO DI EVENTI DA PARTE DELLA PUBBLICA AMMNISTRAZIONE                ###
@@ -811,6 +877,8 @@ components:
           description: >-
             rappresenta l'elenco degli id gruppi abilitati a richiedere i dettagli. Una apiKey può consumare o modificare uno stream solo se non ha gruppi o se tutti i gruppi dello stream sono presenti nella apiKey.
             Se viene specificato array vuoto, si noti che solo apiKey senza gruppi potranno consumare o modificare lo stream.
+            Inoltre, nel caso di updateEventStream, la lista dei gruppi presente nello stream deve essere un sottoinsieme dei gruppi passati nella richiesta (in pratica si possono solo aggiungere gruppi a quelli esistenti)
+            oppure entrambi array vuoti.
           type: array
           items:
             $ref: '#/components/schemas/StreamGroup'
@@ -919,14 +987,14 @@ components:
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         element:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
         # proprietà necessarie per retrocompatibilità nel transitorio, ma che non saranno esposte nella V23 # NO EXTERNAL
         # potranno essere eliminate (assieme al RefusedReason) quando non saranno più presenti eventi della v1 # NO EXTERNAL
         timestamp:                                                                                         # NO EXTERNAL
           type: string                                                                                     # NO EXTERNAL
           format: date-time                                                                                # NO EXTERNAL
         timelineEventCategory:                                                                             # NO EXTERNAL
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20'                # NO EXTERNAL
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV23'                # NO EXTERNAL
         recipientIndex:                                                                                    # NO EXTERNAL
           type: integer                                                                                    # NO EXTERNAL
           format: int32                                                                                    # NO EXTERNAL
@@ -1022,11 +1090,12 @@ components:
           format: date-time                                                             # NOT YET IMPLEMENTED
 
 
-            #  securitySchemes:        # ONLY EXTERNAL
-            #    ApiKeyAuth:           # ONLY EXTERNAL
-            #      type: apiKey        # ONLY EXTERNAL
-            #      in: header          # ONLY EXTERNAL
-            #      name: x-api-key     # ONLY EXTERNAL
+#  securitySchemes:        # ONLY EXTERNAL
+#    ApiKeyAuth:           # ONLY EXTERNAL
+#      type: apiKey        # ONLY EXTERNAL
+#      in: header          # ONLY EXTERNAL
+#      name: x-api-key     # ONLY EXTERNAL
 
-            #security:                 # ONLY EXTERNAL
-            #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+#security:                 # ONLY EXTERNAL
+#  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+

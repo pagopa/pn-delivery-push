@@ -21,6 +21,7 @@ public class SendAnalogProgressDetailsInt implements RecipientRelatedTimelineEle
     private List<AttachmentDetailsInt> attachments;
     private String sendRequestId;
     private String registeredLetterCode;
+    private ServiceLevelInt serviceLevel;
     
     public String toLog() {
         return String.format(

@@ -181,6 +181,7 @@ class PnWebhookStreamsControllerTest {
                 .expectBody(StreamMetadataResponseV23.class);
 
         Mockito.verify(service).getEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.any(), Mockito.any(UUID.class));
+
     }
 
     @Test
@@ -225,6 +226,7 @@ class PnWebhookStreamsControllerTest {
                 .expectBodyList(StreamListElement.class);
 
         Mockito.verify(service).listEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.any());
+
     }
 
     @Test

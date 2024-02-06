@@ -208,9 +208,9 @@ public class DigitalWorkFlowUtils {
         return timelineService.getTimelineElement(iun, eventId);
     }
     
-    public String addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
+    public String addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, Instant schedulingDate) {
         return addTimelineElement(
-                timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade),
+                timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade, schedulingDate),
                 notification
         );
     }
