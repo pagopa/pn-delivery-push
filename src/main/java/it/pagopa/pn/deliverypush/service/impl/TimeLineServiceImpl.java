@@ -23,7 +23,7 @@ import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidExcep
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV23;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
@@ -94,7 +94,8 @@ public class TimeLineServiceImpl implements TimelineService {
                 // asincrona da una lambda che opera partendo da stream Kinesis
 
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
-                logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
+                String alreadyInsertMsg = "Timeline event was already inserted before - timelineId="+ dto.getElementId();
+                logEvent.generateSuccess(timelineInsertSkipped ? alreadyInsertMsg : successMsg).log();
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
 
@@ -358,8 +359,8 @@ public class TimeLineServiceImpl implements TimelineService {
             return true;
         }
         String internalCategory = timelineElementInternal.getCategory().getValue();
-        return Arrays.stream(TimelineElementCategoryV20.values())
-                .anyMatch(timelineElementCategoryV20 -> timelineElementCategoryV20.getValue().equalsIgnoreCase(internalCategory));
+        return Arrays.stream(TimelineElementCategoryV23.values())
+                .anyMatch(timelineElementCategoryV23 -> timelineElementCategoryV23.getValue().equalsIgnoreCase(internalCategory));
 
     }
 

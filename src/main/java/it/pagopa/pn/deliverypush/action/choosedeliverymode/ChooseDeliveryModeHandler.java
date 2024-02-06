@@ -124,7 +124,7 @@ public class ChooseDeliveryModeHandler {
                 });
 
 
-        chooseDeliveryUtils.addScheduleAnalogWorkflowToTimeline(recIndex, notification);
+        chooseDeliveryUtils.addScheduleAnalogWorkflowToTimeline(recIndex, notification, schedulingDate);
         schedulerService.scheduleEvent(iun, recIndex, schedulingDate, ActionType.ANALOG_WORKFLOW);
     }
 }

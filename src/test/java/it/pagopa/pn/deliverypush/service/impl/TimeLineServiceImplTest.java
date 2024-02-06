@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 
 class TimeLineServiceImplTest {
     private TimelineDao timelineDao;
@@ -107,6 +109,47 @@ class TimeLineServiceImplTest {
     }
 
     @Test
+    void addTimelineElementIdConflict(){
+        //GIVEN
+        String iun = "iun_12345";
+        String elementId = "elementId_12345";
+
+        NotificationInt notification = getNotification(iun);
+        StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
+        Mockito.when(statusService.getStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        String elementId2 = "elementId2";
+        Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
+        Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
+                .thenReturn(setTimelineElement);
+
+        Instant timestampLastElementInTimeline = setTimelineElement.iterator().next().getTimestamp();
+        StatusInfoInternal expectedStatusInfo = StatusInfoInternal.builder()
+                .actual(NotificationStatusInt.ACCEPTED.getValue())
+                .statusChangeTimestamp(timestampLastElementInTimeline).build();
+
+        TimelineElementInternal newElement = getAarGenerationTimelineElement(iun, elementId);
+        
+        doThrow( new PnIdConflictException(Collections.emptyMap()))
+                .when(timelineDao).addTimelineElementIfAbsent(Mockito.any(TimelineElementInternal.class));
+        
+        //WHEN
+        timeLineService.addTimelineElement(newElement, notification);
+
+        //THEN
+        //mi aspetto che il timestampLastUpdateStatus sia null quando gli elementi già salvati non hanno valorizzato
+        //lo statusInfo e non c'è stato un cambio di stato
+        StatusInfoInternal actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses, null);
+        TimelineElementInternal dtoWithStatusInfo = newElement.toBuilder().statusInfo(actualStatusInfo).build();
+        Assertions.assertEquals(expectedStatusInfo.getActual(), actualStatusInfo.getActual());
+        Assertions.assertEquals(expectedStatusInfo.isStatusChanged(), actualStatusInfo.isStatusChanged());
+        Assertions.assertNull(actualStatusInfo.getStatusChangeTimestamp());
+        Mockito.verify(timelineDao).addTimelineElementIfAbsent(dtoWithStatusInfo);
+        Mockito.verify(statusService).getStatus(newElement, setTimelineElement, notification);
+        Mockito.verify(confidentialInformationService).saveTimelineConfidentialInformation(newElement);
+    }
+    
+    @Test
     void addTimelineElementError(){
         //GIVEN
         String iun = "iun";
@@ -124,9 +167,7 @@ class TimeLineServiceImplTest {
         Mockito.doThrow(new PnInternalException("error", "test")).when(statusService).getStatus(Mockito.any(TimelineElementInternal.class), Mockito.anySet(), Mockito.any(NotificationInt.class));
 
         // WHEN
-        assertThrows(PnInternalException.class, () -> {
-            timeLineService.addTimelineElement(newElement, notification);
-        });
+        assertThrows(PnInternalException.class, () -> timeLineService.addTimelineElement(newElement, notification));
     }
 
     @Test
@@ -597,7 +638,7 @@ class TimeLineServiceImplTest {
         Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
 
         //Verifica timeline
-        List<TimelineElementV20> timelineElementList = notificationHistoryResponse.getTimeline();
+        List<TimelineElementV23> timelineElementList = notificationHistoryResponse.getTimeline();
 
         //Mi aspetto che sia rimosso l'elemento di timeline di diagnostica. (Con category VALIDATE_REQUEST_F24)
         Assertions.assertEquals(2, timelineElementList.size());
@@ -612,9 +653,9 @@ class TimeLineServiceImplTest {
 
     }
 
-    private boolean timelineElementContainsElementId(List<TimelineElementV20> timelineElements, String elementId) {
+    private boolean timelineElementContainsElementId(List<TimelineElementV23> timelineElements, String elementId) {
         return timelineElements.stream()
-                .anyMatch(timelineElementV20 -> timelineElementV20.getElementId().equalsIgnoreCase(elementId));
+                .anyMatch(timelineElementV23 -> timelineElementV23.getElementId().equalsIgnoreCase(elementId));
     }
 
     @Test
