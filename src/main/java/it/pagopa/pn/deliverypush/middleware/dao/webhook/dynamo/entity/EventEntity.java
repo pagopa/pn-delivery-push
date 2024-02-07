@@ -24,16 +24,19 @@ public class EventEntity {
     private static final String COL_NOTIFICATION_REQUEST_ID = "notificationRequestId";
     private static final String COL_IUN= "iun";
     private static final String COL_NEW_STATUS = "newStatus";
-    private static final String COL_TIMELINE_EVENT_CATEGORY = "timelineEventCategory";
-    private static final String COL_TIMESTAMP = "timestamp";
     private static final String COL_TTL = "ttl";
 
+    private static final String COL_ELEMENT = "element";
+
+    //to remove
+    private static final String COL_TIMELINE_EVENT_CATEGORY = "timelineEventCategory";
     private static final String COL_RECINDEX = "recipientIndex";
     private static final String COL_CHANNEL = "channel";
     private static final String COL_LEGALFACT_IDS = "legalfactIds";
     private static final String COL_ANALOG_COST = "analogCost";
-
     private static final String COL_VALIDATION_ERRORS = "validationErrors";
+    private static final String COL_TIMESTAMP = "timestamp";
+
 
     public EventEntity(){}
 
@@ -60,4 +63,6 @@ public class EventEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_ANALOG_COST)})) private Integer analogCost;
 
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_VALIDATION_ERRORS)})) private List<RefusedReasonEntity> validationErrors;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_ELEMENT)})) private String element;
+
 }

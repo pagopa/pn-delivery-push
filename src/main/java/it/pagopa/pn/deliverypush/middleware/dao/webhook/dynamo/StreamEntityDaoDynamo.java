@@ -56,8 +56,7 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
         log.debug("findByPa paId={}", paId);
         Key hashKey = Key.builder().partitionValue(paId).build();
         QueryConditional queryByHashKey = keyEqualTo( hashKey );
-        return Flux.from(table.query(queryByHashKey).flatMapIterable(Page::items))
-                .filter(entity -> entity.getDisabledDate() == null);
+        return Flux.from(table.query(queryByHashKey).flatMapIterable(Page::items));
     }
 
     @Override

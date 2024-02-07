@@ -84,7 +84,8 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     @Override
     public Mono<Void> saveEvent(String paId, String timelineId, String iun) {
         return streamEntityDao.findByPa(paId)
-            .collectList()
+                .filter(entity -> entity.getDisabledDate() == null)
+                .collectList()
             .flatMap(l -> {
                 if (l.isEmpty()) {
                     return Mono.empty();    // se non ho stream in ascolto, non c'è motivo di fare le query in dynamo
@@ -104,7 +105,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     }
     private Mono<Void> processEvent(StreamEntity stream,  String oldStatus, String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
 
-        if (!stream.getGroups().isEmpty() && checkGroups(stream.getGroups(), Collections.singletonList(notificationInt.getGroup()))){
+        if (!stream.getGroups().isEmpty() && !checkGroups(stream.getGroups(), Collections.singletonList(notificationInt.getGroup()))){
             return Mono.empty();
         }
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno

@@ -9,6 +9,8 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementJsonConverter;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -38,6 +40,8 @@ class WebhookUtilsTest {
     private StatusService statusService;
     private NotificationService notificationService;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private DtoToEntityTimelineMapper timelineMapper;
+    private TimelineElementJsonConverter timelineElementJsonConverter;
 
     private WebhookUtils webhookUtils;
 
@@ -48,6 +52,8 @@ class WebhookUtilsTest {
         notificationService = Mockito.mock(NotificationService.class);
         statusService = Mockito.mock(StatusService.class);
         pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
+        timelineMapper = Mockito.mock( DtoToEntityTimelineMapper.class );
+        timelineElementJsonConverter = Mockito.mock( TimelineElementJsonConverter.class );
 
         PnDeliveryPushConfigs.Webhook webhook = new PnDeliveryPushConfigs.Webhook();
         webhook.setScheduleInterval(1000L);
@@ -58,7 +64,7 @@ class WebhookUtilsTest {
         webhook.setTtl(Duration.ofDays(30));
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
-        webhookUtils = new WebhookUtils(timelineService, statusService, notificationService, pnDeliveryPushConfigs);
+        webhookUtils = new WebhookUtils(timelineService, statusService, notificationService, pnDeliveryPushConfigs, timelineMapper, timelineElementJsonConverter);
     }
 
     @Test
