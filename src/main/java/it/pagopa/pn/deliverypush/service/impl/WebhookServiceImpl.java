@@ -45,7 +45,14 @@ public abstract class WebhookServiceImpl {
             ).filter(streamEntity -> xPagopaPnApiVersion.equals(streamEntity.getVersion())
                 || (streamEntity.getVersion() == null && apiV10.equals(xPagopaPnApiVersion))
             )
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + String.join(",",xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)));
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)));
     }
 
+    protected String join(List<String> list){
+        return list == null ? "" : String.join(",", list);
+    }
+
+    protected String apiVersion(String xPagopaPnApiVersion){
+        return xPagopaPnApiVersion != null ? xPagopaPnApiVersion : pnDeliveryPushConfigs.getWebhook().getCurrentVersion();
+    }
 }
