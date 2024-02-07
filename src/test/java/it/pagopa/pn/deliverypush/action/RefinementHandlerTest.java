@@ -70,14 +70,23 @@ class RefinementHandlerTest {
         when(pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement()).thenReturn(120);
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
-        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
+        when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
+        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.eq(Instant.EPOCH.plusMillis(10)))).thenReturn(TimelineElementInternal.builder().build());
         when(attachmentUtils.changeAttachmentsRetention(notification, pnDeliveryPushConfigs.getRetentionAttachmentDaysAfterRefinement())).thenReturn(Flux.empty());
-        
+
+
+        TimelineElementInternal scheduleRefinementTimelineElement = new TimelineElementInternal();
+        scheduleRefinementTimelineElement.setCategory(TimelineElementCategoryInt.SCHEDULE_REFINEMENT);
+        ScheduleRefinementDetailsInt scheduleRefinementDetailsInt = new ScheduleRefinementDetailsInt();
+        scheduleRefinementDetailsInt.setSchedulingDate(Instant.EPOCH.plusMillis(10));
+        scheduleRefinementTimelineElement.setDetails(scheduleRefinementDetailsInt);
+
+        Mockito.when(timelineUtils.getScheduleRefinement(Mockito.anyString(), Mockito.anyInt())).thenReturn(Optional.of(scheduleRefinementTimelineElement));
+
         refinementHandler.handleRefinement(iun, recIndex);
         
         Mockito.verify(timelineUtils, Mockito.times(1)).buildRefinementTimelineElement(notification,
-                recIndex, 100);
+                recIndex, 100, true, Instant.EPOCH.plusMillis(10));
         
     }
 
@@ -87,16 +96,16 @@ class RefinementHandlerTest {
         String iun = "I01";
         Integer recIndex = 1;
         NotificationInt notification = getNotificationWithPhysicalAddress();
+        Instant now = Instant.now();
 
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.TRUE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.just(100));
-        when(timelineUtils.buildRefinementTimelineElement(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(TimelineElementInternal.builder().build());
+        when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
 
         TimelineElementInternal viewedTimelineElement = new TimelineElementInternal();
         viewedTimelineElement.setCategory(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST);
         NotificationViewedCreationRequestDetailsInt notificationViewedCreationRequestDetailsInt = new NotificationViewedCreationRequestDetailsInt();
-        notificationViewedCreationRequestDetailsInt.setEventTimestamp(Instant.now().plus(1l, ChronoUnit.DAYS));
+        notificationViewedCreationRequestDetailsInt.setEventTimestamp(now.plus(1l, ChronoUnit.DAYS));
         viewedTimelineElement.setDetails(notificationViewedCreationRequestDetailsInt);
 
         Mockito.when(timelineUtils.getNotificationViewCreationRequest(Mockito.anyString(), Mockito.anyInt())).thenReturn(Optional.of(viewedTimelineElement));
@@ -104,7 +113,7 @@ class RefinementHandlerTest {
         TimelineElementInternal scheduleRefinementTimelineElement = new TimelineElementInternal();
         scheduleRefinementTimelineElement.setCategory(TimelineElementCategoryInt.SCHEDULE_REFINEMENT);
         ScheduleRefinementDetailsInt scheduleRefinementDetailsInt = new ScheduleRefinementDetailsInt();
-        scheduleRefinementDetailsInt.setSchedulingDate(Instant.now());
+        scheduleRefinementDetailsInt.setSchedulingDate(now);
         scheduleRefinementTimelineElement.setDetails(scheduleRefinementDetailsInt);
 
         Mockito.when(timelineUtils.getScheduleRefinement(Mockito.anyString(), Mockito.anyInt())).thenReturn(Optional.of(scheduleRefinementTimelineElement));
@@ -112,7 +121,7 @@ class RefinementHandlerTest {
         refinementHandler.handleRefinement(iun, recIndex);
 
         Mockito.verify(timelineUtils, Mockito.times(1)).buildRefinementTimelineElement(notification,
-                recIndex, 100);
+                recIndex, 100,false, now);
 
     }
 
@@ -124,12 +133,14 @@ class RefinementHandlerTest {
         Integer recIndex = 1;
         NotificationInt notification = getNotificationWithPhysicalAddress();
 
+        Instant now = Instant.now();
+
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.TRUE);
 
         TimelineElementInternal viewedTimelineElement = new TimelineElementInternal();
         viewedTimelineElement.setCategory(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST);
         NotificationViewedCreationRequestDetailsInt notificationViewedCreationRequestDetailsInt = new NotificationViewedCreationRequestDetailsInt();
-        notificationViewedCreationRequestDetailsInt.setEventTimestamp(Instant.now().minus(1l, ChronoUnit.DAYS));
+        notificationViewedCreationRequestDetailsInt.setEventTimestamp(now.minus(1l, ChronoUnit.DAYS));
         viewedTimelineElement.setDetails(notificationViewedCreationRequestDetailsInt);
 
         Mockito.when(timelineUtils.getNotificationViewCreationRequest(Mockito.anyString(), Mockito.anyInt())).thenReturn(Optional.of(viewedTimelineElement));
@@ -137,7 +148,7 @@ class RefinementHandlerTest {
         TimelineElementInternal scheduleRefinementTimelineElement = new TimelineElementInternal();
         scheduleRefinementTimelineElement.setCategory(TimelineElementCategoryInt.SCHEDULE_REFINEMENT);
         ScheduleRefinementDetailsInt scheduleRefinementDetailsInt = new ScheduleRefinementDetailsInt();
-        scheduleRefinementDetailsInt.setSchedulingDate(Instant.now());
+        scheduleRefinementDetailsInt.setSchedulingDate(now);
         scheduleRefinementTimelineElement.setDetails(scheduleRefinementDetailsInt);
 
         Mockito.when(timelineUtils.getScheduleRefinement(Mockito.anyString(), Mockito.anyInt())).thenReturn(Optional.of(scheduleRefinementTimelineElement));
@@ -145,7 +156,7 @@ class RefinementHandlerTest {
         refinementHandler.handleRefinement(iun, recIndex);
 
         Mockito.verify(timelineUtils, Mockito.never()).buildRefinementTimelineElement(notification,
-                recIndex, 100);
+                recIndex, 100,true, now);
 
     }
 
@@ -158,7 +169,7 @@ class RefinementHandlerTest {
 
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(Boolean.FALSE);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-        when(notificationProcessCostService.getPagoPaNotificationBaseCost()).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
+        when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.error(new RuntimeException("questa è l'eccezione")));
 
         assertThrows(RuntimeException.class, () -> {
             refinementHandler.handleRefinement(iun, recIndex);

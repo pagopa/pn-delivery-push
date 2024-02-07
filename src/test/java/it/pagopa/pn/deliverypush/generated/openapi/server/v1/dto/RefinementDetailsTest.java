@@ -6,18 +6,18 @@ import org.junit.jupiter.api.Test;
 
 class RefinementDetailsTest {
 
-    private RefinementDetails details;
+    private RefinementDetailsV23 details;
 
     @BeforeEach
     void setUp() {
-        details = new RefinementDetails();
+        details = new RefinementDetailsV23();
         details.setRecIndex(1);
         details.setNotificationCost(1L);
     }
 
     @Test
     void recIndex() {
-        RefinementDetails tmp = RefinementDetails.builder()
+        RefinementDetailsV23 tmp = RefinementDetailsV23.builder()
                 .recIndex(1)
                 .notificationCost(1L)
                 .build();
@@ -31,7 +31,7 @@ class RefinementDetailsTest {
 
     @Test
     void notificationCost() {
-        RefinementDetails tmp = RefinementDetails.builder()
+        RefinementDetailsV23 tmp = RefinementDetailsV23.builder()
                 .recIndex(1)
                 .notificationCost(1L)
                 .build();
@@ -45,7 +45,7 @@ class RefinementDetailsTest {
 
     @Test
     void testEquals() {
-        RefinementDetails tmp = RefinementDetails.builder()
+        RefinementDetailsV23 tmp = RefinementDetailsV23.builder()
                 .recIndex(1)
                 .notificationCost(1L)
                 .build();
