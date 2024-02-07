@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -12,7 +11,6 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
@@ -23,16 +21,17 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseI
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,12 +41,9 @@ import org.springframework.util.unit.DataSize;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -518,8 +514,7 @@ class AttachmentUtilsTest {
         int recIndexRecipient1 = 0;
         int recIndexRecipient2 = 1;
 
-        NotificationProcessCost procesCost = NotificationProcessCost.builder().cost(1).build();
-        Mockito.when(notificationProcessCostService.notificationProcessCost(any(), anyInt(), any(), anyBoolean(), anyInt())).thenReturn(Mono.just(procesCost));
+        Mockito.when(notificationProcessCostService.notificationProcessCostF24(any(), anyInt(), any(), any(), any(),any())).thenReturn(Mono.just(2));
 
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient1)).thenReturn(notification.getRecipients().get(recIndexRecipient1));
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient2)).thenReturn(notification.getRecipients().get(recIndexRecipient2));
@@ -528,6 +523,7 @@ class AttachmentUtilsTest {
         List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, true, Collections.emptyList());
         List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, false, Collections.emptyList());
 
+        //THEN
         Assertions.assertEquals(3, attachmentsRecipient1.size());
         Assertions.assertEquals(2, attachmentsRecipient2.size());
         Assertions.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
@@ -535,6 +531,24 @@ class AttachmentUtilsTest {
 
         Assertions.assertEquals(attachmentsRecipient2.get(1), FileUtils.getKeyWithStoragePrefix(notification.getRecipients().get(recIndexRecipient2).getPayments().get(0).getPagoPA().getAttachment().getRef().getKey()));
     }
+
+    @Test
+    void f24UrlTest() {
+        //GIVEN
+        String iun = "testIun";
+        Integer recIndex = 0;
+        Integer cost = 10;
+        Integer vat = 22;
+
+        //WHEN
+        String f24Url = attachmentUtils.getF24Url(iun, recIndex, cost, vat);
+
+        //THEN
+        Assertions.assertNotNull(f24Url);
+        Assertions.assertTrue(f24Url.contains("?cost="+cost));
+        Assertions.assertTrue(f24Url.contains("&vat="+vat));
+    }
+
 
     private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
         return NotificationTestBuilder.builder()
@@ -676,9 +690,11 @@ class AttachmentUtilsTest {
                 ).build();
 
         return NotificationInt.builder()
+                .iun("iun")
                 .paProtocolNumber("302011681384967158")
                 .subject("notifica analogica con cucumber")
                 .paFee(1)
+                .vat(22)
                 .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER)
                 .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .documents(List.of(NotificationDocumentInt.builder()

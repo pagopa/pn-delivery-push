@@ -6,6 +6,11 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV23;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.convention.MatchingStrategies;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -13,11 +18,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.Converter;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
-import org.modelmapper.convention.MatchingStrategies;
 
 @Slf4j
 public class SmartMapper {
@@ -156,7 +156,9 @@ public class SmartMapper {
                         throw new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
                     }
                 }
-                default -> log.debug("NOTHING TO MAP: element category {} ", result.getCategory());
+                default -> {
+                    //nothing to do
+                }
             }
         }
 

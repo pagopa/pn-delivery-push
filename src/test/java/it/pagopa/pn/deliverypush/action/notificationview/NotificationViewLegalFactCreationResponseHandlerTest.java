@@ -100,7 +100,7 @@ class NotificationViewLegalFactCreationResponseHandlerTest {
         
         int notificationCost = 10;
 
-        Mockito.when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
+        Mockito.when(this.notificationCost.getNotificationCostForViewed(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
         TimelineElementInternal timelineElement = TimelineElementInternal.builder().build();
         Mockito.when(timelineUtils.buildNotificationViewedTimelineElement(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(timelineElement);
@@ -149,7 +149,7 @@ class NotificationViewLegalFactCreationResponseHandlerTest {
 
         int notificationCost = 10;
 
-        Mockito.when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
+        Mockito.when(this.notificationCost.getNotificationCostForViewed(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
         
         TimelineElementInternal timelineElement = TimelineElementInternal.builder().build();
         Mockito.when(timelineUtils.buildNotificationViewedTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex), Mockito.eq(legalFactId), Mockito.eq(notificationCost),
@@ -192,7 +192,7 @@ class NotificationViewLegalFactCreationResponseHandlerTest {
 
         int notificationCost = 10;
 
-        Mockito.when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
+        Mockito.when(this.notificationCost.getNotificationCostForViewed(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.just(Optional.of(notificationCost)));
         TimelineElementInternal timelineElement = TimelineElementInternal.builder().build();
         Mockito.when(timelineUtils.buildNotificationViewedTimelineElement(Mockito.eq(notification), Mockito.eq(recIndex), Mockito.eq(legalFactId), Mockito.eq(notificationCost),
                         Mockito.isNull(), Mockito.isNull(), Mockito.eq(timelineDetails.getEventTimestamp())))
@@ -263,7 +263,7 @@ class NotificationViewLegalFactCreationResponseHandlerTest {
         
         Mockito.when( timelineService.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(timelineDetails));
         
-        Mockito.when(this.notificationCost.getNotificationCost(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.error(new RuntimeException("exception")));
+        Mockito.when(this.notificationCost.getNotificationCostForViewed(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(Mono.error(new RuntimeException("exception")));
 
         //WHEN
         Assertions.assertThrows(RuntimeException.class, () -> handler.handleLegalFactCreationResponse(notification.getIun(), recIndex, actionDetails));
