@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
@@ -66,9 +66,17 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
         // grazie al contatore atomico usato in scrittura per generare l'eventId, non serve più gestire la finestra.
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
-            .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
+            .flatMap(stream -> {
+                verifyVersion(xPagopaPnCxGroups, xPagopaPnApiVersion, stream);
+                return eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId);
+            })
             .map(res -> {
-                List<ProgressResponseElementV23> eventList = res.getEvents().stream().map(ProgressResponseElementMapper::internalToExternalv23).sorted(Comparator.comparing(ProgressResponseElementV23::getEventId)).toList();
+
+                List<ProgressResponseElementV23> eventList = res.getEvents().stream()
+                        .filter(eventEntity -> eventEntity.getTimestamp() != null) // Filtra solo gli eventi con timestamp non nulli
+                        .map(ProgressResponseElementMapper::internalToExternalv23)
+                        .sorted(Comparator.comparing(ProgressResponseElementV23::getEventId))
+                        .toList();
 
                 int currentRetryAfter = res.getLastEventIdRead() == null ? retryAfter : 0;
 
@@ -81,6 +89,18 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
                     .progressResponseElementList(eventList)
                     .build();
             });
+    }
+
+    private static void verifyVersion(List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, StreamEntity stream) {
+
+        if (StringUtils.equals(xPagopaPnApiVersion, "V10") && !StringUtils.equals(stream.getVersion(), "V10") ){
+                Mono.error(new PnWebhookForbiddenException("Not supported operation"));
+        }
+        else {
+            if (!WebhookUtils.checkGroups(stream.getGroups(), xPagopaPnCxGroups)){
+                Mono.error(new PnWebhookForbiddenException("Not supported operation"));
+            }
+        }
     }
 
     @Override
@@ -107,7 +127,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private Mono<Void> processEvent(StreamEntity stream,  String oldStatus, String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
         // c'è il caso in cui lo stato non cambia (e se lo stream vuolo solo i cambi di stato, lo ignoro)
-        if (!StringUtils.hasText(stream.getEventType()))
+        if (!org.springframework.util.StringUtils.hasText(stream.getEventType()))
         {
             log.warn("skipping saving because webhook stream configuration is not correct stream={}", stream);
             return Mono.empty();
