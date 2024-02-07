@@ -3,12 +3,15 @@ package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.action.utils.AarUtils;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
@@ -16,6 +19,7 @@ import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
+import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -34,22 +38,18 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 
 @Component
 @CustomLog
+@AllArgsConstructor
 public class AttachmentUtils {
     private static final String VALIDATE_ATTACHMENT_PROCESS = "Validate attachment";
     private static final String F24_URL_PREFIX = "f24set://";
+
     private final SafeStorageService safeStorageService;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
     private final NotificationProcessCostService notificationProcessCostService;
-
     private final PnSendModeUtils pnSendModeUtils;
+    private final AarUtils aarUtils;
+    private final NotificationUtils notificationUtils;
 
-    public AttachmentUtils(SafeStorageService safeStorageService, PnDeliveryPushConfigs pnDeliveryPushConfigs, NotificationProcessCostService notificationProcessCostService, PnSendModeUtils pnSendModeUtils) {
-        this.safeStorageService = safeStorageService;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-        this.notificationProcessCostService = notificationProcessCostService;
-        this.pnSendModeUtils = pnSendModeUtils;
-    }
     
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
         log.logChecking(VALIDATE_ATTACHMENT_PROCESS);
@@ -68,6 +68,39 @@ public class AttachmentUtils {
         return Mono.just(getAllAttachment(notification))
                 .flatMapIterable( x -> x )
                 .flatMap( doc -> this.changeAttachmentRetention(doc, retentionUntilDays));
+    }
+
+    /**
+     * Recupera gli allegati della notifica, in base al tipo di invio
+     *
+     * @param notification notifica
+     * @param recIndex indice destinatario
+     * @return lista id allegati
+     */
+    @NotNull
+    public List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, SendAttachmentMode sendAttachmentMode, Boolean isPrepareFlow, List<String> replacedF24AttachmentUrls) {
+        log.info("retrieveAttachments iun={} recIndex={} sendAttachmentMode={} isPrepareFlow={} replacedF24AttachmentUrls={}", notification.getIun(), recIndex, sendAttachmentMode, isPrepareFlow, replacedF24AttachmentUrls);
+        AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
+
+        List<String> attachments = new ArrayList<>();
+        attachments.add(0, aarGenerationDetails.getGeneratedAarUrl());
+        // nel caso in cui NON sia simple registered letter, devo allegare anche gli atti
+
+        NotificationRecipientInt notificationRecipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
+
+        List<String> res = switch (sendAttachmentMode) {
+            case AAR -> attachments;
+            case AAR_DOCUMENTS -> {
+                attachments.addAll(getNotificationAttachments(notification));
+                yield attachments;
+            }
+            case AAR_DOCUMENTS_PAYMENTS -> {
+                attachments.addAll(getNotificationAttachmentsAndPayments(notification,notificationRecipientInt, recIndex, isPrepareFlow, replacedF24AttachmentUrls));
+                yield attachments;
+            }
+        };
+        log.info("retrieveAttachments iun={} recIndex={} attachmentsToSend={}", notification.getIun(), recIndex, res);
+        return res;
     }
 
     private void forEachAttachment(NotificationInt notification, Consumer<NotificationDocumentInt> callback, boolean includeF24Metadata)
