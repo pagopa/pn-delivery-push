@@ -2,9 +2,19 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.cost.*;
+import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
+import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
+import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
+import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
+import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResultInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleRefinementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostResult;
@@ -12,6 +22,14 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,12 +38,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-
 
 class NotificationProcessCostServiceImplTest {
     @Mock
@@ -688,10 +700,11 @@ class NotificationProcessCostServiceImplTest {
                 .details(refinementDetails)
                 .build();
 
+        Instant instant = Instant.now().plus(Duration.ofSeconds(1000));
         TimelineElementInternal notificationView = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
-                .timestamp(Instant.now().plus(Duration.ofSeconds(1000)))
-                .details(NotificationViewedDetailsInt.builder().build())
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
+                .timestamp(instant)
+                .details(NotificationViewedCreationRequestDetailsInt.builder().eventTimestamp(instant).build())
                 .build();
         
         Set<TimelineElementInternal> timelineElements = new HashSet<>(Arrays.asList(requestAccepted, firsAnalogSend, scheduleRefinement, notificationView));
@@ -771,18 +784,21 @@ class NotificationProcessCostServiceImplTest {
                         .build())
                 .build();
 
+        Instant instant = Instant.now();
         TimelineElementInternal notificationViewRec0 = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
-                .timestamp(Instant.now())
-                .details(NotificationViewedDetailsInt.builder()
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
+                .timestamp(instant)
+                .details(NotificationViewedCreationRequestDetailsInt.builder()
+                        .eventTimestamp(instant)
                         .recIndex(recIndex0)
                         .build())
                 .build();
 
         TimelineElementInternal notificationViewRec1 = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
                 .timestamp(Instant.now().plus(Duration.ofDays(1)))
-                .details(NotificationViewedDetailsInt.builder()
+                .details(NotificationViewedCreationRequestDetailsInt.builder()
+                        .eventTimestamp(instant)
                         .recIndex(recIndex1)
                         .build())
                 .build();
@@ -863,10 +879,11 @@ class NotificationProcessCostServiceImplTest {
                 .details(refinementDetails)
                 .build();
 
+        Instant instant = Instant.now().plus(Duration.ofSeconds(1000));
         TimelineElementInternal notificationView = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
-                .timestamp(Instant.now().plus(Duration.ofSeconds(1000)))
-                .details(NotificationViewedDetailsInt.builder().build())
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
+                .timestamp(instant)
+                .details(NotificationViewedCreationRequestDetailsInt.builder().eventTimestamp(instant).build())
                 .build();
 
         Set<TimelineElementInternal> timelineElements = new HashSet<>(Arrays.asList(requestAccepted, firsAnalogSend, scheduleRefinement, notificationView));
@@ -933,10 +950,11 @@ class NotificationProcessCostServiceImplTest {
                 .details(refinementDetails)
                 .build();
 
+        Instant instant = Instant.now().plus(Duration.ofSeconds(1000));
         TimelineElementInternal notificationView = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
-                .timestamp(Instant.now().plus(Duration.ofSeconds(1000)))
-                .details(NotificationViewedDetailsInt.builder().build())
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
+                .timestamp(instant)
+                .details(NotificationViewedCreationRequestDetailsInt.builder().eventTimestamp(instant).build())
                 .build();
 
         Set<TimelineElementInternal> timelineElements = new HashSet<>(Arrays.asList(requestAccepted, firsAnalogSend, scheduleRefinement, notificationView));
