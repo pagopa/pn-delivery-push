@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +41,6 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     private final SchedulerService schedulerService;
     private final PnExternalRegistryClient pnExternalRegistryClient;
 
-    private int maxStreams;
     private int purgeDeletionWaittime;
 
     public WebhookStreamsServiceImpl (StreamEntityDao streamEntityDao, SchedulerService schedulerService
@@ -53,7 +53,6 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     @PostConstruct
     private void postConstruct() {
         PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
-        this.maxStreams = webhookConf.getMaxStreams().intValue();
         this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
     }
     @Override
@@ -90,7 +89,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
         generateAuditLog(PnAuditLogEventType.AUD_WH_DELETE, msg, args).log();
 
-        return getStreamEntityToWrite(xPagopaPnApiVersion, xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+        return getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .flatMap(filteredEntity ->
                  streamEntityDao.delete(xPagopaPnCxId, streamId.toString())
                     .then(Mono.fromSupplier(() -> {
@@ -123,10 +122,12 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         List<String> args = Arrays.asList(new String[]{xPagopaPnCxId, groupString(xPagopaPnCxGroups), streamId.toString(), xPagopaPnApiVersion});
 
         return streamRequest.doOnNext(payload-> {
-            args.add(payload.toString());
-            generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, args.toArray(new String[0])).log();
+            List<String> values = new ArrayList<>();
+            values.addAll(args);
+            values.add(payload.toString());
+            generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, values.toArray(new String[0])).log();
         }).flatMap(request ->
-            getStreamEntityToRead(xPagopaPnApiVersion, xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+            getStreamEntityToRead(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .then(streamRequest)
             .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
             .map(entity -> {
@@ -148,7 +149,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion};
         generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).log();
 
-        return getStreamEntityToWrite(xPagopaPnApiVersion, xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+        return getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .filter(streamEntity -> {
                 return streamEntity.getDisabledDate() == null;
             })
@@ -165,7 +166,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     private Mono<Boolean> checkStreamCount(String xPagopaPnCxId){
         return streamEntityDao.findByPa(xPagopaPnCxId)
                 .collectList().flatMap(list -> {
-                    if (list.size() >= maxStreams) {
+                    if (list.size() >= pnDeliveryPushConfigs.getWebhook().getMaxStreams()) {
                         return Mono.error(new PnWebhookMaxStreamsCountReachedException());
                     }
                     else {
@@ -175,7 +176,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     }
 
     private String groupString(List<String> groups){
-        return String.join(",",groups);
+        return groups==null ? null : String.join(",",groups);
     }
 
     @NotNull
