@@ -106,7 +106,10 @@ public class WebhookEventsServiceImplTest {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
         String iun = "IUN-ABC-FGHI-A-1";
+        String authGroup = "PA-groupID";
 
+        List<String> groupsList = new ArrayList<>();
+        groupsList.add(authGroup);
 
         List<StreamEntity> list = new ArrayList<>();
         UUID uuidd = UUID.randomUUID();
@@ -118,6 +121,7 @@ public class WebhookEventsServiceImplTest {
         entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
+        entity.setGroups(groupsList);
         list.add(entity);
 
         entity = new StreamEntity();
@@ -127,7 +131,7 @@ public class WebhookEventsServiceImplTest {
         entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(Set.of(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW.getValue()));
         entity.setActivationDate(Instant.now());
-
+        entity.setGroups(groupsList);
         list.add(entity);
 
 
@@ -143,7 +147,9 @@ public class WebhookEventsServiceImplTest {
         List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
         Set<TimelineElementInternal> settimeline = new HashSet<>(timeline);
         TimelineElementInternal newtimeline = timeline.get(timeline.size()-1);
-        NotificationInt notificationInt = NotificationInt.builder().build();
+        NotificationInt notificationInt = NotificationInt.builder()
+                .group(authGroup)
+                .build();
 
         StatusService.NotificationStatusUpdate  statusUpdate = Mockito.mock(StatusService.NotificationStatusUpdate.class);
         NotificationStatusInt notificationStatusInt = NotificationStatusInt.ACCEPTED;
@@ -155,10 +161,11 @@ public class WebhookEventsServiceImplTest {
         Mockito.when(timelineElementInternal.getCategory()).thenReturn(TimelineElementCategoryInt.REQUEST_ACCEPTED);
 
         WebhookUtils.RetrieveTimelineResult retrieveTimelineResult = WebhookUtils.RetrieveTimelineResult.builder()
-            .notificationInt(Mockito.mock(NotificationInt.class))
+            .notificationInt(notificationInt)
             .event(timelineElementInternal)
             .notificationStatusUpdate(statusUpdate)
             .build();
+
         Mockito.when(webhookUtils.buildEventEntity(Mockito.anyLong(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(eventEntity);
         Mockito.when(webhookUtils.retrieveTimeline(Mockito.anyString(), Mockito.anyString())).thenReturn(retrieveTimelineResult);
 
@@ -852,4 +859,86 @@ public class WebhookEventsServiceImplTest {
         Mockito.verify(eventEntityDao, Mockito.times(4)).save(Mockito.any(EventEntity.class));
     }
 
+    @Test
+    void saveEventWhenGroupIsNotAuthorizedOrWhenIsAuthorized() {
+        //NOT AUTHORIZED CASE
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String iun = "IUN-ABC-FGHI-A-1";
+        String authGroup1 = "PA-1groupID";
+        String authGroup2 = "PA-2groupID";
+
+        List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
+        TimelineElementInternal newtimeline1 = timeline.get(timeline.size()-1);
+
+        List<String> groupsList = new ArrayList<>();
+        groupsList.add(authGroup1);
+
+        List<StreamEntity> streamEntityList = new ArrayList<>();
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity streamEntity = new StreamEntity();
+        streamEntity.setStreamId(uuid);
+        streamEntity.setStreamId(uuid);
+        streamEntity.setTitle("1");
+        streamEntity.setPaId(xpagopacxid);
+        streamEntity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
+        streamEntity.setFilterValues(Set.of(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue()));
+        streamEntity.setActivationDate(Instant.now());
+        streamEntity.setEventAtomicCounter(1L);
+        streamEntity.setGroups(groupsList);
+        streamEntityList.add(streamEntity);
+
+        Mockito.when(streamEntityDao.findByPa(xpagopacxid))
+                .thenReturn(Flux.fromIterable(streamEntityList));
+
+        TimelineElementInternal timelineElementInternal = Mockito.mock(TimelineElementInternal.class);
+        Mockito.when(timelineElementInternal.getCategory())
+                .thenReturn(TimelineElementCategoryInt.REQUEST_ACCEPTED);
+
+        StatusService.NotificationStatusUpdate notificationStatusUpdate = new
+                StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.DELIVERING);
+
+        NotificationInt notificationInt = NotificationInt.builder()
+                .group(authGroup2)
+                .build();
+
+        WebhookUtils.RetrieveTimelineResult retrieveTimelineResult = WebhookUtils.RetrieveTimelineResult.builder()
+                .notificationInt(notificationInt)
+                .event(timelineElementInternal)
+                .notificationStatusUpdate(notificationStatusUpdate)
+                .build();
+        Mockito.when(webhookUtils.retrieveTimeline(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(retrieveTimelineResult);
+
+        //WHEN
+        webhookEventsService.saveEvent(xpagopacxid, newtimeline1.getElementId(), newtimeline1.getIun())
+                .block(d);
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.times(1))
+                .findByPa(xpagopacxid);
+
+
+
+        //AUTHORIZED CASE
+        groupsList.clear();
+        groupsList.add(authGroup2);
+        streamEntity.setGroups(groupsList);
+
+        Mockito.when(streamEntityDao.updateAndGetAtomicCounter(streamEntityList.get(0)))
+                .thenReturn(Mono.just(2L));
+        Mockito.when(eventEntityDao.save(Mockito.any()))
+                .thenReturn(Mono.just(new EventEntity()));
+
+        //WHEN
+        webhookEventsService.saveEvent(xpagopacxid, newtimeline1.getElementId(), newtimeline1.getIun())
+                .block(d);
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.times(2))
+                .findByPa(xpagopacxid);
+        Mockito.verify(eventEntityDao, Mockito.times(1))
+                .save(Mockito.any());
+    }
 }
