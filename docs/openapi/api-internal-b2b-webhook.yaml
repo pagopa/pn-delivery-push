@@ -393,7 +393,7 @@ paths:
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
 
-  '/v2.3/delivery-progresses/streams':
+  '/delivery-progresses/v2.3/streams':
     parameters:                                               # NO EXTERNAL
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -475,7 +475,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/v2.3/delivery-progresses/streams/{streamId}':
+  '/delivery-progresses/v2.3/streams/{streamId}':
     parameters:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -603,7 +603,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/v2.3/delivery-progresses/streams/{streamId}/action/disable':
+  '/delivery-progresses/v2.3/streams/{streamId}/action/disable':
     patch:
       summary: Disabilita uno stream
       description: >-
@@ -657,7 +657,7 @@ paths:
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
     ############################################################################################
 
-  '/v2.3/delivery-progresses/streams/{streamId}/events':
+  '/delivery-progresses/v2.3/streams/{streamId}/events':
     get:
       summary: Leggi progressi notifiche
       description: >-
