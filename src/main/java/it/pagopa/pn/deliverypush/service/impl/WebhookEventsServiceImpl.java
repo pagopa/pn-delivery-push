@@ -17,7 +17,6 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -26,15 +25,12 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
-
-import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
 
+
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class WebhookEventsServiceImpl implements WebhookEventsService {
     private final StreamEntityDao streamEntityDao;
@@ -43,20 +39,21 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private final WebhookUtils webhookUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    private int retryAfter;
-    private int purgeDeletionWaittime;
-    private Set<String> defaultCategories;
-    private Set<String> defaultNotificationStatuses;
-
+    private final Set<String> defaultCategories;
+    private final Set<String> defaultNotificationStatuses;
+    private final Set<String> defaultCategoriesPa;
     private static final String DEFAULT_CATEGORIES = "DEFAULT";
 
-    @PostConstruct
-    private void postConstruct() {
-        defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
-        defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
-        PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
-        this.retryAfter = webhookConf.getScheduleInterval().intValue();
-        this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
+
+    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+        this.streamEntityDao = streamEntityDao;
+        this.eventEntityDao = eventEntityDao;
+        this.schedulerService = schedulerService;
+        this.webhookUtils = webhookUtils;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
+        this.defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
+        this.defaultCategoriesPa = getCategoriesPa();
     }
 
     @Override
@@ -80,7 +77,11 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
                         .sorted(Comparator.comparing(ProgressResponseElementV23::getEventId))
                         .toList();
 
+                var retryAfter = pnDeliveryPushConfigs.getWebhook().getScheduleInterval().intValue();
+
                 int currentRetryAfter = res.getLastEventIdRead() == null ? retryAfter : 0;
+
+                var purgeDeletionWaittime = pnDeliveryPushConfigs.getWebhook().getPurgeDeletionWaittime();
 
                 log.info("consumeEventStream lastEventId={} streamId={} size={} returnedlastEventId={} retryAfter={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"), currentRetryAfter);
                 // schedulo la pulizia per gli eventi precedenti a quello richiesto
@@ -197,6 +198,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
             .map(thereAreMore -> {
                 if (Boolean.TRUE.equals(thereAreMore))
                 {
+                    var purgeDeletionWaittime = pnDeliveryPushConfigs.getWebhook().getPurgeDeletionWaittime();
                     log.info("purgeEvents streamId={} eventId={} olderThan={} there are more event to purge", streamId, eventId, olderThan);
                     schedulerService.scheduleWebhookEvent(streamId, eventId, purgeDeletionWaittime, olderThan?WebhookEventType.PURGE_STREAM_OLDER_THAN:WebhookEventType.PURGE_STREAM);
                 }
@@ -231,9 +233,34 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
                     .filter(v -> !v.equalsIgnoreCase(DEFAULT_CATEGORIES))
                     .collect(Collectors.toSet());
             if (stream.getFilterValues().contains(DEFAULT_CATEGORIES)) {
-                categoriesSet.addAll(null); //defaultCategariesPa
+                categoriesSet.addAll(defaultCategoriesPa);
             }
         }
         return categoriesSet;
+    }
+
+    private Set<String> getCategoriesPa() {
+        return Arrays.stream(TimelineElementCategoryInt.values())
+                .filter(category -> category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.REQUEST_REFUSED.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.REFINEMENT.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.NOTIFICATION_VIEWED.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.NOTIFICATION_CANCELLED.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED.getValue())
+                                    )
+                .map(TimelineElementCategoryInt::getValue)
+                .collect(Collectors.toSet());
     }
 }
