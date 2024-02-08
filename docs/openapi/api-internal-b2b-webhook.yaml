@@ -173,6 +173,18 @@ info:
         </ul>
       </details>
     </br>
+
+    E' inoltre possibile utilizzare il placeholder <strong>DEFAULT</strong> per ottenere SOLO gli eventi di timeline di maggior rilievo:<br>
+    <ul>
+      <li><strong>Eventi di validazione: </strong><em>REQUEST_REFUSED,REQUEST_ACCEPTED</em></li>
+      <li><strong>Eventi del workflow digitale: </strong><em>SEND_DIGITAL_DOMICILE,SEND_DIGITAL_FEEDBACK,DIGITAL_SUCCESS_WORKFLOW,DIGITAL_FAILURE_WORKFLOW,SEND_SIMPLE_REGISTERED_LETTER,SIMPLE_REGISTERED_LETTER_PROGRESS</em></li>
+      <li><strong>Eventi del workflow analogico: </strong><em>SEND_ANALOG_DOMICILE,SEND_ANALOG_PROGRESS,SEND_ANALOG_FEEDBACK,ANALOG_SUCCESS_WORKFLOW,ANALOG_FAILURE_WORKFLOW,COMPLETELY_UNREACHABLE</em></li>
+      <li><strong>Eventi di chiusura del workflow: </strong><em>REFINEMENT,NOTIFICATION_VIEWED,NOTIFICATION_CANCELLED</em></li>
+      <li><strong>Altri eventi: </strong><em>NOTIFICATION_RADD_RETRIEVED</em></li>
+    </ul>
+    </br>
+    Il placeholder <strong>DEFAULT</strong> può essere usato assieme ad altri eventi di timeline, ad esempio il filtro "DEFAULT,SEND_COURTESY_MESSAGE" permetterà di ricevere anche gli eventi relativi agli invii dei messaggi di cortesia, oltre che a tutti quelli di maggior rilievo.
+    </br>
     Di seguito un esempio di creazione e successiva interrogazione dello stream: 
 
       <details>
