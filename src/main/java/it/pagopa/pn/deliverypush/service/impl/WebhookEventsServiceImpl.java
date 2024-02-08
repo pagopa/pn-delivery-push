@@ -17,17 +17,18 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
+
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
 
@@ -45,6 +46,8 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private int purgeDeletionWaittime;
     private Set<String> defaultCategories;
     private Set<String> defaultNotificationStatuses;
+
+    private static final String DEFAULT_CATEGORIES = "DEFAULT";
 
     @PostConstruct
     private void postConstruct() {
@@ -105,7 +108,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     }
     private Mono<Void> processEvent(StreamEntity stream,  String oldStatus, String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
 
-        if (!stream.getGroups().isEmpty() && !checkGroups(stream.getGroups(), Collections.singletonList(notificationInt.getGroup()))){
+        if (!CollectionUtils.isEmpty(stream.getGroups()) && !checkGroups(stream.getGroups(), Arrays.asList(notificationInt.getGroup()))){
             return Mono.empty();
         }
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
@@ -128,9 +131,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
 
         Set<String> filteredValues = new LinkedHashSet<>();
         if (eventType == StreamCreationRequestV23.EventTypeEnum.TIMELINE) {
-            filteredValues = stream.getFilterValues()== null || stream.getFilterValues().isEmpty()
-                ? defaultCategories
-                : stream.getFilterValues();
+            filteredValues = categoriesByFilter(stream);
         } else if (eventType == StreamCreationRequestV23.EventTypeEnum.STATUS){
             filteredValues = stream.getFilterValues() == null || stream.getFilterValues().isEmpty()
                 ? defaultNotificationStatuses
@@ -198,5 +199,20 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
             .filter( e -> e.getVersion() <= version)
             .map(NotificationStatusInt::getValue)
             .collect(Collectors.toSet());
+    }
+
+    private Set<String> categoriesByFilter(StreamEntity stream) {
+        Set<String> categoriesSet;
+        if (stream.getFilterValues()== null || stream.getFilterValues().isEmpty()) {
+            categoriesSet = defaultCategories;
+        } else {
+            categoriesSet = stream.getFilterValues().stream()
+                    .filter(v -> !v.equalsIgnoreCase(DEFAULT_CATEGORIES))
+                    .collect(Collectors.toSet());
+            if (stream.getFilterValues().contains(DEFAULT_CATEGORIES)) {
+                categoriesSet.addAll(null); //defaultCategariesPa
+            }
+        }
+        return categoriesSet;
     }
 }
