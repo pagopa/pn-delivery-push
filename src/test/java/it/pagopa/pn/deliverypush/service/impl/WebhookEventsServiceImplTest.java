@@ -1,9 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -21,42 +17,47 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class WebhookEventsServiceImplTest {
 
-    private WebhookEventsService webhookEventsService;
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class WebhookEventsServiceImplTest {
+    @InjectMocks
+    private WebhookEventsServiceImpl webhookEventsService;
+    @Mock
     private EventEntityDao eventEntityDao;
+    @Mock
     private StreamEntityDao streamEntityDao;
+    @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    @Mock
     private SchedulerService schedulerService;
+    @Mock
     private WebhookUtils webhookUtils;
-
+    @Mock
     private TimelineService timelineService;
+    @Mock
     private NotificationService notificationService;
     Duration d = Duration.ofSeconds(3);
+
     @BeforeEach
     void setup() {
-        streamEntityDao = Mockito.mock( StreamEntityDao.class );
-        eventEntityDao = Mockito.mock( EventEntityDao.class );
-        pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
-        schedulerService = Mockito.mock(SchedulerService.class);
-        webhookUtils = Mockito.mock(WebhookUtils.class);
-
         PnDeliveryPushConfigs.Webhook webhook = new PnDeliveryPushConfigs.Webhook();
         webhook.setScheduleInterval(1000L);
         webhook.setMaxLength(10);
@@ -64,12 +65,6 @@ public class WebhookEventsServiceImplTest {
         webhook.setReadBufferDelay(1000);
         webhook.setTtl(Duration.ofDays(30));
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
-
-        webhookEventsService = new WebhookEventsServiceImpl(streamEntityDao, eventEntityDao, schedulerService,webhookUtils
-            ,pnDeliveryPushConfigs);
-
-        timelineService = Mockito.mock(TimelineService.class);
-        notificationService = Mockito.mock(NotificationService.class);
     }
 
     private List<TimelineElementInternal> generateTimeline(String iun, String paId){
@@ -402,7 +397,6 @@ public class WebhookEventsServiceImplTest {
 
     }
 
-    @Disabled
     @Test
     void saveEvent() {
         //GIVEN
@@ -484,7 +478,6 @@ public class WebhookEventsServiceImplTest {
     }
 
 
-    @Disabled
     @Test
     void saveEventFiltered() {
         //GIVEN
@@ -597,7 +590,6 @@ public class WebhookEventsServiceImplTest {
         Mockito.verify(eventEntityDao, Mockito.times(3)).save(Mockito.any(EventEntity.class));
     }
 
-    @Disabled
     @Test
     void saveEventFilteredTimeline() {
         //GIVEN
@@ -701,7 +693,6 @@ public class WebhookEventsServiceImplTest {
     }
 
 
-    @Disabled
     @Test
     void saveEventFilteredTimelineV1() {
         //GIVEN
@@ -938,6 +929,75 @@ public class WebhookEventsServiceImplTest {
         //THEN
         Mockito.verify(streamEntityDao, Mockito.times(2))
                 .findByPa(xpagopacxid);
+        Mockito.verify(eventEntityDao, Mockito.times(1))
+                .save(Mockito.any());
+    }
+
+    @Test
+    void saveEventWhenFilteredValueIsDefaultCategoriesPA() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String iun = "IUN-ABC-FGHI-A-1";
+        String authGroup = "PA-1groupID";
+
+        List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
+        TimelineElementInternal newtimeline1 = timeline.get(timeline.size()-1);
+
+        List<String> groupsList = new ArrayList<>();
+        groupsList.add(authGroup);
+
+        List<StreamEntity> streamEntityList = new ArrayList<>();
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity streamEntity = new StreamEntity();
+        streamEntity.setStreamId(uuid);
+        streamEntity.setStreamId(uuid);
+        streamEntity.setTitle("1");
+        streamEntity.setPaId(xpagopacxid);
+        streamEntity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
+        streamEntity.setFilterValues(Set.of("DEFAULT"));
+        streamEntity.setActivationDate(Instant.now());
+        streamEntity.setEventAtomicCounter(1L);
+        streamEntity.setGroups(groupsList);
+        streamEntityList.add(streamEntity);
+
+        Mockito.when(streamEntityDao.findByPa(xpagopacxid))
+                .thenReturn(Flux.fromIterable(streamEntityList));
+
+        TimelineElementInternal timelineElementInternal = Mockito.mock(TimelineElementInternal.class);
+        Mockito.when(timelineElementInternal.getCategory())
+                .thenReturn(TimelineElementCategoryInt.REQUEST_ACCEPTED);
+
+        StatusService.NotificationStatusUpdate notificationStatusUpdate = new
+                StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.DELIVERING);
+
+        NotificationInt notificationInt = NotificationInt.builder()
+                .group(authGroup)
+                .build();
+
+        WebhookUtils.RetrieveTimelineResult retrieveTimelineResult = WebhookUtils.RetrieveTimelineResult.builder()
+                .notificationInt(notificationInt)
+                .event(timelineElementInternal)
+                .notificationStatusUpdate(notificationStatusUpdate)
+                .build();
+        Mockito.when(webhookUtils.retrieveTimeline(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(retrieveTimelineResult);
+
+        Mockito.when(streamEntityDao.updateAndGetAtomicCounter(streamEntityList.get(0)))
+                .thenReturn(Mono.just(2L));
+
+        Mockito.when(eventEntityDao.save(Mockito.any()))
+                .thenReturn(Mono.just(new EventEntity()));
+
+        //WHEN
+        webhookEventsService.saveEvent(xpagopacxid, newtimeline1.getElementId(), newtimeline1.getIun())
+                .block(d);
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.times(1))
+                .findByPa(xpagopacxid);
+        Mockito.verify(streamEntityDao, Mockito.times(1))
+                .updateAndGetAtomicCounter(Mockito.any());
         Mockito.verify(eventEntityDao, Mockito.times(1))
                 .save(Mockito.any());
     }

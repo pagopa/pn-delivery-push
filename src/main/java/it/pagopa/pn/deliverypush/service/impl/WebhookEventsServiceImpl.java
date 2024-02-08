@@ -17,7 +17,6 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -25,15 +24,12 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
-
-import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
 
+
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class WebhookEventsServiceImpl implements WebhookEventsService {
     private final StreamEntityDao streamEntityDao;
@@ -42,22 +38,21 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private final WebhookUtils webhookUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    private int retryAfter;
-    private int purgeDeletionWaittime;
-    private Set<String> defaultCategories;
-    private Set<String> defaultNotificationStatuses;
-    private Set<String> defaultCategoriesPa;
-
+    private final Set<String> defaultCategories;
+    private final Set<String> defaultNotificationStatuses;
+    private final Set<String> defaultCategoriesPa;
     private static final String DEFAULT_CATEGORIES = "DEFAULT";
 
-    @PostConstruct
-    private void postConstruct() {
-        defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
-        defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
-        defaultCategoriesPa = getCategoriesPa();
-        PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
-        this.retryAfter = webhookConf.getScheduleInterval().intValue();
-        this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
+
+    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+        this.streamEntityDao = streamEntityDao;
+        this.eventEntityDao = eventEntityDao;
+        this.schedulerService = schedulerService;
+        this.webhookUtils = webhookUtils;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
+        this.defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
+        this.defaultCategoriesPa = getCategoriesPa();
     }
 
     @Override
@@ -73,7 +68,11 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
             .map(res -> {
                 List<ProgressResponseElementV23> eventList = res.getEvents().stream().map(ProgressResponseElementMapper::internalToExternalv23).sorted(Comparator.comparing(ProgressResponseElementV23::getEventId)).toList();
 
+                var retryAfter = pnDeliveryPushConfigs.getWebhook().getScheduleInterval().intValue();
+
                 int currentRetryAfter = res.getLastEventIdRead() == null ? retryAfter : 0;
+
+                var purgeDeletionWaittime = pnDeliveryPushConfigs.getWebhook().getPurgeDeletionWaittime();
 
                 log.info("consumeEventStream lastEventId={} streamId={} size={} returnedlastEventId={} retryAfter={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"), currentRetryAfter);
                 // schedulo la pulizia per gli eventi precedenti a quello richiesto
@@ -178,6 +177,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
             .map(thereAreMore -> {
                 if (Boolean.TRUE.equals(thereAreMore))
                 {
+                    var purgeDeletionWaittime = pnDeliveryPushConfigs.getWebhook().getPurgeDeletionWaittime();
                     log.info("purgeEvents streamId={} eventId={} olderThan={} there are more event to purge", streamId, eventId, olderThan);
                     schedulerService.scheduleWebhookEvent(streamId, eventId, purgeDeletionWaittime, olderThan?WebhookEventType.PURGE_STREAM_OLDER_THAN:WebhookEventType.PURGE_STREAM);
                 }
