@@ -46,6 +46,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private int purgeDeletionWaittime;
     private Set<String> defaultCategories;
     private Set<String> defaultNotificationStatuses;
+    private Set<String> defaultCategoriesPa;
 
     private static final String DEFAULT_CATEGORIES = "DEFAULT";
 
@@ -53,6 +54,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private void postConstruct() {
         defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
         defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
+        defaultCategoriesPa = getCategoriesPa();
         PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
         this.retryAfter = webhookConf.getScheduleInterval().intValue();
         this.purgeDeletionWaittime = webhookConf.getPurgeDeletionWaittime();
@@ -210,9 +212,34 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
                     .filter(v -> !v.equalsIgnoreCase(DEFAULT_CATEGORIES))
                     .collect(Collectors.toSet());
             if (stream.getFilterValues().contains(DEFAULT_CATEGORIES)) {
-                categoriesSet.addAll(null); //defaultCategariesPa
+                categoriesSet.addAll(defaultCategoriesPa);
             }
         }
         return categoriesSet;
+    }
+
+    private Set<String> getCategoriesPa() {
+        return Arrays.stream(TimelineElementCategoryInt.values())
+                .filter(category -> category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.REQUEST_REFUSED.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.REFINEMENT.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.NOTIFICATION_VIEWED.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.NOTIFICATION_CANCELLED.getValue()) ||
+                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED.getValue())
+                                    )
+                .map(TimelineElementCategoryInt::getValue)
+                .collect(Collectors.toSet());
     }
 }

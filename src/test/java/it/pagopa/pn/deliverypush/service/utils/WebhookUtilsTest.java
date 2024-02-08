@@ -187,31 +187,6 @@ class WebhookUtilsTest {
         assertNotNull(eventEntity.getTtl());
     }
 
-//    @Test
-    void buildEventEntity_6() {
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .iun( "IUN-ABC-123" )
-                .timestamp( Instant.now() )
-                .category( TimelineElementCategoryInt.REQUEST_REFUSED )
-                .details( RequestRefusedDetailsInt.builder()
-                        .refusalReasons( List.of(NotificationRefusedErrorInt.builder()
-                                        .errorCode( ERROR_CODE )
-                                        .detail( DETAIL )
-                                .build() ) )
-                        .build()  )
-                .build();
-
-        NotificationInt notificationInt = NotificationInt.builder()
-                .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
-                .build();
-
-        StreamEntity streamEntity = new StreamEntity("paid", "abc");
-        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, null, timelineElementInternal, notificationInt);
-
-        Assertions.assertEquals( ERROR_CODE, eventEntity.getValidationErrors().get( 0 ).getErrorCode());
-        Assertions.assertEquals( DETAIL, eventEntity.getValidationErrors().get( 0 ).getDetail());
-    }
 
     private List<TimelineElementInternal> generateTimeline(String iun, String paId){
         List<TimelineElementInternal> res = new ArrayList<>();
