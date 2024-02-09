@@ -28,4 +28,5 @@ public class NotificationInt {
     private Instant paymentExpirationDate;
     private PagoPaIntMode pagoPaIntMode;
     private String group;
+    private String version;
 }

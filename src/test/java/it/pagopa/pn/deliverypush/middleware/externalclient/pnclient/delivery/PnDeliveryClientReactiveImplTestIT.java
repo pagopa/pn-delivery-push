@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV21;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV23;
 import org.junit.jupiter.api.*;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
@@ -50,7 +50,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void getSentNotification() throws JsonProcessingException {
         //Given
         String iun ="iunTest";
-        SentNotificationV21 notification = new SentNotificationV21();
+        SentNotificationV23 notification = new SentNotificationV23();
         notification.setIun(iun);
         
         String path = "/delivery-private/notifications/{iun}"
@@ -68,9 +68,9 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
                         .withContentType(MediaType.APPLICATION_JSON)
                         .withStatusCode(200));
         
-        Mono<SentNotificationV21> response = client.getSentNotification(iun);
+        Mono<SentNotificationV23> response = client.getSentNotification(iun);
 
-        SentNotificationV21 notificationResponse = response.block();
+        SentNotificationV23 notificationResponse = response.block();
         Assertions.assertNotNull(notificationResponse);
         Assertions.assertEquals(notification, notificationResponse);
     }
@@ -79,7 +79,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void getSentNotificationError(){
         //Given
         String iun ="iunTest";
-        SentNotificationV21 notification = new SentNotificationV21();
+        SentNotificationV23 notification = new SentNotificationV23();
         notification.setIun(iun);
 
         String path = "/delivery-private/notifications/{iun}"
@@ -105,7 +105,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void getSentNotificationError404(){
         //Given
         String iun ="iunTest";
-        SentNotificationV21 notification = new SentNotificationV21();
+        SentNotificationV23 notification = new SentNotificationV23();
         notification.setIun(iun);
 
         String path = "/delivery-private/notifications/{iun}"
@@ -132,7 +132,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void removeAllNotificationCostsByIun() throws JsonProcessingException {
         //Given
         String iun ="iunTest";
-        SentNotificationV21 notification = new SentNotificationV21();
+        SentNotificationV23 notification = new SentNotificationV23();
         notification.setIun(iun);
 
         String path = "/delivery-private/notification-cost/{iun}"
@@ -160,7 +160,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void removeAllNotificationCostsByIunError(){
         //Given
         String iun ="iunTest1";
-        SentNotificationV21 notification = new SentNotificationV21();
+        SentNotificationV23 notification = new SentNotificationV23();
         notification.setIun(iun);
 
         String path = "/delivery-private/notification-cost/{iun}"
@@ -189,7 +189,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void updateStatus() throws JsonProcessingException {
         //Given
         String iun ="iunTest";
-        SentNotificationV21 notification = new SentNotificationV21();
+        SentNotificationV23 notification = new SentNotificationV23();
         notification.setIun(iun);
 
         String path = "/delivery-private/notifications/update-status";
@@ -220,7 +220,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void updateStatusError(){
         //Given
         String iun ="iunTest1";
-        SentNotificationV21 notification = new SentNotificationV21();
+        SentNotificationV23 notification = new SentNotificationV23();
         notification.setIun(iun);
 
         String path = "/delivery-private/notifications/update-status";

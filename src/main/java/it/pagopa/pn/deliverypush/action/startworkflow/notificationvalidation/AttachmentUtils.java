@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.unit.DataSize;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -280,7 +281,8 @@ public class AttachmentUtils {
                         recipientIdx,
                         notificationInt.getNotificationFeePolicy(),
                         notificationInt.getPaFee(),
-                        notificationInt.getVat()
+                        notificationInt.getVat(),
+                        notificationInt.getVersion()
                 )
                 .block();
     }
@@ -302,15 +304,13 @@ public class AttachmentUtils {
         stringBuilder.append(iun);
         stringBuilder.append("/");
         stringBuilder.append(recIndex);
+        String basePathF24 = stringBuilder.toString();
 
-        if (cost != null && cost > 0) {
-            stringBuilder.append("?cost=");
-            stringBuilder.append(cost);
-        }
-        if (vat != null) {
-            stringBuilder.append("?vat=");
-            stringBuilder.append(vat);
-        }
-        return stringBuilder.toString();
+        UriComponentsBuilder f24Uri = UriComponentsBuilder.fromUriString(basePathF24);
+
+        if (cost != null && cost > 0) f24Uri.queryParam("cost", cost);
+        if (vat != null) f24Uri.queryParam("vat", vat);
+        
+        return f24Uri.toUriString();
     }
 }

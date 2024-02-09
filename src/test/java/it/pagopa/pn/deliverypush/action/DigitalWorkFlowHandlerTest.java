@@ -322,7 +322,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
 
-        Mockito.when(digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any()))
+        Mockito.when(digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any()))
                         .thenReturn("timeline_id_0");
 
 

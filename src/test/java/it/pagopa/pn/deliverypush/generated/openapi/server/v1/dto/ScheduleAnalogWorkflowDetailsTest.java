@@ -5,17 +5,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ScheduleAnalogWorkflowDetailsTest {
-    private ScheduleAnalogWorkflowDetails details;
+    private ScheduleAnalogWorkflowDetailsV23 details;
 
     @BeforeEach
     void setUp() {
-        details = new ScheduleAnalogWorkflowDetails();
+        details = new ScheduleAnalogWorkflowDetailsV23();
         details.setRecIndex(1);
     }
 
     @Test
     void recIndex() {
-        ScheduleAnalogWorkflowDetails tmp = ScheduleAnalogWorkflowDetails.builder()
+        ScheduleAnalogWorkflowDetailsV23 tmp = ScheduleAnalogWorkflowDetailsV23.builder()
                 .recIndex(1)
                 .build();
         Assertions.assertEquals(tmp, details.recIndex(1));
@@ -28,7 +28,7 @@ class ScheduleAnalogWorkflowDetailsTest {
 
     @Test
     void testEquals() {
-        ScheduleAnalogWorkflowDetails tmp = ScheduleAnalogWorkflowDetails.builder()
+        ScheduleAnalogWorkflowDetailsV23 tmp = ScheduleAnalogWorkflowDetailsV23.builder()
                 .recIndex(1)
                 .build();
         Assertions.assertEquals(Boolean.TRUE, tmp.equals(details));

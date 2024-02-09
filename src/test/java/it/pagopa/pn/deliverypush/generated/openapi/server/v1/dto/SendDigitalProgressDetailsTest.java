@@ -9,12 +9,12 @@ import java.util.Collections;
 
 class SendDigitalProgressDetailsTest {
 
-    private SendDigitalProgressDetails details;
+    private SendDigitalProgressDetailsV23 details;
 
     @BeforeEach
     void setUp() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        details = new SendDigitalProgressDetails();
+        details = new SendDigitalProgressDetailsV23();
         details.setRecIndex(1);
         details.setDigitalAddress(DigitalAddress.builder().address("add").build());
         details.setSendingReceipts(Collections.singletonList(SendingReceipt.builder().id("001").build()));
@@ -28,9 +28,9 @@ class SendDigitalProgressDetailsTest {
 
     @Test
     void recIndex() {
-        SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
+        SendDigitalProgressDetailsV23 expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.recIndex(1);
+        SendDigitalProgressDetailsV23 actual = details.recIndex(1);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -42,9 +42,9 @@ class SendDigitalProgressDetailsTest {
 
     @Test
     void eventCode() {
-        SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
+        SendDigitalProgressDetailsV23 expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.deliveryDetailCode("001");
+        SendDigitalProgressDetailsV23 actual = details.deliveryDetailCode("001");
 
         Assertions.assertEquals(expected, actual);
     }
@@ -56,9 +56,9 @@ class SendDigitalProgressDetailsTest {
 
     @Test
     void shouldRetry() {
-        SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
+        SendDigitalProgressDetailsV23 expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.shouldRetry(Boolean.TRUE);
+        SendDigitalProgressDetailsV23 actual = details.shouldRetry(Boolean.TRUE);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -70,9 +70,9 @@ class SendDigitalProgressDetailsTest {
 
     @Test
     void digitalAddress() {
-        SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
+        SendDigitalProgressDetailsV23 expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.digitalAddress(DigitalAddress.builder().address("add").build());
+        SendDigitalProgressDetailsV23 actual = details.digitalAddress(DigitalAddress.builder().address("add").build());
 
         Assertions.assertEquals(expected, actual);
     }
@@ -84,9 +84,9 @@ class SendDigitalProgressDetailsTest {
 
     @Test
     void digitalAddressSource() {
-        SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
+        SendDigitalProgressDetailsV23 expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.digitalAddressSource(DigitalAddressSource.GENERAL);
+        SendDigitalProgressDetailsV23 actual = details.digitalAddressSource(DigitalAddressSource.GENERAL);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -100,9 +100,9 @@ class SendDigitalProgressDetailsTest {
     void notificationDate() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
 
-        SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
+        SendDigitalProgressDetailsV23 expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.notificationDate(instant);
+        SendDigitalProgressDetailsV23 actual = details.notificationDate(instant);
 
         Assertions.assertEquals(expected, actual);
 
@@ -117,9 +117,9 @@ class SendDigitalProgressDetailsTest {
 
     @Test
     void sendingReceipts() {
-        SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
+        SendDigitalProgressDetailsV23 expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.sendingReceipts(Collections.singletonList(SendingReceipt.builder().id("001").build()));
+        SendDigitalProgressDetailsV23 actual = details.sendingReceipts(Collections.singletonList(SendingReceipt.builder().id("001").build()));
 
         Assertions.assertEquals(expected, actual);
     }
@@ -131,9 +131,9 @@ class SendDigitalProgressDetailsTest {
 
     @Test
     void retryNumber() {
-        SendDigitalProgressDetails expected = buildSendDigitalProgressDetails();
+        SendDigitalProgressDetailsV23 expected = buildSendDigitalProgressDetails();
 
-        SendDigitalProgressDetails actual = details.retryNumber(1);
+        SendDigitalProgressDetailsV23 actual = details.retryNumber(1);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -145,14 +145,14 @@ class SendDigitalProgressDetailsTest {
 
     @Test
     void testEquals() {
-        SendDigitalProgressDetails data = buildSendDigitalProgressDetails();
+        SendDigitalProgressDetailsV23 data = buildSendDigitalProgressDetails();
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
 
-    private SendDigitalProgressDetails buildSendDigitalProgressDetails() {
+    private SendDigitalProgressDetailsV23 buildSendDigitalProgressDetails() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
 
-        return SendDigitalProgressDetails.builder()
+        return SendDigitalProgressDetailsV23.builder()
                 .recIndex(1)
                 .retryNumber(1)
                 .sendingReceipts(Collections.singletonList(SendingReceipt.builder().id("001").build()))
