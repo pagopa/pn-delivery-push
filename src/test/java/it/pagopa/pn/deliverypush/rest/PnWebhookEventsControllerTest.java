@@ -33,6 +33,7 @@ class PnWebhookEventsControllerTest {
     @MockBean
     private WebhookEventsService service;
 
+
     @Test
     @Disabled
     void consumeEventStreamOk() {
