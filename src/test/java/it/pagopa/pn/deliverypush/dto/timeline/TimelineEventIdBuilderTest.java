@@ -960,7 +960,7 @@ class TimelineEventIdBuilderTest {
     void buildNOTIFICATION_RADD_RETRIEVEDTest() {
 
         EventId eventId = new EventId().toBuilder().iun("testIun").recIndex(1).build();
-        String expectedEventId = "NOTIFICATION_RADD_RETIREVED.IUN_testIun.RECINDEX_1";
+        String expectedEventId = "NOTIFICATION_RADD_RETRIEVED.IUN_testIun.RECINDEX_1";
 
         String actualEventId = TimelineEventId.NOTIFICATION_RADD_RETRIEVED.buildEventId(eventId);
 

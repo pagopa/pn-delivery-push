@@ -526,7 +526,7 @@ public enum TimelineEventId {
                     .build();
         }
     },
-    NOTIFICATION_RADD_RETRIEVED("NOTIFICATION_RADD_RETIREVED") {
+    NOTIFICATION_RADD_RETRIEVED("NOTIFICATION_RADD_RETRIEVED") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
