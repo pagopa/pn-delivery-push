@@ -1,30 +1,38 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.webhook.EventTimelineInternalDto;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
-import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
+import it.pagopa.pn.deliverypush.exceptions.PnWebhookStreamNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
+import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineElementWebhookMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
+import jdk.jfr.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
@@ -38,6 +46,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private final SchedulerService schedulerService;
     private final WebhookUtils webhookUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private final TimelineService timelineService;
 
     private final Set<String> defaultCategories;
     private final Set<String> defaultNotificationStatuses;
@@ -45,12 +54,13 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private static final String DEFAULT_CATEGORIES = "DEFAULT";
 
 
-    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs, TimelineService timelineService) {
         this.streamEntityDao = streamEntityDao;
         this.eventEntityDao = eventEntityDao;
         this.schedulerService = schedulerService;
         this.webhookUtils = webhookUtils;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.timelineService = timelineService;
         this.defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
         this.defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
         this.defaultCategoriesPa = getCategoriesPa();
@@ -64,46 +74,64 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
         String lastEventId) {
         // grazie al contatore atomico usato in scrittura per generare l'eventId, non serve più gestire la finestra.
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
-            .flatMap(stream -> {
-                verifyVersion(xPagopaPnCxGroups, xPagopaPnApiVersion, stream);
-                return eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId);
-            })
-            .map(res -> {
-
-                List<ProgressResponseElementV23> eventList = res.getEvents().stream()
-                        .filter(eventEntity -> eventEntity.getTimestamp() != null) // Filtra solo gli eventi con timestamp non nulli
-                        .map(ProgressResponseElementMapper::internalToExternalv23)
-                        .sorted(Comparator.comparing(ProgressResponseElementV23::getEventId))
-                        .toList();
-
-                var retryAfter = pnDeliveryPushConfigs.getWebhook().getScheduleInterval().intValue();
-
-                int currentRetryAfter = res.getLastEventIdRead() == null ? retryAfter : 0;
-
-                var purgeDeletionWaittime = pnDeliveryPushConfigs.getWebhook().getPurgeDeletionWaittime();
-
-                log.info("consumeEventStream lastEventId={} streamId={} size={} returnedlastEventId={} retryAfter={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"), currentRetryAfter);
-                // schedulo la pulizia per gli eventi precedenti a quello richiesto
-                schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventId, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM_OLDER_THAN);
-                // ritorno gli eventi successivi all'evento di buffer, FILTRANDO quello con lastEventId visto che l'ho sicuramente già ritornato
-                return ProgressResponseElementDto.builder()
-                    .retryAfter(currentRetryAfter)
-                    .progressResponseElementList(eventList)
-                    .build();
-            });
+                .switchIfEmpty(Mono.error(new PnWebhookStreamNotFoundException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
+                .flatMap(stream -> webhookUtils.verifyVersion(xPagopaPnCxGroups, xPagopaPnApiVersion, stream))
+                .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
+                .flatMap(res ->
+                    toEventTimelineInternalFromEventEntity(res.getEvents(), xPagopaPnApiVersion)
+                            //timeline ancora anonimizzato - EventEntity + TimelineElementInternal
+                            .collectList()
+                            // chiamo timelineService per aggiungere le confidentialInfo
+                            .flatMapMany(items -> {
+                                if (xPagopaPnApiVersion.equalsIgnoreCase("V10"))
+                                    return Flux.fromStream(items.stream());
+                                return timelineService.addConfidentialInformationAtEventTimelineList(items);
+                            })
+                            // converto l'eventTimelineInternalDTO in ProgressResponseElementV23
+                            .map(eventTimeline -> getProgressResponseFromEventTimeline(eventTimeline, xPagopaPnApiVersion))
+                            .sort(Comparator.comparing(ProgressResponseElementV23::getEventId))
+                            .collectList()
+                            .map(eventList -> {
+                                var retryAfter = pnDeliveryPushConfigs.getWebhook().getScheduleInterval().intValue();
+                                int currentRetryAfter = res.getLastEventIdRead() == null ? retryAfter : 0;
+                                var purgeDeletionWaittime = pnDeliveryPushConfigs.getWebhook().getPurgeDeletionWaittime();
+                                log.info("consumeEventStream lastEventId={} streamId={} size={} returnedlastEventId={} retryAfter={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"), currentRetryAfter);
+                                // schedulo la pulizia per gli eventi precedenti a quello richiesto
+                                schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventId, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM_OLDER_THAN);
+                                // ritorno gli eventi successivi all'evento di buffer, FILTRANDO quello con lastEventId visto che l'ho sicuramente già ritornato
+                                return ProgressResponseElementDto.builder()
+                                        .retryAfter(currentRetryAfter)
+                                        .progressResponseElementList(eventList)
+                                        .build();
+                            })
+                );
     }
 
-    private static void verifyVersion(List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, StreamEntity stream) {
+    private ProgressResponseElementV23 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline, String version) {
+        var response = ProgressResponseElementMapper.internalToExternalv23(eventTimeline.getEventEntity());
+        if (StringUtils.isBlank(version) || StringUtils.equalsIgnoreCase(version, "v23")) {
+            TimelineElementV23 timelineElementV23 = TimelineElementWebhookMapper.internalToExternal(eventTimeline.getTimelineElementInternal());
+            response.setElement(timelineElementV23);
+        }
+        return response;
+    }
 
-        if (StringUtils.equals(xPagopaPnApiVersion, "V10") && !StringUtils.equals(stream.getVersion(), "V10") ){
-                Mono.error(new PnWebhookForbiddenException("Not supported operation"));
+    private Flux<EventTimelineInternalDto> toEventTimelineInternalFromEventEntity(List<EventEntity> events, String version) {
+        return Flux.fromStream(events.stream())
+                .map(item -> {
+                    TimelineElementInternal timelineElementInternal = getTimelineInternalFromEventEntity(item, version);
+                    return EventTimelineInternalDto.builder()
+                            .eventEntity(item)
+                            .timelineElementInternal(timelineElementInternal)
+                            .build();
+                });
+    }
+
+    private TimelineElementInternal getTimelineInternalFromEventEntity(EventEntity entity, String version) {
+        if (StringUtils.isBlank(version) || StringUtils.equalsIgnoreCase(version, "v23")) {
+            return webhookUtils.getTimelineInternalFromEvent(entity);
         }
-        else {
-            if (!WebhookUtils.checkGroups(stream.getGroups(), xPagopaPnCxGroups)){
-                Mono.error(new PnWebhookForbiddenException("Not supported operation"));
-            }
-        }
+        return null;
     }
 
     @Override
@@ -135,7 +163,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
         }
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
         // c'è il caso in cui lo stato non cambia (e se lo stream vuolo solo i cambi di stato, lo ignoro)
-        if (!StringUtils.hasText(stream.getEventType()))
+        if (!org.springframework.util.StringUtils.hasText(stream.getEventType()))
         {
             log.warn("skipping saving because webhook stream configuration is not correct stream={}", stream);
             return Mono.empty();

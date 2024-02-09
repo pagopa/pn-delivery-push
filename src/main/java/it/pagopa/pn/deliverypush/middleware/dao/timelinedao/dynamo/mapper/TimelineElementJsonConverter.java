@@ -2,7 +2,9 @@ package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,19 @@ public class TimelineElementJsonConverter {
         try {
             return objectMapper.writeValueAsString(objectHashMap);
         } catch (JsonProcessingException ex) {
+            log.error("Timeline element entity not converted into JSON");
+            return null;
+        }
+    }
+
+    public TimelineElementEntity jsonToEntity(String json) {
+        try {
+            objectMapper.registerModule(new JavaTimeModule());
+            return objectMapper.readValue(json, TimelineElementEntity.class);
+        }  catch (JsonMappingException e) {
+            log.error("Timeline element entity not converted into JSON");
+            return null;
+        } catch (JsonProcessingException e) {
             log.error("Timeline element entity not converted into JSON");
             return null;
         }

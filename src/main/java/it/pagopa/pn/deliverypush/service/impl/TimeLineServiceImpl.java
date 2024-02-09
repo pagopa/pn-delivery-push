@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.dto.webhook.EventTimelineInternalDto;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
@@ -39,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -171,6 +173,24 @@ public class TimeLineServiceImpl implements TimelineService {
 
     public Long retrieveAndIncrementCounterForTimelineEvent(String timelineId) {
         return this.timelineCounterEntityDao.getCounter(timelineId).getCounter();
+    }
+
+    @Override
+    public Flux<EventTimelineInternalDto> addConfidentialInformationAtEventTimelineList(List<EventTimelineInternalDto> eventEntities) {
+        List<TimelineElementInternal> timelineElementInternals = eventEntities.stream()
+                .map(EventTimelineInternalDto::getTimelineElementInternal)
+                .filter(Objects::nonNull)
+                .toList();
+
+        return this.confidentialInformationService.getTimelineConfidentialInformation(timelineElementInternals)
+                .map(confidentialInfo -> {
+                    // cerco l'elemento in TimelineElementInternals con iun + elementiId
+                    TimelineElementInternal internal = timelineElementInternals.get(0);
+                    enrichTimelineElementWithConfidentialInformation(internal.getDetails(), confidentialInfo);
+                    return internal;
+                })
+                .collectList()
+                .flatMapMany(item -> Flux.fromStream(eventEntities.stream()));
     }
 
     @Override

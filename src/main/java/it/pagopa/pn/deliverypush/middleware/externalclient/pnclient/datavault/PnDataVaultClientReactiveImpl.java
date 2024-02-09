@@ -4,6 +4,8 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementId;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault_reactive.api.NotificationsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault_reactive.api.RecipientsApi;
@@ -38,6 +40,21 @@ public class PnDataVaultClientReactiveImpl extends CommonBaseClient implements P
                 .onErrorResume( err -> {
                     log.error("Exception invoking getRecipientDenominationByInternalId with internalId list={} err ",listInternalId, err);
                     return Mono.error(new PnInternalException("Exception invoking getRecipientDenominationByInternalId ", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_UPDATEMETAFILEERROR, err));
+                });
+    }
+
+    @Override
+    @Retryable(
+            value = {PnInternalException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(random = true, delay = 500, maxDelay = 1000, multiplier = 2)
+    )
+    public Flux<ConfidentialTimelineElementDto> getNotificationTimelines(List<ConfidentialTimelineElementId> confidentialTimelineElementId) {
+        log.logInvokingExternalService(CLIENT_NAME, NOTIFICATION_TIMELINES_ADDRESS);
+        return notificationApi.getNotificationTimelines(confidentialTimelineElementId)
+                .onErrorResume( err -> {
+                    log.error("Exception invoking getNotificationTimelines with confidentialTimelineElementId list={} err ", confidentialTimelineElementId, err);
+                    return Mono.error(new PnInternalException("Exception invoking getNotificationTimelines ", PnDeliveryPushExceptionCodes.ERROR_CODE_DATAVAULT_FAILED, err));
                 });
     }
 

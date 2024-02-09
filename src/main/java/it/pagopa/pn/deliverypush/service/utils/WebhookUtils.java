@@ -6,8 +6,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementJsonConverter;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
@@ -29,12 +31,15 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
 public class WebhookUtils {
     private final DtoToEntityTimelineMapper mapperTimeline;
+    private final EntityToDtoTimelineMapper entityToDtoTimelineMapper;
     private final TimelineElementJsonConverter timelineElementJsonConverter;
     private final TimelineService timelineService;
     private final StatusService statusService;
@@ -42,10 +47,11 @@ public class WebhookUtils {
     private final Duration ttl;
 
     public WebhookUtils(TimelineService timelineService, StatusService statusService, NotificationService notificationService,
-                            PnDeliveryPushConfigs pnDeliveryPushConfigs, DtoToEntityTimelineMapper mapperTimeline, TimelineElementJsonConverter timelineElementJsonConverter) {
+                        PnDeliveryPushConfigs pnDeliveryPushConfigs, DtoToEntityTimelineMapper mapperTimeline, EntityToDtoTimelineMapper entityToDtoTimelineMapper, TimelineElementJsonConverter timelineElementJsonConverter) {
         this.timelineService = timelineService;
         this.statusService = statusService;
         this.notificationService = notificationService;
+        this.entityToDtoTimelineMapper = entityToDtoTimelineMapper;
         PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
         this.ttl = webhookConf.getTtl();
         this.mapperTimeline = mapperTimeline;
@@ -102,6 +108,33 @@ public class WebhookUtils {
         eventEntity.setElement(this.timelineElementJsonConverter.entityToJson(timelineElementEntity));
 
         return eventEntity;
+    }
+
+    public TimelineElementInternal getTimelineInternalFromEvent(EventEntity entity) {
+        TimelineElementEntity timelineElementEntity = this.timelineElementJsonConverter.jsonToEntity(entity.getElement());
+        return entityToDtoTimelineMapper.entityToDto(timelineElementEntity);
+    }
+
+    public Mono<StreamEntity> verifyVersion(List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, StreamEntity stream) {
+        var isStreamVersionNull = org.apache.commons.lang3.StringUtils.isBlank(stream.getVersion());
+        var isStreamVersionV10 = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(stream.getVersion(), "V10");
+        var isStreamVersionV23 = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(stream.getVersion(), "V23");
+        var isStreamVersionV23Plus = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(stream.getVersion(), "V23+");
+
+        var isApiKeyVersionV10 = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(xPagopaPnApiVersion, "V10");
+        var isApiKeyVersionV23 = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(xPagopaPnApiVersion, "V23");
+
+        if ((!isStreamVersionNull && isStreamVersionV10) && isApiKeyVersionV10){
+            return Mono.just(stream);
+        }
+        if ((isStreamVersionNull || isStreamVersionV23) && isApiKeyVersionV23 && WebhookUtils.checkGroups(stream.getGroups(), xPagopaPnCxGroups)){
+            return Mono.just(stream);
+        }
+        if (!isStreamVersionNull && isStreamVersionV23Plus && (CollectionUtils.isEmpty(xPagopaPnCxGroups) || WebhookUtils.checkGroups(stream.getGroups(), xPagopaPnCxGroups))) {
+            return Mono.just(stream);
+        }
+
+        return Mono.error(new PnWebhookForbiddenException("Not supported operation"));
     }
 
 
