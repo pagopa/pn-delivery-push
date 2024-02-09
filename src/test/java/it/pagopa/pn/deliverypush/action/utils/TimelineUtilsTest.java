@@ -22,13 +22,16 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Base64Utils;
 
 import java.time.Duration;
@@ -36,7 +39,9 @@ import java.time.Instant;
 import java.util.*;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(SpringExtension.class)
 class TimelineUtilsTest {
 
     @Mock
@@ -44,6 +49,8 @@ class TimelineUtilsTest {
 
     @Mock
     private TimelineService timelineService;
+    @Mock
+    private NotificationProcessCostService notificationProcessCostService;
 
     private TimelineUtils timelineUtils;
 
@@ -52,7 +59,9 @@ class TimelineUtilsTest {
         instantNowSupplier = Mockito.mock(InstantNowSupplier.class);
         timelineService = Mockito.mock(TimelineService.class);
 
-        timelineUtils = new TimelineUtils(instantNowSupplier, timelineService);
+
+        timelineUtils = new TimelineUtils(instantNowSupplier, timelineService, notificationProcessCostService);
+        when(notificationProcessCostService.getSendFee()).thenReturn(100);
     }
 
     @Test

@@ -47,13 +47,19 @@ exports.mapEvents = async (events) => {
     const timelineObj = parseKinesisObjToJsonObj(
       filteredEvent.dynamodb.NewImage
     );
+    
+    let vat = timelineObj.details?.vat ?? undefined;
+    let analogCost = timelineObj.details?.analogCost ?? undefined;  
+    let analogCostWithVat = getCostWithVat(vat, analogCost);
+    
+    console.log("vat="+vat+ " analogCost="+analogCost+" analogCostWithVat="+analogCostWithVat);
 
     const resultElementBody = {
       // common to all events
       iun: timelineObj.iun,
       // common to all handled paper events
       recIndex: timelineObj.details?.recIndex ?? undefined,
-      notificationStepCost: timelineObj.details?.analogCost ?? undefined,
+      notificationStepCost: analogCostWithVat != undefined ? analogCostWithVat : analogCost,
       eventTimestamp: timelineObj.timestamp,
       eventStorageTimestamp: timelineObj.timestamp,
     };
@@ -128,3 +134,14 @@ exports.mapEvents = async (events) => {
   }
   return result;
 };
+
+
+function getCostWithVat(vat, cost) {
+  let costWithVat = undefined;
+  if (vat && cost) {
+      let vatToSum = cost * vat / 100;
+      let completeCostWithVat = Number(cost) + Number(vatToSum);
+      costWithVat = Math.round(completeCostWithVat);
+  }
+  return costWithVat;
+}

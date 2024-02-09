@@ -7,11 +7,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import java.util.Collections;
 import java.util.List;
@@ -167,12 +163,13 @@ class PnInternalLegalFactsControllerTest {
 
     @Test
     void getLegalFactsOk() {
-        LegalFactDownloadMetadataResponse legalFactDownloadMetadataResponse =
-                new LegalFactDownloadMetadataResponse()
+        LegalFactDownloadMetadataWithContentTypeResponse legalFactDownloadMetadataResponse =
+                new LegalFactDownloadMetadataWithContentTypeResponse()
                         .filename("filename.pdf")
+                        .contentType("application/pdf")
                         .url("url.com");
 
-        Mockito.when(getLegalFactService.getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
+        Mockito.when(getLegalFactService.getLegalFactMetadataWithContentType(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
                 .thenReturn(Mono.just(legalFactDownloadMetadataResponse));
 
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
@@ -192,13 +189,13 @@ class PnInternalLegalFactsControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(getLegalFactService).getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any());
+        Mockito.verify(getLegalFactService).getLegalFactMetadataWithContentType(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any());
     }
 
     @Test
     void getLegalFactsKoNotFound() {
 
-        Mockito.when(getLegalFactService.getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
+        Mockito.when(getLegalFactService.getLegalFactMetadataWithContentType(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
                 .thenThrow(new PnNotFoundException("Authorization Failed", "No auth", ERROR_CODE_DELIVERYPUSH_NOTFOUND));
 
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
@@ -226,13 +223,13 @@ class PnInternalLegalFactsControllerTest {
                         }
                 );
 
-        Mockito.verify(getLegalFactService).getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any());
+        Mockito.verify(getLegalFactService).getLegalFactMetadataWithContentType(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any());
     }
 
     @Test
     void getLegalFactsKoRuntimeEx() {
 
-        Mockito.when(getLegalFactService.getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
+        Mockito.when(getLegalFactService.getLegalFactMetadataWithContentType(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
                 .thenThrow(new NullPointerException());
 
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
@@ -258,7 +255,7 @@ class PnInternalLegalFactsControllerTest {
                         }
                 );
 
-        Mockito.verify(getLegalFactService).getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any());
+        Mockito.verify(getLegalFactService).getLegalFactMetadataWithContentType(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any());
     }
 
     @Test
@@ -275,13 +272,13 @@ class PnInternalLegalFactsControllerTest {
 
     void getLegalFactsCancelledNotFound(String type) {
 
-        LegalFactDownloadMetadataResponse legalFactDownloadMetadataResponse =
-            new LegalFactDownloadMetadataResponse()
+        LegalFactDownloadMetadataWithContentTypeResponse legalFactDownloadMetadataWithContentTypeResponse =
+            new LegalFactDownloadMetadataWithContentTypeResponse()
                 .filename("filename.pdf")
                 .url("url.com");
 
-        Mockito.when(getLegalFactService.getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
-            .thenReturn(Mono.just(legalFactDownloadMetadataResponse));
+        Mockito.when(getLegalFactService.getLegalFactMetadataWithContentType(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
+            .thenReturn(Mono.just(legalFactDownloadMetadataWithContentTypeResponse));
 
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(true);
 
@@ -313,13 +310,13 @@ class PnInternalLegalFactsControllerTest {
 
     @Test
     void getLegalFactsCancelledPATest(){
-        LegalFactDownloadMetadataResponse legalFactDownloadMetadataResponse =
-            new LegalFactDownloadMetadataResponse()
+        LegalFactDownloadMetadataWithContentTypeResponse legalFactDownloadMetadataWithContentTypeResponse =
+            new LegalFactDownloadMetadataWithContentTypeResponse()
                 .filename("filename.pdf")
                 .url("url.com");
 
-        Mockito.when(getLegalFactService.getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
-            .thenReturn(Mono.just(legalFactDownloadMetadataResponse));
+        Mockito.when(getLegalFactService.getLegalFactMetadataWithContentType(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
+            .thenReturn(Mono.just(legalFactDownloadMetadataWithContentTypeResponse));
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(true);
 
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
@@ -339,6 +336,6 @@ class PnInternalLegalFactsControllerTest {
             .expectStatus()
             .isOk();
 
-        Mockito.verify(getLegalFactService).getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any());
+        Mockito.verify(getLegalFactService).getLegalFactMetadataWithContentType(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any());
     }
 }

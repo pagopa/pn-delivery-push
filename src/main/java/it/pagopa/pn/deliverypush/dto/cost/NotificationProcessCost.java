@@ -11,7 +11,12 @@ import java.time.Instant;
 @EqualsAndHashCode
 @ToString
 public class NotificationProcessCost {
-    private int cost;
+    private int partialCost;
+    private Integer totalCost;
+    private int analogCost;
+    private int sendFee;
+    private Integer vat;
+    private Integer paFee;
     private Instant notificationViewDate;
     private Instant refinementDate;
 }

@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationStatus;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV21;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV23;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery_reactive.api.InternalOnlyApi;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class PnDeliveryClientReactiveImpl extends CommonBaseClient implements Pn
     private final InternalOnlyApi pnDeliveryApi;
     
     @Override
-    public Mono<SentNotificationV21> getSentNotification(String iun) {
+    public Mono<SentNotificationV23> getSentNotification(String iun) {
         log.logInvokingExternalService(CLIENT_NAME, GET_NOTIFICATION);
         
         return pnDeliveryApi.getSentNotificationPrivate(iun)
