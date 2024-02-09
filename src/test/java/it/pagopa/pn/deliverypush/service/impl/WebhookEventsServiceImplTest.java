@@ -5,8 +5,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.webhook.EventTimelineInternalDto;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
-import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
+import it.pagopa.pn.deliverypush.exceptions.PnWebhookStreamNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
@@ -247,6 +248,8 @@ class WebhookEventsServiceImplTest {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
         String lasteventid = null;
+        List<String> xPagopaPnCxGroups = new ArrayList<>();
+        String xPagopaPnApiVersion = "V10";
 
 
         UUID uuidd = UUID.randomUUID();
@@ -292,11 +295,12 @@ class WebhookEventsServiceImplTest {
 
         Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.when(webhookUtils.verifyVersion(Mockito.any(), Mockito.anyString(), Mockito.any())).thenReturn(Mono.just(entity));
         Mockito.when(eventEntityDao.findByStreamId(uuid, lasteventid)).thenReturn(Mono.just(eventEntityBatch));
 
 
         //WHEN
-        ProgressResponseElementDto res = webhookEventsService.consumeEventStream(xpagopacxid,null,null, uuidd, lasteventid).block(d);
+        ProgressResponseElementDto res = webhookEventsService.consumeEventStream(xpagopacxid,xPagopaPnCxGroups,xPagopaPnApiVersion, uuidd, lasteventid).block(d);
 
         //THEN
         assertNotNull(res);
@@ -312,6 +316,8 @@ class WebhookEventsServiceImplTest {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
         String lasteventid;
+        List<String> xPagopaPnCxGroups = new ArrayList<>();
+        String xPagopaPnApiVersion = "V23";
 
 
         UUID uuidd = UUID.randomUUID();
@@ -353,20 +359,28 @@ class WebhookEventsServiceImplTest {
         eventEntityBatch.setStreamId(uuid);
         eventEntityBatch.setLastEventIdRead(null);
 
+        TimelineElementInternal timelineElementInternal = new TimelineElementInternal();
+
 
         lasteventid = list.get(0).getEventId();
 
         Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.when(webhookUtils.verifyVersion(Mockito.any(), Mockito.anyString(), Mockito.any())).thenReturn(Mono.just(entity));
+        Mockito.when(webhookUtils.getTimelineInternalFromEvent(Mockito.any())).thenReturn(timelineElementInternal);
+        Mockito.when(timelineService.addConfidentialInformationAtEventTimelineList(Mockito.anyList())).thenReturn(Flux.just(EventTimelineInternalDto.builder()
+                .eventEntity(eventEntity)
+                .timelineElementInternal(timelineElementInternal)
+                .build()));
         Mockito.when(eventEntityDao.findByStreamId(Mockito.anyString() , Mockito.anyString())).thenReturn(Mono.just(eventEntityBatch));
 
 
         //WHEN
-        ProgressResponseElementDto res = webhookEventsService.consumeEventStream(xpagopacxid,null,null, uuidd, lasteventid).block(d);
+        ProgressResponseElementDto res = webhookEventsService.consumeEventStream(xpagopacxid,xPagopaPnCxGroups,xPagopaPnApiVersion, uuidd, lasteventid).block(d);
 
         //THEN
         assertNotNull(res);
-        assertEquals(list.size(), res.getProgressResponseElementList().size());
+        assertEquals(1, res.getProgressResponseElementList().size());
         Mockito.verify(streamEntityDao).get(xpagopacxid, uuid);
         Mockito.verify(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
     }
@@ -389,7 +403,7 @@ class WebhookEventsServiceImplTest {
 
         //WHEN
         Mono<ProgressResponseElementDto> mono = webhookEventsService.consumeEventStream(xpagopacxid, null,null,uuidd, lasteventid);
-        assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
+        assertThrows(PnWebhookStreamNotFoundException.class, () -> mono.block(d));
 
         //THEN
         Mockito.verify(eventEntityDao, Mockito.never()).findByStreamId(Mockito.anyString(), Mockito.any());
