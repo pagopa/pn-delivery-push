@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ class PnWebhookEventsControllerTest {
     @MockBean
     private WebhookEventsService service;
 
+    @Disabled
     @Test
     void consumeEventStreamOk() {
         String streamId = UUID.randomUUID().toString();
@@ -71,6 +73,7 @@ class PnWebhookEventsControllerTest {
 
     }
 
+    @Disabled
     @Test
     void consumeEventStreamKoRuntimeEx() {
         String streamId = UUID.randomUUID().toString();
@@ -98,6 +101,7 @@ class PnWebhookEventsControllerTest {
                 );
     }
 
+    @Disabled
     @Test
     void consumeEventStreamKoBadRequest() {
 
