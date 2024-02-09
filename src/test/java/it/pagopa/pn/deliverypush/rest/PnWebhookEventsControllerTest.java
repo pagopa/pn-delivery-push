@@ -33,8 +33,8 @@ class PnWebhookEventsControllerTest {
     @MockBean
     private WebhookEventsService service;
 
-    @Disabled
     @Test
+    @Disabled
     void consumeEventStreamOk() {
         String streamId = UUID.randomUUID().toString();
         List<ProgressResponseElementV23> timelineElements = Collections.singletonList(ProgressResponseElementV23.builder()
@@ -73,8 +73,8 @@ class PnWebhookEventsControllerTest {
 
     }
 
-    @Disabled
     @Test
+    @Disabled
     void consumeEventStreamKoRuntimeEx() {
         String streamId = UUID.randomUUID().toString();
 
@@ -101,8 +101,8 @@ class PnWebhookEventsControllerTest {
                 );
     }
 
-    @Disabled
     @Test
+    @Disabled
     void consumeEventStreamKoBadRequest() {
 
         Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.anyString(),Mockito.any(UUID.class), Mockito.anyString()))

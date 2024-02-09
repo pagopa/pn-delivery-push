@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
@@ -17,12 +16,15 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.unit.DataSize;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
@@ -244,7 +246,11 @@ public class AttachmentUtils {
 
     }
 
-    private void addNotificationF24PaymentsUrl(List<String> attachments, NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex) {
+    private void addNotificationF24PaymentsUrl(List<String> attachments,
+                                               NotificationInt notification,
+                                               NotificationRecipientInt recipient,
+                                               Integer recIndex
+    ) {
         List<F24Int> f24Payments = recipient.getPayments().stream()
                 .map(NotificationPaymentInfoInt::getF24)
                 .filter(Objects::nonNull)
@@ -254,21 +260,31 @@ public class AttachmentUtils {
         if(f24Payments.isEmpty()) {
             return;
         }
-
+        
+        //Se una notifica ha almeno un flag applyCost a true è sicuramente DELIVERY_MODE (è presente un controllo in fase di creazione notifica)
         boolean f24PaymentsRequireCost = f24Payments.stream().anyMatch(F24Int::getApplyCost);
         Integer cost = null;
-        // Se almeno uno dei pagamenti F24 ha applyCost = true, devo calcolare il costo della notifica
+        Integer vat = null;
+        
+        // Se almeno uno dei pagamenti F24 ha applyCost = true, devo calcolare il costo della notifica e valorizzare il campo vat se presente
         if(f24PaymentsRequireCost) {
             cost = retrieveCost(notification, recIndex);
+            vat = notification.getVat();
         }
 
-        attachments.add(getF24Url(notification.getIun(), recIndex, cost));
+        attachments.add(getF24Url(notification.getIun(), recIndex, cost, vat));
     }
 
     private Integer retrieveCost(NotificationInt notificationInt, int recipientIdx) {
-        return notificationProcessCostService.notificationProcessCost(notificationInt.getIun(), recipientIdx, notificationInt.getNotificationFeePolicy(), true, notificationInt.getPaFee())
-                    .map(NotificationProcessCost::getCost)
-                    .block();
+        return notificationProcessCostService.notificationProcessCostF24(
+                notificationInt.getIun(),
+                        recipientIdx,
+                        notificationInt.getNotificationFeePolicy(),
+                        notificationInt.getPaFee(),
+                        notificationInt.getVat(),
+                        notificationInt.getVersion()
+                )
+                .block();
     }
 
     private boolean checkIsPDF(byte[] data) {
@@ -283,16 +299,18 @@ public class AttachmentUtils {
                 data[4] == 0x2D;   // -
     }
 
-    public String getF24Url(String iun, Integer recIndex, Integer cost) {
+    public String getF24Url(String iun, Integer recIndex, Integer cost, Integer vat) {
         StringBuilder stringBuilder = new StringBuilder(F24_URL_PREFIX);
         stringBuilder.append(iun);
         stringBuilder.append("/");
         stringBuilder.append(recIndex);
+        String basePathF24 = stringBuilder.toString();
 
-        if (cost != null && cost > 0) {
-            stringBuilder.append("?cost=");
-            stringBuilder.append(cost);
-        }
-        return stringBuilder.toString();
+        UriComponentsBuilder f24Uri = UriComponentsBuilder.fromUriString(basePathF24);
+
+        if (cost != null && cost > 0) f24Uri.queryParam("cost", cost);
+        if (vat != null) f24Uri.queryParam("vat", vat);
+        
+        return f24Uri.toUriString();
     }
 }

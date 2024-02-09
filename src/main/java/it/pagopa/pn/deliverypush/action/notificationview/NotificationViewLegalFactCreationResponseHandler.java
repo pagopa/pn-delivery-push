@@ -56,7 +56,7 @@ public class NotificationViewLegalFactCreationResponseHandler {
                 RaddInfo raddInfo = getRaddInfo(timelineDetails);
                 
                 MDCUtils.addMDCToContextAndExecute(
-                        notificationCost.getNotificationCost(notification, recIndex)
+                        notificationCost.getNotificationCostForViewed(notification, recIndex)
                                 .doOnSuccess( cost -> log.info("Completed getNotificationCost cost={}- iun={} id={}", cost, notification.getIun(), recIndex))
                                 .flatMap(responseCost -> {
                                     Integer cost = responseCost.orElse(null);

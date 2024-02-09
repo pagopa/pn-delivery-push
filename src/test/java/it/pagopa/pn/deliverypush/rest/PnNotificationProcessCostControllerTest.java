@@ -29,10 +29,10 @@ class PnNotificationProcessCostControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private NotificationProcessCostService service;
+    NotificationProcessCostService service;
 
     @MockBean
-    private TimelineUtils timelineUtils;
+    TimelineUtils timelineUtils;
 
     @Test
     void notificationProcessCost() {
@@ -40,16 +40,23 @@ class PnNotificationProcessCostControllerTest {
         int recIndex = 0;
         NotificationFeePolicy notificationFeePolicy = NotificationFeePolicy.DELIVERY_MODE;
         Boolean applyCost = true;
-
+        int paFee = 100;
+        int vat = 22;
+        
         final NotificationProcessCost notificationCost = NotificationProcessCost.builder()
                 .refinementDate(Instant.now())
                 .notificationViewDate(Instant.now().plus(Duration.ofDays(1)))
-                .cost(100)
+                .partialCost(100)
+                .totalCost(200)
+                .paFee(paFee)
+                .vat(vat)
+                .analogCost(50)
+                .sendFee(100)
                 .build();
 
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
 
-        Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, null))
+        Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee, vat))
                 .thenReturn(Mono.just(notificationCost));
         
         webTestClient.get()
@@ -58,6 +65,8 @@ class PnNotificationProcessCostControllerTest {
                                 .path("/delivery-push-private/"+iun+"/notification-process-cost/"+recIndex )
                                 .queryParam("notificationFeePolicy", notificationFeePolicy.getValue())
                                 .queryParam("applyCost", applyCost)
+                                .queryParam("paFee", paFee)
+                                .queryParam("vat", vat)
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -68,9 +77,14 @@ class PnNotificationProcessCostControllerTest {
                 elem -> {
                     NotificationProcessCostResponse response = elem.getResponseBody();
                     assert response != null;
-                    Assertions.assertEquals(notificationCost.getCost(),response.getAmount());
+                    Assertions.assertEquals(notificationCost.getPartialCost(),response.getPartialCost());
+                    Assertions.assertEquals(notificationCost.getTotalCost(),response.getTotalCost());
+                    Assertions.assertEquals(notificationCost.getAnalogCost(),response.getAnalogCost());
                     Assertions.assertEquals(notificationCost.getNotificationViewDate(),response.getNotificationViewDate());
                     Assertions.assertEquals(notificationCost.getRefinementDate(),response.getRefinementDate());
+                    Assertions.assertEquals(notificationCost.getPaFee(),response.getPaFee());
+                    Assertions.assertEquals(notificationCost.getVat(),response.getVat());
+                    Assertions.assertEquals(notificationCost.getSendFee(),response.getSendFee());
                 }
         );
     }
