@@ -184,8 +184,11 @@ public class TimeLineServiceImpl implements TimelineService {
 
         return this.confidentialInformationService.getTimelineConfidentialInformation(timelineElementInternals)
                 .map(confidentialInfo -> {
-                    // cerco l'elemento in TimelineElementInternals con iun + elementiId
-                    TimelineElementInternal internal = timelineElementInternals.get(0);
+                    // cerco l'elemento in TimelineElementInternals con elementiId
+                    TimelineElementInternal internal = timelineElementInternals.stream()
+                            .filter(i -> i.getElementId().equals(confidentialInfo.getTimelineElementId()))
+                            .findFirst()
+                            .get();
                     enrichTimelineElementWithConfidentialInformation(internal.getDetails(), confidentialInfo);
                     return internal;
                 })
