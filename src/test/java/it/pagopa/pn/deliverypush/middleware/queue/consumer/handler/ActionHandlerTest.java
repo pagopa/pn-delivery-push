@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -275,7 +274,6 @@ class ActionHandlerTest {
         verify(notificationValidationActionHandler).validateNotification(action.getIun(), (NotificationValidationActionDetails) action.getDetails());
     }
 
-    @Ignore //IVAN
     @Test
     void pnDeliveryPushNotificationAction() {
         //GIVEN
