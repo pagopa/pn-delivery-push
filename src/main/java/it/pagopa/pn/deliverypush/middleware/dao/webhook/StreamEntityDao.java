@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook;
 
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
-import java.util.UUID;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,7 +26,7 @@ public interface StreamEntityDao {
      */
     Mono<Long> updateAndGetAtomicCounter(StreamEntity streamEntity);
 
-    Mono<StreamEntity> replace(StreamEntity entity, UUID replacedStreamId);
+    Mono<StreamEntity> replaceEntity(StreamEntity replacedEntity, StreamEntity newEntity);
 
     Mono<StreamEntity> disable(StreamEntity entity);
 }
