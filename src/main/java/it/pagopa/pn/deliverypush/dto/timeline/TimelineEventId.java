@@ -41,7 +41,7 @@ public enum TimelineEventId {
         }
     },
 
-    NORMALIZED_ADDRESS("NORMALIZED_ADDRESS"){
+    NORMALIZED_ADDRESS("NORMALIZED_ADDRESS") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -51,7 +51,7 @@ public enum TimelineEventId {
                     .build();
         }
     },
-    
+
     REQUEST_ACCEPTED("REQUEST_ACCEPTED") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -63,7 +63,6 @@ public enum TimelineEventId {
     },
 
     SEND_COURTESY_MESSAGE("SEND_COURTESY_MESSAGE") {
-
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
@@ -76,7 +75,7 @@ public enum TimelineEventId {
         }
 
         @Override
-        public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex){
+        public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex) {
             return new TimelineEventIdBuilder()
                     .withCategory(this.getValue())
                     .withIun(iun)
@@ -96,7 +95,7 @@ public enum TimelineEventId {
                     .build();
         }
     },
-    
+
     GET_ADDRESS("GET_ADDRESS") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -139,7 +138,7 @@ public enum TimelineEventId {
         }
 
         @Override
-        public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex){
+        public String buildSearchEventIdByIunAndRecipientIndex(String iun, Integer recipientIndex) {
             return new TimelineEventIdBuilder()
                     .withCategory(this.getValue())
                     .withIun(iun)
@@ -147,7 +146,7 @@ public enum TimelineEventId {
                     .build();
         }
     },
-    
+
     SEND_ANALOG_FEEDBACK("SEND_ANALOG_FEEDBACK") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -279,7 +278,7 @@ public enum TimelineEventId {
                     .build();
         }
     },
-    
+
     DIGITAL_SUCCESS_WORKFLOW("DIGITAL_SUCCESS_WORKFLOW") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -346,7 +345,7 @@ public enum TimelineEventId {
                     .build();
         }
     },
-    
+
     NOTIFICATION_VIEWED("NOTIFICATION_VIEWED") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -460,7 +459,7 @@ public enum TimelineEventId {
                     .build();
         }
     },
-    
+
     AAR_GENERATION("AAR_GEN") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -471,7 +470,7 @@ public enum TimelineEventId {
                     .build();
         }
     },
-    
+
     NOT_HANDLED("NOT_HANDLED") {
         @Override
         public String buildEventId(EventId eventId) {
@@ -505,32 +504,38 @@ public enum TimelineEventId {
             }
             return paymentCode;
         }
-    }
-    ,
+    },
 
     NOTIFICATION_CANCELLATION_REQUEST("NOTIFICATION_CANCELLATION_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
-                .withCategory(this.getValue())
-                .withIun(eventId.getIun())
-                .build();
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .build();
         }
 
-    }
-    ,
+    },
 
     NOTIFICATION_CANCELLED("NOTIFICATION_CANCELLED") {
         @Override
         public String buildEventId(EventId eventId) {
             return new TimelineEventIdBuilder()
-                .withCategory(this.getValue())
-                .withIun(eventId.getIun())
-                .build();
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .build();
         }
-
-    }
-    ;
+    },
+    NOTIFICATION_RADD_RETRIEVED("NOTIFICATION_RADD_RETIREVED") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
+        }
+    };
 
     public String buildEventId(EventId eventId) {
         throw new UnsupportedOperationException("Must be implemented for each action type event ID");
@@ -546,7 +551,7 @@ public enum TimelineEventId {
 
     private final String value;
 
-    TimelineEventId(String value ) {
+    TimelineEventId(String value) {
         this.value = value;
     }
 

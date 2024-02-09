@@ -32,7 +32,7 @@ public enum TimelineElementCategoryInt {
     PREPARE_SIMPLE_REGISTERED_LETTER(BaseRegisteredLetterDetailsInt.class, TimelineElementCategoryV23.PREPARE_SIMPLE_REGISTERED_LETTER.getValue(), TimelineElementCategoryInt.VERSION_10),
     SEND_SIMPLE_REGISTERED_LETTER(SimpleRegisteredLetterDetailsInt.class, TimelineElementCategoryV23.SEND_SIMPLE_REGISTERED_LETTER.getValue(), TimelineElementCategoryInt.VERSION_10),
     NOTIFICATION_VIEWED_CREATION_REQUEST(NotificationViewedCreationRequestDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_VIEWED_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_10),
-    NOTIFICATION_VIEWED(NotificationViewedDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_VIEWED.getValue(), TimelineElementCategoryInt.VERSION_10),
+    NOTIFICATION_VIEWED(NotificationViewedDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_VIEWED.getValue(), TimelineElementCategoryInt.VERSION_23),
     PREPARE_ANALOG_DOMICILE(BaseAnalogDetailsInt.class, TimelineElementCategoryV23.PREPARE_ANALOG_DOMICILE.getValue(), TimelineElementCategoryInt.VERSION_10),
     PREPARE_ANALOG_DOMICILE_FAILURE(PrepareAnalogDomicileFailureDetailsInt.class, TimelineElementCategoryV23.PREPARE_ANALOG_DOMICILE_FAILURE.getValue(), TimelineElementCategoryInt.VERSION_20),
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategoryV23.SEND_ANALOG_DOMICILE.getValue(), TimelineElementCategoryInt.VERSION_10),

@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT;
@@ -49,7 +50,7 @@ class TimelineEventIdBuilderTest {
                 .builder()
                 .iun(IUN)
                 .build());
-        
+
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
     }
 
@@ -72,7 +73,7 @@ class TimelineEventIdBuilderTest {
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
     }
-    
+
     @Test
     void buildREQUEST_ACCEPTEDTest() {
         String timeLineEventIdExpected = "REQUEST_ACCEPTED.IUN_KWKU-JHXN-HJXM-202304-U-1";
@@ -128,22 +129,22 @@ class TimelineEventIdBuilderTest {
         //vecchia versione 123456789_send_courtesy_message_0_type_SMS
         String timeLineEventIdExpected = "SEND_COURTESY_MESSAGE.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0.COURTESYADDRESSTYPE_APPIO.OPTIN";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
-            .withCategory(TimelineEventId.SEND_COURTESY_MESSAGE.getValue())
-            .withIun(IUN)
-            .withRecIndex(0)
-            .withCourtesyAddressType(COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
-            .withOptin(Boolean.TRUE)
-            .build();
+                .withCategory(TimelineEventId.SEND_COURTESY_MESSAGE.getValue())
+                .withIun(IUN)
+                .withRecIndex(0)
+                .withCourtesyAddressType(COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+                .withOptin(Boolean.TRUE)
+                .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
 
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId
-            .builder()
-            .iun(IUN)
-            .recIndex(0)
-            .courtesyAddressType(COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
-            .optin(Boolean.TRUE)
-            .build());
+                .builder()
+                .iun(IUN)
+                .recIndex(0)
+                .courtesyAddressType(COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+                .optin(Boolean.TRUE)
+                .build());
 
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
@@ -324,7 +325,7 @@ class TimelineEventIdBuilderTest {
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
     }
-    
+
     @Test
     void buildSEND_DIGITAL_DOMICILETest() {
         //vecchia versione 123456789_send_digital_domicile_1_source_PLATFORM_attempt_0
@@ -340,7 +341,7 @@ class TimelineEventIdBuilderTest {
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
         Assertions.assertTrue(timeLineEventIdActual.length() < 100); //Non si può andare oltre i 100 per vincolo su externalChannel
-        
+
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(EventId
                 .builder()
                 .iun(IUN)
@@ -921,37 +922,48 @@ class TimelineEventIdBuilderTest {
 
     @Test
     void buildNOTIFICATION_CANCELLATION_REQUESTTest() {
-        String timeLineEventIdExpected = String.format("NOTIFICATION_CANCELLATION_REQUEST.IUN_%s",IUN);
+        String timeLineEventIdExpected = String.format("NOTIFICATION_CANCELLATION_REQUEST.IUN_%s", IUN);
         String timeLineEventIdActual = new TimelineEventIdBuilder()
-            .withCategory(TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST.getValue())
-            .withIun(IUN)
-            .build();
+                .withCategory(TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST.getValue())
+                .withIun(IUN)
+                .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
 
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST.buildEventId(EventId
-            .builder()
-            .iun(IUN)
-            .build());
+                .builder()
+                .iun(IUN)
+                .build());
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
     }
 
     @Test
     void buildNOTIFICATION_CANCELLEDTest() {
-        String timeLineEventIdExpected = String.format("NOTIFICATION_CANCELLED.IUN_%s",IUN);
+        String timeLineEventIdExpected = String.format("NOTIFICATION_CANCELLED.IUN_%s", IUN);
         String timeLineEventIdActual = new TimelineEventIdBuilder()
-            .withCategory(TimelineEventId.NOTIFICATION_CANCELLED.getValue())
-            .withIun(IUN)
-            .build();
+                .withCategory(TimelineEventId.NOTIFICATION_CANCELLED.getValue())
+                .withIun(IUN)
+                .build();
 
         assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
 
         String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_CANCELLED.buildEventId(EventId
-            .builder()
-            .iun(IUN)
-            .build());
+                .builder()
+                .iun(IUN)
+                .build());
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+    }
+
+    @Test
+    void buildNOTIFICATION_RADD_RETRIEVEDTest() {
+
+        EventId eventId = new EventId().toBuilder().iun("testIun").recIndex(1).build();
+        String expectedEventId = "NOTIFICATION_RADD_RETIREVED.IUN_testIun.RECINDEX_1";
+
+        String actualEventId = TimelineEventId.NOTIFICATION_RADD_RETRIEVED.buildEventId(eventId);
+
+        assertEquals(expectedEventId, actualEventId);
     }
 }
