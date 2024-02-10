@@ -1206,7 +1206,7 @@ class TimelineUtilsTest {
                 .build();
 
 
-        String timelineEventIdExpected = "NOTIFICATION_RADD_RETIREVED.IUN_Example_IUN_1234_Test.RECINDEX_1";
+        String timelineEventIdExpected = "NOTIFICATION_RADD_RETRIEVED.IUN_Example_IUN_1234_Test.RECINDEX_1";
 
         TimelineElementInternal actual = timelineUtils.buildNotificationRaddRetrieveTimelineElement(
                 notification,
