@@ -47,19 +47,13 @@ exports.mapEvents = async (events) => {
     const timelineObj = parseKinesisObjToJsonObj(
       filteredEvent.dynamodb.NewImage
     );
-    
-    let vat = timelineObj.details?.vat ?? undefined;
-    let analogCost = timelineObj.details?.analogCost ?? undefined;  
-    let analogCostWithVat = getAnalogCostWithVat(vat, analogCost);
-    
-    console.log("vat="+vat+ " analogCost="+analogCost+" analogCostWithVat="+analogCostWithVat);
 
     const resultElementBody = {
       // common to all events
       iun: timelineObj.iun,
       // common to all handled paper events
       recIndex: timelineObj.details?.recIndex ?? undefined,
-      notificationStepCost: analogCostWithVat != undefined ? analogCostWithVat : analogCost,
+      notificationStepCost: timelineObj.details?.analogCost ?? undefined,
       eventTimestamp: timelineObj.timestamp,
       eventStorageTimestamp: timelineObj.timestamp,
     };
@@ -92,12 +86,14 @@ exports.mapEvents = async (events) => {
     switch (category) {
       case "SEND_SIMPLE_REGISTERED_LETTER":
         resultElementBody.updateCostPhase = "SEND_SIMPLE_REGISTERED_LETTER";
+        resultElementBody.vat = timelineObj.details?.vat ?? undefined;
         break;
 
       case "SEND_ANALOG_DOMICILE":
         const costPhase = updateCostPhaseForSendAnalogDomicile(timelineObj);
         if (costPhase) {
           resultElementBody.updateCostPhase = costPhase;
+          resultElementBody.vat = timelineObj.details?.vat ?? undefined;
         }
         break;
 
@@ -134,21 +130,3 @@ exports.mapEvents = async (events) => {
   }
   return result;
 };
-
-function getAnalogCostWithVat(vat, analogCost){
-  let analogCostWithVat = undefined;
-  if(analogCost != null && analogCost != undefined){
-    analogCostWithVat = getCostWithVat(vat, analogCost);
-  }
-  return analogCostWithVat;
-}
-
-function getCostWithVat(vat, cost) {
-  let costWithVat = undefined;
-  if (vat != null && vat != undefined && cost != null && cost != undefined) {
-      let vatToSum = cost * vat / 100;
-      let completeCostWithVat = Number(cost) + Number(vatToSum);
-      costWithVat = Math.round(completeCostWithVat);
-  }
-  return costWithVat;
-}

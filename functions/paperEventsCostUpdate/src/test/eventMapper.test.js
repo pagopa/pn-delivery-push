@@ -26,6 +26,7 @@ describe("event mapper tests", function () {
     expect(body.eventTimestamp).equal("2023-08-09T01:23:56.803455499Z");
     expect(body.eventStorageTimestamp).equal("2023-08-09T01:23:56.803455499Z");
     expect(body.updateCostPhase).equal("SEND_ANALOG_DOMICILE_ATTEMPT_0");
+    expect(body.vat).equal("22");
 
     expect(res[0].MessageAttributes.publisher.StringValue).equal(
       "deliveryPush"
@@ -63,6 +64,7 @@ describe("event mapper tests", function () {
     expect(body.eventTimestamp).equal("2023-08-09T01:23:56.803455499Z");
     expect(body.eventStorageTimestamp).equal("2023-08-09T01:23:56.803455499Z");
     expect(body.updateCostPhase).equal("SEND_ANALOG_DOMICILE_ATTEMPT_1");
+    expect(body.vat).equal("22");
 
     expect(res[0].MessageAttributes.publisher.StringValue).equal(
       "deliveryPush"
@@ -97,6 +99,7 @@ describe("event mapper tests", function () {
     expect(body.eventTimestamp).equal("2023-08-09T01:23:56.803455499Z");
     expect(body.eventStorageTimestamp).equal("2023-08-09T01:23:56.803455499Z");
     expect(body.updateCostPhase).equal("SEND_SIMPLE_REGISTERED_LETTER");
+    expect(body.vat).equal("22");
 
     expect(res[0].MessageAttributes.publisher.StringValue).equal(
       "deliveryPush"
@@ -208,32 +211,5 @@ describe("event mapper tests", function () {
     const res = await mapEvents(events);
 
     expect(res).length(0);
-  });
-
-  it("test SEND_ANALOG_DOMICILE ATTEMPT_0 with vat", async () => {
-    const eventJSON = fs.readFileSync(
-      "./src/test/events/eventMapper.send_analog_domicile_vat.json"
-    );
-    let event = JSON.parse(eventJSON);
-
-    const events = [event];
-
-    const res = await mapEvents(events);
-
-    expect(res).length(1);
-
-    let body = JSON.parse(res[0].MessageBody);
-    expect(body.iun).equal(iun);
-    expect(body.recIndex).equal("0");
-    expect(body.notificationStepCost).equal("1130");
-    expect(body.eventTimestamp).equal("2023-08-09T01:23:56.803455499Z");
-    expect(body.eventStorageTimestamp).equal("2023-08-09T01:23:56.803455499Z");
-    expect(body.updateCostPhase).equal("SEND_ANALOG_DOMICILE_ATTEMPT_0");
-
-    expect(res[0].MessageAttributes.publisher.StringValue).equal(
-      "deliveryPush"
-    );
-    expect(res[0].MessageAttributes.iun.StringValue).equal(iun);
-    expect(res[0].MessageAttributes.eventType.StringValue).equal(eventType);
   });
 });

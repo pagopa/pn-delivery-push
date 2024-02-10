@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TOTAL_COST_NOT_PRESENT;
+
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
@@ -7,7 +9,11 @@ import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogSendTimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleRefinementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
@@ -15,16 +21,13 @@ import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationCostResponseMapper;
 import it.pagopa.pn.deliverypush.utils.CostUtils;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Set;
-
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TOTAL_COST_NOT_PRESENT;
 
 @Service
 @Slf4j
@@ -171,8 +174,8 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
             if( timelineElement.getDetails() instanceof RecipientRelatedTimelineElementDetails timelineElementRec 
                     && recIndex == timelineElementRec.getRecIndex()){
                 
-                if ( timelineElement.getDetails() instanceof NotificationViewedDetailsInt ){
-                    notificationViewDate = timelineElement.getTimestamp();
+                if ( timelineElement.getDetails() instanceof NotificationViewedCreationRequestDetailsInt ){
+                    notificationViewDate = ((NotificationViewedCreationRequestDetailsInt) timelineElement.getDetails()).getEventTimestamp();
                 } else {
                     refinementDate = getRefinementDate(recIndex, refinementDate, timelineElement);
                 }
