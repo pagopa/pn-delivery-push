@@ -326,6 +326,6 @@ class ConfidentialInformationServiceImplTest {
 
         Mockito.when(pnDataVaultClientReactive.getNotificationTimelines(Mockito.any())).thenThrow(PnInternalException.class);
 
-        assertThrows(PnInternalException.class, () -> confidentialInformationService.getTimelineConfidentialInformation(List.of(timelineElementInternal)));
+        assertThrows(PnInternalException.class, () -> confidentialInformationService.getTimelineConfidentialInformation(List.of(timelineElementInternal)).blockFirst());
     }
 }
