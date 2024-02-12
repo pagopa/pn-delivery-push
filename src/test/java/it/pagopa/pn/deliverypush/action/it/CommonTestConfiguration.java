@@ -287,7 +287,6 @@ public class CommonTestConfiguration {
         pnSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
         pnSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION_RADD");
 
-        //Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList); OLD
         Mockito.when(cfg.getPnSendMode()).thenReturn(pnSendModeList);
 
         //quickWorkAroundForPN-9116
