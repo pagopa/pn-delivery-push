@@ -39,6 +39,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -56,8 +57,8 @@ class TimelineUtilsTest {
 
     @BeforeEach
     void setUp() {
-        instantNowSupplier = Mockito.mock(InstantNowSupplier.class);
-        timelineService = Mockito.mock(TimelineService.class);
+        instantNowSupplier = mock(InstantNowSupplier.class);
+        timelineService = mock(TimelineService.class);
 
 
         timelineUtils = new TimelineUtils(instantNowSupplier, timelineService, notificationProcessCostService);
@@ -132,11 +133,11 @@ class TimelineUtilsTest {
                 .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
                 .digitalAddress(legalDigitalAddressInt)
                 .build();
-        
-        TimelineElementInternal actual = 
+
+        TimelineElementInternal actual =
                 timelineUtils.buildDigitalFeedbackTimelineElement(
                         "digital_domicile_timeline_id_0",
-                        notification, 
+                        notification,
                         ResponseStatusInt.OK,
                         1,
                         ExtChannelDigitalSentResponseInt.builder()
@@ -149,7 +150,7 @@ class TimelineUtilsTest {
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
-                () -> Assertions.assertEquals(EventCodeInt.C003.getValue(), ((SendDigitalFeedbackDetailsInt)actual.getDetails()).getDeliveryDetailCode()),
+                () -> Assertions.assertEquals(EventCodeInt.C003.getValue(), ((SendDigitalFeedbackDetailsInt) actual.getDetails()).getDeliveryDetailCode()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
@@ -179,17 +180,17 @@ class TimelineUtilsTest {
                 .isFirstSendRetry(false)
                 .relatedFeedbackTimelineId(null)
                 .build();
-        
+
         TimelineElementInternal actual = timelineUtils.buildDigitalProgressFeedbackTimelineElement(
                 notification,
                 recIndex,
-                eventCode, 
-                shouldRetry, 
-                digitalMessageReference, 
+                eventCode,
+                shouldRetry,
+                digitalMessageReference,
                 progressIndex,
                 digitalAddressFeedback
         );
-        
+
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
@@ -208,7 +209,7 @@ class TimelineUtilsTest {
         Instant sendDate = Instant.parse("2021-09-16T15:24:00.00Z");
         String eventId = "eventID001";
         IoSendMessageResultInt ioSendMessageResultInt = IoSendMessageResultInt.SENT_OPTIN;
-        
+
         TimelineElementInternal actual = timelineUtils.buildSendCourtesyMessageTimelineElement(
                 recIndex, notification, address, sendDate, eventId, ioSendMessageResultInt
         );
@@ -228,7 +229,7 @@ class TimelineUtilsTest {
         SendResponse sendResponse = new SendResponse()
                 .amount(10);
 
-        String productType ="RN_AR";
+        String productType = "RN_AR";
         String timelineEventIdExpected = "SEND_SIMPLE_REGISTERED_LETTER#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(recIndex, notification, address, sendResponse, productType, "request_id", null);
@@ -258,7 +259,7 @@ class TimelineUtilsTest {
                 .isFirstSendRetry(false)
                 .relatedFeedbackTimelineId(null)
                 .build();
-        
+
         TimelineElementInternal actual = timelineUtils.buildSendDigitalNotificationTimelineElement(recIndex, notification, sendInformation, eventId);
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
@@ -277,7 +278,7 @@ class TimelineUtilsTest {
         SendResponse sendResponse = new SendResponse()
                 .amount(10);
 
-        String productType ="RN_AR";
+        String productType = "RN_AR";
         String timelineEventIdExpected = "SEND_ANALOG_DOMICILE#IUN_Example_IUN_1234_Test#RECINDEX_1#ATTEMPT_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
 
@@ -288,7 +289,7 @@ class TimelineUtilsTest {
                 .productType(productType)
                 .prepareRequestId("prepare_request_id")
                 .build();
-        
+
         TimelineElementInternal actual = timelineUtils.buildSendAnalogNotificationTimelineElement(
                 address, recIndex, notification, analogDtoInfo, List.of("replacedF24AttachmentUrls")
         );
@@ -431,9 +432,9 @@ class TimelineUtilsTest {
         int sentAttemptMade = 1;
         List<AttachmentDetailsInt> attachments = new ArrayList<>();
         attachments.add(AttachmentDetailsInt.builder().url("key").build());
-        
+
         SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder().build();
-        
+
         SendEventInt sendEventInt = SendEventInt.builder()
                 .statusDateTime(Instant.now())
                 .statusCode("KO")
@@ -472,7 +473,7 @@ class TimelineUtilsTest {
                 .operatorUuid("iioaxx11")
                 .internalId("internCF")
                 .build();
-        
+
         Instant eventTimestamp = Instant.now();
 
         TimelineElementInternal actual = timelineUtils.buildNotificationViewedTimelineElement(
@@ -527,7 +528,7 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
-                () -> Assertions.assertEquals(Instant.EPOCH.plusMillis(10), ((ScheduleDigitalWorkflowDetailsInt)actual.getDetails()).getSchedulingDate())
+                () -> Assertions.assertEquals(Instant.EPOCH.plusMillis(10), ((ScheduleDigitalWorkflowDetailsInt) actual.getDetails()).getSchedulingDate())
         );
     }
 
@@ -542,7 +543,7 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
-                () -> Assertions.assertEquals(Instant.EPOCH.plusMillis(10), ((ScheduleAnalogWorkflowDetailsInt)actual.getDetails()).getSchedulingDate())
+                () -> Assertions.assertEquals(Instant.EPOCH.plusMillis(10), ((ScheduleAnalogWorkflowDetailsInt) actual.getDetails()).getSchedulingDate())
         );
     }
 
@@ -570,7 +571,7 @@ class TimelineUtilsTest {
         Instant refDate = Instant.EPOCH.plusMillis(10);
 
         TimelineElementInternal actual = timelineUtils.buildRefinementTimelineElement(
-                notification, recIndex, notificationCost,true, refDate
+                notification, recIndex, notificationCost, true, refDate
         );
         String timelineEventIdExpected = "REFINEMENT#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
@@ -578,7 +579,7 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
-                () -> Assertions.assertEquals(Instant.EPOCH.plusMillis(10), ((RefinementDetailsInt)actual.getDetails()).getEventTimestamp())
+                () -> Assertions.assertEquals(Instant.EPOCH.plusMillis(10), ((RefinementDetailsInt) actual.getDetails()).getEventTimestamp())
         );
     }
 
@@ -606,11 +607,11 @@ class TimelineUtilsTest {
                         .iun(iun)
                         .recIndex(recIndex)
                         .build());
-        
+
         Mockito.when(timelineService.getTimelineElement(iun, creationRequestTimelineId)).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
-        
+
         boolean notificationIsAlreadyViewed = timelineUtils.checkIsNotificationViewed(iun, recIndex);
-        
+
         Assertions.assertTrue(notificationIsAlreadyViewed);
     }
 
@@ -673,7 +674,7 @@ class TimelineUtilsTest {
 
         Set<TimelineElementInternal> setTimelineElement = null;
         Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.anyString(), Mockito.eq(false))).thenReturn(setTimelineElement);
-        
+
         boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
         Assertions.assertFalse(isNotificationPaid);
     }
@@ -700,7 +701,7 @@ class TimelineUtilsTest {
                 .elementId("test")
                 .build();
         setTimelineElement.add(timelineElementInternal);
-        
+
         Mockito.when(timelineService.getTimelineByIunTimelineId(iun, "test1", false)).thenReturn(setTimelineElement);
 
         boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
@@ -726,9 +727,9 @@ class TimelineUtilsTest {
                         .recIndex(recIndex)
                         .build())
                 .build();
-        
+
         setTimelineElement.add(timelineElementInternal);
-        
+
         Mockito.when(timelineService.getTimelineByIunTimelineId(iun, timelineEventId, false)).thenReturn(setTimelineElement);
 
         boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
@@ -762,10 +763,10 @@ class TimelineUtilsTest {
                         .recIndex(recIndex)
                         .build())
                 .build();
-        
+
         setTimelineElement.add(timelineElementInternal);
         setTimelineElement.add(timelineElementInternal2);
-        
+
         Mockito.when(timelineService.getTimelineByIunTimelineId(iun, timelineEventId, false)).thenReturn(setTimelineElement);
 
         boolean isNotificationPaid = timelineUtils.checkIsNotificationPaid(iun, recIndex);
@@ -837,10 +838,10 @@ class TimelineUtilsTest {
                         .build());
         Mockito.when(timelineService.getTimelineByIunTimelineId(iun, cancelledElementId, false))
                 .thenReturn(Collections.emptySet());
-        
+
         //WHEN
         boolean viewedOrRefinedOrCancelled = timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, recIndex);
-        
+
         //THEN
         Assertions.assertFalse(viewedOrRefinedOrCancelled);
     }
@@ -893,7 +894,7 @@ class TimelineUtilsTest {
                         .recIndex(recIndex)
                         .build());
 
-        Mockito.when(timelineService.getTimelineElement(iun, viewedElementId)).thenReturn(Optional.empty() );
+        Mockito.when(timelineService.getTimelineElement(iun, viewedElementId)).thenReturn(Optional.empty());
 
 
         String refinedElementId = TimelineEventId.REFINEMENT.buildEventId(
@@ -929,7 +930,7 @@ class TimelineUtilsTest {
                         .recIndex(recIndex)
                         .build());
 
-        Mockito.when(timelineService.getTimelineElement(iun, viewedElementId)).thenReturn(Optional.empty() );
+        Mockito.when(timelineService.getTimelineElement(iun, viewedElementId)).thenReturn(Optional.empty());
 
 
         String refinedElementId = TimelineEventId.REFINEMENT.buildEventId(
@@ -937,7 +938,7 @@ class TimelineUtilsTest {
                         .iun(iun)
                         .recIndex(recIndex)
                         .build());
-        Mockito.when(timelineService.getTimelineElement(iun, refinedElementId)).thenReturn(Optional.empty() );
+        Mockito.when(timelineService.getTimelineElement(iun, refinedElementId)).thenReturn(Optional.empty());
 
         String cancelledElementId = NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
                 EventId.builder()
@@ -952,7 +953,7 @@ class TimelineUtilsTest {
         //THEN
         Assertions.assertTrue(viewedOrRefinedOrCancelled);
     }
-    
+
     private NotificationSenderInt createSender() {
         return NotificationSenderInt.builder()
                 .paId("TEST_PA_ID")
@@ -1080,7 +1081,7 @@ class TimelineUtilsTest {
 
         Mockito.when(timelineService.getTimelineByIunTimelineId(Mockito.eq(iun), Mockito.anyString(), Mockito.eq(false))).thenReturn(new HashSet<>());
 
-        boolean isNotificationCancellationRequested = timelineUtils.checkIsNotificationCancellationRequested (iun);
+        boolean isNotificationCancellationRequested = timelineUtils.checkIsNotificationCancellationRequested(iun);
         Assertions.assertFalse(isNotificationCancellationRequested);
     }
 
@@ -1091,16 +1092,16 @@ class TimelineUtilsTest {
         Set<TimelineElementInternal> setTimelineElement = new HashSet<>();
 
         String timelineEventId = TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
-            EventId.builder()
-                .iun(iun)
-                .build());
+                EventId.builder()
+                        .iun(iun)
+                        .build());
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-            .category(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST)
-            .elementId(timelineEventId)
-            .details(NotificationPaidDetailsInt.builder()
-                .build())
-            .build();
+                .category(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST)
+                .elementId(timelineEventId)
+                .details(NotificationPaidDetailsInt.builder()
+                        .build())
+                .build();
 
         setTimelineElement.add(timelineElementInternal);
 
@@ -1116,7 +1117,7 @@ class TimelineUtilsTest {
 
         Mockito.when(timelineService.getTimelineElement(Mockito.eq(iun), Mockito.anyString())).thenReturn(Optional.of(TimelineElementInternal.builder().build()));
 
-        boolean isNotificationRefined = timelineUtils.checkIsNotificationRefined (iun, 0);
+        boolean isNotificationRefined = timelineUtils.checkIsNotificationRefined(iun, 0);
         Assertions.assertTrue(isNotificationRefined);
     }
 
@@ -1126,7 +1127,7 @@ class TimelineUtilsTest {
 
         Mockito.when(timelineService.getTimelineElement(Mockito.eq(iun), Mockito.anyString())).thenReturn(Optional.empty());
 
-        boolean isNotificationRefined = timelineUtils.checkIsNotificationRefined (iun, 0);
+        boolean isNotificationRefined = timelineUtils.checkIsNotificationRefined(iun, 0);
         Assertions.assertFalse(isNotificationRefined);
     }
 
@@ -1137,13 +1138,13 @@ class TimelineUtilsTest {
         String timelineEventIdExpected = "NOTIFICATION_CANCELLATION_REQUEST.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelRequestTimelineElement(
-            notification
+                notification
         );
 
         Assertions.assertAll(
-            () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-            () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
-            () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
     }
 
@@ -1154,43 +1155,69 @@ class TimelineUtilsTest {
         String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
-            notification
+                notification
         );
 
         Assertions.assertAll(
-            () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-            () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
-            () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
 
         NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
         Assertions.assertEquals(100, detailsInt.getNotificationCost());
         Assertions.assertEquals(1, detailsInt.getNotRefinedRecipientIndexes().size());
     }
+
     @Test
     void buildCancelledTimelineElementPerfectionated() {
         NotificationInt notification = buildNotification();
         NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(1).build();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().
-            elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue()).
-            details(notificationViewedDetailsInt).
-            build();
+                elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue()).
+                details(notificationViewedDetailsInt).
+                build();
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(timelineElementInternal));
 
         String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
-            notification
+                notification
         );
 
         Assertions.assertAll(
-            () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
-            () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
-            () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
 
         NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
         Assertions.assertEquals(0, detailsInt.getNotificationCost());
         Assertions.assertEquals(0, detailsInt.getNotRefinedRecipientIndexes().size());
+    }
+
+    @Test
+    void buildNotificationRaddRetrieveTimelineElement() {
+        NotificationInt notification = buildNotification();
+        Integer recIndex = 1;
+        Instant eventTimestamp = Instant.now();
+
+        RaddInfo raddInfo = RaddInfo.builder()
+                .build();
+
+
+        String timelineEventIdExpected = "NOTIFICATION_RADD_RETRIEVED.IUN_Example_IUN_1234_Test.RECINDEX_1";
+
+        TimelineElementInternal actual = timelineUtils.buildNotificationRaddRetrieveTimelineElement(
+                notification,
+                recIndex,
+                raddInfo,
+                eventTimestamp
+        );
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+        () -> Assertions.assertEquals(timelineEventIdExpected,actual.getElementId())
+        );
     }
 }
