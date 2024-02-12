@@ -35,6 +35,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.VERSION_23;
+
 @Slf4j
 @Component
 public class WebhookUtils {
@@ -119,7 +121,7 @@ public class WebhookUtils {
         var isStreamVersionNull = org.apache.commons.lang3.StringUtils.isBlank(stream.getVersion());
         var isStreamVersionV10 = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(stream.getVersion(), "V10");
         var isStreamVersionV23 = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(stream.getVersion(), "V23");
-        var isStreamVersionV23Plus = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(stream.getVersion(), "V23+");
+        var isStreamVersionV23Plus = getVersion(stream.getVersion()) > VERSION_23;
 
         var isApiKeyVersionV10 = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(xPagopaPnApiVersion, "V10");
         var isApiKeyVersionV23 = org.apache.commons.lang3.StringUtils.equalsIgnoreCase(xPagopaPnApiVersion, "V23");
