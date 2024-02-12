@@ -393,7 +393,7 @@ paths:
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
 
-  '/v2.3/delivery-progresses/streams':
+  '/delivery-progresses/v2.3/streams':
     parameters:                                               # NO EXTERNAL
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -475,7 +475,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/v2.3/delivery-progresses/streams/{streamId}':
+  '/delivery-progresses/v2.3/streams/{streamId}':
     parameters:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -603,8 +603,8 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/v2.3/delivery-progresses/streams/{streamId}/action/disable':
-    patch:
+  '/delivery-progresses/v2.3/streams/{streamId}/action/disable':
+    post:
       summary: Disabilita uno stream
       description: >-
         Permette di disabilitare uno stream. Da uno stream disabilitato è possibile leggere gli eventi presenti nello stream salvati prima
@@ -657,7 +657,7 @@ paths:
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
     ############################################################################################
 
-  '/v2.3/delivery-progresses/streams/{streamId}/events':
+  '/delivery-progresses/v2.3/streams/{streamId}/events':
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -881,12 +881,14 @@ components:
             oppure entrambi array vuoti.
           type: array
           items:
-            $ref: '#/components/schemas/StreamGroup'
-            minLength: 0
+           allOf:
+             - $ref: '#/components/schemas/StreamGroup'
+           minLength: 0
         filterValues:
           description: >-
-            rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi alla versione dello stream.
+            rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi alla versione con cui è stato creato lo stream.
             Se specificati invece, avranno priorità rispetto agli eventi della versione (quindi se sono un sottoinsieme, si riceveranno solo quelli. Se si specificano eventi introdotti in versioni più recenti, questi saranno inviati)
+            Infine, è possibile utilizzare il placeholder "DEFAULT" per specificare l'insieme di eventi più rilevanti di una notifica.
           type: array
           items:
             type: string
