@@ -96,7 +96,8 @@ public class TimeLineServiceImpl implements TimelineService {
                 // asincrona da una lambda che opera partendo da stream Kinesis
 
                 String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
-                logEvent.generateSuccess(timelineInsertSkipped?"Timeline event was already inserted before": successMsg).log();
+                String alreadyInsertMsg = "Timeline event was already inserted before - timelineId="+ dto.getElementId();
+                logEvent.generateSuccess(timelineInsertSkipped ? alreadyInsertMsg : successMsg).log();
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
 

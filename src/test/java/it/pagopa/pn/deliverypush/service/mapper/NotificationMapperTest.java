@@ -29,8 +29,12 @@ class NotificationMapperTest {
                         .build())
                 .withNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy.DELIVERY_MODE)
                 .build();
-
-        SentNotificationV21 sent = NotificationMapper.internalToExternal( expected );
+        expected = expected.toBuilder()
+                .version("v1")
+                .vat(22)
+                .build();
+        
+        SentNotificationV23 sent = NotificationMapper.internalToExternal( expected );
         NotificationInt actual = NotificationMapper.externalToInternal( sent );
         
         Assertions.assertEquals(expected, actual );
@@ -39,28 +43,28 @@ class NotificationMapperTest {
 
     @Test
     void externalToInternal() {
-        SentNotificationV21 expected = getExternalNotification();
+        SentNotificationV23 expected = getExternalNotification();
 
         NotificationInt internal = NotificationMapper.externalToInternal( expected );
-        SentNotificationV21 actual = NotificationMapper.internalToExternal( internal );
+        SentNotificationV23 actual = NotificationMapper.internalToExternal( internal );
         
         Assertions.assertEquals( expected, actual );
     }
 
-    private SentNotificationV21 getExternalNotification() {
-        return new SentNotificationV21()
+    private SentNotificationV23 getExternalNotification() {
+        return new SentNotificationV23()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
                 .senderPaId( "pa_02" )
-                .physicalCommunicationType(SentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(SentNotificationV23.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .amount(18)
                 .paymentExpirationDate("2022-10-22")
                 .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .recipients( Collections.singletonList(
-                       new NotificationRecipientV21()
+                       new NotificationRecipientV23()
                                 .taxId("Codice Fiscale 01")
-                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                                 .denomination("Nome Cognome/Ragione Sociale")
                                .digitalDomicile(
                                        new NotificationDigitalAddress()

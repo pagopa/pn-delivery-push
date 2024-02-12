@@ -28,6 +28,7 @@ import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClientImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
@@ -36,8 +37,10 @@ import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResp
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import it.pagopa.pn.deliverypush.utils.PaperSendModeUtils;
@@ -50,7 +53,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractWorkflowTestConfiguration {
-
+    static final int SEND_FEE = 100;
     @Bean
     public PnDeliveryPushConfigs pnDeliveryPushConfigs() {
         PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
@@ -60,8 +63,16 @@ public class AbstractWorkflowTestConfiguration {
         paperSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
         paperSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR_NOTIFICATION_RADD");
         Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(paperSendModeList);
-        
+
+        Mockito.when(pnDeliveryPushConfigs.getPagoPaNotificationBaseCost()).thenReturn(SEND_FEE);
         return pnDeliveryPushConfigs;
+    }
+
+    @Bean
+    public NotificationProcessCostService notificationProcessCostService(@Lazy TimelineService timelineService,
+                                                                         @Lazy PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive,
+                                                                         @Lazy  PnDeliveryPushConfigs cfg) {
+        return new NotificationProcessCostServiceImpl(timelineService, pnExternalRegistriesClientReactive, cfg);
     }
     
     @Bean

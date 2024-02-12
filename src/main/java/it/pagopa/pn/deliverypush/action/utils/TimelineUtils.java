@@ -1,9 +1,22 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.deliverypush.dto.address.*;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.REQUEST_REFUSED;
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
+
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
@@ -13,19 +26,73 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
-import it.pagopa.pn.deliverypush.dto.timeline.*;
-import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogFailureWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogSuccessWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.CompletelyUnreachableCreationRequestDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.CompletelyUnreachableDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalDeliveryCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalFailureWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSuccessWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NormalizedAddressDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancellationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationPaidDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareAnalogDomicileFailureDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareDigitalDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryResponseDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RequestRefusedDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleAnalogWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleRefinementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogProgressDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SenderAckCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendingReceipt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ServiceLevelInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterProgressDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ValidateF24Int;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ValidateNormalizeAddressDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ValidatedF24DetailInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.time.Instant;
-import java.util.*;
-
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.*;
-import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
@@ -33,17 +100,20 @@ public class TimelineUtils {
 
     private final InstantNowSupplier instantNowSupplier;
     private final TimelineService timelineService;
-
+    private final NotificationProcessCostService notificationProcessCostService;
+    
     public TimelineUtils(InstantNowSupplier instantNowSupplier,
-                         TimelineService timelineService) {
+                         TimelineService timelineService,
+                         NotificationProcessCostService notificationProcessCostService) {
         this.instantNowSupplier = instantNowSupplier;
         this.timelineService = timelineService;
+        this.notificationProcessCostService = notificationProcessCostService;
     }
 
     public TimelineElementInternal buildTimeline(NotificationInt notification,
                                                  TimelineElementCategoryInt category,
                                                  String elementId,
-                                                 TimelineElementDetailsInt details) {
+                                                 @NotNull TimelineElementDetailsInt details) {
         
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(Collections.emptyList());
@@ -75,7 +145,8 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .build());
 
-        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_F24_REQUEST, correlationId, null);
+        ValidateF24Int details = ValidateF24Int.builder().build();
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_F24_REQUEST, correlationId, details);
     }
 
     public TimelineElementInternal buildValidatedF24TimelineElement(NotificationInt notification) {
@@ -86,12 +157,14 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .build());
 
-        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATED_F24, correlationId, null);
+        ValidatedF24DetailInt detail = ValidatedF24DetailInt.builder().build();
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATED_F24, correlationId, detail);
     }
     public TimelineElementInternal buildValidateAndNormalizeAddressTimelineElement(NotificationInt notification, String elementId) {
         log.debug("buildValidateAddressTimelineElement - iun={}", notification.getIun());
-        
-        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_NORMALIZE_ADDRESSES_REQUEST, elementId, null);
+
+        ValidateNormalizeAddressDetailsInt details = ValidateNormalizeAddressDetailsInt.builder().build();
+        return buildTimeline(notification, TimelineElementCategoryInt.VALIDATE_NORMALIZE_ADDRESSES_REQUEST, elementId, details);
     }
     
     public TimelineElementInternal buildAcceptedRequestTimelineElement(NotificationInt notification, String legalFactId) {
@@ -292,6 +365,7 @@ public class TimelineUtils {
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
                 .prepareRequestId(prepareRequestId)
                 .f24Attachments(replacedF24AttachmentUrls)
+                .vat(notification.getVat())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -452,6 +526,7 @@ public class TimelineUtils {
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
                 .f24Attachments(replacedF24AttachmentUrls)
                 .prepareRequestId(analogDtoInfo.getPrepareRequestId())
+                .vat(notification.getVat())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -878,7 +953,7 @@ public class TimelineUtils {
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
                 .refusalReasons(errors)
                 .numberOfRecipients( numberOfRecipients )
-                .notificationCost( NotificationProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST * numberOfRecipients )
+                .notificationCost( notificationProcessCostService.getSendFee() * numberOfRecipients )
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);
@@ -1107,7 +1182,7 @@ public class TimelineUtils {
                 .iun(notification.getIun())
                 .build());
         NotificationCancelledDetailsInt details = NotificationCancelledDetailsInt.builder().
-            notificationCost(NotificationProcessCostServiceImpl.PAGOPA_NOTIFICATION_BASE_COST * notRefined.size()).
+            notificationCost(notificationProcessCostService.getSendFee() * notRefined.size()).
             notRefinedRecipientIndexes(notRefined).
             build();
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLED, elementId, details);

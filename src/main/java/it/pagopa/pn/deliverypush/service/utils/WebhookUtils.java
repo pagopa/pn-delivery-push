@@ -81,7 +81,7 @@ public class WebhookUtils {
 
 
     public EventEntity buildEventEntity(Long atomicCounterUpdated, StreamEntity streamEntity,
-                                        String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
+                                        String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) throws PnInternalException{
 
         Instant timestamp = timelineElementInternal.getTimestamp();
 
@@ -154,5 +154,12 @@ public class WebhookUtils {
 
     private static boolean isEmpty(List list){
         return list == null || list.isEmpty();
+    }
+
+    public int getVersion (String version) {
+
+        String versionNumberString = version.substring(1);
+        return Integer.parseInt(versionNumberString);
+
     }
 }
