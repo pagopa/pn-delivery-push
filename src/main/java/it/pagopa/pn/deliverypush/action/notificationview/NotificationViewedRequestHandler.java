@@ -132,39 +132,34 @@ public class NotificationViewedRequestHandler {
     }
 
     private Mono<Void> handleViewNotificationRaddRetrieved(String iun, Integer recIndex, String recipientInternalId, RaddInfo raddInfo, Instant eventTimestamp) {
+        PnAuditLogEvent logEvent = generateRaddRetrievedAuditLog(iun, recipientInternalId);
+        logEvent.log();
+
         return Mono.fromCallable(() -> timelineUtils.checkIsNotificationCancellationRequested(iun))
                 .flatMap(isNotificationCancelled -> {
                     if (Boolean.TRUE.equals(isNotificationCancelled)) {
-                        log.warn("For this notification a cancellation has been requested - iun={} id={}", iun, recIndex);
+                        logEvent.generateWarning("For this notification a cancellation has been requested - iun={} id={}", iun, recIndex).log();
                         return Mono.empty();
                     }
 
-                    return Mono.just(timelineUtils.checkIsNotificationViewed(iun, recIndex));
-                })
-                .flatMap(isNotificationAlreadyViewed -> {
-                    //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
-                    if (Boolean.FALSE.equals(isNotificationAlreadyViewed)) {
-
-                        PnAuditLogEvent logEvent = generateRaddRetrievedAuditLog(iun, recipientInternalId);
-                        logEvent.log();
-
-                        log.debug("Notification is not already viewed - iun={} internalId={} recIdx={}", iun, recipientInternalId, recIndex);
-                        return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
-                                .flatMap(notificationInt -> Mono.fromCallable(() -> {
-                                    paperNotificationFailedService.deleteNotificationFailed(String.valueOf(recIndex), iun);
-                                    return notificationInt;
-                                }))
-                                .flatMap(notificationInt -> Mono.fromCallable(() -> {
-                                    TimelineElementInternal timelineElementInternal = timelineUtils.buildNotificationRaddRetrieveTimelineElement(notificationInt, recIndex, raddInfo, eventTimestamp);
-                                    return timelineService.addTimelineElement(timelineElementInternal, notificationInt);
-                                }))
-                                .doOnSuccess(success -> logEvent.generateSuccess().log())
-                                .doOnError(err -> logEvent.generateFailure("Exception in View retrieve Radd notification iun={} internalId={}", iun, recipientInternalId, err).log())
-                                .then();
-                    } else {
-                        log.debug("Notification is already viewed - iun={} internalId={} recIdx={}", iun, recipientInternalId, recIndex);
-                        return Mono.empty();
-                    }
+                    log.debug("Notification is not already cancelled - iun={} internalId={} recIdx={}", iun, recipientInternalId, recIndex);
+                    return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
+                            .flatMap(notificationInt -> Mono.fromCallable(() -> {
+                                paperNotificationFailedService.deleteNotificationFailed(String.valueOf(recIndex), iun);
+                                return notificationInt;
+                            }))
+                            .flatMap(notificationInt -> Mono.fromCallable(() -> {
+                                TimelineElementInternal timelineElementInternal = timelineUtils.buildNotificationRaddRetrieveTimelineElement(notificationInt, recIndex, raddInfo, eventTimestamp);
+                                return timelineService.addTimelineElement(timelineElementInternal, notificationInt);
+                            }))
+                            .doOnNext(timelineElementAdded -> {
+                                if(!timelineElementAdded) {
+                                    logEvent.generateWarning("Timeline element wasn't added to notification").log();
+                                }
+                            })
+                            .doOnSuccess(success -> logEvent.generateSuccess().log())
+                            .doOnError(err -> logEvent.generateFailure("Exception in View retrieve Radd notification iun={} internalId={}", iun, recipientInternalId, err).log())
+                            .then();
                 });
     }
 

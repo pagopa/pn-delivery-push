@@ -256,7 +256,6 @@ class NotificationViewedRequestHandlerTest {
         //WHEN
         Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(getNotification(iun));
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
-        Mockito.when(timelineUtils.checkIsNotificationViewed(iun, 0)).thenReturn(false);
         Mockito.doNothing().when(paperNotificationFailedService).deleteNotificationFailed(Mockito.any(), Mockito.any());
         Mockito.when(timelineService.addTimelineElement(Mockito.any(), Mockito.any())).thenReturn(true);
 
@@ -266,27 +265,6 @@ class NotificationViewedRequestHandlerTest {
         //THEN
         Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(Mockito.any(),Mockito.any());
         Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any());
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void handleAlreadyViewNotificationRaddRetrieved() {
-        String iun = "test_iun_handleCancellationNotRequested";
-        RequestNotificationViewedDto requestNotificationViewedDto = new RequestNotificationViewedDto();
-        requestNotificationViewedDto.setRecipientInternalId("testInternalId");
-        requestNotificationViewedDto.setRaddType("ALT");
-        requestNotificationViewedDto.setRecipientType(RecipientType.PF);
-
-        //WHEN
-        Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(getNotification(iun));
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
-        Mockito.when(timelineUtils.checkIsNotificationViewed(iun, 0)).thenReturn(true);
-
-        StepVerifier.create(handler.handleNotificationRaddRetrieved(iun, requestNotificationViewedDto))
-                .verifyComplete();
-
-        //THEN
-        Mockito.verifyNoInteractions(paperNotificationFailedService, timelineService);
     }
 
     @ExtendWith(MockitoExtension.class)
