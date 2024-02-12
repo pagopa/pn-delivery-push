@@ -8,7 +8,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RecipientType;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotificationViewedDto;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import java.time.Instant;
@@ -20,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 class NotificationViewedRequestHandlerTest {
     @Mock
@@ -32,6 +36,8 @@ class NotificationViewedRequestHandlerTest {
     private StatusUtils statusUtils;
     @Mock
     private ViewNotification viewNotification;
+    @Mock
+    private PaperNotificationFailedService paperNotificationFailedService;
 
     private NotificationViewedRequestHandler handler;
 
@@ -40,7 +46,7 @@ class NotificationViewedRequestHandlerTest {
         NotificationUtils notificationUtils = new NotificationUtils();
 
         handler = new NotificationViewedRequestHandler(timelineService, notificationService,
-                timelineUtils, statusUtils, notificationUtils, viewNotification);
+                timelineUtils, statusUtils, notificationUtils, viewNotification, paperNotificationFailedService);
     }
 
 
@@ -180,6 +186,7 @@ class NotificationViewedRequestHandlerTest {
                 .recipients(Collections.singletonList(
                         NotificationRecipientInt.builder()
                                 .taxId("testIdRecipient")
+                                .internalId("testInternalId")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(LegalDigitalAddressInt.builder()
                                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
@@ -236,5 +243,70 @@ class NotificationViewedRequestHandlerTest {
         //THEN
         Mockito.verify(timelineUtils,  Mockito.atLeastOnce()).checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt());
 
+    }
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleViewNotificationRaddRetrieved() {
+        String iun = "test_iun_handleCancellationNotRequested";
+        RequestNotificationViewedDto requestNotificationViewedDto = new RequestNotificationViewedDto();
+        requestNotificationViewedDto.setRecipientInternalId("testInternalId");
+        requestNotificationViewedDto.setRaddType("ALT");
+        requestNotificationViewedDto.setRecipientType(RecipientType.PF);
+
+        //WHEN
+        Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(getNotification(iun));
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(iun, 0)).thenReturn(false);
+        Mockito.doNothing().when(paperNotificationFailedService).deleteNotificationFailed(Mockito.any(), Mockito.any());
+        Mockito.when(timelineService.addTimelineElement(Mockito.any(), Mockito.any())).thenReturn(true);
+
+        StepVerifier.create(handler.handleNotificationRaddRetrieved(iun, requestNotificationViewedDto))
+                .verifyComplete();
+
+        //THEN
+        Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(Mockito.any(),Mockito.any());
+        Mockito.verify(timelineService).addTimelineElement(Mockito.any(), Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleAlreadyViewNotificationRaddRetrieved() {
+        String iun = "test_iun_handleCancellationNotRequested";
+        RequestNotificationViewedDto requestNotificationViewedDto = new RequestNotificationViewedDto();
+        requestNotificationViewedDto.setRecipientInternalId("testInternalId");
+        requestNotificationViewedDto.setRaddType("ALT");
+        requestNotificationViewedDto.setRecipientType(RecipientType.PF);
+
+        //WHEN
+        Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(getNotification(iun));
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(iun, 0)).thenReturn(true);
+
+        StepVerifier.create(handler.handleNotificationRaddRetrieved(iun, requestNotificationViewedDto))
+                .verifyComplete();
+
+        //THEN
+        Mockito.verifyNoInteractions(paperNotificationFailedService, timelineService);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handleCancelledViewNotificationRaddRetrieved() {
+        String iun = "test_iun_handleCancellationNotRequested";
+        RequestNotificationViewedDto requestNotificationViewedDto = new RequestNotificationViewedDto();
+        requestNotificationViewedDto.setRecipientInternalId("testInternalId");
+        requestNotificationViewedDto.setRaddType("ALT");
+        requestNotificationViewedDto.setRecipientType(RecipientType.PF);
+
+        //WHEN
+        Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(getNotification(iun));
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(true);
+
+        StepVerifier.create(handler.handleNotificationRaddRetrieved(iun, requestNotificationViewedDto))
+                .verifyComplete();
+
+        //THEN
+        Mockito.verifyNoInteractions(paperNotificationFailedService, timelineService);
+        Mockito.verify(timelineUtils, Mockito.times(0)).checkIsNotificationViewed(Mockito.any(), Mockito.any());
     }
 }

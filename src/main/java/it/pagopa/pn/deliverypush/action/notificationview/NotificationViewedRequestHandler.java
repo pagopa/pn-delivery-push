@@ -9,7 +9,10 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotificationViewedDto;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import java.time.Instant;
@@ -27,19 +30,23 @@ public class NotificationViewedRequestHandler {
     private final StatusUtils statusUtils;
     private final NotificationUtils notificationUtils;
     private final ViewNotification viewNotification;
+    private final PaperNotificationFailedService paperNotificationFailedService;
+
 
     public NotificationViewedRequestHandler(TimelineService timelineService,
                                             NotificationService notificationService,
                                             TimelineUtils timelineUtils,
                                             StatusUtils statusUtils,
                                             NotificationUtils notificationUtils,
-                                            ViewNotification viewNotification) {
+                                            ViewNotification viewNotification,
+                                            PaperNotificationFailedService paperNotificationFailedService) {
         this.timelineService = timelineService;
         this.notificationService = notificationService;
         this.timelineUtils = timelineUtils;
         this.statusUtils = statusUtils;
         this.notificationUtils = notificationUtils;
         this.viewNotification = viewNotification;
+        this.paperNotificationFailedService = paperNotificationFailedService;
     }
     
     //La richiesta proviene da delivery (La visualizzazione potrebbe essere da parte del delegato o da parte del destinatario)
@@ -106,6 +113,65 @@ public class NotificationViewedRequestHandler {
                         raddInfo != null ? raddInfo.getTransactionId() : null,
                         viewedFromDelegate ? delegateInfo.getInternalId() : null,
                         viewedFromDelegate ? delegateInfo.getMandateId() : null
+                )
+                .iun(iun)
+                .build();
+    }
+
+    public Mono<Void> handleNotificationRaddRetrieved(String iun, RequestNotificationViewedDto requestNotificationViewedDto) {
+        return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
+                .flatMap( notification -> {
+                    int recIndex = notificationUtils.getRecipientIndexFromInternalId(notification, requestNotificationViewedDto.getRecipientInternalId());
+
+                    RaddInfo raddInfo = RaddInfo.builder()
+                            .type(requestNotificationViewedDto.getRaddType())
+                            .transactionId(requestNotificationViewedDto.getRaddBusinessTransactionId())
+                            .build();
+                    return handleViewNotificationRaddRetrieved(iun, recIndex, requestNotificationViewedDto.getRecipientInternalId(), raddInfo, requestNotificationViewedDto.getRaddBusinessTransactionDate());
+                });
+    }
+
+    private Mono<Void> handleViewNotificationRaddRetrieved(String iun, Integer recIndex, String recipientInternalId, RaddInfo raddInfo, Instant eventTimestamp) {
+        return Mono.fromCallable(() -> timelineUtils.checkIsNotificationCancellationRequested(iun))
+                .flatMap(isNotificationCancelled -> {
+                    if (Boolean.TRUE.equals(isNotificationCancelled)) {
+                        log.warn("For this notification a cancellation has been requested - iun={} id={}", iun, recIndex);
+                        return Mono.empty();
+                    }
+
+                    return Mono.just(timelineUtils.checkIsNotificationViewed(iun, recIndex));
+                })
+                .flatMap(isNotificationAlreadyViewed -> {
+                    //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
+                    if (Boolean.FALSE.equals(isNotificationAlreadyViewed)) {
+
+                        PnAuditLogEvent logEvent = generateRaddRetrievedAuditLog(iun, recipientInternalId);
+                        logEvent.log();
+
+                        log.debug("Notification is not already viewed - iun={} internalId={} recIdx={}", iun, recipientInternalId, recIndex);
+                        return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
+                                .flatMap(notificationInt -> Mono.fromCallable(() -> {
+                                    paperNotificationFailedService.deleteNotificationFailed(String.valueOf(recIndex), iun);
+                                    return notificationInt;
+                                }))
+                                .flatMap(notificationInt -> Mono.fromCallable(() -> {
+                                    TimelineElementInternal timelineElementInternal = timelineUtils.buildNotificationRaddRetrieveTimelineElement(notificationInt, recIndex, raddInfo, eventTimestamp);
+                                    return timelineService.addTimelineElement(timelineElementInternal, notificationInt);
+                                }))
+                                .doOnSuccess(success -> logEvent.generateSuccess().log())
+                                .doOnError(err -> logEvent.generateFailure("Exception in View retrieve Radd notification iun={} internalId={}", iun, recipientInternalId, err).log())
+                                .then();
+                    } else {
+                        log.debug("Notification is already viewed - iun={} internalId={} recIdx={}", iun, recipientInternalId, recIndex);
+                        return Mono.empty();
+                    }
+                });
+    }
+
+    private PnAuditLogEvent generateRaddRetrievedAuditLog(String iun, String recipientInternalId) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        return auditLogBuilder.before(PnAuditLogEventType.AUD_NT_RADD_OPEN,
+                "View radd retrieve notification - iun={} recipientInternalId={}", iun, recipientInternalId
                 )
                 .iun(iun)
                 .build();

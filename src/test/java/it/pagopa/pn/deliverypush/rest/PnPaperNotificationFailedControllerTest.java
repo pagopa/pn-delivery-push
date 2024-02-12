@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
 
 @WebFluxTest(PnPaperNotificationFailedController.class)
 class PnPaperNotificationFailedControllerTest {
@@ -39,7 +40,7 @@ class PnPaperNotificationFailedControllerTest {
         listPaperNot.add(dto);
 
         Mockito.when(service.getPaperNotificationByRecipientId(Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn(listPaperNot);
+                .thenReturn(Flux.fromStream(listPaperNot.stream()));
 
         webTestClient.get()
                 .uri(uriBuilder ->

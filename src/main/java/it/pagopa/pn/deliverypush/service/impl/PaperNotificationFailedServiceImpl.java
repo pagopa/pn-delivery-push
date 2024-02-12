@@ -15,10 +15,11 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
 
@@ -50,37 +51,38 @@ public class PaperNotificationFailedServiceImpl implements PaperNotificationFail
         paperNotificationFailedDao.deleteNotificationFailed(recipientId, iun);
     }
 
-    @Override
-    public List<ResponsePaperNotificationFailedDto> getPaperNotificationByRecipientId(String recipientId, Boolean getAAR) {
+    public Flux<ResponsePaperNotificationFailedDto> getPaperNotificationByRecipientId(String recipientId, Boolean getAAR) {
         log.info( "Retrieve paper notifications failed for recipientId={} getAAR={}", recipientId, getAAR);
-        Set<PaperNotificationFailed> paperNotificationFailedSet = paperNotificationFailedDao.getPaperNotificationFailedByRecipientId(recipientId);
-
-        if(! paperNotificationFailedSet.isEmpty() ){
-            log.debug( "Get paperNotificationFailedSet OK for recipientId={}", recipientId);
-
-            return paperNotificationFailedSet.stream().map(
-                    elem -> {
-                        log.debug( "Get paperNotificationFailed element for recipientId={} is with iun={}", recipientId, elem.getIun());
-                        String iun = elem.getIun();
-
-                        ResponsePaperNotificationFailedDto res = createResponse(elem, iun);
-
-                        if(Boolean.TRUE.equals(getAAR)){
-                            getAAR(recipientId, elem, res, iun);
-                        }else {
-                            log.debug("AAR is not required for this request - iun={} internalId={}", iun, recipientId);
-                        }
-                        
-                        return res;
+        return Mono.fromCallable(() -> paperNotificationFailedDao.getPaperNotificationFailedByRecipientId(recipientId))
+                .flatMapMany(paperNotificationFailedSet -> {
+                    if(paperNotificationFailedSet.isEmpty()) {
+                        String message = String.format("There isn't paperNotificationFailed for recipientId=%s ", recipientId);
+                        log.warn(message);
+                        throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND);
                     }
-            ).toList();
-            
-        } else {
-            String message = String.format("There isn't paperNotificationFailed for recipientId=%s ", recipientId);
-            log.warn(message);
-            throw new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_NOTFOUND);
-        }
+
+                    log.debug( "Get paperNotificationFailedSet OK for recipientId={}", recipientId);
+                    return Flux.fromStream(paperNotificationFailedSet.stream());
+                })
+                .parallel()
+                .runOn(Schedulers.boundedElastic())
+                .flatMap(paperNotificationFailed -> {
+                    String iun = paperNotificationFailed.getIun();
+                    ResponsePaperNotificationFailedDto res = createResponse(paperNotificationFailed, iun);
+                    if(Boolean.TRUE.equals(getAAR)){
+                        return getAAR(recipientId, paperNotificationFailed, iun)
+                                .map(optAar -> {
+                                    optAar.ifPresent(res::setAarUrl);
+                                    return res;
+                                });
+                    }else {
+                        log.debug("AAR is not required for this request - iun={} internalId={}", iun, recipientId);
+                        return Mono.just(res);
+                    }
+                })
+                .sequential();
     }
+
 
     @NotNull
     private ResponsePaperNotificationFailedDto createResponse(PaperNotificationFailed elem, String iun) {
@@ -90,27 +92,38 @@ public class PaperNotificationFailedServiceImpl implements PaperNotificationFail
         return res;
     }
 
-    private void getAAR(String recipientId, PaperNotificationFailed elem, ResponsePaperNotificationFailedDto res, String iun) {
+    private Mono<Optional<String>> getAAR(String recipientId, PaperNotificationFailed elem, String iun) {
         log.debug( "Start getAAR process - recipientId={} iun={}", recipientId, elem.getIun());
 
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-        int index = notificationUtils.getRecipientIndexFromInternalId(notification, elem.getRecipientId());
-        log.debug( "getNotification and getIndex Ok - recipientId={} iun={}", recipientId, elem.getIun());
+        return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
+                .map(notificationInt -> buildAARGenerationElementId(notificationInt, iun, recipientId))
+                .flatMap(elementId -> getAarGenerationDetailFromTimeline(iun, elementId))
+                .map(aorDetailsOpt -> {
+                    if(aorDetailsOpt.isPresent()){
+                        log.debug( "Get AAR url Ok - recipientId={} iun={}", recipientId, iun);
+                        AarGenerationDetailsInt details = aorDetailsOpt.get();
+                        return Optional.of(details.getGeneratedAarUrl());
+                    } else {
+                        log.error( "Get AAR url ERROR - recipientId={} iun={}", recipientId, iun);
+                        return Optional.empty();
+                    }
+                });
+    }
 
-        String elementId = TimelineEventId.AAR_GENERATION.buildEventId(
+    private String buildAARGenerationElementId(NotificationInt notificationInt, String iun, String recipientId) {
+        int index = notificationUtils.getRecipientIndexFromInternalId(notificationInt, recipientId);
+        log.debug( "getNotification and getIndex Ok - recipientId={} iun={}", recipientId, iun);
+
+        return TimelineEventId.AAR_GENERATION.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(index)
                         .build());
-
-        Optional<AarGenerationDetailsInt> detailsOpt = timelineService.getTimelineElementDetails(iun, elementId, AarGenerationDetailsInt.class);
-        if( detailsOpt.isPresent()){
-            AarGenerationDetailsInt details = detailsOpt.get();
-            res.setAarUrl(details.getGeneratedAarUrl());
-            log.debug( "Get AAR url Ok - recipientId={} iun={}", recipientId, elem.getIun());
-        }else {
-            log.error( "Get AAR url ERROR - recipientId={} iun={}", recipientId, elem.getIun());
-        }
     }
+
+    private Mono<Optional<AarGenerationDetailsInt>> getAarGenerationDetailFromTimeline(String iun, String elementId) {
+        return Mono.fromCallable(() -> timelineService.getTimelineElementDetails(iun, elementId, AarGenerationDetailsInt.class));
+    }
+
 
 }
