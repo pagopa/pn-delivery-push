@@ -288,6 +288,7 @@ paths:
           description: Internal Server Error
   /delivery-progresses/streams:
     post:
+      deprecated: true
       summary: Crea nuovo stream di eventi
       description: Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno  relativi ai cambi di stato o agli eventi di timeline. <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il  timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata  invocata l'operazione.
       tags:
@@ -321,6 +322,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
+      deprecated: true
       summary: Elenca stream di eventi
       description: Elenca gli stream di eventi
       tags:
@@ -351,6 +353,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
+      deprecated: true
       summary: Leggi metadati dello stream
       description: Permette di leggere le configurazioni di uno stream di eventi.
       tags:
@@ -378,6 +381,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     put:
+      deprecated: true
       summary: Update Stream metadata
       description: Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi
       tags:
@@ -411,6 +415,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     delete:
+      deprecated: true
       summary: Remove Event Stream
       description: 'Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi  associati allo stream e non ancora consumati.'
       tags:
@@ -435,6 +440,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/streams/{streamId}/events:
     get:
+      deprecated: true
       summary: Leggi progressi notifiche
       description: Permette di leggere gli eventi presenti nello stream di aggiornamenti e indica che  la P.A. ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
