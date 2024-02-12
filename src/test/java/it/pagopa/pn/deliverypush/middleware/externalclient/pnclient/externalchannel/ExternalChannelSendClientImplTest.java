@@ -80,7 +80,7 @@ class ExternalChannelSendClientImplTest {
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
 
-        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId, aarKey, quickAccessToken));
+        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, notificationRecipientInt, legalDigitalAddressInt, timelineEventId, Collections.singletonList(aarKey), quickAccessToken));
     }
 
     @Test
@@ -140,7 +140,7 @@ class ExternalChannelSendClientImplTest {
 
         //When
 
-        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, recipientInt, addressInt, eventId, aarKey, quickAccessToken));
+        assertDoesNotThrow(() -> client.sendLegalNotification(notificationInt, recipientInt, addressInt, eventId, Collections.singletonList(aarKey), quickAccessToken));
 
     }
 

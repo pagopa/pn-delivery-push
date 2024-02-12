@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -13,6 +14,8 @@ import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
@@ -21,7 +24,8 @@ import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import java.time.Instant;
-import java.util.Map;
+import java.util.*;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -35,13 +39,14 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final NotificationService notificationService;
     private final AuditLogService auditLogService;
     private final TimelineUtils timelineUtils;
+    private final AttachmentUtils attachmentUtils;
 
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
                                       NotificationService notificationService, AuditLogService auditLogService,
-                                      TimelineUtils timelineUtils) {
+                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
@@ -49,6 +54,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         this.notificationService = notificationService;
         this.auditLogService = auditLogService;
         this.timelineUtils = timelineUtils;
+        this.attachmentUtils = attachmentUtils;
     }
 
     /**
@@ -76,7 +82,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), sendInformation.getDigitalAddress(), recIndex);
 
         try {
-            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, false);
 
             String eventId;
             if (!sendAlreadyInProgress)
@@ -92,7 +98,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                 .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
                                 .build()
                 );
-                externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, sendInformation.getDigitalAddress(), eventId, digitalParameters.aarKey, digitalParameters.quickAccessToken);
+                externalChannel.sendLegalNotification(notification, digitalParameters.recipientFromIndex, sendInformation.getDigitalAddress(), eventId, digitalParameters.fileKeys, digitalParameters.quickAccessToken);
                 
                 externalChannelUtils.addSendDigitalNotificationToTimeline(
                         notification,
@@ -123,8 +129,8 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                     notification,
                     digitalParameters.recipientFromIndex,
                     sendInformation.getDigitalAddress(), 
-                    eventId, 
-                    digitalParameters.aarKey, 
+                    eventId,
+                    digitalParameters.fileKeys,
                     digitalParameters.quickAccessToken);
 
                 SendInformation digitalAddressFeedback = SendInformation.builder()
@@ -170,9 +176,9 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), courtesyAddress, recIndex, eventId);
 
         try {
-            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex);
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, true);
             externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId,
-                digitalParameters.aarKey,
+                digitalParameters.fileKeys.get(0), //AAR is always the first elements
                 digitalParameters.quickAccessToken);
             logEvent.generateSuccess().log();
         } catch (Exception e) {
@@ -182,11 +188,17 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     }
 
 
-    private DigitalParameters retrieveDigitalParameters(NotificationInt notification, Integer recIndex) {
+    private DigitalParameters retrieveDigitalParameters(NotificationInt notification, Integer recIndex, boolean retrieveAarOnly) {
         NotificationRecipientInt recipientFromIndex = notificationUtils.getRecipientFromIndex(notification, recIndex);
         Map<String, String> recipientsQuickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
-        String aarKey = externalChannelUtils.getAarKey(notification.getIun(), recIndex);
-        return new DigitalParameters(aarKey, recipientFromIndex, recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
+
+        List<String> fileKeys = retrieveAarOnly ?
+                Collections.singletonList(externalChannelUtils.getAarKey(notification.getIun(), recIndex)) :
+                attachmentUtils.retrieveAttachments(notification, recIndex,
+                        attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.DIGITAL_NOTIFICATION),
+                        false, Collections.emptyList());
+
+        return new DigitalParameters(fileKeys, recipientFromIndex, recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
     }
 
 
@@ -210,7 +222,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     }
 
 
-    private record DigitalParameters(String aarKey,
+    private record DigitalParameters(List<String> fileKeys,
                                      NotificationRecipientInt recipientFromIndex,
                                      String quickAccessToken) {}
 
