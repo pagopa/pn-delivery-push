@@ -16,7 +16,6 @@ public class NotificationRADDRetrievedDetailsInt implements RecipientRelatedTime
     private String raddType;
     private String raddTransactionId;
     private Instant eventTimestamp;
-    private String coverFileKey;
     
     public String toLog() {
         return String.format(
