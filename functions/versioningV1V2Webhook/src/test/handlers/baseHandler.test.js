@@ -9,47 +9,48 @@ describe('EventHandler', () => {
     });
 
     process.env = Object.assign(process.env, {
-        PN_DELIVERY_PUSH_URL: "https://api.dev.notifichedigitali.it",
+        PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.3",
     });
 
     it('correct URL', () => {
-        expect(eventHandler.url).to.equal("https://api.dev.notifichedigitali.it");
+        expect(eventHandler.baseUrl).to.equal("https://api.dev.notifichedigitali.it/delivery-progresses/v2.3");
     });
 
-    it('set headers correctly - case 1', () => {
+    it('set headers correctly', () => {
+        const streamId = "12345";
+
         const event = {
-            headers: {
-                'x-pagopa-pn-uid': 'uid',
-                'x-pagopa-pn-cx-type': 'type',
-                'x-pagopa-pn-cx-id': 'cx-id',
-                'streamId': 'streamId',
-                'lastEventId': 'lastEventId',
-            },
-        };
-
-        const headers = eventHandler.setHeaders(event, {});
-
-        expect(headers).to.deep.equal({
-            'x-pagopa-pn-uid': 'uid',
-            'x-pagopa-pn-cx-type': 'type',
-            'x-pagopa-pn-cx-id': 'cx-id',
-            'streamId': 'streamId',
-            'lastEventId': 'lastEventId',
-            'x-pagopa-pn-cx-groups': null,
-            'x-pagopa-pn-api-version': 'v10',
-        });
-    })
-
-    it('set headers correctly - case 2', () => {
-        const event = {
+            pathParameters: { streamId: streamId },
             headers: {},
+            requestContext: {
+                authorizer: {
+                    cx_groups: "aaa",
+                    cx_id: "bbb",
+                    cx_role: "ccc",
+                    cx_type: "ddd",
+                    cx_jti: "eee",
+                    sourceChannelDetails: "fff",
+                    uid: "ggg",
+                },
+            },
+            httpMethod: "GET",
         };
 
-        const headers = eventHandler.setHeaders(event, {});
+        const context = {};
+        const headers = eventHandler.setHeaders(event, context);
 
-        expect(headers).to.deep.equal({
-            'x-pagopa-pn-cx-groups': null,
-            'x-pagopa-pn-api-version': 'v10',
-        });
-    });
+        const headersToCompare = {
+            "x-pagopa-pn-src-ch": "B2B",
+            "x-pagopa-pn-cx-groups": "aaa",
+            "x-pagopa-pn-cx-id": "bbb",
+            "x-pagopa-pn-cx-role": "ccc",
+            "x-pagopa-pn-cx-type": "ddd",
+            "x-pagopa-pn-jti": "eee",
+            "x-pagopa-pn-src-ch-details": "fff",
+            "x-pagopa-pn-uid": "ggg",
+            'x-pagopa-pn-api-version': 'v10'
+        };
+
+        expect(headers).to.deep.equal(headersToCompare);
+    })
 });
