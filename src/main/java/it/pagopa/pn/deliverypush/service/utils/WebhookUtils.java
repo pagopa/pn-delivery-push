@@ -125,7 +125,7 @@ public class WebhookUtils {
 
     public int getVersion (String version) {
 
-        String versionNumberString = version.substring(1);
+        String versionNumberString = version.toLowerCase().replace("v", "");
         return Integer.parseInt(versionNumberString);
 
     }
