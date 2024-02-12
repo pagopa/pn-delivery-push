@@ -37,22 +37,17 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private final SchedulerService schedulerService;
     private final WebhookUtils webhookUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
-    private final Set<String> defaultCategories;
     private final Set<String> defaultNotificationStatuses;
-    private final Set<String> defaultCategoriesPa;
     private static final String DEFAULT_CATEGORIES = "DEFAULT";
 
 
-    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs, Set<String> listCategoriesPa) {
         this.streamEntityDao = streamEntityDao;
         this.eventEntityDao = eventEntityDao;
         this.schedulerService = schedulerService;
         this.webhookUtils = webhookUtils;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-        this.defaultCategories = categoriesByVersion(TimelineElementCategoryInt.VERSION_10);
         this.defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
-        this.defaultCategoriesPa = getCategoriesPa();
     }
 
     @Override
@@ -109,7 +104,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     }
     private Mono<Void> processEvent(StreamEntity stream,  String oldStatus, String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
 
-        if (!CollectionUtils.isEmpty(stream.getGroups()) && !checkGroups(stream.getGroups(), Arrays.asList(notificationInt.getGroup()))){
+        if (!CollectionUtils.isEmpty(stream.getGroups()) && !checkGroups(Arrays.asList(notificationInt.getGroup()), stream.getGroups())){
             return Mono.empty();
         }
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
@@ -166,6 +161,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
 
                 return eventEntityDao.save(webhookUtils.buildEventEntity(atomicCounterUpdated, streamEntity,
                         newStatus, timelineElementInternal, notificationInt))
+                        .onErrorResume(ex -> Mono.empty())
                     .doOnSuccess(event -> log.info("saved webhookevent={}", event))
                     .then();
             });
@@ -205,41 +201,21 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
 
     private Set<String> categoriesByFilter(StreamEntity stream) {
         Set<String> categoriesSet;
-        if (stream.getFilterValues()== null || stream.getFilterValues().isEmpty()) {
-            categoriesSet = defaultCategories;
+        if (stream.getVersion() != null && !stream.getVersion().isEmpty() &&
+                CollectionUtils.isEmpty(stream.getFilterValues())) {
+            categoriesSet = categoriesByVersion(webhookUtils.getVersion(stream.getVersion()));
+        } else if (stream.getVersion() != null && stream.getVersion().equalsIgnoreCase("V10")) {
+            categoriesSet = stream.getFilterValues();
         } else {
             categoriesSet = stream.getFilterValues().stream()
                     .filter(v -> !v.equalsIgnoreCase(DEFAULT_CATEGORIES))
                     .collect(Collectors.toSet());
             if (stream.getFilterValues().contains(DEFAULT_CATEGORIES)) {
-                categoriesSet.addAll(defaultCategoriesPa);
+                categoriesSet.addAll(pnDeliveryPushConfigs.getListCategoriesPa());
             }
         }
         return categoriesSet;
     }
 
-    private Set<String> getCategoriesPa() {
-        return Arrays.stream(TimelineElementCategoryInt.values())
-                .filter(category -> category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.REQUEST_REFUSED.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.DIGITAL_SUCCESS_WORKFLOW.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.REFINEMENT.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.NOTIFICATION_VIEWED.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.NOTIFICATION_CANCELLED.getValue()) ||
-                                    category.getValue().equalsIgnoreCase(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED.getValue())
-                                    )
-                .map(TimelineElementCategoryInt::getValue)
-                .collect(Collectors.toSet());
-    }
+
 }
