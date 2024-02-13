@@ -410,7 +410,7 @@ paths:
         invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStream
+      operationId: createEventStreamV23
       requestBody:
         required: true
         content:
@@ -454,7 +454,7 @@ paths:
         Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreams
+      operationId: listEventStreamsV23
       responses:
         '200':
           description: OK
@@ -489,8 +489,8 @@ paths:
         Permette di leggere le configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: getEventStream                             # NO EXTERNAL
-#      operationId: retrieveEventStream                       # ONLY EXTERNAL
+      operationId: getEventStreamV23                             # NO EXTERNAL
+#      operationId: retrieveEventStreamV23                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -528,7 +528,7 @@ paths:
         Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi
       tags:
         - Streams
-      operationId: updateEventStream
+      operationId: updateEventStreamV23
       requestBody:
         required: true
         content:
@@ -573,8 +573,8 @@ paths:
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: deleteEventStream                          # NO EXTERNAL
-#      operationId: removeEventStream                         # ONLY EXTERNAL
+      operationId: deleteEventStreamV23                          # NO EXTERNAL
+#      operationId: removeEventStreamV23                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -613,7 +613,7 @@ paths:
         rientra nel conteggio degli stream massimi, e verrà automaticamente cancellato trascorso il tempo massimo di disponibilità degli eventi.
       tags:
         - Streams
-      operationId: disableEventStream
+      operationId: disableEventStreamV23
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -666,7 +666,7 @@ paths:
         e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStream
+      operationId: consumeEventStreamV23
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
