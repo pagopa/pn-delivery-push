@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -66,6 +67,12 @@ class WebhookEventsServiceImplTest {
         webhook.setReadBufferDelay(1000);
         webhook.setTtl(Duration.ofDays(30));
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
+
+        Set<String> listCategoriesPa = new HashSet<>(List.of("REQUEST_REFUSED", "REQUEST_ACCEPTED", "SEND_DIGITAL_DOMICILE", "SEND_DIGITAL_FEEDBACK",
+                "DIGITAL_SUCCESS_WORKFLOW", "DIGITAL_FAILURE_WORKFLOW", "SEND_SIMPLE_REGISTERED_LETTER", "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS",
+                "SEND_ANALOG_DOMICILE", "SEND_ANALOG_PROGRESS", "SEND_ANALOG_FEEDBACK", "ANALOG_SUCCESS_WORKFLOW", "ANALOG_FAILURE_WORKFLOW",
+                "COMPLETELY_UNREACHABLE", "REFINEMENT", "NOTIFICATION_VIEWED", "NOTIFICATION_CANCELLED", "NOTIFICATION_RADD_RETRIEVED"));
+        Mockito.when(pnDeliveryPushConfigs.getListCategoriesPa()).thenReturn(listCategoriesPa);
     }
 
     private List<TimelineElementInternal> generateTimeline(String iun, String paId){
@@ -417,7 +424,6 @@ class WebhookEventsServiceImplTest {
         String xpagopacxid = "PA-xpagopacxid";
         String iun = "IUN-ABC-FGHI-A-1";
 
-
         List<StreamEntity> list = new ArrayList<>();
         UUID uuidd = UUID.randomUUID();
         String uuid = uuidd.toString();
@@ -439,7 +445,7 @@ class WebhookEventsServiceImplTest {
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
-
+        entity.setVersion("V10");
         list.add(entity);
 
 
@@ -473,6 +479,8 @@ class WebhookEventsServiceImplTest {
             .event(timelineElementInternal)
             .notificationStatusUpdate(statusUpdate)
             .build();
+
+        Mockito.when(webhookUtils.getVersion("V10")).thenReturn(10);
         Mockito.when(webhookUtils.buildEventEntity(Mockito.anyLong(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(eventEntity);
         Mockito.when(webhookUtils.retrieveTimeline(Mockito.anyString(), Mockito.anyString())).thenReturn(retrieveTimelineResult);
 
@@ -485,7 +493,6 @@ class WebhookEventsServiceImplTest {
 
         //WHEN
         webhookEventsService.saveEvent(xpagopacxid, newtimeline.getElementId() , eventEntity.getIun()).block(d);
-
         //THEN
         Mockito.verify(streamEntityDao).findByPa(xpagopacxid);
         Mockito.verify(eventEntityDao, Mockito.times(list.size())).save(Mockito.any(EventEntity.class));
@@ -521,7 +528,6 @@ class WebhookEventsServiceImplTest {
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
-
         list.add(entity);
 
 
@@ -610,7 +616,6 @@ class WebhookEventsServiceImplTest {
         String xpagopacxid = "PA-xpagopacxid";
         String iun = "IUN-ABC-FGHI-A-1";
 
-
         List<StreamEntity> list = new ArrayList<>();
         UUID uuidd = UUID.randomUUID();
         String uuid = uuidd.toString();
@@ -633,6 +638,7 @@ class WebhookEventsServiceImplTest {
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
+        entity.setVersion("V23");
         list.add(entity);
 
 
@@ -684,6 +690,8 @@ class WebhookEventsServiceImplTest {
             .notificationStatusUpdate(notificationStatusUpdate)
             .build();
 
+        Mockito.when(webhookUtils.getVersion("V23")).thenReturn(10);
+
         Mockito.when(webhookUtils.buildEventEntity(Mockito.anyLong(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(eventEntity);
         Mockito.when(webhookUtils.retrieveTimeline(newtimeline1.getIun() , newtimeline1.getElementId())).thenReturn(retrieveTimelineResult);
 
@@ -713,7 +721,6 @@ class WebhookEventsServiceImplTest {
         String xpagopacxid = "PA-xpagopacxid";
         String iun = "IUN-ABC-FGHI-A-1";
 
-
         List<StreamEntity> list = new ArrayList<>();
         UUID uuidd = UUID.randomUUID();
         String uuid = uuidd.toString();
@@ -723,9 +730,9 @@ class WebhookEventsServiceImplTest {
         entity.setPaId(xpagopacxid);
         entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
-        //        entity.getFilterValues().add(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(1L);
+        entity.setVersion("V10");
         list.add(entity);
 
         entity = new StreamEntity();
@@ -736,6 +743,7 @@ class WebhookEventsServiceImplTest {
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
+        entity.setVersion("V10");
         list.add(entity);
 
 
@@ -814,6 +822,12 @@ class WebhookEventsServiceImplTest {
             .notificationStatusUpdate(notificationStatusUpdate)
             .build();
 
+        Mockito.when(webhookUtils.getVersion("V10")).thenReturn(10);
+
+        Mockito.doReturn(23)
+                .when(webhookUtils)
+                .getVersion("V23");
+
         Mockito.when(webhookUtils.buildEventEntity(Mockito.anyLong(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(eventEntity);
         Mockito.when(webhookUtils.retrieveTimeline(newtimeline1.getIun() , newtimeline1.getElementId())).thenReturn(retrieveTimelineResult);
 
@@ -865,8 +879,8 @@ class WebhookEventsServiceImplTest {
     }
 
     @Test
-    void saveEventWhenGroupIsNotAuthorizedOrWhenIsAuthorized() {
-        //NOT AUTHORIZED CASE
+    void saveEventWhenGroupIsUnauthorizedOrWhenIsAuthorized() {
+        //UNAUTHORIZED CASE
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
         String iun = "IUN-ABC-FGHI-A-1";
