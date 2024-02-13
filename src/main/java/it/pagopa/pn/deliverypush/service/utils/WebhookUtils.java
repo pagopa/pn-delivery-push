@@ -47,6 +47,7 @@ public class WebhookUtils {
     private final StatusService statusService;
     private final NotificationService notificationService;
     private final Duration ttl;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public WebhookUtils(TimelineService timelineService, StatusService statusService, NotificationService notificationService,
                         PnDeliveryPushConfigs pnDeliveryPushConfigs, DtoToEntityTimelineMapper mapperTimeline, EntityToDtoTimelineMapper entityToDtoTimelineMapper, TimelineElementJsonConverter timelineElementJsonConverter) {
@@ -54,8 +55,8 @@ public class WebhookUtils {
         this.statusService = statusService;
         this.notificationService = notificationService;
         this.entityToDtoTimelineMapper = entityToDtoTimelineMapper;
-        PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
-        this.ttl = webhookConf.getTtl();
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.ttl = pnDeliveryPushConfigs.getWebhook().getTtl();
         this.mapperTimeline = mapperTimeline;
         this.timelineElementJsonConverter = timelineElementJsonConverter;
     }
@@ -158,9 +159,13 @@ public class WebhookUtils {
         return list == null || list.isEmpty();
     }
 
-    public Integer getVersion (String version) {
-        if (version != null)
-            return Integer.parseInt(version.toLowerCase().replace("v", ""));
-        return null;
+    public int getVersion (String version) {
+
+        if (version != null && !version.isEmpty()){
+            String versionNumberString = version.toLowerCase().replace("v", "");
+            return Integer.parseInt(versionNumberString);
+        }
+        return Integer.parseInt(pnDeliveryPushConfigs.getWebhook().getFirstVersion().replace("v", ""));
+
     }
 }
