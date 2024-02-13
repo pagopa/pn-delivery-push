@@ -158,10 +158,9 @@ public class WebhookUtils {
         return list == null || list.isEmpty();
     }
 
-    public int getVersion (String version) {
-
-        String versionNumberString = version.toLowerCase().replace("v", "");
-        return Integer.parseInt(versionNumberString);
-
+    public Integer getVersion (String version) {
+        if (version != null)
+            return Integer.parseInt(version.toLowerCase().replace("v", ""));
+        return null;
     }
 }
