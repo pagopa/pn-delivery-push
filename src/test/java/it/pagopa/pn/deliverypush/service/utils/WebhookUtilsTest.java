@@ -297,7 +297,7 @@ class WebhookUtilsTest {
                 .verifyComplete();
 
         // caso V24 stream e v23 api, Group api is empty => OK
-        entity.setVersion("v23+");
+        entity.setVersion("v24");
         result = webhookUtils.verifyVersion(new ArrayList<>(), "v23", entity);
 
         StepVerifier.create(result)
@@ -305,7 +305,7 @@ class WebhookUtilsTest {
                 .verifyComplete();
 
         // caso V24 stream e v23 api, Group api is equals stream => OK
-        entity.setVersion("v23+");
+        entity.setVersion("v24");
         result = webhookUtils.verifyVersion(List.of("ADMINS"), "v23", entity);
 
         StepVerifier.create(result)
@@ -341,8 +341,8 @@ class WebhookUtilsTest {
                 .verifyError(PnWebhookForbiddenException.class);
 
 
-        // caso v23+ stream e v23 api but groups is different => Exception
-        entity.setVersion("v23+");
+        // caso v24 stream e v23 api but groups is different => Exception
+        entity.setVersion("v24");
         result = webhookUtils.verifyVersion(List.of("TEST"), "v23", entity);
 
         StepVerifier.create(result)
