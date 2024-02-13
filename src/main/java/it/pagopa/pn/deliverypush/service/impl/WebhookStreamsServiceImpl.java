@@ -112,20 +112,40 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     @Override
     public Mono<StreamMetadataResponseV23> getEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
+        String msg = "getEventStream xPagopaPnUid={}, xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, streamId={} ";
+        List<String> args = Arrays.asList(new String[]{xPagopaPnUid, xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, streamId.toString()});
+        generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).log();
+
         return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
-            .map(EntityToDtoStreamMapper::entityToDto);
+            .map(EntityToDtoStreamMapper::entityToDto)
+            .doOnSuccess(entity->
+                generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateSuccess().log()
+            )
+            .doOnError(err->{
+                generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateFailure("error getting stream", err).log();
+            });
     }
 
     @Override
     public Flux<StreamListElement> listEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion) {
+        String msg = "listEventStream xPagopaPnUid={}, xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={} ";
+        List<String> args = Arrays.asList(new String[]{xPagopaPnUid, xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion});
+        generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).log();
+
         return streamEntityDao.findByPa(xPagopaPnCxId)
-            .map(EntityToStreamListDtoStreamMapper::entityToDto);
+            .map(EntityToStreamListDtoStreamMapper::entityToDto)
+            .doOnComplete(()->
+                generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateSuccess().log()
+            )
+            .doOnError(err->{
+                generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateFailure("error listing streams", err).log();
+            });
     }
 
     @Override
     public Mono<StreamMetadataResponseV23> updateEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId, Mono<StreamRequestV23> streamRequest) {
-        String msg = "updateEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, streamId={}, request={} ";
-        List<String> args = Arrays.asList(new String[]{xPagopaPnCxId, groupString(xPagopaPnCxGroups), streamId.toString(), xPagopaPnApiVersion});
+        String msg = "updateEventStream xPagopaPnUid={},xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, streamId={}, request={} ";
+        List<String> args = Arrays.asList(new String[]{xPagopaPnUid, xPagopaPnCxId, groupString(xPagopaPnCxGroups), streamId.toString(), xPagopaPnApiVersion});
 
         return streamRequest.doOnNext(payload-> {
             List<String> values = new ArrayList<>();
