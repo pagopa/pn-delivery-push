@@ -77,7 +77,7 @@ describe('handleEvent', function () {
         const result = await lambda.eventHandler({}, {});
 
         expect(result.statusCode).to.equal(500);
-        expect(result.body.errors[0].code).to.equal("PN_GENERIC_ERROR");
+        expect(result.body).to.match(/(?:PN_GENERIC_ERROR)/);
     });
 
     it("statusCode 403", async () => {
@@ -132,7 +132,7 @@ describe('handleEvent', function () {
         const result = await eventHandler(event, {});
 
         expect(result.statusCode).to.equal(500);
-        expect(result.body.errors[0].code).to.equal("ENDPOINT ERRATO");
+        expect(result.body).to.match(/(?:ENDPOINT ERRATO)/);
     });
 
 });

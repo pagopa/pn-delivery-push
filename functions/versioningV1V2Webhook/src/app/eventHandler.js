@@ -35,7 +35,7 @@ exports.eventHandler = async (event, context) => {
         const err = {
             //Nella V10 lo statusCode 502 non è accettato
             statusCode: 500,
-            body: generateProblem(500, "ENDPOINT ERRATO")
+            body: JSON.stringify(generateProblem(500, "ENDPOINT ERRATO"))
         };
         return err;
 
@@ -54,7 +54,7 @@ exports.eventHandler = async (event, context) => {
         }
         return {
             statusCode: 500,
-            body: generateProblem(500, "PN_GENERIC_ERROR")
+            body: JSON.stringify(generateProblem(500, "PN_GENERIC_ERROR"))
         }
     }
 }
