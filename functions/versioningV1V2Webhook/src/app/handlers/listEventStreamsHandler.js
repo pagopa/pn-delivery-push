@@ -14,7 +14,7 @@ class ListEventStreamsHandler extends EventHandler {
         console.log("Versioning_V1-V2.x_ListEventStreams_Lambda function started");
 
         // HEADERS
-        const headers = this.setHeaders(event);
+        const headers = this.prepareHeaders(event);
         const url = `${this.baseUrl}/streams`;
 
         console.log('calling ', url);

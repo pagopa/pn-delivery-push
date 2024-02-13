@@ -20,7 +20,7 @@ describe("ConsumeEventStreamHandler", () => {
         it("valid ownership", () => {
             const streamId = "12345";
             const event = {
-                path: "/delivery-progresses/v2.3/streams/"+ streamId +"/events",
+                path: "/delivery-progresses/streams/"+ streamId +"/events",
                 pathParameters : { streamId: streamId },
                 httpMethod: "GET" };
             const result = consumeEventStreamHandler.checkOwnership(event, {});
@@ -30,7 +30,7 @@ describe("ConsumeEventStreamHandler", () => {
         it("invalid ownership - case 1", () => {
             const streamId = "12345";
             const event = {
-                path: "/delivery-progresses/v2.3/streams/"+ streamId +"/events",
+                path: "/delivery-progresses/streams/"+ streamId +"/events",
                 pathParameters : { streamId: streamId },
                 httpMethod: "POST" };
             const result = consumeEventStreamHandler.checkOwnership(event, {});
@@ -54,7 +54,7 @@ describe("ConsumeEventStreamHandler", () => {
         it("successful request - with element", async () => {
             const streamId = "12345";
             const event = {
-                path: "/delivery-progresses/v2.3/streams/"+ streamId +"/events",
+                path: "/delivery-progresses/streams/"+ streamId +"/events",
                 pathParameters : { streamId: streamId },
                 httpMethod: "GET",
                 headers: {},
@@ -65,54 +65,79 @@ describe("ConsumeEventStreamHandler", () => {
 
             let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}/events`;
 
-            const responseBodyV23 = {
-                eventId: "01234567890123456789012345678901234567",
-                notificationRequestId: "abcd1234",
-                iun: "ABCD-EFGH-IJKL-123456-M-7",
-                newStatus: {
-                    status: "IN_PROGRESS",
-                    timestamp: "2024-02-06T12:34:56Z"
+            const responseBodyV23 = [
+                {
+                    eventId: "01234567890123456789012345678901234567",
+                    notificationRequestId: "abcd1234",
+                    iun: "ABCD-EFGH-IJKL-123456-M-7",
+                    newStatus: "IN_VALIDATION",
+                    element: {
+                        elementId: "abcdef1234567890",
+                        timestamp: "2024-02-06T12:34:56Z",
+                        legalFactsIds: [],
+                        category: "SEND_COURTESY_MESSAGE",
+                        details: {
+                            recIndex: 1,
+                            digitalAddress: {
+                                "type": "EMAIL",
+                                "address": "rec@example.com"
+                            },
+                            endWorkflowStatus: {},
+                            completionWorkflowDate: ""
+                        },
+                    }
                 },
-                element: {
-                    elementId: "abcdef1234567890",
-                    timestamp: "2024-02-06T12:34:56Z",
-                    legalFactsIds: [
-                        {
-                            key: "safestorage://example_document1.pdf",
-                            category: "SENDER_ACK"
+                {
+                    eventId: "98765432109876543210987654321098765432",
+                    notificationRequestId: "efgh5678",
+                    iun: "EFGH-IJKL-MNOP-123456-N-8",
+                    newStatus: "IN_VALIDATION",
+                    element: {
+                        elementId: "ghijkl0987654321",
+                        timestamp: "2024-02-07T14:45:32Z",
+                        legalFactsIds: [],
+                        category: "SEND_DIGITAL_DOMICILE",
+                        details: {
+                            recIndex: 2,
+                            digitalAddress: {
+                                type: "PEC",
+                                address: "rec@example.com",
+                            },
+                            endWorkflowStatus: {},
+                            completionWorkflowDate: "",
                         },
-                        {
-                            key: "safestorage://example_document2.pdf",
-                            category: "RECEIVER_ACK"
-                        }
-                    ],
-                    category: "SEND_COURTESY_MESSAGE",
-                    details: {
-                        recIndex: 1,
-                        digitalAddress: {
-                            "type": "EMAIL",
-                            "address": "rec@example.com"
-                        },
-                        endWorkflowStatus: {},
-                        completionWorkflowDate: ""
                     },
-
                 }
-            }
+            ]
 
-            const responseBodyV10 = {
-                eventId: '01234567890123456789012345678901234567',
-                notificationRequestId: 'abcd1234',
-                iun: 'ABCD-EFGH-IJKL-123456-M-7',
-                newStatus: { status: 'IN_PROGRESS', timestamp: '2024-02-06T12:34:56Z' },
-                timestamp: '2024-02-06T12:34:56Z',
-                timelineEventCategory: 'SEND_COURTESY_MESSAGE',
-                recipientIndex: 1,
-                analogCost: null,
-                channel: 'EMAIL',
-                legalFactsIds: [ 'example_document1.pdf', 'example_document2.pdf' ],
-                validationErrors: null
-            }
+            const responseBodyV10 = [
+                {
+                    eventId: '01234567890123456789012345678901234567',
+                    notificationRequestId: 'abcd1234',
+                    iun: 'ABCD-EFGH-IJKL-123456-M-7',
+                    newStatus: "IN_VALIDATION",
+                    timestamp: '2024-02-06T12:34:56Z',
+                    timelineEventCategory: 'SEND_COURTESY_MESSAGE',
+                    recipientIndex: 1,
+                    analogCost: null,
+                    channel: 'EMAIL',
+                    legalFactsIds: [],
+                    validationErrors: null
+                },
+                {
+                    eventId: '98765432109876543210987654321098765432',
+                    notificationRequestId: 'efgh5678',
+                    iun: 'EFGH-IJKL-MNOP-123456-N-8',
+                    newStatus: "IN_VALIDATION",
+                    timestamp: '2024-02-07T14:45:32Z',
+                    timelineEventCategory: 'SEND_DIGITAL_DOMICILE',
+                    recipientIndex: 2,
+                    analogCost: null,
+                    channel: 'PEC',
+                    legalFactsIds: [],
+                    validationErrors: null,
+                }
+            ]
 
             mock.onGet(url).reply(200, responseBodyV23);
 
@@ -126,10 +151,10 @@ describe("ConsumeEventStreamHandler", () => {
         });
 
         // L'utilizzo delle properties senza l'element avviene solo nel transitorio
-        it("successful request - without element", async () => {
+        it("successful request - element = null", async () => {
             const streamId = "12345";
             const event = {
-                path: "/delivery-progresses/v2.3/streams/"+ streamId +"/events",
+                path: "/delivery-progresses/streams/"+ streamId +"/events",
                 pathParameters : { streamId: streamId },
                 httpMethod: "GET",
                 headers: {},
@@ -140,33 +165,72 @@ describe("ConsumeEventStreamHandler", () => {
 
             let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}/events`;
 
-            const responseBodyV23 = {
-                eventId: '01234567890123456789012345678901234567',
-                notificationRequestId: 'abcd1234',
-                iun: 'ABCD-EFGH-IJKL-123456-M-7',
-                newStatus:'ACCEPTED',
-                timestamp: '2024-02-06T12:34:56Z',
-                timelineEventCategory: 'SENDER_ACK_CREATION_REQUEST',
-                recipientIndex: 1,
-                analogCost: null,
-                channel: 'EMAIL',
-                legalFactsIds: [ 'PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q', 'PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E' ],
-                validationErrors: {
-                    "validationErrors":
-                        {
-                            "errorCode": "CODICE_ERRORE",
-                            "detail": "Dettagli dell'errore di validazione "
-                        }
-
+            const responseBodyV23 = [
+                {
+                    eventId: '01234567890123456789012345678901234567',
+                    notificationRequestId: 'abcd1234',
+                    iun: 'ABCD-EFGH-IJKL-123456-M-7',
+                    newStatus: 'ACCEPTED',
+                    element: null,
+                    timestamp: '2024-02-06T12:34:56Z',
+                    timelineEventCategory: 'SENDER_ACK_CREATION_REQUEST',
+                    recipientIndex: 1,
+                    analogCost: null,
+                    channel: 'EMAIL',
+                    legalFactsIds: ['PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q', 'PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E'],
+                    validationErrors: null
+                },
+                {
+                    eventId: '98765432109876543210987654321098765432',
+                    notificationRequestId: 'efgh5678',
+                    iun: 'EFGH-IJKL-MNOP-123456-N-8',
+                    newStatus: 'ACCEPTED',
+                    element: null,
+                    timestamp: '2024-02-07T14:45:32Z',
+                    timelineEventCategory: 'SEND_DIGITAL_DOMICILE',
+                    recipientIndex: 2,
+                    analogCost: null,
+                    channel: 'PEC',
+                    legalFactsIds: [ 'example_document3.pdf', 'example_document4.pdf' ],
+                    validationErrors: null,
                 }
-            }
+            ]
+
+            const responseBodyV10 = [
+                {
+                    eventId: '01234567890123456789012345678901234567',
+                    notificationRequestId: 'abcd1234',
+                    iun: 'ABCD-EFGH-IJKL-123456-M-7',
+                    newStatus: 'ACCEPTED',
+                    timestamp: '2024-02-06T12:34:56Z',
+                    timelineEventCategory: 'SENDER_ACK_CREATION_REQUEST',
+                    recipientIndex: 1,
+                    analogCost: null,
+                    channel: 'EMAIL',
+                    legalFactsIds: ['PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q', 'PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E'],
+                    validationErrors: null
+                },
+                {
+                    eventId: '98765432109876543210987654321098765432',
+                    notificationRequestId: 'efgh5678',
+                    iun: 'EFGH-IJKL-MNOP-123456-N-8',
+                    newStatus: 'ACCEPTED',
+                    timestamp: '2024-02-07T14:45:32Z',
+                    timelineEventCategory: 'SEND_DIGITAL_DOMICILE',
+                    recipientIndex: 2,
+                    analogCost: null,
+                    channel: 'PEC',
+                    legalFactsIds: [ 'example_document3.pdf', 'example_document4.pdf' ],
+                    validationErrors: null,
+                }
+            ]
 
             mock.onGet(url).reply(200, responseBodyV23);
 
             const response = await consumeEventStreamHandler.handlerEvent(event, {});
 
             expect(response.statusCode).to.equal(200);
-            expect(response.body).to.equal(JSON.stringify(responseBodyV23));
+            expect(response.body).to.equal(JSON.stringify(responseBodyV10));
 
             expect(mock.history.get.length).to.equal(1);
         });

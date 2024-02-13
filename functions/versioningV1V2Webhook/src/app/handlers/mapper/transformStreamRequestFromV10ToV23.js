@@ -3,7 +3,7 @@ exports.createStreamRequestV22 = (requestBody) => {
     return {
         title: requestBody.title,
         eventType: requestBody.eventType,
-        groups: null,
+        groups: [],
         filterValues: requestBody.filterValues
     };
 }

@@ -21,7 +21,7 @@ describe("CreateEventStreamHandler", () => {
         it("valid ownership", () => {
             const streamId = "12345";
             const event = {
-                path: "/delivery-progresses/v2.3/streams",
+                path: "/delivery-progresses/streams",
                 pathParameters : { streamId: streamId },
                 httpMethod: "POST" };
             const result = createEventStreamHandler.checkOwnership(event, {});
@@ -29,8 +29,10 @@ describe("CreateEventStreamHandler", () => {
         });
 
         it("invalid ownership - case 1", () => {
+            const streamId = "12345";
             const event = {
-                path: "/delivery-progresses/v2.3/streams",
+                path: "/delivery-progresses/streams",
+                pathParameters : { streamId: streamId },
                 httpMethod: "GET" };
             const result = createEventStreamHandler.checkOwnership(event, {});
             expect(result).to.be.false;
@@ -38,7 +40,7 @@ describe("CreateEventStreamHandler", () => {
 
         it("invalid ownership - case 2", () => {
             const event = {
-                path: "/delivery-progresses/v2.3/streams/{streamId}",
+                path: "/delivery-progresses/streams/{streamId}",
                 httpMethod: "POST" };
             const result = createEventStreamHandler.checkOwnership(event, {});
             expect(result).to.be.false;
@@ -53,7 +55,7 @@ describe("CreateEventStreamHandler", () => {
 
         it("successful request", async () => {
             const event = {
-                path: "/delivery-progresses/v2.3/streams",
+                path: "/delivery-progresses/streams",
                 httpMethod: "POST",
                 headers: {},
                 requestContext: {

@@ -15,10 +15,10 @@ class UpdateEventStreamHandler extends EventHandler {
     async handlerEvent(event, context) {
         console.log("Versioning_V1-V2.x_UpdateEventStream_Lambda function started");
         // HEADERS
-        const headers = this.setHeaders(event);
+        const headers = this.prepareHeaders(event);
 
         // REQUEST BODY
-        const requestBodyV1 = JSON.parse(JSON.stringify(event.body));
+        const requestBodyV1 = event.body;
         const requestBodyV22= createStreamRequestV22(requestBodyV1);
 
         const streamId = event["pathParameters"]["streamId"];

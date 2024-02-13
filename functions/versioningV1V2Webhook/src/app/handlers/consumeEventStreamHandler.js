@@ -12,22 +12,27 @@ class ConsumeEventStreamHandler extends EventHandler {
     }
 
     async handlerEvent(event, context) {
-        console.log("Versioning_V1-V2.3_ConsumeEventStream_Lambda function started");
+        console.log("Versioning_V1-V2.x_ConsumeEventStream_Lambda function started");
         // HEADERS
-        const headers = this.setHeaders(event);
+        const headers = this.prepareHeaders(event);
 
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}/events`;
 
         console.log('calling ', url);
         let response = await axios.get(url, {headers: headers});
+
         // RESPONSE BODY
         // Il controllo della presenza di element avviene solo nel transitorio
-        let responseBody;
-        if(response.data.element)
-            responseBody = createProgressResponseV10(response.data);
-        else
-            responseBody = response.data;
+        let responseBody = [];
+        for(let i=0; i < response.data.length; i++){
+            if(response.data[i].element)
+                responseBody.push(createProgressResponseV10(response.data[i]));
+            else{
+                delete response.data[i].element;
+                responseBody.push(response.data[i]);
+            }
+        }
 
         const ret = {
             statusCode: response.status,

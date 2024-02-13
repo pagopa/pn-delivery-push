@@ -14,7 +14,7 @@ describe('createStreamCreationRequestV22', () => {
 
         expect(result.title).to.equal(requestBody.title);
         expect(result.eventType).to.equal(requestBody.eventType);
-        expect(result.groups).to.be.null;
+        expect(result.groups).to.be.an('array').that.is.empty;
         expect(result.filterValues).to.deep.equal(requestBody.filterValues);
         expect(result.replacedStreamId).to.be.null;
     });

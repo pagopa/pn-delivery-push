@@ -17,10 +17,10 @@ class CreateEventStreamHandler extends EventHandler {
         console.log("Versioning_V1-V2.x_CreateEventStream_Lambda function started");
 
         // HEADERS
-        const headers = this.setHeaders(event);
+        const headers = this.prepareHeaders(event);
 
         // REQUEST BODY
-        const requestBodyV1 = JSON.parse(JSON.stringify(event.body));
+        const requestBodyV1 = event.body;
         const requestBodyV22 = createStreamCreationRequestV22(requestBodyV1);
         const url = `${this.baseUrl}/streams`;
 

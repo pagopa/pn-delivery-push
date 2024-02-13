@@ -14,7 +14,7 @@ class DeleteEventStreamHandler extends EventHandler {
         console.log("Versioning_V1-V2.x_DeleteEventStream_Lambda function started");
 
         // HEADERS
-        const headers = this.setHeaders(event);
+        const headers = this.prepareHeaders(event);
 
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}`;

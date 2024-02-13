@@ -42,7 +42,7 @@ exports.createProgressResponseV10 = (responseBody) => {
         channel: channelV10,
         legalFactsIds: legalFactsIdsV10,
         validationErrors: validationErrorsV10
-    };
+    }
 }
 
 function transformChannelFromV23ToV10(detailsV23, category){

@@ -21,7 +21,7 @@ describe("ListEventStreamsHandler", () => {
     describe("checkOwnership", () => {
         it("valid ownership", () => {
             const event = {
-                path: "/delivery-progresses/v2.3/streams",
+                path: "/delivery-progresses/streams",
                 httpMethod: "GET" };
             const result = listEventStreamsHandler.checkOwnership(event, {});
             expect(result).to.be.true;
@@ -29,7 +29,7 @@ describe("ListEventStreamsHandler", () => {
 
         it("invalid ownership - case 1", () => {
             const event = {
-                path: "/delivery-progresses/v2.3/streams",
+                path: "/delivery-progresses/streams",
                 httpMethod: "POST" };
             const result = listEventStreamsHandler.checkOwnership(event, {});
             expect(result).to.be.false;
@@ -37,7 +37,7 @@ describe("ListEventStreamsHandler", () => {
 
         it("invalid ownership - case 2", () => {
             const event = {
-                path: "delivery-progresses/v2.3/streams/{streamId}",
+                path: "delivery-progresses/streams/{streamId}",
                 httpMethod: "GET" };
             const result = listEventStreamsHandler.checkOwnership(event, {});
             expect(result).to.be.false;
@@ -52,7 +52,7 @@ describe("ListEventStreamsHandler", () => {
 
         it("successful request", async () => {
             const event = {
-                path: "/delivery-progresses/v2.3/streams",
+                path: "/delivery-progresses/streams",
                 httpMethod: "GET",
                 headers: {},
                 requestContext: {
@@ -62,10 +62,16 @@ describe("ListEventStreamsHandler", () => {
 
             let url = `${process.env.PN_WEBHOOK_URL}/streams`;
 
-            const responseBody = {
-                title: "stream name",
+            const responseBody = [
+                {
+                title: "stream name 1",
                 streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv"
-            }
+                },
+                {
+                    title: "stream name 2",
+                    streamId: "abcdefgh-ijkl-mnop-qrst-uvwxyz123456"
+                }
+            ]
 
             mock.onGet(url).reply(200, responseBody);
 

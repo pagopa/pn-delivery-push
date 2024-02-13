@@ -9,9 +9,9 @@ class EventHandler {
 
     handlerEvent(event, context){}
 
-    setHeaders(event){
+    prepareHeaders(event){
 
-        const headers = JSON.parse(JSON.stringify(event["headers"]));
+        const headers = event["headers"];
         headers["x-pagopa-pn-src-ch"] = "B2B";
 
         if (event.requestContext.authorizer["cx_groups"]) {

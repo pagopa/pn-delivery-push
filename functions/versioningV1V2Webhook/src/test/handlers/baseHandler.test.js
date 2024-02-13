@@ -16,7 +16,7 @@ describe('EventHandler', () => {
         expect(eventHandler.baseUrl).to.equal("https://api.dev.notifichedigitali.it/delivery-progresses/v2.3");
     });
 
-    it('set headers correctly', () => {
+    it('prepare headers correctly', () => {
         const streamId = "12345";
 
         const event = {
@@ -37,7 +37,7 @@ describe('EventHandler', () => {
         };
 
         const context = {};
-        const headers = eventHandler.setHeaders(event, context);
+        const headers = eventHandler.prepareHeaders(event, context);
 
         const headersToCompare = {
             "x-pagopa-pn-src-ch": "B2B",

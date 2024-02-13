@@ -22,7 +22,7 @@ describe("DeleteEventStreamHandler", () => {
         it("valid ownership", () => {
             const streamId = "12345";
             const event = {
-                path: "/delivery-progresses/v2.3/streams",
+                path: "/delivery-progresses/streams",
                 pathParameters : { streamId: streamId },
                 httpMethod: "DELETE"
             };
@@ -33,7 +33,7 @@ describe("DeleteEventStreamHandler", () => {
         it("invalid ownership - case 1", () => {
             const streamId = "12345";
             const event = {
-                path: "/delivery-progresses/v2.3/streams",
+                path: "/delivery-progresses/streams",
                 pathParameters : { streamId: streamId },
                 httpMethod: "PUT"
             };
@@ -59,7 +59,7 @@ describe("DeleteEventStreamHandler", () => {
             it("successful request", async () => {
                 const streamId = "12345";
                 const event = {
-                    path: "/delivery-progresses/v2.3/streams",
+                    path: "/delivery-progresses/streams",
                     pathParameters : { streamId: streamId },
                     httpMethod: "DELETE",
                     headers: {},
