@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: KHcI9vZ8ZHpq01LSYcMpTga8etdqh6AyGa4IH1AetyA=
+  version: 7BhrALUiOK+dLSSbxDh66Tm16kKgAn6bdxqkHIwpv+w=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -22,7 +22,7 @@ paths:
         tipicamente pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStream
+      operationId: createEventStreamV23
       requestBody:
         required: true
         content:
@@ -87,7 +87,7 @@ paths:
       description: Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreams
+      operationId: listEventStreamsV23
       responses:
         '200':
           description: OK
@@ -149,7 +149,7 @@ paths:
       description: Permette di leggere le configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStream
+      operationId: retrieveEventStreamV23
       responses:
         '200':
           description: OK
@@ -211,7 +211,7 @@ paths:
         di eventi
       tags:
         - Streams
-      operationId: updateEventStream
+      operationId: updateEventStreamV23
       requestBody:
         required: true
         content:
@@ -279,7 +279,7 @@ paths:
         eventi  associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStream
+      operationId: removeEventStreamV23
       responses:
         '204':
           description: OK
@@ -357,7 +357,7 @@ paths:
         massimo di disponibilità degli eventi.
       tags:
         - Streams
-      operationId: disableEventStream
+      operationId: disableEventStreamV23
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -436,7 +436,7 @@ paths:
         potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStream
+      operationId: consumeEventStreamV23
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
