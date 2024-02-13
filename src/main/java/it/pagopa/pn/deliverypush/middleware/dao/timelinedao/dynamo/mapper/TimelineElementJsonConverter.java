@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
+
 @Slf4j
 @Component
 @AllArgsConstructor
@@ -25,7 +27,7 @@ public class TimelineElementJsonConverter {
             return objectMapper.writeValueAsString(objectHashMap);
         } catch (JsonProcessingException ex) {
             log.error("Timeline element entity not converted into JSON", ex);
-            throw new PnInternalException("Timeline element entity not converted into JSON", ex.getMessage());
+            throw new PnInternalException("Timeline element entity not converted into JSON", ERROR_CODE_PN_GENERIC_ERROR);
         }
     }
 

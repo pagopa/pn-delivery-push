@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 
+
 @Slf4j
 @Component
 public class WebhookUtils {
@@ -40,14 +41,15 @@ public class WebhookUtils {
     private final StatusService statusService;
     private final NotificationService notificationService;
     private final Duration ttl;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public WebhookUtils(TimelineService timelineService, StatusService statusService, NotificationService notificationService,
                             PnDeliveryPushConfigs pnDeliveryPushConfigs, DtoToEntityTimelineMapper mapperTimeline, TimelineElementJsonConverter timelineElementJsonConverter) {
         this.timelineService = timelineService;
         this.statusService = statusService;
         this.notificationService = notificationService;
-        PnDeliveryPushConfigs.Webhook webhookConf = pnDeliveryPushConfigs.getWebhook();
-        this.ttl = webhookConf.getTtl();
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.ttl = pnDeliveryPushConfigs.getWebhook().getTtl();
         this.mapperTimeline = mapperTimeline;
         this.timelineElementJsonConverter = timelineElementJsonConverter;
     }
@@ -125,8 +127,11 @@ public class WebhookUtils {
 
     public int getVersion (String version) {
 
-        String versionNumberString = version.toLowerCase().replace("v", "");
-        return Integer.parseInt(versionNumberString);
+        if (version != null && !version.isEmpty()){
+            String versionNumberString = version.toLowerCase().replace("v", "");
+            return Integer.parseInt(versionNumberString);
+        }
+        return Integer.parseInt(pnDeliveryPushConfigs.getWebhook().getFirstVersion().replace("v", ""));
 
     }
 }
