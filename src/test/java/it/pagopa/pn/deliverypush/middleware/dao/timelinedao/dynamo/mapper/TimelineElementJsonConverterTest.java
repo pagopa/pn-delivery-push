@@ -5,7 +5,6 @@ import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.Timeli
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,8 +34,6 @@ class TimelineElementJsonConverterTest {
 
     @Test
     void test_convertJsonEntity() {
-        TimelineElementEntity entity = Mockito.mock(TimelineElementEntity.class);
-
         String jsonResult = """
                 {
                 "timelineElementId": "1234",
@@ -167,8 +164,7 @@ class TimelineElementJsonConverterTest {
                                      "notRefinedRecipientIndexes": [
                                        0
                                      ],
-                                     "failureCause": "failureCause_7e394b12c845",
-                                     "coverFileKey": "coverFileKey_54f5f3000ca1"
+                                     "failureCause": "failureCause_7e394b12c845"
                                    }
             }
         """;
@@ -177,5 +173,4 @@ class TimelineElementJsonConverterTest {
         assertNotNull(timelineElementEntity);
         assertNotNull(timelineElementEntity.getDetails());
     }
-
 }
