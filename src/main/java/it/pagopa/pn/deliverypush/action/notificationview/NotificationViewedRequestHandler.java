@@ -153,7 +153,7 @@ public class NotificationViewedRequestHandler {
                                 return timelineService.addTimelineElement(timelineElementInternal, notificationInt);
                             }))
                             .doOnNext(timelineElementAdded -> {
-                                if(!timelineElementAdded) {
+                                if(Boolean.FALSE.equals(timelineElementAdded)) {
                                     logEvent.generateWarning("Timeline element wasn't added to notification").log();
                                 }
                             })
