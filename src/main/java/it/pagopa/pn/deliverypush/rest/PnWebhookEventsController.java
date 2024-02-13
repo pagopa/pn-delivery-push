@@ -28,7 +28,7 @@ public class PnWebhookEventsController implements EventsApi {
     private final WebhookEventsService webhookService;
 
     @Override
-    public Mono<ResponseEntity<Flux<ProgressResponseElementV23>>> consumeEventStream(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, String lastEventId,  final ServerWebExchange exchange) {
+    public Mono<ResponseEntity<Flux<ProgressResponseElementV23>>> consumeEventStreamV23(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, String lastEventId,  final ServerWebExchange exchange) {
         log.info("[enter] getEventStream xPagopaPnCxId={} streamId={} lastEventID={}", xPagopaPnCxId, streamId.toString(), lastEventId);
         MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
 
