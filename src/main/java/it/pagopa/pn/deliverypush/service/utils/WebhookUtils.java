@@ -83,7 +83,7 @@ public class WebhookUtils {
 
 
     public EventEntity buildEventEntity(Long atomicCounterUpdated, StreamEntity streamEntity,
-                                        String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) throws PnInternalException{
+                                        String newStatus, TimelineElementInternal timelineElementInternal) throws PnInternalException{
 
         Instant timestamp = timelineElementInternal.getTimestamp();
 

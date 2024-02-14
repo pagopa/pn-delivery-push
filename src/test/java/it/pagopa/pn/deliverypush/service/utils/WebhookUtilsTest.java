@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -33,7 +32,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class WebhookUtilsTest {
 
@@ -103,7 +103,7 @@ class WebhookUtilsTest {
         List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
         TimelineElementInternal timelineElementInternal = timeline.get(2); //SEND_DIGITAL_DOMICILE
         StreamEntity streamEntity = new StreamEntity("paid", "abc");
-        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal, NotificationInt.builder().build());
+        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal);
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
@@ -119,7 +119,7 @@ class WebhookUtilsTest {
         List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
         TimelineElementInternal timelineElementInternal = timeline.get(1);          //AAR_GENERATION
         StreamEntity streamEntity = new StreamEntity("paid", "abc");
-        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal, NotificationInt.builder().build());
+        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal);
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
@@ -137,10 +137,8 @@ class WebhookUtilsTest {
         List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
         TimelineElementInternal timelineElementInternal = timeline.get(3);          //SEND_ANALOG_DOMICILE
         StreamEntity streamEntity = new StreamEntity("paid", "abc");
-        NotificationInt notificationInt = NotificationInt.builder()
-                .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
-                .build();
-        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal, notificationInt);
+
+        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal);
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
@@ -158,10 +156,8 @@ class WebhookUtilsTest {
         List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
         TimelineElementInternal timelineElementInternal = timeline.get(4);          //SEND_SIMPLE_REGISTERED_LETTER
         StreamEntity streamEntity = new StreamEntity("paid", "abc");
-        NotificationInt notificationInt = NotificationInt.builder()
-                .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
-                .build();
-        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal, notificationInt);
+
+        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal);
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
@@ -179,10 +175,8 @@ class WebhookUtilsTest {
         List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
         TimelineElementInternal timelineElementInternal = timeline.get(5);          //SEND_SIMPLE_REGISTERED_LETTER
         StreamEntity streamEntity = new StreamEntity("paid", "abc");
-        NotificationInt notificationInt = NotificationInt.builder()
-                .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
-                .build();
-        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal, notificationInt);
+
+        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, "ACCEPTED", timelineElementInternal);
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());

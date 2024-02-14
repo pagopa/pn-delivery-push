@@ -210,7 +210,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
                 }
 
                 return eventEntityDao.save(webhookUtils.buildEventEntity(atomicCounterUpdated, streamEntity,
-                        newStatus, timelineElementInternal, notificationInt))
+                        newStatus, timelineElementInternal))
                         .onErrorResume(ex -> Mono.empty())
                     .doOnSuccess(event -> log.info("saved webhookevent={}", event))
                     .then();
