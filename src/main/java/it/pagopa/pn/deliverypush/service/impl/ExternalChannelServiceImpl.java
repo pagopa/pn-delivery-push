@@ -178,7 +178,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         try {
             DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, true);
             externalChannel.sendCourtesyNotification(notification, notificationUtils.getRecipientFromIndex(notification,recIndex), courtesyAddress, eventId,
-                digitalParameters.fileKeys.get(0), //AAR is always the first elements
+                digitalParameters.fileKeys.get(0), //AAR is always the first element
                 digitalParameters.quickAccessToken);
             logEvent.generateSuccess().log();
         } catch (Exception e) {
