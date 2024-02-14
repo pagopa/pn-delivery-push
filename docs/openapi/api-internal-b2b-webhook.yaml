@@ -9,27 +9,57 @@ info:
   x-summary: 'API B2B avanzamento notifiche'
   version: '2.3.0'
   x-api-id: api-internal-b2b-webhook # NO EXTERNAL
-#  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
-  description: >- 
-    I mittenti di notifica possono seguire il flusso di avanzamento delle notifiche in modo 
-    automatico. E' possibile definire fino ad un <font color="red"><strong>massimo di <span id="webhookMaxStreams">10</span> configurazioni di flussi attive per singola PA</strong></font> su
-    informazioni relative a: <br/>
-      - cambiamento di stato della notifica;  <br/>
-      - inserimento di elementi nella timeline. <br/>
+  #  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
+  description: >-
+    I mittenti di notifiche possono seguire il loro flusso di avanzamento in modo automatico.
     
-    Per ognuno di questi elementi è possibile definire un filtro per ricevere solo alcuni 
-    cambiamenti di stato o determinati eventi di timeline di maggiore interesse.</br><strong>In assenza del filtro
-    verranno restituiti tutti gli elementi relativi alla v2.3.</strong>
-    E' possibile limitare l'accesso ad uno stream solo ad alcuni gruppi, in questo modo:
-      - nello stream compariranno solo eventi relativi alle notifiche dei gruppi
-      - solo api-key "master" (senza gruppi) o api-key con visibilità sui gruppi dello stream possano modificarlo e consumarlo.
-    </br>Si consiglia di creare gli stream prima dell'invio delle notifiche perché gli stati o gli eventi di 
-    timeline vengono registrati solo successivamente alla creazione dello stream.</br>
-    </br>
-    __Esempio:__
-    - Stream contenente tutte le notifiche in stato Cancellato:
-    </br></br>
-    ``
+    
+    Tramite la configurazione di flussi (stream) è possibile ottenere, in modo massivo, le informazioni informazioni 
+    relative a:
+      - cambiamento di stato delle notifiche
+      - inserimento di elementi di timeline delle notifiche
+    
+    
+    E' possibile definire fino ad un __massimo di <span id="webhookMaxStreams">10</span> 
+    configurazioni di flussi attive per singola PA__.
+    
+    
+    __NOTA__: i flussi riportano gli eventi occorsi dal momento della loro creazione, non quelli precedenti.
+    Per cui si consiglia di creare i flussi di interesse per il mittente prima dell'invio delle notifiche di cui si vogliono ottenre gli aggiornamenti.
+    
+    ## Filtraggio degli  eventi
+    
+    La configurazione del flusso può prevedere un filtro per ricevere per ricevere solo alcuni 
+    cambiamenti di stato o determinati eventi di timeline di interesse per il mittente.</br>
+    
+    
+    
+    __NOTA__: Dalla versione 2.3 dell'API in assenza del filtro
+    verranno restituiti tutti gli elementi relativi alla configurazione _MAIN_ (vedi paragrafo )
+    
+    
+    ## Segregazione per gruppi 
+    
+    Così come notifiche, api-key e utenti dell'ente mittente possono essere segregati in gruppi, nella versione 2.3
+    dell'API è stata introdotta la segregazione dei flussi per gruppo. 
+    
+    Ad un flusso possono essere associati uno o più gruppi per cui:
+    - presenterà esclusivamente gli eventi relativi alle notifiche associate ai tali gruppi:
+    - in fase di creazione potranno essere associati i gruppi associati all'api-key utilizzata.
+    - solo le api-key con visibilità sui gruppi dello flusso possano modificarlo, cancellarlo e consumare gli eventi.
+    
+    
+    __NOTA__: Le api-key senza associazione a gruppi possono agire su tutti i gruppi.
+    
+    ## Esempio di utilizzo della API
+    
+    
+    ### Flusso contenente tutte le notifiche in stato Cancellato:
+    
+    Il payload da passare alla API di creazione del flusso _createEventStream_ è
+    
+    ```json
+    
     {
       "title": "NotificationCancelled",
       "eventType": "STATUS",
@@ -38,12 +68,17 @@ info:
         "CANCELLED"
       ]
     }
-    ``
-    </br></br>
-    __Esempio:__
-    - Stream contenente tutte le notifiche in stato Accettato o Consegnato:
-    </br></br>
-    ``
+    
+    ```
+    
+    
+    
+    ### Flusso contenente tutte le notifiche in stato Accettato o Consegnato:
+    
+    Il payload da passare alla API di creazione del flusso _createEventStream_ è
+    
+    ```json
+    
     {
       "title": "NotificationAcceptedOrDelivered",
       "eventType": "STATUS",
@@ -52,12 +87,15 @@ info:
         "ACCEPTED","DELIVERED"
       ]
     }
-    ``
-    </br></br>
-    __Esempio:__
-    - Stream contenente tutti gli eventi di timeline NOTIFICATION_VIEWED:
-    </br></br>
-    ``
+    
+    ```
+    
+    ### Flusso contenente tutti gli eventi di timeline NOTIFICATION_VIEWED:
+    
+    Il payload da passare alla API di creazione del flusso _createEventStream_ è
+    
+    ```json
+    
     {
       "title": "TimelineNotificationViewed",
       "eventType": "TIMELINE",
@@ -66,37 +104,51 @@ info:
         "NOTIFICATION_VIEWED"
       ]
     }
-    ``
-    </br></br>
-    __Esempio:__
-    - Stream contenente tutti gli eventi per le notifiche create con il gruppo "contravvenzioni":
-    </br></br>
-    ``
+    
+    ```
+    
+    
+    ### Flusso contenente tutti gli eventi per le notifiche create con il gruppo "contravvenzioni":
+    
+    Il payload da passare alla API di creazione del flusso _createEventStream_ è
+    
+    ```json
+    
     {
       "title": "TimelineNotificationViewed",
       "eventType": "TIMELINE",
       "groups": ["contravvenzioni"],
       "filterValues": []
     }
+    
     ``
-    NB: solo api-key "master" o con il gruppo "contravvenzioni" possono creare e consumare questo stream.
-    </br></br>
-    __Esempio:__
-    - Stream contenente tutti gli eventi di timeline NOTIFICATION_VIEWED per le notifiche create con il gruppo "contravvenzioni" e "tasse":
-    </br></br>
-    ``
+    
+    NOTA: solo api-key "master" o con il gruppo "contravvenzioni" possono creare e consumare questo flusso.
+    
+    ### Flusso contenente tutti gli eventi di timeline NOTIFICATION_VIEWED per le notifiche create con il 
+    gruppo "contravvenzioni" e "tributi":
+    
+    Il payload da passare alla API di creazione del flusso _createEventStream_ è
+
+    ```json
+    
     {
       "title": "TimelineNotificationViewed",
       "eventType": "TIMELINE",
-      "groups": ["contravvenzioni", "tasse"],
+      "groups": ["contravvenzioni", "tributi"],
       "filterValues": [
         "NOTIFICATION_VIEWED"
       ]
     }
-    ``
-    NB: solo api-key "master" o con i gruppi "contravvenzioni" e "tasse" possono creare e consumare questo stream.
-    Un'api-key con il SOLO gruppo "contravvenzioni" infatti non potrà creare o accedere a questo stream.
-    </br></br>
+    
+    ```
+    
+    
+    NOTA: solo api-key "master" o con i gruppi "contravvenzioni" e "tributi" possono creare e consumare questo flusso.
+    Un'api-key con il SOLO gruppo "contravvenzioni" infatti non potrà creare o accedere a questo flusso.
+    
+    
+    ## Filtri applicabili ai flussi di cambiamento di stato della notifica
     
     Gli stati della notifica che possono essere inseriti come __filterValues__ sono i seguenti: 
       <details>
@@ -113,7 +165,9 @@ info:
         </ul>
       </details>
     </br>
-
+    
+    ## Filtri applicabili ai flussi di eventi di timeline
+    
     Le categorie degli eventi di timeline che possono essere inseriti come __filterValues__ sono i seguenti: 
 
       <details>
@@ -189,20 +243,20 @@ info:
 
       <details>
         <summary>Esempio dello stream</summary>
-      
+    
       <table>
-      
+    
       <tr>
-      
+    
       <td>
-      
+    
       </br>
-      
+    
       ### 1) Creazione dello stream ed inserimento notifica
       In questo esempio creo 2 stream con il servizio di [creazione stream](#/Streams/createEventStream): uno per gli status</br> e l'altro per gli eventi di timeline.</br> Vedesi le request <big><strong>a)</strong></big> di esempio con le relative response <big><strong>b)</strong></big>, Da notare che sono presenti</br> dei filtri per ottenere solo specifici status o eventi; se si vogliono ottenere tutte </br>le variazioni limitatamente agli eventi della v1, non bisogna inserire alcun filtro: 
       <code>"filterValues": []</code></br>      
       Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
-      
+    
       </br>
       </br>
       </br>
@@ -211,20 +265,20 @@ info:
       </br>
       </br>
       </br>
-      
+    
       ### 2) Prima interrogazione degli stream appena creati
-      
+    
       Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">50</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
-      
+    
       A questo punto bisogna controllare il parametro <code>retry-after</code> contenuto nell'header</br> della response per capire quanto tempo attendere prima di richiamare lo stream</br> ed ottenere nuovi risultati: 
       <ul>
       <li>Se <code>retry-after = 0</code> significa che lo stream contiene ulteriori eventi rispetto</br> a quelli che ho appena ottenuto nella response e quindi posso richiamare subito</br> il servizio e consumare gli eventi successivi</li></br>
       <li>se <code>retry-after ≠ 0</code> significa che lo stream NON contiene altri eventi rispetto</br> a quelli che ottenuti in questa chiamata e quindi dovrò attendere la quantità</br> di tempo indicata nel <code>retry-after</code> prima di effettuare un'altra chiamata</br> per consumare ulteriori eventi</li>
       </ul>
-      
+    
       <font color="red"><strong>NOTA:</strong> 
       è importante consumare <strong>SEMPRE</strong> gli eventi che vengono restituiti dallo stream, anche se il <code>retry-after ≠ 0</code>; infatti tale parametro regola la cadenza di chiamata al servizio, mentre il consumo degli eventi deve avvenire in ogni chiamata nella quale si ottengono eventi in risposta.</font>
-      
+    
       </br>
       </br>
       </br>
@@ -239,9 +293,9 @@ info:
 
       </td>
       <td>
-      
+    
       #### a) Request di POST /delivery-progresses/streams
-      
+    
         {                                           {
           "title": "stream-status-prova",             "title": "stream-timeline-prova",
           "eventType": "STATUS",                      "eventType": "TIMELINE",
@@ -250,9 +304,9 @@ info:
               "EFFECTIVE_DATE"                           "REFINEMENT"
           ]                                           ]
         }                                           }
-        
+    
       #### b) Response di POST /delivery-progresses/streams
-        
+    
         {                                           {
             "title": "stream-status-prova",           "title": "stream-timeline-prova",
             "eventType": "STATUS",                    "eventType": "TIMELINE",
@@ -266,12 +320,12 @@ info:
              "2022-12-12T14:52:23.362454Z",             "2022-12-12T14:53:23.362454Z",
             "version": "v23"                          "version": "v23"
         }                                           }  
-      
+    
       </br>
       </br>
 
       #### c) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events
-      
+    
         Headers: { "retry-after": "60000" }
 
         [
@@ -304,7 +358,7 @@ info:
       </br>
 
       #### d) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events</br> chiamato valorizzando nei query params il parametro <code>lastEventId</code> con l'eventId</br> dell'ultimo evento nella precedente chiamata.</br>
-      
+    
         Headers: { "retry-after": "60000" }
 
         [
@@ -327,16 +381,16 @@ info:
           },
             ... // altri eventi nell'array
         ]
-      
+    
       </td>
-      
+    
       </tr>
-      
+    
       </table>
 
       </br>
       </br>
-      
+    
       </details>  
 
     Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
@@ -365,9 +419,9 @@ info:
     
     <h3>Le <strong>FAQ</strong> possono essere consultate al seguente link:
     <a href="https://docs.pagopa.it/f.a.q.-per-integratori/">https://docs.pagopa.it/f.a.q.-per-integratori/</a></h3>
-
-
-    
+  
+  
+  
 
   contact:
     email: pn-supporto-enti@pagopa.it
@@ -494,7 +548,7 @@ paths:
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
-      - $ref: '#/components/parameters/pathStreamId'        
+      - $ref: '#/components/parameters/pathStreamId'
     get:
       summary: Leggi metadati dello stream
       description: >-
@@ -502,7 +556,7 @@ paths:
       tags:
         - Streams
       operationId: getEventStream                             # NO EXTERNAL
-#      operationId: retrieveEventStream                       # ONLY EXTERNAL
+      #      operationId: retrieveEventStream                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -586,7 +640,7 @@ paths:
       tags:
         - Streams
       operationId: deleteEventStream                          # NO EXTERNAL
-#      operationId: removeEventStream                         # ONLY EXTERNAL
+      #      operationId: removeEventStream                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -893,9 +947,9 @@ components:
             oppure entrambi array vuoti.
           type: array
           items:
-           allOf:
-             - $ref: '#/components/schemas/StreamGroup'
-           minLength: 0
+            allOf:
+              - $ref: '#/components/schemas/StreamGroup'
+            minLength: 0
         filterValues:
           description: >-
             rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi alla versione con cui è stato creato lo stream.
