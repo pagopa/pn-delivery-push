@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -17,14 +17,12 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
-import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementWebhookMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import jdk.jfr.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -35,6 +33,8 @@ import reactor.util.function.Tuples;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
 import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
 
 
@@ -211,7 +211,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
 
                 return eventEntityDao.save(webhookUtils.buildEventEntity(atomicCounterUpdated, streamEntity,
                         newStatus, timelineElementInternal))
-                        .onErrorResume(ex -> Mono.empty())
+                        .onErrorResume(ex -> Mono.error(new PnInternalException("Timeline element entity not converted into JSON", ERROR_CODE_PN_GENERIC_ERROR)))
                     .doOnSuccess(event -> log.info("saved webhookevent={}", event))
                     .then();
             });
@@ -251,11 +251,8 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
 
     private Set<String> categoriesByFilter(StreamEntity stream) {
         Set<String> categoriesSet;
-        if (stream.getVersion() != null && !stream.getVersion().isEmpty() &&
-                CollectionUtils.isEmpty(stream.getFilterValues())) {
+        if (CollectionUtils.isEmpty(stream.getFilterValues())){
             categoriesSet = categoriesByVersion(webhookUtils.getVersion(stream.getVersion()));
-        } else if (stream.getVersion() != null && stream.getVersion().equalsIgnoreCase("V10")) {
-            categoriesSet = stream.getFilterValues();
         } else {
             categoriesSet = stream.getFilterValues().stream()
                     .filter(v -> !v.equalsIgnoreCase(DEFAULT_CATEGORIES))
@@ -266,6 +263,4 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
         }
         return categoriesSet;
     }
-
-
 }
