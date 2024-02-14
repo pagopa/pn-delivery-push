@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.service.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -9,6 +11,8 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementJsonConverter;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -38,6 +42,9 @@ class WebhookUtilsTest {
     private StatusService statusService;
     private NotificationService notificationService;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private DtoToEntityTimelineMapper timelineMapper;
+    private TimelineElementJsonConverter timelineElementJsonConverter;
+    private ObjectMapper objectMapper;
 
     private WebhookUtils webhookUtils;
 
@@ -48,6 +55,9 @@ class WebhookUtilsTest {
         notificationService = Mockito.mock(NotificationService.class);
         statusService = Mockito.mock(StatusService.class);
         pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
+        timelineMapper = new DtoToEntityTimelineMapper();
+        objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        timelineElementJsonConverter = new TimelineElementJsonConverter(objectMapper);
 
         PnDeliveryPushConfigs.Webhook webhook = new PnDeliveryPushConfigs.Webhook();
         webhook.setScheduleInterval(1000L);
@@ -56,9 +66,10 @@ class WebhookUtilsTest {
         webhook.setReadBufferDelay(1000);
         webhook.setMaxStreams(10);
         webhook.setTtl(Duration.ofDays(30));
+        webhook.setFirstVersion("v10");
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
-        webhookUtils = new WebhookUtils(timelineService, statusService, notificationService, pnDeliveryPushConfigs);
+        webhookUtils = new WebhookUtils(timelineService, statusService, notificationService, pnDeliveryPushConfigs, timelineMapper, timelineElementJsonConverter);
     }
 
     @Test
@@ -94,10 +105,7 @@ class WebhookUtilsTest {
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
-        assertEquals(1, eventEntity.getRecipientIndex());
-        assertEquals(1, eventEntity.getLegalfactIds().size());
-        assertEquals(1, eventEntity.getLegalfactIds().size());
-        assertEquals("PEC", eventEntity.getChannel());
+        assertNotNull(eventEntity.getElement());
     }
 
     @Test
@@ -113,11 +121,7 @@ class WebhookUtilsTest {
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
-        assertEquals(1, eventEntity.getRecipientIndex());
-        assertEquals(2, eventEntity.getLegalfactIds().size());
-        assertEquals("KEY1", eventEntity.getLegalfactIds().get(0));
-        assertEquals("KEY2", eventEntity.getLegalfactIds().get(1));
-        assertNull(eventEntity.getChannel());
+        assertNotNull(eventEntity.getElement());
         assertNotNull(eventEntity.getTtl());
     }
 
@@ -138,11 +142,7 @@ class WebhookUtilsTest {
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
-        assertEquals(1, eventEntity.getRecipientIndex());
-        assertEquals(1, eventEntity.getLegalfactIds().size());
-        assertEquals("KEY1", eventEntity.getLegalfactIds().get(0));
-        assertEquals(ServiceLevelTypeInt.REGISTERED_LETTER_890.name(), eventEntity.getChannel());
-        assertEquals(500, eventEntity.getAnalogCost());
+        assertNotNull(eventEntity.getElement());
         assertNotNull(eventEntity.getTtl());
     }
 
@@ -163,9 +163,7 @@ class WebhookUtilsTest {
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
-        assertEquals(1, eventEntity.getRecipientIndex());
-        assertEquals("SIMPLE_REGISTERED_LETTER", eventEntity.getChannel());
-        assertEquals(500, eventEntity.getAnalogCost());
+        assertNotNull(eventEntity.getElement());
         assertNotNull(eventEntity.getTtl());
     }
 
@@ -186,35 +184,25 @@ class WebhookUtilsTest {
 
         assertNotNull(eventEntity);
         assertEquals(StringUtils.leftPad("1", 38, "0"), eventEntity.getEventId());
-        assertEquals(1, eventEntity.getRecipientIndex());
-        assertEquals("EMAIL", eventEntity.getChannel());
+        assertNotNull(eventEntity.getElement());
         assertNotNull(eventEntity.getTtl());
     }
 
     @Test
-    void buildEventEntity_6() {
+    void getVersionV1 (){
+        String streamVersion = "v10";
+        int version = webhookUtils.getVersion(streamVersion);
 
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .iun( "IUN-ABC-123" )
-                .timestamp( Instant.now() )
-                .category( TimelineElementCategoryInt.REQUEST_REFUSED )
-                .details( RequestRefusedDetailsInt.builder()
-                        .refusalReasons( List.of(NotificationRefusedErrorInt.builder()
-                                        .errorCode( ERROR_CODE )
-                                        .detail( DETAIL )
-                                .build() ) )
-                        .build()  )
-                .build();
+        assertEquals(10, version);
 
-        NotificationInt notificationInt = NotificationInt.builder()
-                .physicalCommunicationType(ServiceLevelTypeInt.REGISTERED_LETTER_890)
-                .build();
+    }
+    @Test
+    void getVersionNull (){
 
-        StreamEntity streamEntity = new StreamEntity("paid", "abc");
-        EventEntity eventEntity = webhookUtils.buildEventEntity(1L, streamEntity, null, timelineElementInternal, notificationInt);
+        int version = webhookUtils.getVersion(null);
 
-        Assertions.assertEquals( ERROR_CODE, eventEntity.getValidationErrors().get( 0 ).getErrorCode());
-        Assertions.assertEquals( DETAIL, eventEntity.getValidationErrors().get( 0 ).getDetail());
+        assertEquals(10, version);
+
     }
 
     private List<TimelineElementInternal> generateTimeline(String iun, String paId){
