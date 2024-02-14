@@ -69,6 +69,7 @@ class WebhookUtilsTest {
         webhook.setReadBufferDelay(1000);
         webhook.setMaxStreams(10);
         webhook.setTtl(Duration.ofDays(30));
+        webhook.setFirstVersion("v10");
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
         webhookUtils = new WebhookUtils(timelineService, statusService, notificationService, pnDeliveryPushConfigs, timelineMapper, entityToDtoTimelineMapper, timelineElementJsonConverter);
@@ -184,6 +185,22 @@ class WebhookUtilsTest {
         assertNotNull(eventEntity.getTtl());
     }
 
+    @Test
+    void getVersionV1 (){
+        String streamVersion = "v10";
+        int version = webhookUtils.getVersion(streamVersion);
+
+        assertEquals(10, version);
+
+    }
+    @Test
+    void getVersionNull (){
+
+        int version = webhookUtils.getVersion(null);
+
+        assertEquals(10, version);
+
+    }
 
     private List<TimelineElementInternal> generateTimeline(String iun, String paId){
         List<TimelineElementInternal> res = new ArrayList<>();

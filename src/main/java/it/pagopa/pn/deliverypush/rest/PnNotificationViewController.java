@@ -51,4 +51,14 @@ public class PnNotificationViewController implements EventComunicationApi {
                     });
         });
     }
+
+    @Override
+    public Mono<ResponseEntity<ResponseNotificationViewedDto>> notifyNotificationRaddRetrieved(String iun, Mono<RequestNotificationViewedDto> requestNotificationViewedDto,  final ServerWebExchange exchange) {
+        return requestNotificationViewedDto.flatMap(request -> {
+            log.info("Start notifyNotificationRaddRetrieved - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
+            return notificationViewedRequestHandler.handleNotificationRaddRetrieved(iun, request)
+                    .doOnSuccess(success -> log.info("End notifyNotificationRaddRetrieved - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType()))
+                    .thenReturn(ResponseEntity.ok(ResponseNotificationViewedDto.builder().iun(iun).build()));
+        });
+    }
 }

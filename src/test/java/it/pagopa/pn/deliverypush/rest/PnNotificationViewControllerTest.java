@@ -92,4 +92,33 @@ class PnNotificationViewControllerTest {
         // THEN
         Mockito.verify(notificationService).getNotificationByIun(Mockito.anyString());
     }
+
+    @Test
+    void notifyNotificationRaddRetrievedOk() {
+        // GIVEN
+        RequestNotificationViewedDto request = RequestNotificationViewedDto.builder()
+                .recipientInternalId("recipientInternalId")
+                .raddType("raddType")
+                .raddBusinessTransactionId("raddTransactionId")
+                .recipientType(RecipientType.PF)
+                .build();
+
+        // WHEN
+        Mockito.when(notificationViewedRequestHandler.handleNotificationRaddRetrieved(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.empty());
+
+        webTestClient.post()
+                .uri("/delivery-push-private/" + FakeIUN + "/raddretrieved")
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .body(Mono.just(request), RequestNotificationViewedDto.class)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(ResponseNotificationViewedDto.class)
+                .isEqualTo(ResponseNotificationViewedDto.builder().iun(FakeIUN).build());
+
+        // THEN
+        Mockito.verify(notificationViewedRequestHandler).handleNotificationRaddRetrieved(Mockito.any(), Mockito.any());
+    }
 }
