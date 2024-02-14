@@ -124,15 +124,16 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
     @Override
     public Mono<StreamEntity> replaceEntity(StreamEntity replacedEntity, StreamEntity newEntity){
 
-        UpdateItemEnhancedRequest updateRequest = UpdateItemEnhancedRequest.builder(StreamEntity.class)
+        UpdateItemEnhancedRequest<StreamEntity> updateRequest = UpdateItemEnhancedRequest.builder(StreamEntity.class)
             .item(disableStream(replacedEntity))
             .ignoreNulls(true)
             .build();
 
-        PutItemEnhancedRequest createRequest = PutItemEnhancedRequest.builder(StreamEntity.class)
+        PutItemEnhancedRequest<StreamEntity> createRequest = PutItemEnhancedRequest.builder(StreamEntity.class)
             .item(newEntity)
             .build();
 
+        //TransactUpdateItemEnhancedRequest<StreamEntity> updRequest = TransactUpdateItemEnhancedRequest.builder().item()
         TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
             .addUpdateItem(table, updateRequest)
             .addPutItem(table, createRequest)
