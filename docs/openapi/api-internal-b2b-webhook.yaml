@@ -75,6 +75,7 @@ info:
 
     <details>
       <summary>Eventi di timeline - v1</summary>
+    
       | Categoria | Descrizione |
       |-----------|-------------|
       | __SENDER_ACK_CREATION_REQUEST__ | Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage |
@@ -113,7 +114,9 @@ info:
       |__AAR_GENERATION__ | Generazione dell’AAR (Avviso di Avvenuta Ricezione) |
       |__PROBABLE_SCHEDULING_ANALOG_DATE__ |Data probabile di inizio del flusso analogico |
       |__PREPARE_ANALOG_DOMICILE_FAILURE__ | Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel |
+      
       </details>
+      
       <details>
         <summary>Eventi di timeline - v2 (tutti gli elementi v1 + gli elementi seguenti)</summary>
     
@@ -122,6 +125,7 @@ info:
       |__NOTIFICATION_CANCELLATION_REQUEST__ | Richiesta di annullamento di una notifica |
       |__NOTIFICATION_CANCELLED__ | Notifica annullata: completamento della richiesta di annullamento di una notifica |
       |__PREPARE_ANALOG_DOMICILE_FAILURE__ | Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel |
+      
       </details>
     
       <details>
@@ -130,6 +134,7 @@ info:
       | Categoria | Descrizione |
       |-----------|-------------|
       |__NOTIFICATION_RADD_RETRIEVED__ | Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica |
+      
       </details>
     
     ## Segregazione per gruppi (dalla versione 2.3)
