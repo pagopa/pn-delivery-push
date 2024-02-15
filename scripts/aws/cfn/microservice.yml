@@ -774,7 +774,7 @@ Resources:
         ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
         ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
         ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
-        ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_PAPERSENDMODE=${PaperSendMode}'
+        ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_PNSENDMODE=${PnSendMode}'
         ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
         ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
         ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
@@ -797,7 +797,6 @@ Resources:
         ContainerEnvEntry67: !Sub 'PN_DELIVERYPUSH_SENDMORETHAN20GRAMSDEFAULTVALUE=${SendMoreThan20GramsDefaultValue}'
         ContainerEnvEntry68: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
         ContainerEnvEntry69: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
-        ContainerEnvEntry70: !Sub 'PN_DELIVERYPUSH_PNSENDMODE=${PnSendMode}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
