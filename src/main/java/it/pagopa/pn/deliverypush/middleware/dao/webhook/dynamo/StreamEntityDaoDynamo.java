@@ -20,8 +20,9 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.TransactUpdateItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
@@ -124,14 +125,15 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
     @Override
     public Mono<StreamEntity> replaceEntity(StreamEntity replacedEntity, StreamEntity newEntity){
 
-        UpdateItemEnhancedRequest updateRequest = UpdateItemEnhancedRequest.builder(StreamEntity.class)
+        TransactUpdateItemEnhancedRequest<StreamEntity> updateRequest = TransactUpdateItemEnhancedRequest.builder(StreamEntity.class)
             .item(disableStream(replacedEntity))
             .ignoreNulls(true)
             .build();
 
-        PutItemEnhancedRequest createRequest = PutItemEnhancedRequest.builder(StreamEntity.class)
+        TransactPutItemEnhancedRequest<StreamEntity> createRequest = TransactPutItemEnhancedRequest.builder(StreamEntity.class)
             .item(newEntity)
             .build();
+
 
         TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
             .addUpdateItem(table, updateRequest)
