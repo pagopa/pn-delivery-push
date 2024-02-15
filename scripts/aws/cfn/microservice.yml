@@ -1338,7 +1338,7 @@ Resources:
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/VersioningV1V2Webhook.zip"
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2Webhook.zip"
       Role: !GetAtt VersioningV1V2WebhookLambdaRole.Arn
       VpcConfig:
         SecurityGroupIds:

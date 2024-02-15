@@ -40,7 +40,7 @@ exports.eventHandler = async (event, context) => {
         return err;
 
     } catch (e) {
-        console.log("PN_GENERIC_ERROR")
+        console.log("PN_GENERIC_ERROR", e)
         if (e.response) {
             // Nella V10 gli statusCode 403 e 404 non sono accettati
             if (e.response.status === 403 || e.response.status === 404)
