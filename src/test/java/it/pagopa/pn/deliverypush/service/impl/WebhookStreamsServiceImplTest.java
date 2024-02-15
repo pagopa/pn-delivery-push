@@ -895,6 +895,7 @@ class WebhookStreamsServiceImplTest {
         Mockito.verify(streamEntityDao).update(Mockito.any());
     }
 
+
     @Test
     void updateEventStreamMaster() {
         //GIVEN
