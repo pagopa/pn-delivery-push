@@ -18,15 +18,14 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntit
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementWebhookMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
@@ -46,19 +45,22 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private final SchedulerService schedulerService;
     private final WebhookUtils webhookUtils;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    private final TimelineService timelineService;
-
+    private final TimeLineServiceImpl timeLineServiceImpl;
+    private final WebhookServiceImpl webhookService;
+    private final ConfidentialInformationServiceImpl confidentialInformationService;
     private final Set<String> defaultNotificationStatuses;
     private static final String DEFAULT_CATEGORIES = "DEFAULT";
 
 
-    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs, TimelineService timelineService) {
+    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs, TimeLineServiceImpl timeLineServiceImpl, WebhookServiceImpl webhookService, ConfidentialInformationServiceImpl confidentialInformationService) {
         this.streamEntityDao = streamEntityDao;
         this.eventEntityDao = eventEntityDao;
         this.schedulerService = schedulerService;
         this.webhookUtils = webhookUtils;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-        this.timelineService = timelineService;
+        this.timeLineServiceImpl = timeLineServiceImpl;
+        this.webhookService = webhookService;
+        this.confidentialInformationService = confidentialInformationService;
         this.defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
     }
 
@@ -69,22 +71,22 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
         UUID streamId,
         String lastEventId) {
         // grazie al contatore atomico usato in scrittura per generare l'eventId, non serve più gestire la finestra.
-        return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
+        return webhookService.getStreamEntityToRead(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId)
                 .switchIfEmpty(Mono.error(new PnWebhookStreamNotFoundException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
-                .flatMap(stream -> webhookUtils.verifyVersion(xPagopaPnCxGroups, xPagopaPnApiVersion, stream))
                 .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
                 .flatMap(res ->
                     toEventTimelineInternalFromEventEntity(res.getEvents(), xPagopaPnApiVersion)
+                            .onErrorResume(ex -> Mono.error(new PnInternalException("Timeline element entity not converted into JSON", ERROR_CODE_PN_GENERIC_ERROR)))
                             //timeline ancora anonimizzato - EventEntity + TimelineElementInternal
                             .collectList()
                             // chiamo timelineService per aggiungere le confidentialInfo
                             .flatMapMany(items -> {
-                                if (xPagopaPnApiVersion.equalsIgnoreCase("V10"))
+                                if (webhookUtils.getVersion(xPagopaPnApiVersion) == 10)
                                     return Flux.fromStream(items.stream());
-                                return timelineService.addConfidentialInformationAtEventTimelineList(items);
+                                return addConfidentialInformationAtEventTimelineList(items);
                             })
                             // converto l'eventTimelineInternalDTO in ProgressResponseElementV23
-                            .map(eventTimeline -> getProgressResponseFromEventTimeline(eventTimeline, xPagopaPnApiVersion))
+                            .map(this::getProgressResponseFromEventTimeline)
                             .sort(Comparator.comparing(ProgressResponseElementV23::getEventId))
                             .collectList()
                             .map(eventList -> {
@@ -103,16 +105,16 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
                 );
     }
 
-    private ProgressResponseElementV23 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline, String version) {
+    private ProgressResponseElementV23 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline) {
         var response = ProgressResponseElementMapper.internalToExternalv23(eventTimeline.getEventEntity());
-        if (StringUtils.isBlank(version) || StringUtils.equalsIgnoreCase(version, "v23")) {
+        if (StringUtils.hasText(eventTimeline.getEventEntity().getElement())) {
             TimelineElementV23 timelineElementV23 = TimelineElementWebhookMapper.internalToExternal(eventTimeline.getTimelineElementInternal());
             response.setElement(timelineElementV23);
         }
         return response;
     }
 
-    private Flux<EventTimelineInternalDto> toEventTimelineInternalFromEventEntity(List<EventEntity> events, String version) {
+    private Flux<EventTimelineInternalDto> toEventTimelineInternalFromEventEntity(List<EventEntity> events, String version) throws PnInternalException{
         return Flux.fromStream(events.stream())
                 .map(item -> {
                     TimelineElementInternal timelineElementInternal = getTimelineInternalFromEventEntity(item, version);
@@ -123,8 +125,8 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
                 });
     }
 
-    private TimelineElementInternal getTimelineInternalFromEventEntity(EventEntity entity, String version) {
-        if (StringUtils.isBlank(version) || StringUtils.equalsIgnoreCase(version, "v23")) {
+    private TimelineElementInternal getTimelineInternalFromEventEntity(EventEntity entity, String version) throws PnInternalException{
+        if (!StringUtils.hasText(version) || version.equalsIgnoreCase("v23")) {
             return webhookUtils.getTimelineInternalFromEvent(entity);
         }
         return null;
@@ -262,5 +264,25 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
             }
         }
         return categoriesSet;
+    }
+
+    private Flux<EventTimelineInternalDto> addConfidentialInformationAtEventTimelineList(List<EventTimelineInternalDto> eventEntities) {
+        List<TimelineElementInternal> timelineElementInternals = eventEntities.stream()
+                .map(EventTimelineInternalDto::getTimelineElementInternal)
+                .filter(Objects::nonNull)
+                .toList();
+
+        return this.confidentialInformationService.getTimelineConfidentialInformation(timelineElementInternals)
+                .map(confidentialInfo -> {
+                    // cerco l'elemento in TimelineElementInternals con elementiId
+                    TimelineElementInternal internal = timelineElementInternals.stream()
+                            .filter(i -> i.getElementId().equals(confidentialInfo.getTimelineElementId()))
+                            .findFirst()
+                            .get();
+                    timeLineServiceImpl.enrichTimelineElementWithConfidentialInformation(internal.getDetails(), confidentialInfo);
+                    return internal;
+                })
+                .collectList()
+                .flatMapMany(item -> Flux.fromStream(eventEntities.stream()));
     }
 }

@@ -9,7 +9,6 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementJsonConverter;
@@ -22,8 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -276,91 +273,6 @@ class WebhookUtilsTest {
                 .build());
 
         return res;
-    }
-
-    @Test
-    void testVerifyVersion() {
-        StreamEntity entity = new StreamEntity();
-        entity.setVersion("v10");
-        entity.setGroups(List.of("ADMINS"));
-
-        // caso v10 stream e v10 api => OK
-        Mono<StreamEntity> result = webhookUtils.verifyVersion(new ArrayList<>(), "v10", entity);
-
-        StepVerifier.create(result)
-                .expectNext(entity)
-                .verifyComplete();
-
-        // caso null stream e v23 api => OK
-        entity.setVersion(null);
-        result = webhookUtils.verifyVersion(List.of("ADMINS"), "v23", entity);
-
-        StepVerifier.create(result)
-                .expectNext(entity)
-                .verifyComplete();
-
-        // caso V23 stream e v23 api => OK
-        entity.setVersion("v23");
-        result = webhookUtils.verifyVersion(List.of("ADMINS"), "v23", entity);
-
-        StepVerifier.create(result)
-                .expectNext(entity)
-                .verifyComplete();
-
-        // caso V24 stream e v23 api, Group api is empty => OK
-        entity.setVersion("v24");
-        result = webhookUtils.verifyVersion(new ArrayList<>(), "v23", entity);
-
-        StepVerifier.create(result)
-                .expectNext(entity)
-                .verifyComplete();
-
-        // caso V24 stream e v23 api, Group api is equals stream => OK
-        entity.setVersion("v24");
-        result = webhookUtils.verifyVersion(List.of("ADMINS"), "v23", entity);
-
-        StepVerifier.create(result)
-                .expectNext(entity)
-                .verifyComplete();
-
-        // caso v10 stream e v23 api => Exception
-        entity.setVersion("v10");
-        result = webhookUtils.verifyVersion(new ArrayList<>(), "v23", entity);
-
-        StepVerifier.create(result)
-                .verifyError(PnWebhookForbiddenException.class);
-
-        // caso v23 stream e v10 api => Exception
-        entity.setVersion("v23");
-        result = webhookUtils.verifyVersion(new ArrayList<>(), "v10", entity);
-
-        StepVerifier.create(result)
-                .verifyError(PnWebhookForbiddenException.class);
-
-        // caso null stream e v10 api => Exception
-        entity.setVersion(null);
-        result = webhookUtils.verifyVersion(new ArrayList<>(), "v10", entity);
-
-        StepVerifier.create(result)
-                .verifyError(PnWebhookForbiddenException.class);
-
-        // caso null stream e v23 api but groups is different => Exception
-        entity.setVersion(null);
-        result = webhookUtils.verifyVersion(new ArrayList<>(), "v23", entity);
-
-        StepVerifier.create(result)
-                .verifyError(PnWebhookForbiddenException.class);
-
-
-        // caso v24 stream e v23 api but groups is different => Exception
-        entity.setVersion("v24");
-        result = webhookUtils.verifyVersion(List.of("TEST"), "v23", entity);
-
-        StepVerifier.create(result)
-                .verifyError(PnWebhookForbiddenException.class);
-
-
-
     }
 
 }

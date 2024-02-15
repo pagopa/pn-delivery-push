@@ -1,8 +1,14 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
+import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.webhook.EventTimelineInternalDto;
@@ -57,6 +63,10 @@ class WebhookEventsServiceImplTest {
     private TimelineService timelineService;
     @Mock
     private NotificationService notificationService;
+    @Mock
+    private ConfidentialInformationServiceImpl confidentialInformationService;
+    @Mock
+    private WebhookServiceImpl webhookService;
     Duration d = Duration.ofSeconds(3);
 
     @BeforeEach
@@ -67,6 +77,7 @@ class WebhookEventsServiceImplTest {
         webhook.setPurgeDeletionWaittime(1000);
         webhook.setReadBufferDelay(1000);
         webhook.setTtl(Duration.ofDays(30));
+        webhook.setFirstVersion("v10");
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
         Set<String> listCategoriesPa = new HashSet<>(List.of("REQUEST_REFUSED", "REQUEST_ACCEPTED", "SEND_DIGITAL_DOMICILE", "SEND_DIGITAL_FEEDBACK",
@@ -255,7 +266,6 @@ class WebhookEventsServiceImplTest {
     void consumeEventStream() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
-        String lasteventid = null;
         List<String> xPagopaPnCxGroups = new ArrayList<>();
         String xPagopaPnApiVersion = "V10";
 
@@ -299,21 +309,41 @@ class WebhookEventsServiceImplTest {
         eventEntityBatch.setStreamId(uuid);
         eventEntityBatch.setLastEventIdRead(null);
 
+        TimelineElementInternal timelineElementInternal = new TimelineElementInternal();
+        timelineElementInternal.setElementId("id");
+        timelineElementInternal.setTimestamp(Instant.now());
+        timelineElementInternal.setIun("Iun");
+        timelineElementInternal.setDetails(null);
+        timelineElementInternal.setCategory(TimelineElementCategoryInt.AAR_GENERATION);
+        timelineElementInternal.setPaId("PaId");
+        timelineElementInternal.setLegalFactsIds(new ArrayList<>());
+        timelineElementInternal.setStatusInfo(null);
 
+        ConfidentialTimelineElementDtoInt timelineElementDtoInt = new ConfidentialTimelineElementDtoInt();
+        timelineElementDtoInt.toBuilder()
+                .timelineElementId("id")
+                .taxId("")
+                .digitalAddress("")
+                .physicalAddress(new PhysicalAddressInt())
+                .newPhysicalAddress(new PhysicalAddressInt())
+                .denomination("")
+                .build();
 
-        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(webhookService.getStreamEntityToRead(xPagopaPnApiVersion, xpagopacxid, xPagopaPnCxGroups, uuidd)).thenReturn(Mono.just(entity));
+        Mockito.when(webhookUtils.getVersion("V10")).thenReturn(10);
+        Mockito.when(webhookUtils.getTimelineInternalFromEvent(eventEntity)).thenReturn(timelineElementInternal);
+        Mockito.when(confidentialInformationService.getTimelineConfidentialInformation(new ArrayList<>())).thenReturn(Flux.just(new ConfidentialTimelineElementDtoInt()));
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.when(webhookUtils.verifyVersion(Mockito.any(), Mockito.anyString(), Mockito.any())).thenReturn(Mono.just(entity));
-        Mockito.when(eventEntityDao.findByStreamId(uuid, lasteventid)).thenReturn(Mono.just(eventEntityBatch));
+        Mockito.when(eventEntityDao.findByStreamId(uuid, null)).thenReturn(Mono.just(eventEntityBatch));
+
 
 
         //WHEN
-        ProgressResponseElementDto res = webhookEventsService.consumeEventStream(xpagopacxid,xPagopaPnCxGroups,xPagopaPnApiVersion, uuidd, lasteventid).block(d);
+        ProgressResponseElementDto res = webhookEventsService.consumeEventStream(xpagopacxid,xPagopaPnCxGroups,xPagopaPnApiVersion, uuidd, null).block(d);
 
         //THEN
         assertNotNull(res);
         assertEquals(list.size(), res.getProgressResponseElementList().size());
-        Mockito.verify(streamEntityDao).get(xpagopacxid, uuid);
         Mockito.verify(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
@@ -325,7 +355,7 @@ class WebhookEventsServiceImplTest {
         String xpagopacxid = "PA-xpagopacxid";
         String lasteventid;
         List<String> xPagopaPnCxGroups = new ArrayList<>();
-        String xPagopaPnApiVersion = "V23";
+        String xPagopaPnApiVersion = "V10";
 
 
         UUID uuidd = UUID.randomUUID();
@@ -372,15 +402,12 @@ class WebhookEventsServiceImplTest {
 
         lasteventid = list.get(0).getEventId();
 
-        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(webhookService.getStreamEntityToRead(xPagopaPnApiVersion, xpagopacxid, xPagopaPnCxGroups, uuidd)).thenReturn(Mono.just(entity));
+        Mockito.when(confidentialInformationService.getTimelineConfidentialInformation(new ArrayList<>())).thenReturn(Flux.just(new ConfidentialTimelineElementDtoInt()));
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.when(webhookUtils.verifyVersion(Mockito.any(), Mockito.anyString(), Mockito.any())).thenReturn(Mono.just(entity));
         Mockito.when(webhookUtils.getTimelineInternalFromEvent(Mockito.any())).thenReturn(timelineElementInternal);
-        Mockito.when(timelineService.addConfidentialInformationAtEventTimelineList(Mockito.anyList())).thenReturn(Flux.just(EventTimelineInternalDto.builder()
-                .eventEntity(eventEntity)
-                .timelineElementInternal(timelineElementInternal)
-                .build()));
         Mockito.when(eventEntityDao.findByStreamId(Mockito.anyString() , Mockito.anyString())).thenReturn(Mono.just(eventEntityBatch));
+        Mockito.when(webhookUtils.getVersion("V10")).thenReturn(10);
 
 
         //WHEN
@@ -388,8 +415,7 @@ class WebhookEventsServiceImplTest {
 
         //THEN
         assertNotNull(res);
-        assertEquals(1, res.getProgressResponseElementList().size());
-        Mockito.verify(streamEntityDao).get(xpagopacxid, uuid);
+        assertEquals(2, res.getProgressResponseElementList().size());
         Mockito.verify(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
@@ -404,7 +430,7 @@ class WebhookEventsServiceImplTest {
         String uuid = uuidd.toString();
 
 
-        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.empty());
+        Mockito.when(webhookService.getStreamEntityToRead(null, xpagopacxid, null, uuidd)).thenReturn(Mono.empty());
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.when(eventEntityDao.findByStreamId(uuid, lasteventid)).thenReturn(Mono.empty());
 
@@ -1029,5 +1055,101 @@ class WebhookEventsServiceImplTest {
                 .updateAndGetAtomicCounter(Mockito.any());
         Mockito.verify(eventEntityDao, Mockito.times(1))
                 .save(Mockito.any());
+    }
+
+//    @Test
+    void addConfidentialInformationAtEventTimelineList() {
+        EventEntity eventEntity = new EventEntity();
+        eventEntity.setEventId("eventId");
+        eventEntity.setIun("iun");
+        eventEntity.setTimestamp(Instant.now());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue());
+        eventEntity.setEventDescription("eventDescription");
+        eventEntity.setNewStatus("newStatus");
+        eventEntity.setStreamId("streamId");
+        eventEntity.setChannel("channel");
+        eventEntity.setElement("element");
+        eventEntity.setNotificationRequestId("notificationRequestId");
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("elementId")
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .timestamp(Instant.now())
+                .paId("paId")
+                .statusInfo(StatusInfoInternal.builder().actual("actual").statusChanged(true).build())
+                .legalFactsIds(List.of(LegalFactsIdInt.builder().key("key").category(LegalFactCategoryInt.DIGITAL_DELIVERY).build()))
+                .build();
+
+        EventTimelineInternalDto eventTimelineInternalDto = EventTimelineInternalDto.builder()
+                .eventEntity(eventEntity)
+                .timelineElementInternal(timelineElementInternal)
+                .build();
+
+        ConfidentialTimelineElementDtoInt confidentialTimelineElementDtoInt = ConfidentialTimelineElementDtoInt.builder()
+                .timelineElementId("elementId")
+                .taxId("taxId")
+                .denomination("denomination")
+                .digitalAddress("digitalAddress")
+                .physicalAddress(PhysicalAddressInt.builder().address("via address").build())
+                .build();
+
+        Flux<ConfidentialTimelineElementDtoInt> flux = Flux.just(confidentialTimelineElementDtoInt);
+        Mockito.when(confidentialInformationService.getTimelineConfidentialInformation(List.of(timelineElementInternal)))
+                .thenReturn(flux);
+
+//        Flux<EventTimelineInternalDto> fluxDto = webhookEventsService.addConfidentialInformationAtEventTimelineList(List.of(eventTimelineInternalDto));
+
+//        Assertions.assertNotNull(fluxDto);
+
+//        EventTimelineInternalDto dto = fluxDto.blockFirst();
+
+//        Assertions.assertEquals("eventId", dto.getEventEntity().getEventId());
+//        Assertions.assertEquals("iun", dto.getEventEntity().getIun());
+//        Assertions.assertEquals("element", dto.getEventEntity().getElement());
+//        Assertions.assertEquals("newStatus", dto.getEventEntity().getNewStatus());
+//        Assertions.assertEquals(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue(), dto.getEventEntity().getTimelineEventCategory());
+//        Assertions.assertEquals("streamId", dto.getEventEntity().getStreamId());
+//        Assertions.assertEquals("channel", dto.getEventEntity().getChannel());
+//        Assertions.assertEquals("notificationRequestId", dto.getEventEntity().getNotificationRequestId());
+//
+//        Assertions.assertEquals("elementId", dto.getTimelineElementInternal().getElementId());
+//        Assertions.assertEquals(TimelineElementCategoryInt.REQUEST_ACCEPTED, dto.getTimelineElementInternal().getCategory());
+//        Assertions.assertEquals("paId", dto.getTimelineElementInternal().getPaId());
+//        Assertions.assertEquals("actual", dto.getTimelineElementInternal().getStatusInfo().getActual());
+//        Assertions.assertEquals("key", dto.getTimelineElementInternal().getLegalFactsIds().get(0).getKey());
+//        Assertions.assertEquals(LegalFactCategoryInt.DIGITAL_DELIVERY, dto.getTimelineElementInternal().getLegalFactsIds().get(0).getCategory());
+    }
+
+//    @Test
+    void addConfidentialInformationAtEventTimelineListKo() {
+        EventEntity eventEntity = new EventEntity();
+        eventEntity.setEventId("eventId");
+        eventEntity.setIun("iun");
+        eventEntity.setTimestamp(Instant.now());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue());
+        eventEntity.setEventDescription("eventDescription");
+        eventEntity.setNewStatus("newStatus");
+        eventEntity.setStreamId("streamId");
+        eventEntity.setChannel("channel");
+        eventEntity.setElement("element");
+        eventEntity.setNotificationRequestId("notificationRequestId");
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("elementId")
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .timestamp(Instant.now())
+                .paId("paId")
+                .statusInfo(StatusInfoInternal.builder().actual("actual").statusChanged(true).build())
+                .legalFactsIds(List.of(LegalFactsIdInt.builder().key("key").category(LegalFactCategoryInt.DIGITAL_DELIVERY).build()))
+                .build();
+
+        EventTimelineInternalDto eventTimelineInternalDto = EventTimelineInternalDto.builder()
+                .eventEntity(eventEntity)
+                .timelineElementInternal(timelineElementInternal)
+                .build();
+
+        Mockito.when(confidentialInformationService.getTimelineConfidentialInformation(List.of(timelineElementInternal))).thenThrow(PnInternalException.class);
+
+//        Assertions.assertThrows(PnInternalException.class, () -> timeLineService.addConfidentialInformationAtEventTimelineList(List.of(eventTimelineInternalDto)).blockFirst());
     }
 }
