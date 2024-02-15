@@ -38,6 +38,7 @@
     "WebhookEventManagerLambdaBatchSize": "60",
     "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
     "NotificationCancellationActionInsertLambdaBatchSize": "20",
+    "VersioningV1V2WebhookLambdaProvisionedConcurrency": "1",
     "EnhancedWebSecurityEnabled": "true",
     "PagoPaNotificationBaseCost": "100",
     "AttachmentRetentionTimeAfterValidation": "3m",
