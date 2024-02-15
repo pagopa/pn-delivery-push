@@ -78,7 +78,7 @@ info:
     
       | Categoria | Descrizione |
       |-----------|-------------|
-      | __SENDER_ACK_CREATION_REQUEST__ | Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage |
+      |__SENDER_ACK_CREATION_REQUEST__ | Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage |
       |__VALIDATE_NORMALIZE_ADDRESSES_REQUEST__ | Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica |
       |__NORMALIZED_ADDRESS__ | Ricezione esito normalizzazione indirizzo |
       |__REQUEST_ACCEPTED__ | Richiesta di notifica accettata a seguito dei controlli di validazione. |
