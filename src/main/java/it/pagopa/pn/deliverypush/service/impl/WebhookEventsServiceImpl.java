@@ -272,6 +272,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
         return categoriesSet;
     }
 
+
     private Flux<EventTimelineInternalDto> addConfidentialInformationAtEventTimelineList(List<EventTimelineInternalDto> eventEntities) {
         List<TimelineElementInternal> timelineElementInternals = eventEntities.stream()
                 .map(EventTimelineInternalDto::getTimelineElementInternal)
