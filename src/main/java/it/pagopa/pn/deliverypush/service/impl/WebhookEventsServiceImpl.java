@@ -1,5 +1,8 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
+import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
+
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -18,6 +21,13 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -25,11 +35,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
-import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
 
 
 @Service
@@ -44,7 +49,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     private static final String DEFAULT_CATEGORIES = "DEFAULT";
 
 
-    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs, Set<String> listCategoriesPa) {
+    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.streamEntityDao = streamEntityDao;
         this.eventEntityDao = eventEntityDao;
         this.schedulerService = schedulerService;
