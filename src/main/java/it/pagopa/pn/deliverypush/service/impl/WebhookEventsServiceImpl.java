@@ -41,10 +41,6 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
-import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
 
 
 @Service
