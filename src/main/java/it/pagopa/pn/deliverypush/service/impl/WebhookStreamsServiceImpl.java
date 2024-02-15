@@ -116,7 +116,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         List<String> args = Arrays.asList(new String[]{xPagopaPnUid, xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, streamId.toString()});
         generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).log();
 
-        return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
+        return getStreamEntityToRead(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .map(EntityToDtoStreamMapper::entityToDto)
             .doOnSuccess(entity->
                 generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateSuccess().log()

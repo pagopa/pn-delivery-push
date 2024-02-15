@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -116,9 +117,10 @@ public class WebhookUtils {
     }
 
     public static boolean checkGroups(List<String> toCheckGroups, List<String> allowedGroups){
-        return
-            (isEmpty(toCheckGroups) && isEmpty(allowedGroups)) ||
-            allowedGroups.containsAll(toCheckGroups);
+        List<String> safeToCheck = toCheckGroups != null ? toCheckGroups : Collections.emptyList();
+        List<String> safeAllowedGroups = allowedGroups != null ? allowedGroups : Collections.emptyList();
+
+        return safeAllowedGroups.containsAll(safeToCheck);
     }
 
     private static boolean isEmpty(List list){
