@@ -38,6 +38,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements WebhookStreamsService {
 
+    public static final String ERROR_CREATING_STREAM = "error creating stream";
     private final SchedulerService schedulerService;
     private final PnExternalRegistryClient pnExternalRegistryClient;
 
@@ -72,16 +73,21 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                     : xPagopaPnCxGroups;
 
                 return WebhookUtils.checkGroups(dto.getGroups(), allowedGroups)?
-                    (dto.getReplacedStreamId() == null)
-                        ? streamEntityDao.save(DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(),dto))
-                        : replaceStream(xPagopaPnCxId,xPagopaPnCxGroups,xPagopaPnApiVersion, dto)
-                    : Mono.error(new PnWebhookForbiddenException("Not Allowed groups "+groupString(dto.getGroups()))); //TODO: IVAN, vedere tutti i messaggi
+                    saveOrReplace(dto,xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion)
+                    : Mono.error(new PnWebhookForbiddenException("Not Allowed groups "+groupString(dto.getGroups())));
             }).map(EntityToDtoStreamMapper::entityToDto).doOnSuccess(newEntity->{
                 generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateSuccess().log();
             }).doOnError(err->{
-                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateFailure("error creating stream", err).log();
+                generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateFailure(ERROR_CREATING_STREAM, err).log();
             });
     }
+
+    private Mono<StreamEntity> saveOrReplace(StreamCreationRequestV23 dto, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion ){
+        return dto.getReplacedStreamId() == null
+            ? streamEntityDao.save(DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), xPagopaPnApiVersion, dto))
+            : replaceStream(xPagopaPnCxId,xPagopaPnCxGroups,xPagopaPnApiVersion, dto);
+    }
+
     @Override
     public Mono<Void> deleteEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
         String msg = "deleteEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, streamId ={} ";
@@ -106,20 +112,40 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     @Override
     public Mono<StreamMetadataResponseV23> getEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
-        return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
-            .map(EntityToDtoStreamMapper::entityToDto);
+        String msg = "getEventStream xPagopaPnUid={}, xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, streamId={} ";
+        List<String> args = Arrays.asList(new String[]{xPagopaPnUid, xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, streamId.toString()});
+        generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).log();
+
+        return getStreamEntityToRead(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+            .map(EntityToDtoStreamMapper::entityToDto)
+            .doOnSuccess(entity->
+                generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateSuccess().log()
+            )
+            .doOnError(err->{
+                generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateFailure("error getting stream", err).log();
+            });
     }
 
     @Override
     public Flux<StreamListElement> listEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion) {
+        String msg = "listEventStream xPagopaPnUid={}, xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={} ";
+        List<String> args = Arrays.asList(new String[]{xPagopaPnUid, xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion});
+        generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).log();
+
         return streamEntityDao.findByPa(xPagopaPnCxId)
-            .map(EntityToStreamListDtoStreamMapper::entityToDto);
+            .map(EntityToStreamListDtoStreamMapper::entityToDto)
+            .doOnComplete(()->
+                generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateSuccess().log()
+            )
+            .doOnError(err->{
+                generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateFailure("error listing streams", err).log();
+            });
     }
 
     @Override
     public Mono<StreamMetadataResponseV23> updateEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId, Mono<StreamRequestV23> streamRequest) {
-        String msg = "updateEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, streamId={}, request={} ";
-        List<String> args = Arrays.asList(new String[]{xPagopaPnCxId, groupString(xPagopaPnCxGroups), streamId.toString(), xPagopaPnApiVersion});
+        String msg = "updateEventStream xPagopaPnUid={},xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, streamId={}, request={} ";
+        List<String> args = Arrays.asList(new String[]{xPagopaPnUid, xPagopaPnCxId, groupString(xPagopaPnCxGroups), streamId.toString(), xPagopaPnApiVersion});
 
         return streamRequest.doOnNext(payload-> {
             List<String> values = new ArrayList<>();
@@ -129,7 +155,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         }).flatMap(request ->
             getStreamEntityToRead(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
             .then(streamRequest)
-            .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), r))
+            .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), xPagopaPnApiVersion, r))
             .map(entity -> {
                 entity.setEventAtomicCounter(null);
                 return entity;
@@ -165,6 +191,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     private Mono<Boolean> checkStreamCount(String xPagopaPnCxId){
         return streamEntityDao.findByPa(xPagopaPnCxId)
+            .filter(streamEntity -> streamEntity.getDisabledDate() == null)
                 .collectList().flatMap(list -> {
                     if (list.size() >= pnDeliveryPushConfigs.getWebhook().getMaxStreams()) {
                         return Mono.error(new PnWebhookMaxStreamsCountReachedException());
@@ -198,23 +225,34 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         String msg = "disableEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, disabledStreamId={}";
         String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, replacedStreamId.toString()};
         generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).log();
-        return streamEntityDao.replace(streamEntity, replacedStreamId).doOnSuccess(newEntity->{
+        return replaceStreamEntity(streamEntity, replacedStreamId).doOnSuccess(newEntity->{
             generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateSuccess().log();
         }).doOnError(err->{
-            generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateFailure("error creating stream", err).log();
+            generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateFailure(ERROR_CREATING_STREAM, err).log();
         });
     }
 
     private Mono<StreamEntity> replaceStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, StreamCreationRequestV23 dto){
-        StreamEntity streamEntity = DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), dto);
+        StreamEntity streamEntity = DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, UUID.randomUUID().toString(), xPagopaPnApiVersion, dto);
         String msg = "disableEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, disabledStreamId={}";
         String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, dto.getReplacedStreamId().toString()};
         generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).log();
-        return streamEntityDao.replace(streamEntity, dto.getReplacedStreamId()).doOnSuccess(newEntity->{
+        return replaceStreamEntity(streamEntity, dto.getReplacedStreamId()).doOnSuccess(newEntity->{
             generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateSuccess().log();
         }).doOnError(err->{
-            generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateFailure("error creating stream", err).log();
+            generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateFailure(ERROR_CREATING_STREAM, err).log();
         });
+    }
+
+    private Mono<StreamEntity> replaceStreamEntity(StreamEntity entity, UUID replacedStreamId) {
+        return streamEntityDao.get(entity.getPaId(), replacedStreamId.toString())
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, replace stream invalid")))
+            .filter(foundEntity-> foundEntity.getDisabledDate() == null)
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled")))
+            .flatMap(foundEntity-> {
+                StreamEntity replacedEntity = new StreamEntity(foundEntity.getPaId(), foundEntity.getStreamId());
+                return streamEntityDao.replaceEntity(replacedEntity, entity);
+            });
     }
 
 }

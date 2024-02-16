@@ -8,6 +8,8 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -109,6 +111,8 @@ public class PnDeliveryPushConfigs {
     private List<String> paperSendMode;
     //quickWorkAroundForPN-9116
     private boolean sendMoreThan20GramsDefaultValue;
+
+    private Set<String> listCategoriesPa;
 
     @Data
     public static class Topics {

@@ -136,6 +136,31 @@ class PnWebhookStreamsControllerTest {
     }
 
     @Test
+    void disableEventStream() {
+        String streamId = UUID.randomUUID().toString();
+
+        StreamEntity streamEntity = new StreamEntity();
+        streamEntity.setStreamId(streamId);
+
+        Mockito.when(service.disableEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.any(), Mockito.any(UUID.class)))
+            .thenReturn(Mono.empty());
+
+        webTestClient.post()
+            .uri( "/delivery-progresses/v2.3/streams/{streamId}/action/disable".replace("{streamId}", streamId) )
+            .header(HttpHeaders.ACCEPT, "application/problem+json")
+            .headers(httpHeaders -> {
+                httpHeaders.set("x-pagopa-pn-uid","test");
+                httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
+                httpHeaders.set("x-pagopa-pn-cx-id","test");
+                httpHeaders.set("x-pagopa-pn-cx-groups", Collections.singletonList("test").toString());
+            })
+            .exchange()
+            .expectStatus().isOk();
+
+        Mockito.verify(service).disableEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.any(), Mockito.any(UUID.class));
+    }
+
+    @Test
     void deleteEventStreamKoRuntime() {
         String streamId = UUID.randomUUID().toString();
         Mockito.when(service.deleteEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.any(), Mockito.any(UUID.class)))

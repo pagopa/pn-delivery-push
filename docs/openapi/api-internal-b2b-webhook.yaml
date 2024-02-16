@@ -17,32 +17,32 @@ info:
     url: 'https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html'
   description: >-
     I mittenti di notifiche possono seguire il loro flusso di avanzamento in modo automatico.
-    
-    
-    Tramite la configurazione di flussi (stream) è possibile ottenere, in modo massivo, le informazioni informazioni 
+
+
+    Tramite la configurazione di flussi (stream) è possibile ottenere, in modo massivo, le informazioni informazioni
     relative a:
       - cambiamento di stato delle notifiche
       - inserimento di elementi di timeline delle notifiche
-    
-    
-    E' possibile definire fino ad un __massimo di <span id="webhookMaxStreams">10</span> 
+
+
+    E' possibile definire fino ad un __massimo di <span id="webhookMaxStreams">10</span>
     configurazioni di flussi attive per singola PA__.
-    
-    
+
+
     __NOTA__: i flussi riportano gli eventi occorsi dal momento della loro creazione, non quelli precedenti.
-    Per cui si consiglia di creare i flussi di interesse per il mittente prima dell'invio delle notifiche di cui si 
+    Per cui si consiglia di creare i flussi di interesse per il mittente prima dell'invio delle notifiche di cui si
     vogliono ottenere gli aggiornamenti.
-    
+
     ## Filtraggio degli  eventi
-    
-    La configurazione del flusso può prevedere un filtro per ricevere per ricevere solo alcuni 
+
+    La configurazione del flusso può prevedere un filtro per ricevere per ricevere solo alcuni
     cambiamenti di stato o determinati eventi di timeline di interesse per il mittente.</br>
-    
-    
-    __NEWS V2.3__: dalla versione 2.3 è possibile utilizzare il placeholder __DEFAULT__ per ottenere SOLO gli eventi 
-    di timeline di maggior rilievo; evitando di ricevere anche gli eventi interni del workflow che non hanno 
+
+
+    __NEWS V2.3__: dalla versione 2.3 è possibile utilizzare il placeholder __DEFAULT__ per ottenere SOLO gli eventi
+    di timeline di maggior rilievo; evitando di ricevere anche gli eventi interni del workflow che non hanno
     ripercussione o informazioni utili per il mittente.
-    
+
       | Fase del workflow | Categoria eventi |
       |-------------------|------------------|
       | Eventi di validazione | REQUEST_REFUSED, REQUEST_ACCEPTED |
@@ -52,13 +52,13 @@ info:
       | Altri eventi | NOTIFICATION_RADD_RETRIEVED |
 
     Il placeholder __DEFAULT__ può essere usato assieme ad altri eventi di timeline, ad esempio il filtro "DEFAULT,SEND_COURTESY_MESSAGE" permetterà di ricevere anche gli eventi relativi agli invii dei messaggi di cortesia, oltre che a tutti quelli di maggior rilievo.
-    
-    
-    
+
+
+
     ### Filtri applicabili ai flussi di cambiamento di stato della notifica
-    
+
     Gli stati della notifica che possono essere inseriti come __filterValues__ sono i seguenti:
-    
+
     Stati - v1:
       - __ACCEPTED__: L'ente ha depositato la notifica con successo.
       - __REFUSED__: Notifica rifiutata a seguito della validazione.
@@ -68,14 +68,14 @@ info:
       - __EFFECTIVE_DATE__: Il destinatario non ha letto la notifica entro il termine stabilito.
       - __UNREACHABLE__: Il destinatario non è reperibile.
       - __CANCELLED__: L'ente ha annullato l'invio della notifica.
-    
+
     ### Filtri applicabili ai flussi di eventi di timeline
-    
-    Le categorie degli eventi di timeline che possono essere inseriti come __filterValues__ sono i seguenti: 
+
+    Le categorie degli eventi di timeline che possono essere inseriti come __filterValues__ sono i seguenti:
 
     <details>
       <summary>Eventi di timeline - v1</summary>
-    
+
       | Categoria | Descrizione |
       |-----------|-------------|
       |__SENDER_ACK_CREATION_REQUEST__ | Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage |
@@ -114,113 +114,113 @@ info:
       |__AAR_GENERATION__ | Generazione dell’AAR (Avviso di Avvenuta Ricezione) |
       |__PROBABLE_SCHEDULING_ANALOG_DATE__ |Data probabile di inizio del flusso analogico |
       |__PREPARE_ANALOG_DOMICILE_FAILURE__ | Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel |
-      
+
       </details>
-      
+
       <details>
         <summary>Eventi di timeline - v2 (tutti gli elementi v1 + gli elementi seguenti)</summary>
-    
+
       | Categoria | Descrizione |
       |-----------|-------------|
       |__NOTIFICATION_CANCELLATION_REQUEST__ | Richiesta di annullamento di una notifica |
       |__NOTIFICATION_CANCELLED__ | Notifica annullata: completamento della richiesta di annullamento di una notifica |
       |__PREPARE_ANALOG_DOMICILE_FAILURE__ | Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel |
-      
+
       </details>
-    
+
       <details>
         <summary>Eventi di timeline - v2.3 (tutti gli elementi v1 + v2 + gli elementi seguenti)</summary>
-    
+
       | Categoria | Descrizione |
       |-----------|-------------|
       |__NOTIFICATION_RADD_RETRIEVED__ | Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica |
-      
+
       </details>
-    
+
     ## Segregazione per gruppi (dalla versione 2.3)
-    
+
     Così come notifiche, api-key e utenti dell'ente mittente possono essere segregati in gruppi, nella versione 2.3
-    dell'API è stata introdotta la segregazione dei flussi per gruppo. 
-    
+    dell'API è stata introdotta la segregazione dei flussi per gruppo.
+
     Ad un flusso possono essere associati uno o più gruppi per cui:
     - presenterà esclusivamente gli eventi relativi alle notifiche associate ai tali gruppi:
     - in fase di creazione potranno essere associati i gruppi associati all'api-key utilizzata.
     - solo le api-key con visibilità su tutti i gruppi del flusso possano modificarlo, cancellarlo e consumare gli eventi.
-    
+
     __NOTA__: Le api-key senza associazione a gruppi possono agire su tutti i gruppi.
-    
-    ## Operazioni sugli stream 
-    
+
+    ## Operazioni sugli stream
+
     Le operazioni sugli stream (tag __Streams__) per la gestione della configurazione:
       - [Creazione](#/Streams/createEventStream)
       - [Elenco degli stream configurati](#/Streams/listEventStreams)
       - [Recupero Configurazione](#/Streams/retrieveEventStream)
       - [Modifica Configurazione](#/Streams/updateEventStream)
-      - [Cancellazione](#/Streams/removeEventStream) 
+      - [Cancellazione](#/Streams/removeEventStream)
       - [Disabilitazione](#/Streams/disableEventStream)
-    
+
     ## Procedura di migrazione agli stream v2.3
-    
-    Per migrare uno stream dalla versione precedente è sufficiente indicare nel parametro _replacedId_ l'identificativo 
+
+    Per migrare uno stream dalla versione precedente è sufficiente indicare nel parametro _replacedId_ l'identificativo
     dello stream precedente in fase di creazione.
-    
-    
+
+
     Il nuovo stream viene creato e contemporaneamente lo stream precedente viene disabilitato.
-    
-    
-    Il mittente deve mantenere attiva la lettura sullo stream precedente fino a consumare tutti gli eventi contenuti e 
+
+
+    Il mittente deve mantenere attiva la lettura sullo stream precedente fino a consumare tutti gli eventi contenuti e
     poi migrare la lettura sul nuovo stream.
-    
-    
+
+
     ## Disabilitazione di uno stream (dalla versione 2.3)
-    
+
     Dalla versione 2.3 è possibile disabilitare uno stream tramite la chiamata alla API _disableEventStream_.
-    
-    
-    Uno stream disabilitato non può essere riabilitato, ma è possibile consumare gli eventuali eventi e 
+
+
+    Uno stream disabilitato non può essere riabilitato, ma è possibile consumare gli eventuali eventi e
     sarà eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span> giorni.
-    
-    
+
+
     ## Lettura degli eventi dallo stream
 
-    Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream) 
+    Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream)
     filtrati in base alla configurazione impostata negli streams.
-    
-    
-    La api restituisce un __massimo di <span id="webhookMaxLength">50</span> elementi per chiamata__. 
-    
-    
-    Se esistono ulteriori eventi nello stream, allora la response del servizio 
-    restituisce l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere 
+
+
+    La api restituisce un __massimo di <span id="webhookMaxLength">50</span> elementi per chiamata__.
+
+
+    Se esistono ulteriori eventi nello stream, allora la response del servizio
+    restituisce l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere
     gli eventi successivi.
-    
-    
-    Per il corretto consumo degli eventi dello stream è necessario passare a tutte le chiamate (ad esclusione della 
-    prima) il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. In questo modo si 
-    informa che gli eventi precedenti sono stati elaborati e quindi possibile procedere con la loro cancellazione dallo 
+
+
+    Per il corretto consumo degli eventi dello stream è necessario passare a tutte le chiamate (ad esclusione della
+    prima) il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. In questo modo si
+    informa che gli eventi precedenti sono stati elaborati e quindi possibile procedere con la loro cancellazione dallo
     stream e restituire i successivi.
-    
-    
-    Se non esistono ulteriori eventi nello stream, allora la response del servizio restituisce il valore di 
-    `retryAfter > 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente 
+
+
+    Se non esistono ulteriori eventi nello stream, allora la response del servizio restituisce il valore di
+    `retryAfter > 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente
     nuovi eventi nello stream.
-    
-    
-    __NOTA__: gli eventi sono mantenuti per un massimo di __<span id="webhookTtl">7</span> giorni__ dopo i quali sono 
-    automaticamente cancellati anche se non sono stati consumati. Sarà comunque possibile ottenere lo stato della 
+
+
+    __NOTA__: gli eventi sono mantenuti per un massimo di __<span id="webhookTtl">7</span> giorni__ dopo i quali sono
+    automaticamente cancellati anche se non sono stati consumati. Sarà comunque possibile ottenere lo stato della
     notifica attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/default/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV23)
-    
-    
-    
+
+
+
     <details>
       <summary>Esempio di utilizzo della API</summary>
-    
+
     ### Flusso contenente tutte le notifiche in stato Cancellato:
-    
+
     Il payload da passare alla API di creazione del flusso _createEventStream_ è
     
     ```json
-    
+
     {
       "title": "NotificationCancelled",
       "eventType": "STATUS",
@@ -229,17 +229,17 @@ info:
         "CANCELLED"
       ]
     }
-    
+
     ```
-    
-    
-    
+
+
+
     ### Flusso contenente tutte le notifiche in stato Accettato o Consegnato:
-    
+
     Il payload da passare alla API di creazione del flusso _createEventStream_ è
-    
+
     ```json
-    
+
     {
       "title": "NotificationAcceptedOrDelivered",
       "eventType": "STATUS",
@@ -248,15 +248,15 @@ info:
         "ACCEPTED","DELIVERED"
       ]
     }
-    
+
     ```
-    
+
     ### Flusso contenente tutti gli eventi di timeline NOTIFICATION_VIEWED:
-    
+
     Il payload da passare alla API di creazione del flusso _createEventStream_ è
-    
+
     ```json
-    
+
     {
       "title": "TimelineNotificationViewed",
       "eventType": "TIMELINE",
@@ -265,35 +265,35 @@ info:
         "NOTIFICATION_VIEWED"
       ]
     }
-    
+
     ```
-    
-    
+
+
     ### Flusso contenente tutti gli eventi per le notifiche create con il gruppo "contravvenzioni":
-    
+
     Il payload da passare alla API di creazione del flusso _createEventStream_ è
-    
+
     ```json
-    
+
     {
       "title": "TimelineNotificationViewed",
       "eventType": "TIMELINE",
       "groups": ["contravvenzioni"],
       "filterValues": []
     }
-    
+
     ```
-    
+
     NOTA: solo api-key "master" o con il gruppo "contravvenzioni" possono creare e consumare questo flusso.
-    
-    
-    ### Flusso contenente tutti gli eventi di timeline NOTIFICATION_VIEWED per le notifiche create con il 
+
+
+    ### Flusso contenente tutti gli eventi di timeline NOTIFICATION_VIEWED per le notifiche create con il
     gruppo "contravvenzioni" e "tributi":
-    
+
     Il payload da passare alla API di creazione del flusso _createEventStream_ è
 
     ```json
-    
+
     {
       "title": "TimelineNotificationViewed",
       "eventType": "TIMELINE",
@@ -302,19 +302,19 @@ info:
         "NOTIFICATION_VIEWED"
       ]
     }
-    
+
     ```
-    
-    
+
+
     NOTA: solo api-key "master" o con i gruppi "contravvenzioni" e "tributi" possono creare e consumare questo flusso.
     Un'api-key con il SOLO gruppo "contravvenzioni" infatti non potrà creare o accedere a questo flusso.
     
-    
-    
-    
+
+
+
     </details>
-    
-    
+
+
     Le __FAQ__ possono essere consultate al seguente link: [https://docs.pagopa.it/f.a.q.-per-integratori/](https://docs.pagopa.it/f.a.q.-per-integratori/)
 
 
@@ -361,16 +361,16 @@ paths:
     post:
       summary: Crea nuovo stream di eventi
       description: >-
-        Creazione di un flusso di eventi specificando se gli eventi saranno 
+        Creazione di un flusso di eventi specificando se gli eventi saranno
         relativi ai cambi di stato o agli eventi di timeline.
-        
-        
+
+
         In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il 
         timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata 
         invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStream
+      operationId: createEventStreamV23
       requestBody:
         required: true
         content:
@@ -414,7 +414,7 @@ paths:
         Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreams
+      operationId: listEventStreamsV23
       responses:
         '200':
           description: OK
@@ -449,8 +449,8 @@ paths:
         Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: getEventStream                             # NO EXTERNAL
-      #      operationId: retrieveEventStream                       # ONLY EXTERNAL
+      operationId: getEventStreamV23                             # NO EXTERNAL
+#      operationId: retrieveEventStreamV23                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -488,7 +488,7 @@ paths:
         Modifica delle configurazioni dei filtri associati a uno stream di eventi
       tags:
         - Streams
-      operationId: updateEventStream
+      operationId: updateEventStreamV23
       requestBody:
         required: true
         content:
@@ -529,12 +529,12 @@ paths:
     delete:
       summary: Remove Event Stream
       description: >-
-        Cancellazione dello steam di eventi: elimina sia le configurazioni sia tutti gli eventi 
+        Cancellazione dello steam di eventi: elimina sia le configurazioni sia tutti gli eventi
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: deleteEventStream                          # NO EXTERNAL
-      #      operationId: removeEventStream                         # ONLY EXTERNAL
+      operationId: deleteEventStreamV23                          # NO EXTERNAL
+#      operationId: removeEventStreamV23                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -567,21 +567,21 @@ paths:
     post:
       summary: Disabilita uno stream
       description: >-
-        Disabilita uno stream. 
-        
-        
+        Disabilita uno stream.
+
+
         Da uno stream disabilitato è possibile leggere gli eventi presenti nello stream salvati prima
         della disabilitazione, ma non ne saranno aggiunti di nuovi.
-        
-        
+
+
         Non è possibile modificare o riabilitare uno stream disabilitato.
-        
-        
-        Uno stream disabilitato non rientra nel conteggio degli stream massimi, non può essere riabilitato e verrà 
+
+
+        Uno stream disabilitato non rientra nel conteggio degli stream massimi, non può essere riabilitato e verrà
         eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
-      operationId: disableEventStream
+      operationId: disableEventStreamV23
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -629,12 +629,12 @@ paths:
     get:
       summary: Leggi progressi notifiche
       description: >-
-        Lettura degli eventi presenti nello stream di aggiornamenti con indicazione che 
+        Lettura degli eventi presenti nello stream di aggiornamenti con indicazione che
         il mittente ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_
         e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStream
+      operationId: consumeEventStreamV23
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -653,10 +653,10 @@ paths:
                 format: int32
               description: >-
                 Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi.
-                
+
                 Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per 
                 raggiunta dimensione massima della risposta.
-                
+
                 Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
           content:
             application/json:

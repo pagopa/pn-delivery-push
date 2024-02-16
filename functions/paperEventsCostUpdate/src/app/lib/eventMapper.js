@@ -86,12 +86,14 @@ exports.mapEvents = async (events) => {
     switch (category) {
       case "SEND_SIMPLE_REGISTERED_LETTER":
         resultElementBody.updateCostPhase = "SEND_SIMPLE_REGISTERED_LETTER";
+        resultElementBody.vat = timelineObj.details?.vat ?? undefined;
         break;
 
       case "SEND_ANALOG_DOMICILE":
         const costPhase = updateCostPhaseForSendAnalogDomicile(timelineObj);
         if (costPhase) {
           resultElementBody.updateCostPhase = costPhase;
+          resultElementBody.vat = timelineObj.details?.vat ?? undefined;
         }
         break;
 

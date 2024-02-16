@@ -22,7 +22,7 @@ class SimpleRegisteredLetterDetailsIntTest {
     @Test
     void toLog() {
         String log = detailsInt.toLog();
-        Assertions.assertEquals("recIndex=0 physicalAddress='Sensitive information' analogCost=100 productType=null prepareRequestId=null f24Attachments=[]", log);
+        Assertions.assertEquals("recIndex=0 physicalAddress='Sensitive information' analogCost=100 productType=null prepareRequestId=null f24Attachments=[] vat=null", log);
     }
 
     @Test

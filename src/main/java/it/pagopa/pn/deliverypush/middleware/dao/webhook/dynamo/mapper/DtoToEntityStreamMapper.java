@@ -17,11 +17,11 @@ public class DtoToEntityStreamMapper {
         currentVersion = pnDeliveryPushConfigs.getWebhook().getCurrentVersion();
     }
 
-    public static StreamEntity dtoToEntity(String paId, String streamId, StreamCreationRequestV23 dto) {
+    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamCreationRequestV23 dto) {
         StreamEntity streamEntity = new StreamEntity(paId, streamId);
         streamEntity.setEventType(dto.getEventType().getValue());
         streamEntity.setTitle(dto.getTitle());
-        streamEntity.setVersion(currentVersion);
+        streamEntity.setVersion(version != null ? version : currentVersion);
         streamEntity.setGroups(dto.getGroups());
         if (dto.getFilterValues() != null && !dto.getFilterValues().isEmpty())
             streamEntity.setFilterValues(Set.copyOf(dto.getFilterValues()));
@@ -30,10 +30,10 @@ public class DtoToEntityStreamMapper {
         return streamEntity;
     }
 
-    public static StreamEntity dtoToEntity(String paId, String streamId, StreamRequestV23 dto) {
+    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamRequestV23 dto) {
         StreamCreationRequestV23 creationRequestv23 = new StreamCreationRequestV23();
         BeanUtils.copyProperties(dto, creationRequestv23);
         creationRequestv23.setEventType(StreamCreationRequestV23.EventTypeEnum.fromValue(dto.getEventType().getValue()));
-        return dtoToEntity(paId, streamId, creationRequestv23);
+        return dtoToEntity(paId, streamId, version, creationRequestv23);
     }
 }

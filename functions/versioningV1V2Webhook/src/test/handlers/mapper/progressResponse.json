@@ -1,0 +1,119 @@
+{
+  "eventId": "01234567890123456789012345678901234567",
+  "notificationRequestId": "abcd1234",
+  "iun": "ABCD-EFGH-IJKL-123456-M-7",
+  "newStatus": {
+    "status": "IN_PROGRESS",
+    "timestamp": "2024-02-06T12:34:56Z"
+  },
+  "element": [
+    {
+      "elementId": "abcdef1234567890",
+      "timestamp": "2024-02-06T12:34:56Z",
+      "legalFactsIds": [
+        {
+          "key": "safestorage://example_document1.pdf",
+          "category": "PEC_RECEIPT"
+        },
+        {
+          "key": "safestorage://example_document2.pdf",
+          "category": "PEC_RECEIPT"
+        }
+      ],
+      "category": "SEND_ANALOG_DOMICILE",
+      "details": {
+        "recIndex": 1,
+        "analogCost": 500,
+        "serviceLevel": "AR_REGISTERED_LETTER"
+      }
+    },
+    {
+      "elementId": "abcdef1234567890",
+      "timestamp": "2024-02-06T12:34:56Z",
+      "legalFactsIds": [],
+      "category": "REQUEST_REFUSED",
+      "details": {
+        "refusalReasons": [
+          {
+          "errorCode": "FILE_NOTFOUND",
+          "detail": "details"
+          },
+          {
+            "errorCode": "NOT_VALID_ADDRESS",
+            "detail": "details"
+          }
+        ]
+      }
+    },
+    {
+      "elementId": "abcdef1234567890",
+      "timestamp": "2024-02-06T12:34:56Z",
+      "category": "SEND_SIMPLE_REGISTERED_LETTER",
+      "details": {
+        "recIndex": 1,
+        "analogCost": 500
+      }
+    },
+    {
+      "elementId": "abcdef1234567890",
+      "timestamp": "2024-02-06T12:34:56Z",
+      "legalFactsIds": [],
+      "category": "SEND_DIGITAL_DOMICILE",
+      "details": {
+        "recIndex": 1,
+        "digitalAddress": {},
+        "digitalAddressSource": "PLATFORM",
+        "retryNumber": 3
+      }
+    },
+    {
+      "elementId": "abcdef1234567890",
+      "timestamp": "2024-02-06T12:34:56Z",
+      "legalFactsIds": [],
+      "category": "SEND_ANALOG_FEEDBACK",
+      "details": {
+        "recIndex": 1,
+        "physicalAddress": {},
+        "serviceLevel": "AR_REGISTERED_LETTER",
+        "sentAttemptMade": 2,
+        "responseStatus": "OK"
+      }
+    },
+    {
+      "elementId": "abcdef1234567890",
+      "timestamp": "2024-02-06T12:34:56Z",
+      "legalFactsIds": [],
+      "category": "PREPARE_ANALOG_DOMICILE",
+      "details": {
+        "recIndex": 1,
+        "physicalAddress": {},
+        "serviceLevel": "AR_REGISTERED_LETTER",
+        "sentAttemptMade": 2
+      }
+    },
+    {
+      "elementId": "abcdef1234567890",
+      "timestamp": "2024-02-06T12:34:56Z",
+      "legalFactsIds": [],
+      "category": "PREPARE_SIMPLE_REGISTERED_LETTER",
+      "details": {
+        "recIndex": 1,
+        "physicalAddress": {}
+      }
+    },
+    {
+      "elementId": "abcdef1234567890",
+      "timestamp": "2024-02-06T12:34:56Z",
+      "legalFactsIds": [],
+      "category": "SEND_DIGITAL_PROGRESS",
+      "details": {}
+    },
+    {
+      "elementId": "abcdef1234567890",
+      "timestamp": "2024-02-06T12:34:56Z",
+      "legalFactsIds": [],
+      "category": "SEND_DIGITAL_FEEDBACK",
+      "details": {}
+    }
+  ]
+}

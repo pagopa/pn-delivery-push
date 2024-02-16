@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class StreamMetadataResponseTest {
@@ -23,8 +22,6 @@ class StreamMetadataResponseTest {
         response.setTitle("002");
     }
 
-    @Disabled("IVAN")
-
     @Test
     void title() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
@@ -34,6 +31,7 @@ class StreamMetadataResponseTest {
                 .activationDate(instant)
                 .eventType(StreamMetadataResponseV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
+                .groups(Collections.emptyList())
                 .build();
         Assertions.assertEquals(expected, response.title("002"));
     }
@@ -42,8 +40,6 @@ class StreamMetadataResponseTest {
     void getTitle() {
         Assertions.assertEquals("002", response.getTitle());
     }
-
-    @Disabled("IVAN")
 
     @Test
     void eventType() {
@@ -54,6 +50,7 @@ class StreamMetadataResponseTest {
                 .activationDate(instant)
                 .eventType(StreamMetadataResponseV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
+                .groups(Collections.emptyList())
                 .build();
         Assertions.assertEquals(expected, response.eventType(StreamMetadataResponseV23.EventTypeEnum.STATUS));
     }
@@ -63,7 +60,6 @@ class StreamMetadataResponseTest {
         Assertions.assertEquals(StreamMetadataResponseV23.EventTypeEnum.STATUS, response.getEventType());
     }
 
-    @Disabled("IVAN")
     @Test
     void filterValues() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
@@ -73,6 +69,7 @@ class StreamMetadataResponseTest {
                 .activationDate(instant)
                 .eventType(StreamMetadataResponseV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
+                .groups(Collections.emptyList())
                 .build();
         Assertions.assertEquals(expected, response.filterValues(Collections.singletonList("001")));
     }
@@ -81,8 +78,6 @@ class StreamMetadataResponseTest {
     void getFilterValues() {
         Assertions.assertEquals(Collections.singletonList("001"), response.getFilterValues());
     }
-
-    @Disabled("IVAN")
 
     @Test
     void streamId() {
@@ -93,6 +88,7 @@ class StreamMetadataResponseTest {
                 .activationDate(instant)
                 .eventType(StreamMetadataResponseV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
+                .groups(Collections.emptyList())
                 .build();
         Assertions.assertEquals(expected, response.streamId(UUID.fromString("f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454")));
     }
@@ -101,8 +97,6 @@ class StreamMetadataResponseTest {
     void getStreamId() {
         Assertions.assertEquals(UUID.fromString("f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"), response.getStreamId());
     }
-
-    @Disabled("IVAN")
 
     @Test
     void activationDate() {
@@ -113,6 +107,7 @@ class StreamMetadataResponseTest {
                 .activationDate(instant)
                 .eventType(StreamMetadataResponseV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
+                .groups(Collections.emptyList())
                 .build();
         Assertions.assertEquals(expected, response.activationDate(instant));
     }
@@ -121,8 +116,6 @@ class StreamMetadataResponseTest {
     void getActivationDate() {
         Assertions.assertEquals(Instant.parse("2021-09-16T15:23:00.00Z"), response.getActivationDate());
     }
-
-    @Disabled("IVAN")
 
     @Test
     void testEquals() {
@@ -133,6 +126,7 @@ class StreamMetadataResponseTest {
                 .activationDate(instant)
                 .eventType(StreamMetadataResponseV23.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
+                .groups(Collections.emptyList())
                 .build();
         Assertions.assertEquals(Boolean.TRUE, expected.equals(response));
     }

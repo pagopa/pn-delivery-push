@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EntityToDtoStreamMapper {
     private static String firstVersion;
-    private EntityToDtoStreamMapper(PnDeliveryPushConfigs pnDeliveryPushConfigs){
+    public EntityToDtoStreamMapper(PnDeliveryPushConfigs pnDeliveryPushConfigs){
         firstVersion = pnDeliveryPushConfigs.getWebhook().getFirstVersion();
     }
 

@@ -76,7 +76,6 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
-        NotificationProcessCostServiceImpl.class,
         SafeStorageServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
@@ -292,7 +291,9 @@ public class CommonTestConfiguration {
 
         //quickWorkAroundForPN-9116
         Mockito.when(cfg.isSendMoreThan20GramsDefaultValue()).thenReturn(true);
-
+        
+        //Set send fee
+        Mockito.when(cfg.getPagoPaNotificationBaseCost()).thenReturn(100);
     }
 
 }

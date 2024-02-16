@@ -324,7 +324,7 @@ paths:
       description: Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno  relativi ai cambi di stato o agli eventi di timeline. <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il  timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStream
+      operationId: createEventStreamV23
       requestBody:
         required: true
         content:
@@ -367,7 +367,7 @@ paths:
       description: Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreams
+      operationId: listEventStreamsV23
       responses:
         '200':
           description: OK
@@ -395,7 +395,7 @@ paths:
       description: Permette di leggere le configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStream
+      operationId: retrieveEventStreamV23
       responses:
         '200':
           description: OK
@@ -432,7 +432,7 @@ paths:
       description: Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi
       tags:
         - Streams
-      operationId: updateEventStream
+      operationId: updateEventStreamV23
       requestBody:
         required: true
         content:
@@ -475,7 +475,7 @@ paths:
       description: 'Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi  associati allo stream e non ancora consumati.'
       tags:
         - Streams
-      operationId: removeEventStream
+      operationId: removeEventStreamV23
       responses:
         '204':
           description: OK
@@ -509,7 +509,7 @@ paths:
       description: Permette di disabilitare uno stream. Da uno stream disabilitato è possibile leggere gli eventi presenti nello stream salvati prima della disabilitazione, ma non ne saranno aggiunti di nuovi. Non è possibile modificare o riabilitare uno stream disabilitato. La disabilitazione dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi. Infine, uno stream disabilitato non  rientra nel conteggio degli stream massimi, e verrà automaticamente cancellato trascorso il tempo massimo di disponibilità degli eventi.
       tags:
         - Streams
-      operationId: disableEventStream
+      operationId: disableEventStreamV23
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -549,7 +549,7 @@ paths:
       description: Permette di leggere gli eventi presenti nello stream di aggiornamenti e indica che  la P.A. ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStream
+      operationId: consumeEventStreamV23
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'

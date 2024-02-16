@@ -1,16 +1,11 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
-import java.time.Instant;
-import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+
+import java.time.Instant;
+import java.util.List;
 
 @Builder( toBuilder = true )
 @NoArgsConstructor
@@ -81,20 +76,13 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("nextDigitalAddressSource")}))  DigitalAddressSourceEntity nextDigitalAddressSource;
     @Getter(onMethod=@__({@DynamoDbAttribute("nextSourceAttemptsMade")}))  int nextSourceAttemptsMade;
     @Getter(onMethod=@__({@DynamoDbAttribute("nextLastAttemptMadeForSource")}))  Instant nextLastAttemptMadeForSource;
-
     @Getter(onMethod=@__({@DynamoDbAttribute("refusalReasons")})) private List<NotificationRefusedErrorEntity> refusalReasons;
     @Getter(onMethod=@__({@DynamoDbAttribute("uncertainPaymentDate")})) private Boolean uncertainPaymentDate;
     @Getter(onMethod=@__({@DynamoDbAttribute("legalFactGenerationDate")})) private Instant legalFactGenerationDate;
-
     @Getter(onMethod=@__({@DynamoDbAttribute("registeredLetterCode")})) String registeredLetterCode;
-
     @Getter(onMethod=@__({@DynamoDbAttribute("schedulingAnalogDate")})) private Instant schedulingAnalogDate;
-
     @Getter(onMethod=@__({@DynamoDbAttribute("cancellationRequestId")})) private String cancellationRequestId;
     @Getter(onMethod=@__({@DynamoDbAttribute("notRefinedRecipientIndexes")})) private List<Integer> notRefinedRecipientIndexes;
-
-
     @Getter(onMethod=@__({@DynamoDbAttribute("failureCause")})) private String failureCause;
-
-    @Getter(onMethod=@__({@DynamoDbAttribute("coverFileKey")})) String coverFileKey;
+    @Getter(onMethod=@__({@DynamoDbAttribute("vat")})) private Integer vat;
 }

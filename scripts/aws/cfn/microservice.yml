@@ -555,6 +555,14 @@ Parameters:
     Type: String
     Default: ''
 
+  VersioningV1V2WebhookLambdaName:
+    Type: String
+    Description: 'VersioningV1V2WebhookLambdaName'
+
+  VersioningV1V2WebhookLambdaProvisionedConcurrency:
+    Type: Number
+    Description: 'VersioningV1V2WebhookLambdaProvisionedConcurrency'
+    Default: 1
 
   WebhookEventManagerLambdaName:
     Type: String
@@ -1312,6 +1320,99 @@ Resources:
         FunctionName: !Ref PaperEventsCostUpdateLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
+  #########################################################
+  ###              VersioningV1V2Webhook              ### # converte la risposta V2.3 a V1 e può essere estesa
+  #########################################################
+  VersioningV1V2WebhookSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${VersioningV1V2WebhookLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  VersioningV1V2WebhookLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref VersioningV1V2WebhookLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2Webhook.zip"
+      Role: !GetAtt VersioningV1V2WebhookLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt VersioningV1V2WebhookSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.3"
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+      MemorySize: 512
+      Tags:
+        - Key: "pn-eni-related"
+          Value: "true"
+        - Key: "pn-eni-related-groupName-regexp"
+          Value: !Base64 "^pn-delivery-microsvc-prod-VersioningV1V2WebhookSecGroup*$"
+
+  # a new version at each deploy, with provisioned concurrency set
+  VersioningV1V2WebhookLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref VersioningV1V2WebhookLambda
+
+  VersioningV1V2WebhookLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties: 
+      FunctionName: !Ref VersioningV1V2WebhookLambda
+      FunctionVersion: !GetAtt VersioningV1V2WebhookLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: !Ref VersioningV1V2WebhookLambdaProvisionedConcurrency
+
+  # Lambda function role
+  VersioningV1V2WebhookLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-VersioningV1V2WebhookLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
+
+  VersioningV1V2WebhookLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref VersioningV1V2WebhookLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+
+  # Lambda access right
+  VersioningV1V2WebhookLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VersioningV1V2WebhookLambdaVersionAlias
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
+
 
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
@@ -1367,11 +1468,13 @@ Resources:
             - !GetAtt WebhookEventManagerLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PaperEventsCostUpdateDLQAlarmARN
             - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt VersioningV1V2WebhookLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
             - !GetAtt WebhookEventManagerLambda.Arn
             - !GetAtt PaperEventsCostUpdateLambda.Arn
+            - !GetAtt VersioningV1V2WebhookLambda.Arn
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -1388,6 +1491,7 @@ Resources:
             - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
             - !Sub '/aws/lambda/${WebhookEventManagerLambdaName}'
             - !Sub '/aws/lambda/${PaperEventsCostUpdateLambdaName}'
+            - !Sub '/aws/lambda/${VersioningV1V2WebhookLambdaName}'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscaling:

@@ -4,14 +4,12 @@ import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.ke
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -22,8 +20,9 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.TransactUpdateItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
@@ -122,33 +121,27 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
                 });
     }
 
+
     @Override
-    public Mono<StreamEntity> replace(StreamEntity entity, UUID replacedStreamId) {
-        return get(entity.getPaId(), replacedStreamId.toString())
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, replace stream invalid")))
-            .filter(foundEntity-> foundEntity.getDisabledDate() == null)
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled")))
-            .flatMap(foundEntity-> {
+    public Mono<StreamEntity> replaceEntity(StreamEntity replacedEntity, StreamEntity newEntity){
 
-                StreamEntity replacedEntity = new StreamEntity(foundEntity.getPaId(), foundEntity.getStreamId());
+        TransactUpdateItemEnhancedRequest<StreamEntity> updateRequest = TransactUpdateItemEnhancedRequest.builder(StreamEntity.class)
+            .item(disableStream(replacedEntity))
+            .ignoreNulls(true)
+            .build();
 
-                UpdateItemEnhancedRequest updateRequest = UpdateItemEnhancedRequest.builder(StreamEntity.class)
-                    .item(disableStream(replacedEntity))
-                    .ignoreNulls(true)
-                    .build();
+        TransactPutItemEnhancedRequest<StreamEntity> createRequest = TransactPutItemEnhancedRequest.builder(StreamEntity.class)
+            .item(newEntity)
+            .build();
 
-                PutItemEnhancedRequest createRequest = PutItemEnhancedRequest.builder(StreamEntity.class)
-                    .item(entity)
-                    .build();
 
-                TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
-                    .addUpdateItem(table, updateRequest)
-                    .addPutItem(table, createRequest)
-                    .build();
+        TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
+            .addUpdateItem(table, updateRequest)
+            .addPutItem(table, createRequest)
+            .build();
 
-                var f = dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest);
-                return Mono.fromFuture(f.thenApply(r->entity));
-            });
+        var f = dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest);
+        return Mono.fromFuture(f.thenApply(r->newEntity));
     }
 
     @Override
