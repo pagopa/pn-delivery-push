@@ -145,7 +145,7 @@ info:
     Ad un flusso possono essere associati uno o più gruppi per cui:
     - presenterà esclusivamente gli eventi relativi alle notifiche associate ai tali gruppi:
     - in fase di creazione potranno essere associati i gruppi associati all'api-key utilizzata.
-    - solo le api-key con visibilità sui gruppi dello flusso possano modificarlo, cancellarlo e consumare gli eventi.
+    - solo le api-key con visibilità su tutti i gruppi del flusso possano modificarlo, cancellarlo e consumare gli eventi.
     
     __NOTA__: Le api-key senza associazione a gruppi possono agire su tutti i gruppi.
     
@@ -199,13 +199,6 @@ info:
     prima) il parametro _lastEventId_ valorizzato con l'ultimo _eventId_ della richiesta precedente. In questo modo si 
     informa che gli eventi precedenti sono stati elaborati e quindi possibile procedere con la loro cancellazione dallo 
     stream e restituire i successivi.
-    
-    
-    Tuttavia, in fase di implementazione del client che consumerà i servizi, bisogna considerare il fattore della 
-    __non univocità degli eventi__: è possibile che se in un dato secondo avvengano più eventi contemporaneamente, 
-    nella chiamata successiva allo stream dove si inserisce l'_eventId_, non vengano cancellati gli altri eventi 
-    contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi 
-    già ottenuti dalla chiamata precedente.
     
     
     Se non esistono ulteriori eventi nello stream, allora la response del servizio restituisce il valore di 
