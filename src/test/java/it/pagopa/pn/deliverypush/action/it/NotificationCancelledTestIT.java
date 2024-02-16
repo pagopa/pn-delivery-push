@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it;
 
-import it.pagopa.pn.deliverypush.action.it.mockbean.*;
+import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.TimelineDaoMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
@@ -40,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.action.it.AbstractWorkflowTestConfiguration.SEND_FEE;
 import static org.awaitility.Awaitility.await;
 
 class NotificationCancelledTestIT extends CommonTestConfiguration{
@@ -55,10 +57,10 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
     StatusUtils statusUtils;
     @SpyBean
     TimelineService timelineService;
-
+    
     @Test
     void notificationCancelled() {
-
+        
         String iun = TestUtils.getRandomIun();
         String taxId = TimelineDaoMock.SIMULATE_CANCEL_NOTIFICATION +  TimelineEventId.AAR_GENERATION.buildEventId(EventId.builder()
                 .iun(iun)
@@ -116,7 +118,6 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
         Instant notificationViewDate2 = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, 0, null, notificationViewDate2);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().atLeast(Duration.ofSeconds(1));
 
         await().untilAsserted(() ->
@@ -185,7 +186,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
 
         NotificationCancelledDetailsInt details = (NotificationCancelledDetailsInt) timelineElement.getDetails();
         Assertions.assertEquals(notrefined, details.getNotRefinedRecipientIndexes().size());
-        Assertions.assertEquals(notrefined*100, details.getNotificationCost());
+        Assertions.assertEquals(notrefined*SEND_FEE, details.getNotificationCost());
 
     }
 
@@ -259,9 +260,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
                 .build();
 
         pnDataVaultClientReactiveMock.insertBaseRecipientDto(baseRecipientDto);
-
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-
+        
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
@@ -367,10 +366,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
-
-        Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
-
+        
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 

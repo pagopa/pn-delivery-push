@@ -314,6 +314,15 @@ Parameters:
     AllowedValues: [ true, false ]
     Default: false
 
+  #quickWorkAroundForPN-9116
+  SendMoreThan20GramsDefaultValue:
+    Type: String
+    Description: |
+      Valore di default dell'abilitazione ad inviare notifche con piú di 2 fogli oltre l'AAR (20 grammi).
+      Il valore di abilitazione puó essere sovrascritto dal Parameter Store MapPaSendMoreThan20Grams nel parametro canSendMoreThan20Grams.
+    AllowedValues: [ true, false ]
+    Default: false
+
   RetentionAttachmentDaysAfterRefinement:
     Type: String
     Description: 'Number of days after which an attachment can be deleted from the effective date (viewing or expiration of time)'
@@ -654,6 +663,32 @@ Parameters:
     Type: Number
     Description: web waf limit
 
+  # Logging parameters
+  WireTapLogActivation:
+    Type: String
+    Default: false
+    Description: Activation of wire logs
+    AllowedValues:
+      - true
+      - false
+
+  PnCronAnalyzer:
+    Type: String
+    Default: '-'
+    Description: Cron for which you send the metric to CloudWatch
+
+  # EFS parameters
+  FargateEFSFileSystemID:
+    Type: String
+    Description: "EFS Filesystem"
+
+  MountEfs:
+    Type: String
+    Default: false
+    AllowedValues:
+      - "true"
+      - "false"
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -680,6 +715,9 @@ Resources:
         AutoscalingDataPointN: !Ref AutoscalingDataPointN
         AutoscalingDataPointM: !Ref AutoscalingDataPointM
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        EfsFilesystem: !Ref FargateEFSFileSystemID
+        MountEfs: !Ref MountEfs
+        WireTapLogActivation: !Ref WireTapLogActivation
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
@@ -750,7 +788,10 @@ Resources:
         ContainerEnvEntry64: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTRETENTIONTIMEAFTERVALIDATION=${AttachmentRetentionTimeAfterValidation}'
         ContainerEnvEntry65: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_CHECKATTACHMENTTIMEBEFOREEXPIRATION=${CheckAttachmentTimeBeforeExpiration}'
         ContainerEnvEntry66: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTTIMETOADDAFTEREXPIRATION=${AttachmentTimeToAddAfterExpiration}'
-        
+        #quickWorkAroundForPN-9116
+        ContainerEnvEntry67: !Sub 'PN_DELIVERYPUSH_SENDMORETHAN20GRAMSDEFAULTVALUE=${SendMoreThan20GramsDefaultValue}'
+        ContainerEnvEntry68: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
+        ContainerEnvEntry69: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -815,6 +856,7 @@ Resources:
               - 'ssm:GetParameters'
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendMoreThan20Grams'
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -830,12 +872,6 @@ Resources:
               - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
               - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
               - !Sub "${DocumentCreationRequestTableArn}"
-          - Effect: Allow
-            Action:
-              - ssm:GetParameter
-              - ssm:GetParameters
-            Resource:
-              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
   
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
   DeliveryPushMicroservicePublicAPI:

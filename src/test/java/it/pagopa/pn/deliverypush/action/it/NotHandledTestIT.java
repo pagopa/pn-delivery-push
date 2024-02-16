@@ -120,7 +120,7 @@ class NotHandledTestIT extends CommonTestConfiguration {
         pnDeliveryClientMock.addNotification(notification);
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -235,7 +235,7 @@ class NotHandledTestIT extends CommonTestConfiguration {
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -343,7 +343,7 @@ class NotHandledTestIT extends CommonTestConfiguration {
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);

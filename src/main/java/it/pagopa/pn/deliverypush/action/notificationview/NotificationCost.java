@@ -25,7 +25,7 @@ public class NotificationCost {
     }
 
     @Nullable
-    public Mono<Optional<Integer>> getNotificationCost(NotificationInt notification, Integer recIndex) {
+    public Mono<Optional<Integer>> getNotificationCostForViewed(NotificationInt notification, Integer recIndex) {
         //Trasformato in MONO anche per sviluppi futuri, in modo da adeguare correttamente i client
         Optional<Integer> notificationCostOpt = Optional.empty();
 
@@ -36,11 +36,13 @@ public class NotificationCost {
                         .build()
         );
 
-        return Mono.fromCallable( () -> timelineService.getTimelineElement(notification.getIun(), elementId))
+        return Mono.fromCallable( () -> timelineService.getTimelineElementStrongly(notification.getIun(), elementId))
                 .flatMap( timelineElementOpt -> {
                     if(timelineElementOpt.isEmpty()){
-                        return notificationProcessCostService.getPagoPaNotificationBaseCost().map(Optional::of);
+                        //Se non c'è il refinement viene messo il costo base di send
+                        return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
                     }else {
+                        //Se c'è il refinement viene settato empty
                         return Mono.just(notificationCostOpt);
                     }
                 });

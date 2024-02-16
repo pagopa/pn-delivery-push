@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -24,6 +25,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -36,12 +38,14 @@ class NationalRegistriesClientResponseHandlerTest {
     private PublicRegistryUtils publicRegistryUtils;
     @Mock
     private NotificationService notificationService;
+    @MockBean
+    private NotificationProcessCostService notificationProcessCostService;
 
     private NationalRegistriesResponseHandler handler;
 
     @BeforeEach
     public void setup() {
-        TimelineUtils timelineUtils = new TimelineUtils(Mockito.mock(InstantNowSupplier.class), Mockito.mock(TimelineService.class));
+        TimelineUtils timelineUtils = new TimelineUtils(Mockito.mock(InstantNowSupplier.class), Mockito.mock(TimelineService.class), notificationProcessCostService);
         handler = new NationalRegistriesResponseHandler(chooseDeliveryHandler,
                 digitalWorkFlowHandler,
                 publicRegistryUtils, notificationService, timelineUtils);

@@ -7,11 +7,14 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV23;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +35,7 @@ class SmartMapperTest {
                         .build())
                 .build();
 
-        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV20.class);
+        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV23.class);
         
         Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(sendDigitalDetails.getDigitalAddress().getAddress(), details.getDigitalAddress().getAddress() );
@@ -40,7 +43,7 @@ class SmartMapperTest {
 
     @Test
     void fromExternalToInternalSendDigitalDetails() {
-        var timelineElementDetails = TimelineElementDetailsV20.builder()
+        var timelineElementDetails = TimelineElementDetailsV23.builder()
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSource.PLATFORM)
                 .digitalAddress(DigitalAddress.builder()
@@ -68,7 +71,7 @@ class SmartMapperTest {
                         .build())
                 .build();
 
-        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV20.class);
+        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV23.class);
 
         Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(sendDigitalDetails.getFoundAddress().getAddress(), details.getFoundAddress().getAddress() );
@@ -83,18 +86,18 @@ class SmartMapperTest {
         source.setNotRefinedRecipientIndexes(list);
         source.setNotificationCost(100);
 
-        TimelineElementDetailsV20 ret = SmartMapper.mapToClass(source, TimelineElementDetailsV20.class);
+        TimelineElementDetailsV23 ret = SmartMapper.mapToClass(source, TimelineElementDetailsV23.class);
 
         Assertions.assertEquals(1, ret.getNotRefinedRecipientIndexes().size());
 
         source.getNotRefinedRecipientIndexes().clear();
-        ret = SmartMapper.mapToClass(source, TimelineElementDetailsV20.class);
+        ret = SmartMapper.mapToClass(source, TimelineElementDetailsV23.class);
 
         Assertions.assertEquals(0, ret.getNotRefinedRecipientIndexes().size());
 
         NotHandledDetailsInt altro = new NotHandledDetailsInt();
         altro.setReason("test");
-        ret = SmartMapper.mapToClass(altro, TimelineElementDetailsV20.class);
+        ret = SmartMapper.mapToClass(altro, TimelineElementDetailsV23.class);
 
         Assertions.assertNull(ret.getNotRefinedRecipientIndexes());
     }
@@ -117,9 +120,74 @@ class SmartMapperTest {
 
         TimelineElementInternal ret = SmartMapper.mapToClass(source, TimelineElementInternal.class);
 
-
+        Assertions.assertNotSame(ret, source);
         Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
     }
+
+    @Test
+    void testMapTimelineInternalTransformer(){
+        Instant refinementTimestamp = Instant.EPOCH.plusMillis(100);
+        Instant scheduleRefinementTimestamp = Instant.EPOCH.plusMillis(500);
+
+        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
+
+
+        TimelineElementInternal refinementElement = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.REFINEMENT)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(refinementTimestamp)
+                .details( RefinementDetailsInt.builder()
+                        .recIndex(0)
+                        .build())
+                .build();
+
+        TimelineElementInternal scheduleRefinementElement = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SCHEDULE_REFINEMENT)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(Instant.now())
+                .details( ScheduleRefinementDetailsInt.builder()
+                        .recIndex(0)
+                        .schedulingDate(scheduleRefinementTimestamp)
+                        .build())
+                .build();
+
+        TimelineElementInternal ret = SmartMapper.mapTimelineInternal(refinementElement, Set.of(scheduleRefinementElement));
+
+        Assertions.assertNotSame(ret , refinementElement);
+        Assertions.assertNotEquals(ret.getTimestamp(),refinementElement.getTimestamp());
+        Assertions.assertNotEquals(refinementTimestamp, ret.getTimestamp());
+        Assertions.assertNotEquals(eventTimestamp, ret.getTimestamp());
+        Assertions.assertEquals(scheduleRefinementTimestamp, ret.getTimestamp());
+    }
+
+
+    @Test
+    void testMapTimelineInternalMapTimelineInternaNotificationView(){
+        Instant notificationViewedTimestamp = Instant.EPOCH.plusMillis(100);
+        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
+
+
+        TimelineElementInternal notificationViewedElement = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(notificationViewedTimestamp)
+                .details( NotificationViewedDetailsInt.builder()
+                        .recIndex(0)
+                        .eventTimestamp(eventTimestamp)
+                        .build())
+                .build();
+
+
+        TimelineElementInternal ret = SmartMapper.mapTimelineInternal(notificationViewedElement, Set.of(notificationViewedElement));
+
+        Assertions.assertNotSame(ret , notificationViewedElement);
+        Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
+    }
+
+
 
 
     @Test

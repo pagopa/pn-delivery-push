@@ -199,9 +199,9 @@ class DigitalWorkFlowUtilsTest {
 
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
-        Mockito.when(timelineUtils.buildScheduleDigitalWorkflowTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any())).thenReturn(timelineElementInternal);
+        Mockito.when(timelineUtils.buildScheduleDigitalWorkflowTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any())).thenReturn(timelineElementInternal);
 
-        digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any());
+        digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any());
 
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(Mockito.any(), Mockito.any());
 

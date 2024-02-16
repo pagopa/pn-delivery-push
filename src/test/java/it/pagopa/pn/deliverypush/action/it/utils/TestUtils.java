@@ -67,7 +67,6 @@ public class TestUtils {
     }
 
     public static void checkSendCourtesyAddressFromTimeline(String iun, Integer recIndex, List<CourtesyDigitalAddressInt> courtesyAddresses, TimelineService timelineService) {
-        int index = 0;
         for (CourtesyDigitalAddressInt digitalAddress : courtesyAddresses) {
             String eventId = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(
                     EventId.builder()
@@ -81,7 +80,6 @@ public class TestUtils {
             SendCourtesyMessageDetailsInt sendCourtesyMessageDetails = sendCourtesyMessageDetailsOpt.get();
             Assertions.assertEquals(digitalAddress.getAddress(), sendCourtesyMessageDetails.getDigitalAddress().getAddress());
             Assertions.assertEquals(digitalAddress.getType(), sendCourtesyMessageDetails.getDigitalAddress().getType());
-            index++;
         }
     }
 
@@ -381,6 +379,124 @@ public class TestUtils {
         return true;
     }
 
+    public static boolean checkIsPresentDigitalSuccessWorkflowAndRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> digitalSuccessOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.DIGITAL_SUCCESS_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+        
+        if(digitalSuccessOpt.isPresent()){
+            return timelineService.getTimelineElement(
+                    iun,
+                    TimelineEventId.REFINEMENT.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    )
+            ).isPresent();
+        }
+        
+        return false;
+    }
+
+    public static boolean checkIsPresentDigitalFailureWorkflowAndRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> digitalFailureOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        if(digitalFailureOpt.isPresent()){
+            return timelineService.getTimelineElement(
+                    iun,
+                    TimelineEventId.REFINEMENT.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    )
+            ).isPresent();
+        }
+
+        return false;
+    }
+
+    public static boolean checkIsPresentAnalogSuccessWorkflowAndRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> analogSuccessOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_SUCCESS_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        if(analogSuccessOpt.isPresent()){
+            return timelineService.getTimelineElement(
+                    iun,
+                    TimelineEventId.REFINEMENT.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    )
+            ).isPresent();
+        }
+
+        return false;
+    }
+
+    public static boolean checkIsPresentAnalogFailureWorkflowAndRefinement(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> analogFailure = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        if(analogFailure.isPresent()){
+            return timelineService.getTimelineElement(
+                    iun,
+                    TimelineEventId.REFINEMENT.buildEventId(
+                            EventId.builder()
+                                    .iun(iun)
+                                    .recIndex(recIndex)
+                                    .build()
+                    )
+            ).isPresent();
+        }
+
+        return false;
+    }
+    
+    public static boolean checkIsPresentDigitalFailure(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.DIGITAL_FAILURE_WORKFLOW.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        return timelineElementOpt.isPresent();
+    }
+    
     public static Optional<TimelineElementInternal> getRefinement(String iun, Integer recIndex, TimelineService timelineService) {
         return timelineService.getTimelineElement(
                 iun,
@@ -853,7 +969,8 @@ public class TestUtils {
                                                PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock,
                                                DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
                                                AddressManagerClientMock addressManagerClientMock,
-                                               F24ClientMock f24ClientMock
+                                               F24ClientMock f24ClientMock,
+                                               ActionPoolMock actionPoolMock
     ) {
 
         log.info("CLEARING MOCKS");
@@ -871,7 +988,8 @@ public class TestUtils {
         documentCreationRequestDaoMock.clear();
         addressManagerClientMock.clear();
         f24ClientMock.clear();
-
+        actionPoolMock.clear();
+        
         ConsoleAppenderCustom.initializeLog();
     }
 

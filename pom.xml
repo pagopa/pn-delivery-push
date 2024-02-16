@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>it.pagopa.pn</groupId>
 	<artifactId>pn-delivery-push</artifactId>
-	<version>2.2.2-SNAPSHOT</version>
+	<version>2.4.0-SNAPSHOT</version>
 	<name>pn-delivery-push</name>
 	<description>Orchestrate Notification Workflow</description>
 	<scm>
@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-commons</artifactId>
-			<version>2.2.3</version>
+			<version>2.2.8-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
@@ -354,7 +354,7 @@
 						</goals>
 						<configuration>
 							<!--modificare quando lo swagger di delivery aggiornato sarà su dev-->
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/07cc2aace8a42c7c42bb65c290f7a72c99254915/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/19f7bd16eec3b1951fbe453a028269ea0a041ace/docs/openapi/api-private.yaml</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
@@ -386,7 +386,7 @@
 						</goals>
 						<configuration>
 							<!--modificare quando lo swagger di delivery aggiornato sarà su dev-->
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/07cc2aace8a42c7c42bb65c290f7a72c99254915/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/19f7bd16eec3b1951fbe453a028269ea0a041ace/docs/openapi/api-private.yaml</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
 							<library>webclient</library>

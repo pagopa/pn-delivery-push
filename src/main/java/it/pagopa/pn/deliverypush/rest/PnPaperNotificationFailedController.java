@@ -24,12 +24,8 @@ public class PnPaperNotificationFailedController implements PaperNotificationFai
             Boolean getAAR,
             final ServerWebExchange exchange
     ) {
-
-        return Mono.fromSupplier(() -> {
-            var responses = service.getPaperNotificationByRecipientId(recipientInternalId, getAAR);
-            var fluxFacts = Flux.fromIterable(responses);
-            return ResponseEntity.ok(fluxFacts);
-        });
+        return Mono.fromCallable(() -> service.getPaperNotificationByRecipientId(recipientInternalId, getAAR))
+                .map(ResponseEntity::ok);
     }
 
 }

@@ -134,7 +134,7 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
         TestUtils.checkNotSendPaperToExtChannel(iun, recIndex, 0, timelineService);
         Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
-        //Viene verificato che la notifica sia stata visualizzata
+        //Viene verificato che la notifica sia stata pagata
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
                 TimelineEventId.NOTIFICATION_PAID.buildEventId(
@@ -217,7 +217,7 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
                         .recIndex(recIndex)
                         .build()
         );
-        PnDeliveryPaymentEvent.Payload paymentEventPayload = simulateNotificationPaid(iun, recIndex, timelineIdToWait);
+        simulateNotificationPaid(iun, recIndex, timelineIdToWait);
         
         with().pollDelay(5, SECONDS).await().untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineIdToWait).isPresent())

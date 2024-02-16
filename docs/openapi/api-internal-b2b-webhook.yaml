@@ -182,7 +182,7 @@ info:
 
       A questo punto si potrà capire, sempre dal valore del <code>retry-after</code> contenuto nell'header</br> se chiamare subito il servizio ed inserire il <code>lastEventId</code> di questa ulteriore chiamata</br> o attendere il tempo indicato nell'header</br>
 
-      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV20) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
+      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV23) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
 
       </td>
       <td>
@@ -298,7 +298,7 @@ info:
     gli altri eventi contemporanei avvenuti nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una riproposizione di eventi già ottenuti dalla chiamata precedente.</br>
     Se <u>non esistono</u> ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.</br>
     <font color="red"><strong>Nella prima versione di Piattaforma Notifiche non verrà implementata la segregazione dei gruppi e pertanto le informazioni presenti all'interno di uno stream saranno accessibili a tutte le apiKey della stessa PA; Si evidenzia comunque che gli eventi esposti dalle stream sono anonimizzati e non contengono informazioni personali o sensibili dei soggetti impattati dagli eventi.</font></strong></br>
-    <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV20)__ </font>
+    <font color="red">__Gli eventi sono mantenuti per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono automaticamente cancellati anche se non sono stati prelevati dallo stream, e sarà possibile ottenere lo stato della notifica solo attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV23)__ </font>
 
     </br>
     </br>
@@ -774,7 +774,7 @@ components:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
 #          apparentemente non retrocompatibile ma gli stream continueranno a mandare category della versione 1 fino ad esplicita modifica delle config da parte della PA
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV23'
         recipientIndex:
           type: integer
           format: int32

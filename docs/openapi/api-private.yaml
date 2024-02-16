@@ -165,6 +165,52 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  '/delivery-push-private/{iun}/raddretrieved':
+    post:
+      summary: Notifica che un destinatario ha preso visione di una notifica tramite rete RADD
+      description: >-
+        Metodo utilizzato da microservizi interni per notificare che un destinatario
+        ha preso visione di una notifica tramite rete RADD
+      tags:
+        - EventComunication
+      operationId: notifyNotificationRaddRetrieved
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestNotificationViewedDto"
+        required: true
+      responses:
+        '200':
+          description: |
+            OK. Allo stato attuale il contenuto della risposta non ha valore informativo
+            basta il fatto che lo status sia 200 per indicare che l'operazione è andata
+            a buon fine.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseNotificationViewedDto"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: IUN or recipient not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
 
   '/delivery-push-private/{recipientInternalId}/paper-notification-failed':
     get:
@@ -272,7 +318,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: "#/components/schemas/LegalFactDownloadMetadataWithContentTypeResponse"
         '400':
           description: Invalid input
           content:
@@ -333,7 +379,7 @@ paths:
 
   '/delivery-push-private/{iun}/notification-process-cost/{recipientIndex}':
     get:
-      summary: Restituisce il costo di notificazione per destinatario 
+      summary: Restituisce il costo di notificazione per destinatario
       description: >-
         Restituisce il costo dell'intero processo di notificazione per un singolo destinatario
       tags:
@@ -345,6 +391,7 @@ paths:
         - $ref: '#/components/parameters/queryNotificationFeePolicy'
         - $ref: '#/components/parameters/queryApplyCost'
         - $ref: '#/components/parameters/paFee'
+        - $ref: '#/components/parameters/vat'
       responses:
         '200':
           description: OK
@@ -370,7 +417,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-                
+
 components:
   parameters:
 
@@ -511,7 +558,7 @@ components:
       required: true
       schema:
         type: integer
-        format: int32            
+        format: int32
 
     queryNotificationFeePolicy:
       description: >-
@@ -540,7 +587,16 @@ components:
         format: int32
         minimum: 0
         maximum: 100
-        
+    vat:
+      description: IVA espressa in percentuale imposta al mittente sulla notifica analogica
+      name: vat
+      in: query
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 100
+
   schemas:
 
     cxTypeAuthFleet:
@@ -593,7 +649,7 @@ components:
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
 
 
     ############################################################################################
@@ -615,7 +671,7 @@ components:
           type: string
           description: identificativo anonimizzato del destinatario
         raddType:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddType'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddTypeV23'
         raddBusinessTransactionId:
           $ref: './schemas-pn-timeline.yaml#/components/schemas/RaddTransactionId'
         raddBusinessTransactionDate:
@@ -674,8 +730,8 @@ components:
       type: string
       enum:
         - AAR
-          
-          
+
+
     ############################################################################################
     ###                              COSTO NOTIFICAZIONE                                     ###
     ############################################################################################
@@ -686,13 +742,35 @@ components:
         Contiene il costo del processo di notificazione e l'eventuale data di perfezionamento della notifica
       type: object
       required:
-        - amount
+        - partialCost
       properties:
-        amount:
-          description: costo notificazione in euro cents
-          example: '200'
+        partialCost:
+          description: Costo totale di notificazione che non include la paFee e vat
           type: integer
           format: int32
+        totalCost:
+          description: Costo totale di notificazione che include la paFee e vat applicato ai costi cartacei. Presente solo se entrambi i campi paFee e vat sono stati valorizzati
+          type: integer
+          format: int32
+        analogCost:
+          description: Costo totale degli avvisi in formato cartaceo (senza iva)
+          type: integer
+          format: int32
+        paFee:
+          type: integer
+          description: >-
+            Costo espresso in eurocent che la PA imputa per la notifica
+          format: int32
+        sendFee:
+          type: integer
+          description: >-
+            Costo espresso in eurocent a copertura dei costi di gestione di SEND
+          format: int32
+        vat:
+          type: integer
+          format: int32
+          description: >-
+            IVA espressa in percentuale imposta al mittente sulla notifica analogica
         refinementDate:
           description: data perfezionamento notifica per decorrenza termini se presente
           type: string
@@ -726,3 +804,17 @@ components:
           description: data di probabile inizio del workflow analogico
           type: string
           format: date-time
+
+    ############################################################################################
+    ###           INFORMAZIONI SUI LEGAL FACT                                                ###
+    ############################################################################################
+
+    LegalFactDownloadMetadataWithContentTypeResponse:
+      description: oltre alle informazioni dei legalfact, torna anche il contentType
+      allOf:
+        - $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+        - type: object
+          properties:
+            contentType:
+              description: il contentType del file
+              type: string

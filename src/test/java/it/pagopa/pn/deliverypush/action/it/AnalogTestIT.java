@@ -23,7 +23,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
@@ -36,13 +35,11 @@ import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -125,7 +122,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -256,22 +253,22 @@ class AnalogTestIT extends CommonTestConfiguration{
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-
-        String timelineId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex)
-                        .build()
-        );
         
         //Dal momento che l'ultimo elemento di timeline non viene inserito in prossimità della fine del workflow viene utilizzato un delay
-        with().pollDelay(5, SECONDS).await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
-        );
+        with().pollDelay(5, SECONDS).await().untilAsserted(() ->{
+            String timelineId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
+                    EventId.builder()
+                            .iun(iun)
+                            .recIndex(recIndex)
+                            .build()
+            );
+            
+            Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
+        });
         
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
@@ -288,7 +285,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         //Viene verificato che la notifica sia stata visualizzata
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
-                TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
+                TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
                         EventId.builder()
                                 .iun(iun)
                                 .recIndex(recIndex)
@@ -368,20 +365,16 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), listCourtesyAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
         
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-
-/*        try {
-            Thread.sleep(100000000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }*/
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
+        
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(
+                        TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, recIndex, timelineService)
+                )
         );
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
@@ -506,14 +499,15 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(notification.getIun());
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(
+                        TestUtils.checkIsPresentAnalogSuccessWorkflowAndRefinement(iun, recIndex, timelineService)
+                )
         );
         
         //Viene verificato che non sia stato inviato alcun messaggio di cortesia
@@ -638,21 +632,17 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
-        Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        Integer recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
         // Viene atteso fino a che per i due recipient non si vada in refinement
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(
-                        iun,
-                        TimelineEventId.REFINEMENT.buildEventId(
-                                EventId.builder()
-                                        .iun(iun)
-                                        .recIndex(recIndex1)
-                                        .build())).isPresent())
+                Assertions.assertTrue(
+                        TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, recIndex1, timelineService)
+                )
         );
 
         await().untilAsserted(() ->
@@ -848,31 +838,18 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
-        Integer recIndex1 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer recIndex2 = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        Integer recIndex1 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer recIndex2 = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che per entrambi i recipient non sia stato raggiunto il refinement
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(
-                        iun,
-                        TimelineEventId.REFINEMENT.buildEventId(
-                                EventId.builder()
-                                        .iun(iun)
-                                        .recIndex(recIndex1)
-                                        .build())).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex1, timelineService))
         );
 
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(
-                        iun,
-                        TimelineEventId.REFINEMENT.buildEventId(
-                                EventId.builder()
-                                        .iun(iun)
-                                        .recIndex(recIndex2)
-                                        .build())).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, recIndex2, timelineService))
         );
 
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
@@ -1063,21 +1040,14 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
         String iun = notification.getIun();
-        Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer rec2Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        Integer rec1Index = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer rec2Index = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(
-                        iun,
-                        TimelineEventId.REFINEMENT.buildEventId(
-                                EventId.builder()
-                                        .iun(iun)
-                                        .recIndex(rec1Index)
-                                        .build())).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, rec1Index, timelineService))
 
         );
 
@@ -1274,27 +1244,16 @@ class AnalogTestIT extends CommonTestConfiguration{
         addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
-        Integer rec1Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
-        Integer rec2Index = notificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
+        Integer rec1Index = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient1.getTaxId());
+        Integer rec2Index = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient2.getTaxId());
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-/*        try {
-            Thread.sleep(1000000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }*/
-        String timelineId1 = TimelineEventId.REFINEMENT.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(rec1Index)
-                        .build()
-        );
-
+        
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
         await().untilAsserted(() ->
-                Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId1).isPresent())
+                Assertions.assertTrue(TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, rec1Index, timelineService))
         );
 
         String timelineId2 = TimelineEventId.REFINEMENT.buildEventId(
@@ -1409,124 +1368,6 @@ class AnalogTestIT extends CommonTestConfiguration{
 
         ConsoleAppenderCustom.checkLogs();
     }
-
-    @Test
-    void checkConfigurationWithAttachmentAndOldAAR() {
- /*
-       - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
-       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
-       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
-       
-       - Pa physical address presente ed effettua invio con successo
-     */
-
-        PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
-                .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
-                .build();
-
-        String taxId01 = "TAXID01";
-        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId(taxId01)
-                .withInternalId("ANON_"+taxId01)
-                .withPhysicalAddress(paPhysicalAddress)
-                .build();
-
-        String fileDoc = "sha256_doc00";
-        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
-        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-
-        NotificationInt notification = NotificationTestBuilder.builder()
-                .withNotificationDocuments(notificationDocumentList)
-                .withPaId("paId01")
-                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
-                .withNotificationRecipient(recipient)
-                .build();
-        
-        pnDeliveryClientMock.addNotification(notification);
-
-        String iun = notification.getIun();
-        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-
-        //Start del workflow
-        startWorkflowHandler.startWorkflow(iun);
-
-        // Viene atteso fino a che lo stato non passi in EFFECTIVE DATE
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
-        );
-        
-        //Viene create una lista di tutti gli attachment che ci si aspetta siano stati spediti -> documenti notifica + aar
-        String aarKey = getAarKey(notification, recIndex);
-        List <String> listDocumentKey = notificationDocumentList.stream().map(elem -> elem.getRef().getKey()).toList();
-        final List<String> listAttachmentExpectedToSend = getListAllAttachmentExpectedToSend(listDocumentKey, aarKey);
-
-        //Vengono ottenuti gli attachment inviati nella richiesta di PREPARE verso paperChannel
-        final List<String> prepareAttachmentKeySent = getSentAttachmentKeyFromPrepare();
-        //Viene verificata che gli attachment inviati in fase di PREPARE siano esattamente quelli attesi
-        checkSentAndExpectedAttachmentAreEquals(listAttachmentExpectedToSend, prepareAttachmentKeySent);
-
-        //Vengono ottenuti gli attachment inviati nella richiesta di SEND verso paperChannel
-        final List<String> sendAttachmentKeySent = getSentAttachmentKeyFromPrepare();
-        //Viene verificata che gli attachment inviati in fase di SEND siano esattamente quelli attesi
-        checkSentAndExpectedAttachmentAreEquals(listAttachmentExpectedToSend, sendAttachmentKeySent);
-        
-
-        //Vengono stampati tutti i legalFacts generati
-        String className = this.getClass().getSimpleName();
-        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
-
-        ConsoleAppenderCustom.checkLogs();
-    }
-
-    private static void checkSentAndExpectedAttachmentAreEquals(List<String> listAttachmentExpectedToSend, List<String> prepareAttachmentKeySent) {
-        Assertions.assertEquals(listAttachmentExpectedToSend.size(), prepareAttachmentKeySent.size());
-        listAttachmentExpectedToSend.forEach(attachmentExpectedToSend -> {
-            Assertions.assertTrue(prepareAttachmentKeySent.contains(attachmentExpectedToSend));
-        });
-    }
-
-    @NotNull
-    private static List<String> getListAllAttachmentExpectedToSend(List<String> listDocumentKey, String aarKey) {
-        List<String> listAttachmentExpectedToSend = new ArrayList<>();
-        if(listDocumentKey != null){
-            listAttachmentExpectedToSend.addAll(listDocumentKey);
-        }
-        if(aarKey != null){
-            listAttachmentExpectedToSend.add(aarKey);
-        }
-
-        return replaceSafeStorageKeyFromListAttachment(listAttachmentExpectedToSend);
-    }
-
-    private List<String> getSentAttachmentKeyFromPrepare() {
-        ArgumentCaptor<PaperChannelPrepareRequest> paperChannelPrepareRequestCaptor = ArgumentCaptor.forClass(PaperChannelPrepareRequest.class);
-        Mockito.verify(paperChannelMock, Mockito.times(1)).prepare(paperChannelPrepareRequestCaptor.capture());
-        PaperChannelPrepareRequest paperChannelPrepareRequest = paperChannelPrepareRequestCaptor.getValue();
-        List<String> sentAttachmentKey = paperChannelPrepareRequest.getAttachments();
-        //Viene sempre rimossa la stringa safeStorage
-        return replaceSafeStorageKeyFromListAttachment(sentAttachmentKey);
-    }
-    
-    private List<String> getSentAttachmentKeyFromSend() {
-        ArgumentCaptor<PaperChannelSendRequest> paperChannelSendRequestCaptor = ArgumentCaptor.forClass(PaperChannelSendRequest.class);
-        Mockito.verify(paperChannelMock, Mockito.times(1)).send(paperChannelSendRequestCaptor.capture());
-        PaperChannelSendRequest paperChannelSendRequest = paperChannelSendRequestCaptor.getValue();
-        List<String> sentAttachmentKey = paperChannelSendRequest.getAttachments();
-        //Viene sempre rimossa la stringa safeStorage
-        return replaceSafeStorageKeyFromListAttachment(sentAttachmentKey);
-    }
-    
-    private String getAarKey(NotificationInt notification, Integer recIndex) {
-        String elementId = TimelineEventId.AAR_CREATION_REQUEST.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .build());
-        Optional<AarCreationRequestDetailsInt> aarElementDetailsOpt =  timelineService.getTimelineElementDetails(notification.getIun(), elementId, AarCreationRequestDetailsInt.class);
-        return aarElementDetailsOpt.map(AarCreationRequestDetailsInt::getAarKey).orElse(null);
-    }
-
     @NotNull
     private static List<String> replaceSafeStorageKeyFromListAttachment(List<String> attachments) {
         return attachments.stream().map( attachment -> attachment.replace(SAFE_STORAGE_URL_PREFIX, "")).toList();

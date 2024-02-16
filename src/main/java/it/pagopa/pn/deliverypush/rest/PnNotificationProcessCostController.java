@@ -28,23 +28,29 @@ public class PnNotificationProcessCostController implements NotificationProcessC
                                                                                           NotificationFeePolicy notificationFeePolicy,
                                                                                           Boolean applyCost,
                                                                                           Integer paFee,
+                                                                                          Integer vat,
                                                                                           final ServerWebExchange exchange) {
         if (timelineUtils.checkIsNotificationCancellationRequested(iun))
         {
             log.warn("Notification already cancelled, returning 404 iun={} recIdx={}", iun, recIndex);
             throw new PnNotificationCancelledException();
         }
-
-        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee)
+        
+        return service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee, vat)
                 .map(response -> ResponseEntity.ok().body(mapResponse(response)));
     }
 
     private NotificationProcessCostResponse mapResponse(NotificationProcessCost response) {
         return NotificationProcessCostResponse.builder()
-        .amount(response.getCost())
-        .refinementDate(response.getRefinementDate())
-        .notificationViewDate(response.getNotificationViewDate())
-        .build();
+                .partialCost(response.getPartialCost())
+                .totalCost(response.getTotalCost())
+                .analogCost(response.getAnalogCost())
+                .vat(response.getVat())
+                .paFee(response.getPaFee())
+                .sendFee(response.getSendFee())
+                .refinementDate(response.getRefinementDate())
+                .notificationViewDate(response.getNotificationViewDate())
+                .build();
     }
 
 }

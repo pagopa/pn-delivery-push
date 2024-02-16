@@ -90,13 +90,13 @@ public class SendAarAttachment extends CommonTestConfiguration{
         return notificationDocumentList.stream().map(elem -> elem.getRef().getKey()).toList();
     }
 
-    static String getStringConfiguration(PaperSendMode firstCurrentConf) {
-        Instant startConfTime = firstCurrentConf.getStartConfigurationTime().truncatedTo(ChronoUnit.SECONDS);
+    static String getStringConfiguration(PaperSendMode conf) {
+        Instant startConfTime = conf.getStartConfigurationTime().truncatedTo(ChronoUnit.SECONDS);
         return String.format("%s;%s;%s;%s",
                 startConfTime,
-                firstCurrentConf.getAnalogSendAttachmentMode(),
-                firstCurrentConf.getSimpleRegisteredLetterSendAttachmentMode(),
-                firstCurrentConf.getAarTemplateType());
+                conf.getAnalogSendAttachmentMode(),
+                conf.getSimpleRegisteredLetterSendAttachmentMode(),
+                conf.getAarTemplateType());
     }
 
     static void checkSentAndExpectedAttachmentAreEquals(List<String> listAttachmentExpectedToSend, List<String> prepareAttachmentKeySent) {

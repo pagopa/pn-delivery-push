@@ -26,6 +26,7 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.AarCreationRespon
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
@@ -37,8 +38,10 @@ import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -73,7 +76,6 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         NationalRegistriesServiceImpl.class,
         ExternalChannelServiceImpl.class,
         IoServiceImpl.class,
-        NotificationProcessCostServiceImpl.class,
         SafeStorageServiceImpl.class,
         ExternalChannelResponseHandler.class,
         RefinementHandler.class,
@@ -148,11 +150,16 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         MandateClientMock.class,
         NotificationCancellationActionHandler.class,
         PaperSendModeUtils.class,
-        CheckAttachmentRetentionHandler.class
+        CheckAttachmentRetentionHandler.class,
+        ActionPoolMock.class,
+        SendDigitalFinalStatusResponseHandler.class,
+        //quickWorkAroundForPN-9116
+        SendMoreThan20GramsParameterConsumer.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")
 @DirtiesContext
+@EnableScheduling
 public class CommonTestConfiguration {
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
@@ -160,7 +167,8 @@ public class CommonTestConfiguration {
             super();
         }
     }
-    
+    @Autowired
+    ActionPoolMock actionPoolMock;
     @Autowired
     SafeStorageClientMock safeStorageClientMock;
     @Autowired
@@ -192,8 +200,11 @@ public class CommonTestConfiguration {
     public void setup() {
         setDefaultTimeout(Duration.ofSeconds(60));
 
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
-
+        // Viene creato un oggetto Answer per ottenere l'istante corrente al momento della chiamata ...
+        Answer<Instant> answer = invocation -> Instant.now();
+        // e configurato Mockito per restituire l'istante corrente al momento della chiamata
+        Mockito.when(instantNowSupplier.get()).thenAnswer(answer);
+        
         setcCommonsConfigurationPropertiesForTest(cfg);
 
         ConsoleAppenderCustom.initializeLog();
@@ -209,7 +220,8 @@ public class CommonTestConfiguration {
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
                 addressManagerClientMock,
-                f24ClientMock
+                f24ClientMock,
+                actionPoolMock
         );
     }
 
@@ -226,7 +238,7 @@ public class CommonTestConfiguration {
         times.setTimeToAddInNonVisibilityTimeCase(Duration.ofSeconds(1));
         times.setAttachmentRetentionTimeAfterValidation(Duration.ofSeconds(5));
         times.setCheckAttachmentTimeBeforeExpiration(Duration.ofSeconds(2));
-        times.setAttachmentTimeToAddAfterExpiration(Duration.ofSeconds(5));
+        times.setAttachmentTimeToAddAfterExpiration(Duration.ofSeconds(50));
         
         Mockito.when(cfg.getTimeParams()).thenReturn(times);
 
@@ -260,7 +272,7 @@ public class CommonTestConfiguration {
         externalChannel.setDigitalCodesFatallog(Arrays.asList("C008", "C010"));
         externalChannel.setDigitalRetryCount(-1);
         externalChannel.setDigitalRetryDelay(Duration.ofMinutes(10));
-        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofHours(26));
+        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofSeconds(50));
         Mockito.when(cfg.getExternalChannel()).thenReturn(externalChannel);
 
         // Impostazione delle proprietà di retention degli allegati
@@ -277,6 +289,11 @@ public class CommonTestConfiguration {
 
         Mockito.when(cfg.getPaperSendMode()).thenReturn(paperSendModeList);
 
+        //quickWorkAroundForPN-9116
+        Mockito.when(cfg.isSendMoreThan20GramsDefaultValue()).thenReturn(true);
+        
+        //Set send fee
+        Mockito.when(cfg.getPagoPaNotificationBaseCost()).thenReturn(100);
     }
 
 }

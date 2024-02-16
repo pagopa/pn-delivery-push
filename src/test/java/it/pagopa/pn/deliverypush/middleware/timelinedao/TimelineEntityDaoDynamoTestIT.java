@@ -419,6 +419,111 @@ class TimelineEntityDaoDynamoTestIT extends MockActionPoolTest {
     }
 
     @Test
+    void findByIunStrongly() {
+        String iun = "pa1-1";
+
+        //GIVEN
+        TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId("elementId1")
+                .category(TimelineElementCategoryEntity.REFINEMENT)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId("elementId2")
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        removeElementFromDb(firstElementToInsert);
+        timelineEntityDao.put(firstElementToInsert);
+        removeElementFromDb(secondElementToInsert);
+        timelineEntityDao.put(secondElementToInsert);
+
+        //WHEN
+        Set<TimelineElementEntity> elementSet =  timelineEntityDao.findByIunStrongly(iun);
+
+        //THEN
+        Assertions.assertFalse(elementSet.isEmpty());
+        Assertions.assertTrue(elementSet.contains(firstElementToInsert));
+        Assertions.assertTrue(elementSet.contains(secondElementToInsert));
+    }
+
+    @Test
+    void getTimelineElmentStrongly() {
+        String iun = "pa1-1";
+        String timelineElementIdToSearch = "elementId2";
+        //GIVEN
+        TimelineElementEntity firstElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId("elementId1")
+                .category(TimelineElementCategoryEntity.REFINEMENT)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        TimelineElementEntity secondElementToInsert = TimelineElementEntity.builder()
+                .iun(iun)
+                .timelineElementId(timelineElementIdToSearch)
+                .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
+                .details(TimelineElementDetailsEntity.builder()
+                        .recIndex(0)
+                        .build())
+                .legalFactIds(
+                        Collections.singletonList(
+                                LegalFactsIdEntity.builder()
+                                        .key("key")
+                                        .category(LegalFactCategoryEntity.DIGITAL_DELIVERY)
+                                        .build()
+                        )
+                )
+                .build();
+
+        removeElementFromDb(firstElementToInsert);
+        timelineEntityDao.put(firstElementToInsert);
+        removeElementFromDb(secondElementToInsert);
+        timelineEntityDao.put(secondElementToInsert);
+
+        //WHEN
+        Optional<TimelineElementEntity> timelineElmentStrongly = timelineEntityDao.getTimelineElementStrongly(iun, timelineElementIdToSearch);
+
+        //THEN
+        Assertions.assertFalse(timelineElmentStrongly.isEmpty());
+        Assertions.assertEquals(timelineElmentStrongly.get(),secondElementToInsert);
+    }
+
+    @Test
     void findByIunNoElements() {
         String iun = "pa1-1";
         timelineEntityDao.deleteByIun(iun);

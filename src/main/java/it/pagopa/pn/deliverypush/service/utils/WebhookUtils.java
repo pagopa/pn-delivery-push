@@ -41,6 +41,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -82,7 +84,7 @@ public class WebhookUtils {
         // calcolo vecchio e nuovo stato in base allo storico "di quel momento"
         StatusService.NotificationStatusUpdate notificationStatusUpdate = statusService.computeStatusChange(event.get(), filteredPreviousTimelineElementInternalSet, notificationInt);
         return RetrieveTimelineResult.builder()
-                .event(event.get())
+                .event(SmartMapper.mapTimelineInternal(event.get(), timelineElementInternalSet))  //bisogna cmq rimappare l'evento per sistemare le date
                 .notificationStatusUpdate(notificationStatusUpdate)
                 .notificationInt(notificationInt)
                 .build();

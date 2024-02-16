@@ -2,8 +2,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import static it.pagopa.pn.deliverypush.action.it.utils.TestUtils.verifyPaymentInfo;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
-import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_ALREADY_CANCELLED;
-import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_CANCELLATION_ACCEPTED;
+import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -97,6 +96,8 @@ class NotificationCancellationServiceImplTest {
                 .thenReturn(timelineElementInternal);
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun()))
                 .thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationRefused(notification.getIun()))
+                .thenReturn(false);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(1)))
@@ -128,6 +129,9 @@ class NotificationCancellationServiceImplTest {
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
 
+        Mockito.when(timelineUtils.checkIsNotificationRefused(notification.getIun()))
+                .thenReturn(false);
+
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun()))
                 .thenReturn(true);
 
@@ -143,6 +147,39 @@ class NotificationCancellationServiceImplTest {
         //THEN
         Assertions.assertNotNull(res);
         Assertions.assertEquals(NOTIFICATION_ALREADY_CANCELLED, res.getCode());
+        Assertions.assertEquals("WARN", res.getLevel());
+        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(timelineElementInternal, notification);
+        Mockito.verify(auditLogEvent).generateWarning(Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    void startCancellationProcessRefused() {
+        //GIVEN
+        NotificationInt notification = getNotification();
+        Mockito.when(notificationService.getNotificationByIunReactive(Mockito.any()))
+                .thenReturn(Mono.just(notification));
+
+        Mockito.when(authUtils.checkPaIdAndGroup(eq(notification), anyString(), any(CxTypeAuthFleet.class), anyList()))
+                .thenReturn(Mono.empty());
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
+
+        Mockito.when(timelineUtils.checkIsNotificationRefused(notification.getIun()))
+                .thenReturn(true);
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(1)))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.anyString())).thenReturn(auditLogEvent);
+
+        //WHEN
+        StatusDetailInt res = notificationCancellationService.startCancellationProcess(notification.getIun(), notification.getSender().getPaId(), CxTypeAuthFleet.PA, new ArrayList<>())
+                .block();
+
+        //THEN
+        Assertions.assertNotNull(res);
+        Assertions.assertEquals(NOTIFICATION_REFUSED, res.getCode());
         Assertions.assertEquals("WARN", res.getLevel());
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(timelineElementInternal, notification);
         Mockito.verify(auditLogEvent).generateWarning(Mockito.anyString(), Mockito.anyString());

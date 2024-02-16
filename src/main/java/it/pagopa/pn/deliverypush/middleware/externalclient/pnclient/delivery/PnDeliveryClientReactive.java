@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV21;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV23;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -13,7 +13,7 @@ public interface PnDeliveryClientReactive {
     String UPDATE_STATUS_NOTIFICATION = "UPDATE STATUS NOTIFICATION";
     String REMOVE_IUV = "REMOVE IUV";
 
-    Mono<SentNotificationV21> getSentNotification(String iun);
+    Mono<SentNotificationV23> getSentNotification(String iun);
 
     Mono<Void> updateStatus(String iun, NotificationStatusInt notificationStatusInt, Instant updateStatusTimestamp);
 
