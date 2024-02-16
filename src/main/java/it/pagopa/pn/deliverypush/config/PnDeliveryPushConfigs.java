@@ -12,6 +12,7 @@ import org.springframework.util.unit.DataSize;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
@@ -199,6 +200,7 @@ public class PnDeliveryPushConfigs {
         private String faqSendHash;
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
+        private Map<String, String> additional;
    }
 
     @Data

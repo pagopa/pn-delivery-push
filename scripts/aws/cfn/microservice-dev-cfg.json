@@ -46,6 +46,9 @@
     "SendMoreThan20GramsDefaultValue": "true",
     "PnCronAnalyzer": "* */1 * * * *",
     "WireTapLogActivation": "false",
-    "MountEfs": "false"
+    "MountEfs": "false",
+    "RaddOperatorCaf": "Consulta CAF",
+    "RaddOperatorMooney": "Mooney",
+    "RaddOperatorSailpost": "Sailpost"
   }
 }
