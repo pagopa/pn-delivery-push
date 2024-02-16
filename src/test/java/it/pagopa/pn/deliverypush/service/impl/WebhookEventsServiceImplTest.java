@@ -23,6 +23,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntit
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +41,6 @@ import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -63,11 +63,8 @@ class WebhookEventsServiceImplTest {
     private NotificationService notificationService;
     @Mock
     private ConfidentialInformationService confidentialInformationService;
-    @Mock
-    private WebhookServiceImpl webhookService;
+
     Duration d = Duration.ofSeconds(3);
-
-
 
     @BeforeEach
     void setup() {
@@ -125,6 +122,7 @@ class WebhookEventsServiceImplTest {
         String xpagopacxid = "PA-xpagopacxid";
         String iun = "IUN-ABC-FGHI-A-1";
         String authGroup = "PA-groupID";
+        String jsonElement = "{\"timelineElementId\": \"1234\",\"iun\": \"1234\"}";
 
         List<String> groupsList = new ArrayList<>();
         groupsList.add(authGroup);
@@ -156,11 +154,11 @@ class WebhookEventsServiceImplTest {
         EventEntity eventEntity = new EventEntity();
         eventEntity.setEventId(Instant.now() + "_" + "timeline_event_id");
         eventEntity.setTimestamp(Instant.now());
-        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         eventEntity.setNewStatus(NotificationStatusInt.ACCEPTED.getValue());
         eventEntity.setIun("");
         eventEntity.setNotificationRequestId("");
         eventEntity.setStreamId(uuid);
+        eventEntity.setElement(jsonElement);
 
         List<TimelineElementInternal> timeline = generateTimeline(iun, xpagopacxid);
         Set<TimelineElementInternal> settimeline = new HashSet<>(timeline);
@@ -289,8 +287,8 @@ class WebhookEventsServiceImplTest {
         EventEntity eventEntity = new EventEntity();
         eventEntity.setEventId(Instant.now() + "_" + "timeline_event_id");
         eventEntity.setTimestamp(Instant.now());
-        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         eventEntity.setNewStatus(NotificationStatusInt.ACCEPTED.getValue());
+        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         eventEntity.setIun("");
         eventEntity.setNotificationRequestId("");
         eventEntity.setStreamId(uuid);
@@ -1180,7 +1178,7 @@ class WebhookEventsServiceImplTest {
                 .save(Mockito.any());
     }
 
-//    @Test
+    @Test
     void addConfidentialInformationAtEventTimelineList() {
         EventEntity eventEntity = new EventEntity();
         eventEntity.setEventId("eventId");
@@ -1220,36 +1218,35 @@ class WebhookEventsServiceImplTest {
         Mockito.when(confidentialInformationService.getTimelineConfidentialInformation(List.of(timelineElementInternal)))
                 .thenReturn(flux);
 
-//        Flux<EventTimelineInternalDto> fluxDto = webhookEventsService.addConfidentialInformationAtEventTimelineList(List.of(eventTimelineInternalDto));
+        Flux<EventTimelineInternalDto> fluxDto = webhookEventsService.addConfidentialInformationAtEventTimelineList(List.of(eventTimelineInternalDto));
 
-//        Assertions.assertNotNull(fluxDto);
+        Assertions.assertNotNull(fluxDto);
 
-//        EventTimelineInternalDto dto = fluxDto.blockFirst();
+        EventTimelineInternalDto dto = fluxDto.blockFirst();
 
-//        Assertions.assertEquals("eventId", dto.getEventEntity().getEventId());
-//        Assertions.assertEquals("iun", dto.getEventEntity().getIun());
-//        Assertions.assertEquals("element", dto.getEventEntity().getElement());
-//        Assertions.assertEquals("newStatus", dto.getEventEntity().getNewStatus());
-//        Assertions.assertEquals(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue(), dto.getEventEntity().getTimelineEventCategory());
-//        Assertions.assertEquals("streamId", dto.getEventEntity().getStreamId());
-//        Assertions.assertEquals("channel", dto.getEventEntity().getChannel());
-//        Assertions.assertEquals("notificationRequestId", dto.getEventEntity().getNotificationRequestId());
-//
-//        Assertions.assertEquals("elementId", dto.getTimelineElementInternal().getElementId());
-//        Assertions.assertEquals(TimelineElementCategoryInt.REQUEST_ACCEPTED, dto.getTimelineElementInternal().getCategory());
-//        Assertions.assertEquals("paId", dto.getTimelineElementInternal().getPaId());
-//        Assertions.assertEquals("actual", dto.getTimelineElementInternal().getStatusInfo().getActual());
-//        Assertions.assertEquals("key", dto.getTimelineElementInternal().getLegalFactsIds().get(0).getKey());
-//        Assertions.assertEquals(LegalFactCategoryInt.DIGITAL_DELIVERY, dto.getTimelineElementInternal().getLegalFactsIds().get(0).getCategory());
+        Assertions.assertEquals("eventId", dto.getEventEntity().getEventId());
+        Assertions.assertEquals("iun", dto.getEventEntity().getIun());
+        Assertions.assertEquals("element", dto.getEventEntity().getElement());
+        Assertions.assertEquals("newStatus", dto.getEventEntity().getNewStatus());
+        Assertions.assertEquals(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue(), dto.getEventEntity().getTimelineEventCategory());
+        Assertions.assertEquals("streamId", dto.getEventEntity().getStreamId());
+        Assertions.assertEquals("channel", dto.getEventEntity().getChannel());
+        Assertions.assertEquals("notificationRequestId", dto.getEventEntity().getNotificationRequestId());
+
+        Assertions.assertEquals("elementId", dto.getTimelineElementInternal().getElementId());
+        Assertions.assertEquals(TimelineElementCategoryInt.REQUEST_ACCEPTED, dto.getTimelineElementInternal().getCategory());
+        Assertions.assertEquals("paId", dto.getTimelineElementInternal().getPaId());
+        Assertions.assertEquals("actual", dto.getTimelineElementInternal().getStatusInfo().getActual());
+        Assertions.assertEquals("key", dto.getTimelineElementInternal().getLegalFactsIds().get(0).getKey());
+        Assertions.assertEquals(LegalFactCategoryInt.DIGITAL_DELIVERY, dto.getTimelineElementInternal().getLegalFactsIds().get(0).getCategory());
     }
 
-//    @Test
+    @Test
     void addConfidentialInformationAtEventTimelineListKo() {
         EventEntity eventEntity = new EventEntity();
         eventEntity.setEventId("eventId");
         eventEntity.setIun("iun");
         eventEntity.setTimestamp(Instant.now());
-        eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue());
         eventEntity.setEventDescription("eventDescription");
         eventEntity.setNewStatus("newStatus");
         eventEntity.setStreamId("streamId");
@@ -1273,6 +1270,6 @@ class WebhookEventsServiceImplTest {
 
         Mockito.when(confidentialInformationService.getTimelineConfidentialInformation(List.of(timelineElementInternal))).thenThrow(PnInternalException.class);
 
-//        Assertions.assertThrows(PnInternalException.class, () -> timeLineService.addConfidentialInformationAtEventTimelineList(List.of(eventTimelineInternalDto)).blockFirst());
+        Assertions.assertThrows(PnInternalException.class, () -> webhookEventsService.addConfidentialInformationAtEventTimelineList(List.of(eventTimelineInternalDto)).blockFirst());
     }
 }

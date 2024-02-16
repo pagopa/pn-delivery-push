@@ -21,7 +21,7 @@ public class ProgressResponseElementMapper {
         progressResponseElement.setIun(ev.getIun());
         progressResponseElement.setNewStatus(ev.getNewStatus() != null ? NotificationStatus.valueOf(ev.getNewStatus()) : null);
         progressResponseElement.setNotificationRequestId(ev.getNotificationRequestId());
-        progressResponseElement.setTimelineEventCategory(TimelineElementCategoryV23.fromValue(ev.getTimelineEventCategory()));
+        progressResponseElement.setTimelineEventCategory(ev.getTimelineEventCategory() !=null ? TimelineElementCategoryV23.fromValue(ev.getTimelineEventCategory()) : null);
         progressResponseElement.setChannel(ev.getChannel());
         progressResponseElement.setRecipientIndex(ev.getRecipientIndex());
         progressResponseElement.setLegalfactIds(ev.getLegalfactIds());

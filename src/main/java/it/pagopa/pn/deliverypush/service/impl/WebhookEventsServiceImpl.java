@@ -271,7 +271,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
     }
 
 
-    private Flux<EventTimelineInternalDto> addConfidentialInformationAtEventTimelineList(List<EventTimelineInternalDto> eventEntities) {
+    protected Flux<EventTimelineInternalDto> addConfidentialInformationAtEventTimelineList(List<EventTimelineInternalDto> eventEntities) {
         List<TimelineElementInternal> timelineElementInternals = eventEntities.stream()
                 .map(EventTimelineInternalDto::getTimelineElementInternal)
                 .filter(Objects::nonNull)
