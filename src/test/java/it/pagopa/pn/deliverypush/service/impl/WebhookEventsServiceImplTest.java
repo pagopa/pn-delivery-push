@@ -20,10 +20,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.EventEntityBatch;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.StatusService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,10 +61,12 @@ class WebhookEventsServiceImplTest {
     @Mock
     private NotificationService notificationService;
     @Mock
-    private ConfidentialInformationServiceImpl confidentialInformationService;
+    private ConfidentialInformationService confidentialInformationService;
     @Mock
     private WebhookServiceImpl webhookService;
     Duration d = Duration.ofSeconds(3);
+
+
 
     @BeforeEach
     void setup() {
@@ -85,6 +84,9 @@ class WebhookEventsServiceImplTest {
                 "SEND_ANALOG_DOMICILE", "SEND_ANALOG_PROGRESS", "SEND_ANALOG_FEEDBACK", "ANALOG_SUCCESS_WORKFLOW", "ANALOG_FAILURE_WORKFLOW",
                 "COMPLETELY_UNREACHABLE", "REFINEMENT", "NOTIFICATION_VIEWED", "NOTIFICATION_CANCELLED", "NOTIFICATION_RADD_RETRIEVED"));
         Mockito.when(pnDeliveryPushConfigs.getListCategoriesPa()).thenReturn(listCategoriesPa);
+
+        webhookEventsService = new WebhookEventsServiceImpl(streamEntityDao, eventEntityDao, schedulerService,
+                webhookUtils, pnDeliveryPushConfigs, timelineService, confidentialInformationService);
     }
 
     private List<TimelineElementInternal> generateTimeline(String iun, String paId){
@@ -267,18 +269,19 @@ class WebhookEventsServiceImplTest {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
         List<String> xPagopaPnCxGroups = new ArrayList<>();
-        String xPagopaPnApiVersion = "V10";
+        String xPagopaPnApiVersion = "v10";
 
 
         UUID uuidd = UUID.randomUUID();
         String uuid = uuidd.toString();
         StreamEntity entity = new StreamEntity();
         entity.setStreamId(uuid);
-        entity.setTitle("1");
+        entity.setTitle("");
         entity.setPaId(xpagopacxid);
         entity.setEventType(StreamMetadataResponseV23.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
+        entity.setVersion("v10");
 
 
         List<EventEntity> list = new ArrayList<>();
@@ -329,10 +332,10 @@ class WebhookEventsServiceImplTest {
                 .denomination("")
                 .build();
 
-        Mockito.when(webhookService.getStreamEntityToRead(xPagopaPnApiVersion, xpagopacxid, xPagopaPnCxGroups, uuidd)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
         Mockito.when(webhookUtils.getVersion("V10")).thenReturn(10);
         Mockito.when(webhookUtils.getTimelineInternalFromEvent(eventEntity)).thenReturn(timelineElementInternal);
-        Mockito.when(confidentialInformationService.getTimelineConfidentialInformation(new ArrayList<>())).thenReturn(Flux.just(new ConfidentialTimelineElementDtoInt()));
+        Mockito.when(confidentialInformationService.getTimelineConfidentialInformation(Mockito.anyList())).thenReturn(Flux.just(timelineElementDtoInt));
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.when(eventEntityDao.findByStreamId(uuid, null)).thenReturn(Mono.just(eventEntityBatch));
 
@@ -344,6 +347,7 @@ class WebhookEventsServiceImplTest {
         //THEN
         assertNotNull(res);
         assertEquals(list.size(), res.getProgressResponseElementList().size());
+        Mockito.verify(streamEntityDao).get(xpagopacxid, uuid);
         Mockito.verify(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 

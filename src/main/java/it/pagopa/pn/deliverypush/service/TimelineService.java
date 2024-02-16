@@ -1,9 +1,11 @@
 package it.pagopa.pn.deliverypush.service;
 
+import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import reactor.core.publisher.Mono;
@@ -39,5 +41,8 @@ public interface TimelineService {
     boolean isPresentTimeLineElement(String iun, Integer recIndex, TimelineEventId timelineEventId);
 
     Mono<ProbableSchedulingAnalogDateResponse> getSchedulingAnalogDate(String iun, String recipientId);
+
+    void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
+                                                          ConfidentialTimelineElementDtoInt confidentialDto);
 
 }

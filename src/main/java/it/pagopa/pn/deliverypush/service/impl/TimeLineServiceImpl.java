@@ -401,6 +401,7 @@ public class TimeLineServiceImpl implements TimelineService {
         throw new PnValidationRecipientIdNotValidException(String.format("Recipient %s not found", recipientId));
     }
 
+    @Override
     public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
                                                                  ConfidentialTimelineElementDtoInt confidentialDto) {
 
