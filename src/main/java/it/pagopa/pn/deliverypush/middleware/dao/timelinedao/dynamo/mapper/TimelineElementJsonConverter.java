@@ -19,6 +19,7 @@ import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GE
 @Component
 @AllArgsConstructor
 public class TimelineElementJsonConverter {
+    private static final String LOG_MSG = "Timeline element entity not converted into JSON";
     private final ObjectMapper objectMapper;
 
 
@@ -27,8 +28,8 @@ public class TimelineElementJsonConverter {
         try {
             return objectMapper.writeValueAsString(objectHashMap);
         } catch (JsonProcessingException ex) {
-            log.error("Timeline element entity not converted into JSON", ex);
-            throw new PnInternalException("Timeline element entity not converted into JSON", ERROR_CODE_PN_GENERIC_ERROR);
+            log.error(LOG_MSG, ex);
+            throw new PnInternalException(LOG_MSG, ERROR_CODE_PN_GENERIC_ERROR);
         }
     }
 
@@ -37,8 +38,8 @@ public class TimelineElementJsonConverter {
             objectMapper.registerModule(new JavaTimeModule());
             return objectMapper.readValue(json, TimelineElementEntity.class);
         } catch (JsonProcessingException e) {
-            log.error("Timeline element entity not converted into JSON");
-            throw new PnInternalException("Timeline element entity not converted into JSON", ERROR_CODE_PN_GENERIC_ERROR);
+            log.error(LOG_MSG,e);
+            throw new PnInternalException(LOG_MSG, ERROR_CODE_PN_GENERIC_ERROR);
         }
     }
 

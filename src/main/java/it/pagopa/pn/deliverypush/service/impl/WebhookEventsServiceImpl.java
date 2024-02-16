@@ -154,7 +154,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
     }
     private Mono<Void> processEvent(StreamEntity stream,  String oldStatus, String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
 
-        if (!CollectionUtils.isEmpty(stream.getGroups()) && !checkGroups(Arrays.asList(notificationInt.getGroup()), stream.getGroups())){
+        if (!CollectionUtils.isEmpty(stream.getGroups()) && !checkGroups(Collections.singletonList(notificationInt.getGroup()), stream.getGroups())){
             return Mono.empty();
         }
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
@@ -189,7 +189,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         if ( (eventType == StreamCreationRequestV23.EventTypeEnum.STATUS && filteredValues.contains(newStatus))
             || (eventType == StreamCreationRequestV23.EventTypeEnum.TIMELINE && filteredValues.contains(timelineEventCategory)))
         {
-            return saveEventWithAtomicIncrement(stream, newStatus, timelineElementInternal, notificationInt);
+            return saveEventWithAtomicIncrement(stream, newStatus, timelineElementInternal);
         }
         else {
             log.info("skipping saving webhook event for stream={} because timelineeventcategory is not in list timelineeventcategory={} iun={}", stream.getStreamId(), timelineEventCategory, timelineElementInternal.getIun());
@@ -199,7 +199,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
     }
 
     private Mono<Void> saveEventWithAtomicIncrement(StreamEntity streamEntity, String newStatus,
-        TimelineElementInternal timelineElementInternal, NotificationInt notificationInt){
+        TimelineElementInternal timelineElementInternal){
         // recupero un contatore aggiornato
         return streamEntityDao.updateAndGetAtomicCounter(streamEntity)
             .flatMap(atomicCounterUpdated -> {

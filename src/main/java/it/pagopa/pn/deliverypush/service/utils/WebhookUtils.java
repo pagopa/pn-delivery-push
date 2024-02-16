@@ -131,10 +131,6 @@ public class WebhookUtils {
         return safeAllowedGroups.containsAll(safeToCheck);
     }
 
-    private static boolean isEmpty(List list){
-        return list == null || list.isEmpty();
-    }
-
     public int getVersion (String version) {
 
         if (version != null && !version.isEmpty()){
