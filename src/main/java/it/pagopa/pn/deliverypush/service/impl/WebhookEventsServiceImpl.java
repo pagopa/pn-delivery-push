@@ -70,7 +70,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         UUID streamId,
         String lastEventId) {
         // grazie al contatore atomico usato in scrittura per generare l'eventId, non serve più gestire la finestra.
-        return getStreamEntityToRead(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId)
+        return getStreamEntityToRead(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId, xPagopaPnCxGroups, streamId)
                 .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
                 .flatMap(res ->
                     toEventTimelineInternalFromEventEntity(res.getEvents())
