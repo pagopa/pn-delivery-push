@@ -1,7 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
@@ -22,8 +20,6 @@ import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.helpers.MessageFormatter;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -181,20 +177,6 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                         return Mono.just(Boolean.TRUE);
                     }
                 });
-    }
-
-    private String groupString(List<String> groups){
-        return groups==null ? null : String.join(",",groups);
-    }
-
-    @NotNull
-    private PnAuditLogEvent generateAuditLog( PnAuditLogEventType pnAuditLogEventType, String message, String[] arguments) {
-        String logMessage = MessageFormatter.arrayFormat(message, arguments).getMessage();
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent;
-        logEvent = auditLogBuilder.before(pnAuditLogEventType, "{}", logMessage)
-            .build();
-        return logEvent;
     }
 
     private Mono<StreamEntity> replaceStream(String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, StreamCreationRequestV23 dto){

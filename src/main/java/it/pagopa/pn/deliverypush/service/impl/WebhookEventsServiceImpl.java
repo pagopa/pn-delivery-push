@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
@@ -69,6 +70,9 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         String xPagopaPnApiVersion,
         UUID streamId,
         String lastEventId) {
+        String msg = "consumeEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, streamId={} ";
+        List<String> args = Arrays.asList(new String[]{ xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, streamId.toString()});
+        generateAuditLog(PnAuditLogEventType.AUD_WH_CONSUME, msg, args.toArray(new String[0])).log();
         // grazie al contatore atomico usato in scrittura per generare l'eventId, non serve più gestire la finestra.
         return getStreamEntityToRead(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId, xPagopaPnCxGroups, streamId)
                 .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
@@ -100,6 +104,8 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                                         .progressResponseElementList(eventList)
                                         .build();
                             })
+                            .doOnSuccess(progressResponseElementDto -> generateAuditLog(PnAuditLogEventType.AUD_WH_CONSUME, msg, args.toArray(new String[0])).generateSuccess("ProgressResponseElementDto size={}", progressResponseElementDto.getProgressResponseElementList().size()).log())
+                            .doOnError(error -> generateAuditLog(PnAuditLogEventType.AUD_WH_CONSUME, msg, args.toArray(new String[0])).generateFailure("Error in consumeEventStream").log())
                 );
     }
 
@@ -271,7 +277,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                 .filter(Objects::nonNull)
                 .toList();
 
-        return this.confidentialInformationService.getTimelineConfidentialInformation(timelineElementInternals)
+        return confidentialInformationService.getTimelineConfidentialInformation(timelineElementInternals)
                 .map(confidentialInfo -> {
                     // cerco l'elemento in TimelineElementInternals con elementiId
                     TimelineElementInternal internal = timelineElementInternals.stream()
