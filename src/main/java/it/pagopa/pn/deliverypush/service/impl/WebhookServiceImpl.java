@@ -27,7 +27,7 @@ public abstract class WebhookServiceImpl {
     protected final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
 
-    protected enum StreamEntityAccessMode {READ, WRITE};
+    protected enum StreamEntityAccessMode {READ, WRITE}
 
     protected Mono<StreamEntity> getStreamEntityToRead(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
         return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.READ);
@@ -62,7 +62,6 @@ public abstract class WebhookServiceImpl {
     }
     @NotNull
     protected PnAuditLogEvent generateAuditLog(PnAuditLogEventType pnAuditLogEventType, String message, String[] arguments) {
-        PnAuditLogEvent pnAuditLogEvent = null;
         String logMessage = MessageFormatter.arrayFormat(message, arguments).getMessage();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent;
