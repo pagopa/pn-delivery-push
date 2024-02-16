@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 7BhrALUiOK+dLSSbxDh66Tm16kKgAn6bdxqkHIwpv+w=
+  version: B1bm2fMAXwQWdS1gU6HKHYdIH+74+2uEihrMro5lufk=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -15,11 +15,13 @@ paths:
     post:
       summary: Crea nuovo stream di eventi
       description: >-
-        Viene richiesta la creazione di un flusso di eventi specificando se gli
-        eventi saranno  relativi ai cambi di stato o agli eventi di timeline.
-        <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo
-        dello stream e il  timestamp di effettiva attivazione del flusso,
-        tipicamente pochi secondi dopo che è stata  invocata l'operazione.
+        Creazione di un flusso di eventi specificando se gli eventi saranno
+        relativi ai cambi di stato o agli eventi di timeline.
+
+
+        In risposta, Piattaforma Notifiche, comunicherà un identificativo dello
+        stream e il  timestamp di effettiva attivazione del flusso, tipicamente
+        pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
       operationId: createEventStreamV23
@@ -146,7 +148,7 @@ paths:
       - $ref: '#/components/parameters/pathStreamId'
     get:
       summary: Leggi metadati dello stream
-      description: Permette di leggere le configurazioni di uno stream di eventi.
+      description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
       operationId: retrieveEventStreamV23
@@ -207,8 +209,8 @@ paths:
     put:
       summary: Update Stream metadata
       description: >-
-        Permette di cambiare le configurazioni dei filtri associati a uno stream
-        di eventi
+        Modifica delle configurazioni dei filtri associati a uno stream di
+        eventi
       tags:
         - Streams
       operationId: updateEventStreamV23
@@ -275,8 +277,8 @@ paths:
     delete:
       summary: Remove Event Stream
       description: >-
-        Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli
-        eventi  associati allo stream e non ancora consumati.
+        Cancellazione dello steam di eventi: elimina sia le configurazioni sia
+        tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
       operationId: removeEventStreamV23
@@ -347,14 +349,20 @@ paths:
     post:
       summary: Disabilita uno stream
       description: >-
-        Permette di disabilitare uno stream. Da uno stream disabilitato è
-        possibile leggere gli eventi presenti nello stream salvati prima della
-        disabilitazione, ma non ne saranno aggiunti di nuovi. Non è possibile
-        modificare o riabilitare uno stream disabilitato. La disabilitazione
-        dello stream è soggetta al controllo di autorizzazione dell'apiKey sui
-        gruppi. Infine, uno stream disabilitato non  rientra nel conteggio degli
-        stream massimi, e verrà automaticamente cancellato trascorso il tempo
-        massimo di disponibilità degli eventi.
+        Disabilita uno stream.
+
+
+        Da uno stream disabilitato è possibile leggere gli eventi presenti nello
+        stream salvati prima della disabilitazione, ma non ne saranno aggiunti
+        di nuovi.
+
+
+        Non è possibile modificare o riabilitare uno stream disabilitato.
+
+
+        Uno stream disabilitato non rientra nel conteggio degli stream massimi,
+        non può essere riabilitato e verrà eliminato automaticamente dopo <span
+        id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
       operationId: disableEventStreamV23
@@ -430,10 +438,10 @@ paths:
     get:
       summary: Leggi progressi notifiche
       description: >-
-        Permette di leggere gli eventi presenti nello stream di aggiornamenti e
-        indica che  la P.A. ha ricevuto e memorizzato l'evento identificato dal
-        parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi
-        potranno essere cancellati dallo stream.
+        Lettura degli eventi presenti nello stream di aggiornamenti con
+        indicazione che il mittente ha ricevuto e memorizzato l'evento
+        identificato dal parametro _lastEventId_ e tutti gli eventi precedenti.
+        Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
       operationId: consumeEventStreamV23
@@ -449,10 +457,13 @@ paths:
                 type: number
               description: >-
                 Numero di millisecondi di attesa prima di effettuare una nuova
-                lettura di eventi. <br/> Sarà valorizzato a zero se ci sono
-                eventi in coda che non sono stati forniti per  raggiunta
-                dimensione massima della risposta. <br/> Sarà maggiore di zero
-                se gli eventi in coda sono stati tutti inviati.
+                lettura di eventi.
+
+                Sarà valorizzato a zero se ci sono eventi in coda che non sono
+                stati forniti per  raggiunta dimensione massima della risposta.
+
+                Sarà maggiore di zero se gli eventi in coda sono stati tutti
+                inviati.
           content:
             application/json:
               schema:
@@ -2040,7 +2051,7 @@ components:
 tags:
   - name: HealthCheck
     description: >-
-      Invocazioni per sapere lo stato del microservizio # il servizio è ancora
+      Invocazioni per sapere lo stato del micro-servizio # il servizio è ancora
       in fase di sviluppo
   - name: Streams
     description: Gestione degli stream di eventi che PN mette a disposizione
