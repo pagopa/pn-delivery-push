@@ -379,7 +379,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PERFEZIONAMENTO, this.getPerfezionamentoLink());
         templateModel.put(FIELD_PERFEZIONAMENTO_LABEL, this.getPerfezionamentoLinkLabel());
         templateModel.put(FIELD_LOGO_LINK, this.getLogoLink());
-        addRaddOperators(templateModel);
+        addAdditional(templateModel);
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
         log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
@@ -388,7 +388,7 @@ public class LegalFactGenerator {
         return templateModel;
     }
 
-    private void addRaddOperators(Map<String, Object> templateModel) {
+    private void addAdditional(Map<String, Object> templateModel) {
         if(this.pnDeliveryPushConfigs.getWebapp().getAdditional() != null) {
             this.pnDeliveryPushConfigs.getWebapp().getAdditional()
                     .forEach((key, value) -> templateModel.put(FIELD_ADDITIONAL + key, value));
