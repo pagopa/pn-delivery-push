@@ -1162,7 +1162,8 @@ components:
         newStatus:
           $ref: ./schemas-pn-status.yaml#/components/schemas/NotificationStatus
         timelineEventCategory:
-          $ref: '#/components/schemas/TimelineElementCategoryV20'
+          $ref: >-
+            ./schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV23
         recipientIndex:
           type: integer
           format: int32
@@ -1200,9 +1201,6 @@ components:
           type: string
         detail:
           type: string
-    TimelineElementCategoryV20:
-      $ref: >-
-        https://raw.githubusercontent.com/pagopa/pn-delivery-push/dcfc9feb7108b4193f77d045173342850f1f8934/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
