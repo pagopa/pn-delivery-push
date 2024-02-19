@@ -286,7 +286,7 @@ class LegalFactPdfGeneratorTest {
         @Test
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_Test() {
-                Mockito.when(paperSendModeUtils.getPaperSendMode(Mockito.any())).thenReturn(PaperSendMode.builder()
+                Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
                         .aarTemplateType(DocumentComposition.TemplateType.AAR_TEST)
                         .build());
 
