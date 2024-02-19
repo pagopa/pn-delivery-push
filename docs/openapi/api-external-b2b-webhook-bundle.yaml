@@ -547,6 +547,198 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery-progresses/streams:
+    post:
+      summary: Crea nuovo stream di eventi
+      description: Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno relativi ai cambi di stato o agli eventi di timeline. <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata invocata l'operazione.
+      tags:
+        - Streams
+      operationId: createEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamCreationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    get:
+      summary: Elenca stream di eventi
+      description: Elenca gli stream di eventi
+      tags:
+        - Streams
+      operationId: listEventStreams
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamListResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/streams/{streamId}:
+    parameters:
+      - $ref: '#/components/parameters/pathStreamId'
+    get:
+      summary: Leggi metadati dello stream
+      description: Permette di leggere le configurazioni di uno stream di eventi.
+      tags:
+        - Streams
+      operationId: retrieveEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    put:
+      summary: Update Stream metadata
+      description: Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi
+      tags:
+        - Streams
+      operationId: updateEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamCreationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    delete:
+      summary: Remove Event Stream
+      description: 'Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi associati allo stream e non ancora consumati.'
+      tags:
+        - Streams
+      operationId: removeEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/streams/{streamId}/events:
+    get:
+      summary: Leggi progressi notifiche
+      description: Permette di leggere gli eventi presenti nello stream di aggiornamenti e indica che la P.A. ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
+      tags:
+        - Events
+      operationId: consumeEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+        - $ref: '#/components/parameters/queryLastEventId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi. <br/> Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per raggiunta dimensione massima della risposta. <br/> Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: Too Many Requests
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi.
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 components:
   parameters:
     queryLastEventId:
@@ -687,6 +879,200 @@ components:
           $ref: '#/components/schemas/NotificationStatus'
         element:
           $ref: '#/components/schemas/TimelineElementV23'
+    StreamCreationRequest:
+      description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche.
+      type: object
+      required:
+        - title
+        - eventType
+      properties:
+        title:
+          description: Nome sintetico dello stream
+          type: string
+          maxLength: 256
+          pattern: ^.*$
+        eventType:
+          description: |-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        filterValues:
+          description: rappresenta l'elenco degli stati o elementi di timeline che si vogliono filtrare; inserendo un array vuoto [] si riceveranno solo gli elementi relativi a v1
+          type: array
+          items:
+            type: string
+            minLength: 4
+            maxLength: 256
+            pattern: ^[A-Z_]+$
+    StreamMetadataResponse:
+      description: Configurazioni di un flusso di eventi
+      allOf:
+        - $ref: '#/components/schemas/StreamCreationRequest'
+        - type: object
+          required:
+            - streamId
+            - activationDate
+          properties:
+            streamId:
+              description: Identificativo del flusso di eventi
+              type: string
+              format: uuid
+            activationDate:
+              description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
+    ProgressResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProgressResponseElement'
+    ProgressResponseElement:
+      type: object
+      required:
+        - eventId
+        - timestamp
+      properties:
+        eventId:
+          description: Elemento che garantisce univocità e ordinamento temporale all'interno dello stream
+          type: string
+        timestamp:
+          description: Istante a cui è avvenuto l'evento
+          type: string
+          format: date-time
+        notificationRequestId:
+          description: Identificativo della richiesta di notifica
+          type: string
+        iun:
+          description: Identificativo della notifica, presente solo se la richiesta di notifica è stata accettata.
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        newStatus:
+          $ref: '#/components/schemas/NotificationStatus'
+        timelineEventCategory:
+          $ref: '#/components/schemas/TimelineElementCategoryV20'
+        recipientIndex:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Indice del destinatario al quale si riferisce l'evento
+        analogCost:
+          type: integer
+          format: int32
+          description: Eventuale costo in eurocent associato all'evento
+        channel:
+          type: string
+          description: 'Canale a cui si riferisce l''evento. I valori previsti sono: - Per eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL - Per eventi legati all''invio digitale: PEC - Per eventi legati all''invio analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890 - Per eventi legati all''invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER'
+        legalfactIds:
+          type: array
+          items:
+            type: string
+          example:
+            - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q
+            - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E
+          description: chiavi degli eventuali allegati associati all'evento
+        validationErrors:
+          type: array
+          description: eventuali errori di validazione associati all'evento
+          items:
+            $ref: '#/components/schemas/RefusedReason'
+    RefusedReason:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
+    TimelineElementCategoryV20:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica:`
+          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
+          * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
+          * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
+          * `SCHEDULE_ANALOG_WORKFLOW` - Pianificazione del workflow per invio cartaceo
+          * `SCHEDULE_DIGITAL_WORKFLOW` -Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.
+          * `PREPARE_DIGITAL_DOMICILE` - Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.
+          * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+          * `SEND_DIGITAL_PROGRESS` - Tentativo di Invio PEC ad un determinato indirizzo.
+          * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
+          * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
+          * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
+          * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
+          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo 
+          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
+          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
+          * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
+          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
+          * `NOTIFICATION_VIEWED` - Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)
+          * `PREPARE_ANALOG_DOMICILE` - Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+          * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea
+          * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
+          * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
+          * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Ricezione pagamento della notifica
+          * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+          * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
+          * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
+      enum:
+        - SENDER_ACK_CREATION_REQUEST
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
+        - REQUEST_ACCEPTED
+        - SEND_COURTESY_MESSAGE
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
+        - SCHEDULE_ANALOG_WORKFLOW
+        - SCHEDULE_DIGITAL_WORKFLOW
+        - PREPARE_DIGITAL_DOMICILE
+        - SEND_DIGITAL_DOMICILE
+        - SEND_DIGITAL_PROGRESS
+        - SEND_DIGITAL_FEEDBACK
+        - REFINEMENT
+        - SCHEDULE_REFINEMENT
+        - DIGITAL_DELIVERY_CREATION_REQUEST
+        - DIGITAL_SUCCESS_WORKFLOW
+        - DIGITAL_FAILURE_WORKFLOW
+        - ANALOG_SUCCESS_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW
+        - PREPARE_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
+        - NOTIFICATION_VIEWED_CREATION_REQUEST
+        - NOTIFICATION_VIEWED
+        - PREPARE_ANALOG_DOMICILE
+        - SEND_ANALOG_DOMICILE
+        - SEND_ANALOG_PROGRESS
+        - SEND_ANALOG_FEEDBACK
+        - PAYMENT
+        - COMPLETELY_UNREACHABLE
+        - COMPLETELY_UNREACHABLE_CREATION_REQUEST
+        - REQUEST_REFUSED
+        - AAR_CREATION_REQUEST
+        - AAR_GENERATION
+        - NOT_HANDLED
+        - PROBABLE_SCHEDULING_ANALOG_DATE
+        - NOTIFICATION_CANCELLATION_REQUEST
+        - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
     ProblemError:
       properties:
         code:
