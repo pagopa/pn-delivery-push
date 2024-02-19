@@ -14,14 +14,15 @@ import java.time.Instant;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class PaperSendMode implements Comparable<PaperSendMode>{
+public class PnSendMode implements Comparable<PnSendMode>{
     private Instant startConfigurationTime;
     private SendAttachmentMode analogSendAttachmentMode;
     private SendAttachmentMode simpleRegisteredLetterSendAttachmentMode;
+    private SendAttachmentMode digitalSendAttachmentMode;
     private DocumentComposition.TemplateType aarTemplateType;
 
     @Override
-    public int compareTo(@NotNull PaperSendMode o) {
+    public int compareTo(@NotNull PnSendMode o) {
         return startConfigurationTime.compareTo(o.getStartConfigurationTime());
     }
 }
