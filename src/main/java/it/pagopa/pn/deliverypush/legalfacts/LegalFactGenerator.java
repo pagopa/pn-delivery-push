@@ -76,6 +76,7 @@ public class LegalFactGenerator {
     public static final String FIELD_SENDURL = "sendURL";
     public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
     public static final String FIELD_LOGO = "logoBase64";
+    private static final String FIELD_ADDITIONAL = "additional.";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -378,12 +379,20 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PERFEZIONAMENTO, this.getPerfezionamentoLink());
         templateModel.put(FIELD_PERFEZIONAMENTO_LABEL, this.getPerfezionamentoLinkLabel());
         templateModel.put(FIELD_LOGO_LINK, this.getLogoLink());
+        addAdditional(templateModel);
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
         log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
         templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, qrCodeQuickAccessUrlAarDetail);
 
         return templateModel;
+    }
+
+    private void addAdditional(Map<String, Object> templateModel) {
+        if(this.pnDeliveryPushConfigs.getWebapp().getAdditional() != null) {
+            this.pnDeliveryPushConfigs.getWebapp().getAdditional()
+                    .forEach((key, value) -> templateModel.put(FIELD_ADDITIONAL + key, value));
+        }
     }
 
     private String getAccessUrlLabel(NotificationRecipientInt recipient) {

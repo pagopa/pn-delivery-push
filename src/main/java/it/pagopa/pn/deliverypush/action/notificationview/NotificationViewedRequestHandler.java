@@ -145,7 +145,7 @@ public class NotificationViewedRequestHandler {
                     log.debug("Notification is not already cancelled - iun={} internalId={} recIdx={}", iun, recipientInternalId, recIndex);
                     return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
                             .flatMap(notificationInt -> Mono.fromCallable(() -> {
-                                paperNotificationFailedService.deleteNotificationFailed(String.valueOf(recIndex), iun);
+                                paperNotificationFailedService.deleteNotificationFailed(recipientInternalId, iun);
                                 return notificationInt;
                             }))
                             .flatMap(notificationInt -> Mono.fromCallable(() -> {
