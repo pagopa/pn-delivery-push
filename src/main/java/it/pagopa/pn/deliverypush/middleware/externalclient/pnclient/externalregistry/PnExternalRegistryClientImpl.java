@@ -1,14 +1,13 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.exceptions.PnRootIdNonFountException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.InfoPaApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.RootSenderIdApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.api.SendIoMessageApi;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.PaGroupStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.RootSenderIdResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.*;
+
 import java.util.List;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -53,13 +52,13 @@ public class PnExternalRegistryClientImpl implements PnExternalRegistryClient{
     public List<String> getGroups(String xPagopaPnUid, String xPagopaPnCxId ){
         try  {
             return infoPaApi.getGroups(xPagopaPnUid, xPagopaPnCxId,null, PaGroupStatus.ACTIVE)
-                .stream().map(paGroup -> paGroup.getId())
+                .stream().map(PaGroup::getId)
                 .toList();
         } catch (Exception exc) {
             String message = String.format("Error getting groups xPagopaPnUid=%s, xPagopaPnCxId=%s [exception received = %s]"
                 , xPagopaPnUid,xPagopaPnCxId , exc);
             log.error(message);
-            throw new PnInternalException("Error with External Registry communication");
+            throw new PnInternalException("Error with External Registry communication", PnDeliveryPushExceptionCodes.ERROR_CODE_EXTERNAL_REGISTRY_GROUP_FAILED);
         }
     }
 }

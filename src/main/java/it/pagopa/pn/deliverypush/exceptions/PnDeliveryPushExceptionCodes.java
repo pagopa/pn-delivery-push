@@ -68,6 +68,7 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT = "ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT";
     public static final String ERROR_CODE_DELIVERYPUSH_TOTAL_COST_NOT_PRESENT = "ERROR_CODE_DELIVERYPUSH_TOTALCOSTNOTPRESENT";
     public static final String ERROR_CODE_DATAVAULT_FAILED = "ERROR_CODE_DATAVAULT_FAILED";
+    public static final String ERROR_CODE_EXTERNAL_REGISTRY_GROUP_FAILED = "ERROR_CODE_EXTERNAL_REGISTRY_GROUP_FAILED";
 
     @Getter
     public enum NotificationRefusedErrorCodeInt {
