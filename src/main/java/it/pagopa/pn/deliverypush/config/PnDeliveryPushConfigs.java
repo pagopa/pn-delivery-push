@@ -1,20 +1,21 @@
 package it.pagopa.pn.deliverypush.config;
 
-import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
-
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Set;
-
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.unit.DataSize;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
@@ -208,6 +209,7 @@ public class PnDeliveryPushConfigs {
         private String faqSendHash;
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
+        private Map<String, String> additional;
    }
 
     @Data
