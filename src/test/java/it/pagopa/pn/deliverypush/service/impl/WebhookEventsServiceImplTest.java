@@ -1191,7 +1191,6 @@ class WebhookEventsServiceImplTest {
         eventEntity.setChannel("channel");
         eventEntity.setElement("element");
         eventEntity.setNotificationRequestId("notificationRequestId");
-
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .elementId("elementId")
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
