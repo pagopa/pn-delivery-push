@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -67,7 +68,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                                       NotificationRecipientInt recipientInt,
                                       LegalDigitalAddressInt digitalAddress,
                                       String timelineEventId,
-                                      String aarKey,
+                                      List<String> fileKeys,
                                       String quickAccessToken) {
         //Invio messaggio legali necessità di risposta da external channel
         sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId);
