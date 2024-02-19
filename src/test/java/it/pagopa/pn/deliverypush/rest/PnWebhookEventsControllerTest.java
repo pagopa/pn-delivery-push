@@ -50,13 +50,13 @@ class PnWebhookEventsControllerTest {
                 .progressResponseElementList(timelineElements)
                 .build();
 
-        Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.anyString(),Mockito.any(UUID.class), Mockito.anyString()))
+        Mockito.when(service.consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(UUID.class), Mockito.any()))
                 .thenReturn(Mono.just(dto ));
         Instant createdAt = Instant.now();
 
 
         webTestClient.get()
-                .uri( "/delivery-progresses/streams/{streamId}/events".replace("{streamId}", streamId) )
+                .uri( "/delivery-progresses/v2.3/streams/{streamId}/events".replace("{streamId}", streamId) )
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
@@ -69,7 +69,7 @@ class PnWebhookEventsControllerTest {
                 .expectHeader().valueEquals("retry-after", "0")
                 .expectBodyList(ProgressResponseElementV23.class);
 
-        Mockito.verify(service).consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.anyString(),Mockito.any(UUID.class), Mockito.anyString());
+        Mockito.verify(service).consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(UUID.class), Mockito.any());
 
     }
 
@@ -82,7 +82,7 @@ class PnWebhookEventsControllerTest {
                 .thenThrow(new NullPointerException());
 
         webTestClient.get()
-                .uri( "/delivery-progresses/streams/{streamId}/events".replace("{streamId}", streamId) )
+                .uri( "/delivery-progresses/v2.3/streams/{streamId}/events".replace("{streamId}", streamId) )
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
@@ -109,7 +109,7 @@ class PnWebhookEventsControllerTest {
                 .thenThrow(new NullPointerException());
 
         webTestClient.get()
-                .uri( "/delivery-progresses/streams/"+null+"/events")
+                .uri( "/delivery-progresses/v2.3/streams/"+null+"/events")
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");

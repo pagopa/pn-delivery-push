@@ -156,7 +156,7 @@ class EventEntityDaoDynamoTestIT extends MockActionPoolTest {
                     System.out.println("Nothing to remove");
                     Thread.currentThread().interrupt();
                 }
-                daoDynamo.save(m).block(Duration.ofMillis(3000));
+                daoDynamo.save(m).block(Duration.ofMillis(6000));
             });
         } catch (Exception e) {
             System.out.println("Nothing to remove");

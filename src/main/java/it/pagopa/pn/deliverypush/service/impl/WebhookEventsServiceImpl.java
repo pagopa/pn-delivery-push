@@ -1,33 +1,29 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
-import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
-
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.webhook.EventTimelineInternalDto;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
-import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
+import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineElementWebhookMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -36,25 +32,35 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
+import static it.pagopa.pn.deliverypush.service.utils.WebhookUtils.checkGroups;
+
 
 @Service
 @Slf4j
-public class WebhookEventsServiceImpl implements WebhookEventsService {
-    private final StreamEntityDao streamEntityDao;
+public class WebhookEventsServiceImpl extends WebhookServiceImpl implements WebhookEventsService {
     private final EventEntityDao eventEntityDao;
     private final SchedulerService schedulerService;
     private final WebhookUtils webhookUtils;
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private final TimelineService timelineService;
+    private final ConfidentialInformationService confidentialInformationService;
     private final Set<String> defaultNotificationStatuses;
     private static final String DEFAULT_CATEGORIES = "DEFAULT";
 
 
-    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao, SchedulerService schedulerService, WebhookUtils webhookUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
-        this.streamEntityDao = streamEntityDao;
+    public WebhookEventsServiceImpl(StreamEntityDao streamEntityDao, EventEntityDao eventEntityDao,
+                                    SchedulerService schedulerService, WebhookUtils webhookUtils,
+                                    PnDeliveryPushConfigs pnDeliveryPushConfigs, TimelineService timeLineService,
+                                    ConfidentialInformationService confidentialInformationService) {
+        super(streamEntityDao, pnDeliveryPushConfigs);
         this.eventEntityDao = eventEntityDao;
         this.schedulerService = schedulerService;
         this.webhookUtils = webhookUtils;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+        this.timelineService = timeLineService;
+        this.confidentialInformationService = confidentialInformationService;
         this.defaultNotificationStatuses = statusByVersion(NotificationStatusInt.VERSION_10);
     }
 
@@ -64,28 +70,70 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
         String xPagopaPnApiVersion,
         UUID streamId,
         String lastEventId) {
+        String msg = "consumeEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, streamId={} ";
+        String[] args = {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, streamId.toString()};
+        generateAuditLog(PnAuditLogEventType.AUD_WH_CONSUME, msg, args).log();
         // grazie al contatore atomico usato in scrittura per generare l'eventId, non serve più gestire la finestra.
-        return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " is not allowed to see this streamId " + streamId)))
-            .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
-            .map(res -> {
-                List<ProgressResponseElementV23> eventList = res.getEvents().stream().map(ProgressResponseElementMapper::internalToExternalv23).sorted(Comparator.comparing(ProgressResponseElementV23::getEventId)).toList();
+        return getStreamEntityToRead(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId, xPagopaPnCxGroups, streamId)
+                .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
+                .flatMap(res ->
+                    toEventTimelineInternalFromEventEntity(res.getEvents())
+                            .onErrorResume(ex -> Mono.error(new PnInternalException("Timeline element entity not converted into JSON", ERROR_CODE_PN_GENERIC_ERROR)))
+                            //timeline ancora anonimizzato - EventEntity + TimelineElementInternal
+                            .collectList()
+                            // chiamo timelineService per aggiungere le confidentialInfo
+                            .flatMapMany(items -> {
+                                if (webhookUtils.getVersion(xPagopaPnApiVersion) == 10)
+                                    return Flux.fromStream(items.stream());
+                                return addConfidentialInformationAtEventTimelineList(items);
+                            })
+                            // converto l'eventTimelineInternalDTO in ProgressResponseElementV23
+                            .map(this::getProgressResponseFromEventTimeline)
+                            .sort(Comparator.comparing(ProgressResponseElementV23::getEventId))
+                            .collectList()
+                            .map(eventList -> {
+                                var retryAfter = pnDeliveryPushConfigs.getWebhook().getScheduleInterval().intValue();
+                                int currentRetryAfter = res.getLastEventIdRead() == null ? retryAfter : 0;
+                                var purgeDeletionWaittime = pnDeliveryPushConfigs.getWebhook().getPurgeDeletionWaittime();
+                                log.info("consumeEventStream lastEventId={} streamId={} size={} returnedlastEventId={} retryAfter={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"), currentRetryAfter);
+                                // schedulo la pulizia per gli eventi precedenti a quello richiesto
+                                schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventId, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM_OLDER_THAN);
+                                // ritorno gli eventi successivi all'evento di buffer, FILTRANDO quello con lastEventId visto che l'ho sicuramente già ritornato
+                                return ProgressResponseElementDto.builder()
+                                        .retryAfter(currentRetryAfter)
+                                        .progressResponseElementList(eventList)
+                                        .build();
+                            })
+                            .doOnSuccess(progressResponseElementDto -> generateAuditLog(PnAuditLogEventType.AUD_WH_CONSUME, msg, args).generateSuccess("ProgressResponseElementDto size={}", progressResponseElementDto.getProgressResponseElementList().size()).log())
+                            .doOnError(error -> generateAuditLog(PnAuditLogEventType.AUD_WH_CONSUME, msg, args).generateFailure("Error in consumeEventStream").log())
+                );
+    }
 
-                var retryAfter = pnDeliveryPushConfigs.getWebhook().getScheduleInterval().intValue();
+    private ProgressResponseElementV23 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline) {
+        var response = ProgressResponseElementMapper.internalToExternalv23(eventTimeline.getEventEntity());
+        if (StringUtils.hasText(eventTimeline.getEventEntity().getElement())) {
+            TimelineElementV23 timelineElementV23 = TimelineElementWebhookMapper.internalToExternal(eventTimeline.getTimelineElementInternal());
+            response.setElement(timelineElementV23);
+        }
+        return response;
+    }
 
-                int currentRetryAfter = res.getLastEventIdRead() == null ? retryAfter : 0;
+    private Flux<EventTimelineInternalDto> toEventTimelineInternalFromEventEntity(List<EventEntity> events) throws PnInternalException{
+        return Flux.fromStream(events.stream())
+                .map(item -> {
+                    TimelineElementInternal timelineElementInternal = getTimelineInternalFromEventEntity(item);
+                    return EventTimelineInternalDto.builder()
+                            .eventEntity(item)
+                            .timelineElementInternal(timelineElementInternal)
+                            .build();
+                });
+    }
 
-                var purgeDeletionWaittime = pnDeliveryPushConfigs.getWebhook().getPurgeDeletionWaittime();
-
-                log.info("consumeEventStream lastEventId={} streamId={} size={} returnedlastEventId={} retryAfter={}", lastEventId, streamId, eventList.size(), (!eventList.isEmpty()?eventList.get(eventList.size()-1).getEventId():"ND"), currentRetryAfter);
-                // schedulo la pulizia per gli eventi precedenti a quello richiesto
-                schedulerService.scheduleWebhookEvent(res.getStreamId(), lastEventId, purgeDeletionWaittime, WebhookEventType.PURGE_STREAM_OLDER_THAN);
-                // ritorno gli eventi successivi all'evento di buffer, FILTRANDO quello con lastEventId visto che l'ho sicuramente già ritornato
-                return ProgressResponseElementDto.builder()
-                    .retryAfter(currentRetryAfter)
-                    .progressResponseElementList(eventList)
-                    .build();
-            });
+    private TimelineElementInternal getTimelineInternalFromEventEntity(EventEntity entity) throws PnInternalException{
+        if (StringUtils.hasText(entity.getElement())) {
+            return webhookUtils.getTimelineInternalFromEvent(entity);
+        }
+        return null;
     }
 
     @Override
@@ -112,7 +160,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     }
     private Mono<Void> processEvent(StreamEntity stream,  String oldStatus, String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
 
-        if (!CollectionUtils.isEmpty(stream.getGroups()) && !checkGroups(Arrays.asList(notificationInt.getGroup()), stream.getGroups())){
+        if (!CollectionUtils.isEmpty(stream.getGroups()) && !checkGroups(Collections.singletonList(notificationInt.getGroup()), stream.getGroups())){
             return Mono.empty();
         }
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
@@ -147,7 +195,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
         if ( (eventType == StreamCreationRequestV23.EventTypeEnum.STATUS && filteredValues.contains(newStatus))
             || (eventType == StreamCreationRequestV23.EventTypeEnum.TIMELINE && filteredValues.contains(timelineEventCategory)))
         {
-            return saveEventWithAtomicIncrement(stream, newStatus, timelineElementInternal, notificationInt);
+            return saveEventWithAtomicIncrement(stream, newStatus, timelineElementInternal);
         }
         else {
             log.info("skipping saving webhook event for stream={} because timelineeventcategory is not in list timelineeventcategory={} iun={}", stream.getStreamId(), timelineEventCategory, timelineElementInternal.getIun());
@@ -157,7 +205,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
     }
 
     private Mono<Void> saveEventWithAtomicIncrement(StreamEntity streamEntity, String newStatus,
-        TimelineElementInternal timelineElementInternal, NotificationInt notificationInt){
+        TimelineElementInternal timelineElementInternal){
         // recupero un contatore aggiornato
         return streamEntityDao.updateAndGetAtomicCounter(streamEntity)
             .flatMap(atomicCounterUpdated -> {
@@ -168,7 +216,7 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
                 }
 
                 return eventEntityDao.save(webhookUtils.buildEventEntity(atomicCounterUpdated, streamEntity,
-                        newStatus, timelineElementInternal, notificationInt))
+                        newStatus, timelineElementInternal))
                         .onErrorResume(ex -> Mono.error(new PnInternalException("Timeline element entity not converted into JSON", ERROR_CODE_PN_GENERIC_ERROR)))
                     .doOnSuccess(event -> log.info("saved webhookevent={}", event))
                     .then();
@@ -222,4 +270,24 @@ public class WebhookEventsServiceImpl implements WebhookEventsService {
         return categoriesSet;
     }
 
+
+    protected Flux<EventTimelineInternalDto> addConfidentialInformationAtEventTimelineList(List<EventTimelineInternalDto> eventEntities) {
+        List<TimelineElementInternal> timelineElementInternals = eventEntities.stream()
+                .map(EventTimelineInternalDto::getTimelineElementInternal)
+                .filter(Objects::nonNull)
+                .toList();
+
+        return confidentialInformationService.getTimelineConfidentialInformation(timelineElementInternals)
+                .map(confidentialInfo -> {
+                    // cerco l'elemento in TimelineElementInternals con elementiId
+                    TimelineElementInternal internal = timelineElementInternals.stream()
+                            .filter(i -> i.getElementId().equals(confidentialInfo.getTimelineElementId()))
+                            .findFirst()
+                            .get();
+                    timelineService.enrichTimelineElementWithConfidentialInformation(internal.getDetails(), confidentialInfo);
+                    return internal;
+                })
+                .collectList()
+                .flatMapMany(item -> Flux.fromStream(eventEntities.stream()));
+    }
 }

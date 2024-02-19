@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementJsonConverter;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
@@ -15,6 +16,13 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
+
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -25,18 +33,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Base64Utils;
-import org.springframework.util.StringUtils;
-
 
 @Slf4j
 @Component
 public class WebhookUtils {
     private final DtoToEntityTimelineMapper mapperTimeline;
+    private final EntityToDtoTimelineMapper entityToDtoTimelineMapper;
     private final TimelineElementJsonConverter timelineElementJsonConverter;
     private final TimelineService timelineService;
     private final StatusService statusService;
@@ -45,10 +47,11 @@ public class WebhookUtils {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public WebhookUtils(TimelineService timelineService, StatusService statusService, NotificationService notificationService,
-                            PnDeliveryPushConfigs pnDeliveryPushConfigs, DtoToEntityTimelineMapper mapperTimeline, TimelineElementJsonConverter timelineElementJsonConverter) {
+                        PnDeliveryPushConfigs pnDeliveryPushConfigs, DtoToEntityTimelineMapper mapperTimeline, EntityToDtoTimelineMapper entityToDtoTimelineMapper, TimelineElementJsonConverter timelineElementJsonConverter) {
         this.timelineService = timelineService;
         this.statusService = statusService;
         this.notificationService = notificationService;
+        this.entityToDtoTimelineMapper = entityToDtoTimelineMapper;
         this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
         this.ttl = pnDeliveryPushConfigs.getWebhook().getTtl();
         this.mapperTimeline = mapperTimeline;
@@ -78,7 +81,7 @@ public class WebhookUtils {
 
 
     public EventEntity buildEventEntity(Long atomicCounterUpdated, StreamEntity streamEntity,
-                                        String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) throws PnInternalException{
+                                        String newStatus, TimelineElementInternal timelineElementInternal) throws PnInternalException{
 
         Instant timestamp = timelineElementInternal.getTimestamp();
 
@@ -107,6 +110,11 @@ public class WebhookUtils {
         return eventEntity;
     }
 
+    public TimelineElementInternal getTimelineInternalFromEvent(EventEntity entity) throws PnInternalException{
+        TimelineElementEntity timelineElementEntity = this.timelineElementJsonConverter.jsonToEntity(entity.getElement());
+        return entityToDtoTimelineMapper.entityToDto(timelineElementEntity);
+    }
+
 
     @Builder
     @Getter
@@ -121,10 +129,6 @@ public class WebhookUtils {
         List<String> safeAllowedGroups = allowedGroups != null ? allowedGroups : Collections.emptyList();
 
         return safeAllowedGroups.containsAll(safeToCheck);
-    }
-
-    private static boolean isEmpty(List list){
-        return list == null || list.isEmpty();
     }
 
     public int getVersion (String version) {
