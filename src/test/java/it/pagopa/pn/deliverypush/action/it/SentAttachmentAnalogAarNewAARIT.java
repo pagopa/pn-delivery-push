@@ -13,7 +13,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
-import it.pagopa.pn.deliverypush.utils.PaperSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,16 +37,18 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
     static Instant sentNotificationTime = Instant.now();
 
     //Viene valorizzata la configurazione vecchia, cioè INSTANT.NOW meno 10 giorni
-    static PaperSendMode notCurrentConf = PaperSendMode.builder()
+    static PnSendMode notCurrentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
+            .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
             .build();
 
     //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 1 giorni
-    static PaperSendMode currentConf = PaperSendMode.builder()
+    static PnSendMode currentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(1, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR)
+            .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
             .build();
 
@@ -65,11 +67,11 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
             final String notCurrentConfString = getStringConfiguration(notCurrentConf);
             final String currentConfString = getStringConfiguration(currentConf);
 
-            List<String> paperSendModeList = new ArrayList<>();
-            paperSendModeList.add(notCurrentConfString);
-            paperSendModeList.add(currentConfString);
+            List<String> pnSendModeList = new ArrayList<>();
+            pnSendModeList.add(notCurrentConfString);
+            pnSendModeList.add(currentConfString);
 
-            Mockito.when(pnDeliveryPushConfigs.getPaperSendMode()).thenReturn(paperSendModeList);
+            Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(pnSendModeList);
 
             return pnDeliveryPushConfigs;
         }

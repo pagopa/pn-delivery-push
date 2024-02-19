@@ -7,6 +7,8 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 
+import java.util.List;
+
 public interface ExternalChannelSendClient {
     String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_EXTERNAL_CHANNELS;
     String LEGAL_NOTIFICATION_REQUEST = "LEGAL NOTIFICATION_REQUEST";
@@ -17,7 +19,7 @@ public interface ExternalChannelSendClient {
                                NotificationRecipientInt recipientInt,
                                LegalDigitalAddressInt digitalAddress,
                                String timelineEventId,
-                               String aarKey,
+                               List<String> fileKeys,
                                String quickAccessToken);
 
     void sendCourtesyNotification(NotificationInt notificationInt,

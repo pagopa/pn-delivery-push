@@ -44,11 +44,11 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                                       NotificationRecipientInt recipientInt,
                                       LegalDigitalAddressInt digitalAddress,
                                       String timelineEventId,
-                                      String aarKey,
+                                      List<String> fileKeys,
                                       String quickAccessToken)
     {
         if (digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) {
-            sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress,aarKey, quickAccessToken);
+            sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress,fileKeys, quickAccessToken);
         } else {
             log.error("channel type not supported for iun={}", notificationInt.getIun());
             throw new PnInternalException("channel type not supported", ERROR_CODE_DELIVERYPUSH_CHANNELTYPENOTSUPPORTED);
@@ -78,7 +78,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                                      NotificationInt notificationInt,
                                      NotificationRecipientInt recipientInt,
                                      DigitalAddressInt digitalAddress,
-                                     String aarKey,
+                                     List<String> fileKeys,
                                      String quickAccessToken)
     {
         try {
@@ -87,6 +87,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
             String mailBody = legalFactGenerator.generateNotificationAARPECBody(notificationInt, recipientInt, quickAccessToken);
             String mailSubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
+            List<String> fileKeysWithStoragePrefix = fileKeys.stream().map(FileUtils::getKeyWithStoragePrefix).toList();
 
             DigitalNotificationRequest digitalNotificationRequestDto = new DigitalNotificationRequest();
             digitalNotificationRequestDto.setChannel(DigitalNotificationRequest.ChannelEnum.PEC);
@@ -99,7 +100,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
             digitalNotificationRequestDto.setClientRequestTimeStamp(OffsetDateTime.now(ZoneOffset.UTC));
             digitalNotificationRequestDto.setMessageText(mailBody);
             digitalNotificationRequestDto.setSubjectText(mailSubj);
-            digitalNotificationRequestDto.setAttachmentUrls(List.of(FileUtils.getKeyWithStoragePrefix(aarKey)));
+            digitalNotificationRequestDto.setAttachmentUrls(fileKeysWithStoragePrefix);
 
             if (StringUtils.hasText(cfg.getExternalchannelSenderPec()))
                 digitalNotificationRequestDto.setSenderDigitalAddress(cfg.getExternalchannelSenderPec());
