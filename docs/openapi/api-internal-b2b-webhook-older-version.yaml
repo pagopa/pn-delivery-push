@@ -487,7 +487,7 @@ components:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
 #          apparentemente non retrocompatibile ma gli stream continueranno a mandare category della versione 1 fino ad esplicita modifica delle config da parte della PA
-          $ref: '#/components/schemas/TimelineElementCategoryV20'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV23'
         recipientIndex:
           type: integer
           format: int32
@@ -591,14 +591,6 @@ components:
         timestamp:                                                                      # NOT YET IMPLEMENTED
           type: string                                                                  # NOT YET IMPLEMENTED
           format: date-time                                                             # NOT YET IMPLEMENTED
-
-    ############################################################################################
-    ###                          STRUTTURE DATI DI OBSOLETE MA CHE DEVONO RESTARE            ###
-    ############################################################################################
-    TimelineElementCategoryV20:
-      # DO NOT CHANGE: this is timeline V2.0 commit id.
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/dcfc9feb7108b4193f77d045173342850f1f8934/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV20'
-
 
 #  securitySchemes:        # ONLY EXTERNAL
 #    ApiKeyAuth:           # ONLY EXTERNAL
