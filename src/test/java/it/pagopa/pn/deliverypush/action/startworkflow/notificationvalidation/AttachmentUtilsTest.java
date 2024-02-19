@@ -6,27 +6,35 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilde
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
+import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
+import it.pagopa.pn.deliverypush.utils.PnSendMode;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.unit.DataSize;
@@ -35,6 +43,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,14 +65,23 @@ class AttachmentUtilsTest {
     private NotificationUtils notificationUtils;
 
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+
+    private PnSendModeUtils pnSendModeUtils;
+
+    private AarUtils aarUtils;
+
+    private NotificationProcessCostService notificationProcessCostService;
+
     @BeforeEach
     void init(){
         safeStorageService = Mockito.mock(SafeStorageService.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        NotificationProcessCostService notificationProcessCostService = Mockito.mock(NotificationProcessCostService.class);
-        Mockito.when(notificationProcessCostService.notificationProcessCostF24(any(), anyInt(), any(), anyInt(), anyInt(), any())).thenReturn(Mono.just(2));
-        attachmentUtils = new AttachmentUtils(safeStorageService, pnDeliveryPushConfigs, notificationProcessCostService);
+        pnSendModeUtils = Mockito.mock(PnSendModeUtils.class);
+        notificationProcessCostService = Mockito.mock(NotificationProcessCostService.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
+        aarUtils = Mockito.mock(AarUtils.class);
+        attachmentUtils = new AttachmentUtils(safeStorageService, pnDeliveryPushConfigs, notificationProcessCostService, pnSendModeUtils, aarUtils, notificationUtils);
+
     }
 
 
@@ -262,6 +280,123 @@ class AttachmentUtilsTest {
         Mockito.verify(safeStorageService, Mockito.times(2)).getFile(any(), Mockito.anyBoolean());
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void retrieveAttachmentsAAR() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotificationV2();
+
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+
+        //WHEN
+        List<String> attachments = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR, false, List.of());
+
+        // THEN
+        Assertions.assertNotNull(attachments);
+        Assertions.assertFalse(attachments.isEmpty());
+        Assertions.assertEquals(1, attachments.size());
+        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl(),attachments.get(0));
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void retrieveAttachmentsAAR_DOCUMENTS() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotificationV2WithDocument();
+
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+
+        //WHEN
+        List<String> attachments = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS, false, List.of());
+
+        // THEN
+        Assertions.assertNotNull(attachments);
+        Assertions.assertFalse(attachments.isEmpty());
+        Assertions.assertEquals(2, attachments.size());
+        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl(),attachments.get(0));
+        Assertions.assertEquals("safestorage://"+notification.getDocuments().get(0).getRef().getKey(),attachments.get(1));
+    }
+
+    @Test
+    void retrieveSendAttachmentModeANALOG_NOTIFICATION() {
+        //GIVEN
+        PnSendMode pnSendMode = PnSendMode.builder()
+                .startConfigurationTime(Instant.now())
+                .digitalSendAttachmentMode(SendAttachmentMode.AAR)
+                .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
+                .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
+                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .build();
+        Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
+        //WHEN
+        SendAttachmentMode sendAttachmentMode = attachmentUtils.retrieveSendAttachmentMode(TestUtils.getNotificationV2WithDocument(), NotificationChannelType.ANALOG_NOTIFICATION);
+        //THEN
+       Assertions.assertEquals(sendAttachmentMode,pnSendMode.getAnalogSendAttachmentMode());
+    }
+
+    @Test
+    void retrieveSendAttachmentModeSIMPLE_REGISTERED_LETTER() {
+        //GIVEN
+        PnSendMode pnSendMode = PnSendMode.builder()
+                .startConfigurationTime(Instant.now())
+                .digitalSendAttachmentMode(SendAttachmentMode.AAR)
+                .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
+                .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
+                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .build();
+        Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
+        //WHEN
+        SendAttachmentMode sendAttachmentMode = attachmentUtils.retrieveSendAttachmentMode(TestUtils.getNotificationV2WithDocument(), NotificationChannelType.SIMPLE_REGISTERED_LETTER);
+        //THEN
+        Assertions.assertEquals(sendAttachmentMode,pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
+    }
+
+    @Test
+    void retrieveSendAttachmentModeDIGITAL_NOTIFICATION() {
+        //GIVEN
+        PnSendMode pnSendMode = PnSendMode.builder()
+                .startConfigurationTime(Instant.now())
+                .digitalSendAttachmentMode(SendAttachmentMode.AAR)
+                .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
+                .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
+                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .build();
+        Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
+        //WHEN
+        SendAttachmentMode sendAttachmentMode = attachmentUtils.retrieveSendAttachmentMode(TestUtils.getNotificationV2WithDocument(), NotificationChannelType.DIGITAL_NOTIFICATION);
+        //THEN
+        Assertions.assertEquals(sendAttachmentMode,pnSendMode.getDigitalSendAttachmentMode());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotificationV2WithDocument();
+
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notification.getRecipients().get(0));
+
+        //WHEN
+        List<String> attachments = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, false, List.of());
+
+        // THEN
+        System.out.println(attachments);
+        Assertions.assertNotNull(attachments);
+        Assertions.assertFalse(attachments.isEmpty());
+        Assertions.assertEquals(3, attachments.size());
+        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl(),attachments.get(0));
+        Assertions.assertEquals("safestorage://"+notification.getDocuments().get(0).getRef().getKey(),attachments.get(1));
+        Assertions.assertEquals("safestorage://"+notification.getRecipients().get(0).getPayments().get(0).getPagoPA().getAttachment().getRef().getKey(),
+                attachments.get(2));
+    }
 
     @Test
     void changeAttachmentsStatusToAttached() {
@@ -379,13 +514,15 @@ class AttachmentUtilsTest {
         int recIndexRecipient1 = 0;
         int recIndexRecipient2 = 1;
 
+        Mockito.when(notificationProcessCostService.notificationProcessCostF24(any(), anyInt(), any(), any(), any(),any())).thenReturn(Mono.just(2));
+
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient1)).thenReturn(notification.getRecipients().get(recIndexRecipient1));
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient2)).thenReturn(notification.getRecipients().get(recIndexRecipient2));
 
         //WHEN
         List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, true, Collections.emptyList());
         List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, false, Collections.emptyList());
-        
+
         //THEN
         Assertions.assertEquals(3, attachmentsRecipient1.size());
         Assertions.assertEquals(2, attachmentsRecipient2.size());
@@ -402,7 +539,7 @@ class AttachmentUtilsTest {
         Integer recIndex = 0;
         Integer cost = 10;
         Integer vat = 22;
-                
+
         //WHEN
         String f24Url = attachmentUtils.getF24Url(iun, recIndex, cost, vat);
 

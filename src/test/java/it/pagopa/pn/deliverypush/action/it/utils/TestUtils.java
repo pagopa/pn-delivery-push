@@ -851,6 +851,44 @@ public class TestUtils {
                 .build();
     }
 
+    public static NotificationInt getNotificationV2WithDocument() {
+        return NotificationInt.builder()
+                .iun("IUN_01")
+                .paProtocolNumber("protocol_01")
+                .sender(NotificationSenderInt.builder()
+                        .paId(" pa_02")
+                        .build()
+                )
+                .documents(List.of(NotificationDocumentInt.builder()
+                        .digests(NotificationDocumentInt.Digests.builder()
+                                .sha256("sha256").build())
+                        .ref(NotificationDocumentInt.Ref.builder().key("test").versionToken("1").build())
+                        .build()))
+                .recipients(Collections.singletonList(
+                        NotificationRecipientInt.builder()
+                                .taxId("testIdRecipient")
+                                .internalId("test")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(LegalDigitalAddressInt.builder()
+                                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                        .address("account@dominio.it")
+                                        .build())
+                                .payments(List.of(NotificationPaymentInfoInt.builder()
+                                        .pagoPA(PagoPaInt.builder()
+                                                .noticeCode("noticeCode")
+                                                .creditorTaxId("taxId")
+                                                .attachment(NotificationDocumentInt.builder()
+                                                        .ref(NotificationDocumentInt.Ref.builder().key("paymentAttach").versionToken("1").build())
+                                                        .digests(NotificationDocumentInt.Digests.builder()
+                                                                .sha256("sha256").build())
+                                                        .build())
+                                                .build())
+                                        .build()))
+                                .build()
+                ))
+                .build();
+    }
+
     public static NotificationInt getNotificationV2WithF24() {
         return NotificationInt.builder()
                 .iun("IUN_01")
