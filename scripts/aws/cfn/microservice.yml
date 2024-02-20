@@ -145,10 +145,6 @@ Parameters:
     Type: CommaDelimitedList
     Description: 'subnets ids comma separated list. Where to deploy the microservice'
 
-  VpcEgressSubnetsIds:
-    Type: String
-    Description: subnets where to install PN-CORE
-
   VpcId:
     Type: String
     Description: 'VpcId where the microservice is going to be deployed'
@@ -829,7 +825,7 @@ Resources:
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
         MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
         ECSClusterName: !Ref ECSClusterName
-        Subnets: !Ref VpcEgressSubnetsIds
+        Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
