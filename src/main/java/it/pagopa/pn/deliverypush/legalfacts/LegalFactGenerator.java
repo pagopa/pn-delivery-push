@@ -76,7 +76,7 @@ public class LegalFactGenerator {
     public static final String FIELD_SENDURL = "sendURL";
     public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
     public static final String FIELD_LOGO = "logoBase64";
-    private static final String FIELD_ADDITIONAL = "additional.";
+    private static final String FIELD_ADDITIONAL = "additional_";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;

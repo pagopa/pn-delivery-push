@@ -40,10 +40,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 class LegalFactPdfGeneratorTest {
         private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
@@ -75,6 +72,11 @@ class LegalFactPdfGeneratorTest {
                 pnDeliveryPushConfigs.getWebapp()
                                 .setDirectAccessUrlTemplateLegal("https://imprese.notifichedigitali.it/");
                 pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("?aar");
+                Map<String, String> additional = new HashMap<>();
+                additional.put("raddoperatorcaf", "Consulta CAF");
+                additional.put("raddoperatormooney", "Mooney");
+                additional.put("raddoperatorsailpost", "Sailpost");
+                pnDeliveryPushConfigs.getWebapp().setAdditional(additional);
                 pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
                 pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");
