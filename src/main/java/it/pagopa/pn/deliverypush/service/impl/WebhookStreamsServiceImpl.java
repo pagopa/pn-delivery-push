@@ -18,17 +18,17 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -64,13 +64,17 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                 (x.getReplacedStreamId() == null ? checkStreamCount(xPagopaPnCxId) : Mono.just(Boolean.TRUE)).then(Mono.just(x))
             )
             .flatMap(dto -> {
-                List<String> allowedGroups = (xPagopaPnCxGroups==null || xPagopaPnCxGroups.isEmpty())
+                List<String> allowedGroups = CollectionUtils.isEmpty(xPagopaPnCxGroups)
                     ? pnExternalRegistryClient.getGroups(xPagopaPnUid, xPagopaPnCxId)
                     : xPagopaPnCxGroups;
 
-                return WebhookUtils.checkGroups(dto.getGroups(), allowedGroups)?
-                    saveOrReplace(dto,xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion)
-                    : Mono.error(new PnWebhookForbiddenException("Not Allowed groups "+groupString(dto.getGroups())));
+                if (CollectionUtils.isEmpty(dto.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups)){
+                    return Mono.error(new PnWebhookForbiddenException("Not Allowed empty groups for apikey with groups "+groupString(xPagopaPnCxGroups)));
+                } else {
+                    return WebhookUtils.checkGroups(dto.getGroups(), allowedGroups) ?
+                        saveOrReplace(dto, xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion)
+                        : Mono.error(new PnWebhookForbiddenException("Not Allowed groups " + groupString(dto.getGroups())));
+                }
             }).map(EntityToDtoStreamMapper::entityToDto).doOnSuccess(newEntity-> generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateSuccess().log()).doOnError(err-> generateAuditLog(PnAuditLogEventType.AUD_WH_CREATE, msg, args).generateFailure(ERROR_CREATING_STREAM, err).log());
     }
 
