@@ -193,26 +193,11 @@
       color: inherit;
     }
 
-    /* VIEW ONLINE BOX */
     #view-online-box {
       position: absolute;
       width: 92mm;
     }
 
-    /* END VIEW ONLINE BOX */
-
-    /* DESCRIPTION BOX */
-    #description-box {
-      margin-top: 2mm;
-      position: absolute;
-      width: 168.41px;
-      padding: 1.75mm 2.5mm;
-      right: 0mm;
-    }
-
-    /* END DESCRIPTION BOX */
-
-    /* IO NOTIFICATIONS BOX */
     #io-notifications {
       position: absolute;
       width: 92mm;
@@ -242,9 +227,6 @@
       padding-left: 5.3px;
     }
 
-    /* END NOTIFICATIONS BOX */
-
-    /* SEND INFO BOX*/
     #send-info {
       width: 92mm;
     }
@@ -262,19 +244,15 @@
 
     .border-bottom {
       border-bottom: solid 1px #ECECEC;
-;
       margin-top: 2.5mm;
       color: #666;
     }
 
-    /* END SEND INFO BOX*/
     #send-perfezionamento {
       top: 10mm;
       width: 92mm;
-      
     }
 
-    /* MANDATE BOX */
     #mandate-box {
       position: absolute;
       right: 0;
@@ -285,9 +263,7 @@
       padding-left: 5.3px;
       margin: 2mm 0;
     }
-
-    /* END MANDATE BOX */
-    /* POSTE BOX */
+    
     #poste-box {
       position: absolute;
       left: 0;
@@ -300,7 +276,6 @@
       margin-top: 0.7mm;
     }
 
-    /* END POSTE BOX */
 
     /* SECOND PAGE */
     #send-explanation {
@@ -310,6 +285,7 @@
       padding: 3mm 4mm 3mm 3mm;
       height: 98mm;
     }
+
     #print-explanation {
       width: 94mm;
       border: solid #b2b2b2 1px;
@@ -321,13 +297,10 @@
       height: 49mm;
     }
 
-    #send-explanation p {
+    #send-explanation p, #print-explanation p, #io-box_explanation p, #howto-explanation p, #print-explanation .explanation-title, #io-explanation .explanation-title {
       margin-bottom: 2mm;
     }
 
-    #print-explanation p {
-      margin-bottom: 2mm;
-    }
     #howto-explanation {
       width: 93mm;
       background-color: #ECECEC;
@@ -338,21 +311,18 @@
       top: 0;
       height: 98mm;
     }
+
+    #howto-explanation #square-list li, #howto-explanation li{
+      margin-top: 0;
+    }
+
     #io-box_explanation {
       width: 94mm;
       background-color: #ECECEC;
       border-radius: 5px;
       height: 49mm;
     }
-    #howto-explanation p {
-      margin-bottom: 2mm;
-    }
-    #howto-explanation #square-list li{
-      margin-top: 0;
-    }
-    #io-box_explanation p {
-      margin-bottom: 2mm;
-    }
+
     #advantages {
       width: 100%; height: 47mm;
     }
@@ -386,16 +356,18 @@
       right: 0;
       bottom: -3mm;
     }
+
     #read-more p {
       position: absolute;
       right: 8mm;
     }
+
     #read-more img {
       position: absolute;
       right: 0;
       width: 5mm;
-
     }
+
     .advantage-col {
       width: 47.5mm;
       position: absolute;
@@ -433,6 +405,7 @@
       width: 100%;
       height: 9mm;
     }
+
     #send-explanation .explanation-title {
       position: relative;
       display: table;
@@ -440,26 +413,22 @@
       height: 14mm;
       margin-bottom: 2mm;
     }
+
     #howto-explanation .explanation-title h4, #send-explanation .explanation-title h4{
       width: 55mm;
       display: table-cell;
       vertical-align: middle;
     }
+
     #howto-explanation .explanation-title img, #send-explanation .explanation-title img {
       position: absolute;
       top: 0;
       right: 0;
       width: 7mm;
     }
-    #howto-explanation li {
-      margin-top: 0;
-    }
+
     #howto-explanation ul {
       margin-bottom: 1mm;
-    }
-
-    #print-explanation .explanation-title {
-      margin-bottom: 2mm;
     }
 
     #icon-io_explanation {
@@ -481,9 +450,6 @@
       top: 4mm;
     }
 
-    #io-explanation .explanation-title {
-      margin-bottom: 2mm;
-    }
     img.message-advantages_explanation {
       height: 26px;
       margin: 3mm;
@@ -515,9 +481,7 @@
         <br />${recipient.taxId}
       </div>
     </div>
-
     <img id="qr-code" src="${qrCodeQuickAccessLink}" />
-
     <div id="recipient-addr-box">
       <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
       <br />
@@ -531,16 +495,12 @@
       <div id="main__subject" class="strong">
         ${notification.subject}
       </div>
-      
       <div id="main__disclaimer" class="ten-px">
         ${notification.sender.paDenomination} ti ha notificato una comunicazione a valore legale tramite SEND composta da questo avviso di avvenuta ricezione e da uno o più documenti: <b>visualizzali online il prima possibile o richiedine una copia cartacea presso un punto di ritiro convenzionato</b>, seguendo le istruzioni qui di seguito. La scadenza per il pagamento, se previsto, e il termine per eventuali impugnazioni sono indicati nei documenti.
       </div>
     </div>
-
     <div class="row">
-      <div class="heading ten-px">Visualizza i documenti online - gratis
-
-      </div>
+      <div class="heading ten-px">Visualizza i documenti online - gratis</div>
       <div class="relative-box" style="height: 20mm;">
         <div id="view-online-box">
           <div class="section-list">
@@ -562,12 +522,10 @@
               </div>
             </div>
             <#else>
-
           </#if>
         </div>
       </div>
     </div>
-
     <div class="row">
       <#if recipient.recipientType=="PF">
         <div class="relative-box" style="height: 96mm;">
@@ -580,7 +538,12 @@
         </div>
         <div class="section-list">
           <ol>
-            <li>Puoi ritirare i documenti notificati presso i CAF convenzionati, le tabaccherie, i bar e gli altri esercenti affiliati Mooney e i punti Sailpost, anche senza SPID o CIE. Per conoscere i punti di ritiro convenzionati più vicini a te vai su <b><a href="${sendURL}ritiro">${sendURLLAbel}/ritiro</a></b></li>
+            <li>Puoi ritirare i documenti notificati presso i CAF convenzionati<#if additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "true">, le tabaccherie, i bar e gli altri esercenti affiliati Mooney e i punti Sailpost
+              <#elseif additional_raddoperatormooney == "false" && additional_raddoperatorsailpost == "true">
+              e i punti Sailpost
+              <#elseif additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "false">
+              e le tabaccherie, i bar e gli altri esercenti affiliati Mooney
+              <#else></#if>, anche senza SPID o CIE. Per conoscere i punti di ritiro convenzionati più vicini a te vai su <b><a href="${sendURL}ritiro">${sendURLLAbel}/ritiro</a></b></li>
             <li>Al punto di ritiro, mostra:
               <ul id="square-list">
                 <li>questo avviso di avvenuta ricezione;</li>
@@ -608,7 +571,6 @@
         <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
           Hai 120 giorni dalla data di perfezionamento della notifica per ottenere i documenti. Per conoscere questa data, vai su<br> <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b>
         </div>
-
       </div>
       <div id="mandate-box">
         <div class="heading ten-px">
@@ -626,7 +588,6 @@
                 in qualità di rappresentante legale di ${recipient.denomination} ${recipient.taxId}, delego
               </div>
           </#if>
-
           <div class="eight-px border-bottom">
             Nome e Cognome
           </div>
@@ -650,7 +611,6 @@
                     di
                     legale rappresentante.</li>
               </#if>
-
           </ul>
         </div>
         <div id="read-more">
@@ -658,28 +618,20 @@
           <img id="arrow_image" src="images/arrow.png" />
         </div>
       </div>
-
     </div>
   </div>
   </div>
-
-
-
-
-
-  <!-- ________________ PAGE 2 ___________________ -->
+  <!--------------------------- PAGE 2 --------------------------->
   <div style="height: 294mm;">
     <div id="logo-box-right">
       <img id="logo-box-right__logo" src="./images/aar-logo-short-small.png" />
     </div>
-
     <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
     <br />
     <br />
     <br />
     <br />
     <br />
-
     <div id="main-page2">
       <div class="relative-box">
         <div id="send-explanation">
@@ -770,11 +722,6 @@
         </div>
       </div>
     </div>
-
-
-
-
   </div>
 </body>
-
 </html>

@@ -1,5 +1,5 @@
 {
-  "Parameters" : {
+  "Parameters": {
     "AddressBookUrl": "https://zkkwwk0v41.execute-api.eu-central-1.amazonaws.com/mock/develop/addresses/",
     "PhysicalPersonPortalUrl": "https://cittadini.dev.notifichedigitali.it/",
     "LegalPersonPortalUrl": "https://imprese.dev.notifichedigitali.it/",
@@ -7,8 +7,8 @@
     "SecondNotificationWorkflowWaitingTime": "3m",
     "SchedulingDaysSuccessDigitalRefinement": "3m",
     "SchedulingDaysFailureDigitalRefinement": "6m",
-    "SchedulingDaysSuccessAnalogRefinement": "4m", 
-    "SchedulingDaysFailureAnalogRefinement": "4m", 
+    "SchedulingDaysSuccessAnalogRefinement": "4m",
+    "SchedulingDaysFailureAnalogRefinement": "4m",
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "50",
     "ExternalChannelDigitalRetryCount": "3",
@@ -49,8 +49,8 @@
     "PnCronAnalyzer": "* */1 * * * *",
     "WireTapLogActivation": "false",
     "MountEfs": "false",
-    "RaddOperatorCaf": "Consulta CAF",
-    "RaddOperatorMooney": "Mooney",
-    "RaddOperatorSailpost": "Sailpost"
+    "RaddOperatorCaf": "true",
+    "RaddOperatorMooney": "true",
+    "RaddOperatorSailpost": "true"
   }
 }

@@ -73,9 +73,9 @@ class LegalFactPdfGeneratorTest {
                                 .setDirectAccessUrlTemplateLegal("https://imprese.notifichedigitali.it/");
                 pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("?aar");
                 Map<String, String> additional = new HashMap<>();
-                additional.put("raddoperatorcaf", "Consulta CAF");
-                additional.put("raddoperatormooney", "Mooney");
-                additional.put("raddoperatorsailpost", "Sailpost");
+                additional.put("raddoperatorcaf", "true");
+                additional.put("raddoperatormooney", "true");
+                additional.put("raddoperatorsailpost", "true");
                 pnDeliveryPushConfigs.getWebapp().setAdditional(additional);
                 pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
                 pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
