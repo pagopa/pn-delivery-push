@@ -295,6 +295,9 @@ Resources:
         - AttributeName: "sortKey"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
@@ -395,6 +398,17 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
         LogGroupName: !Sub "${ProjectName}-paperEventsCostUpdateLambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
+  VersioningV1V2WebhookLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-versioningV1V2WebhookLambda"
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
@@ -512,6 +526,8 @@ Outputs:
   WebhookEventManagerLambdaName:
     Value: !Sub "${ProjectName}-webhookEventManagerLambda"
 
+  VersioningV1V2WebhookLambdaName:
+    Value: !Sub "${ProjectName}-versioningV1V2WebhookLambda"
 
   # Webhook Step Manager DLQ
   WebhookEventManagerDLQName:

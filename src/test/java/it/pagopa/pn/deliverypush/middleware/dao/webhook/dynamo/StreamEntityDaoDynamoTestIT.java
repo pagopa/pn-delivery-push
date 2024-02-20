@@ -82,7 +82,7 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
                     System.out.println("Nothing to remove");
                     Thread.currentThread().interrupt();
                 }
-                daoDynamo.save(m).block(Duration.ofMillis(3000));
+                daoDynamo.save(m).block(d);
             });
         } catch (Exception e) {
             System.out.println("Nothing to remove");
@@ -316,7 +316,7 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
 
         //WHEN
         range.stream().parallel().map((v) -> {
-            Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(Duration.ofMillis(20000));
+            Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(d);
             results[res.intValue()] = res.intValue();
             return res;
         }).collect(Collectors.toSet());

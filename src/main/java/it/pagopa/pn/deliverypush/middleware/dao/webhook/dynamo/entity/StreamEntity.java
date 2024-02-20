@@ -1,12 +1,16 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 import lombok.Data;
 import lombok.Getter;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.UpdateBehavior;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
-
-import java.time.Instant;
-import java.util.Set;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbUpdateBehavior;
 
 /**
  * Entity Stream
@@ -22,6 +26,12 @@ public class StreamEntity {
     private static final String COL_ACTIVATION_DATE = "activationDate";
     private static final String COL_FILTER_VALUES = "filterValues";
     public static final String COL_EVENT_CURRENT_COUNTER = "eventAtomicCounter";
+
+    public static final String COL_DISABLED_DATE = "disabledDate";
+    private static final String COL_VERSION = "version";
+    private static final String COL_GROUPS = "groups";
+    private static final String COL_TTL = "ttl";
+
 
     public StreamEntity(){}
 
@@ -41,4 +51,8 @@ public class StreamEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_EVENT_TYPE)})) private String eventType;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_FILTER_VALUES)})) private Set<String> filterValues;
     @Getter(onMethod=@__({@DynamoDbAttribute(COL_EVENT_CURRENT_COUNTER) })) private Long eventAtomicCounter;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_DISABLED_DATE), @DynamoDbUpdateBehavior(UpdateBehavior.WRITE_IF_NOT_EXISTS)})) private Instant disabledDate;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_VERSION)})) private String version;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_GROUPS)})) private List<String> groups;
+    @Getter(onMethod=@__({@DynamoDbAttribute(COL_TTL)})) private long ttl;
 }
