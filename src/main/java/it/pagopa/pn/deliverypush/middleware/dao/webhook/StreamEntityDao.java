@@ -25,4 +25,8 @@ public interface StreamEntityDao {
      * @return nuovo id contatore
      */
     Mono<Long> updateAndGetAtomicCounter(StreamEntity streamEntity);
+
+    Mono<StreamEntity> replaceEntity(StreamEntity replacedEntity, StreamEntity newEntity);
+
+    Mono<StreamEntity> disable(StreamEntity entity);
 }

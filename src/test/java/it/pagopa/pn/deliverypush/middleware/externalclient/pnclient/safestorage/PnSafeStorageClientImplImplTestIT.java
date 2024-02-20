@@ -1,11 +1,20 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.*;
+import static org.mockserver.integration.ClientAndServer.startClientAndServer;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
-import org.junit.jupiter.api.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
@@ -15,11 +24,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.RestTemplate;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Mono;
-
-import static org.mockserver.integration.ClientAndServer.startClientAndServer;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -132,7 +139,7 @@ class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(operationResultCodeResponse, response);
     }
-    
+
     @Test
     void getFile() throws JsonProcessingException {
         //Given
@@ -192,7 +199,7 @@ class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
                         .withStatusCode(404)
                 );
         Mono<FileDownloadResponse> fileDownloadResponseMono = client.getFile(fileKey, true);
-        
+
         Assertions.assertThrows(RuntimeException.class, fileDownloadResponseMono::block);
     }
 }

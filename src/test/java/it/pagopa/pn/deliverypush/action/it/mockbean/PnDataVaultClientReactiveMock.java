@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementId;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,11 @@ public class PnDataVaultClientReactiveMock implements PnDataVaultClientReactive 
         return Flux.fromStream(listInternalId.stream()
                 .filter( internalId -> confidentialMap.get(internalId) != null)
                 .map(internalId -> confidentialMap.get(internalId)));
+    }
+
+    @Override
+    public Flux<ConfidentialTimelineElementDto> getNotificationTimelines(List<ConfidentialTimelineElementId> confidentialTimelineElementId) {
+        return null;
     }
 
     @Override

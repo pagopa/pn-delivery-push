@@ -10,10 +10,12 @@
         {
             "intendedUsage": "B2B",
             "openapiFiles": [
-                "api-internal-b2b-webhook.yaml"
+                "api-internal-b2b-webhook.yaml",
+                "api-internal-b2b-webhook-older-version.yaml"
             ],
             "servicePath": "delivery-progresses",
-            "generateBundle": true
+            "generateBundle": true,
+            "mergeBeforeBundleGeneration": true
         },
         {
             "intendedUsage": "B2B",
