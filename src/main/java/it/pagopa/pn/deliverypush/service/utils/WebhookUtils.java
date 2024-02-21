@@ -16,13 +16,6 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Base64Utils;
-import org.springframework.util.StringUtils;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -33,6 +26,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -128,7 +127,7 @@ public class WebhookUtils {
         List<String> safeToCheck = toCheckGroups != null ? toCheckGroups : Collections.emptyList();
         List<String> safeAllowedGroups = allowedGroups != null ? allowedGroups : Collections.emptyList();
 
-        return safeAllowedGroups.containsAll(safeToCheck);
+        return safeAllowedGroups.isEmpty() || safeAllowedGroups.containsAll(safeToCheck);
     }
 
     public int getVersion (String version) {
