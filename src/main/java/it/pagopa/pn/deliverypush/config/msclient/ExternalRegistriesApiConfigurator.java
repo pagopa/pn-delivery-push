@@ -23,7 +23,7 @@ public class ExternalRegistriesApiConfigurator {
 
     @Bean
     @Primary
-    RootSenderIdApi rootSenderIdApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
+    public RootSenderIdApi rootSenderIdApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         ApiClient newApiClient = new ApiClient(restTemplate);
         newApiClient.setBasePath( cfg.getExternalRegistryBaseUrl() );
         return new RootSenderIdApi(newApiClient);
@@ -31,7 +31,7 @@ public class ExternalRegistriesApiConfigurator {
 
     @Bean
     @Primary
-    InfoPaApi infoPaApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
+    public InfoPaApi infoPaApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         ApiClient newApiClient = new ApiClient(restTemplate);
         newApiClient.setBasePath( cfg.getExternalRegistryBaseUrl() );
         return new InfoPaApi(newApiClient);
