@@ -18,13 +18,14 @@ class UpdateEventStreamHandler extends EventHandler {
         const headers = this.prepareHeaders(event);
 
         // REQUEST BODY
-        const requestBodyV1 = event.body;
+        const requestBodyV1 = JSON.parse(event.body);
         const requestBodyV22= createStreamRequestV22(requestBodyV1);
 
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}`;
 
         console.log('calling ', url);
+        console.log(requestBodyV22);
         let response = await axios.put(url, requestBodyV22, {headers: headers});
 
         // RESPONSE BODY
