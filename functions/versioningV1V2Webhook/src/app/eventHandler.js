@@ -17,6 +17,7 @@ const { generateProblem } = require("./lib/utils");
 exports.eventHandler = async (event, context) => {
 
     try{
+        console.log(event);
         const handlers = [];
         handlers.push(new ConsumeEventStreamHandler());
         handlers.push(new CreateEventStreamHandler());
