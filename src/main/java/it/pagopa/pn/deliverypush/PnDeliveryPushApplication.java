@@ -12,7 +12,7 @@ public class PnDeliveryPushApplication {
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(PnDeliveryPushApplication.class);
 		app.addListeners(new TaskIdApplicationListener());
-		SpringApplication.run(PnDeliveryPushApplication.class, args);
+		app.run(args);
 	}
 
 	@RestController
