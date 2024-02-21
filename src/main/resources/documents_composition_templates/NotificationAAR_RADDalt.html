@@ -21,7 +21,6 @@
 
     @page {
       size: A4;
-      background-color: white;
       margin: 0mm;
     }
 
@@ -100,7 +99,7 @@
     /* QR */
     #qr-iun-code {
       position: absolute;
-      top: 22.9mm;
+      top: 19mm;
       left: 114.7mm;
       width: 50mm;
       height: 15mm;
@@ -243,7 +242,7 @@
     }
 
     .border-bottom {
-      border-bottom: solid 1px #ECECEC;
+      border-bottom: solid 1px #b2b2b2;
       margin-top: 2.5mm;
       color: #666;
     }
@@ -280,7 +279,7 @@
     /* SECOND PAGE */
     #send-explanation {
       width: 94mm;
-      border: solid #b2b2b2 1px;
+      background-color: #ECECEC;
       border-radius: 5px;
       padding: 3mm 4mm 3mm 3mm;
       height: 98mm;
@@ -288,7 +287,7 @@
 
     #print-explanation {
       width: 94mm;
-      border: solid #b2b2b2 1px;
+      background: #ECECEC;
       border-radius: 5px;
       padding: 3mm 4mm 3mm 3mm;
       position: absolute;
@@ -302,8 +301,8 @@
     }
 
     #howto-explanation {
+      border: solid #b2b2b2 1px;
       width: 93mm;
-      background-color: #ECECEC;
       border-radius: 5px;
       padding: 3mm 4mm;
       position: absolute;
@@ -318,7 +317,7 @@
 
     #io-box_explanation {
       width: 94mm;
-      background-color: #ECECEC;
+      border: solid #b2b2b2 1px;
       border-radius: 5px;
       height: 49mm;
     }
@@ -354,7 +353,7 @@
     #read-more {
       position: relative;
       right: 0;
-      bottom: -3mm;
+      bottom: 0mm;
     }
 
     #read-more p {
@@ -366,6 +365,7 @@
       position: absolute;
       right: 0;
       width: 5mm;
+      bottom: -4mm;
     }
 
     .advantage-col {
@@ -432,9 +432,10 @@
     }
 
     #icon-io_explanation {
-      width: 52mm;
+      width: 32mm;
       position: absolute;
-      bottom: 0;
+      bottom: 1px;
+      margin: 3mm;
     }
 
     #icon-io_logo {
@@ -461,7 +462,7 @@
 <body>
   <div style="height: 297mm;">
     <div id="logo-box">
-      <img id="logo-box__logo" src="./images/aar-logo.png" />
+      <img id="logo-box__logo" src="./images/aar-logo.gif" />
       <div id="logo-box__subtitle" class="seven-px">
         Avviso di avvenuta ricezione
       </div>
@@ -515,7 +516,7 @@
         <div id="io-notifications">
           <#if recipient.recipientType=="PF">
             <div class="rounded-box relative-box">
-              <img id="io-notifications__image" src="images/io-on-light.png" />
+              <img id="io-notifications__image" src="images/io-on-light.jpg" />
               <div id="io-notifications__content" class="eight-px">
                 Scarica l’<b>app IO</b> e attiva il servizio "SEND - Notifiche digitali". Se riceverai nuove notifiche, potrai
                 visualizzare i documenti e pagare eventuali spese direttamente in app.
@@ -538,12 +539,9 @@
         </div>
         <div class="section-list">
           <ol>
-            <li>Puoi ritirare i documenti notificati presso i CAF convenzionati<#if additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "true">, le tabaccherie, i bar e gli altri esercenti affiliati Mooney e i punti Sailpost
-              <#elseif additional_raddoperatormooney == "false" && additional_raddoperatorsailpost == "true">
-              e i punti Sailpost
-              <#elseif additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "false">
-              e le tabaccherie, i bar e gli altri esercenti affiliati Mooney
-              <#else></#if>, anche senza SPID o CIE. Per conoscere i punti di ritiro convenzionati più vicini a te vai su <b><a href="${sendURL}ritiro">${sendURLLAbel}/ritiro</a></b></li>
+            <li>Puoi ritirare i documenti notificati presso i CAF convenzionati<#if additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "true">, le tabaccherie, i bar e gli altri esercenti affiliati Mooney e i punti Sailpost<#elseif additional_raddoperatormooney == "false" && additional_raddoperatorsailpost == "true">
+              e i punti Sailpost<#elseif additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "false">
+              e le tabaccherie, i bar e gli altri esercenti affiliati Mooney<#else></#if>, anche senza SPID o CIE. Per conoscere i punti di ritiro convenzionati più vicini a te vai su <b><a href="${sendURL}ritiro">${sendURLLAbel}/ritiro</a></b>.</li>
             <li>Al punto di ritiro, mostra:
               <ul id="square-list">
                 <li>questo avviso di avvenuta ricezione;</li>
@@ -569,7 +567,7 @@
           </div>
         </div>
         <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
-          Hai 120 giorni dalla data di perfezionamento della notifica per ottenere i documenti. Per conoscere questa data, vai su<br> <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b>
+          Hai 120 giorni dalla data di perfezionamento della notifica per ottenere i documenti. Per conoscere questa data, vai su<br> <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b>.
         </div>
       </div>
       <div id="mandate-box">
@@ -613,18 +611,22 @@
               </#if>
           </ul>
         </div>
-        <div id="read-more">
-          <p><b>Scopri di più</b></p>
-          <img id="arrow_image" src="images/arrow.png" />
-        </div>
       </div>
     </div>
+    <#if recipient.recipientType=="PF">
+    <div id="read-more">
+      <p><b>Scopri di più</b></p>
+      <img id="arrow_image" src="images/arrow.jpg" />
+    </div>
+    </#if>
   </div>
   </div>
+
+  <#if recipient.recipientType=="PF">
   <!--------------------------- PAGE 2 --------------------------->
   <div style="height: 294mm;">
     <div id="logo-box-right">
-      <img id="logo-box-right__logo" src="./images/aar-logo-short-small.png" />
+      <!-- <img id="logo-box-right__logo" src="./images/aar-logo-short-small.jpg" /> -->
     </div>
     <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
     <br />
@@ -643,21 +645,21 @@
             <p>Finora, per inviarti le comunicazioni a valore legale, un ente pubblico usava quasi sempre la raccomandata cartacea. Questa includeva la notifica insieme ai documenti allegati.</p>
             <p>Oggi <b>puoi riceverle in digitale grazie a SEND</b>, il nuovo Servizio Notifiche Digitali, tramite un avviso con le istruzioni per ottenere i documenti notificati dove ti è più comodo. </p>
             <p>Per ricevere in digitale le comunicazioni a valore legale vai su <b><a
-              href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></b> e inserisci i tuoi recapiti: PEC, app IO, indirizzo e-mail o numero di cellulare. </p>
+              href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b> e inserisci i tuoi recapiti: PEC, app IO, indirizzo e-mail o numero di cellulare. </p>
             <p>In questo modo potrai visualizzare i documenti e pagare eventuali importi direttamente online, risparmiando sui costi per la notifica cartacea.</p>
           </div>
         </div>
         <div id="howto-explanation">
           <div class="explanation-title">
             <h4>SEND: COSA CAMBIA PER TE</h4>
-            <img id="icon-howto_explanation" src="./images/veloce.png" />
+            <img id="icon-howto_explanation" src="./images/veloce.jpg" />
           </div>
           <div id="howto-explanation__content">
             <p>Quando un ente pubblico ti invia una comunicazione a valore legale tramite SEND, puoi venirne a conoscenza:</p>
             <ul id="square-list">
-              <li>Con un <b>messaggio su IO</b>, se attivi il servizio “SEND - Notifiche Digitali” in app;</li>
-              <li>Con una <b>PEC</b>, se la inserisci nella tua area riservata SEND, se l’hai comunicata all’ente in precedenza o se è presente nei registri pubblici;</li>
-              <li>Con una <b>e-mail</b> o un <b>SMS</b>, se inserisci i recapiti nella tua area riservata SEND.</li>
+              <li>con un <b>messaggio su IO</b>, se attivi il servizio “SEND - Notifiche digitali” in app;</li>
+              <li>con una <b>PEC</b>, se la inserisci nella tua area riservata SEND, se l’hai comunicata all’ente in precedenza o se è presente nei registri pubblici;</li>
+              <li>con una <b>e-mail</b> o un <b>SMS</b>, se inserisci i recapiti nella tua area riservata SEND.</li>
             </ul>
             <p>Se SEND non riesce a raggiungerti via PEC o se non apri la notifica online o su app IO entro i termini previsti dal servizio, continuerai a ricevere la raccomandata cartacea.  </p>
             <p>Poiché SEND è in corso di adozione da parte degli enti sul territorio nazionale, potresti ricevere ancora alcune comunicazioni a valore legale come è avvenuto finora.</p>
@@ -668,28 +670,28 @@
         <div id="advantages-explanation">
           <h3>I VANTAGGI DI RICEVERE LE NOTIFICHE TRAMITE UN CANALE DIGITALE</h3>
           <div class="advantage-col" style="left:0">
-            <img class="message-advantages_explanation" src="./images/moneypig.png" />
+            <img class="message-advantages_explanation" src="./images/moneypig.jpg" />
             <div class="advantages-explanation__content">
               <b>Ti costa meno</b>:<br>
               diminuiscono i costi di notificazione
             </div>
           </div>
           <div class="advantage-col" style="left:25%">
-            <img class="message-advantages_explanation" src="./images/time.png" />
+            <img class="message-advantages_explanation" src="./images/time.jpg" />
             <div class="advantages-explanation__content">
               <b>Risparmi tempo</b>:<br>
               niente più attese per il ritiro della raccomandata            
             </div>
           </div>
           <div class="advantage-col" style="left:50%">
-            <img class="message-advantages_explanation" src="./images/world.png" />
+            <img class="message-advantages_explanation" src="./images/world.jpg" />
             <div class="advantages-explanation__content">
               <b>Non importa dove sei</b>:<br>
               trovi le tue notifiche e documenti online o su IO
             </div>
           </div>
           <div class="advantage-col" style="left:75%">
-            <img class="message-advantages_explanation" src="./images/sustainable.png" />
+            <img class="message-advantages_explanation" src="./images/sustainable.jpg" />
             <div class="advantages-explanation__content">
               <b>Proteggi l'ambiente</b>:<br>
               meno emissioni per il trasporto e meno carta
@@ -699,7 +701,7 @@
       </div>
       <div class="relative-box">
         <div id="io-box_explanation">
-          <img id="icon-io_explanation" src="./images/appio-hand.png" />
+          <img id="icon-io_explanation" src="./images/appio-hand-vlq.jpg" />
           <div id="io-explanation">
             <div class="explanation-title">
               <h4>CON L'APP IO CONVIENE</h4>
@@ -715,7 +717,9 @@
             <h4 class="ten-px">VUOI I DOCUMENTI STAMPATI?</h4>
           </div>
           <div id="print-explanation__content">
-            <p>Se non hai SPID o CIE, non hai accesso a una rete internet o preferisci il cartaceo, <b>puoi ritirare una stampa dei documenti presso i CAF convenzionati, tabaccherie, bar e altri esercenti affiliati Mooney e i punti Sailpost</b>.</p>
+            <p>Se non hai SPID o CIE, non hai accesso a una rete internet o preferisci il cartaceo, <b>puoi ritirare una stampa dei documenti presso i CAF convenzionati<#if additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "true">, tabaccherie, bar e gli altri esercenti affiliati Mooney e i punti Sailpost<#elseif additional_raddoperatormooney == "false" && additional_raddoperatorsailpost == "true">
+              e i punti Sailpost<#elseif additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "false">
+              e le tabaccherie, i bar e gli altri esercenti affiliati Mooney<#else></#if></b>.</p>
             <p class="eight-px">Una volta usufruito del servizio, non potrai richiedere una nuova stampa degli stessi documenti. Consulta i termini e le condizioni su <b><a
               href="${sendURL}/terminiecondizioni">${sendURLLAbel}/terminiecondizioni</a></b>.</p>
           </div>
@@ -723,5 +727,7 @@
       </div>
     </div>
   </div>
+  </#if>
+
 </body>
 </html>

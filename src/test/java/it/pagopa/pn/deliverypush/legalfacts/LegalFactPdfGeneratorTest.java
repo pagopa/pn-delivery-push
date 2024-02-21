@@ -292,7 +292,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateType(DocumentComposition.TemplateType.AAR_TEST)
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_aar.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
                 NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                         .paId("TEST_PA_ID")
                         .paTaxId("TEST_TAX_ID")
