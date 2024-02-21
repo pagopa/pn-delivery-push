@@ -29,7 +29,7 @@ describe("UpdateEventStreamHandler", () => {
             expect(result).to.be.true;
         });
 
-        it("invalid ownership - case 1", () => {
+        it("invalid ownership - case wrong method", () => {
             const streamId = "12345";
             const event = {
                 path: "/delivery-progresses/streams",
@@ -39,10 +39,20 @@ describe("UpdateEventStreamHandler", () => {
             expect(result).to.be.false;
         });
 
-        it("invalid ownership - case 2", () => {
+        it("invalid ownership - case undefined", () => {
             const event = {
                 path: "/delivery-progresses/streams",
                 httpMethod: "PUT" };
+            const result = updateEventStreamHandler.checkOwnership(event, {});
+            expect(result).to.be.false;
+        });
+
+        it("invalid ownership - case null", () => {
+            const event = {
+                path: "/delivery-progresses/streams",
+                httpMethod: "PUT",
+                pathParameters: null
+            };
             const result = updateEventStreamHandler.checkOwnership(event, {});
             expect(result).to.be.false;
         });

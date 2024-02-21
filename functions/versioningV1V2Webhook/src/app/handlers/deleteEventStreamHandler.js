@@ -7,7 +7,7 @@ class DeleteEventStreamHandler extends EventHandler {
 
     checkOwnership(event, context){
         const {path, httpMethod} = event;
-        return path.includes('/streams') && event["pathParameters"] !== undefined && httpMethod.toUpperCase() === 'DELETE';
+        return path.includes('/streams') && event["pathParameters"] !== undefined && event["pathParameters"] != null && httpMethod.toUpperCase() === 'DELETE';
     }
 
     async handlerEvent(event, context) {
