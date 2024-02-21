@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: 'Example microservice deploy'
+Transform:
+  - UpdateDeploymentTransform
 
 Parameters:
   ProjectName:
@@ -1381,6 +1383,7 @@ Resources:
           Value: !Base64 "^pn-delivery-microsvc-prod-VersioningV1V2WebhookSecGroup*$"
 
   # a new version at each deploy, with provisioned concurrency set
+  # remember to set transform -> UpdateDeploymentTransform at beginning of the file
   VersioningV1V2WebhookLambdaVersionPnPlaceholderEpochSeconds:
     Type: AWS::Lambda::Version
     Properties:
