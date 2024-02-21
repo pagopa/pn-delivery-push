@@ -49,6 +49,16 @@ describe("GetEventStreamHandler", () => {
             const result = getEventStreamHandler.checkOwnership(event, {});
             expect(result).to.be.false;
         });
+
+        it("invalid ownership - case 3", () => {
+            const event = {
+                path: "/delivery-progresses/streams",
+                httpMethod: "GET",
+                pathParameters: null
+            };
+            const result = getEventStreamHandler.checkOwnership(event, {});
+            expect(result).to.be.false;
+        });
     });
     describe("handlerEvent", () => {
 

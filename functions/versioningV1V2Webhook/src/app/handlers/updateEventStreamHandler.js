@@ -9,7 +9,7 @@ class UpdateEventStreamHandler extends EventHandler {
 
     checkOwnership(event, context){
         const {path, httpMethod} = event;
-        return path.includes('/streams') && event["pathParameters"] !== undefined && httpMethod.toUpperCase() === 'PUT';
+        return path.includes('/streams') && event["pathParameters"] !== undefined && event["pathParameters"] != null && httpMethod.toUpperCase() === 'PUT';
     }
 
     async handlerEvent(event, context) {

@@ -28,7 +28,7 @@ exports.eventHandler = async (event, context) => {
         handlers.push(new InformOnExternalEventHandler());
         for( let i = 0; i<handlers.length; i++){
             if (handlers[i].checkOwnership(event, context)) {
-                    let result = handlers[i].handlerEvent(event, context);
+                    let result = await handlers[i].handlerEvent(event, context);
                     return result;
             }
         }

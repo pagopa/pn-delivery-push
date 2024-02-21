@@ -50,6 +50,16 @@ describe("DeleteEventStreamHandler", () => {
             expect(result).to.be.false;
         });
 
+         it("invalid ownership - case 3", () => {
+            const event = {
+                path: "/delivery-progresses/streams",
+                httpMethod: "DELETE",
+                pathParameters: null
+            };
+            const result = deleteEventStreamHandler.checkOwnership(event, {});
+            expect(result).to.be.false;
+        });
+
         describe("handlerEvent", () => {
 
             process.env = Object.assign(process.env, {
