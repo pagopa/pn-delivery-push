@@ -7,16 +7,16 @@
   <style type="text/css" media="all">
     @font-face {
       font-family: "Titillium Web";
-      src: url(fonts/Titillium_Web/TitilliumWeb-Regular.ttf) format('truetype');
-      font-weight: normal;
       font-style: normal;
+      font-weight: normal;
+      src: url(fonts/Titillium_Web/TitilliumWeb-Regular.ttf) format('truetype');
     }
 
     @font-face {
       font-family: "Titillium Web";
-      src: url(fonts/Titillium_Web/TitilliumWeb-Bold.ttf) format('truetype');
-      font-weight: bold;
       font-style: normal;
+      font-weight: bold;
+      src: url(fonts/Titillium_Web/TitilliumWeb-Bold.ttf) format('truetype');
     }
 
     @page {
@@ -38,52 +38,25 @@
       line-height: 18.6px;
     }
 
-    .strong {
-      font-weight: bold;
-    }
-
     /* font equivalence */
-    .seven-px {
-      font-size: 9.3px;
-    }
-
-    .eight-px {
-      font-size: 10.7px;
-    }
-
-    .nine-px {
-      font-size: 12px;
-    }
-
-    .ten-px {
-      font-size: 13.3px;
-    }
+    .seven-px { font-size: 9.3px; }
+    .eight-px { font-size: 10.7px; }
+    .nine-px { font-size: 12px; }
+    .ten-px { font-size: 13.3px; }
 
     /* logo-box style */
-    #logo-box {
+    #logo-box, #logo-box-right {
       position: relative;
-      top: 14mm;
-      left: 8mm;
       width: 65mm;
       height: 23mm;
     }
 
-    #logo-box-right {
-      position: relative;
-      top: 18mm;
-      left: 166mm;
-      width: 32mm;
-      height: 23mm;
-    }
+    #logo-box { top: 14mm; left: 8mm; }
+    #logo-box-right { top: 18mm; left: 166mm; }
 
     #logo-box__logo {
       position: absolute;
       width: 23mm;
-    }
-
-    #logo-box-right__logo {
-      position: absolute;
-      width: 32mm;
     }
 
     #logo-box__subtitle {
@@ -127,15 +100,12 @@
       line-height: 14.6px;
     }
 
-    #main {
+    #main, #main-page2 {
       margin: 72.8mm 10mm 0mm 10mm;
       width: 190mm;
     }
 
-    #main-page2 {
-      margin: 50mm 10mm 0mm 10mm;
-      width: 190mm;
-    }
+    #main-page2 { margin: 50mm 10mm 0mm 10mm; }
 
     #main__subject {
       line-height: 26.5px;
@@ -470,15 +440,15 @@
 
     <div id="qr-iun-code" class="eight-px">
       <div>
-        <div class="strong">Codice univoco:</div>
+        <div><b>Codice univoco:</b></div>
         <br />${notification.iun}
       </div>
       <div style="margin-top: 4mm;">
-        <div class="strong">Codice Fiscale - Persona <#if recipient.recipientType=="PF">
-          <b>fisica:</b>
+        <div><b>Codice Fiscale - Persona <#if recipient.recipientType=="PF">
+          fisica:
           <#else>
-            <b>giuridica:</b>
-        </#if></div>
+            giuridica:
+        </#if></b></div>
         <br />${recipient.taxId}
       </div>
     </div>
@@ -493,11 +463,11 @@
     </div>
 
     <div id="main">
-      <div id="main__subject" class="strong">
-        ${notification.subject}
+      <div id="main__subject">
+        <b>${notification.subject}</b>
       </div>
       <div id="main__disclaimer" class="ten-px">
-        ${notification.sender.paDenomination} ti ha notificato una comunicazione a valore legale tramite SEND composta da questo avviso di avvenuta ricezione e da uno o più documenti: <b>visualizzali online il prima possibile o richiedine una copia cartacea presso un punto di ritiro convenzionato</b>, seguendo le istruzioni qui di seguito. La scadenza per il pagamento, se previsto, e il termine per eventuali impugnazioni sono indicati nei documenti.
+        ${notification.sender.paDenomination} ti ha notificato una comunicazione a valore legale tramite SEND composta da questo avviso di avvenuta ricezione e da uno o più documenti: <b>visualizzali online il prima possibile o richiedine una copia cartacea presso un punto di ritiro convenzionato</b>, seguendo le istruzioni qui di seguito. La scadenza per il pagamento, se previsto, e il termine per eventuali impugnazioni sono indicati nei documenti.
       </div>
     </div>
     <div class="row">
