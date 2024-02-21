@@ -85,10 +85,9 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                                                             CxTypeAuthFleet cxType,
                                                             List<String> cxGroups) {
         return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
-                .flatMap(notification -> {
-                            Mono.fromRunnable(() -> authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId, cxType, cxGroups));
-                            return Mono.just(notification);
-                        }
+                .flatMap(notification -> 
+                        Mono.fromRunnable(() -> authUtils.checkUserPaAndMandateAuthorization(notification, senderReceiverId, mandateId, cxType, cxGroups))
+                        .then( Mono.just(notification) )
                 )
                 .map(notification -> {
                     PnAuditLogEvent logEvent = getAuditLog(iun, legalfactId, senderReceiverId, mandateId, notification);
@@ -96,7 +95,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                     return logEvent;
                 })
                 .flatMap(logEvent ->
-                        // la key è la legalfactid
+                        // la key è la legalfactId
                         safeStorageService.getFile(legalfactId, false)
                                 .onErrorResume(exc -> {
                                             logEvent.generateFailure("Exception in getLegalFactMetadata", exc).log();

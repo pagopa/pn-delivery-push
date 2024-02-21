@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -37,9 +38,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doThrow;
 
 class GetLegalFactServiceImplTest {
 
@@ -319,6 +321,42 @@ class GetLegalFactServiceImplTest {
 
         assertEquals(legalFactsExpectedResult, result);
     }
+
+    @Test
+    void getLegalFactMetadataErrorCheckAuth() {
+        //Given
+        String[] urls = new String[1];
+        try {
+            Path path = Files.createTempFile(null, null);
+            urls[0] = new File(path.toString()).toURI().toURL().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileDownloadResponseInt fileDownloadResponse = new FileDownloadResponseInt();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfoInt());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false)))
+                .thenReturn(Mono.just(fileDownloadResponse));
+
+        NotificationInt notificationInt = newNotification();
+        NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
+        Mockito.when(notificationService.getNotificationByIun(anyString()))
+                .thenReturn(notificationInt);
+
+        doThrow(new PnNotFoundException("Not found", "", ERROR_CODE_DELIVERYPUSH_NOTFOUND)).when(authUtils).checkUserPaAndMandateAuthorization(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+
+        //When
+        Mono<LegalFactDownloadMetadataResponse> resultMono = getLegalFactService.getLegalFactMetadata(IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+        //Then
+        assertThrows(PnNotFoundException.class, resultMono::block);
+    }
     
     @Test
     void getAnalogLegalFactMetadataSuccess() {
@@ -359,6 +397,7 @@ class GetLegalFactServiceImplTest {
         assertEquals(fileDownloadResponse.getDownload().getRetryAfter(), result.getRetryAfter());
         assertEquals(fileDownloadResponse.getContentLength(), result.getContentLength());
     }
+    
     @Test
     void getAnalogLegalFactMetadataWithContentTypeSuccess() {
         //Given
