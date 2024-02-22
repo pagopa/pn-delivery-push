@@ -15,6 +15,7 @@ class DeleteEventStreamHandler extends EventHandler {
 
         // HEADERS
         const headers = this.prepareHeaders(event);
+        headers["Accept"] = "*/*";
 
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}`;
