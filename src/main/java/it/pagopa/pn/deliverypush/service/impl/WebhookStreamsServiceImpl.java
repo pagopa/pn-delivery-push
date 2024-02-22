@@ -54,6 +54,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     }
     @Override
     public Mono<StreamMetadataResponseV23> createEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, Mono<StreamCreationRequestV23> streamCreationRequest) {
+        final String apiV10 = pnDeliveryPushConfigs.getWebhook().getFirstVersion();
         String msg = "createEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}";
         String[] args = {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion};
 
@@ -68,8 +69,8 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                     ? pnExternalRegistryClient.getGroups(xPagopaPnUid, xPagopaPnCxId)
                     : xPagopaPnCxGroups;
 
-                if (CollectionUtils.isEmpty(dto.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups)){
-                    return Mono.error(new PnWebhookForbiddenException("Not Allowed empty groups for apikey with groups "+groupString(xPagopaPnCxGroups)));
+                if (CollectionUtils.isEmpty(dto.getGroups()) && !apiV10.equals(xPagopaPnApiVersion) && !CollectionUtils.isEmpty(xPagopaPnCxGroups)){
+                    return Mono.error(new PnWebhookForbiddenException("Not Allowed empty groups for apikey with groups "+groupString(xPagopaPnCxGroups) +" when Api Version is "+xPagopaPnApiVersion));
                 } else {
                     return WebhookUtils.checkGroups(dto.getGroups(), allowedGroups) ?
                         saveOrReplace(dto, xPagopaPnCxId, xPagopaPnCxGroups, xPagopaPnApiVersion)
