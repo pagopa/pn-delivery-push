@@ -161,6 +161,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
     private Mono<Void> processEvent(StreamEntity stream,  String oldStatus, String newStatus, TimelineElementInternal timelineElementInternal, NotificationInt notificationInt) {
 
         if (!CollectionUtils.isEmpty(stream.getGroups()) && !checkGroups(Collections.singletonList(notificationInt.getGroup()), stream.getGroups())){
+            log.info("skipping saving webhook event for stream={} because stream groups are different", stream.getStreamId());
             return Mono.empty();
         }
         // per ogni stream configurato, devo andare a controllare se lo stato devo salvarlo o meno
@@ -189,6 +190,8 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                 ? defaultNotificationStatuses
                 : stream.getFilterValues();
         }
+
+        log.info("timelineEventCategory={} for stream={}", stream.getStreamId(), timelineEventCategory);
 
         // e poi c'è il caso in cui lo stream ha un filtro sugli eventi interessati
         // se è nullo/vuoto o contiene lo stato, vuol dire che devo salvarlo
@@ -264,6 +267,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                     .filter(v -> !v.equalsIgnoreCase(DEFAULT_CATEGORIES))
                     .collect(Collectors.toSet());
             if (stream.getFilterValues().contains(DEFAULT_CATEGORIES)) {
+                log.debug("pnDeliveryPushConfigs.getListCategoriesPa[0]={}", pnDeliveryPushConfigs.getListCategoriesPa().get(0));
                 categoriesSet.addAll(pnDeliveryPushConfigs.getListCategoriesPa());
             }
         }
