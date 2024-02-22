@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STREAMNOTFOUND;
 
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
@@ -41,7 +41,7 @@ public abstract class WebhookServiceImpl {
             .switchIfEmpty(Mono.error(
                 new PnNotFoundException("Not found"
                     , String.format("Stream %s non found for Pa %s",streamId.toString(),xPagopaPnCxId)
-                    , ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND)))
+                    , ERROR_CODE_DELIVERYPUSH_STREAMNOTFOUND)))
             .filter(streamEntity ->
                 apiV10.equals(xPagopaPnApiVersion)
                 || (

@@ -198,6 +198,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled")))
             .flatMap(foundEntity-> {
                 StreamEntity replacedEntity = new StreamEntity(foundEntity.getPaId(), foundEntity.getStreamId());
+                entity.setEventAtomicCounter(replacedEntity.getEventAtomicCounter() + pnDeliveryPushConfigs.getWebhook().getDeltaCounter());
                 return streamEntityDao.replaceEntity(replacedEntity, entity);
             });
     }
