@@ -142,8 +142,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
             generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, values.toArray(new String[0])).log();
         }).flatMap(request ->
             getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
-            .then(streamRequest)
-            .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), xPagopaPnApiVersion, r))
+            .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), xPagopaPnApiVersion, request))
             .map(entity -> {
                 entity.setEventAtomicCounter(null);
                 return entity;
