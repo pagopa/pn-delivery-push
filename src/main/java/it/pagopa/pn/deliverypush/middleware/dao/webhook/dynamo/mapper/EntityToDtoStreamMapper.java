@@ -25,6 +25,7 @@ public class EntityToDtoStreamMapper {
         streamMetadataResponse.setFilterValues(List.copyOf(Objects.requireNonNullElse(entity.getFilterValues(), new HashSet<>())));
         streamMetadataResponse.setGroups(entity.getGroups());
         streamMetadataResponse.setVersion(entity.getVersion() != null ? entity.getVersion() : firstVersion);
+        streamMetadataResponse.setDisabledDate(entity.getDisabledDate());
         return streamMetadataResponse;
     }
 
