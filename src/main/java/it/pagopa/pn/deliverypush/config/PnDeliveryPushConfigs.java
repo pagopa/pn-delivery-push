@@ -13,7 +13,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
@@ -116,7 +115,7 @@ public class PnDeliveryPushConfigs {
     //quickWorkAroundForPN-9116
     private boolean sendMoreThan20GramsDefaultValue;
 
-    private Set<String> listCategoriesPa;
+    private List<String> listCategoriesPa;
 
     @Data
     public static class Topics {
