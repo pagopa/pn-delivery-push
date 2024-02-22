@@ -80,6 +80,7 @@ class WebhookStreamsServiceImplTest {
         webhook.setTtl(Duration.ofDays(30));
         webhook.setFirstVersion("v10");
         webhook.setCurrentVersion("v23");
+        webhook.setDeltaCounter(1000);
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
         webhookService = new WebhookStreamsServiceImpl(streamEntityDao, schedulerService,pnDeliveryPushConfigs
