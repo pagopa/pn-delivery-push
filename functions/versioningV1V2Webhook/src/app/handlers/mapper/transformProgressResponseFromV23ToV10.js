@@ -1,7 +1,6 @@
 const SAFE_STORAGE_URL_PREFIX = "safestorage://";
 
 exports.createProgressResponseV10 = (responseBody) => {
-    console.log("transformProgressResponseFromV23ToV10");
 
     const element = responseBody.element;
 
@@ -17,7 +16,7 @@ exports.createProgressResponseV10 = (responseBody) => {
     const timelineElementDetails = element.details;
 
     let recipientIndexV10 = null;
-    if (timelineElementDetails.recIndex)
+    if (timelineElementDetails.recIndex != null && timelineElementDetails.recIndex !== undefined)
         recipientIndexV10 = timelineElementDetails.recIndex;
 
     let analogCostV10 = null;

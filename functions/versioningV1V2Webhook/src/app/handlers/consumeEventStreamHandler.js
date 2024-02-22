@@ -17,7 +17,13 @@ class ConsumeEventStreamHandler extends EventHandler {
         const headers = this.prepareHeaders(event);
 
         const streamId = event["pathParameters"]["streamId"];
-        const url = `${this.baseUrl}/streams/${streamId}/events`;
+        const lastEventId = event["queryStringParameters"]==null?null:event["queryStringParameters"]["lastEventId"];
+        let lastEventIdQueryParam = "";
+        if (lastEventId != null && lastEventId !== undefined && lastEventId != "")
+          lastEventIdQueryParam = `?lastEventId=${lastEventId}`;
+        let url = `${this.baseUrl}/streams/${streamId}/events${lastEventIdQueryParam}`;
+
+
 
         console.log('calling ', url);
         let response = await axios.get(url, {headers: headers});

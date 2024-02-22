@@ -22,7 +22,7 @@
       ],
       "category": "SEND_ANALOG_DOMICILE",
       "details": {
-        "recIndex": 1,
+        "recIndex": 0,
         "analogCost": 500,
         "serviceLevel": "AR_REGISTERED_LETTER"
       }

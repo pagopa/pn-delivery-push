@@ -56,6 +56,7 @@ describe("ConsumeEventStreamHandler", () => {
             const event = {
                 path: "/delivery-progresses/streams/"+ streamId +"/events",
                 pathParameters : { streamId: streamId },
+                queryStringParameters: null,
                 httpMethod: "GET",
                 headers: {},
                 requestContext: {
@@ -64,6 +65,107 @@ describe("ConsumeEventStreamHandler", () => {
             }
 
             let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}/events`;
+
+            const responseBodyV23 = [
+                {
+                    eventId: "01234567890123456789012345678901234567",
+                    notificationRequestId: "abcd1234",
+                    iun: "ABCD-EFGH-IJKL-123456-M-7",
+                    newStatus: "IN_VALIDATION",
+                    element: {
+                        elementId: "abcdef1234567890",
+                        timestamp: "2024-02-06T12:34:56Z",
+                        legalFactsIds: [],
+                        category: "SEND_COURTESY_MESSAGE",
+                        details: {
+                            recIndex: 1,
+                            digitalAddress: {
+                                "type": "EMAIL",
+                                "address": "rec@example.com"
+                            },
+                            endWorkflowStatus: {},
+                            completionWorkflowDate: ""
+                        },
+                    }
+                },
+                {
+                    eventId: "98765432109876543210987654321098765432",
+                    notificationRequestId: "efgh5678",
+                    iun: "EFGH-IJKL-MNOP-123456-N-8",
+                    newStatus: "IN_VALIDATION",
+                    element: {
+                        elementId: "ghijkl0987654321",
+                        timestamp: "2024-02-07T14:45:32Z",
+                        legalFactsIds: [],
+                        category: "SEND_DIGITAL_DOMICILE",
+                        details: {
+                            recIndex: 2,
+                            digitalAddress: {
+                                type: "PEC",
+                                address: "rec@example.com",
+                            },
+                            endWorkflowStatus: {},
+                            completionWorkflowDate: "",
+                        },
+                    },
+                }
+            ]
+
+            const responseBodyV10 = [
+                {
+                    eventId: '01234567890123456789012345678901234567',
+                    notificationRequestId: 'abcd1234',
+                    iun: 'ABCD-EFGH-IJKL-123456-M-7',
+                    newStatus: "IN_VALIDATION",
+                    timestamp: '2024-02-06T12:34:56Z',
+                    timelineEventCategory: 'SEND_COURTESY_MESSAGE',
+                    recipientIndex: 1,
+                    analogCost: null,
+                    channel: 'EMAIL',
+                    legalFactsIds: [],
+                    validationErrors: null
+                },
+                {
+                    eventId: '98765432109876543210987654321098765432',
+                    notificationRequestId: 'efgh5678',
+                    iun: 'EFGH-IJKL-MNOP-123456-N-8',
+                    newStatus: "IN_VALIDATION",
+                    timestamp: '2024-02-07T14:45:32Z',
+                    timelineEventCategory: 'SEND_DIGITAL_DOMICILE',
+                    recipientIndex: 2,
+                    analogCost: null,
+                    channel: 'PEC',
+                    legalFactsIds: [],
+                    validationErrors: null,
+                }
+            ]
+
+            mock.onGet(url).reply(200, responseBodyV23);
+
+            const context = {};
+            const response = await consumeEventStreamHandler.handlerEvent(event, context);
+
+            expect(response.statusCode).to.equal(200);
+            expect(response.body).to.equal(JSON.stringify(responseBodyV10));
+
+            expect(mock.history.get.length).to.equal(1);
+        });
+
+        it("successful request - with element", async () => {
+            const streamId = "12345";
+            const event = {
+                path: "/delivery-progresses/streams/"+ streamId +"/events",
+                pathParameters : { streamId: streamId },
+                queryStringParameters: { lastEventId: '00000000000000000000000000000000000083' },
+                multiValueQueryStringParameters: { lastEventId: [ '00000000000000000000000000000000000083' ] },
+                httpMethod: "GET",
+                headers: {},
+                requestContext: {
+                    authorizer: {},
+                },
+            }
+
+            let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}/events?lastEventId=00000000000000000000000000000000000083`;
 
             const responseBodyV23 = [
                 {
