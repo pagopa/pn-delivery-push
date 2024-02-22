@@ -41,7 +41,7 @@ describe('createProgressResponseV10', () => {
         const result = createProgressResponseV10(responseBody);
 
         expect(JSON.stringify(result.validationErrors)).to.equal(JSON.stringify(responseBody.element.details.refusalReasons));
-
+        expect(result.recipientIndex).to.equal(null);
     });
     it('check category "SIMPLE_REGISTERED_LETTER"', () => {
         const progressResponse = fs.readFileSync("./src/test/handlers/mapper/progressResponse.json");
