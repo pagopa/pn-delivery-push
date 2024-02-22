@@ -54,6 +54,13 @@ describe("CreateEventStreamHandler", () => {
         });
 
         it("successful request", async () => {
+
+            const b = JSON.stringify({
+                                          title: "stream name",
+                                          eventType: "STATUS",
+                                          filterValues: ["status_1", "status_2"]
+                                      });
+
             const event = {
                 path: "/delivery-progresses/streams",
                 httpMethod: "POST",
@@ -61,11 +68,7 @@ describe("CreateEventStreamHandler", () => {
                 requestContext: {
                     authorizer: {},
                 },
-                body : {
-                    title: "stream name",
-                    eventType: "STATUS",
-                    filterValues: ["status_1", "status_2"]
-                }
+                body : b
             };
 
             let url = `${process.env.PN_WEBHOOK_URL}/streams`

@@ -23,7 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-@WebFluxTest(PnInternalLegalFactsController.class)
+@WebFluxTest(PnPrivateLegalFactsController.class)
 class PnInternalLegalFactsControllerTest {
 
     private static final String IUN = "fake_iun";

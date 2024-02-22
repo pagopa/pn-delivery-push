@@ -9,7 +9,7 @@ class GetEventStreamHandler extends EventHandler {
 
     checkOwnership(event, context){
         const {path, httpMethod} = event;
-        return path.includes('/streams') && event["pathParameters"] !== undefined && httpMethod.toUpperCase() === 'GET';
+        return path.includes('/streams') && event["pathParameters"] !== undefined && event["pathParameters"] != null && httpMethod.toUpperCase() === 'GET';
     }
 
     async handlerEvent(event, context) {
