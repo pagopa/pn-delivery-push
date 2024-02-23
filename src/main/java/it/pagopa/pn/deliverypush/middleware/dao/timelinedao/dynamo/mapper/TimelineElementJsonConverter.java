@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -20,10 +21,11 @@ import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GE
 @AllArgsConstructor
 public class TimelineElementJsonConverter {
     private static final String LOG_MSG = "Timeline element entity not converted into JSON";
-    private final ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
 
     public String entityToJson(TimelineElementEntity entity) {
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> objectHashMap = objectMapper.convertValue(entity, HashMap.class);
         try {
             return objectMapper.writeValueAsString(objectHashMap);
@@ -42,6 +44,4 @@ public class TimelineElementJsonConverter {
             throw new PnInternalException(LOG_MSG, ERROR_CODE_PN_GENERIC_ERROR);
         }
     }
-
-
 }

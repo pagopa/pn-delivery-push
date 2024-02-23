@@ -66,7 +66,7 @@ class WebhookUtilsTest {
         webhook.setReadBufferDelay(1000);
         webhook.setMaxStreams(10);
         webhook.setTtl(Duration.ofDays(30));
-        webhook.setFirstVersion("v10");
+        webhook.setCurrentVersion("v23");
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
         webhookUtils = new WebhookUtils(timelineService, statusService, notificationService, pnDeliveryPushConfigs, timelineMapper, entityToDtoTimelineMapper, timelineElementJsonConverter);
@@ -195,7 +195,7 @@ class WebhookUtilsTest {
 
         int version = webhookUtils.getVersion(null);
 
-        assertEquals(10, version);
+        assertEquals(23, version);
 
     }
 
