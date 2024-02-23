@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.helpers.MessageFormatter;
 import reactor.core.publisher.Mono;
@@ -64,6 +65,10 @@ public abstract class WebhookServiceImpl {
     protected String apiVersion(String xPagopaPnApiVersion){
         return xPagopaPnApiVersion != null ? xPagopaPnApiVersion : pnDeliveryPushConfigs.getWebhook().getCurrentVersion();
     }
+    protected String entityVersion(StreamEntity streamEntity){
+        return ObjectUtils.defaultIfNull(streamEntity.getVersion(), pnDeliveryPushConfigs.getWebhook().getFirstVersion());
+    }
+
     @NotNull
     protected PnAuditLogEvent generateAuditLog(PnAuditLogEventType pnAuditLogEventType, String message, String[] arguments) {
         String logMessage = MessageFormatter.arrayFormat(message, arguments).getMessage();
