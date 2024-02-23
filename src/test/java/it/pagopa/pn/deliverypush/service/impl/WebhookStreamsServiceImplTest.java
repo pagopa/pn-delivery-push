@@ -346,6 +346,7 @@ class WebhookStreamsServiceImplTest {
         replacedEntity.setStreamId(replacedStreamId.toString());
         replacedEntity.setPaId(xpagopacxid);
         replacedEntity.setVersion("v10");
+        replacedEntity.setEventAtomicCounter(3L);
 
         StreamEntity newEntity = new StreamEntity();
         newEntity.setPaId(xpagopacxid);
@@ -379,6 +380,7 @@ class WebhookStreamsServiceImplTest {
         replacedEntity.setStreamId(replacedStreamId.toString());
         replacedEntity.setPaId(xpagopacxid);
         replacedEntity.setVersion("v23");
+        replacedEntity.setEventAtomicCounter(3L);
 
         StreamEntity newEntity = new StreamEntity();
         newEntity.setPaId(xpagopacxid);
