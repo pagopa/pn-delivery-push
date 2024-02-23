@@ -287,9 +287,9 @@ class LegalFactPdfGeneratorTest {
 
         @Test
         @ExtendWith(SpringExtension.class)
-        void generateNotificationAAR_Test() {
+        void generateNotificationAAR_RADD_ALT_Test() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateType(DocumentComposition.TemplateType.AAR_TEST)
+                        .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD_ALT)
                         .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
