@@ -493,6 +493,14 @@
               </div>
             </div>
             <#else>
+            <div id="send-info">
+              <div class="rounded-box relative-box">
+                <div id="send-info__content" class="eight-px">
+                  <b>SEND</b> è uno strumento che rende l’invio di notifiche da parte della Pubblica Amministrazione sicuro, efficiente ed economico. Trovi maggiori informazioni sul retro di questo foglio e su <b><a
+                      href="${sendURL}">${sendURLLAbel}</a></b>
+                </div>
+              </div>
+            </div>
           </#if>
         </div>
       </div>
@@ -528,6 +536,7 @@
             <li>Paga il corrispettivo e ritira i documenti notificati.</li>
           </ol>
         </div>
+        <#if recipient.recipientType=="PF">
         <div id="send-info">
           <div class="rounded-box relative-box">
             <div id="send-info__content" class="eight-px">
@@ -536,6 +545,7 @@
             </div>
           </div>
         </div>
+        </#if>
         <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
           Hai 120 giorni dalla data di perfezionamento della notifica per ottenere i documenti. Per conoscere questa data, vai su<br> <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b>.
         </div>
