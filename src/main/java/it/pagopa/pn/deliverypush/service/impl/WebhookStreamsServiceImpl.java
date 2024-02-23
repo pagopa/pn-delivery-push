@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookMaxStreamsCountReachedException;
+import it.pagopa.pn.deliverypush.exceptions.PnWebhookStreamNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
@@ -109,7 +110,10 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         List<String> args = Arrays.asList(xPagopaPnUid, xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, streamId.toString());
         generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).log();
 
-        return getStreamEntityToRead(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+        return streamEntityDao.get(xPagopaPnCxId, streamId.toString())
+            .switchIfEmpty(Mono.error(new PnWebhookStreamNotFoundException("Stream  "+streamId.toString() +" not found ")))
+            .filter(streamEntity -> entityVersion (streamEntity).equals(apiVersion(xPagopaPnApiVersion)))
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Stream  "+streamId.toString() +" cannot be accessed by  xPagopaPnCxId="+xPagopaPnCxId)))
             .map(EntityToDtoStreamMapper::entityToDto)
             .doOnSuccess(entity->
                 generateAuditLog(PnAuditLogEventType.AUD_WH_READ, msg, args.toArray(new String[0])).generateSuccess().log()
