@@ -30,12 +30,15 @@ public abstract class WebhookServiceImpl {
     protected enum StreamEntityAccessMode {READ, WRITE}
 
     protected Mono<StreamEntity> getStreamEntityToRead(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
-        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.READ);
+        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.READ, false);
     }
     protected Mono<StreamEntity> getStreamEntityToWrite(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
-        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.WRITE);
+        return getStreamEntityToWrite(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, false);
     }
-    private Mono<StreamEntity> filterEntity(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId, StreamEntityAccessMode mode) {
+    protected Mono<StreamEntity> getStreamEntityToWrite(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId, boolean ignoreVersion) {
+        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.WRITE, ignoreVersion);
+    }
+    private Mono<StreamEntity> filterEntity(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId, StreamEntityAccessMode mode, boolean ignoreVersion) {
         final String apiV10 = pnDeliveryPushConfigs.getWebhook().getFirstVersion();
         return streamEntityDao.get(xPagopaPnCxId,streamId.toString())
             .switchIfEmpty(Mono.error(
@@ -47,7 +50,8 @@ public abstract class WebhookServiceImpl {
                 || (
                     mode == StreamEntityAccessMode.WRITE ?  WebhookUtils.checkGroups(streamEntity.getGroups(), xPagopaPnCxGroups) : WebhookUtils.checkGroups(xPagopaPnCxGroups, streamEntity.getGroups())
                 )
-            ).filter(streamEntity -> xPagopaPnApiVersion.equals(streamEntity.getVersion())
+            ).filter(streamEntity -> ignoreVersion
+                || apiVersion(xPagopaPnApiVersion).equals(streamEntity.getVersion())
                 || (streamEntity.getVersion() == null && apiV10.equals(xPagopaPnApiVersion))
             )
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)));

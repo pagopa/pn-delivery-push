@@ -188,19 +188,19 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         String msg = "disableEventStream xPagopaPnCxId={}, xPagopaPnCxGroups={}, xPagopaPnApiVersion={}, disabledStreamId={}";
         String[] args = new String[] {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, dto.getReplacedStreamId().toString()};
         generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).log();
-        return replaceStreamEntity(streamEntity, dto.getReplacedStreamId()).doOnSuccess(newEntity-> generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateSuccess().log()).doOnError(err-> generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateFailure(ERROR_CREATING_STREAM, err).log());
+        return getStreamEntityToWrite(xPagopaPnApiVersion,xPagopaPnCxId,xPagopaPnCxGroups, dto.getReplacedStreamId(), true).
+        flatMap( replacedStream -> replaceStreamEntity(streamEntity, replacedStream))
+            .doOnSuccess(newEntity-> generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateSuccess().log())
+            .doOnError(err-> generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).generateFailure(ERROR_CREATING_STREAM, err).log())
+        ;
     }
 
-    private Mono<StreamEntity> replaceStreamEntity(StreamEntity entity, UUID replacedStreamId) {
-        return streamEntityDao.get(entity.getPaId(), replacedStreamId.toString())
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, replace stream invalid")))
-            .filter(foundEntity-> foundEntity.getDisabledDate() == null)
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled")))
-            .flatMap(foundEntity-> {
-                StreamEntity replacedEntity = new StreamEntity(foundEntity.getPaId(), foundEntity.getStreamId());
-                entity.setEventAtomicCounter(replacedEntity.getEventAtomicCounter() + pnDeliveryPushConfigs.getWebhook().getDeltaCounter());
-                return streamEntityDao.replaceEntity(replacedEntity, entity);
-            });
+    private Mono<StreamEntity> replaceStreamEntity(StreamEntity entity, StreamEntity replacedStream) {
+        if (replacedStream.getDisabledDate() != null){
+            return Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled"));
+        } else {
+            return streamEntityDao.replaceEntity(replacedStream, entity);
+        }
     }
 
 }
