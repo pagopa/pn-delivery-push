@@ -203,6 +203,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         if (replacedStream.getDisabledDate() != null){
             return Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled"));
         } else {
+            entity.setEventAtomicCounter(replacedStream.getEventAtomicCounter() + pnDeliveryPushConfigs.getWebhook().getDeltaCounter());
             return streamEntityDao.replaceEntity(replacedStream, entity);
         }
 
