@@ -34,7 +34,8 @@ public abstract class WebhookServiceImpl {
         return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.READ, false);
     }
     protected Mono<StreamEntity> getStreamEntityToWrite(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
-        return getStreamEntityToWrite(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, false);
+        return getStreamEntityToWrite(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, false)
+            ;
     }
     protected Mono<StreamEntity> getStreamEntityToWrite(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId, boolean ignoreVersion) {
         return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.WRITE, ignoreVersion);
@@ -52,7 +53,7 @@ public abstract class WebhookServiceImpl {
                     mode == StreamEntityAccessMode.WRITE ?  WebhookUtils.checkGroups(streamEntity.getGroups(), xPagopaPnCxGroups) : WebhookUtils.checkGroups(xPagopaPnCxGroups, streamEntity.getGroups())
                 )
             ).filter(streamEntity -> ignoreVersion
-                || apiVersion(xPagopaPnApiVersion).equals(streamEntity.getVersion())
+                || apiVersion(xPagopaPnApiVersion).equals(entityVersion(streamEntity))
                 || (streamEntity.getVersion() == null && apiV10.equals(xPagopaPnApiVersion))
             )
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)));
