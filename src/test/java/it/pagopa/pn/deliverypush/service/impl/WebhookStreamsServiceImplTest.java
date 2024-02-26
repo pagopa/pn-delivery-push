@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
@@ -597,6 +598,30 @@ class WebhookStreamsServiceImplTest {
         res.block(d);
         //THEN
         Mockito.verify(streamEntityDao).disable(Mockito.any());
+    }
+    @Test
+    void disableEventStream2() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+
+        UUID toBeDisabledStreamId = UUID.randomUUID();
+
+        StreamEntity disabledEntity = new StreamEntity();
+        disabledEntity.setPaId(xpagopacxid);
+        disabledEntity.setStreamId(toBeDisabledStreamId.toString());
+        disabledEntity.setEventType(EventTypeEnum.STATUS.name());
+        disabledEntity.setVersion("v23");
+        disabledEntity.setGroups(Collections.EMPTY_LIST);
+
+        Mockito.when(streamEntityDao.get(Mockito.any(), Mockito.any())).thenReturn(Mono.just(disabledEntity));
+        Mockito.when(streamEntityDao.disable(Mockito.any())).thenReturn(Mono.just(disabledEntity));
+
+        //WHEN
+        Mono<StreamMetadataResponseV23> res = webhookService.disableEventStream(xpagopapnuid,xpagopacxid,Arrays.asList("gruppo1"),null, toBeDisabledStreamId);
+        //THEN
+        Assert.assertThrows(PnWebhookForbiddenException.class, ()->res.block(d));
+        Mockito.verify(streamEntityDao, never()).disable(Mockito.any());
     }
 
     @Test
@@ -1414,6 +1439,7 @@ class WebhookStreamsServiceImplTest {
         req.setTitle("titolo");
         req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
         req.setFilterValues(null);
+        req.setGroups(Collections.emptyList());
 
         UUID uuidd = UUID.randomUUID();
         String uuid = uuidd.toString();

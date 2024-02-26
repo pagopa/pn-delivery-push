@@ -166,6 +166,11 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     private Predicate<StreamEntity> filterUpdateRequest(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, StreamRequestV23 request ) {
         return r -> {
+            if (r.getDisabledDate() != null){
+                log.error("Stream is disabled, cannot be updated!");
+                return false;
+            }
+
             if (CollectionUtils.isEmpty(r.getGroups())
                 && CollectionUtils.isEmpty(request.getGroups())
                 && CollectionUtils.isEmpty(xPagopaPnCxGroups)
@@ -201,6 +206,10 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
             .filter(streamEntity -> streamEntity.getDisabledDate() == null)
             .switchIfEmpty(
                 Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled"))
+            ).filter(entity -> {
+                return  !(CollectionUtils.isEmpty(entity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups));
+            }).switchIfEmpty(
+                Mono.error(new PnWebhookForbiddenException("Not supported operation, stream not owned"))
             ).flatMap(streamEntity->
                 streamEntityDao.disable(streamEntity).map(EntityToDtoStreamMapper::entityToDto)
             ).doOnSuccess( ok->
