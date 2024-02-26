@@ -40,10 +40,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 class LegalFactPdfGeneratorTest {
         private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
@@ -75,6 +72,11 @@ class LegalFactPdfGeneratorTest {
                 pnDeliveryPushConfigs.getWebapp()
                                 .setDirectAccessUrlTemplateLegal("https://imprese.notifichedigitali.it/");
                 pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("?aar");
+                Map<String, String> additional = new HashMap<>();
+                additional.put("raddoperatorcaf", "true");
+                additional.put("raddoperatormooney", "true");
+                additional.put("raddoperatorsailpost", "true");
+                pnDeliveryPushConfigs.getWebapp().setAdditional(additional);
                 pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
                 pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");
@@ -280,6 +282,37 @@ class LegalFactPdfGeneratorTest {
                                 .build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAAR_RADD_ALT_Test() {
+                Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
+                        .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD_ALT)
+                        .build());
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
+                NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                        .paId("TEST_PA_ID")
+                        .paTaxId("TEST_TAX_ID")
+                        .paDenomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
+                        .build();
+
+                NotificationInt notificationInt = NotificationInt.builder()
+                        .sender(notificationSenderInt)
+                        .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                        .iun("Example_IUN_1234_Test")
+                        .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et libero velit. Cras dignissim consequat ornare. Etiam sed justo sit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et libero velit. Cras dignissim consequat ornare. Etiam sed justo sit.")
+                        .build();
+                String quickAccessToken = "test";
+                NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
+                        .taxId("LRMPSM80A01H501U")
+                        .build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
