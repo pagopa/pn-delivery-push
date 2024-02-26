@@ -136,7 +136,7 @@ public class WebhookUtils {
             String versionNumberString = version.toLowerCase().replace("v", "");
             return Integer.parseInt(versionNumberString);
         }
-        return Integer.parseInt(pnDeliveryPushConfigs.getWebhook().getFirstVersion().replace("v", ""));
+        return Integer.parseInt(pnDeliveryPushConfigs.getWebhook().getCurrentVersion().replace("v", ""));
 
     }
 }

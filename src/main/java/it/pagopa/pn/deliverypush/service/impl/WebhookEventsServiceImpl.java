@@ -74,7 +74,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         String[] args = {xPagopaPnCxId, groupString(xPagopaPnCxGroups), xPagopaPnApiVersion, streamId.toString()};
         generateAuditLog(PnAuditLogEventType.AUD_WH_CONSUME, msg, args).log();
         // grazie al contatore atomico usato in scrittura per generare l'eventId, non serve più gestire la finestra.
-        return getStreamEntityToRead(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId, xPagopaPnCxGroups, streamId)
+        return getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId, xPagopaPnCxGroups, streamId)
                 .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
                 .flatMap(res ->
                     toEventTimelineInternalFromEventEntity(res.getEvents())
@@ -181,6 +181,12 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         }
 
         String timelineEventCategory = timelineElementInternal.getCategory().getValue();
+
+
+        if (Arrays.toString(TimelineElementCategoryInt.DiagnosticTimelineElementCategory.values()).contains(timelineEventCategory)){
+            log.info("skipping saving webhook event for stream={} because category={} is contains in timeline", stream.getStreamId(), timelineEventCategory);
+            return Mono.empty();
+        }
 
         Set<String> filteredValues = new LinkedHashSet<>();
         if (eventType == StreamCreationRequestV23.EventTypeEnum.TIMELINE) {
