@@ -1,21 +1,19 @@
 package it.pagopa.pn.deliverypush.config;
 
+import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
+
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.unit.DataSize;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
@@ -116,7 +114,7 @@ public class PnDeliveryPushConfigs {
     //quickWorkAroundForPN-9116
     private boolean sendMoreThan20GramsDefaultValue;
 
-    private Set<String> listCategoriesPa;
+    private List<String> listCategoriesPa;
 
     @Data
     public static class Topics {
@@ -151,6 +149,8 @@ public class PnDeliveryPushConfigs {
         private Integer purgeDeletionWaittime;
         private Integer readBufferDelay;
         private Integer maxStreams;
+        //Delta utilizzato per il counter di uno stream di sostituzione
+        private Integer deltaCounter;
         private Duration ttl;
         private Duration disableTtl;
         private String firstVersion;
