@@ -259,11 +259,11 @@
       width: 94mm;
       background: #ECECEC;
       border-radius: 5px;
-      padding: 3mm 4mm 3mm 3mm;
+      padding: 2mm 4mm 3mm 3mm;
       position: absolute;
       right: 0;
       top: 0;
-      height: 49mm;
+      height: 47mm;
     }
 
     #send-explanation p, #print-explanation p, #io-box_explanation p, #howto-explanation p, #print-explanation .explanation-title, #io-explanation .explanation-title {
@@ -289,11 +289,11 @@
       width: 94mm;
       border: solid #b2b2b2 1px;
       border-radius: 5px;
-      height: 49mm;
+      height: 47mm;
     }
 
     #advantages {
-      width: 100%; height: 47mm;
+      width: 100%; height: 45mm;
     }
 
     #advantages-explanation {
@@ -301,7 +301,7 @@
       text-align: center;
       margin-top: 3mm;
       width: 100%;
-      height: 41mm;
+      height: 39mm;
       border: solid #b2b2b2 1px;
       border-radius: 5px;
     }
@@ -317,7 +317,7 @@
 
     #advantages-explanation h3 {
       margin: 3mm;
-      margin-bottom: 4mm;
+      margin-bottom: 3mm;
     }
 
     #read-more {
@@ -397,7 +397,7 @@
       width: 7mm;
     }
 
-    #howto-explanation ul {
+    #howto-explanation ul, .margin-bottom-1 {
       margin-bottom: 1mm;
     }
 
@@ -418,13 +418,13 @@
       position: absolute;
       left: 39mm;
       width: 51mm;
-      top: 4mm;
+      top: 2mm;
     }
 
     img.message-advantages_explanation {
       height: 26px;
       margin: 3mm;
-      margin-bottom: 2mm;
+      margin-bottom: 1mm;
     }
   </style>
 </head>
@@ -563,13 +563,13 @@
                 <span style="width: 86mm; display: inline-block; margin-top: 0;" class="eight-px border-bottom">
                   Nome e Cognome
                 </span>
-                in qualità di rappresentante legale di ${recipient.denomination} ${recipient.taxId}, delego
+                in qualità di legale rappresentante di ${recipient.denomination} ${recipient.taxId}, delego
               </div>
           </#if>
           <div class="eight-px border-bottom">
             Nome e Cognome
           </div>
-          <div class="eight-px border-bottom">
+          <div class="eight-px border-bottom margin-bottom-1">
             Codice Fiscale
           </div>
           a ritirare i documenti notificati.
@@ -648,7 +648,7 @@
       </div>
       <div id="advantages" class="relative-box">
         <div id="advantages-explanation">
-          <h3>I VANTAGGI DI RICEVERE LE NOTIFICHE TRAMITE UN CANALE DIGITALE</h3>
+          <h3 class="ten-px">I VANTAGGI DI RICEVERE LE NOTIFICHE TRAMITE UN CANALE DIGITALE</h3>
           <div class="advantage-col" style="left:0">
             <img class="message-advantages_explanation" src="./images/moneypig.jpg" />
             <div class="advantages-explanation__content">
