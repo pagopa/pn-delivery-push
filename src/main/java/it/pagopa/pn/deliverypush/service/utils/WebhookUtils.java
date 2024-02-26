@@ -127,7 +127,7 @@ public class WebhookUtils {
         List<String> safeToCheck = toCheckGroups != null ? toCheckGroups : Collections.emptyList();
         List<String> safeAllowedGroups = allowedGroups != null ? allowedGroups : Collections.emptyList();
 
-        return safeAllowedGroups.isEmpty() || safeAllowedGroups.containsAll(safeToCheck);
+        return safeAllowedGroups.isEmpty() || safeAllowedGroups.containsAll(safeToCheck) ;
     }
 
     public int getVersion (String version) {

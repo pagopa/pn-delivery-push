@@ -52,7 +52,7 @@ public abstract class WebhookServiceImpl {
                     mode == StreamEntityAccessMode.WRITE ?  WebhookUtils.checkGroups(streamEntity.getGroups(), xPagopaPnCxGroups) : WebhookUtils.checkGroups(xPagopaPnCxGroups, streamEntity.getGroups())
                 )
             ).filter(streamEntity -> ignoreVersion
-                || apiVersion(xPagopaPnApiVersion).equals(streamEntity.getVersion())
+                || apiVersion(xPagopaPnApiVersion).equals(entityVersion(streamEntity))
                 || (streamEntity.getVersion() == null && apiV10.equals(xPagopaPnApiVersion))
             )
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)));
