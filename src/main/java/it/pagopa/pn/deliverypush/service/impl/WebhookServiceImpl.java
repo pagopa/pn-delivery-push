@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEnti
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -55,26 +56,28 @@ public abstract class WebhookServiceImpl {
                 )
             )
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)))
-            .filter(streamEntity ->{
-                if (apiV10.equals(entityVersion(streamEntity)) && ignoreVersion){
-                    return true;
-                }
-
-                //Se non sono master non posso agire in scrittura su stream senza gruppi: solo per v23
-                if ((!apiV10.equals(apiVersion(xPagopaPnApiVersion)) && !apiV10.equals(entityVersion(streamEntity)))
-                    && mode == StreamEntityAccessMode.WRITE
-                    && (CollectionUtils.isEmpty(streamEntity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups))) {
-                    return false;
-                } else {
-                    return true;
-                }
-            })
+            .filter(filterMasterRequest(ignoreVersion,apiV10,xPagopaPnApiVersion,mode,xPagopaPnCxGroups))
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Only master key can change streamId " + streamId)))
             .filter(streamEntity -> ignoreVersion
                 || apiVersion(xPagopaPnApiVersion).equals(entityVersion(streamEntity))
                 || (streamEntity.getVersion() == null && apiV10.equals(xPagopaPnApiVersion))
             )
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)));
+    }
+
+    private Predicate<StreamEntity> filterMasterRequest(boolean ignoreVersion, String apiV10, String xPagopaPnApiVersion, StreamEntityAccessMode mode, List<String> xPagopaPnCxGroups ) {
+        return streamEntity -> {
+            if (apiV10.equals(entityVersion(streamEntity)) && ignoreVersion){
+                return true;
+            }
+
+            //Se non sono master non posso agire in scrittura su stream senza gruppi: solo per v23
+            return ((!apiV10.equals(apiVersion(xPagopaPnApiVersion)) && !apiV10.equals(entityVersion(streamEntity)))
+                && mode == StreamEntityAccessMode.WRITE
+                && (CollectionUtils.isEmpty(streamEntity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups)))
+                ?false :true;
+
+        };
     }
 
     protected String join(List<String> list){
