@@ -166,11 +166,13 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     private Predicate<StreamEntity> filterUpdateRequest(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, StreamRequestV23 request ) {
         return r -> {
+            //Non posso aggiornare stream disabilitato
             if (r.getDisabledDate() != null){
                 log.error("Stream is disabled, cannot be updated!");
                 return false;
             }
 
+            //Da master se non restringo i gruppi sullo stream OK
             if (CollectionUtils.isEmpty(r.getGroups())
                 && CollectionUtils.isEmpty(request.getGroups())
                 && CollectionUtils.isEmpty(xPagopaPnCxGroups)
