@@ -72,10 +72,9 @@ public abstract class WebhookServiceImpl {
             }
 
             //Se non sono master non posso agire in scrittura su stream senza gruppi: solo per v23
-            return ((!apiV10.equals(apiVersion(xPagopaPnApiVersion)) && !apiV10.equals(entityVersion(streamEntity)))
+            return !((!apiV10.equals(apiVersion(xPagopaPnApiVersion)) && !apiV10.equals(entityVersion(streamEntity)))
                 && mode == StreamEntityAccessMode.WRITE
-                && (CollectionUtils.isEmpty(streamEntity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups)))
-                ?false :true;
+                && (CollectionUtils.isEmpty(streamEntity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups)));
 
         };
     }
