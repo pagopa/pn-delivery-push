@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.helpers.MessageFormatter;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -52,7 +53,24 @@ public abstract class WebhookServiceImpl {
                 || (
                     mode == StreamEntityAccessMode.WRITE ?  WebhookUtils.checkGroups(streamEntity.getGroups(), xPagopaPnCxGroups) : WebhookUtils.checkGroups(xPagopaPnCxGroups, streamEntity.getGroups())
                 )
-            ).filter(streamEntity -> ignoreVersion
+            )
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)))
+            .filter(streamEntity ->{
+                if (apiV10.equals(entityVersion(streamEntity)) && ignoreVersion){
+                    return true;
+                }
+
+                //Se non sono master non posso agire in scrittura su stream senza gruppi: solo per v23
+                if ((!apiV10.equals(apiVersion(xPagopaPnApiVersion)) && !apiV10.equals(entityVersion(streamEntity)))
+                    && mode == StreamEntityAccessMode.WRITE
+                    && (CollectionUtils.isEmpty(streamEntity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups))) {
+                    return false;
+                } else {
+                    return true;
+                }
+            })
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Only master key can change streamId " + streamId)))
+            .filter(streamEntity -> ignoreVersion
                 || apiVersion(xPagopaPnApiVersion).equals(entityVersion(streamEntity))
                 || (streamEntity.getVersion() == null && apiV10.equals(xPagopaPnApiVersion))
             )
