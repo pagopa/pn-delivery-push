@@ -216,7 +216,11 @@
       margin-top: 2.5mm;
       color: #666;
     }
-
+    #radd-termini-condizioni {
+      padding-left: 2.5mm;
+      padding-bottom: 2mm;
+      line-height: normal;
+    }
     #send-perfezionamento {
       top: 10mm;
       width: 92mm;
@@ -519,7 +523,7 @@
           <ol>
             <li>Puoi ritirare i documenti notificati presso i CAF convenzionati<#if additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "true">, le tabaccherie, i bar e gli altri esercenti affiliati Mooney e i punti Sailpost<#elseif additional_raddoperatormooney == "false" && additional_raddoperatorsailpost == "true">
               e i punti Sailpost<#elseif additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "false">
-              e le tabaccherie, i bar e gli altri esercenti affiliati Mooney<#else></#if>, anche senza SPID o CIE. Per conoscere i punti di ritiro convenzionati più vicini a te vai su <b><a href="${sendURL}ritiro">${sendURLLAbel}/ritiro</a></b>.</li>
+              e le tabaccherie, i bar e gli altri esercenti affiliati Mooney<#else></#if>, anche senza SPID o CIE. Per conoscere i punti di ritiro convenzionati più vicini a te vai su <b><a href="${sendURL}punti-di-ritiro">${sendURLLAbel}/punti-di-ritiro</a></b></li>
             <li>Al punto di ritiro, mostra:
               <ul id="square-list">
                 <li>questo avviso di avvenuta ricezione;</li>
@@ -546,8 +550,12 @@
           </div>
         </div>
         </#if>
+        <#if recipient.recipientType=="PG">
+          <p id="radd-termini-condizioni" class="eight-px">Una volta usufruito del servizio, non potrai richiedere una nuova stampa degli stessi documenti. Consulta i termini e le condizioni su <b><a
+          href="${sendURL}termini-condizioni">${sendURLLAbel}/termini-condizioni</a></b></p>
+        </#if>
         <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
-          Hai 120 giorni dalla data di perfezionamento della notifica per ottenere i documenti. Per conoscere questa data, vai su<br> <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b>.
+          Hai 120 giorni dalla data di perfezionamento della notifica per ottenere i documenti. Per conoscere questa data, vai su<br> <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b>
         </div>
       </div>
       <div id="mandate-box">
@@ -701,7 +709,7 @@
               e i punti Sailpost<#elseif additional_raddoperatormooney == "true" && additional_raddoperatorsailpost == "false">
               e le tabaccherie, i bar e gli altri esercenti affiliati Mooney<#else></#if></b>.</p>
             <p class="eight-px">Una volta usufruito del servizio, non potrai richiedere una nuova stampa degli stessi documenti. Consulta i termini e le condizioni su <b><a
-              href="${sendURL}/terminiecondizioni">${sendURLLAbel}/terminiecondizioni</a></b>.</p>
+              href="${sendURL}termini-condizioni">${sendURLLAbel}/termini-condizioni</a></b></p>
           </div>
         </div>
       </div>
