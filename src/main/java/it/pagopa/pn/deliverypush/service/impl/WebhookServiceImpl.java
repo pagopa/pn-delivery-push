@@ -13,11 +13,13 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEnti
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.helpers.MessageFormatter;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -34,7 +36,8 @@ public abstract class WebhookServiceImpl {
         return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.READ, false);
     }
     protected Mono<StreamEntity> getStreamEntityToWrite(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
-        return getStreamEntityToWrite(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, false);
+        return getStreamEntityToWrite(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, false)
+            ;
     }
     protected Mono<StreamEntity> getStreamEntityToWrite(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId, boolean ignoreVersion) {
         return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.WRITE, ignoreVersion);
@@ -51,11 +54,31 @@ public abstract class WebhookServiceImpl {
                 || (
                     mode == StreamEntityAccessMode.WRITE ?  WebhookUtils.checkGroups(streamEntity.getGroups(), xPagopaPnCxGroups) : WebhookUtils.checkGroups(xPagopaPnCxGroups, streamEntity.getGroups())
                 )
-            ).filter(streamEntity -> ignoreVersion
-                || apiVersion(xPagopaPnApiVersion).equals(streamEntity.getVersion())
+            )
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)))
+            .filter(filterMasterRequest(ignoreVersion,apiV10,xPagopaPnApiVersion,mode,xPagopaPnCxGroups))
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Only master key can change streamId " + streamId)))
+            .filter(streamEntity -> ignoreVersion
+                || apiVersion(xPagopaPnApiVersion).equals(entityVersion(streamEntity))
                 || (streamEntity.getVersion() == null && apiV10.equals(xPagopaPnApiVersion))
             )
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)));
+    }
+
+    private Predicate<StreamEntity> filterMasterRequest(boolean ignoreVersion, String apiV10, String xPagopaPnApiVersion, StreamEntityAccessMode mode, List<String> xPagopaPnCxGroups ) {
+        return streamEntity -> {
+            if (apiV10.equals(entityVersion(streamEntity)) && ignoreVersion){
+                return true;
+            }
+
+            boolean isMaster = (!apiV10.equals(apiVersion(xPagopaPnApiVersion)) && !apiV10.equals(entityVersion(streamEntity)))
+                    && mode == StreamEntityAccessMode.WRITE
+                    && (CollectionUtils.isEmpty(streamEntity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups));
+
+            //Se non sono master non posso agire in scrittura su stream senza gruppi: solo per v23
+            return !isMaster;
+
+        };
     }
 
     protected String join(List<String> list){

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -94,6 +95,10 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         generateAuditLog(PnAuditLogEventType.AUD_WH_DELETE, msg, args).log();
 
         return getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+            .filter(entity -> {
+                return  !(CollectionUtils.isEmpty(entity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups));
+            })
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Cannot delete Stream")))
             .flatMap(filteredEntity ->
                  streamEntityDao.delete(xPagopaPnCxId, streamId.toString())
                     .then(Mono.fromSupplier(() -> {
@@ -144,17 +149,54 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
             List<String> values = new ArrayList<>(args);
             values.add(payload.toString());
             generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, values.toArray(new String[0])).log();
-        }).flatMap(request ->
-            getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
-            .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), xPagopaPnApiVersion, request))
-            .map(entity -> {
-                entity.setEventAtomicCounter(null);
-                return entity;
-            })
-            .flatMap(streamEntityDao::update)
-            .map(EntityToDtoStreamMapper::entityToDto)
-        ).doOnSuccess(newEntity-> generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, args.toArray(new String[0])).generateSuccess().log()).doOnError(err-> generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, args.toArray(new String[0])).generateFailure("error updating stream", err).log());
+        }).flatMap(request -> {
+
+            return getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId, xPagopaPnCxGroups, streamId)
+                .filter(filterUpdateRequest(xPagopaPnUid,xPagopaPnCxId, xPagopaPnCxGroups, request))
+                .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, groups cannot be removed")))
+                .map(r -> DtoToEntityStreamMapper.dtoToEntity(xPagopaPnCxId, streamId.toString(), xPagopaPnApiVersion, request))
+                .map(entity -> {
+                    entity.setEventAtomicCounter(null);
+                    return entity;
+                })
+                .flatMap( e -> streamEntityDao.update(e))
+                .map(e -> EntityToDtoStreamMapper.entityToDto(e));
+        }).doOnSuccess(newEntity-> generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, args.toArray(new String[0])).generateSuccess().log()).doOnError(err-> generateAuditLog(PnAuditLogEventType.AUD_WH_UPDATE, msg, args.toArray(new String[0])).generateFailure("error updating stream", err).log());
     }
+
+    private Predicate<StreamEntity> filterUpdateRequest(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, StreamRequestV23 request ) {
+        return r -> {
+            //Non posso aggiornare stream disabilitato
+            if (r.getDisabledDate() != null){
+                log.error("Stream is disabled, cannot be updated!");
+                return false;
+            }
+
+            //Da master se non restringo i gruppi sullo stream OK
+            if (CollectionUtils.isEmpty(r.getGroups())
+                && CollectionUtils.isEmpty(request.getGroups())
+                && CollectionUtils.isEmpty(xPagopaPnCxGroups)
+            ){
+                return true;
+            }
+
+            if (CollectionUtils.isEmpty(r.getGroups()) && !CollectionUtils.isEmpty(request.getGroups())){
+                return false;
+            }
+
+            if (!request.getGroups().containsAll(r.getGroups())){
+                return false;
+            }
+
+            List<String> allowedGroups = (CollectionUtils.isEmpty(xPagopaPnCxGroups) && !request.getGroups().isEmpty())
+                ? pnExternalRegistryClient.getGroups(xPagopaPnUid, xPagopaPnCxId)
+                : xPagopaPnCxGroups;
+
+            return allowedGroups.containsAll(r.getGroups());
+        };
+    }
+
+
 
     @Override
     public Mono<StreamMetadataResponseV23> disableEventStream(String xPagopaPnUid, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, UUID streamId) {
@@ -166,6 +208,10 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
             .filter(streamEntity -> streamEntity.getDisabledDate() == null)
             .switchIfEmpty(
                 Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled"))
+            ).filter(entity -> {
+                return  !(CollectionUtils.isEmpty(entity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups));
+            }).switchIfEmpty(
+                Mono.error(new PnWebhookForbiddenException("Not supported operation, stream not owned"))
             ).flatMap(streamEntity->
                 streamEntityDao.disable(streamEntity).map(EntityToDtoStreamMapper::entityToDto)
             ).doOnSuccess( ok->

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
@@ -366,7 +367,42 @@ class WebhookStreamsServiceImplTest {
     }
 
     @Test
-    void createEventStreamWithReplaceStreamIdSameGroupV23() {
+    void createEventStreamWithReplaceIdSameGroupV23WithHeaderGroups() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+
+        UUID replacedStreamId = UUID.randomUUID();
+        StreamCreationRequestV23 req = createEventStreamRequest(Collections.singletonList("gruppo1"), replacedStreamId);
+
+        Mockito.when(pnExternalRegistryClient.getGroups(xpagopapnuid, xpagopacxid)).thenReturn(Collections.singletonList("gruppo1"));
+
+        StreamEntity replacedEntity = new StreamEntity();
+        replacedEntity.setStreamId(replacedStreamId.toString());
+        replacedEntity.setPaId(xpagopacxid);
+        replacedEntity.setVersion("v23");
+        replacedEntity.setEventAtomicCounter(3L);
+        replacedEntity.setGroups(Collections.singletonList("gruppo1"));
+
+        StreamEntity newEntity = new StreamEntity();
+        newEntity.setPaId(xpagopacxid);
+        newEntity.setStreamId(UUID.randomUUID().toString());
+        newEntity.setEventType(EventTypeEnum.STATUS.name());
+
+        Mockito.when(streamEntityDao.get(Mockito.anyString(), Mockito.anyString())).thenReturn(Mono.just(replacedEntity));
+        Mockito.when(streamEntityDao.replaceEntity(Mockito.any(), Mockito.any() )).thenReturn(Mono.just(newEntity));
+
+        //WHEN
+        StreamMetadataResponseV23 res = webhookService.createEventStream(xpagopapnuid,xpagopacxid, Collections.singletonList("gruppo1"),null, Mono.just(req)).block(d);
+
+        //THEN
+        assertNotNull(res);
+
+        Mockito.verify(streamEntityDao).replaceEntity(Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    void replaceStreamWithNoGroupV23WithHeaderGroups() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
         String xpagopapnuid = "PA-xpagopapnuid";
@@ -391,12 +427,42 @@ class WebhookStreamsServiceImplTest {
         Mockito.when(streamEntityDao.replaceEntity(Mockito.any(), Mockito.any() )).thenReturn(Mono.just(newEntity));
 
         //WHEN
-        StreamMetadataResponseV23 res = webhookService.createEventStream(xpagopapnuid,xpagopacxid, Collections.singletonList("gruppo1"),null, Mono.just(req)).block(d);
+        Mono<StreamMetadataResponseV23> res = webhookService.createEventStream(xpagopapnuid,xpagopacxid, Collections.singletonList("gruppo1"),null, Mono.just(req));
 
         //THEN
-        assertNotNull(res);
+        assertThrows(PnWebhookForbiddenException.class, () -> res.block(d));
+        Mockito.verify(streamEntityDao, never()).replaceEntity(Mockito.any(), Mockito.any());
+    }
 
-        Mockito.verify(streamEntityDao).replaceEntity(Mockito.any(), Mockito.any());
+    @Test
+    void createEventStreamNoGroupWithReplaceByHeaderWithGroup() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+
+        UUID replacedStreamId = UUID.randomUUID();
+        StreamCreationRequestV23 req = createEventStreamRequest(Collections.singletonList("gruppo2"), replacedStreamId);
+
+        StreamEntity replacedEntity = new StreamEntity();
+        replacedEntity.setStreamId(replacedStreamId.toString());
+        replacedEntity.setPaId(xpagopacxid);
+        replacedEntity.setVersion("v23");
+        replacedEntity.setGroups(Collections.EMPTY_LIST);
+        replacedEntity.setEventAtomicCounter(1L);
+
+        StreamEntity newEntity = new StreamEntity();
+        newEntity.setPaId(xpagopacxid);
+        newEntity.setStreamId(UUID.randomUUID().toString());
+        newEntity.setEventType(EventTypeEnum.STATUS.name());
+
+        Mockito.when(streamEntityDao.get(Mockito.anyString(), Mockito.anyString())).thenReturn(Mono.just(replacedEntity));
+        Mockito.when(streamEntityDao.replaceEntity(Mockito.any(), Mockito.any() )).thenReturn(Mono.just(newEntity));
+
+        //WHEN
+        Mono<StreamMetadataResponseV23> res = webhookService.createEventStream(xpagopapnuid,xpagopacxid, Collections.singletonList("gruppo2"),null, Mono.just(req));
+
+        //THEN
+        assertThrows(PnWebhookForbiddenException.class, () -> res.block(d));
     }
 
     @Test
@@ -598,6 +664,30 @@ class WebhookStreamsServiceImplTest {
         //THEN
         Mockito.verify(streamEntityDao).disable(Mockito.any());
     }
+    @Test
+    void disableEventStream2() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+
+        UUID toBeDisabledStreamId = UUID.randomUUID();
+
+        StreamEntity disabledEntity = new StreamEntity();
+        disabledEntity.setPaId(xpagopacxid);
+        disabledEntity.setStreamId(toBeDisabledStreamId.toString());
+        disabledEntity.setEventType(EventTypeEnum.STATUS.name());
+        disabledEntity.setVersion("v23");
+        disabledEntity.setGroups(Collections.EMPTY_LIST);
+
+        Mockito.when(streamEntityDao.get(Mockito.any(), Mockito.any())).thenReturn(Mono.just(disabledEntity));
+        Mockito.when(streamEntityDao.disable(Mockito.any())).thenReturn(Mono.just(disabledEntity));
+
+        //WHEN
+        Mono<StreamMetadataResponseV23> res = webhookService.disableEventStream(xpagopapnuid,xpagopacxid,Arrays.asList("gruppo1"),null, toBeDisabledStreamId);
+        //THEN
+        Assert.assertThrows(PnWebhookForbiddenException.class, ()->res.block(d));
+        Mockito.verify(streamEntityDao, never()).disable(Mockito.any());
+    }
 
     @Test
     void disableEventStreamAlreadyDisabled() {
@@ -784,6 +874,36 @@ class WebhookStreamsServiceImplTest {
     }
 
     @Test
+    void deleteEventStreamWithNoGroupByRequestGroup() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle("");
+        entity.setPaId(xpagopacxid);
+        entity.setEventType("");
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setVersion("v23");
+        entity.setGroups(Collections.emptyList());
+
+        Mockito.when(streamEntityDao.get(xpagopacxid,uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.delete(xpagopacxid, uuid)).thenReturn(Mono.empty());
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any());
+
+        //WHEN
+        Mono mono = webhookService.deleteEventStream(xpagopapnuid,xpagopacxid, Arrays.asList("gruppo1"),null,uuidd);
+
+        //THEN
+        assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
+    }
+
+    @Test
     void deleteEventStreamNotAllowed(){
         deleteEventStreamException(null, null);
         deleteEventStreamException("v23", null);
@@ -885,6 +1005,241 @@ class WebhookStreamsServiceImplTest {
 
         //THEN
         Mockito.verify(streamEntityDao, Mockito.never()).update(Mockito.any());
+    }
+
+    @Test
+    void updateEventStreamWithNoGroupByRequestHeaderWithGroup() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+        StreamRequestV23 req = new StreamRequestV23();
+        req.setTitle("titolo");
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle(req.getTitle());
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setGroups(Collections.emptyList());
+
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
+
+        Mono<StreamMetadataResponseV23> mono = webhookService.updateEventStream(xpagopapnuid,xpagopacxid,Arrays.asList("gruppo1"),null, uuidd, Mono.just(req));
+        assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.never()).update(Mockito.any());
+    }
+
+    @Test
+    void updateEventStreamWithNoGroupByRequestWithNoGroup() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+        StreamRequestV23 req = new StreamRequestV23();
+        req.setTitle("titolo");
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle(req.getTitle());
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setGroups(Collections.emptyList());
+        entity.setVersion("v23");
+
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
+
+        Mono<StreamMetadataResponseV23> mono = webhookService.updateEventStream(xpagopapnuid,xpagopacxid,Collections.EMPTY_LIST,null, uuidd, Mono.just(req));
+        assertDoesNotThrow( () -> mono.block(d));
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.times(1)).update(Mockito.any());
+    }
+
+    @Test
+    void updateEventStreamWithNoGroupByRequestWithGroup() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+        StreamRequestV23 req = new StreamRequestV23();
+        req.setTitle("titolo");
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+        req.setGroups(Arrays.asList("gruppo1"));
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle(req.getTitle());
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setGroups(Collections.emptyList());
+        entity.setVersion("v23");
+
+        Mockito.when(pnExternalRegistryClient.getGroups(Mockito.anyString(), Mockito.anyString())).thenReturn(Arrays.asList("gruppo1","gruppo2"));
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
+
+        Mono<StreamMetadataResponseV23> mono = webhookService.updateEventStream(xpagopapnuid,xpagopacxid,Collections.EMPTY_LIST,null, uuidd, Mono.just(req));
+        assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.never()).update(Mockito.any());
+        Mockito.verify(pnExternalRegistryClient, Mockito.never()).getGroups(Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    void updateEventStreamWithGroupByRequestWithGroupAddGroup() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+        StreamRequestV23 req = new StreamRequestV23();
+        req.setTitle("titolo");
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+        req.setGroups(Arrays.asList("gruppo1","gruppo2"));
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle(req.getTitle());
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setGroups(Arrays.asList("gruppo1"));
+        entity.setVersion("v23");
+
+        Mockito.when(pnExternalRegistryClient.getGroups(Mockito.anyString(), Mockito.anyString())).thenReturn(Arrays.asList("gruppo1","gruppo2"));
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
+
+        Mono<StreamMetadataResponseV23> mono = webhookService.updateEventStream(xpagopapnuid,xpagopacxid,Collections.EMPTY_LIST,null, uuidd, Mono.just(req));
+        assertDoesNotThrow( () -> mono.block(d));
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.times(1)).update(Mockito.any());
+        Mockito.verify(pnExternalRegistryClient, Mockito.times(1)).getGroups(Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    void updateEventStreamChangeGroupNotAllowed() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+        StreamRequestV23 req = new StreamRequestV23();
+        req.setTitle("titolo");
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+        req.setGroups(Arrays.asList("gruppo2"));
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle(req.getTitle());
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setGroups(Arrays.asList("gruppo1"));
+        entity.setVersion("v23");
+
+        Mockito.when(pnExternalRegistryClient.getGroups(Mockito.anyString(), Mockito.anyString())).thenReturn(Arrays.asList("gruppo1","gruppo2"));
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
+
+        Mono<StreamMetadataResponseV23> mono = webhookService.updateEventStream(xpagopapnuid,xpagopacxid,Collections.EMPTY_LIST,null, uuidd, Mono.just(req));
+        assertThrows( PnWebhookForbiddenException.class,() -> mono.block(d));
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.never()).update(Mockito.any());
+        Mockito.verify(pnExternalRegistryClient, Mockito.times(0)).getGroups(Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    void updateEventStreamWithGroupAddGroup() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+        StreamRequestV23 req = new StreamRequestV23();
+        req.setTitle("titolo");
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+        req.setGroups(Arrays.asList("gruppo1","gruppo2"));
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle(req.getTitle());
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setGroups(Arrays.asList("gruppo1"));
+        entity.setVersion("v23");
+
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
+
+        Mono<StreamMetadataResponseV23> mono = webhookService.updateEventStream(xpagopapnuid,xpagopacxid,Arrays.asList("gruppo1","gruppo2"),null, uuidd, Mono.just(req));
+        assertDoesNotThrow( () -> mono.block(d));
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.times(1)).update(Mockito.any());
+    }
+
+    @Test
+    void updateEventStreamWithGroupDelGroup() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+        StreamRequestV23 req = new StreamRequestV23();
+        req.setTitle("titolo");
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+        req.setGroups(Arrays.asList("gruppo1"));
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle(req.getTitle());
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setGroups(Arrays.asList("gruppo1","gruppo2"));
+        entity.setVersion("v23");
+
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
+
+        Mono<StreamMetadataResponseV23> mono = webhookService.updateEventStream(xpagopapnuid,xpagopacxid,Arrays.asList("gruppo1","gruppo2"),null, uuidd, Mono.just(req));
+        assertThrows(PnWebhookForbiddenException.class, () -> mono.block(d));
+
+        //THEN
+        Mockito.verify(streamEntityDao, Mockito.never()).update(Mockito.any());
+
     }
 
     @Test
@@ -1149,6 +1504,7 @@ class WebhookStreamsServiceImplTest {
         req.setTitle("titolo");
         req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
         req.setFilterValues(null);
+        req.setGroups(Collections.emptyList());
 
         UUID uuidd = UUID.randomUUID();
         String uuid = uuidd.toString();
@@ -1174,7 +1530,6 @@ class WebhookStreamsServiceImplTest {
         assertNotNull(res);
 
         Mockito.verify(streamEntityDao).update(Mockito.any());
-
     }
 
     @Test
@@ -1232,6 +1587,7 @@ class WebhookStreamsServiceImplTest {
         req.setTitle("titolo");
         req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
         req.setFilterValues(Arrays.asList("CCCC","DDDD"));
+        req.setGroups(Arrays.asList(new String[]{"gruppo1","gruppo2"}));
 
         UUID uuidd = UUID.randomUUID();
         String uuid = uuidd.toString();
@@ -1248,6 +1604,7 @@ class WebhookStreamsServiceImplTest {
 
         Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
         Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
+        Mockito.when(pnExternalRegistryClient.getGroups(Mockito.anyString(), Mockito.anyString())).thenReturn(Arrays.asList("gruppo1","gruppo2"));
 
 
         //WHEN
@@ -1292,7 +1649,40 @@ class WebhookStreamsServiceImplTest {
 
     }
 
+    @Test
+    void updateEventStreamNoGroupWithGroupInHeader() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+        StreamRequestV23 req = new StreamRequestV23();
+        req.setTitle("titolo nuovo");
+        req.setEventType(StreamRequestV23.EventTypeEnum.STATUS);
+        req.setFilterValues(null);
+        req.setGroups(Collections.EMPTY_LIST);
 
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle("titolo vecchio");
+        entity.setPaId(xpagopacxid);
+        entity.setEventType(req.getEventType().toString());
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setGroups(Collections.EMPTY_LIST);
+        entity.setVersion("v23");
+
+        Mockito.when(streamEntityDao.get(xpagopacxid, uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.update(Mockito.any())).thenReturn(Mono.just(entity));
+
+
+        //WHEN
+        Mono<StreamMetadataResponseV23> res = webhookService.updateEventStream(xpagopapnuid,xpagopacxid, Arrays.asList("gruppo1"),null, uuidd, Mono.just(req));
+        assertThrows(PnWebhookForbiddenException.class, () -> res.block(d));
+        //THEN
+        assertNotNull(res);
+
+    }
 
     private List<TimelineElementInternal> generateTimeline(String iun, String paId){
         List<TimelineElementInternal> res = new ArrayList<>();
