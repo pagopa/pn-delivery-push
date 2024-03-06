@@ -62,7 +62,7 @@ public abstract class WebhookServiceImpl {
                 || apiVersion(xPagopaPnApiVersion).equals(entityVersion(streamEntity))
                 || (streamEntity.getVersion() == null && apiV10.equals(xPagopaPnApiVersion))
             )
-            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " groups (" + join(xPagopaPnCxGroups)+ ") is not allowed to see this streamId " + streamId)));
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Pa " + xPagopaPnCxId + " version " + apiVersion(xPagopaPnApiVersion)+ " is trying to access streamId " + streamId +": api version mismatch")));
     }
 
     private Predicate<StreamEntity> filterMasterRequest(boolean ignoreVersion, String apiV10, String xPagopaPnApiVersion, StreamEntityAccessMode mode, List<String> xPagopaPnCxGroups ) {
