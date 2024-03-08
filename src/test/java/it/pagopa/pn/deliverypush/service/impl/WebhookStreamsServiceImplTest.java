@@ -815,6 +815,64 @@ class WebhookStreamsServiceImplTest {
     }
 
     @Test
+    void deleteEventStreamV10() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle("");
+        entity.setPaId(xpagopacxid);
+        entity.setEventType("");
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setVersion("v10");
+
+        Mockito.when(streamEntityDao.get(xpagopacxid,uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.delete(xpagopacxid, uuid)).thenReturn(Mono.empty());
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any());
+
+        //WHEN
+        webhookService.deleteEventStream(xpagopapnuid,xpagopacxid, null,"v10",uuidd).block(d);
+
+        //THEN
+        Mockito.verify(streamEntityDao).delete(xpagopacxid, uuid);
+    }
+
+    @Test
+    void deleteEventStreamV10ByStdKey() {
+        //GIVEN
+        String xpagopacxid = "PA-xpagopacxid";
+        String xpagopapnuid = "PA-xpagopapnuid";
+
+
+        UUID uuidd = UUID.randomUUID();
+        String uuid = uuidd.toString();
+        StreamEntity entity = new StreamEntity();
+        entity.setStreamId(uuid);
+        entity.setTitle("");
+        entity.setPaId(xpagopacxid);
+        entity.setEventType("");
+        entity.setFilterValues(new HashSet<>());
+        entity.setActivationDate(Instant.now());
+        entity.setVersion("v10");
+
+        Mockito.when(streamEntityDao.get(xpagopacxid,uuid)).thenReturn(Mono.just(entity));
+        Mockito.when(streamEntityDao.delete(xpagopacxid, uuid)).thenReturn(Mono.empty());
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any());
+
+        //WHEN
+        webhookService.deleteEventStream(xpagopapnuid,xpagopacxid, Arrays.asList("gruppo1"),"v10",uuidd).block(d);
+
+        //THEN
+        Mockito.verify(streamEntityDao).delete(xpagopacxid, uuid);
+    }
+
+    @Test
     void deleteEventStream() {
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";

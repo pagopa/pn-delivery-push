@@ -82,7 +82,6 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         generateAuditLog(PnAuditLogEventType.AUD_WH_CONSUME, msg, args).log();
         // grazie al contatore atomico usato in scrittura per generare l'eventId, non serve più gestire la finestra.
         return getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId, xPagopaPnCxGroups, streamId)
-            .filter(entity -> !(CollectionUtils.isEmpty(entity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups)))
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Cannot consume stream")))
             .flatMap(stream -> eventEntityDao.findByStreamId(stream.getStreamId(), lastEventId))
                 .flatMap(res ->

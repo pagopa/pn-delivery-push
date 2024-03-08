@@ -95,9 +95,6 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         generateAuditLog(PnAuditLogEventType.AUD_WH_DELETE, msg, args).log();
 
         return getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
-            .filter(entity -> {
-                return  !(CollectionUtils.isEmpty(entity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups));
-            })
             .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Cannot delete Stream")))
             .flatMap(filteredEntity ->
                  streamEntityDao.delete(xPagopaPnCxId, streamId.toString())
@@ -205,13 +202,10 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
         generateAuditLog(PnAuditLogEventType.AUD_WH_DISABLE, msg, args).log();
 
         return getStreamEntityToWrite(apiVersion(xPagopaPnApiVersion), xPagopaPnCxId,xPagopaPnCxGroups,streamId)
+            .switchIfEmpty(Mono.error(new PnWebhookForbiddenException("Not supported operation, stream not owned")))
             .filter(streamEntity -> streamEntity.getDisabledDate() == null)
             .switchIfEmpty(
                 Mono.error(new PnWebhookForbiddenException("Not supported operation, stream already disabled"))
-            ).filter(entity -> {
-                return  !(CollectionUtils.isEmpty(entity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups));
-            }).switchIfEmpty(
-                Mono.error(new PnWebhookForbiddenException("Not supported operation, stream not owned"))
             ).flatMap(streamEntity->
                 streamEntityDao.disable(streamEntity).map(EntityToDtoStreamMapper::entityToDto)
             ).doOnSuccess( ok->
