@@ -40,7 +40,11 @@ public abstract class WebhookServiceImpl {
             ;
     }
     protected Mono<StreamEntity> getStreamEntityToWrite(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId, boolean ignoreVersion) {
-        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.WRITE, ignoreVersion);
+        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.WRITE, ignoreVersion)
+            .filter(entity -> !(CollectionUtils.isEmpty(entity.getGroups()) && !CollectionUtils.isEmpty(xPagopaPnCxGroups))
+            || apiVersion(xPagopaPnApiVersion).equals(pnDeliveryPushConfigs.getWebhook().getFirstVersion()) //Se e' v10 non ho vincoli
+            || ignoreVersion
+            );
     }
     private Mono<StreamEntity> filterEntity(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId, StreamEntityAccessMode mode, boolean ignoreVersion) {
         final String apiV10 = pnDeliveryPushConfigs.getWebhook().getFirstVersion();
