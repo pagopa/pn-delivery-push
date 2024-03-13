@@ -122,7 +122,7 @@ describe("ConsumeEventStreamHandler", () => {
                     recipientIndex: 1,
                     analogCost: null,
                     channel: 'EMAIL',
-                    legalFactsIds: [],
+                    legalfactIds: [],
                     validationErrors: null
                 },
                 {
@@ -135,7 +135,7 @@ describe("ConsumeEventStreamHandler", () => {
                     recipientIndex: 2,
                     analogCost: null,
                     channel: 'PEC',
-                    legalFactsIds: [],
+                    legalfactIds: [],
                     validationErrors: null,
                 }
             ]
@@ -223,7 +223,7 @@ describe("ConsumeEventStreamHandler", () => {
                     recipientIndex: 1,
                     analogCost: null,
                     channel: 'EMAIL',
-                    legalFactsIds: [],
+                    legalfactIds: [],
                     validationErrors: null
                 },
                 {
@@ -236,7 +236,7 @@ describe("ConsumeEventStreamHandler", () => {
                     recipientIndex: 2,
                     analogCost: null,
                     channel: 'PEC',
-                    legalFactsIds: [],
+                    legalfactIds: [],
                     validationErrors: null,
                 }
             ]
@@ -279,7 +279,7 @@ describe("ConsumeEventStreamHandler", () => {
                     recipientIndex: 1,
                     analogCost: null,
                     channel: 'EMAIL',
-                    legalFactsIds: ['PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q', 'PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E'],
+                    legalfactIds: ['PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q', 'PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E'],
                     validationErrors: null
                 },
                 {
@@ -293,7 +293,7 @@ describe("ConsumeEventStreamHandler", () => {
                     recipientIndex: 2,
                     analogCost: null,
                     channel: 'PEC',
-                    legalFactsIds: [ 'example_document3.pdf', 'example_document4.pdf' ],
+                    legalfactIds: [ 'example_document3.pdf', 'example_document4.pdf' ],
                     validationErrors: null,
                 }
             ]
@@ -309,7 +309,7 @@ describe("ConsumeEventStreamHandler", () => {
                     recipientIndex: 1,
                     analogCost: null,
                     channel: 'EMAIL',
-                    legalFactsIds: ['PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q', 'PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E'],
+                    legalfactIds: ['PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q', 'PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E'],
                     validationErrors: null
                 },
                 {
@@ -322,7 +322,7 @@ describe("ConsumeEventStreamHandler", () => {
                     recipientIndex: 2,
                     analogCost: null,
                     channel: 'PEC',
-                    legalFactsIds: [ 'example_document3.pdf', 'example_document4.pdf' ],
+                    legalfactIds: [ 'example_document3.pdf', 'example_document4.pdf' ],
                     validationErrors: null,
                 }
             ]
