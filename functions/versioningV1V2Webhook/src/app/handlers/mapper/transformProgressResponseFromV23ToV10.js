@@ -39,7 +39,7 @@ exports.createProgressResponseV10 = (responseBody) => {
         recipientIndex: recipientIndexV10,
         analogCost: analogCostV10,
         channel: channelV10,
-        legalFactsIds: legalFactsIdsV10,
+        legalfactIds: legalFactsIdsV10,
         validationErrors: validationErrorsV10
     }
 }

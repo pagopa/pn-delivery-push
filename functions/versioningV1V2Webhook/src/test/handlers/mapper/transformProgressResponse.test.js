@@ -24,7 +24,7 @@ describe('createProgressResponseV10', () => {
             "example_document1.pdf",
             "example_document2.pdf"
         ];
-        expect(JSON.stringify(result.legalFactsIds)).to.equal(JSON.stringify(legalFactsArray));
+        expect(JSON.stringify(result.legalfactIds)).to.equal(JSON.stringify(legalFactsArray));
 
         expect(result.recipientIndex).to.equal(responseBody.element.details.recIndex);
         expect(result.analogCost).to.equal(responseBody.element.details.analogCost);
