@@ -74,8 +74,8 @@ class LegalFactPdfGeneratorTest {
                 pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("?aar");
                 Map<String, String> additional = new HashMap<>();
                 additional.put("raddoperatorcaf", "true");
-                additional.put("raddoperatormooney", "true");
-                additional.put("raddoperatorsailpost", "true");
+                additional.put("raddoperatormooney", "false");
+                additional.put("raddoperatorsailpost", "false");
                 pnDeliveryPushConfigs.getWebapp().setAdditional(additional);
                 pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
                 pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
