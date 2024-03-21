@@ -61,7 +61,7 @@ class WebhookUtilsTest {
         pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
         timelineMapper = new DtoToEntityTimelineMapper();
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        timelineElementJsonConverter = new TimelineElementJsonConverter();
+        timelineElementJsonConverter = new TimelineElementJsonConverter(objectMapper);
 
         PnDeliveryPushConfigs.Webhook webhook = new PnDeliveryPushConfigs.Webhook();
         webhook.setScheduleInterval(1000L);

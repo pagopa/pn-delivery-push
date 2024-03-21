@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,12 +16,14 @@ import org.mockito.Mockito;
 
 
 class TimelineElementJsonConverterTest {
-    private TimelineElementJsonConverter converter = new TimelineElementJsonConverter();
+    private ObjectMapper objectMapper = new ObjectMapper();
+    private TimelineElementJsonConverter converter = new TimelineElementJsonConverter(objectMapper);
 
 
     @BeforeEach
     void setUp() {
-        this.converter = new TimelineElementJsonConverter();
+        this.objectMapper = new ObjectMapper();
+        this.converter = new TimelineElementJsonConverter(this.objectMapper);
     }
 
     @Test

@@ -17,7 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class TimelineElementJsonConverter {
     private static final String LOG_MSG = "Timeline element entity not converted into JSON";
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
+
+    public TimelineElementJsonConverter(ObjectMapper objectMapper){
+        this.objectMapper = objectMapper.copy();
+    }
 
 
     public String entityToJson(TimelineElementEntity entity) {
