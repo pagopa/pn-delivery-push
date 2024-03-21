@@ -1,30 +1,26 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
-import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mockito;
-import org.junit.jupiter.api.Test;
-
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 
 class TimelineElementJsonConverterTest {
-    private ObjectMapper objectMapper = new ObjectMapper();
-    private TimelineElementJsonConverter converter = new TimelineElementJsonConverter(objectMapper);
+    private TimelineElementJsonConverter converter = new TimelineElementJsonConverter();
 
 
     @BeforeEach
     void setUp() {
-        this.objectMapper = new ObjectMapper();
-        this.converter = new TimelineElementJsonConverter(this.objectMapper);
+        this.converter = new TimelineElementJsonConverter();
     }
 
     @Test
