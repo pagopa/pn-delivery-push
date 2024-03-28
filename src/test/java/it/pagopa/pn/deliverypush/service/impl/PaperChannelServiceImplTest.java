@@ -457,7 +457,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", Collections.emptyList());
 
         // THEN
-        Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachments(any());
+        Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachments(any(), any());
         Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any());
     }
 

@@ -34,6 +34,7 @@ public class PaperChannelSendClientImpl implements PaperChannelSendClient {
         prepareRequest.setAttachmentUrls(paperChannelPrepareRequest.getAttachments());
         prepareRequest.setReceiverFiscalCode(paperChannelPrepareRequest.getRecipientInt().getTaxId());
         prepareRequest.setReceiverType(paperChannelPrepareRequest.getRecipientInt().getRecipientType().getValue());
+        prepareRequest.setNotificationSentAt(Instant.now());
 
         prepareRequest.setRelatedRequestId(paperChannelPrepareRequest.getRelatedRequestId());
         prepareRequest.setDiscoveredAddress(mapInternalToExternal(paperChannelPrepareRequest.getDiscoveredAddress()));
