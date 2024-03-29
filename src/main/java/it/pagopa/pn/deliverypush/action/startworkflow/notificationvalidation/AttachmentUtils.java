@@ -88,10 +88,8 @@ public class AttachmentUtils {
         List<String> attachments = new ArrayList<>();
 
         String aarUrl = aarGenerationDetails.getGeneratedAarUrl();
-        if(Boolean.TRUE.equals(isPrepareFlow))
-            aarUrl = addQueryParam(aarUrl, FileTagEnumInt.AAR);
-
-        attachments.add(0, aarUrl);
+        
+        attachments.add(0, formatWithDocTag(aarUrl, FileTagEnumInt.AAR, isPrepareFlow));
         // nel caso in cui NON sia simple registered letter, devo allegare anche gli atti
 
         NotificationRecipientInt notificationRecipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
@@ -265,7 +263,7 @@ public class AttachmentUtils {
     public List<String> getNotificationAttachments(NotificationInt notification, Boolean isPrepareFlow) {
         return notification.getDocuments().stream()
                 .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
-                .map(u -> Boolean.TRUE.equals(isPrepareFlow) ? addQueryParam(u, FileTagEnumInt.DOCUMENT) : u)
+                .map(u -> formatWithDocTag(u, FileTagEnumInt.DOCUMENT, isPrepareFlow))
                 .toList();
     }
 
@@ -277,7 +275,7 @@ public class AttachmentUtils {
 
         attachments.addAll(getNotificationPagoPaPayments(recipient, isPrepareFlow));
         if (Boolean.TRUE.equals(isPrepareFlow)) {
-            addNotificationF24PaymentsUrl(attachments, notification, recipient, recIndex);
+            addNotificationF24PaymentsUrl(attachments, notification, recipient, recIndex, isPrepareFlow);
         } else {
             // Se non è flusso prepare, è flusso send e non devo includere la URL degli F24 ma provare ad aggiungere l'eventuale lista di pdf prodotti agli attachments
             if(!CollectionUtils.isEmpty(replacedF24AttachmentUrls)){
@@ -292,20 +290,24 @@ public class AttachmentUtils {
                 .filter(notificationPaymentInfoIntV2 -> notificationPaymentInfoIntV2.getPagoPA() != null && notificationPaymentInfoIntV2.getPagoPA().getAttachment() != null)
                 .map(payment -> payment.getPagoPA().getAttachment())
                 .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
-                .map(u -> Boolean.TRUE.equals(isPrepareFlow) ? addQueryParam(u, FileTagEnumInt.ATTACHMENT_PAGOPA) : u)
+                .map(u -> formatWithDocTag(u, FileTagEnumInt.ATTACHMENT_PAGOPA, isPrepareFlow))
                 .toList();
     }
 
-    private String addQueryParam(String uri, FileTagEnumInt docTag){
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(uri);
-        uriBuilder.queryParam("docTag",docTag.getValue());
-        return uriBuilder.toUriString();
+    private String formatWithDocTag(String uri, FileTagEnumInt docTag, Boolean isPrepareFlow){
+        if (Boolean.TRUE.equals(isPrepareFlow)){
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(uri);
+            uriBuilder.queryParam("docTag",docTag.getValue());
+            return uriBuilder.toUriString();
+        }
+        return uri;
     }
 
     private void addNotificationF24PaymentsUrl(List<String> attachments,
                                                NotificationInt notification,
                                                NotificationRecipientInt recipient,
-                                               Integer recIndex
+                                               Integer recIndex,
+                                               Boolean isPrepareFlow
     ) {
         List<F24Int> f24Payments = recipient.getPayments().stream()
                 .map(NotificationPaymentInfoInt::getF24)
@@ -327,8 +329,7 @@ public class AttachmentUtils {
             cost = retrieveCost(notification, recIndex);
             vat = notification.getVat();
         }
-
-        attachments.add(getF24Url(notification.getIun(), recIndex, cost, vat));
+        attachments.add(formatWithDocTag(getF24Url(notification.getIun(), recIndex, cost, vat), FileTagEnumInt.ATTACHMENT_F24, isPrepareFlow));
     }
 
     private Integer retrieveCost(NotificationInt notificationInt, int recipientIdx) {
@@ -366,7 +367,6 @@ public class AttachmentUtils {
 
         if (cost != null && cost > 0) f24Uri.queryParam("cost", cost);
         if (vat != null) f24Uri.queryParam("vat", vat);
-        f24Uri.queryParam("docTag", FileTagEnumInt.ATTACHMENT_F24);
         
         return f24Uri.toUriString();
     }

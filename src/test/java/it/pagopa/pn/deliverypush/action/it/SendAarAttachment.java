@@ -50,7 +50,7 @@ public class SendAarAttachment extends CommonTestConfiguration{
     }
 
     @NotNull
-    static List<String> replaceDocTagFromListAttachment(List<String> attachments) {
+    static List<String> replaceQueryParamsFromListAttachment(List<String> attachments) {
         return attachments.stream().map( attachment -> {
                 UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(attachment);
                 return uriBuilder.replaceQuery("").toUriString();
@@ -139,7 +139,7 @@ public class SendAarAttachment extends CommonTestConfiguration{
         PaperChannelPrepareRequest paperChannelPrepareRequest = paperChannelPrepareRequestCaptor.getValue();
         List<String> sentAttachmentKey = paperChannelPrepareRequest.getAttachments();
         //Viene sempre rimossa la stringa safeStorage e i query param
-        return replaceSafeStorageKeyFromListAttachment(replaceDocTagFromListAttachment(sentAttachmentKey));
+        return replaceSafeStorageKeyFromListAttachment(replaceQueryParamsFromListAttachment(sentAttachmentKey));
     }
 
     List<String> getSentAttachmentKeyFromSend() {
