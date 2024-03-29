@@ -263,14 +263,10 @@ public class AttachmentUtils {
     }
 
     public List<String> getNotificationAttachments(NotificationInt notification, Boolean isPrepareFlow) {
-        List<String> url = notification.getDocuments().stream()
+        return notification.getDocuments().stream()
                 .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
+                .map(u -> Boolean.TRUE.equals(isPrepareFlow) ? addQueryParam(u, FileTagEnumInt.DOCUMENT) : u)
                 .toList();
-        if(Boolean.TRUE.equals(isPrepareFlow))
-            return url.stream()
-                    .map(u -> addQueryParam(u, FileTagEnumInt.DOCUMENT))
-                    .toList();
-        return url;
     }
 
     public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, Boolean isPrepareFlow, List<String> replacedF24AttachmentUrls) {
@@ -292,16 +288,12 @@ public class AttachmentUtils {
     }
 
     private List<String> getNotificationPagoPaPayments(NotificationRecipientInt recipient, Boolean isPrepareFlow) {
-        List<String> url =  recipient.getPayments().stream()
+        return recipient.getPayments().stream()
                 .filter(notificationPaymentInfoIntV2 -> notificationPaymentInfoIntV2.getPagoPA() != null && notificationPaymentInfoIntV2.getPagoPA().getAttachment() != null)
                 .map(payment -> payment.getPagoPA().getAttachment())
                 .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
+                .map(u -> Boolean.TRUE.equals(isPrepareFlow) ? addQueryParam(u, FileTagEnumInt.ATTACHMENT_PAGOPA) : u)
                 .toList();
-        if(Boolean.TRUE.equals(isPrepareFlow))
-            return url.stream()
-                    .map(u -> addQueryParam(u, FileTagEnumInt.ATTACHMENT_PAGOPA))
-                    .toList();
-        return url;
     }
 
     private String addQueryParam(String uri, FileTagEnumInt docTag){
@@ -309,7 +301,6 @@ public class AttachmentUtils {
         uriBuilder.queryParam("docTag",docTag.getValue());
         return uriBuilder.toUriString();
     }
-
 
     private void addNotificationF24PaymentsUrl(List<String> attachments,
                                                NotificationInt notification,
