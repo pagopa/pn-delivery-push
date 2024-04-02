@@ -16,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PhysicalAddressRelatedTimelineElement;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ResultFilter;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
@@ -255,7 +256,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
     @Override
     public String sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade,
-                                         String prepareRequestId, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls) {
+                                         String prepareRequestId, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls,
+                                         List<ResultFilter> acceptedAttachments, List<ResultFilter> discardedAttachments) {
         String timelineId = null;
 
         if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){

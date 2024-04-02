@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetail
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ResultFilter;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -121,9 +122,12 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             log.info("paperChannelPrepareResponseHandler prepare response is for analog, sending it iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
             int sentAttemptMade = sendAnalogDetails.getSentAttemptMade();
 
+            List<ResultFilter> acceptedAttachments = response.getCategorizedAttachmentsResult().getAcceptedAttachments();
+
+            List<ResultFilter> discardedAttachments = response.getCategorizedAttachmentsResult().getDiscardedAttachments();
 
             try {
-                String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
+                String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType, replacedF24AttachmentUrls, acceptedAttachments, discardedAttachments);
                 String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
                 auditLogEvent.generateSuccess(auditlogmessage).log();
             } catch (PnPaperChannelChangedCostException e) {
