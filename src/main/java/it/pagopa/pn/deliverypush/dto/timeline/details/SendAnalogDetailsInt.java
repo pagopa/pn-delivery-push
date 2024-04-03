@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ResultFilter;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -23,6 +24,8 @@ public class SendAnalogDetailsInt extends BaseAnalogDetailsInt implements Analog
     private Integer envelopeWeight;
     private String prepareRequestId;
     private List<String> f24Attachments;
+    private List<ResultFilter> acceptedAttachments;
+    private List<ResultFilter> discardedAttachments;
     private Integer vat;
     
     @Override
@@ -37,6 +40,8 @@ public class SendAnalogDetailsInt extends BaseAnalogDetailsInt implements Analog
                 productType,
                 prepareRequestId,
                 !CollectionUtils.isEmpty(f24Attachments) ? String.join(",", f24Attachments) : Collections.emptyList(),
+                //accepted
+                //discarded
                 vat
         );
     }

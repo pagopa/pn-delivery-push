@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -270,8 +271,13 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         if(! isNotificationAlreadyViewed) {
             log.info("Analog notification sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
+            List<String> attachments;
+
             // recupero gli allegati
-            List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.ANALOG_NOTIFICATION), false, replacedF24AttachmentUrls);
+            if(acceptedAttachments.isEmpty() && discardedAttachments.isEmpty())
+                attachments = legacyRetrieveAcceptedAttachments(notification, recIndex, replacedF24AttachmentUrls);
+            else
+                attachments = acceptedAttachments.stream().map(ResultFilter::getFileKey).toList();
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
@@ -296,7 +302,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                         .prepareRequestId(prepareRequestId)
                         .build();
 
-                timelineId = paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, analogDtoInfo, replacedF24AttachmentUrls);
+                timelineId = paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, analogDtoInfo, replacedF24AttachmentUrls, acceptedAttachments, discardedAttachments);
 
                 log.info("Analog notification sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
@@ -313,6 +319,10 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         return timelineId;
     }
 
+    private List<String> legacyRetrieveAcceptedAttachments(NotificationInt notification, Integer recIndex, List<String> replacedF24AttachmentUrls){
+        return attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.ANALOG_NOTIFICATION), false, replacedF24AttachmentUrls);
+
+    }
 
     @NotNull
     private PhysicalAddressInt.ANALOG_TYPE getAnalogType(NotificationInt notification) {

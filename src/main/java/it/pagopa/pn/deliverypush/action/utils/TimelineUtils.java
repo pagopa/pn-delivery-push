@@ -81,6 +81,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ValidateF24Int;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ValidateNormalizeAddressDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ValidatedF24DetailInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ResultFilter;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -506,7 +507,9 @@ public class TimelineUtils {
                                                                               Integer recIndex,
                                                                               NotificationInt notification,
                                                                               AnalogDtoInt analogDtoInfo,
-                                                                              List<String> replacedF24AttachmentUrls) {
+                                                                              List<String> replacedF24AttachmentUrls,
+                                                                              List<ResultFilter> acceptedAttachments,
+                                                                              List<ResultFilter> discardedAttachments  ) {
         SendResponse sendResponse = analogDtoInfo.getSendResponse();
         log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={} analogCost={} relatedRequestId={} replacedF24AttachmentUrls={}", notification.getIun(), recIndex, sendResponse.getAmount(), analogDtoInfo.getRelatedRequestId(), replacedF24AttachmentUrls);
         ServiceLevelInt serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevelInt.valueOf(notification.getPhysicalCommunicationType().name()) : null;
@@ -529,6 +532,8 @@ public class TimelineUtils {
                 .numberOfPages(sendResponse.getNumberOfPages())
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
                 .f24Attachments(replacedF24AttachmentUrls)
+                .acceptedAttachments(acceptedAttachments)
+                .discardedAttachments(discardedAttachments)
                 .prepareRequestId(analogDtoInfo.getPrepareRequestId())
                 .vat(notification.getVat())
                 .build();

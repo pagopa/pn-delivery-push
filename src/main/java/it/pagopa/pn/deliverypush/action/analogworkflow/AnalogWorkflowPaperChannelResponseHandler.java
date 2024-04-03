@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetail
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.CategorizedAttachmentsResult;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ResultFilter;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
@@ -125,6 +126,9 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             List<ResultFilter> acceptedAttachments = response.getCategorizedAttachmentsResult().getAcceptedAttachments();
 
             List<ResultFilter> discardedAttachments = response.getCategorizedAttachmentsResult().getDiscardedAttachments();
+
+            //troppi 9 campi?
+            //CategorizedAttachmentsResult attachmentsResult = response.getCategorizedAttachmentsResult();
 
             try {
                 String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType, replacedF24AttachmentUrls, acceptedAttachments, discardedAttachments);

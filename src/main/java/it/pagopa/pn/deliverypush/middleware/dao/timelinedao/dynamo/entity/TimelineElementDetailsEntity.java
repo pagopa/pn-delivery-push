@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity;
 
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ResultFilter;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -66,6 +67,8 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private IoSendMessageResultEntity ioSendMessageResult;
     @Getter(onMethod=@__({@DynamoDbAttribute("envelopeWeight")})) private Integer envelopeWeight;
     @Getter(onMethod=@__({@DynamoDbAttribute("f24Attachments")})) private List<String> f24Attachments;
+    @Getter(onMethod=@__({@DynamoDbAttribute("acceptedAttachments")})) private List<ResultFilter> acceptedAttachments;
+    @Getter(onMethod=@__({@DynamoDbAttribute("discardedAttachments")})) private List<ResultFilter> discardedAttachments;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryDetailCode")})) private String deliveryDetailCode;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryFailureCause")})) private String deliveryFailureCause;
     @Getter(onMethod=@__({@DynamoDbAttribute("attachments")})) private List<AttachmentDetailsEntity> attachments;
@@ -85,4 +88,5 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("notRefinedRecipientIndexes")})) private List<Integer> notRefinedRecipientIndexes;
     @Getter(onMethod=@__({@DynamoDbAttribute("failureCause")})) private String failureCause;
     @Getter(onMethod=@__({@DynamoDbAttribute("vat")})) private Integer vat;
+
 }
