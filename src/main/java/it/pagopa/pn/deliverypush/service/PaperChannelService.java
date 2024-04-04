@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.service;
 
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ResultFilter;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 
 import java.util.List;
 
@@ -13,5 +13,5 @@ public interface PaperChannelService {
 
     String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String requestId, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls);
 
-    String sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade, String requestId, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls, List<ResultFilter> acceptedAttachments, List<ResultFilter> discardedAttachments);
+    String sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade, String requestId, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls, CategorizedAttachmentsResultInt categorizedAttachmentsResult);
 }

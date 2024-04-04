@@ -12,7 +12,9 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.ResultFilterInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PhysicalAddressRelatedTimelineElement;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
@@ -258,7 +260,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     @Override
     public String sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade,
                                          String prepareRequestId, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls,
-                                         List<ResultFilter> acceptedAttachments, List<ResultFilter> discardedAttachments) {
+                                         CategorizedAttachmentsResultInt categorizedAttachmentsResult) {
         String timelineId = null;
 
         if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
@@ -274,10 +276,11 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             List<String> attachments;
 
             // recupero gli allegati
-            if(acceptedAttachments.isEmpty() && discardedAttachments.isEmpty())
+            if(categorizedAttachmentsResult == null || categorizedAttachmentsResult.getAcceptedAttachments().isEmpty())
                 attachments = legacyRetrieveAcceptedAttachments(notification, recIndex, replacedF24AttachmentUrls);
-            else
-                attachments = acceptedAttachments.stream().map(ResultFilter::getFileKey).toList();
+            else{
+                attachments = categorizedAttachmentsResult.getAcceptedAttachments().stream().map(ResultFilterInt::getFileKey).toList();
+            }
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
@@ -302,7 +305,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                         .prepareRequestId(prepareRequestId)
                         .build();
 
-                timelineId = paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, analogDtoInfo, replacedF24AttachmentUrls, acceptedAttachments, discardedAttachments);
+                timelineId = paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, analogDtoInfo, replacedF24AttachmentUrls, categorizedAttachmentsResult);
 
                 log.info("Analog notification sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
