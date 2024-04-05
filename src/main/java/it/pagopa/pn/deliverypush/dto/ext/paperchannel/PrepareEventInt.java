@@ -15,6 +15,7 @@ import java.util.List;
 public class PrepareEventInt extends PaperEventInt {
     private PhysicalAddressInt receiverAddress;
     private List<String> replacedF24AttachmentUrls;
+    private CategorizedAttachmentsResultInt categorizedAttachmentsResult;
     private String productType;
     private String failureDetailCode;
 

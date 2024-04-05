@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchanne
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.Problem;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ProblemError;
@@ -26,6 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -163,21 +165,33 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
         String path = "/paper-channel-private/v1/b2b/paper-deliveries-prepare/{requestId}"
                 .replace("{requestId}", requestId);
 
+        // si vuole verificare la data sentAt sia presente nel body della request
+        NotificationInt notificationInt = NotificationTestBuilder.builder()
+                .withSentAt(Instant.EPOCH.plusMillis(57))
+                .withIun("iun_12345")
+                .build();
+
         PaperChannelPrepareRequest paperChannelPrepareRequest = PaperChannelPrepareRequest.builder()
                 .analogType(PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
                 .requestId(requestId)
                 .paAddress(PhysicalAddressInt.builder()
                         .address("test")
                         .build())
-                .recipientInt(NotificationRecipientTestBuilder.builder().build())
-                .notificationInt(NotificationTestBuilder.builder().build())
+                .recipientInt(NotificationRecipientTestBuilder.builder()
+                        .withTaxId("GeneratedTaxId_9ce24c59-862c-4024-aa75-40d888e6acac").build())
+                .notificationInt(notificationInt)
                 .attachments(List.of("Att"))
                 .build();
+
+        // notare che il campo sentAt nel body non viene serializzato nel formato data
+        String body = """
+                {"proposalProductType":"RS","notificationSentAt":0.057000000,"iun":"iun_12345","requestId":"requestId","receiverFiscalCode":"GeneratedTaxId_9ce24c59-862c-4024-aa75-40d888e6acac","receiverType":"PF","receiverAddress":{"fullname":null,"address":"test","city":null},"printType":"BN_FRONTE_RETRO","attachmentUrls":["Att"]}""";
 
         new MockServerClient("localhost", 9998)
                 .when(request()
                         .withMethod("POST")
                         .withPath(path)
+                        .withBody(body)
                 )
                 .respond(response()
                         .withStatusCode(200)

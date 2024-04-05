@@ -1,8 +1,13 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.ResultFilterInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
 class SendAnalogDetailsIntTest {
     private SendAnalogDetailsInt detailsInt;
     @BeforeEach
@@ -14,6 +19,7 @@ class SendAnalogDetailsIntTest {
         detailsInt.setAnalogCost(100);
         detailsInt.setServiceLevel(ServiceLevelInt.REGISTERED_LETTER_890);
         detailsInt.setSentAttemptMade(2);
+        detailsInt.setCategorizedAttachmentsResult(CategorizedAttachmentsResultInt.builder().acceptedAttachments(List.of(ResultFilterInt.builder().fileKey("fileKey").build())).build());
     }
 
     @Test
@@ -45,8 +51,12 @@ class SendAnalogDetailsIntTest {
     void getAnalogCost() {
         Assertions.assertEquals(100, detailsInt.getAnalogCost());
     }
+    @Test
+    void getCategorizedAttachmentsResult(){
+        Assertions.assertEquals(CategorizedAttachmentsResultInt.builder().acceptedAttachments(List.of(ResultFilterInt.builder().fileKey("fileKey").build())).build(), detailsInt.getCategorizedAttachmentsResult());
+    }
 
     private SendAnalogDetailsInt buildSendAnalogDetailsInt() {
-        return SendAnalogDetailsInt.builder().serviceLevel(ServiceLevelInt.REGISTERED_LETTER_890).physicalAddress(PhysicalAddressInt.builder().address("address").build()).analogCost(100).relatedRequestId("abc").sentAttemptMade(2).recIndex(3).build();
+        return SendAnalogDetailsInt.builder().serviceLevel(ServiceLevelInt.REGISTERED_LETTER_890).physicalAddress(PhysicalAddressInt.builder().address("address").build()).analogCost(100).relatedRequestId("abc").sentAttemptMade(2).recIndex(3).categorizedAttachmentsResult(CategorizedAttachmentsResultInt.builder().acceptedAttachments(List.of(ResultFilterInt.builder().fileKey("fileKey").build())).build()).build();
     }
 }

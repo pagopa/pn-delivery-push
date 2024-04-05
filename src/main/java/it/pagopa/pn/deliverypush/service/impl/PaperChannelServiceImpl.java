@@ -12,7 +12,9 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.ResultFilterInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PhysicalAddressRelatedTimelineElement;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
@@ -255,7 +257,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
     @Override
     public String sendAnalogNotification(NotificationInt notification, Integer recIndex, int sentAttemptMade,
-                                         String prepareRequestId, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls) {
+                                         String prepareRequestId, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls,
+                                         CategorizedAttachmentsResultInt categorizedAttachmentsResult) {
         String timelineId = null;
 
         if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
@@ -268,8 +271,14 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         if(! isNotificationAlreadyViewed) {
             log.info("Analog notification sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
+            List<String> attachments;
+
             // recupero gli allegati
-            List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.ANALOG_NOTIFICATION), false, replacedF24AttachmentUrls);
+            if(categorizedAttachmentsResult == null || categorizedAttachmentsResult.getAcceptedAttachments().isEmpty())
+                attachments = legacyRetrieveAcceptedAttachments(notification, recIndex, replacedF24AttachmentUrls);
+            else{
+                attachments = categorizedAttachmentsResult.getAcceptedAttachments().stream().map(ResultFilterInt::getFileKey).toList();
+            }
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
@@ -294,7 +303,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                         .prepareRequestId(prepareRequestId)
                         .build();
 
-                timelineId = paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, analogDtoInfo, replacedF24AttachmentUrls);
+                timelineId = paperChannelUtils.addSendAnalogNotificationToTimeline(notification, receiverAddress, recIndex, analogDtoInfo, replacedF24AttachmentUrls, categorizedAttachmentsResult);
 
                 log.info("Analog notification sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
@@ -311,6 +320,10 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         return timelineId;
     }
 
+    private List<String> legacyRetrieveAcceptedAttachments(NotificationInt notification, Integer recIndex, List<String> replacedF24AttachmentUrls){
+        return attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.ANALOG_NOTIFICATION), false, replacedF24AttachmentUrls);
+
+    }
 
     @NotNull
     private PhysicalAddressInt.ANALOG_TYPE getAnalogType(NotificationInt notification) {

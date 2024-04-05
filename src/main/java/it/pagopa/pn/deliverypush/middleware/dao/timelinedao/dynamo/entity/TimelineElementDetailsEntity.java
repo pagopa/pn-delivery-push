@@ -66,6 +66,7 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("ioSendMessageResult")})) private IoSendMessageResultEntity ioSendMessageResult;
     @Getter(onMethod=@__({@DynamoDbAttribute("envelopeWeight")})) private Integer envelopeWeight;
     @Getter(onMethod=@__({@DynamoDbAttribute("f24Attachments")})) private List<String> f24Attachments;
+    @Getter(onMethod=@__({@DynamoDbAttribute("categorizedAttachmentsResult")})) private CategorizedAttachmentsResultEntity categorizedAttachmentsResult;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryDetailCode")})) private String deliveryDetailCode;
     @Getter(onMethod=@__({@DynamoDbAttribute("deliveryFailureCause")})) private String deliveryFailureCause;
     @Getter(onMethod=@__({@DynamoDbAttribute("attachments")})) private List<AttachmentDetailsEntity> attachments;
@@ -85,4 +86,5 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("notRefinedRecipientIndexes")})) private List<Integer> notRefinedRecipientIndexes;
     @Getter(onMethod=@__({@DynamoDbAttribute("failureCause")})) private String failureCause;
     @Getter(onMethod=@__({@DynamoDbAttribute("vat")})) private Integer vat;
+
 }

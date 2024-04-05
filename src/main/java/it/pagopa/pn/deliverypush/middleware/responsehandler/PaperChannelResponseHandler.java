@@ -3,6 +3,8 @@ package it.pagopa.pn.deliverypush.middleware.responsehandler;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.utils.LogUtils;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.ResultFilterInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.*;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -15,6 +17,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleE
 import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED;
@@ -171,6 +174,27 @@ public class PaperChannelResponseHandler {
                 .failureDetailCode(Optional.ofNullable(event.getFailureDetailCode()).map(FailureDetailCodeEnum::getValue).orElse(null))
                 .productType(event.getProductType());
 
+        if (event.getCategorizedAttachments() != null) {
+            CategorizedAttachmentsResult rawCategorizedAttachments = event.getCategorizedAttachments();
+
+            List<ResultFilterInt> acceptedAttachments = rawCategorizedAttachments.getAcceptedAttachments() == null ? null :
+                    rawCategorizedAttachments.getAcceptedAttachments().stream()
+                        .map(this::mapResultFilterToInternal)
+                        .toList();
+
+            List<ResultFilterInt> discardedAttachments = rawCategorizedAttachments.getDiscardedAttachments() == null ? null :
+                    rawCategorizedAttachments.getDiscardedAttachments().stream()
+                            .map(this::mapResultFilterToInternal)
+                            .toList();
+
+            builder.categorizedAttachmentsResult(
+                    CategorizedAttachmentsResultInt.builder()
+                            .acceptedAttachments(acceptedAttachments)
+                            .discardedAttachments(discardedAttachments)
+                            .build()
+            );
+        }
+
         if (event.getReceiverAddress() != null) {
             AnalogAddress rawAddress = event.getReceiverAddress();
 
@@ -193,6 +217,14 @@ public class PaperChannelResponseHandler {
         return builder.build();
     }
 
+    private ResultFilterInt mapResultFilterToInternal(ResultFilter resultFilter){
+        return ResultFilterInt.builder()
+                .fileKey(resultFilter.getFileKey())
+                .result(resultFilter.getResult())
+                .reasonCode(resultFilter.getReasonCode())
+                .reasonDescription(resultFilter.getReasonDescription())
+                .build();
+    }
 
     private void validateEvent(PrepareEvent event){
         // mi aspetto ci sia lo statusCode
