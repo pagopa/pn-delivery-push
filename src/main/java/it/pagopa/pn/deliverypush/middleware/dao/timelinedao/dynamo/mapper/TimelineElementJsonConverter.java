@@ -1,31 +1,30 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
-import lombok.AllArgsConstructor;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
-
 @Slf4j
 @Component
-@AllArgsConstructor
 public class TimelineElementJsonConverter {
     private static final String LOG_MSG = "Timeline element entity not converted into JSON";
     private ObjectMapper objectMapper;
 
+    public TimelineElementJsonConverter(ObjectMapper objectMapper){
+        this.objectMapper = objectMapper.copy();
+        this.objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
 
     public String entityToJson(TimelineElementEntity entity) {
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> objectHashMap = objectMapper.convertValue(entity, HashMap.class);
         try {
             return objectMapper.writeValueAsString(objectHashMap);

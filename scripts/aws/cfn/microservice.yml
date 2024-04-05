@@ -1411,7 +1411,7 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
-        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
+        # - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   VersioningV1V2WebhookLambdaAlarms:
     Type: AWS::CloudFormation::Stack
