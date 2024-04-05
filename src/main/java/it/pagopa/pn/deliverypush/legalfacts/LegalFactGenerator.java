@@ -67,7 +67,6 @@ public class LegalFactGenerator {
     public static final String FIELD_LEGALFACT_CREATION_DATE = "legalFactCreationDate";
     public static final String FIELD_QRCODE_QUICK_ACCESS_LINK = "qrCodeQuickAccessLink";
     public static final String FIELD_QUICK_ACCESS_LINK = "quickAccessLink";
-    public static final String FIELD_QUICK_LOGIN_ACCESS_LINK = "quickloginAccessLink";
     public static final String FIELD_RECIPIENT_TYPE = "recipientType";
     public static final String FIELD_DELEGATE = "delegate";
     public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
@@ -374,7 +373,6 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PN_FAQ_COMPLETION_MOMENT_URL_LABEL, this.getFAQCompletionMomentAccessLinkLabel());
         templateModel.put(FIELD_SEND_URL, this.getFAQSendURL());
         templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
-        templateModel.put(FIELD_QUICK_LOGIN_ACCESS_LINK, this.getQuickLoginAccessLink(recipient, quickAccesstoken) );
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
         templateModel.put(FIELD_SENDURL, this.getAccessLink());
         templateModel.put(FIELD_SENDURL_LABEL, this.getAccessLinkLabel());
@@ -414,14 +412,9 @@ public class LegalFactGenerator {
     }
 
     private String getQuickAccessLink(NotificationRecipientInt recipient, String quickAccessToken) {
-        String templateUrl = getAccessUrl(recipient) + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix() ;
+        String templateUrl = getAccessUrl(recipient) + "auth/login" + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix() ;
 
         log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, quickAccessToken );
-        return templateUrl + '=' + quickAccessToken;
-    }
-
-    private String getQuickLoginAccessLink(NotificationRecipientInt recipient, String quickAccessToken) {
-        String templateUrl = getAccessUrl(recipient) + "auth/login" + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix() ;
         return templateUrl + '=' + quickAccessToken;
     }
 
