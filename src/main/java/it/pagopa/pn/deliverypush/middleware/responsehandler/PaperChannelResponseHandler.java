@@ -180,22 +180,12 @@ public class PaperChannelResponseHandler {
 
             List<ResultFilterInt> acceptedAttachments = rawCategorizedAttachments.getAcceptedAttachments() == null ? null :
                     rawCategorizedAttachments.getAcceptedAttachments().stream()
-                        .map(r -> ResultFilterInt.builder()
-                                .fileKey(r.getFileKey())
-                                .result(r.getResult())
-                                .reasonCode(r.getReasonCode())
-                                .reasonDescription(r.getReasonDescription())
-                                .build())
+                        .map(this::mapResultFilterToInternal)
                         .collect(Collectors.toList());
 
             List<ResultFilterInt> discardedAttachments = rawCategorizedAttachments.getDiscardedAttachments() == null ? null :
                     rawCategorizedAttachments.getDiscardedAttachments().stream()
-                            .map(r -> ResultFilterInt.builder()
-                                    .fileKey(r.getFileKey())
-                                    .result(r.getResult())
-                                    .reasonCode(r.getReasonCode())
-                                    .reasonDescription(r.getReasonDescription())
-                                    .build())
+                            .map(this::mapResultFilterToInternal)
                             .collect(Collectors.toList());
 
             builder.categorizedAttachmentsResult(
@@ -228,6 +218,14 @@ public class PaperChannelResponseHandler {
         return builder.build();
     }
 
+    private ResultFilterInt mapResultFilterToInternal(ResultFilter resultFilter){
+        return ResultFilterInt.builder()
+                .fileKey(resultFilter.getFileKey())
+                .result(resultFilter.getResult())
+                .reasonCode(resultFilter.getReasonCode())
+                .reasonDescription(resultFilter.getReasonDescription())
+                .build();
+    }
 
     private void validateEvent(PrepareEvent event){
         // mi aspetto ci sia lo statusCode
