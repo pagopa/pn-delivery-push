@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED;
 
@@ -181,12 +180,12 @@ public class PaperChannelResponseHandler {
             List<ResultFilterInt> acceptedAttachments = rawCategorizedAttachments.getAcceptedAttachments() == null ? null :
                     rawCategorizedAttachments.getAcceptedAttachments().stream()
                         .map(this::mapResultFilterToInternal)
-                        .collect(Collectors.toList());
+                        .toList();
 
             List<ResultFilterInt> discardedAttachments = rawCategorizedAttachments.getDiscardedAttachments() == null ? null :
                     rawCategorizedAttachments.getDiscardedAttachments().stream()
                             .map(this::mapResultFilterToInternal)
-                            .collect(Collectors.toList());
+                            .toList();
 
             builder.categorizedAttachmentsResult(
                     CategorizedAttachmentsResultInt.builder()
