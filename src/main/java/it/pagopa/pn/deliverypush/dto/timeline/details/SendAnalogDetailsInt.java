@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -23,6 +24,7 @@ public class SendAnalogDetailsInt extends BaseAnalogDetailsInt implements Analog
     private Integer envelopeWeight;
     private String prepareRequestId;
     private List<String> f24Attachments;
+    private CategorizedAttachmentsResultInt categorizedAttachmentsResult;
     private Integer vat;
     
     @Override

@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.ResultFilterInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.*;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -48,6 +50,14 @@ class PaperChannelResponseHandlerTest {
         prepareEvent.setStatusDetail("ok");
         prepareEvent.setReceiverAddress(new AnalogAddress());
         prepareEvent.setReplacedF24AttachmentUrls(List.of("replacedF24Urls"));
+        prepareEvent.setCategorizedAttachments(new CategorizedAttachmentsResult());
+        prepareEvent.getCategorizedAttachments().setAcceptedAttachments(new ArrayList<>());
+        prepareEvent.getCategorizedAttachments().getAcceptedAttachments().add(new ResultFilter()
+                .fileKey("fileKey")
+                .result(ResultFilterEnum.SUCCESS)
+                .reasonCode("getReasonCode")
+                .reasonDescription("getReasonDescription"));
+        prepareEvent.getCategorizedAttachments().setDiscardedAttachments(new ArrayList<>());
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
         singleStatusUpdate.setPrepareEvent(prepareEvent);
 
@@ -62,6 +72,16 @@ class PaperChannelResponseHandlerTest {
                 .statusDateTime(instant)
                 .statusDetail("ok")
                 .replacedF24AttachmentUrls(List.of("replacedF24Urls"))
+                .categorizedAttachmentsResult(CategorizedAttachmentsResultInt.builder()
+                        .acceptedAttachments(List.of(ResultFilterInt.builder()
+                                .fileKey("fileKey")
+                                .result(ResultFilterEnum.SUCCESS)
+                                .reasonCode("getReasonCode")
+                                .reasonDescription("getReasonDescription")
+                                .build()))
+                        .discardedAttachments(new ArrayList<>())
+                        .build()
+                )
                 .receiverAddress(new PhysicalAddressInt())
                 .build();
 

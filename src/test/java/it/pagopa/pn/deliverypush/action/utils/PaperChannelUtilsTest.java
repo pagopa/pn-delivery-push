@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -89,6 +90,8 @@ class PaperChannelUtilsTest {
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
         List<String> attachments = Collections.emptyList();
 
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(new ArrayList<>()).discardedAttachments(new ArrayList<>()).build();
+
         SendResponse sendResponse = new SendResponse()
                 .amount(10);
         
@@ -100,9 +103,9 @@ class PaperChannelUtilsTest {
                 .prepareRequestId("prepare_request_id")
                 .build();
 
-        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification,analogDtoInfo, attachments)).thenReturn(timelineElementInternal);
+        Mockito.when(timelineUtils.buildSendAnalogNotificationTimelineElement(addressInt, 1, notification,analogDtoInfo, attachments, categorizedAttachmentsResult)).thenReturn(timelineElementInternal);
         
-        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   analogDtoInfo, attachments);
+        channelUtils.addSendAnalogNotificationToTimeline(notification, addressInt, 1,   analogDtoInfo, attachments, categorizedAttachmentsResult);
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 

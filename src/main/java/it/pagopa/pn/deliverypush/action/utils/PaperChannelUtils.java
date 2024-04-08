@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -123,9 +124,10 @@ public class PaperChannelUtils {
 
     
     public String addSendAnalogNotificationToTimeline(NotificationInt notification, PhysicalAddressInt physicalAddress, Integer recIndex,
-                                                      AnalogDtoInt analogDtoInfo, List<String> replacedF24AttachmentUrls) {
+                                                      AnalogDtoInt analogDtoInfo, List<String> replacedF24AttachmentUrls,
+                                                      CategorizedAttachmentsResultInt categorizedAttachmentsResult) {
         TimelineElementInternal timelineElementInternal = timelineUtils.buildSendAnalogNotificationTimelineElement(
-                physicalAddress, recIndex, notification, analogDtoInfo, replacedF24AttachmentUrls);
+                physicalAddress, recIndex, notification, analogDtoInfo, replacedF24AttachmentUrls, categorizedAttachmentsResult);
         addTimelineElement(timelineElementInternal,
                 notification
         );

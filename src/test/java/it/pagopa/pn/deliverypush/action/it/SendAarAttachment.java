@@ -20,6 +20,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -46,6 +47,15 @@ public class SendAarAttachment extends CommonTestConfiguration{
     @NotNull
     static List<String> replaceSafeStorageKeyFromListAttachment(List<String> attachments) {
         return attachments.stream().map( attachment -> attachment.replace(SAFE_STORAGE_URL_PREFIX, "")).toList();
+    }
+
+    @NotNull
+    static List<String> replaceQueryParamsFromListAttachment(List<String> attachments) {
+        return attachments.stream().map( attachment -> {
+                UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(attachment);
+                return uriBuilder.replaceQuery("").toUriString();
+            }).toList();
+
     }
     
     List<DocumentComposition.TemplateType> getListDocumentTypeGenerated(int times) throws IOException {
@@ -128,8 +138,8 @@ public class SendAarAttachment extends CommonTestConfiguration{
         Mockito.verify(paperChannelMock, Mockito.times(1)).prepare(paperChannelPrepareRequestCaptor.capture());
         PaperChannelPrepareRequest paperChannelPrepareRequest = paperChannelPrepareRequestCaptor.getValue();
         List<String> sentAttachmentKey = paperChannelPrepareRequest.getAttachments();
-        //Viene sempre rimossa la stringa safeStorage
-        return replaceSafeStorageKeyFromListAttachment(sentAttachmentKey);
+        //Viene sempre rimossa la stringa safeStorage e i query param
+        return replaceSafeStorageKeyFromListAttachment(replaceQueryParamsFromListAttachment(sentAttachmentKey));
     }
 
     List<String> getSentAttachmentKeyFromSend() {

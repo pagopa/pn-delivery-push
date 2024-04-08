@@ -33,6 +33,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -280,9 +282,13 @@ class AttachmentUtilsTest {
         Mockito.verify(safeStorageService, Mockito.times(2)).getFile(any(), Mockito.anyBoolean());
     }
 
+    @ParameterizedTest
+    @CsvSource(value = {
+            "false, http", // isPrepareFlow = false
+            "true, http?docTag=AAR", // isPrepareFlow = true
+    })
     @ExtendWith(MockitoExtension.class)
-    @Test
-    void retrieveAttachmentsAAR() {
+    void retrieveAttachmentsAAR(Boolean isPrepareFlow, String expectedResult) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2();
 
@@ -291,18 +297,23 @@ class AttachmentUtilsTest {
         Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         //WHEN
-        List<String> attachments = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR, false, List.of());
+        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR, isPrepareFlow, List.of());
 
         // THEN
-        Assertions.assertNotNull(attachments);
-        Assertions.assertFalse(attachments.isEmpty());
-        Assertions.assertEquals(1, attachments.size());
-        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl(),attachments.get(0));
+        Assertions.assertNotNull(attachments1);
+        Assertions.assertFalse(attachments1.isEmpty());
+        Assertions.assertEquals(1, attachments1.size());
+        Assertions.assertEquals(expectedResult,attachments1.get(0));
+
     }
 
+    @ParameterizedTest
+    @CsvSource(value = {
+            "false, http, safestorage://test", // isPrepareFlow = false
+            "true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT" // isPrepareFlow = true
+    })
     @ExtendWith(MockitoExtension.class)
-    @Test
-    void retrieveAttachmentsAAR_DOCUMENTS() {
+    void retrieveAttachmentsAAR_DOCUMENTS(Boolean isPrepareFlow, String expectedAarUrl, String expectedDocumentUrl) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2WithDocument();
 
@@ -311,14 +322,14 @@ class AttachmentUtilsTest {
         Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         //WHEN
-        List<String> attachments = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS, false, List.of());
+        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS, isPrepareFlow, List.of());
 
         // THEN
-        Assertions.assertNotNull(attachments);
-        Assertions.assertFalse(attachments.isEmpty());
-        Assertions.assertEquals(2, attachments.size());
-        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl(),attachments.get(0));
-        Assertions.assertEquals("safestorage://"+notification.getDocuments().get(0).getRef().getKey(),attachments.get(1));
+        Assertions.assertNotNull(attachments1);
+        Assertions.assertFalse(attachments1.isEmpty());
+        Assertions.assertEquals(2, attachments1.size());
+        Assertions.assertEquals(expectedAarUrl, attachments1.get(0));
+        Assertions.assertEquals(expectedDocumentUrl, attachments1.get(1));
     }
 
     @Test
@@ -372,9 +383,13 @@ class AttachmentUtilsTest {
         Assertions.assertEquals(sendAttachmentMode,pnSendMode.getDigitalSendAttachmentMode());
     }
 
+    @ParameterizedTest
+    @CsvSource(value = {
+            "false, http, safestorage://test, safestorage://paymentAttach", // isPrepareFlow = false
+            "true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA" // isPrepareFlow = true
+    })
     @ExtendWith(MockitoExtension.class)
-    @Test
-    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS() {
+    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS(Boolean isPrepareFlow, String expectedAarUrl, String expectedDocumentUrl, String expectedPagoPaUrl) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2WithDocument();
 
@@ -385,17 +400,15 @@ class AttachmentUtilsTest {
         Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notification.getRecipients().get(0));
 
         //WHEN
-        List<String> attachments = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, false, List.of());
+        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, isPrepareFlow, List.of());
 
         // THEN
-        System.out.println(attachments);
-        Assertions.assertNotNull(attachments);
-        Assertions.assertFalse(attachments.isEmpty());
-        Assertions.assertEquals(3, attachments.size());
-        Assertions.assertEquals(aarGenerationDetails.getGeneratedAarUrl(),attachments.get(0));
-        Assertions.assertEquals("safestorage://"+notification.getDocuments().get(0).getRef().getKey(),attachments.get(1));
-        Assertions.assertEquals("safestorage://"+notification.getRecipients().get(0).getPayments().get(0).getPagoPA().getAttachment().getRef().getKey(),
-                attachments.get(2));
+        Assertions.assertNotNull(attachments1);
+        Assertions.assertFalse(attachments1.isEmpty());
+        Assertions.assertEquals(3, attachments1.size());
+        Assertions.assertEquals(expectedAarUrl, attachments1.get(0));
+        Assertions.assertEquals(expectedDocumentUrl, attachments1.get(1));
+        Assertions.assertEquals(expectedPagoPaUrl, attachments1.get(2));
     }
 
     @Test
@@ -497,12 +510,12 @@ class AttachmentUtilsTest {
 
         //WHEN
         //la get notificationAttachment recupera solo i documenti
-        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachments(notification);
-        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachments(notification);
+        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachments(notification, true);
+        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachments(notification, false);
 
         Assertions.assertEquals(1, attachmentsRecipient1.size());
         Assertions.assertEquals(1, attachmentsRecipient2.size());
-        Assertions.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
+        Assertions.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey() + "?docTag=DOCUMENT"));
         Assertions.assertEquals(attachmentsRecipient2.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
     }
 
@@ -526,7 +539,7 @@ class AttachmentUtilsTest {
         //THEN
         Assertions.assertEquals(3, attachmentsRecipient1.size());
         Assertions.assertEquals(2, attachmentsRecipient2.size());
-        Assertions.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
+        Assertions.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey() + "?docTag=DOCUMENT"));
         Assertions.assertEquals(attachmentsRecipient2.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
 
         Assertions.assertEquals(attachmentsRecipient2.get(1), FileUtils.getKeyWithStoragePrefix(notification.getRecipients().get(recIndexRecipient2).getPayments().get(0).getPagoPA().getAttachment().getRef().getKey()));

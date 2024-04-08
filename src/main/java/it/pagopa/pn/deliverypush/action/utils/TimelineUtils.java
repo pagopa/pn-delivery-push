@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
@@ -506,7 +507,8 @@ public class TimelineUtils {
                                                                               Integer recIndex,
                                                                               NotificationInt notification,
                                                                               AnalogDtoInt analogDtoInfo,
-                                                                              List<String> replacedF24AttachmentUrls) {
+                                                                              List<String> replacedF24AttachmentUrls,
+                                                                              CategorizedAttachmentsResultInt categorizedAttachmentsResult) {
         SendResponse sendResponse = analogDtoInfo.getSendResponse();
         log.debug("buildSendAnalogNotificationTimelineElement - IUN={} and id={} analogCost={} relatedRequestId={} replacedF24AttachmentUrls={}", notification.getIun(), recIndex, sendResponse.getAmount(), analogDtoInfo.getRelatedRequestId(), replacedF24AttachmentUrls);
         ServiceLevelInt serviceLevel = notification.getPhysicalCommunicationType() != null ? ServiceLevelInt.valueOf(notification.getPhysicalCommunicationType().name()) : null;
@@ -529,6 +531,7 @@ public class TimelineUtils {
                 .numberOfPages(sendResponse.getNumberOfPages())
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
                 .f24Attachments(replacedF24AttachmentUrls)
+                .categorizedAttachmentsResult(categorizedAttachmentsResult)
                 .prepareRequestId(analogDtoInfo.getPrepareRequestId())
                 .vat(notification.getVat())
                 .build();

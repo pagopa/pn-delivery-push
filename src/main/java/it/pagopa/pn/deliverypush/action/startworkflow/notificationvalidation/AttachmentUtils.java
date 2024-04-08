@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileTagEnumInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
@@ -85,7 +86,10 @@ public class AttachmentUtils {
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
         List<String> attachments = new ArrayList<>();
-        attachments.add(0, aarGenerationDetails.getGeneratedAarUrl());
+
+        String aarUrl = aarGenerationDetails.getGeneratedAarUrl();
+        
+        attachments.add(0, formatWithDocTag(aarUrl, FileTagEnumInt.AAR, isPrepareFlow));
         // nel caso in cui NON sia simple registered letter, devo allegare anche gli atti
 
         NotificationRecipientInt notificationRecipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
@@ -93,7 +97,7 @@ public class AttachmentUtils {
         List<String> res = switch (sendAttachmentMode) {
             case AAR -> attachments;
             case AAR_DOCUMENTS -> {
-                attachments.addAll(getNotificationAttachments(notification));
+                attachments.addAll(getNotificationAttachments(notification, isPrepareFlow));
                 yield attachments;
             }
             case AAR_DOCUMENTS_PAYMENTS -> {
@@ -256,19 +260,22 @@ public class AttachmentUtils {
                 });
     }
 
-    public List<String> getNotificationAttachments(NotificationInt notification) {
-        return notification.getDocuments().stream().map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey())).toList();
+    public List<String> getNotificationAttachments(NotificationInt notification, Boolean isPrepareFlow) {
+        return notification.getDocuments().stream()
+                .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
+                .map(u -> formatWithDocTag(u, FileTagEnumInt.DOCUMENT, isPrepareFlow))
+                .toList();
     }
 
     public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, Boolean isPrepareFlow, List<String> replacedF24AttachmentUrls) {
-        List<String> attachments = new ArrayList<>(getNotificationAttachments(notification));
+        List<String> attachments = new ArrayList<>(getNotificationAttachments(notification, isPrepareFlow));
         if (CollectionUtils.isEmpty(recipient.getPayments())) {
             return attachments;
         }
 
-        attachments.addAll(getNotificationPagoPaPayments(recipient));
+        attachments.addAll(getNotificationPagoPaPayments(recipient, isPrepareFlow));
         if (Boolean.TRUE.equals(isPrepareFlow)) {
-            addNotificationF24PaymentsUrl(attachments, notification, recipient, recIndex);
+            addNotificationF24PaymentsUrl(attachments, notification, recipient, recIndex, isPrepareFlow);
         } else {
             // Se non è flusso prepare, è flusso send e non devo includere la URL degli F24 ma provare ad aggiungere l'eventuale lista di pdf prodotti agli attachments
             if(!CollectionUtils.isEmpty(replacedF24AttachmentUrls)){
@@ -278,19 +285,29 @@ public class AttachmentUtils {
         return attachments;
     }
 
-    private List<String> getNotificationPagoPaPayments(NotificationRecipientInt recipient) {
+    private List<String> getNotificationPagoPaPayments(NotificationRecipientInt recipient, Boolean isPrepareFlow) {
         return recipient.getPayments().stream()
                 .filter(notificationPaymentInfoIntV2 -> notificationPaymentInfoIntV2.getPagoPA() != null && notificationPaymentInfoIntV2.getPagoPA().getAttachment() != null)
                 .map(payment -> payment.getPagoPA().getAttachment())
                 .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
+                .map(u -> formatWithDocTag(u, FileTagEnumInt.ATTACHMENT_PAGOPA, isPrepareFlow))
                 .toList();
+    }
 
+    private String formatWithDocTag(String uri, FileTagEnumInt docTag, Boolean isPrepareFlow){
+        if (Boolean.TRUE.equals(isPrepareFlow)){
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(uri);
+            uriBuilder.queryParam("docTag",docTag.getValue());
+            return uriBuilder.toUriString();
+        }
+        return uri;
     }
 
     private void addNotificationF24PaymentsUrl(List<String> attachments,
                                                NotificationInt notification,
                                                NotificationRecipientInt recipient,
-                                               Integer recIndex
+                                               Integer recIndex,
+                                               Boolean isPrepareFlow
     ) {
         List<F24Int> f24Payments = recipient.getPayments().stream()
                 .map(NotificationPaymentInfoInt::getF24)
@@ -312,8 +329,7 @@ public class AttachmentUtils {
             cost = retrieveCost(notification, recIndex);
             vat = notification.getVat();
         }
-
-        attachments.add(getF24Url(notification.getIun(), recIndex, cost, vat));
+        attachments.add(formatWithDocTag(getF24Url(notification.getIun(), recIndex, cost, vat), FileTagEnumInt.ATTACHMENT_F24, isPrepareFlow));
     }
 
     private Integer retrieveCost(NotificationInt notificationInt, int recipientIdx) {
