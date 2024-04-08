@@ -64,7 +64,7 @@ public class AarCreationResponseHandler {
                         .numberOfPages(timelineDetails.getNumberOfPages())
                         .build();
 
-                if (aarUtils.addAarGenerationToTimeline(notification, recIndex, pdfInfo)) {
+                if (!aarUtils.addAarGenerationToTimeline(notification, recIndex, pdfInfo)) {
                     logEvent.generateSuccess().log();
                 } else {
                     logEvent.generateWarning("File already present saving AAR fileKey={} iun={} recIndex={}", actionDetails.getKey(), iun, recIndex).log();

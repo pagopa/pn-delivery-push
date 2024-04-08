@@ -112,7 +112,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
 
-                return !timelineInsertSkipped;
+                return timelineInsertSkipped;
             } catch (Exception ex) {
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
                 logEvent.generateFailure("Exception in addTimelineElement", ex).log();
