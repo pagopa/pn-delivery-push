@@ -159,7 +159,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_PREPARE_RECEIVE), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
-        Mockito.when(paperChannelService.sendSimpleRegisteredLetter(Mockito.any(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.isNull())).thenThrow(new PnPaperChannelChangedCostException());
+        Mockito.when(paperChannelService.sendSimpleRegisteredLetter(Mockito.any(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.isNull(), Mockito.isNull())).thenThrow(new PnPaperChannelChangedCostException());
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);

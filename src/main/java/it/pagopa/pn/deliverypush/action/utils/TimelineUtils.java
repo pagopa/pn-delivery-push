@@ -351,7 +351,8 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildSendSimpleRegisteredLetterTimelineElement(Integer recIndex, NotificationInt notification, PhysicalAddressInt address,
                                                                                   SendResponse sendResponse, String productType, String prepareRequestId,
-                                                                                  List<String> replacedF24AttachmentUrls) {
+                                                                                  List<String> replacedF24AttachmentUrls,
+                                                                                  CategorizedAttachmentsResultInt categorizedAttachmentsResult) {
         log.debug("buildSendSimpleRegisteredLetterTimelineElement - IUN={} and id={}", notification.getIun(), recIndex);
 
         String elementId = TimelineEventId.SEND_SIMPLE_REGISTERED_LETTER.buildEventId(
@@ -370,6 +371,7 @@ public class TimelineUtils {
                 .envelopeWeight(sendResponse.getEnvelopeWeight())
                 .prepareRequestId(prepareRequestId)
                 .f24Attachments(replacedF24AttachmentUrls)
+                .categorizedAttachmentsResult(categorizedAttachmentsResult)
                 .vat(notification.getVat())
                 .build();
 
