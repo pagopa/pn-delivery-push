@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action.startworkflowrecipient;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
+
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
@@ -14,15 +16,12 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import java.time.Instant;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.util.Optional;
-
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
 
 @Component
 @AllArgsConstructor
@@ -65,8 +64,11 @@ public class AarCreationResponseHandler {
                         .numberOfPages(timelineDetails.getNumberOfPages())
                         .build();
 
-                aarUtils.addAarGenerationToTimeline(notification, recIndex, pdfInfo);
-                logEvent.generateSuccess().log();
+                if (aarUtils.addAarGenerationToTimeline(notification, recIndex, pdfInfo)) {
+                    logEvent.generateSuccess().log();
+                } else {
+                    logEvent.generateWarning("File already present saving AAR fileKey={} iun={} recIndex={}", actionDetails.getKey(), iun, recIndex).log();
+                }
             } else {
                 log.error("handleAarCreationResponse failed, timelineId is not present {} - iun={} id={}", actionDetails.getTimelineId(), iun, recIndex);
                 throw new PnInternalException("AarCreationRequestDetails timelineId is not present", ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);

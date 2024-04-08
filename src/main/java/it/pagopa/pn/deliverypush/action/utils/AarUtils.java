@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
@@ -12,14 +13,11 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
-import java.util.Optional;
-
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED;
 
 @Component
 @AllArgsConstructor
@@ -58,8 +56,8 @@ public class AarUtils {
         }
     }
 
-    public void addAarGenerationToTimeline(NotificationInt notification, Integer recIndex, PdfInfo pdfInfo) {
-        timelineService.addTimelineElement(
+    public boolean addAarGenerationToTimeline(NotificationInt notification, Integer recIndex, PdfInfo pdfInfo) {
+        return timelineService.addTimelineElement(
                 timelineUtils.buildAarGenerationTimelineElement(notification, recIndex, pdfInfo.getKey(), pdfInfo.getNumberOfPages()),
                 notification
         );

@@ -1,5 +1,9 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
+
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
@@ -17,7 +21,15 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.CourtesyAddressRelatedTimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalAddressRelatedTimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NewAddressRelatedTimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PersonalInformationRelatedTimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.details.PhysicalAddressRelatedTimelineElement;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
@@ -35,18 +47,19 @@ import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementMapper;
 import it.pagopa.pn.deliverypush.utils.MdcKey;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.*;
-
-import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
 @Service
 @Slf4j
@@ -99,7 +112,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
 
-                return timelineInsertSkipped;
+                return !timelineInsertSkipped;
             } catch (Exception ex) {
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
                 logEvent.generateFailure("Exception in addTimelineElement", ex).log();
