@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -22,6 +23,7 @@ public class SimpleRegisteredLetterDetailsInt extends BaseRegisteredLetterDetail
     private Integer envelopeWeight;
     protected String prepareRequestId;
     private List<String> f24Attachments;
+    private CategorizedAttachmentsResultInt categorizedAttachmentsResult;
     private Integer vat;
 
     @Override

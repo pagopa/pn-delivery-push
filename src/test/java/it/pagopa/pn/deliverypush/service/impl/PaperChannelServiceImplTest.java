@@ -280,6 +280,7 @@ class PaperChannelServiceImplTest {
 
         NotificationInt notificationInt = newNotificationWithPayments("taxid");
 
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(new ArrayList<>()).discardedAttachments(new ArrayList<>()).build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
@@ -293,7 +294,7 @@ class PaperChannelServiceImplTest {
         Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
         Mockito.verify(paperChannelSendClient).send(any());
@@ -311,10 +312,12 @@ class PaperChannelServiceImplTest {
 
         NotificationInt notificationInt = newNotification("taxid");
 
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(new ArrayList<>()).discardedAttachments(new ArrayList<>()).build();
+
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
         Mockito.verify(paperChannelSendClient, Mockito.never()).send(any());
@@ -328,10 +331,12 @@ class PaperChannelServiceImplTest {
 
         NotificationInt notificationInt = newNotification("taxid");
 
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(new ArrayList<>()).discardedAttachments(new ArrayList<>()).build();
+
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
         Mockito.verify(paperChannelSendClient, Mockito.never()).send(any());
@@ -345,11 +350,13 @@ class PaperChannelServiceImplTest {
 
         NotificationInt notificationInt = newNotification("taxid");
 
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(new ArrayList<>()).discardedAttachments(new ArrayList<>()).build();
+
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
         Mockito.verify(paperChannelSendClient, Mockito.never()).send(any());
@@ -455,6 +462,8 @@ class PaperChannelServiceImplTest {
 
         NotificationInt notificationInt = newNotification("taxid");
 
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(new ArrayList<>()).discardedAttachments(new ArrayList<>()).build();
+
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
@@ -466,7 +475,7 @@ class PaperChannelServiceImplTest {
         Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR);
         
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", Collections.emptyList());
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", Collections.emptyList(), categorizedAttachmentsResult);
 
         // THEN
         Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachments(any(), any());
@@ -481,6 +490,8 @@ class PaperChannelServiceImplTest {
 
         NotificationInt notificationInt = newNotificationWithPayments("taxid");
 
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(new ArrayList<>()).discardedAttachments(new ArrayList<>()).build();
+
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
@@ -493,7 +504,7 @@ class PaperChannelServiceImplTest {
         Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
         Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any());
@@ -507,6 +518,8 @@ class PaperChannelServiceImplTest {
 
         NotificationInt notificationInt = newNotificationWithPayments("taxid");
 
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(new ArrayList<>()).discardedAttachments(new ArrayList<>()).build();
+
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(notificationUtils.getRecipientFromIndex(any(), anyInt())).thenReturn(notificationInt.getRecipients().get(0));
@@ -520,7 +533,7 @@ class PaperChannelServiceImplTest {
         Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS);
 
         // WHEN
-        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"));
+        paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
         Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any());
@@ -594,7 +607,6 @@ class PaperChannelServiceImplTest {
         ResultFilterInt acceptedAttachments = ResultFilterInt.builder().fileKey("filekey").result(ResultFilterEnum.SUCCESS).reasonCode("reasonCode").reasonDescription("reasonDescription").build();
 
         CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(List.of(acceptedAttachments)).discardedAttachments(new ArrayList<>()).build();
-        System.out.println(categorizedAttachmentsResult);
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
