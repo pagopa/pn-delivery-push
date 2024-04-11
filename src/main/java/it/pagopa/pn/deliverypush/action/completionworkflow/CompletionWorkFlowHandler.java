@@ -34,17 +34,29 @@ public class CompletionWorkFlowHandler {
     private final AnalogDeliveryFailureWorkflowLegalFactsGenerator analogDeliveryFailureWorkflowLegalFactsGenerator;
     private final DocumentCreationRequestService documentCreationRequestService;
     private final FailureWorkflowHandler failureWorkflowHandler;
+    
+    //Complete digital failure workflow first step
+    public void sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex) {
+        log.info("Digital workflow completed with status{}. Sending simple registered letter - IUN {} id {}", EndWorkflowStatus.FAILURE, notification.getIun(), recIndex);
+        failureWorkflowHandler.sendSimpleRegisteredLetter(notification, recIndex);
+    }
+    
+    //Complete digital failure workflow second step
+    public void completionDigitalFailureWorkflow(NotificationInt notification, Integer recIndex) {
+        log.info("Digital workflow failed. Proceed to generate legalFact - IUN {} id {}", notification.getIun(), recIndex);
 
-    public String completionFailureDigitalWorkflow(NotificationInt notification, Integer recIndex) {
-        log.info("Digital workflow completed with status {} IUN {} id {}", EndWorkflowStatus.FAILURE, notification.getIun(), recIndex);
         Instant completionWorkflowDate = Instant.now();
-        String legalFactId = pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(notification, recIndex, EndWorkflowStatus.FAILURE, 
-                completionWorkflowDate);
+        String legalFactId = pecDeliveryWorkflowLegalFactsGenerator.generateAndSendCreationRequestForPecDeliveryWorkflowLegalFact(
+                notification,
+                recIndex,
+                EndWorkflowStatus.FAILURE, 
+                completionWorkflowDate
+        );
 
         TimelineElementInternal timelineElementInternal = timelineUtils.buildDigitalDeliveryLegalFactCreationRequestTimelineElement(notification, recIndex,  EndWorkflowStatus.FAILURE, 
                 completionWorkflowDate, null, legalFactId);
         boolean timelineInsertSkipped = timelineService.addTimelineElement(timelineElementInternal, notification);
-        
+
         if(timelineInsertSkipped){
             //Se l'elemento di timeline è stato inserito in precedenza, la data di completionWorkflow da utilizzare dovrà essere quella dell'elemento di timeline già presente.
             completionWorkflowDate = getCompletionWorkflowDate(notification, completionWorkflowDate, timelineElementInternal);
@@ -52,13 +64,10 @@ public class CompletionWorkFlowHandler {
 
         //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
         documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), recIndex, DocumentCreationTypeInt.DIGITAL_DELIVERY, timelineElementInternal.getElementId());
-
-        failureWorkflowHandler.scheduleRefinementAndSendRegisteredLetter(notification, recIndex, completionWorkflowDate);
-
-        return timelineElementInternal.getElementId();
+        refinementScheduler.scheduleDigitalRefinement(notification, recIndex, completionWorkflowDate, EndWorkflowStatus.FAILURE);
     }
 
-    
+
     private Instant getCompletionWorkflowDate(NotificationInt notification, Instant completionWorkflowDate, TimelineElementInternal timelineElementInternal) {
         Optional<DigitalDeliveryCreationRequestDetailsInt> alreadyInsertedTimelineElementOpt = timelineService.getTimelineElementDetails(notification.getIun(), timelineElementInternal.getElementId(), DigitalDeliveryCreationRequestDetailsInt.class);
         if(alreadyInsertedTimelineElementOpt.isPresent()){

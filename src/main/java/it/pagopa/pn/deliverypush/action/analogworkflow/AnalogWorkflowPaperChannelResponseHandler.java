@@ -22,6 +22,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleE
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +32,9 @@ import java.util.stream.Collectors;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class AnalogWorkflowPaperChannelResponseHandler {
-
     private final NotificationService notificationService;
     private final PaperChannelService paperChannelService;
     private final CompletionWorkFlowHandler completionWorkFlow;
@@ -41,22 +42,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final PaperChannelUtils paperChannelUtils;
     private final AuditLogService auditLogService;
-
-
-    public AnalogWorkflowPaperChannelResponseHandler(NotificationService notificationService,
-                                                     PaperChannelService paperChannelService,
-                                                     CompletionWorkFlowHandler completionWorkFlow,
-                                                     AnalogWorkflowUtils analogWorkflowUtils,
-                                                     AnalogWorkflowHandler analogWorkflowHandler,
-                                                     PaperChannelUtils paperChannelUtils, AuditLogService auditLogService) {
-        this.notificationService = notificationService;
-        this.paperChannelService = paperChannelService;
-        this.completionWorkFlow = completionWorkFlow;
-        this.analogWorkflowUtils = analogWorkflowUtils;
-        this.analogWorkflowHandler = analogWorkflowHandler;
-        this.paperChannelUtils = paperChannelUtils;
-        this.auditLogService = auditLogService;
-    }
+    private final CompletionWorkFlowHandler completionWorkFlowHandler;
 
     public void paperChannelPrepareResponseHandler(PrepareEventInt response) {
 
@@ -89,8 +75,6 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
     private void handlePrepareKO(PrepareEventInt response, NotificationInt notification, TimelineElementInternal timelineElementInternal, int recIndex, String requestId, PnAuditLogEvent auditLogEvent) {
-
-
         // se era una prepare di un analog, procedo con nextworkflow. E' l'unica caso in cui mi interessa gestire il KO (e che può verificarsi da flusso workflo)
         if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE){
             // salvo in timeline l'evento di fallimento
@@ -119,36 +103,45 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         // se era una prepare di un analog, procedo con la sendanalog, altrimenti con la send della simpleregistered
         if (timelineElementInternal.getDetails() instanceof BaseAnalogDetailsInt sendAnalogDetails){
             log.info("paperChannelPrepareResponseHandler prepare response is for analog, sending it iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
-            int sentAttemptMade = sendAnalogDetails.getSentAttemptMade();
-
-
-            try {
-                String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
-                String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
-                auditLogEvent.generateSuccess(auditlogmessage).log();
-            } catch (PnPaperChannelChangedCostException e) {
-                String auditlogmessage = "send cost is different from prepare cost, need to re-do prepare";
-                this.paperChannelService.prepareAnalogNotification(notification, recIndex, sentAttemptMade);
-                auditLogEvent.generateWarning(auditlogmessage).log();
-            }
+            sendAnalogNotification(notification, recIndex, requestId, auditLogEvent, sendAnalogDetails, receiverAddress, productType, replacedF24AttachmentUrls);
         }
         else if ( timelineElementInternal.getDetails() instanceof BaseRegisteredLetterDetailsInt ){
             log.info("paperChannelPrepareResponseHandler prepare response is for simple registered letter, now registered letter can be sent iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
-
-            try {
-                String timelineId = this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
-                String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
-                auditLogEvent.generateSuccess(auditlogmessage).log();
-            } catch (PnPaperChannelChangedCostException e) {
-                String auditlogmessage = "send cost is different from prepare cost, need to re-do prepare";
-                this.paperChannelService.prepareAnalogNotificationForSimpleRegisteredLetter(notification, recIndex);
-                auditLogEvent.generateWarning(auditlogmessage).log();
-            }
+            sendRegisteredLetterNotification(notification, recIndex, requestId, auditLogEvent, receiverAddress, productType, replacedF24AttachmentUrls);
         }
         else
         {
             auditLogEvent.generateFailure("Unexpected detail of timelineElement on OK event timeline=" + requestId).log();
             throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
+        }
+    }
+
+    private void sendRegisteredLetterNotification(NotificationInt notification, int recIndex, String requestId, PnAuditLogEvent auditLogEvent, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls) {
+        try {
+            String timelineId = this.paperChannelService.sendSimpleRegisteredLetter(notification, recIndex, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
+            
+            completionWorkFlowHandler.completionDigitalFailureWorkflow(notification, recIndex);
+            
+            String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
+            auditLogEvent.generateSuccess(auditlogmessage).log();
+        } catch (PnPaperChannelChangedCostException e) {
+            String auditlogmessage = "send cost is different from prepare cost, need to re-do prepare";
+            this.paperChannelService.prepareAnalogNotificationForSimpleRegisteredLetter(notification, recIndex);
+            auditLogEvent.generateWarning(auditlogmessage).log();
+        }
+    }
+
+    private void sendAnalogNotification(NotificationInt notification, int recIndex, String requestId, PnAuditLogEvent auditLogEvent, BaseAnalogDetailsInt sendAnalogDetails, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls) {
+        int sentAttemptMade = sendAnalogDetails.getSentAttemptMade();
+
+        try {
+            String timelineId = this.paperChannelService.sendAnalogNotification(notification, recIndex, sentAttemptMade, requestId, receiverAddress, productType, replacedF24AttachmentUrls);
+            String auditlogmessage = timelineId==null?"nothing send":"generated timelineId="+timelineId;
+            auditLogEvent.generateSuccess(auditlogmessage).log();
+        } catch (PnPaperChannelChangedCostException e) {
+            String auditlogmessage = "send cost is different from prepare cost, need to re-do prepare";
+            this.paperChannelService.prepareAnalogNotification(notification, recIndex, sentAttemptMade);
+            auditLogEvent.generateWarning(auditlogmessage).log();
         }
     }
 

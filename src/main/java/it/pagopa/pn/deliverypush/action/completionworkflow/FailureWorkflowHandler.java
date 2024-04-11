@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalDeliveryCreationRequestDetailsInt;
@@ -10,19 +9,15 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-
 @Component
 @AllArgsConstructor
 @Slf4j
 public class FailureWorkflowHandler {
-    private final RefinementScheduler refinementScheduler;
     private final RegisteredLetterSender registeredLetterSender;
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
 
-    public void scheduleRefinementAndSendRegisteredLetter(NotificationInt notification, int recIndex, Instant completionWorkflowDate){
-        refinementScheduler.scheduleDigitalRefinement(notification, recIndex, completionWorkflowDate, EndWorkflowStatus.FAILURE);
+    public void sendSimpleRegisteredLetter(NotificationInt notification, int recIndex){
         registeredLetterSender.prepareSimpleRegisteredLetter(notification, recIndex);
     }
     
