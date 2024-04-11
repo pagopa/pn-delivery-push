@@ -215,7 +215,9 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
 
     @Override
-    public String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String prepareRequestId, PhysicalAddressInt receiverAddress, String productType, List<String> replacedF24AttachmentUrls) {
+    public String sendSimpleRegisteredLetter(NotificationInt notification, Integer recIndex, String prepareRequestId, PhysicalAddressInt receiverAddress,
+                                             String productType, List<String> replacedF24AttachmentUrls,
+                                             CategorizedAttachmentsResultInt categorizedAttachmentsResult) {
         log.info("Registered Letter check if send to paperChannel - iun={} id={}", notification.getIun(), recIndex);
         if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
             log.warn("sendSimpleRegisteredLetter blocked for cancelled iun {}", notification.getIun());
@@ -228,8 +230,13 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         if(! isNotificationAlreadyViewed) {
             log.info("Registered Letter sending to paperChannel - iun={} id={}", notification.getIun(), recIndex);
 
+            List<String> attachments;
+
             // recupero gli allegati
-            List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.SIMPLE_REGISTERED_LETTER), false, replacedF24AttachmentUrls);
+            if(categorizedAttachmentsResult == null || categorizedAttachmentsResult.getAcceptedAttachments().isEmpty())
+                attachments = legacyRetrieveAcceptedAttachments(notification, recIndex, replacedF24AttachmentUrls, NotificationChannelType.SIMPLE_REGISTERED_LETTER);
+            else
+                attachments = categorizedAttachmentsResult.getAcceptedAttachments().stream().map(ResultFilterInt::getFileKey).toList();
 
             PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, false, prepareRequestId, productType, attachments);
 
@@ -239,7 +246,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                         new PaperChannelSendRequest(notification, notificationUtils.getRecipientFromIndex(notification, recIndex),
                                 receiverAddress, prepareRequestId, productType, attachments, paperChannelUtils.getSenderAddress(), paperChannelUtils.getSenderAddress()));
 
-                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendResponse, productType, prepareRequestId, replacedF24AttachmentUrls);
+                timelineId = paperChannelUtils.addSendSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, sendResponse, productType, prepareRequestId, replacedF24AttachmentUrls, categorizedAttachmentsResult);
                 log.info("Registered Letter sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
 
@@ -275,7 +282,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
             // recupero gli allegati
             if(categorizedAttachmentsResult == null || categorizedAttachmentsResult.getAcceptedAttachments().isEmpty())
-                attachments = legacyRetrieveAcceptedAttachments(notification, recIndex, replacedF24AttachmentUrls);
+                attachments = legacyRetrieveAcceptedAttachments(notification, recIndex, replacedF24AttachmentUrls, NotificationChannelType.ANALOG_NOTIFICATION);
             else{
                 attachments = categorizedAttachmentsResult.getAcceptedAttachments().stream().map(ResultFilterInt::getFileKey).toList();
             }
@@ -320,9 +327,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         return timelineId;
     }
 
-    private List<String> legacyRetrieveAcceptedAttachments(NotificationInt notification, Integer recIndex, List<String> replacedF24AttachmentUrls){
-        return attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.ANALOG_NOTIFICATION), false, replacedF24AttachmentUrls);
-
+    private List<String> legacyRetrieveAcceptedAttachments(NotificationInt notification, Integer recIndex, List<String> replacedF24AttachmentUrls, NotificationChannelType notificationChannelType){
+        return attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, notificationChannelType), false, replacedF24AttachmentUrls);
     }
 
     @NotNull

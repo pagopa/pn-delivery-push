@@ -8,11 +8,10 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import reactor.core.publisher.Mono;
-
 import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
+import reactor.core.publisher.Mono;
 
 public interface TimelineService {
 

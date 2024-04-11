@@ -75,10 +75,12 @@ class PaperChannelUtilsTest {
         PhysicalAddressInt addressInt = buildPhysicalAddressInt();
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(new ArrayList<>()).discardedAttachments(new ArrayList<>()).build();
+
         SendResponse sendResponse = new SendResponse()
                 .amount(10);
-        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  sendResponse, "RN_AR", "request_id", null)).thenReturn(timelineElementInternal);
-        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, sendResponse, "RN_AR", "request_id", null);
+        Mockito.when(timelineUtils.buildSendSimpleRegisteredLetterTimelineElement(1, notification, addressInt,  sendResponse, "RN_AR", "request_id", null, categorizedAttachmentsResult)).thenReturn(timelineElementInternal);
+        channelUtils.addSendSimpleRegisteredLetterToTimeline(notification, addressInt, 1, sendResponse, "RN_AR", "request_id", null, categorizedAttachmentsResult);
         Mockito.verify(timelineService, Mockito.times(1)).addTimelineElement(timelineElementInternal, notification);
     }
 
