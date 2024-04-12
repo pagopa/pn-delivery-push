@@ -412,7 +412,7 @@ public class LegalFactGenerator {
     }
 
     private String getQuickAccessLink(NotificationRecipientInt recipient, String quickAccessToken) {
-        String templateUrl = getAccessUrl(recipient) + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix() ;
+        String templateUrl = getAccessUrl(recipient) + "auth/login" + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix() ;
 
         log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, quickAccessToken );
         return templateUrl + '=' + quickAccessToken;
