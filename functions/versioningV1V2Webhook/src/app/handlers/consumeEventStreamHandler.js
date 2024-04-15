@@ -8,7 +8,7 @@ class ConsumeEventStreamHandler extends EventHandler {
 
     checkOwnership(event, context){
         const {path, httpMethod} = event;
-        return path.includes('/streams') && path.endsWith('/events') && event["pathParameters"] && httpMethod.toUpperCase() === 'GET';
+        return path.includes('/streams') && (path.endsWith('/events') || path.endsWith('/events/')) && event["pathParameters"] && httpMethod.toUpperCase() === 'GET';
     }
 
     async handlerEvent(event, context) {
@@ -19,7 +19,7 @@ class ConsumeEventStreamHandler extends EventHandler {
         const streamId = event["pathParameters"]["streamId"];
         const lastEventId = event["queryStringParameters"]==null?null:event["queryStringParameters"]["lastEventId"];
         let lastEventIdQueryParam = "";
-        if (lastEventId != null && lastEventId !== undefined && lastEventId != "")
+        if (lastEventId != null && lastEventId !== undefined && lastEventId !== "")
           lastEventIdQueryParam = `?lastEventId=${lastEventId}`;
         let url = `${this.baseUrl}/streams/${streamId}/events${lastEventIdQueryParam}`;
 
@@ -31,21 +31,20 @@ class ConsumeEventStreamHandler extends EventHandler {
         // RESPONSE BODY
         // Il controllo della presenza di element avviene solo nel transitorio
         let responseBody = [];
-        for(let i=0; i < response.data.length; i++){
-            if(response.data[i].element)
-                responseBody.push(createProgressResponseV10(response.data[i]));
+        for(const data of response.data) {
+            if (data.element)
+                responseBody.push(createProgressResponseV10(data));
             else{
-                delete response.data[i].element;
-                responseBody.push(response.data[i]);
+                delete data.element;
+                responseBody.push(data);
             }
         }
 
-        const ret = {
+        return {
             statusCode: response.status,
             headers: response.headers,
             body: JSON.stringify(responseBody)
-        }
-        return ret;
+        };
     }
 }
 

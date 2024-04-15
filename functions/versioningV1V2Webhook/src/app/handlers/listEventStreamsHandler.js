@@ -7,7 +7,7 @@ class ListEventStreamsHandler extends EventHandler {
 
     checkOwnership(event, context){
         const {path, httpMethod} = event;
-        return path.endsWith('/streams') && httpMethod.toUpperCase() === 'GET';
+        return (path.endsWith('/streams') || path.endsWith('/streams/')) && httpMethod.toUpperCase() === 'GET';
     }
 
     async handlerEvent(event, context) {
@@ -20,11 +20,10 @@ class ListEventStreamsHandler extends EventHandler {
         console.log('calling ', url);
         let response= await axios.get(url, {headers: headers});
 
-        const ret = {
+        return {
             statusCode: response.status,
             body: JSON.stringify(response.data),
-        }
-        return ret;
+        };
     }
 }
 
