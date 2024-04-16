@@ -18,10 +18,20 @@ describe("CreateEventStreamHandler", () => {
     });
 
     describe("checkOwnership", () => {
-        it("valid ownership", () => {
+        it("valid ownership - case 1", () => {
             const streamId = "12345";
             const event = {
                 path: "/delivery-progresses/streams",
+                pathParameters : { streamId: streamId },
+                httpMethod: "POST" };
+            const result = createEventStreamHandler.checkOwnership(event, {});
+            expect(result).to.be.true;
+        });
+
+        it("valid ownership - case 2", () => {
+            const streamId = "12345";
+            const event = {
+                path: "/delivery-progresses/streams/",
                 pathParameters : { streamId: streamId },
                 httpMethod: "POST" };
             const result = createEventStreamHandler.checkOwnership(event, {});

@@ -19,9 +19,17 @@ describe("ListEventStreamsHandler", () => {
     });
 
     describe("checkOwnership", () => {
-        it("valid ownership", () => {
+        it("valid ownership - case 1", () => {
             const event = {
                 path: "/delivery-progresses/streams",
+                httpMethod: "GET" };
+            const result = listEventStreamsHandler.checkOwnership(event, {});
+            expect(result).to.be.true;
+        });
+
+        it("valid ownership - case 2", () => {
+            const event = {
+                path: "/delivery-progresses/streams/",
                 httpMethod: "GET" };
             const result = listEventStreamsHandler.checkOwnership(event, {});
             expect(result).to.be.true;
