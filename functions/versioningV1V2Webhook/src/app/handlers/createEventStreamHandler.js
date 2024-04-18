@@ -10,7 +10,7 @@ class CreateEventStreamHandler extends EventHandler {
 
     checkOwnership(event, context) {
         const {path, httpMethod} = event;
-        return path.endsWith('/streams')  && httpMethod.toUpperCase() === 'POST';
+        return (path.endsWith('/streams') || path.endsWith('/streams/')) && httpMethod.toUpperCase() === 'POST';
     }
 
     async handlerEvent(event, context) {
@@ -30,11 +30,10 @@ class CreateEventStreamHandler extends EventHandler {
         // RESPONSE BODY
         const transformedObject = createStreamMetadataResponseV10(response.data);
 
-        const ret = {
+        return {
             statusCode: response.status,
             body: JSON.stringify(transformedObject),
-        }
-        return ret;
+        };
     }
 }
 
