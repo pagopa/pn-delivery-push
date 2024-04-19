@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -85,6 +86,7 @@ class LegalFactPdfGeneratorTest {
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setCity("Roma");
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setPr("Roma");
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setCountry("Italia");
+                pnDeliveryPushConfigs.setErrorCorrectionLevelQrCode(ErrorCorrectionLevel.H);
 
                 pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter,
                                 pnDeliveryPushConfigs, instantNowSupplier, pnSendModeUtils);
