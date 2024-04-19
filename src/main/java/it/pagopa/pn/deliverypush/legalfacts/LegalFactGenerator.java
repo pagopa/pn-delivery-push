@@ -408,7 +408,7 @@ public class LegalFactGenerator {
     private String getQrCodeQuickAccessUrlAarDetail(NotificationRecipientInt recipient, String quickAccessToken) {
       String url = getQuickAccessLink(recipient, quickAccessToken);
       // Definire altezza e larghezza del qrcode
-      return "data:image/png;base64, ".concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 180, 180)));
+      return "data:image/png;base64, ".concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 180, 180, pnDeliveryPushConfigs.getErrorCorrectionLevelQrCode())));
     }
 
     private String getQuickAccessLink(NotificationRecipientInt recipient, String quickAccessToken) {

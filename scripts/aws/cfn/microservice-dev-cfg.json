@@ -50,6 +50,7 @@
     "MountEfs": "false",
     "RaddOperatorCaf": "true",
     "RaddOperatorMooney": "true",
-    "RaddOperatorSailpost": "true"
+    "RaddOperatorSailpost": "true",
+    "ErrorCorrectionLevelQrCode": "h"
   }
 }
