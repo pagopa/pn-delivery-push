@@ -17,9 +17,9 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class QrCodeUtils {
 
-  public static byte[] generateQRCodeImage(String text, int width, int height) {
+  public static byte[] generateQRCodeImage(String text, int width, int height, ErrorCorrectionLevel errorCorrectionLevel) {
     try {
-      Map<EncodeHintType, ?> conf = Map.of(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H,
+      Map<EncodeHintType, ?> conf = Map.of(EncodeHintType.ERROR_CORRECTION, errorCorrectionLevel,
           EncodeHintType.QR_VERSION, 14);
       QRCodeWriter qrCodeWriter = new QRCodeWriter();
       BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height, conf);
