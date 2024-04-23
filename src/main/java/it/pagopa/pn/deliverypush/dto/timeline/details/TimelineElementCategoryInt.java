@@ -40,7 +40,7 @@ public enum TimelineElementCategoryInt {
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategoryV23.SEND_ANALOG_DOMICILE.getValue(), TimelineElementCategoryInt.VERSION_10),
     SEND_ANALOG_PROGRESS(SendAnalogProgressDetailsInt.class, TimelineElementCategoryV23.SEND_ANALOG_PROGRESS.getValue(), TimelineElementCategoryInt.VERSION_10),
     SEND_ANALOG_FEEDBACK(SendAnalogFeedbackDetailsInt.class, TimelineElementCategoryV23.SEND_ANALOG_FEEDBACK.getValue(), TimelineElementCategoryInt.PRIORITY_SEND_ANALOG_FEEDBACK, TimelineElementCategoryInt.VERSION_10),
-    PAYMENT(NotificationPaidDetailsInt.class, TimelineElementCategoryV23.PAYMENT.getValue(), TimelineElementCategoryInt.VERSION_10),
+    PAYMENT(NotificationPaidDetailsInt.class, PrivateObsoleteConstants.OBSOLETE_CATEGORY_PAYMENT, TimelineElementCategoryInt.VERSION_10),
     COMPLETELY_UNREACHABLE(CompletelyUnreachableDetailsInt.class, TimelineElementCategoryV23.COMPLETELY_UNREACHABLE.getValue(),TimelineElementCategoryInt.PRIORITY_COMPLETELY_UNREACHABLET, TimelineElementCategoryInt.VERSION_10),
     REQUEST_REFUSED(RequestRefusedDetailsInt.class, TimelineElementCategoryV23.REQUEST_REFUSED.getValue(), TimelineElementCategoryInt.VERSION_10),
     AAR_CREATION_REQUEST(AarCreationRequestDetailsInt.class, TimelineElementCategoryV23.AAR_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_10),
@@ -70,6 +70,7 @@ public enum TimelineElementCategoryInt {
     public static final int VERSION_10 = 10;
     public static final int VERSION_20 = 20;
     public static final int VERSION_23 = 23;
+
 
     TimelineElementCategoryInt(Class<? extends TimelineElementDetailsInt> detailsJavaClass, String value, int version) {
         this(detailsJavaClass, value, PRIORITY_BEFORE, version);
@@ -101,5 +102,9 @@ public enum TimelineElementCategoryInt {
             this.value = value;
         }
     }
-    
+
+    private static class PrivateObsoleteConstants {
+        // è stata rimossa dall'openapi (non era possibile bypassarla con il # NO EXTERNAL)
+        private static final String OBSOLETE_CATEGORY_PAYMENT = "PAYMENT";
+    }
 }

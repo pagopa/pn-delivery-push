@@ -85,7 +85,6 @@ components:
         - SEND_ANALOG_DOMICILE
         - SEND_ANALOG_PROGRESS
         - SEND_ANALOG_FEEDBACK
-        - PAYMENT                                           # NO EXTERNAL
         - COMPLETELY_UNREACHABLE
         - COMPLETELY_UNREACHABLE_CREATION_REQUEST
         - REQUEST_REFUSED
