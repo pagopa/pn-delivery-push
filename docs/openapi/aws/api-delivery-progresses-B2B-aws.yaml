@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: uDDW6SWh2a8DZM1UNbvBkAqe7vK8hmZLQ+B5NiPkuN8=
+  version: mUW96/QLjiVO+ft1GHQ6JO1FiizXRY4khnIN+uX1la0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1509,12 +1509,14 @@ components:
         internalId:
           type: string
         taxId:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         operatorUuid:
           type: string
         mandateId:
           type: string
         denomination:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         delegateType:
           $ref: '#/components/schemas/RecipientType'
