@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: wGytMdBMyXshKPWhqENah8f7scBn8kPzgRWkYamovhQ=
+  version: uDDW6SWh2a8DZM1UNbvBkAqe7vK8hmZLQ+B5NiPkuN8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1267,7 +1267,6 @@ components:
         - SEND_ANALOG_DOMICILE
         - SEND_ANALOG_PROGRESS
         - SEND_ANALOG_FEEDBACK
-        - PAYMENT
         - COMPLETELY_UNREACHABLE
         - COMPLETELY_UNREACHABLE_CREATION_REQUEST
         - REQUEST_REFUSED
@@ -1510,14 +1509,12 @@ components:
         internalId:
           type: string
         taxId:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         operatorUuid:
           type: string
         mandateId:
           type: string
         denomination:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         delegateType:
           $ref: '#/components/schemas/RecipientType'
