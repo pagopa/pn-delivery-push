@@ -1172,7 +1172,6 @@ components:
         - SEND_ANALOG_DOMICILE
         - SEND_ANALOG_PROGRESS
         - SEND_ANALOG_FEEDBACK
-        - PAYMENT
         - COMPLETELY_UNREACHABLE
         - COMPLETELY_UNREACHABLE_CREATION_REQUEST
         - REQUEST_REFUSED
@@ -1417,14 +1416,12 @@ components:
         internalId:
           type: string
         taxId:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         operatorUuid:
           type: string
         mandateId:
           type: string
         denomination:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         delegateType:
           $ref: '#/components/schemas/RecipientType'
