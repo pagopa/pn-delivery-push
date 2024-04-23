@@ -9,6 +9,9 @@
         },
         {
             "intendedUsage": "B2B",
+            "commonFiles": [
+                "schemas-pn-timeline.yaml"
+            ],
             "openapiFiles": [
                 "api-internal-b2b-webhook.yaml",
                 "api-internal-b2b-webhook-older-version.yaml"
@@ -19,6 +22,9 @@
         },
         {
             "intendedUsage": "B2B",
+            "commonFiles": [
+                "schemas-pn-timeline.yaml"
+            ],
             "openapiFiles": [
                 "api-internal-pn-delivery-push.yaml"
             ],
