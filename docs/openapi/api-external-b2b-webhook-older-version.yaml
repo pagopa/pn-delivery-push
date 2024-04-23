@@ -22,7 +22,7 @@ servers:
 tags:
   - name: HealthCheck
     description: >-
-      Invocazioni per sapere lo stato del microservizio # il servizio è ancora in fase di sviluppo
+      Invocazioni per sapere lo stato del micro-servizio # il servizio è ancora in fase di sviluppo
   - name: Streams
     description: >-
       Gestione degli stream di eventi che PN mette a disposizione
