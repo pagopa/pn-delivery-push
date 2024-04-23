@@ -1416,12 +1416,14 @@ components:
         internalId:
           type: string
         taxId:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         operatorUuid:
           type: string
         mandateId:
           type: string
         denomination:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         delegateType:
           $ref: '#/components/schemas/RecipientType'
