@@ -1,14 +1,12 @@
 openapi: 3.0.3
 info:
-  termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
+  termsOfService: https://selfcare.notifichedigitali.it/termini-di-servizio
   title: 'Piattaforma Notifiche: API B2B avanzamento notifiche'
   x-summary: API B2B avanzamento notifiche
   version: 2.3.0
   contact:
-    email: pn-supporto-enti@pagopa.it
-  license:
-    name: Licenza di PN
-    url: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
+    name: 'SEND: supporto enti'
+    url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
   description: |-
     I mittenti di notifiche possono seguire il loro flusso di avanzamento in modo automatico.
 
@@ -17,7 +15,7 @@ info:
       - inserimento di elementi di timeline delle notifiche
 
 
-    E' possibile definire fino ad un __massimo di <span id="webhookMaxStreams">10</span> configurazioni di flussi attive per singola PA__.
+    É possibile definire fino ad un __massimo di <span id="webhookMaxStreams">10</span> configurazioni di flussi attive per singola PA__.
 
     __NOTA__: i flussi riportano gli eventi occorsi dal momento della loro creazione, non quelli precedenti. Per cui si consiglia di creare i flussi di interesse per il mittente prima dell'invio delle notifiche di cui si vogliono ottenere gli aggiornamenti.
     ## Filtraggio degli  eventi
@@ -142,7 +140,7 @@ info:
     ## Lettura degli eventi dallo stream
     Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura degli eventi](#/Events/consumeEventStream) filtrati in base alla configurazione impostata negli streams.
 
-    La api restituisce un __massimo di <span id="webhookMaxLength">50</span> elementi per chiamata__.
+    La API restituisce un __massimo di <span id="webhookMaxLength">50</span> elementi per chiamata__.
 
     Se esistono ulteriori eventi nello stream, allora la response del servizio restituisce l'elemento `retryAfter = 0`; ed è quindi possibile richiamare immediatamente il servizio per ottenere gli eventi successivi.
 
@@ -330,7 +328,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      summary: Leggi metadati dello stream
+      summary: Leggi metadata dello stream
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
@@ -1137,7 +1135,6 @@ components:
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
           * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
-          * `PAYMENT` - Ricezione pagamento della notifica         # NO EXTERNAL
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
