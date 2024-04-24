@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: mUW96/QLjiVO+ft1GHQ6JO1FiizXRY4khnIN+uX1la0=
+  version: wGytMdBMyXshKPWhqENah8f7scBn8kPzgRWkYamovhQ=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1267,6 +1267,7 @@ components:
         - SEND_ANALOG_DOMICILE
         - SEND_ANALOG_PROGRESS
         - SEND_ANALOG_FEEDBACK
+        - PAYMENT
         - COMPLETELY_UNREACHABLE
         - COMPLETELY_UNREACHABLE_CREATION_REQUEST
         - REQUEST_REFUSED
