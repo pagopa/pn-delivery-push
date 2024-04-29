@@ -128,7 +128,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         String eventId = paperChannelUtils.buildPrepareSimpleRegisteredLetterEventId(notification, recIndex);
 
         // recupero gli allegati
-        List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.SIMPLE_REGISTERED_LETTER), true, Collections.emptyList());
+        List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.SIMPLE_REGISTERED_LETTER), AttachmentUtils.F24_RESOLUTION_MODE.URL, Collections.emptyList(), true);
         PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER.name(), attachments);
 
         try {
@@ -154,7 +154,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         String eventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade);
 
         // recupero gli allegati
-        List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.ANALOG_NOTIFICATION), true, Collections.emptyList());
+        List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.ANALOG_NOTIFICATION), AttachmentUtils.F24_RESOLUTION_MODE.URL, Collections.emptyList(), true);
         PhysicalAddressInt.ANALOG_TYPE analogType = getAnalogType(notification);
         PnAuditLogEvent auditLogEvent = buildAuditLogEvent(notification.getIun(), recIndex, true, eventId, analogType.name(), attachments);
 
@@ -328,7 +328,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     }
 
     private List<String> legacyRetrieveAcceptedAttachments(NotificationInt notification, Integer recIndex, List<String> replacedF24AttachmentUrls, NotificationChannelType notificationChannelType){
-        return attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, notificationChannelType), false, replacedF24AttachmentUrls);
+        return attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, notificationChannelType), AttachmentUtils.F24_RESOLUTION_MODE.RESOLVE_WITH_TIMELINE, replacedF24AttachmentUrls, false);
     }
 
     @NotNull

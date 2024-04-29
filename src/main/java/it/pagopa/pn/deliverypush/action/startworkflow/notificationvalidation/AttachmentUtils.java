@@ -5,13 +5,16 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileTagEnumInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.GeneratedF24DetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
@@ -34,10 +37,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
 @CustomLog
@@ -52,8 +55,14 @@ public class AttachmentUtils {
     private final PnSendModeUtils pnSendModeUtils;
     private final AarUtils aarUtils;
     private final NotificationUtils notificationUtils;
+    private final TimelineUtils timelineUtils;
 
-    
+    public enum F24_RESOLUTION_MODE{
+        URL,
+        RESOLVE_WITH_TIMELINE,
+        RESOLVE_WITH_REPLACED_LIST
+    }
+
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
         log.logChecking(VALIDATE_ATTACHMENT_PROCESS);
         forEachAttachment(notification, this::checkAttachment, false);
@@ -81,15 +90,15 @@ public class AttachmentUtils {
      * @return lista id allegati
      */
     @NotNull
-    public List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, SendAttachmentMode sendAttachmentMode, Boolean isPrepareFlow, List<String> replacedF24AttachmentUrls) {
-        log.info("retrieveAttachments iun={} recIndex={} sendAttachmentMode={} isPrepareFlow={} replacedF24AttachmentUrls={}", notification.getIun(), recIndex, sendAttachmentMode, isPrepareFlow, replacedF24AttachmentUrls);
+    public List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, SendAttachmentMode sendAttachmentMode, F24_RESOLUTION_MODE resolveF24Mode, List<String> replacedF24AttachmentUrls, Boolean formatWithDocTag)  {
+        log.info("retrieveAttachments iun={} recIndex={} sendAttachmentMode={} resolveF24Mode={} replacedF24AttachmentUrls={}", notification.getIun(), recIndex, sendAttachmentMode, resolveF24Mode, replacedF24AttachmentUrls);
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
         List<String> attachments = new ArrayList<>();
 
         String aarUrl = aarGenerationDetails.getGeneratedAarUrl();
         
-        attachments.add(0, formatWithDocTag(aarUrl, FileTagEnumInt.AAR, isPrepareFlow));
+        attachments.add(0, formatWithDocTag(aarUrl, FileTagEnumInt.AAR, formatWithDocTag));
         // nel caso in cui NON sia simple registered letter, devo allegare anche gli atti
 
         NotificationRecipientInt notificationRecipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
@@ -97,11 +106,11 @@ public class AttachmentUtils {
         List<String> res = switch (sendAttachmentMode) {
             case AAR -> attachments;
             case AAR_DOCUMENTS -> {
-                attachments.addAll(getNotificationAttachments(notification, isPrepareFlow));
+                attachments.addAll(getNotificationAttachments(notification, formatWithDocTag));
                 yield attachments;
             }
             case AAR_DOCUMENTS_PAYMENTS -> {
-                attachments.addAll(getNotificationAttachmentsAndPayments(notification,notificationRecipientInt, recIndex, isPrepareFlow, replacedF24AttachmentUrls));
+                attachments.addAll(getNotificationAttachmentsAndPayments(notification, notificationRecipientInt, recIndex, resolveF24Mode, replacedF24AttachmentUrls, formatWithDocTag));
                 yield attachments;
             }
         };
@@ -260,42 +269,38 @@ public class AttachmentUtils {
                 });
     }
 
-    public List<String> getNotificationAttachments(NotificationInt notification, Boolean isPrepareFlow) {
+    public List<String> getNotificationAttachments(NotificationInt notification, Boolean formatWithDocTag) {
         return notification.getDocuments().stream()
                 .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
-                .map(u -> formatWithDocTag(u, FileTagEnumInt.DOCUMENT, isPrepareFlow))
+                .map(u -> formatWithDocTag(u, FileTagEnumInt.DOCUMENT, formatWithDocTag))
                 .toList();
     }
 
-    public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, Boolean isPrepareFlow, List<String> replacedF24AttachmentUrls) {
-        List<String> attachments = new ArrayList<>(getNotificationAttachments(notification, isPrepareFlow));
+    public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, F24_RESOLUTION_MODE resolveF24Mode, List<String> replacedF24AttachmentUrls, Boolean formatWithDocTag) {
+        List<String> attachments = new ArrayList<>(getNotificationAttachments(notification, formatWithDocTag));
         if (CollectionUtils.isEmpty(recipient.getPayments())) {
             return attachments;
         }
 
-        attachments.addAll(getNotificationPagoPaPayments(recipient, isPrepareFlow));
-        if (Boolean.TRUE.equals(isPrepareFlow)) {
-            addNotificationF24PaymentsUrl(attachments, notification, recipient, recIndex, isPrepareFlow);
-        } else {
-            // Se non è flusso prepare, è flusso send e non devo includere la URL degli F24 ma provare ad aggiungere l'eventuale lista di pdf prodotti agli attachments
-            if(!CollectionUtils.isEmpty(replacedF24AttachmentUrls)){
-                attachments.addAll(replacedF24AttachmentUrls);
-            }
-        }
+        attachments.addAll(getNotificationPagoPaPayments(recipient, formatWithDocTag));
+
+        attachments.addAll(addNotificationF24PaymentsUrl(notification, recipient, recIndex, resolveF24Mode, replacedF24AttachmentUrls, formatWithDocTag));
+
         return attachments;
     }
 
-    private List<String> getNotificationPagoPaPayments(NotificationRecipientInt recipient, Boolean isPrepareFlow) {
+    @NotNull
+    private List<String> getNotificationPagoPaPayments(NotificationRecipientInt recipient, Boolean formatWithDocTag) {
         return recipient.getPayments().stream()
                 .filter(notificationPaymentInfoIntV2 -> notificationPaymentInfoIntV2.getPagoPA() != null && notificationPaymentInfoIntV2.getPagoPA().getAttachment() != null)
                 .map(payment -> payment.getPagoPA().getAttachment())
                 .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
-                .map(u -> formatWithDocTag(u, FileTagEnumInt.ATTACHMENT_PAGOPA, isPrepareFlow))
+                .map(u -> formatWithDocTag(u, FileTagEnumInt.ATTACHMENT_PAGOPA, formatWithDocTag))
                 .toList();
     }
 
-    private String formatWithDocTag(String uri, FileTagEnumInt docTag, Boolean isPrepareFlow){
-        if (Boolean.TRUE.equals(isPrepareFlow)){
+    private String formatWithDocTag(String uri, FileTagEnumInt docTag, Boolean formatWithDocTag){
+        if (Boolean.TRUE.equals(formatWithDocTag)){
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(uri);
             uriBuilder.queryParam("docTag",docTag.getValue());
             return uriBuilder.toUriString();
@@ -303,11 +308,14 @@ public class AttachmentUtils {
         return uri;
     }
 
-    private void addNotificationF24PaymentsUrl(List<String> attachments,
+    @NotNull
+    private List<String> addNotificationF24PaymentsUrl(
                                                NotificationInt notification,
                                                NotificationRecipientInt recipient,
                                                Integer recIndex,
-                                               Boolean isPrepareFlow
+                                               F24_RESOLUTION_MODE resolveF24Mode,
+                                               List<String> replacedF24AttachmentUrls,
+                                               Boolean formatWithDocTag
     ) {
         List<F24Int> f24Payments = recipient.getPayments().stream()
                 .map(NotificationPaymentInfoInt::getF24)
@@ -316,9 +324,26 @@ public class AttachmentUtils {
 
         //Se non ci sono pagamenti F24 non faccio nulla.
         if(f24Payments.isEmpty()) {
-            return;
+            return List.of();
         }
-        
+
+        //nuova logica per il recupero degli F24 in base a Enum resolveF24Mode, sia digitale che analogico
+        return switch (resolveF24Mode) {
+            case URL ->
+                    getGenerateF24Url(notification, recIndex, f24Payments, formatWithDocTag);
+            case RESOLVE_WITH_TIMELINE ->
+                    getGenerateF24FromTimeline(notification, recIndex);
+            case RESOLVE_WITH_REPLACED_LIST ->
+                    //non viene inclusa la URL degli F24 ma aggiunta l'eventuale lista di pdf prodotti agli attachments
+                    replacedF24AttachmentUrls != null ? replacedF24AttachmentUrls : List.of();
+        };
+    }
+
+    private List<String> getGenerateF24Url(NotificationInt notification,
+                                           Integer recIndex,
+                                           List<F24Int> f24Payments,
+                                           Boolean formatWithDocTag) {
+
         //Se una notifica ha almeno un flag applyCost a true è sicuramente DELIVERY_MODE (è presente un controllo in fase di creazione notifica)
         boolean f24PaymentsRequireCost = f24Payments.stream().anyMatch(F24Int::getApplyCost);
         Integer cost = null;
@@ -329,7 +354,17 @@ public class AttachmentUtils {
             cost = retrieveCost(notification, recIndex);
             vat = notification.getVat();
         }
-        attachments.add(formatWithDocTag(getF24Url(notification.getIun(), recIndex, cost, vat), FileTagEnumInt.ATTACHMENT_F24, isPrepareFlow));
+        return List.of(formatWithDocTag(getF24Url(notification.getIun(), recIndex, cost, vat), FileTagEnumInt.ATTACHMENT_F24, formatWithDocTag));
+    }
+
+    private List<String> getGenerateF24FromTimeline(NotificationInt notification, Integer recIndex) {
+        Optional<TimelineElementInternal> element = timelineUtils.getGeneratedF24(notification.getIun(), recIndex);
+        if(element.isPresent()){
+            GeneratedF24DetailsInt details = (GeneratedF24DetailsInt) element.get().getDetails();
+            return details.getF24Attachments();
+        }
+        else
+            throw new PnInternalException("getGeneratedF24 expected but not found iun=" + notification.getIun() + " recIndex=" + recIndex , ERROR_CODE_DELIVERYPUSH_TIMELINEEVENTNOTFOUND);
     }
 
     private Integer retrieveCost(NotificationInt notificationInt, int recipientIdx) {

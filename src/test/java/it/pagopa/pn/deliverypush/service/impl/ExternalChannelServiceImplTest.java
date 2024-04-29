@@ -109,7 +109,7 @@ class ExternalChannelServiceImplTest {
 
         String aarKey = "testKey";
         String attachments = "test1";
-        Mockito.when( attachmentUtils.retrieveAttachments(any(),any(),any(),any(),any()) ).thenReturn(Arrays.asList(aarKey,attachments));
+        Mockito.when( attachmentUtils.retrieveAttachments(any(),any(),any(),any(),any(),any()) ).thenReturn(Arrays.asList(aarKey,attachments));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_SEND), Mockito.anyString())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
@@ -189,7 +189,7 @@ class ExternalChannelServiceImplTest {
         String aarKey = "testKey";
         String attachments = "test1";
 
-        Mockito.when( attachmentUtils.retrieveAttachments(any(),any(),any(),any(),any()) ).thenReturn(Arrays.asList(aarKey,attachments));
+        Mockito.when( attachmentUtils.retrieveAttachments(any(),any(),any(),any(),any(), any()) ).thenReturn(Arrays.asList(aarKey,attachments));
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_SEND), Mockito.anyString())).thenReturn(auditLogEvent);
@@ -263,7 +263,7 @@ class ExternalChannelServiceImplTest {
         Mockito.when(notificationUtils.getRecipientFromIndex(any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
         String aarKey = "testKey";
-        Mockito.when( attachmentUtils.retrieveAttachments(any(),any(),any(),any(),any()) ).thenReturn(Collections.singletonList(aarKey));
+        Mockito.when( attachmentUtils.retrieveAttachments(any(),any(),any(),any(),any(),any()) ).thenReturn(Collections.singletonList(aarKey));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_SEND), Mockito.anyString())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), any())).thenReturn(auditLogEvent);
@@ -415,7 +415,7 @@ class ExternalChannelServiceImplTest {
         int sentAttemptMade = 0;
 
         String aarKey = "testKey";
-        Mockito.when( attachmentUtils.retrieveAttachments(any(),any(),any(),any(),any()) ).thenReturn(Collections.singletonList(aarKey));
+        Mockito.when( attachmentUtils.retrieveAttachments(any(),any(),any(),any(),any(),any()) ).thenReturn(Collections.singletonList(aarKey));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_SEND), Mockito.anyString())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
@@ -577,7 +577,7 @@ class ExternalChannelServiceImplTest {
 
         //THEN
         Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken);
-        Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(NotificationInt.class),anyInt(),any(SendAttachmentMode.class),anyBoolean(),anyList());
+        Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(NotificationInt.class),anyInt(),any(SendAttachmentMode.class), any(AttachmentUtils.F24_RESOLUTION_MODE.class), anyList(), anyBoolean());
         Mockito.verify( auditLogEvent).generateSuccess();
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(any());

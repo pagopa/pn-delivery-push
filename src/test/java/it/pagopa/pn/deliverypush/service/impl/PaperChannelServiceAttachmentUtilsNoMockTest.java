@@ -79,7 +79,8 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
                 notificationProcessCostService,
                 pnSendModeUtils,
                 aarUtils,
-                notificationUtils
+                notificationUtils,
+                timelineUtils
         );
 
         paperChannelService = new PaperChannelServiceImpl(
