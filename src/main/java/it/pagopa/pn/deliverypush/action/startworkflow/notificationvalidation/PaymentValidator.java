@@ -31,7 +31,7 @@ public class PaymentValidator {
         
         if(NotificationFeePolicy.DELIVERY_MODE.equals(notification.getNotificationFeePolicy())){
             if(PagoPaIntMode.ASYNC.equals(notification.getPagoPaIntMode())){
-                checkIsPresentPayment(notification);
+                checkIsPresentPayments(notification);
                 
                 if(notification.getPaFee() != null){
                     startValidationAndUpdateFeeProcess(notification, startWorkflowInstant);
@@ -40,7 +40,6 @@ public class PaymentValidator {
                     final String errorDetail = "There isn't paFee. In Async integration and DeliveryMode state the paFee are mandatory";
                     handleFailValidation(errorDetail);
                 }
-
             }else {
                 log.info("No need to start validate payment process, notification is not in async mode");    
             }
@@ -50,12 +49,13 @@ public class PaymentValidator {
         
     }
 
-    private void checkIsPresentPayment(NotificationInt notification) {
+    private void checkIsPresentPayments(NotificationInt notification) {
         notification.getRecipients().forEach(recipient -> {
             int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-            log.debug("Start add validation for recipient index {}", recIndex);
+            log.debug("Start check is present payments - iun={} recIndex={}",notification.getIun(), recIndex);
 
             if(recipient.getPayments() == null || recipient.getPayments().isEmpty()){
+                log.info("For recIndex={} is not present payment - iun={}", recIndex, notification.getIun());
                 final String errorDetail = String.format(
                         "There isn't payments for recipient. With notificationFeePolicy=%s and pagoPaIntMode=%s payments are mandatory",
                         notification.getNotificationFeePolicy(),
