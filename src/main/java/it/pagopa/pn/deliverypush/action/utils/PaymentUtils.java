@@ -22,7 +22,8 @@ public class PaymentUtils {
         notification.getRecipients().forEach(recipient -> {
             int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
             log.debug("Start add validation for recipient index {}", recIndex);
-
+            
+            
             recipient.getPayments().forEach( payment ->{
                 final PagoPaInt pagoPaPayment = payment.getPagoPA();
                 if(pagoPaPayment != null && Boolean.TRUE.equals(pagoPaPayment.getApplyCost())){
