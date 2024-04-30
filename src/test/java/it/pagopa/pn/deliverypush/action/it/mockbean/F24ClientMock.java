@@ -57,6 +57,11 @@ public class F24ClientMock implements PnF24Client {
         return Mono.just(new RequestAccepted().description("OK").status("OK"));
     }
 
+    @Override
+    public Mono<RequestAccepted> preparePDF(String requestId, String iun, Integer cost) {
+        return null;
+    }
+
     private PnF24MetadataValidationEndEventPayload buildMetadataValidationEndWithErrors(String setId) {
         return PnF24MetadataValidationEndEventPayload.builder()
                 .setId(setId)
