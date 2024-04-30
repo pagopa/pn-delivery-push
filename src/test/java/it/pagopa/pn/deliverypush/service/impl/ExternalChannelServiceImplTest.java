@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilde
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24ResolutionMode;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -577,7 +578,7 @@ class ExternalChannelServiceImplTest {
 
         //THEN
         Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken);
-        Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(NotificationInt.class),anyInt(),any(SendAttachmentMode.class), any(AttachmentUtils.F24_RESOLUTION_MODE.class), anyList(), anyBoolean());
+        Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(NotificationInt.class),anyInt(),any(SendAttachmentMode.class), any(F24ResolutionMode.class), anyList(), anyBoolean());
         Mockito.verify( auditLogEvent).generateSuccess();
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(any());

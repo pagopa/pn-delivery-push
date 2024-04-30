@@ -57,12 +57,6 @@ public class AttachmentUtils {
     private final NotificationUtils notificationUtils;
     private final TimelineUtils timelineUtils;
 
-    public enum F24_RESOLUTION_MODE{
-        URL,
-        RESOLVE_WITH_TIMELINE,
-        RESOLVE_WITH_REPLACED_LIST
-    }
-
     public void validateAttachment(NotificationInt notification ) throws PnValidationException {
         log.logChecking(VALIDATE_ATTACHMENT_PROCESS);
         forEachAttachment(notification, this::checkAttachment, false);
@@ -90,7 +84,7 @@ public class AttachmentUtils {
      * @return lista id allegati
      */
     @NotNull
-    public List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, SendAttachmentMode sendAttachmentMode, F24_RESOLUTION_MODE resolveF24Mode, List<String> replacedF24AttachmentUrls, Boolean formatWithDocTag)  {
+    public List<String> retrieveAttachments(NotificationInt notification, Integer recIndex, SendAttachmentMode sendAttachmentMode, F24ResolutionMode resolveF24Mode, List<String> replacedF24AttachmentUrls, Boolean formatWithDocTag)  {
         log.info("retrieveAttachments iun={} recIndex={} sendAttachmentMode={} resolveF24Mode={} replacedF24AttachmentUrls={}", notification.getIun(), recIndex, sendAttachmentMode, resolveF24Mode, replacedF24AttachmentUrls);
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
 
@@ -276,7 +270,7 @@ public class AttachmentUtils {
                 .toList();
     }
 
-    public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, F24_RESOLUTION_MODE resolveF24Mode, List<String> replacedF24AttachmentUrls, Boolean formatWithDocTag) {
+    public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, F24ResolutionMode resolveF24Mode, List<String> replacedF24AttachmentUrls, Boolean formatWithDocTag) {
         List<String> attachments = new ArrayList<>(getNotificationAttachments(notification, formatWithDocTag));
         if (CollectionUtils.isEmpty(recipient.getPayments())) {
             return attachments;
@@ -313,7 +307,7 @@ public class AttachmentUtils {
                                                NotificationInt notification,
                                                NotificationRecipientInt recipient,
                                                Integer recIndex,
-                                               F24_RESOLUTION_MODE resolveF24Mode,
+                                               F24ResolutionMode resolveF24Mode,
                                                List<String> replacedF24AttachmentUrls,
                                                Boolean formatWithDocTag
     ) {

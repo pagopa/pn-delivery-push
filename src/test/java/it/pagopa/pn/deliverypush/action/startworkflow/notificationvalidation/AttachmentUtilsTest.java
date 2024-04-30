@@ -295,7 +295,7 @@ class AttachmentUtilsTest {
             "URL, true, http?docTag=AAR", // formatWithDocTag = true
     })
     @ExtendWith(MockitoExtension.class)
-    void retrieveAttachmentsAAR(AttachmentUtils.F24_RESOLUTION_MODE resolveF24Mode, Boolean formatWithDocTag, String expectedResult) {
+    void retrieveAttachmentsAAR(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedResult) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2();
 
@@ -320,7 +320,7 @@ class AttachmentUtilsTest {
             "URL, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT" // formatWithDocTag = true
     })
     @ExtendWith(MockitoExtension.class)
-    void retrieveAttachmentsAAR_DOCUMENTS(AttachmentUtils.F24_RESOLUTION_MODE resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl) {
+    void retrieveAttachmentsAAR_DOCUMENTS(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2WithDocument();
 
@@ -397,7 +397,7 @@ class AttachmentUtilsTest {
             "RESOLVE_WITH_REPLACED_LIST, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA, 3" // formatWithDocTag = true
     })
     @ExtendWith(MockitoExtension.class)
-    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS(AttachmentUtils.F24_RESOLUTION_MODE resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl, String expectedPagoPaUrl, int expectedSize) {
+    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl, String expectedPagoPaUrl, int expectedSize) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2WithF24();
 
@@ -549,8 +549,8 @@ class AttachmentUtilsTest {
         Mockito.lenient().when(timelineUtils.getGeneratedF24(any(),any())).thenReturn(Optional.of(details));
 
         //WHEN
-        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, AttachmentUtils.F24_RESOLUTION_MODE.URL, Collections.emptyList(), true);
-        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, AttachmentUtils.F24_RESOLUTION_MODE.RESOLVE_WITH_TIMELINE, Collections.emptyList(), false);
+        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, F24ResolutionMode.URL, Collections.emptyList(), true);
+        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, F24ResolutionMode.RESOLVE_WITH_TIMELINE, Collections.emptyList(), false);
         //THEN
         Assertions.assertEquals(3, attachmentsRecipient1.size());
         Assertions.assertEquals(3, attachmentsRecipient2.size());
