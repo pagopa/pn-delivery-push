@@ -30,10 +30,9 @@ public class PnF24ClientImpl extends CommonBaseClient implements PnF24Client {
 
     @Override
     public Mono<RequestAccepted> preparePDF(String requestId, String iun, Integer cost) {
-
         PrepareF24Request prepareF24Request = new PrepareF24Request();
-        prepareF24Request.setId(iun);
         prepareF24Request.setRequestId(requestId);
+        prepareF24Request.setId(iun);
         prepareF24Request.setNotificationCost(cost);
         log.logInvokingAsyncExternalService(CLIENT_NAME, PREPARE_F24_PROCESS_NAME, iun);
         return f24ControllerApi.preparePDF(cfg.getF24CxId(),requestId,prepareF24Request);
