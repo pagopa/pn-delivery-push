@@ -284,7 +284,7 @@ public class AttachmentUtils {
 
         attachments.addAll(getNotificationPagoPaPayments(recipient, formatWithDocTag));
 
-        attachments.addAll(addNotificationF24PaymentsUrl(notification, recipient, recIndex, resolveF24Mode, replacedF24AttachmentUrls, formatWithDocTag));
+        attachments.addAll(getNotificationF24PaymentsUrl(notification, recipient, recIndex, resolveF24Mode, replacedF24AttachmentUrls, formatWithDocTag));
 
         return attachments;
     }
@@ -309,7 +309,7 @@ public class AttachmentUtils {
     }
 
     @NotNull
-    private List<String> addNotificationF24PaymentsUrl(
+    private List<String> getNotificationF24PaymentsUrl(
                                                NotificationInt notification,
                                                NotificationRecipientInt recipient,
                                                Integer recIndex,

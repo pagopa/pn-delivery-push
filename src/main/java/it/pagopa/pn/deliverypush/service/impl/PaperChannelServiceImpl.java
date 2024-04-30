@@ -328,7 +328,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     }
 
     private List<String> legacyRetrieveAcceptedAttachments(NotificationInt notification, Integer recIndex, List<String> replacedF24AttachmentUrls, NotificationChannelType notificationChannelType){
-        return attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, notificationChannelType), AttachmentUtils.F24_RESOLUTION_MODE.RESOLVE_WITH_TIMELINE, replacedF24AttachmentUrls, false);
+        return attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, notificationChannelType), AttachmentUtils.F24_RESOLUTION_MODE.RESOLVE_WITH_REPLACED_LIST, replacedF24AttachmentUrls, false);
     }
 
     @NotNull
