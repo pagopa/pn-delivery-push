@@ -16,8 +16,10 @@ import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Component
@@ -33,8 +35,8 @@ public class F24ResponseHandler {
 
     public void handleEventF24(DetailedTypePayload event){
         if(event instanceof PnF24MetadataValidationEndEvent.Detail metadataValidationEndEvent) {
-            log.info("Handle event PnF24MetadataValidationEndEvent to handleResponseReceived");
-            handleResponseReceived(metadataValidationEndEvent);
+            log.info("Handle event PnF24MetadataValidationEndEvent to handleValidationResponseReceived");
+            handleValidationResponseReceived(metadataValidationEndEvent);
         }else if(event instanceof PnF24PdfSetReadyEvent.Detail pdfSetReadyEvent){
             log.info("Handle event PnF24PdfSetReadyEvent to handlePrepareResponseReceived");
             handlePrepareResponseReceived(pdfSetReadyEvent);
@@ -43,7 +45,7 @@ public class F24ResponseHandler {
         }
     }
 
-    private void handleResponseReceived(PnF24MetadataValidationEndEvent.Detail event) {
+    private void handleValidationResponseReceived(PnF24MetadataValidationEndEvent.Detail event) {
         if (event.getMetadataValidationEnd() != null) {
             PnF24MetadataValidationEndEventPayload metadataValidationEndEvent = event.getMetadataValidationEnd();
             String iun = metadataValidationEndEvent.getSetId();
@@ -81,9 +83,11 @@ public class F24ResponseHandler {
         log.debug("Start mapping PnF24PdfSetReadyEvent.Detail iun {}",iunFromTimelineId);
         Map<Integer, List<String>> result = generatedPdfsUrls.stream()
                 .collect(Collectors.groupingBy(
-                        item -> Integer.parseInt(item.getPathTokens().split(PATH_TOKEN_SEPARATOR)[0]), // Estrae recIndex
+                        item -> Integer.parseInt(item.getPathTokens().split(PATH_TOKEN_SEPARATOR)[0]),// Estrae recIndex
+                        LinkedHashMap::new,
                         Collectors.mapping(PnF24PdfSetReadyEventItem::getUri, Collectors.toList())
                 ));
+
 
         log.debug("Invoke f24Service.handleF24PrepareResponse for iun {}", iunFromTimelineId);
         f24Service.handleF24PrepareResponse(iunFromTimelineId,result);
