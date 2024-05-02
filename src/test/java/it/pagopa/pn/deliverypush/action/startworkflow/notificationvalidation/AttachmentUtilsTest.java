@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -18,7 +19,9 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.GeneratedF24DetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
@@ -48,6 +51,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
@@ -74,6 +78,8 @@ class AttachmentUtilsTest {
 
     private NotificationProcessCostService notificationProcessCostService;
 
+    private TimelineUtils timelineUtils;
+
     @BeforeEach
     void init(){
         safeStorageService = Mockito.mock(SafeStorageService.class);
@@ -82,7 +88,8 @@ class AttachmentUtilsTest {
         notificationProcessCostService = Mockito.mock(NotificationProcessCostService.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
         aarUtils = Mockito.mock(AarUtils.class);
-        attachmentUtils = new AttachmentUtils(safeStorageService, pnDeliveryPushConfigs, notificationProcessCostService, pnSendModeUtils, aarUtils, notificationUtils);
+        timelineUtils = Mockito.mock(TimelineUtils.class);
+        attachmentUtils = new AttachmentUtils(safeStorageService, pnDeliveryPushConfigs, notificationProcessCostService, pnSendModeUtils, aarUtils, notificationUtils, timelineUtils);
 
     }
 
@@ -284,11 +291,11 @@ class AttachmentUtilsTest {
 
     @ParameterizedTest
     @CsvSource(value = {
-            "false, http", // isPrepareFlow = false
-            "true, http?docTag=AAR", // isPrepareFlow = true
+            "RESOLVE_WITH_TIMELINE, false, http", // formatWithDocTag = false
+            "URL, true, http?docTag=AAR", // formatWithDocTag = true
     })
     @ExtendWith(MockitoExtension.class)
-    void retrieveAttachmentsAAR(Boolean isPrepareFlow, String expectedResult) {
+    void retrieveAttachmentsAAR(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedResult) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2();
 
@@ -297,7 +304,7 @@ class AttachmentUtilsTest {
         Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         //WHEN
-        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR, isPrepareFlow, List.of());
+        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR, resolveF24Mode, List.of(), formatWithDocTag);
 
         // THEN
         Assertions.assertNotNull(attachments1);
@@ -309,11 +316,11 @@ class AttachmentUtilsTest {
 
     @ParameterizedTest
     @CsvSource(value = {
-            "false, http, safestorage://test", // isPrepareFlow = false
-            "true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT" // isPrepareFlow = true
+            "RESOLVE_WITH_TIMELINE, false, http, safestorage://test", // formatWithDocTag = false
+            "URL, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT" // formatWithDocTag = true
     })
     @ExtendWith(MockitoExtension.class)
-    void retrieveAttachmentsAAR_DOCUMENTS(Boolean isPrepareFlow, String expectedAarUrl, String expectedDocumentUrl) {
+    void retrieveAttachmentsAAR_DOCUMENTS(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2WithDocument();
 
@@ -322,7 +329,7 @@ class AttachmentUtilsTest {
         Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
 
         //WHEN
-        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS, isPrepareFlow, List.of());
+        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS, resolveF24Mode, List.of(), formatWithDocTag);
 
         // THEN
         Assertions.assertNotNull(attachments1);
@@ -385,13 +392,14 @@ class AttachmentUtilsTest {
 
     @ParameterizedTest
     @CsvSource(value = {
-            "false, http, safestorage://test, safestorage://paymentAttach", // isPrepareFlow = false
-            "true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA" // isPrepareFlow = true
+            "RESOLVE_WITH_TIMELINE, false, http, safestorage://test, safestorage://paymentAttach, 4", // formatWithDocTag = false
+            "URL, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA, 4", // formatWithDocTag = true
+            "RESOLVE_WITH_REPLACED_LIST, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA, 3" // formatWithDocTag = true
     })
     @ExtendWith(MockitoExtension.class)
-    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS(Boolean isPrepareFlow, String expectedAarUrl, String expectedDocumentUrl, String expectedPagoPaUrl) {
+    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl, String expectedPagoPaUrl, int expectedSize) {
         //GIVEN
-        NotificationInt notification = TestUtils.getNotificationV2WithDocument();
+        NotificationInt notification = TestUtils.getNotificationV2WithF24();
 
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
@@ -399,13 +407,17 @@ class AttachmentUtilsTest {
 
         Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notification.getRecipients().get(0));
 
+        GeneratedF24DetailsInt generatedF24DetailsInt = new GeneratedF24DetailsInt(0,List.of("f24Attachment"));
+        TimelineElementInternal details = new TimelineElementInternal().toBuilder().details(generatedF24DetailsInt).build();
+        Mockito.lenient().when(timelineUtils.getGeneratedF24(any(),any())).thenReturn(Optional.of(details));
+
         //WHEN
-        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, isPrepareFlow, List.of());
+        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, resolveF24Mode, List.of(), formatWithDocTag);
 
         // THEN
         Assertions.assertNotNull(attachments1);
         Assertions.assertFalse(attachments1.isEmpty());
-        Assertions.assertEquals(3, attachments1.size());
+        Assertions.assertEquals(expectedSize, attachments1.size());
         Assertions.assertEquals(expectedAarUrl, attachments1.get(0));
         Assertions.assertEquals(expectedDocumentUrl, attachments1.get(1));
         Assertions.assertEquals(expectedPagoPaUrl, attachments1.get(2));
@@ -532,13 +544,16 @@ class AttachmentUtilsTest {
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient1)).thenReturn(notification.getRecipients().get(recIndexRecipient1));
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient2)).thenReturn(notification.getRecipients().get(recIndexRecipient2));
 
-        //WHEN
-        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, true, Collections.emptyList());
-        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, false, Collections.emptyList());
+        GeneratedF24DetailsInt generatedF24DetailsInt = new GeneratedF24DetailsInt(0,List.of("f24Attachment"));
+        TimelineElementInternal details = new TimelineElementInternal().toBuilder().details(generatedF24DetailsInt).build();
+        Mockito.lenient().when(timelineUtils.getGeneratedF24(any(),any())).thenReturn(Optional.of(details));
 
+        //WHEN
+        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, F24ResolutionMode.URL, Collections.emptyList(), true);
+        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, F24ResolutionMode.RESOLVE_WITH_TIMELINE, Collections.emptyList(), false);
         //THEN
         Assertions.assertEquals(3, attachmentsRecipient1.size());
-        Assertions.assertEquals(2, attachmentsRecipient2.size());
+        Assertions.assertEquals(3, attachmentsRecipient2.size());
         Assertions.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey() + "?docTag=DOCUMENT"));
         Assertions.assertEquals(attachmentsRecipient2.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
 

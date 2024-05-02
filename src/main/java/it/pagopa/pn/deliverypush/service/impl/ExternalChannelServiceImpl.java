@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24ResolutionMode;
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -15,7 +16,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
-import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
@@ -196,7 +196,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                 Collections.singletonList(externalChannelUtils.getAarKey(notification.getIun(), recIndex)) :
                 attachmentUtils.retrieveAttachments(notification, recIndex,
                         attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.DIGITAL_NOTIFICATION),
-                        false, Collections.emptyList());
+                        F24ResolutionMode.RESOLVE_WITH_TIMELINE,  Collections.emptyList(), false);
 
         return new DigitalParameters(fileKeys, recipientFromIndex, recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
     }
