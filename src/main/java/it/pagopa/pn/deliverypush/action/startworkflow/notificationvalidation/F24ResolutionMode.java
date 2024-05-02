@@ -7,7 +7,7 @@ import lombok.Getter;
  * Modalità di risoluzione degli F24:
  * - URL: non risolve direttamente gli url f24, ma ne crea uno di tipo f24set://
  * - RESOLVE_WITH_TIMELINE: risolve gli url f24 da inviare cercandoli nell'evento GENERATED_F24
- * - RESOLVE_WITH_REPLACED_LIST: risolve gli url f24 da inviare utilizzando la lista "replacedF24AttachmentsUrls"
+ * - RESOLVE_WITH_REPLACED_LIST: risolve gli url f24 da inviare utilizzando la lista "replacedF24AttachmentUrls"
  */
 @Getter
 public enum F24ResolutionMode {
