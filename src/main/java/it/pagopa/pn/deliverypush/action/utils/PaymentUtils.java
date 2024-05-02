@@ -22,20 +22,25 @@ public class PaymentUtils {
         notification.getRecipients().forEach(recipient -> {
             int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
             log.debug("Start add validation for recipient index {}", recIndex);
+            
+            if(recipient.getPayments() != null){
+                recipient.getPayments().forEach( payment ->{
+                    final PagoPaInt pagoPaPayment = payment.getPagoPA();
+                    if(pagoPaPayment != null && Boolean.TRUE.equals(pagoPaPayment.getApplyCost())){
+                        log.debug("Add validation for creditorTaxId={} noticeCode={} recIndex={}", pagoPaPayment.getCreditorTaxId(), pagoPaPayment.getNoticeCode(), recIndex);
+                        PaymentsInfoForRecipientInt paymentsInfoForRecipient = PaymentsInfoForRecipientInt.builder()
+                                .recIndex(recIndex)
+                                .noticeCode(pagoPaPayment.getNoticeCode())
+                                .creditorTaxId(pagoPaPayment.getCreditorTaxId())
+                                .build();
 
-            recipient.getPayments().forEach( payment ->{
-                final PagoPaInt pagoPaPayment = payment.getPagoPA();
-                if(pagoPaPayment != null && Boolean.TRUE.equals(pagoPaPayment.getApplyCost())){
-                    log.debug("Add validation for creditorTaxId={} noticeCode={} recIndex={}", pagoPaPayment.getCreditorTaxId(), pagoPaPayment.getNoticeCode(), recIndex);
-                    PaymentsInfoForRecipientInt paymentsInfoForRecipient = PaymentsInfoForRecipientInt.builder()
-                            .recIndex(recIndex)
-                            .noticeCode(pagoPaPayment.getNoticeCode())
-                            .creditorTaxId(pagoPaPayment.getCreditorTaxId())
-                            .build();
+                        paymentsInfoForRecipients.add(paymentsInfoForRecipient);
+                    }
+                });
+            }else {
+                log.debug("Don't need to add payments for iun={} recIndex={}", notification.getIun(), recIndex);
+            }
 
-                    paymentsInfoForRecipients.add(paymentsInfoForRecipient);
-                }
-            });
         });
         return paymentsInfoForRecipients;
     }
