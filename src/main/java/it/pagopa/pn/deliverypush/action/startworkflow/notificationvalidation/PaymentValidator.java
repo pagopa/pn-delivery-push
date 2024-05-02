@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaymentUtils;
 import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
@@ -30,6 +31,8 @@ public class PaymentValidator {
         
         if(NotificationFeePolicy.DELIVERY_MODE.equals(notification.getNotificationFeePolicy())){
             if(PagoPaIntMode.ASYNC.equals(notification.getPagoPaIntMode())){
+                checkIsPresentPayments(notification);
+                
                 if(notification.getPaFee() != null){
                     startValidationAndUpdateFeeProcess(notification, startWorkflowInstant);
                     log.logCheckingOutcome(VALIDATE_PAYMENT_PROCESS, true);
@@ -44,6 +47,23 @@ public class PaymentValidator {
             log.info("No need to start validate payment process, notification is not in DELIVERY MODE");
         }
         
+    }
+
+    private void checkIsPresentPayments(NotificationInt notification) {
+        notification.getRecipients().forEach(recipient -> {
+            int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+            log.debug("Start check is present payments - iun={} recIndex={}",notification.getIun(), recIndex);
+
+            if(recipient.getPayments() == null || recipient.getPayments().isEmpty()){
+                log.info("For recIndex={} is not present payment - iun={}", recIndex, notification.getIun());
+                final String errorDetail = String.format(
+                        "There isn't payments for recipient. With notificationFeePolicy=%s and pagoPaIntMode=%s payments are mandatory",
+                        notification.getNotificationFeePolicy(),
+                        notification.getPagoPaIntMode()
+                );
+                handleFailValidation(errorDetail);
+            }
+        });
     }
 
     private void startValidationAndUpdateFeeProcess(NotificationInt notification, Instant startWorkflowInstant) {

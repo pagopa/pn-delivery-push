@@ -48,18 +48,22 @@ public class NotificationRefusedActionHandler {
 
     private void handleUpdateNotificationCost(Instant schedulingTime, NotificationInt notification) {
         List<PaymentsInfoForRecipientInt> paymentsInfoForRecipients = PaymentUtils.getPaymentsInfoFromNotification(notification);
+        
+        if( !paymentsInfoForRecipients.isEmpty() ){
+            UpdateNotificationCostResponseInt updateNotificationCostResponse = notificationProcessCostService.setNotificationStepCost(
+                    NOTIFICATION_REFUSED_COST,
+                    notification.getIun(),
+                    paymentsInfoForRecipients,
+                    schedulingTime,
+                    schedulingTime,
+                    UpdateCostPhaseInt.REQUEST_REFUSED
+            ).block();
 
-        UpdateNotificationCostResponseInt updateNotificationCostResponse = notificationProcessCostService.setNotificationStepCost(
-                NOTIFICATION_REFUSED_COST,
-                notification.getIun(),
-                paymentsInfoForRecipients,
-                schedulingTime,
-                schedulingTime,
-                UpdateCostPhaseInt.REQUEST_REFUSED
-        ).block();
-
-        if (updateNotificationCostResponse != null && !updateNotificationCostResponse.getUpdateResults().isEmpty()) {
-            handleResponse(notification, updateNotificationCostResponse);
+            if (updateNotificationCostResponse != null && !updateNotificationCostResponse.getUpdateResults().isEmpty()) {
+                handleResponse(notification, updateNotificationCostResponse);
+            }
+        } else {
+            log.debug("Don't need to update notification cost, paymentsInfoForRecipients is empty - iun={}", notification.getIun());
         }
     }
 
