@@ -51,8 +51,6 @@ class ValidationTestIT extends CommonTestConfiguration{
     UserAttributesClientMock addressBookMock;
     @Autowired
     NationalRegistriesClientMock nationalRegistriesClientMock;
-    @Autowired
-    NotificationUtils notificationUtils;
     
     @Test
     void differentShaRefusedTest() throws PnIdConflictException {
@@ -93,7 +91,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //WHEN the workflow start
         startWorkflowHandler.startWorkflow(iun);
@@ -163,7 +161,6 @@ class ValidationTestIT extends CommonTestConfiguration{
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //WHEN the workflow start
         startWorkflowHandler.startWorkflow(iun);
@@ -219,7 +216,6 @@ class ValidationTestIT extends CommonTestConfiguration{
         pnDeliveryClientMock.addNotification(notification);
         
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //WHEN the workflow start
         startWorkflowHandler.startWorkflow(iun);
@@ -275,7 +271,6 @@ class ValidationTestIT extends CommonTestConfiguration{
         pnDeliveryClientMock.addNotification(notification);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //WHEN the workflow start
         startWorkflowHandler.startWorkflow(iun);
@@ -333,7 +328,6 @@ class ValidationTestIT extends CommonTestConfiguration{
         pnDeliveryClientMock.addNotification(notification);
 
         String iun = notification.getIun();
-        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         //WHEN the workflow start
         startWorkflowHandler.startWorkflow(iun);
@@ -556,5 +550,60 @@ class ValidationTestIT extends CommonTestConfiguration{
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
         );
     }
+
+    @Test
+    void notificationDeliveryModeAsyncWithoutPayment() throws PnIdConflictException {
+        // GIVEN
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId("TAXID01")
+                .withPayments(null)
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
+                .withPagoPaIntMode(PagoPaIntMode.ASYNC)
+                .withNotificationRecipient(recipient)
+                .build();
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+
+        pnDeliveryClientMock.addNotification(notification);
+
+        String iun = notification.getIun();
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        //WHEN the workflow start
+        startWorkflowHandler.startWorkflow(iun);
+
+        //THEN
+        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+                //Check worfklow is failed
+                Assertions.assertTrue(timelineService.getTimelineElement(
+                        iun,
+                        TimelineEventId.REQUEST_REFUSED.buildEventId(
+                                EventId.builder()
+                                        .iun(iun)
+                                        .recIndex(recIndex)
+                                        .build())).isPresent()
+                )
+        );
+
+        Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
+                Mockito.any(NotificationInt.class),
+                Mockito.any(NotificationRecipientInt.class),
+                Mockito.any(LegalDigitalAddressInt.class),
+                Mockito.anyString(),
+                Mockito.anyList(),
+                Mockito.anyString()
+        );
+        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
+
+        ConsoleAppenderCustom.checkLogs();
+    }
+
 
 }

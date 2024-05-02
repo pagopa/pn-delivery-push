@@ -43,6 +43,68 @@ class PaymentValidatorTest {
     }
 
     @Test
+    void validateNotificationDeliveryModeAsyncPaymentsNull() {
+        //GIVEN
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withPayments(null)
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
+                .withPagoPaIntMode(PagoPaIntMode.ASYNC)
+                .withNotificationRecipient(recipient)
+                .build();
+
+
+        Instant startWorkflow = Instant.now();
+
+        //WHEN
+        Assertions.assertThrows(PnValidationPaymentException.class,
+                () -> paymentValidator.validatePayments(notification, startWorkflow));
+
+        //THEN
+        Mockito.verify(notificationProcessCostService, never()).setNotificationStepCost(
+                Mockito.anyInt(),
+                Mockito.anyString(),
+                Mockito.any(),
+                Mockito.any(Instant.class),
+                Mockito.any(Instant.class),
+                Mockito.any(UpdateCostPhaseInt.class)
+        );
+    }
+
+    @Test
+    void validateNotificationDeliveryModeAsyncPaymentsEmpty() {
+        //GIVEN
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withPayments(Collections.emptyList())
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
+                .withPagoPaIntMode(PagoPaIntMode.ASYNC)
+                .withNotificationRecipient(recipient)
+                .build();
+
+
+        Instant startWorkflow = Instant.now();
+
+        //WHEN
+        Assertions.assertThrows(PnValidationPaymentException.class,
+                () -> paymentValidator.validatePayments(notification, startWorkflow));
+
+        //THEN
+        Mockito.verify(notificationProcessCostService, never()).setNotificationStepCost(
+                Mockito.anyInt(),
+                Mockito.anyString(),
+                Mockito.any(),
+                Mockito.any(Instant.class),
+                Mockito.any(Instant.class),
+                Mockito.any(UpdateCostPhaseInt.class)
+        );
+    }
+
+    @Test
     void validatePaymentsNotDeliveryMode() {
         //GIVEN
         NotificationInt notification = TestUtils.getNotification().toBuilder()
