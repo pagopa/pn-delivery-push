@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
 import it.pagopa.pn.api.dto.events.*;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24.PnF24Client;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
@@ -28,7 +30,20 @@ public class F24ResponseHandler {
     private final SchedulerService schedulerService;
     private static final String PATH_TOKEN_SEPARATOR = "_";
 
-    public void handleResponseReceived(PnF24MetadataValidationEndEvent.Detail event) {
+
+    public void handleEventF24(DetailedTypePayload event){
+        if(event instanceof PnF24MetadataValidationEndEvent.Detail metadataValidationEndEvent) {
+            log.info("Handle event PnF24MetadataValidationEndEvent to handleResponseReceived");
+            handleResponseReceived(metadataValidationEndEvent);
+        }else if(event instanceof PnF24PdfSetReadyEvent.Detail pdfSetReadyEvent){
+            log.info("Handle event PnF24PdfSetReadyEvent to handlePrepareResponseReceived");
+            handlePrepareResponseReceived(pdfSetReadyEvent);
+        }else{
+            throw new PnInternalException("Invalid type for handleMessageF24", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE);
+        }
+    }
+
+    private void handleResponseReceived(PnF24MetadataValidationEndEvent.Detail event) {
         if (event.getMetadataValidationEnd() != null) {
             PnF24MetadataValidationEndEventPayload metadataValidationEndEvent = event.getMetadataValidationEnd();
             String iun = metadataValidationEndEvent.getSetId();
@@ -56,7 +71,7 @@ public class F24ResponseHandler {
         }
     }
 
-    public void handlePrepareResponseReceived(PnF24PdfSetReadyEvent.Detail event){
+    private void handlePrepareResponseReceived(PnF24PdfSetReadyEvent.Detail event){
         PnF24PdfSetReadyEventPayload pdfSetReady = event.getPdfSetReady();
 
         List<PnF24PdfSetReadyEventItem> generatedPdfsUrls = pdfSetReady.getGeneratedPdfsUrls();
