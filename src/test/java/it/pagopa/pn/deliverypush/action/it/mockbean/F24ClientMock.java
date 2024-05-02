@@ -1,8 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEvent;
-import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEventPayload;
-import it.pagopa.pn.api.dto.events.PnF24MetadataValidationIssue;
+import it.pagopa.pn.api.dto.events.*;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24.PnF24Client;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.F24ResponseHandler;
@@ -15,6 +14,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.awaitility.Awaitility.await;
 
@@ -48,7 +49,7 @@ public class F24ClientMock implements PnF24Client {
                 builder.metadataValidationEnd(buildMetadataValidationEndOk(iun));
             }
 
-            f24ResponseHandler.handleResponseReceived(builder.build());
+            f24ResponseHandler.handleEventF24(builder.build());
 
             log.info("[TEST] End handle validate setId={}", iun);
         }).start();
@@ -59,7 +60,41 @@ public class F24ClientMock implements PnF24Client {
 
     @Override
     public Mono<RequestAccepted> preparePDF(String requestId, String iun, Integer cost) {
-        return null;
+        new Thread(() -> {
+            AtomicReference<TimelineElementInternal> timelineElementInternal = new AtomicReference<>();
+
+             await().atMost(Duration.ofSeconds(30)).until(() -> {
+                 Optional<TimelineElementInternal> timelineElement =
+                         timelineService.getTimelineElement(iun, "GENERATE_F24_REQUEST.IUN_" + iun);
+                    if(timelineElement.isPresent()){
+                        timelineElementInternal.set(timelineElement.get());
+                        return true;
+                    }
+                    return false;
+             });
+
+            log.info("[TEST] Start handle preparePdf setId={}", iun);
+
+            PnF24PdfSetReadyEvent.Detail.DetailBuilder builder = PnF24PdfSetReadyEvent.Detail.builder();
+
+            builder.clientId("pn-delivery");
+            builder.pdfSetReady(PnF24PdfSetReadyEventPayload.builder()
+                            .generatedPdfsUrls(List.of(
+                                    PnF24PdfSetReadyEventItem.builder().pathTokens("0_0").uri("uri1").build(),
+                                    PnF24PdfSetReadyEventItem.builder().pathTokens("0_0").uri("uri2").build(),
+                                    PnF24PdfSetReadyEventItem.builder().pathTokens("1_0").uri("uri1").build(),
+                                    PnF24PdfSetReadyEventItem.builder().pathTokens("1_0").uri("uri1").build(),
+                                    PnF24PdfSetReadyEventItem.builder().pathTokens("1_0").uri("uri3").build()
+                            ))
+                            .requestId(timelineElementInternal.get().getElementId())
+                            .status("OK")
+                    .build());
+
+            f24ResponseHandler.handleEventF24(builder.build());
+
+            log.info("[TEST] End handle preparePDF setId={}", iun);
+        }).start();
+        return Mono.just(new RequestAccepted().description("OK").status("OK"));
     }
 
     private PnF24MetadataValidationEndEventPayload buildMetadataValidationEndWithErrors(String setId) {
