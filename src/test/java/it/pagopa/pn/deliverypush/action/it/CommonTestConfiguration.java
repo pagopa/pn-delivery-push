@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
@@ -294,6 +295,8 @@ public class CommonTestConfiguration {
         
         //Set send fee
         Mockito.when(cfg.getPagoPaNotificationBaseCost()).thenReturn(100);
+
+        Mockito.when(cfg.getErrorCorrectionLevelQrCode()).thenReturn(ErrorCorrectionLevel.H);
     }
 
 }

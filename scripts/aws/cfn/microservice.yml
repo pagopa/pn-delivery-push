@@ -711,6 +711,16 @@ Parameters:
     Type: String
     Description: 'Radd Operator Sail'
 
+  ErrorCorrectionLevelQrCode:
+    Type: String
+    Description: 'Error correction level in ZXing library used to generate qrCode'
+    Default: 'h'
+    AllowedValues:
+      - "l"
+      - "m"
+      - "q"
+      - "h"
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -817,6 +827,7 @@ Resources:
         ContainerEnvEntry70: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORCAF=${RaddOperatorCaf}'
         ContainerEnvEntry71: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORMOONEY=${RaddOperatorMooney}'
         ContainerEnvEntry72: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORSAILPOST=${RaddOperatorSailpost}'
+        ContainerEnvEntry73: !Sub 'PN_DELIVERYPUSH_ERRORCORRECTIONLEVELQRCODE=${ErrorCorrectionLevelQrCode}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'

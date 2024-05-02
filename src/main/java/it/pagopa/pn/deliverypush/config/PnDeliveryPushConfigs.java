@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.config;
 
 import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
@@ -115,6 +116,8 @@ public class PnDeliveryPushConfigs {
     private boolean sendMoreThan20GramsDefaultValue;
 
     private List<String> listCategoriesPa;
+
+    private ErrorCorrectionLevel errorCorrectionLevelQrCode;
 
     @Data
     public static class Topics {
