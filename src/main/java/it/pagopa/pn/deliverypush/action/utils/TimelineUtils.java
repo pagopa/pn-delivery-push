@@ -1381,6 +1381,15 @@ public class TimelineUtils {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
+    public Optional<TimelineElementInternal> getGeneratedF24(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.GENERATED_F24.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+        return timelineService.getTimelineElement(iun, elementId);
+    }
+
     public String getIunFromTimelineId(String timelineId) {
         //<timelineId = CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>...
         return timelineId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1].replace("IUN_", "");

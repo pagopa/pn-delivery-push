@@ -90,7 +90,7 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(paperChannelSendClient).prepare(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any(),any());
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
@@ -117,7 +117,7 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(paperChannelSendClient).prepare(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any(), any());
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
@@ -144,7 +144,7 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(paperChannelSendClient).prepare(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any(),any());
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
@@ -171,7 +171,7 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(paperChannelSendClient).prepare(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(),any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(),any(),any(),any());
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
@@ -301,7 +301,7 @@ class PaperChannelServiceImplTest {
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any(),any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -479,7 +479,7 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachments(any(), any());
-        Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), anyBoolean(), any());
+        Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), any(), any(), anyBoolean());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -507,7 +507,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -536,7 +536,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -564,7 +564,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any(),any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -588,12 +588,12 @@ class PaperChannelServiceImplTest {
 
         Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR_DOCUMENTS);
 
-        Mockito.when(attachmentUtils.retrieveAttachments(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(List.of("documentTest"));
+        Mockito.when(attachmentUtils.retrieveAttachments(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(List.of("documentTest"));
         // WHEN
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -621,7 +621,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(),any(),any(),any(),any());
+        Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(),any(),any(),any(),any(),any());
     }
 
     private NotificationInt newNotification(String TAX_ID) {
