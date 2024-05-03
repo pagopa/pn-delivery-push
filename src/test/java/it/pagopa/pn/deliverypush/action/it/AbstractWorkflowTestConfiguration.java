@@ -36,10 +36,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattribut
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
-import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
-import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
-import it.pagopa.pn.deliverypush.service.SafeStorageService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
@@ -179,5 +176,7 @@ public class AbstractWorkflowTestConfiguration {
     public ParameterConsumer pnParameterConsumerClientTest(){
         return new AbstractCachedSsmParameterConsumerMock();
     }
-    
+
+    @Bean
+    public F24Service f24Service(){return Mockito.mock(F24Service.class);}
 }
