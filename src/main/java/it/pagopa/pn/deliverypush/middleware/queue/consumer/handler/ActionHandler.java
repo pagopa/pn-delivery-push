@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
@@ -12,14 +14,19 @@ import it.pagopa.pn.deliverypush.action.digitalworkflow.SendDigitalFinalStatusRe
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
+import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.MdcKey;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
@@ -29,6 +36,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 
 import java.util.function.Consumer;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED;
+import static it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl.SAVE_LEGAL_FACT_EXCEPTION_MESSAGE;
 
 @Configuration
 @AllArgsConstructor
@@ -49,6 +59,8 @@ public class ActionHandler {
     private final CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
     private final TimelineUtils timelineUtils;
     private final SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
+    private final NotificationService notificationService;
+    private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
     
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
@@ -434,6 +446,27 @@ public class ActionHandler {
                 throw ex;
             }
         };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushPostAcceptedProcessingCompleted(){
+        final String processName = "SEND POST ACCEPTED PROCESSING COMPLETED";
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushPostAcceptedProcessingCompleted, with content {}", message);
+                log.logStartingProcess(processName);
+
+                NotificationInt notification = notificationService.getNotificationByIun(message.getPayload().getIun());
+                scheduleRecipientWorkflow.startScheduleRecipientWorkflow(notification);
+                log.logEndingProcess(processName);
+            }catch (Exception ex){
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+
     }
     
     private void checkNotificationCancelledAndExecute(Action action, Consumer<Action> functionToCall) {
