@@ -35,6 +35,13 @@ public class PnF24ClientImpl extends CommonBaseClient implements PnF24Client {
         prepareF24Request.setId(iun);
         prepareF24Request.setNotificationCost(cost);
         log.logInvokingAsyncExternalService(CLIENT_NAME, PREPARE_F24_PROCESS_NAME, iun);
-        return f24ControllerApi.preparePDF(cfg.getF24CxId(),requestId,prepareF24Request);
+
+        return f24ControllerApi.preparePDF(cfg.getF24CxId(),requestId,prepareF24Request).map( response -> {
+            log.info("PreparePDF successful requestId={} status={}", requestId, response.getStatus());
+            return response;
+        }).onErrorResume(ex -> {
+            log.error("Error in PreparePDF requestId={}", requestId, ex);
+            return Mono.error(ex);
+        });
     }
 }
