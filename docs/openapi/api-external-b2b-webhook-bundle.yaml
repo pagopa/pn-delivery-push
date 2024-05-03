@@ -1192,6 +1192,7 @@ components:
       properties:
         legalFactId:
           type: string
+          maxLength: 128
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
     PhysicalAddress:
       type: object
@@ -1265,6 +1266,7 @@ components:
           format: int32
         generatedAarUrl:
           type: string
+          maxLength: 128
           description: Chiave per recupero da safe-storage del documento aar
     AnalogSuccessWorkflowDetails:
       type: object
@@ -1295,6 +1297,7 @@ components:
           format: int32
         legalfactId:
           type: string
+          maxLength: 128
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
         endWorkflowStatus:
           $ref: '#/components/schemas/EndWorkflowStatus'
@@ -1350,6 +1353,7 @@ components:
           format: date-time
         legalfactId:
           type: string
+          maxLength: 128
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
     DigitalFailureWorkflowDetails:
       type: object
@@ -1442,6 +1446,7 @@ components:
           format: int32
         legalfactId:
           type: string
+          maxLength: 128
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
         eventTimestamp:
           type: string
@@ -2307,6 +2312,7 @@ components:
       properties:
         elementId:
           type: string
+          maxLength: 512
           description: 'Identificativo dell''elemento di timeline: insieme allo IUN della notifica definisce in maniera univoca l''elemento di timeline'
         timestamp:
           type: string

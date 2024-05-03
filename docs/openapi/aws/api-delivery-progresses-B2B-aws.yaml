@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: /WoIkJPWxgIdQR6Z+xAcZqc4c95hm7Iav9Thu70HVDE=
+  version: 2LTTkvBeeFnHDoV5EZwbbNCqYx230EE+ojbxYemP6W4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1285,6 +1285,7 @@ components:
       properties:
         legalFactId:
           type: string
+          maxLength: 128
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
             richiesta la creazione
@@ -1359,6 +1360,7 @@ components:
           description: Index destinatario notifica digitale
         generatedAarUrl:
           type: string
+          maxLength: 128
           description: Chiave per recupero da safe-storage del documento aar
     AnalogSuccessWorkflowDetails:
       type: object
@@ -1387,6 +1389,7 @@ components:
           description: Index destinatario notifica digitale
         legalfactId:
           type: string
+          maxLength: 128
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
             richiesta la creazione
@@ -1442,6 +1445,7 @@ components:
           format: date-time
         legalfactId:
           type: string
+          maxLength: 128
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
             richiesta la creazione
@@ -1532,6 +1536,7 @@ components:
           description: Index destinatario notifica digitale
         legalfactId:
           type: string
+          maxLength: 128
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
             richiesta la creazione
@@ -2363,6 +2368,7 @@ components:
       properties:
         elementId:
           type: string
+          maxLength: 512
           description: >-
             Identificativo dell'elemento di timeline: insieme allo IUN della
             notifica definisce in maniera univoca l'elemento di timeline
