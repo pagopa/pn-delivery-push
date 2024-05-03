@@ -97,5 +97,5 @@ public enum TimelineElementCategoryInt {
             this.value = value;
         }
     }
-    
+
 }

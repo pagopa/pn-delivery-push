@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 2LTTkvBeeFnHDoV5EZwbbNCqYx230EE+ojbxYemP6W4=
+  version: 5Y+U9DVeJLzrzWipF4SolU6mIuOzOxf/NWAvDWsatPc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -147,7 +147,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      summary: Leggi metadati dello stream
+      summary: Leggi metadata dello stream
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
@@ -538,6 +538,7 @@ paths:
         type: http_proxy
   /streams:
     post:
+      deprecated: true
       summary: Crea nuovo stream di eventi
       description: >-
         Viene richiesta la creazione di un flusso di eventi specificando se gli
@@ -597,6 +598,7 @@ paths:
         type: aws_proxy
       parameters: []
     get:
+      deprecated: true
       summary: Elenca stream di eventi
       description: Elenca gli stream di eventi
       tags:
@@ -648,6 +650,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
+      deprecated: true
       summary: Leggi metadati dello stream
       description: Permette di leggere le configurazioni di uno stream di eventi.
       tags:
@@ -697,6 +700,7 @@ paths:
         type: aws_proxy
       parameters: []
     put:
+      deprecated: true
       summary: Update Stream metadata
       description: >-
         Permette di cambiare le configurazioni dei filtri associati a uno stream
@@ -754,6 +758,7 @@ paths:
         type: aws_proxy
       parameters: []
     delete:
+      deprecated: true
       summary: Remove Event Stream
       description: >-
         Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli
@@ -815,6 +820,7 @@ paths:
         type: http_proxy
   /streams/{streamId}/events:
     get:
+      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Permette di leggere gli eventi presenti nello stream di aggiornamenti e
@@ -1146,9 +1152,9 @@ components:
           * `DELIVERED` - La notifica è stata consegnata a tutti i destinatari
           * `VIEWED` - Il destinatario ha letto la notifica entro il termine stabilito
           * `EFFECTIVE_DATE` - Il destinatario non ha letto la notifica entro il termine stabilito
-          * `PAID` - Uno dei destinatari ha pagato la notifica
           * `UNREACHABLE` - Il destinatario non è reperibile
           * `CANCELLED` - L'ente ha annullato l'invio della notifica
+          * `PAID` - [DEPRECATO] Uno dei destinatari ha pagato la notifica
       enum:
         - IN_VALIDATION
         - ACCEPTED
@@ -1230,7 +1236,7 @@ components:
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
           * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
-          * `PAYMENT` - Ricezione pagamento della notifica
+          * `PAYMENT` - Ricezione da parte della Pubblica Amministrazione di un evento di chiusura di una o più posizioni debitorie di tipo PagoPA.
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
