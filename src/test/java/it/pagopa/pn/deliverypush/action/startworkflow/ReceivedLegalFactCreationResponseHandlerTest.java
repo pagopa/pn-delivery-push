@@ -6,7 +6,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.service.F24Service;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,13 +27,16 @@ class ReceivedLegalFactCreationResponseHandlerTest {
     @Mock
     private TimelineUtils timelineUtils;
     @Mock
-    private ScheduleRecipientWorkflow scheduleRecipientWorkflow;
+    private SchedulerService schedulerService;
+
+    @Mock
+    private F24Service f24Service;
 
     private ReceivedLegalFactCreationResponseHandler handler;
 
     @BeforeEach
     public void setup() {
-        handler = new ReceivedLegalFactCreationResponseHandler(notificationService, timelineService, timelineUtils, scheduleRecipientWorkflow);
+        handler = new ReceivedLegalFactCreationResponseHandler(notificationService, timelineService, timelineUtils, schedulerService, f24Service);
     }
     
     @ExtendWith(SpringExtension.class)
@@ -53,7 +58,7 @@ class ReceivedLegalFactCreationResponseHandlerTest {
         //THEN
         Mockito.verify(timelineService).addTimelineElement(elementInternal, notification);
         Mockito.verify(timelineUtils).buildAcceptedRequestTimelineElement(notification, legalFactId);
-        Mockito.verify(scheduleRecipientWorkflow).startScheduleRecipientWorkflow(notification);
+
     }
 
 
