@@ -34,7 +34,7 @@ public class F24ServiceImpl implements F24Service {
 
         TimelineElementInternal generateF24RequestTimelineElement = timelineUtils.buildGenerateF24RequestTimelineElement(notification);
 
-        log.debug("Invoke preparePdf elementId{}, iun: {}, cost {}",generateF24RequestTimelineElement.getElementId(),iun,cost);
+        log.debug("Invoke preparePdf elementId: {}, iun: {}, cost {}",generateF24RequestTimelineElement.getElementId(),iun,cost);
         pnF24Client.preparePDF(generateF24RequestTimelineElement.getElementId(),iun, cost).block();
 
         boolean skipped = timelineService.addTimelineElement(generateF24RequestTimelineElement, notification);
