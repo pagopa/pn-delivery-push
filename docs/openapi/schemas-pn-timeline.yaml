@@ -1183,9 +1183,11 @@ components:
       properties:
         id:
           type: string
-          maxLength: 512
+          description: messageId del server mittente
+          maxLength: 1024
         system:
           type: string
+          description: nome del server mittente
           maxLength: 128
 
 
