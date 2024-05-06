@@ -813,6 +813,33 @@ public class TestUtils {
                 .build();
     }
 
+    public static NotificationInt getNotificationV1() {
+        return NotificationInt.builder()
+                .iun("IUN_01")
+                .paProtocolNumber("protocol_01")
+                .sender(NotificationSenderInt.builder()
+                        .paId(" pa_02")
+                        .build()
+                )
+                .documents(List.of(NotificationDocumentInt.builder()
+                        .digests(NotificationDocumentInt.Digests.builder()
+                                .sha256("sha256").build())
+                        .ref(NotificationDocumentInt.Ref.builder().key("test").versionToken("1").build())
+                        .build()))
+                .recipients(Collections.singletonList(
+                        NotificationRecipientInt.builder()
+                                .taxId("testIdRecipient")
+                                .internalId("test")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(LegalDigitalAddressInt.builder()
+                                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                        .address("account@dominio.it")
+                                        .build())
+                                .build()
+                ))
+                .build();
+    }
+
     public static NotificationInt getNotificationV2() {
         return NotificationInt.builder()
                 .iun("IUN_01")
