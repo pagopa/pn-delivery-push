@@ -58,6 +58,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStream
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -91,6 +93,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreams
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -122,6 +126,8 @@ paths:
       tags:
         - Streams
       operationId: retrieveEventStream                       # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -149,6 +155,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStream
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -183,6 +191,8 @@ paths:
       tags:
         - Streams
       operationId: removeEventStream                         # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -215,6 +225,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStream
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'

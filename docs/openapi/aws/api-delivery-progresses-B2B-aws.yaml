@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 2WAg34bKTM9dNs5M66a3JGKMiRgcXm0KMJhzc9jyl5M=
+  version: pyZrlSB9SbgIOCLeS470ab/kzodhIEq8SANasaP8sX4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -549,6 +549,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -579,9 +581,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -592,9 +593,9 @@ paths:
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
       parameters: []
     get:
       deprecated: true
@@ -603,6 +604,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreams
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -627,9 +630,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -640,22 +642,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
       parameters: []
-    options:
-      operationId: Options for /streams API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters: {}
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
   /streams/{streamId}:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
@@ -666,6 +656,8 @@ paths:
       tags:
         - Streams
       operationId: retrieveEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -690,9 +682,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams/{streamId}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -704,9 +695,9 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
       parameters: []
     put:
       deprecated: true
@@ -717,6 +708,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -747,9 +740,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams/{streamId}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -761,9 +753,9 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
       parameters: []
     delete:
       deprecated: true
@@ -774,6 +766,8 @@ paths:
       tags:
         - Streams
       operationId: removeEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -794,9 +788,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams/{streamId}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -808,9 +801,9 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
       parameters: []
     options:
       operationId: Options for /streams/{streamId} API CORS
@@ -837,6 +830,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStream
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -883,9 +878,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams/{streamId}/events
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -897,22 +891,9 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /streams/{streamId}/events API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/streams/{streamId}/events
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.streamId: method.request.path.streamId
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
 components:
   parameters:
     queryLastEventId:
