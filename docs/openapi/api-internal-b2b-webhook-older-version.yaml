@@ -63,8 +63,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStream
-      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
-      x-pagopa-lambda-account: core
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'          # NO EXTERNAL
+      x-pagopa-lambda-account: core          # NO EXTERNAL
       requestBody:
         required: true
         content:
@@ -98,8 +98,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreams
-      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
-      x-pagopa-lambda-account: core
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'          # NO EXTERNAL
+      x-pagopa-lambda-account: core          # NO EXTERNAL
       responses:
         '200':
           description: OK
@@ -135,8 +135,8 @@ paths:
         - Streams
       operationId: getEventStream                             # NO EXTERNAL
 #      operationId: retrieveEventStream                       # ONLY EXTERNAL
-      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
-      x-pagopa-lambda-account: core
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'          # NO EXTERNAL
+      x-pagopa-lambda-account: core          # NO EXTERNAL
       responses:
         '200':
           description: OK
@@ -164,8 +164,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStream
-      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
-      x-pagopa-lambda-account: core
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'          # NO EXTERNAL
+      x-pagopa-lambda-account: core          # NO EXTERNAL
       requestBody:
         required: true
         content:
@@ -201,8 +201,8 @@ paths:
         - Streams
       operationId: deleteEventStream                          # NO EXTERNAL
 #      operationId: removeEventStream                         # ONLY EXTERNAL
-      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
-      x-pagopa-lambda-account: core
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'          # NO EXTERNAL
+      x-pagopa-lambda-account: core          # NO EXTERNAL
       responses:
         '204':
           description: OK
@@ -235,8 +235,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStream
-      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
-      x-pagopa-lambda-account: core
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'          # NO EXTERNAL
+      x-pagopa-lambda-account: core          # NO EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
