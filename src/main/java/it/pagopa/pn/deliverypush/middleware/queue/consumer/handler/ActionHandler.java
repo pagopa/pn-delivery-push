@@ -59,7 +59,6 @@ public class ActionHandler {
     private final CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
     private final TimelineUtils timelineUtils;
     private final SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
-    private final NotificationService notificationService;
     private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
     
     @Bean
@@ -457,8 +456,7 @@ public class ActionHandler {
                 log.debug("Handle action pnDeliveryPushPostAcceptedProcessingCompleted, with content {}", message);
                 log.logStartingProcess(processName);
 
-                NotificationInt notification = notificationService.getNotificationByIun(message.getPayload().getIun());
-                scheduleRecipientWorkflow.startScheduleRecipientWorkflow(notification);
+                scheduleRecipientWorkflow.startScheduleRecipientWorkflow(message.getPayload().getIun());
                 log.logEndingProcess(processName);
             }catch (Exception ex){
                 log.logEndingProcess(processName, false, ex.getMessage());

@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.action.digitalworkflow.SendDigitalFinalStatusRe
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
+import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
@@ -32,6 +33,7 @@ public class ActionHandlerMock {
     private final NotificationRefusedActionHandler notificationRefusedActionHandler;
     private final CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
     private final SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
+    private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
     
     public ActionHandlerMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
                                 @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
@@ -44,7 +46,8 @@ public class ActionHandlerMock {
                                 @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
                                 @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
                                 @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler,
-                                @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler) {
+                                @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler,
+                                @Lazy ScheduleRecipientWorkflow scheduleRecipientWorkflow) {
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
@@ -57,6 +60,7 @@ public class ActionHandlerMock {
         this.notificationRefusedActionHandler = notificationRefusedActionHandler;
         this.checkAttachmentRetentionHandler = checkAttachmentRetentionHandler;
         this.sendDigitalFinalStatusResponseHandler = sendDigitalFinalStatusResponseHandler;
+        this.scheduleRecipientWorkflow = scheduleRecipientWorkflow;
     }
 
     public void handleSchedulingAction(Action action) {
@@ -95,7 +99,8 @@ public class ActionHandlerMock {
                         documentCreationResponseHandler.handleResponseReceived(action.getIun(), action.getRecipientIndex(), (DocumentCreationResponseActionDetails)  action.getDetails());
                 case SEND_DIGITAL_FINAL_STATUS_RESPONSE ->
                         sendDigitalFinalStatusResponseHandler.handleSendDigitalFinalStatusResponse(action.getIun(), (SendDigitalFinalStatusResponseDetails) action.getDetails());
-
+                case POST_ACCEPTED_PROCESSING_COMPLETED ->
+                        scheduleRecipientWorkflow.startScheduleRecipientWorkflow(action.getIun());
                 default ->
                         log.error("[TEST] actionType not found {}", action.getType());
             }

@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
+import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
@@ -144,7 +145,8 @@ public class AbstractWorkflowTestConfiguration {
                                                @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
                                                @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
                                                @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler, 
-                                               @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler
+                                               @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler,
+                                               @Lazy ScheduleRecipientWorkflow scheduleRecipientWorkflow
     ) {
         return new ActionHandlerMock(
                 digitalWorkFlowHandler,
@@ -158,7 +160,8 @@ public class AbstractWorkflowTestConfiguration {
                 receivedLegalFactCreationRequest,
                 notificationRefusedActionHandler,
                 checkAttachmentRetentionHandler,
-                sendDigitalFinalStatusResponseHandler);
+                sendDigitalFinalStatusResponseHandler,
+                scheduleRecipientWorkflow);
     }
     
     @Bean
