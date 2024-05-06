@@ -536,7 +536,6 @@ class AttachmentUtilsTest {
 
         //WHEN
         List<String> attachmentsRecipient = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, F24ResolutionMode.URL, List.of("replacedF24AttachmentUrls"), false);
-        System.out.println(attachmentsRecipient);
 
         //THEN
         Assertions.assertEquals(2, attachmentsRecipient.size());
@@ -588,7 +587,6 @@ class AttachmentUtilsTest {
 
         //WHEN
         List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, F24ResolutionMode.URL, List.of(), false);
-        System.out.println(attachments);
 
         //THEN
         Assertions.assertNotNull(attachments.get(3));
