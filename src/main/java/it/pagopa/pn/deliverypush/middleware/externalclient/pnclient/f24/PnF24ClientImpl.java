@@ -10,6 +10,8 @@ import lombok.CustomLog;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.LinkedList;
+
 @Component
 @CustomLog
 public class PnF24ClientImpl extends CommonBaseClient implements PnF24Client {
@@ -34,6 +36,7 @@ public class PnF24ClientImpl extends CommonBaseClient implements PnF24Client {
         prepareF24Request.setRequestId(requestId);
         prepareF24Request.setId(iun);
         prepareF24Request.setNotificationCost(cost);
+        prepareF24Request.setPathTokens(new LinkedList<>());
         log.logInvokingAsyncExternalService(CLIENT_NAME, PREPARE_F24_PROCESS_NAME, iun);
 
         return f24ControllerApi.preparePDF(cfg.getF24CxId(),requestId,prepareF24Request).map( response -> {
