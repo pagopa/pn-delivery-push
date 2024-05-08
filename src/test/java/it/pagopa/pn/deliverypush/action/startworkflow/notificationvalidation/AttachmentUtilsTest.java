@@ -508,6 +508,22 @@ class AttachmentUtilsTest {
     }
 
     @Test
+    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTSFailException() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotificationV2WithF24();
+        List<String> replaced = List.of();
+
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notification.getRecipients().get(0));
+        Mockito.when(timelineUtils.getGeneratedF24(any(),any())).thenThrow(new RuntimeException("aaaa"));
+
+        // THEN
+        assertThrows(RuntimeException.class, () -> attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, F24ResolutionMode.RESOLVE_WITH_TIMELINE, replaced , false));
+    }
+
+    @Test
     void changeAttachmentsStatusToAttached() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
@@ -540,6 +556,7 @@ class AttachmentUtilsTest {
         //THEN
         Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(any(), any());
     }
+
 
     @Test
     void changeAttachmentsRetention() {
