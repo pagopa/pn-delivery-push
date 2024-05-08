@@ -263,14 +263,14 @@ public class AttachmentUtils {
                 });
     }
 
-    public List<String> getNotificationAttachments(NotificationInt notification, Boolean formatWithDocTag) {
+    private List<String> getNotificationAttachments(NotificationInt notification, Boolean formatWithDocTag) {
         return notification.getDocuments().stream()
                 .map(attachment -> FileUtils.getKeyWithStoragePrefix(attachment.getRef().getKey()))
                 .map(u -> formatWithDocTag(u, FileTagEnumInt.DOCUMENT, formatWithDocTag))
                 .toList();
     }
 
-    public List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, F24ResolutionMode resolveF24Mode, List<String> replacedF24AttachmentUrls, Boolean formatWithDocTag) {
+    private List<String> getNotificationAttachmentsAndPayments(NotificationInt notification, NotificationRecipientInt recipient, Integer recIndex, F24ResolutionMode resolveF24Mode, List<String> replacedF24AttachmentUrls, Boolean formatWithDocTag) {
         List<String> attachments = new ArrayList<>(getNotificationAttachments(notification, formatWithDocTag));
         if (CollectionUtils.isEmpty(recipient.getPayments())) {
             return attachments;
@@ -385,7 +385,7 @@ public class AttachmentUtils {
                 data[4] == 0x2D;   // -
     }
 
-    public String getF24Url(String iun, Integer recIndex, Integer cost, Integer vat) {
+    private String getF24Url(String iun, Integer recIndex, Integer cost, Integer vat) {
         StringBuilder stringBuilder = new StringBuilder(F24_URL_PREFIX);
         stringBuilder.append(iun);
         stringBuilder.append("/");

@@ -28,7 +28,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
-import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.junit.jupiter.api.Assertions;
@@ -390,37 +389,138 @@ class AttachmentUtilsTest {
         Assertions.assertEquals(sendAttachmentMode,pnSendMode.getDigitalSendAttachmentMode());
     }
 
+    /**
+     * - sendAttachmentMode: AAR_DOCUMENTS_PAYMENTS
+     * - destinatario: singolo.
+     */
     @ParameterizedTest
     @CsvSource(value = {
-            "RESOLVE_WITH_TIMELINE, false, http, safestorage://test, safestorage://paymentAttach, 4", // formatWithDocTag = false
-            "URL, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA, 4", // formatWithDocTag = true
-            "RESOLVE_WITH_REPLACED_LIST, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA, 3" // formatWithDocTag = true
+            "RESOLVE_WITH_TIMELINE, false, http, safestorage://test, safestorage://paymentAttach, f24Attachment, 4", // formatWithDocTag = false
+            "URL, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA, f24set://IUN_01/0?cost=2&vat=23&docTag=ATTACHMENT_F24, 4", // formatWithDocTag = true
+            "RESOLVE_WITH_REPLACED_LIST, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA, replacedF24AttachmentUrls, 4" // formatWithDocTag = true
     })
     @ExtendWith(MockitoExtension.class)
-    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl, String expectedPagoPaUrl, int expectedSize) {
+    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl, String expectedPagoPaUrl, String expectedF24Url , int expectedSize) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2WithF24();
 
         AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
                 .generatedAarUrl("http").build();
         Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
-
+        Mockito.lenient().when(notificationProcessCostService.notificationProcessCostF24(any(), anyInt(), any(), any(), any(),any())).thenReturn(Mono.just(2));
         Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notification.getRecipients().get(0));
 
         GeneratedF24DetailsInt generatedF24DetailsInt = new GeneratedF24DetailsInt(0,List.of("f24Attachment"));
         TimelineElementInternal details = new TimelineElementInternal().toBuilder().details(generatedF24DetailsInt).build();
-        Mockito.lenient().when(timelineUtils.getGeneratedF24(any(),any())).thenReturn(Optional.of(details));
+        Mockito.lenient().when(timelineUtils.getGeneratedF24(any(),eq(0))).thenReturn(Optional.of(details));
 
         //WHEN
-        List<String> attachments1 = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, resolveF24Mode, List.of(), formatWithDocTag);
+        List<String> attachments = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, resolveF24Mode, List.of("replacedF24AttachmentUrls"), formatWithDocTag);
 
         // THEN
-        Assertions.assertNotNull(attachments1);
-        Assertions.assertFalse(attachments1.isEmpty());
-        Assertions.assertEquals(expectedSize, attachments1.size());
-        Assertions.assertEquals(expectedAarUrl, attachments1.get(0));
-        Assertions.assertEquals(expectedDocumentUrl, attachments1.get(1));
-        Assertions.assertEquals(expectedPagoPaUrl, attachments1.get(2));
+        Assertions.assertNotNull(attachments);
+        Assertions.assertFalse(attachments.isEmpty());
+        Assertions.assertEquals(expectedSize, attachments.size());
+        Assertions.assertEquals(expectedAarUrl, attachments.get(0));
+        Assertions.assertEquals(expectedDocumentUrl, attachments.get(1));
+        Assertions.assertEquals(expectedPagoPaUrl, attachments.get(2));
+        Assertions.assertEquals(expectedF24Url, attachments.get(3));
+    }
+
+    /**
+     *  - sendAttachmentMode: AAR_DOCUMENTS_PAYMENTS
+     *  - destinatario: multiplo
+     */
+    @ParameterizedTest
+    @CsvSource(value = {
+            "0, safestorage://PN_NOTIFICATION_ATTACHMENTS-91a87a946c0d4c1ba17cd2a0037665db.pdf, safestorage://key, f24set://iun/0?cost=5&vat=22, 5", // formatWithDocTag = false
+            "1, safestorage://PN_NOTIFICATION_ATTACHMENTS-91a87a946c0d4c1ba17cd2a0037665db.pdf, safestorage://PN_NOTIFICATION_ATTACHMENTS-a75e827e953c4917b6d1beaf6df56755.pdf, f24set://iun/1?cost=8&vat=22, 8" // formatWithDocTag = false
+    })
+    @ExtendWith(MockitoExtension.class)
+    void getAttachmentsAndPaymentsByRecipient(int recIndexRecipient, String expectedDocumentUrl,  String expectedPagoPaUrl, String expectedF24Url, int cost) {
+        //GIVEN
+        NotificationInt notification = getNotificationWithMultipleRecipients();
+
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient)).thenReturn(notification.getRecipients().get(recIndexRecipient));
+        Mockito.when(notificationProcessCostService.notificationProcessCostF24(any(), eq(recIndexRecipient), any(), any(), any(),any())).thenReturn(Mono.just(cost));
+
+        //WHEN
+        List<String> attachmentsRecipient = attachmentUtils.retrieveAttachments(notification, recIndexRecipient, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, F24ResolutionMode.URL, List.of(), false);
+
+        System.out.println(attachmentsRecipient);
+        Assertions.assertEquals(expectedDocumentUrl, attachmentsRecipient.get(1));
+        Assertions.assertEquals(expectedPagoPaUrl, attachmentsRecipient.get(2));
+        Assertions.assertEquals(expectedF24Url, attachmentsRecipient.get(3));
+    }
+
+    @Test
+    void getAttachmentsAndPaymentsWithEmptyPayments() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotificationV2WithoutPayments();
+
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(AarGenerationDetailsInt.builder().generatedAarUrl("http").build());
+        Mockito.when(notificationUtils.getRecipientFromIndex(notification, 0)).thenReturn(notification.getRecipients().get(0));
+
+        //WHEN
+        List<String> attachmentsRecipient = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, F24ResolutionMode.RESOLVE_WITH_TIMELINE, List.of(), false);
+
+        //THEN
+        Assertions.assertEquals(2, attachmentsRecipient.size());
+    }
+
+    /**
+     *  Caso di test in cui replacedF24AttachmentUrls = null
+     */
+    @Test
+    void retrieveAttachmentsAndPaymentsWithNullReplacedF24() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotificationV2WithF24();
+
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notification.getRecipients().get(0));
+
+        //WHEN
+        List<String> attachments = attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST, null, true);
+
+        // THEN
+        Assertions.assertEquals(3, attachments.size());
+    }
+
+    @Test
+    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTSFail() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotificationV2WithF24();
+        List<String> replaced = List.of();
+
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notification.getRecipients().get(0));
+        Mockito.when(timelineUtils.getGeneratedF24(any(),any())).thenReturn(Optional.empty());
+
+        // THEN
+        assertThrows(PnInternalException.class, () -> attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, F24ResolutionMode.RESOLVE_WITH_TIMELINE, replaced , false));
+    }
+
+    @Test
+    void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTSFailException() {
+        //GIVEN
+        NotificationInt notification = TestUtils.getNotificationV2WithF24();
+        List<String> replaced = List.of();
+
+        AarGenerationDetailsInt aarGenerationDetails = AarGenerationDetailsInt.builder()
+                .generatedAarUrl("http").build();
+        Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notification.getRecipients().get(0));
+        Mockito.when(timelineUtils.getGeneratedF24(any(),any())).thenThrow(new RuntimeException("aaaa"));
+
+        // THEN
+        assertThrows(RuntimeException.class, () -> attachmentUtils.retrieveAttachments(notification, 0, SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS, F24ResolutionMode.RESOLVE_WITH_TIMELINE, replaced , false));
     }
 
     @Test
@@ -456,6 +556,7 @@ class AttachmentUtilsTest {
         //THEN
         Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(any(), any());
     }
+
 
     @Test
     void changeAttachmentsRetention() {
@@ -508,75 +609,6 @@ class AttachmentUtilsTest {
         //THEN
         Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(any(), any());
     }
-
-    @Test
-    void getAttachmentsByRecipient() {
-        //GIVEN
-        NotificationInt notification = getNotificationWithMultipleRecipients();
-
-        int recIndexRecipient1 = 0;
-        int recIndexRecipient2 = 1;
-
-        Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient1)).thenReturn(notification.getRecipients().get(recIndexRecipient1));
-        Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient2)).thenReturn(notification.getRecipients().get(recIndexRecipient2));
-
-        //WHEN
-        //la get notificationAttachment recupera solo i documenti
-        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachments(notification, true);
-        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachments(notification, false);
-
-        Assertions.assertEquals(1, attachmentsRecipient1.size());
-        Assertions.assertEquals(1, attachmentsRecipient2.size());
-        Assertions.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey() + "?docTag=DOCUMENT"));
-        Assertions.assertEquals(attachmentsRecipient2.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
-    }
-
-    @Test
-    void getAttachmentsAndPaymentsByRecipient() {
-        //GIVEN
-        NotificationInt notification = getNotificationWithMultipleRecipients();
-
-        int recIndexRecipient1 = 0;
-        int recIndexRecipient2 = 1;
-
-        Mockito.when(notificationProcessCostService.notificationProcessCostF24(any(), anyInt(), any(), any(), any(),any())).thenReturn(Mono.just(2));
-
-        Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient1)).thenReturn(notification.getRecipients().get(recIndexRecipient1));
-        Mockito.when(notificationUtils.getRecipientFromIndex(notification, recIndexRecipient2)).thenReturn(notification.getRecipients().get(recIndexRecipient2));
-
-        GeneratedF24DetailsInt generatedF24DetailsInt = new GeneratedF24DetailsInt(0,List.of("f24Attachment"));
-        TimelineElementInternal details = new TimelineElementInternal().toBuilder().details(generatedF24DetailsInt).build();
-        Mockito.lenient().when(timelineUtils.getGeneratedF24(any(),any())).thenReturn(Optional.of(details));
-
-        //WHEN
-        List<String> attachmentsRecipient1 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(0), 0, F24ResolutionMode.URL, Collections.emptyList(), true);
-        List<String> attachmentsRecipient2 = attachmentUtils.getNotificationAttachmentsAndPayments(notification, notification.getRecipients().get(1), 1, F24ResolutionMode.RESOLVE_WITH_TIMELINE, Collections.emptyList(), false);
-        //THEN
-        Assertions.assertEquals(3, attachmentsRecipient1.size());
-        Assertions.assertEquals(3, attachmentsRecipient2.size());
-        Assertions.assertEquals(attachmentsRecipient1.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey() + "?docTag=DOCUMENT"));
-        Assertions.assertEquals(attachmentsRecipient2.get(0), FileUtils.getKeyWithStoragePrefix(notification.getDocuments().get(0).getRef().getKey()));
-
-        Assertions.assertEquals(attachmentsRecipient2.get(1), FileUtils.getKeyWithStoragePrefix(notification.getRecipients().get(recIndexRecipient2).getPayments().get(0).getPagoPA().getAttachment().getRef().getKey()));
-    }
-
-    @Test
-    void f24UrlTest() {
-        //GIVEN
-        String iun = "testIun";
-        Integer recIndex = 0;
-        Integer cost = 10;
-        Integer vat = 22;
-
-        //WHEN
-        String f24Url = attachmentUtils.getF24Url(iun, recIndex, cost, vat);
-
-        //THEN
-        Assertions.assertNotNull(f24Url);
-        Assertions.assertTrue(f24Url.contains("?cost="+cost));
-        Assertions.assertTrue(f24Url.contains("&vat="+vat));
-    }
-
 
     private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
         return NotificationTestBuilder.builder()
