@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24ResolutionMode;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -90,7 +91,7 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(paperChannelSendClient).prepare(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),eq(SendAttachmentMode.AAR_DOCUMENTS),eq(F24ResolutionMode.URL),any(),any());
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
@@ -117,7 +118,7 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(paperChannelSendClient).prepare(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any(), any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), eq(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS), eq(F24ResolutionMode.URL), any(), any());
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
@@ -144,7 +145,7 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(paperChannelSendClient).prepare(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),eq(SendAttachmentMode.AAR_DOCUMENTS), eq(F24ResolutionMode.URL),any(),any());
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
@@ -171,7 +172,7 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(paperChannelSendClient).prepare(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(),any(),any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), eq(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS), eq(F24ResolutionMode.URL),any(),any());
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
@@ -301,7 +302,7 @@ class PaperChannelServiceImplTest {
         Mockito.verify(auditLogEvent).generateSuccess(Mockito.anyString(), any());
         Mockito.verify(auditLogEvent).log();
         Mockito.verify(auditLogEvent, Mockito.never()).generateFailure(any());
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), eq(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS), eq(F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST), any(),any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -478,8 +479,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", Collections.emptyList(), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachments(any(), any());
-        Mockito.verify(attachmentUtils, Mockito.never()).getNotificationAttachmentsAndPayments(any(), any(), anyInt(), any(), any(), anyBoolean());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), eq(SendAttachmentMode.AAR), eq(F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST), any(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -507,7 +507,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any(), any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), eq(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS), eq(F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST), any(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -536,7 +536,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendSimpleRegisteredLetter(notificationInt, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), any(), any(), any(), any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(), any(), eq(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS), eq(F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST), any(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -564,7 +564,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any(),any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),eq(SendAttachmentMode.AAR_DOCUMENTS), eq(F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST),any(),any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -588,12 +588,12 @@ class PaperChannelServiceImplTest {
 
         Mockito.when(attachmentUtils.retrieveSendAttachmentMode(Mockito.any(), Mockito.any())).thenReturn(SendAttachmentMode.AAR_DOCUMENTS);
 
-        Mockito.when(attachmentUtils.retrieveAttachments(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(List.of("documentTest"));
+        Mockito.when(attachmentUtils.retrieveAttachments(Mockito.any(),Mockito.any(),eq(SendAttachmentMode.AAR_DOCUMENTS), eq(F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST),Mockito.any(),Mockito.any())).thenReturn(List.of("documentTest"));
         // WHEN
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),any(),any(),any(), any());
+        Mockito.verify(attachmentUtils).retrieveAttachments(any(),any(),eq(SendAttachmentMode.AAR_DOCUMENTS), eq(F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST),any(), any());
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -607,7 +607,7 @@ class PaperChannelServiceImplTest {
         ResultFilterInt acceptedAttachments = ResultFilterInt.builder().fileKey("filekey").result(ResultFilterEnum.SUCCESS).reasonCode("reasonCode").reasonDescription("reasonDescription").build();
 
         CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder().acceptedAttachments(List.of(acceptedAttachments)).discardedAttachments(new ArrayList<>()).build();
-
+        System.out.println(categorizedAttachmentsResult.getAcceptedAttachments());
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
@@ -621,7 +621,7 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendAnalogNotification(notificationInt, 0, 0, "req123", physicalAddressInt, "NR_SR", List.of("replacedF24Url"), categorizedAttachmentsResult);
 
         // THEN
-        Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(),any(),any(),any(),any(),any());
+        Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(),any(),any(SendAttachmentMode.class), eq(F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST),any(),any());
     }
 
     private NotificationInt newNotification(String TAX_ID) {
