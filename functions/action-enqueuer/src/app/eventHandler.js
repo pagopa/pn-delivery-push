@@ -1,5 +1,6 @@
-const { putMessages } = require("./sqsFunctions.js");
+const { putMessages } = require("./sqsFunctions");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
+const { insideWorkingWindow, getWorkingTime } = require("./workingTimeUtils");
 
 const TOLLERANCE_IN_MILLIS = 3000;
 
@@ -15,13 +16,6 @@ function decodeBase64(data) {
 }
 
 const isRecordToSend = (record) => record.eventName === "REMOVE";
-
-const insideWorkingWindow = (action, startWw, endWs) => {
-  if (action && action?.notBefore)
-    return action.notBefore <= endWs && action.notBefore >= startWw;
-  console.error("[ACTION_ENQUEUER]", `Action NOT valid`, action);
-  return false;
-};
 
 function mapMessageFromKinesisToAction(record) {
   let action = record.dynamodb.OldImage;
@@ -71,14 +65,12 @@ const sendMessages = async (destinationEndpoint, actions, timeoutFn) => {
   return notSendedResult;
 };
 
-const getWorkingTime = () => {};
-
 async function handleEvent(event, context) {
   const emptyResult = {
     batchItemFailures: [],
   };
 
-  const workingTime = getWorkingTime();
+  const workingTime = await getWorkingTime();
 
   console.log("[ACTION_ENQUEUER]", "Started");
   console.log("[ACTION_ENQUEUER]", "Event DATA", event);
@@ -98,7 +90,8 @@ async function handleEvent(event, context) {
       const action = mapMessageFromKinesisToAction(decodedRecord);
 
       // feature flag check
-      if (!insideWorkingWindow(action, startWw, endWs)) continue;
+      if (!insideWorkingWindow(action, workingTime.start, workingTime.end))
+        continue;
 
       action.seqNo = record.kinesis.sequenceNumber;
 

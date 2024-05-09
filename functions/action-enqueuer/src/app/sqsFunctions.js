@@ -90,13 +90,12 @@ async function putMessages(sqsConfig, actions, isTimedOut) {
         return actions;
       }
     } catch (ex) {
-      console.error(
-        "[ACTION_ENQUEUER]",
-        "Discarding not sended messeges",
-        JSON.stringify(actions)
-      );
-
       if (ex instanceof TimeoutException) {
+        console.error(
+          "[ACTION_ENQUEUER]",
+          "Discarding not sended messeges",
+          JSON.stringify(actions)
+        );
         return actions;
       }
       console.log(
@@ -122,7 +121,8 @@ async function putMessages(sqsConfig, actions, isTimedOut) {
 
 async function _sendMessages(sqsParams, messages) {
   try {
-    if (!sqsParams) throw new Error("No SQS queue supplied");
+    if (!sqsParams || !sqsParams.endpoint)
+      throw new Error("No SQS queue supplied");
     console.debug(
       "[ACTION_ENQUEUER]",
       `Sending a Batch of messages with following SQS parameters ${JSON.stringify(
@@ -162,7 +162,13 @@ async function _sendMessages(sqsParams, messages) {
       return response.Failed;
     }
   } catch (exc) {
-    console.error("[ACTION_ENQUEUER]", "Error sending message", sqsParams, exc);
+    console.error(
+      "[ACTION_ENQUEUER]",
+      "Error sending messages",
+      JSON.stringify(messages),
+      sqsParams,
+      exc
+    );
     if (TIMEOUT_EXCEPTIONS.includes(exc.name)) {
       console.error(
         "[ACTION_ENQUEUER]",
