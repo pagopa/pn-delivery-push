@@ -16,6 +16,13 @@ function decodeBase64(data) {
 
 const isRecordToSend = (record) => record.eventName === "REMOVE";
 
+const insideWorkingWindow = (action, startWw, endWs) => {
+  if (action && action?.notBefore)
+    return action.notBefore <= endWs && action.notBefore >= startWw;
+  console.error("[ACTION_ENQUEUER]", `Action NOT valid`, action);
+  return false;
+};
+
 function mapMessageFromKinesisToAction(record) {
   let action = record.dynamodb.OldImage;
   //console.debug("[ACTION_ENQUEUER]", "Action", action);
@@ -28,10 +35,10 @@ function mapMessageFromKinesisToAction(record) {
 //   new Date(record.dynamodb.ApproximateCreationDateTime).toISOString();
 
 const getCurrentDestination = (action) => {
-  return "placehoder";
+  return "https://sqs.eu-central-1.amazonaws.com/830192246553/PocWrite-PocScheduledActionsQueue-vdcddODDraxb";
 };
 
-const sendMessages = async (destinationEndpoint, actions) => {
+const sendMessages = async (destinationEndpoint, actions, timeoutFn) => {
   const notSendedResult = {
     batchItemFailures: [],
   };
@@ -42,7 +49,7 @@ const sendMessages = async (destinationEndpoint, actions) => {
     );
     console.error(
       "[ACTION_ENQUEUER]",
-      "Destination Enpoint not valid",
+      `Destination Enpoint ${destinationEndpoint} not valid`,
       notSendedResult
     );
     return notSendedResult;
@@ -54,7 +61,7 @@ const sendMessages = async (destinationEndpoint, actions) => {
     `Sending ${actions.length} actions to SQS queue ${sqsParams.endpoint}`
   );
 
-  const notSended = await putMessages(sqsParams, actions, isTimedOut);
+  const notSended = await putMessages(sqsParams, actions, timeoutFn);
   if (notSended.length !== 0) {
     notSended.forEach((element) =>
       notSendedResult.batchItemFailures.push({ itemIdentifier: element.seqNo })
@@ -64,16 +71,22 @@ const sendMessages = async (destinationEndpoint, actions) => {
   return notSendedResult;
 };
 
+const getWorkingTime = () => {};
+
 async function handleEvent(event, context) {
   const emptyResult = {
     batchItemFailures: [],
   };
+
+  const workingTime = getWorkingTime();
+
   console.log("[ACTION_ENQUEUER]", "Started");
   console.log("[ACTION_ENQUEUER]", "Event DATA", event);
   if (!event.Records) {
     console.warn("[ACTION_ENQUEUER]", "No Records to process");
     return emptyResult;
   }
+  const isTimedOut = () => isTimeToLeave(context);
 
   let actions = [];
   let lastDestination;
@@ -83,25 +96,35 @@ async function handleEvent(event, context) {
 
     if (isRecordToSend(decodedRecord)) {
       const action = mapMessageFromKinesisToAction(decodedRecord);
+
+      // feature flag check
+      if (!insideWorkingWindow(action, startWw, endWs)) continue;
+
       action.seqNo = record.kinesis.sequenceNumber;
 
       let currentDestination = getCurrentDestination(action);
-      // primo elemento inserito o destinazione non cambiata
+      //  destination changed
       if (lastDestination && currentDestination != lastDestination) {
-        const notSended = await sendMessages(lastDestination, actions);
+        // send records to previous destination
+        const notSended = await sendMessages(
+          lastDestination,
+          actions,
+          isTimedOut
+        );
         if (notSended.batchItemFailures.length != 0) {
           return notSended;
         }
         actions = [];
-        lastDestination = currentDestination;
       }
+      //destination endpoint update
+      lastDestination = currentDestination;
       actions.push(action);
     } else {
       console.log("[ACTION_ENQUEUER]", "Discarded record", decodedRecord);
     }
   }
   if (actions.length !== 0) {
-    const notSended = await sendMessages(lastDestination, actions);
+    const notSended = await sendMessages(lastDestination, actions, isTimedOut);
     if (notSended.batchItemFailures.length != 0) {
       return notSended;
     }

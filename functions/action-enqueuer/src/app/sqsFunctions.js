@@ -164,7 +164,11 @@ async function _sendMessages(sqsParams, messages) {
   } catch (exc) {
     console.error("[ACTION_ENQUEUER]", "Error sending message", sqsParams, exc);
     if (TIMEOUT_EXCEPTIONS.includes(exc.name)) {
-      console.error("[ACTION_ENQUEUER]", "Timeout detected");
+      console.error(
+        "[ACTION_ENQUEUER]",
+        "Timeout detected for:",
+        JSON.stringify(messages)
+      );
       throw new TimeoutException(exc);
     } else throw new SQSServiceException(exc);
   }
