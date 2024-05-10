@@ -1,9 +1,16 @@
 const utils = require("./utils");
 
-async function getQueueName(actionType, details, parameterStoreName) {
+async function getQueueNameFromParameterStore(actionType, details, parameterStoreName) {
     const completeActionType = getCompleteActionType(actionType, details);
     console.log("Complete action type: ", completeActionType);
     const queueName = await getQueueFromParameterStore(completeActionType, parameterStoreName);
+    return queueName;
+}
+
+async function getQueueName(actionType, details) {
+    const completeActionType = getCompleteActionType(actionType, details);
+    console.log("Complete action type: ", completeActionType);
+    const queueName = getQueueFromEnvVar(completeActionType);
     return queueName;
 }
 
@@ -15,6 +22,17 @@ function getCompleteActionType(actionType, details) {
         return actionType + '_SENDER_ACK';
     }
     return actionType;
+}
+
+function getQueueFromEnvVar(completeActionType) {
+    const jsonMap = JSON.parse(process.env.ACTION_QUEUE_MAP);
+    const foundObject = jsonMap.find(item => item.tipologiaAzione === completeActionType);
+    if (!foundObject) {
+        console.error("Unable to find queue for action type: ", completeActionType);
+        throw new Error("Unable to find queue");
+    }
+    console.log("found object: ", foundObject);
+    return foundObject.queueName;
 }
 
 async function getQueueFromParameterStore(completeActionType, parameterStoreName) {    
@@ -32,5 +50,6 @@ async function getQueueFromParameterStore(completeActionType, parameterStoreName
 
 
 module.exports = {
+    getQueueNameFromParameterStore,
     getQueueName
 }
