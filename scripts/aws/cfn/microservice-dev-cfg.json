@@ -51,6 +51,7 @@
     "RaddOperatorCaf": "true",
     "RaddOperatorMooney": "true",
     "RaddOperatorSailpost": "true",
-    "ErrorCorrectionLevelQrCode": "h"
+    "ErrorCorrectionLevelQrCode": "h",
+    "RaddPhoneNumber": "06.4520.2323"
   }
 }

@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.unit.DataSize;
 
+import javax.annotation.PostConstruct;
+
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
 @Data
@@ -212,7 +214,9 @@ public class PnDeliveryPushConfigs {
         private String faqSendHash;
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
+        private String raddPhoneNumber;
         private Map<String, String> additional;
+
    }
 
     @Data
@@ -265,4 +269,8 @@ public class PnDeliveryPushConfigs {
 
     private boolean safeStorageFileNotFoundRetry;
 
+    @PostConstruct
+    public void init() {
+        System.out.println(this);
+    }
 }
