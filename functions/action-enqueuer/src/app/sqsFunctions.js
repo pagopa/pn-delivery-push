@@ -1,7 +1,7 @@
 const { SendMessageBatchCommand, SQSClient } = require("@aws-sdk/client-sqs");
 const { NodeHttpHandler } = require("@aws-sdk/node-http-handler");
 
-const { v4: uuidv4 } = require("uuid");
+const { v4 } = require("uuid");
 
 const { SQSServiceException, TimeoutException } = require("./exceptions");
 
@@ -22,7 +22,7 @@ const defaultRequestHandler = new NodeHttpHandler({
 });
 
 function mapActionToQueueMessage(action) {
-  let uuid = uuidv4();
+  let uuid = v4();
   let origAction = Object.assign({}, action);
   origAction.timeslot = action.timeSlot;
   delete origAction.timeSlot;

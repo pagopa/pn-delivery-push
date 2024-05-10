@@ -9,9 +9,10 @@ const isTimeToLeave = (context) =>
 
 function decodeBase64(data) {
   //var decodedString = Buffer.from(encodedRecord, "base64").toString();
-  var payload = Buffer.from(data, "base64").toString("ascii");
+  const payload = Buffer.from(data, "base64").toString("ascii");
+  const back = Buffer.from(payload, "ascii").toString("base64");
   let decodedPayload = JSON.parse(payload);
-  //console.debug("[ACTION_ENQUEUER]", "Message Payload", decodedPayload);
+  //console.debug("[ACTION_ENQUEUER]", "Payload", data, payload, back);
   return decodedPayload;
 }
 
@@ -85,7 +86,7 @@ async function handleEvent(event, context) {
   for (let i = 0; i < event.Records.length; i++) {
     let record = event.Records[i];
     let decodedRecord = decodeBase64(record.kinesis.data);
-
+    console.log("DECODED", decodedRecord);
     if (isRecordToSend(decodedRecord)) {
       const action = mapMessageFromKinesisToAction(decodedRecord);
 
