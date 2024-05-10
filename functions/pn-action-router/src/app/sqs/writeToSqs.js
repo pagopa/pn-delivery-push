@@ -29,7 +29,7 @@ async function writeMessagesToQueue(immediateActions, context) {
           QUEUE_URL
       );
   
-      let splicedActionsArray = immediateActions.splice(0, 1); // prendo i primi 10 e rimuovendoli dall'array originale
+      let splicedActionsArray = immediateActions.splice(0, 1); // TODO Parametrizzare
   
       let actionsToSendMapped = [];
       splicedActionsArray.forEach(function (action) {
@@ -88,7 +88,7 @@ function mapActionToQueueMessage(action) {
     let uuid = uuidv4();
     let copiedAction = Object.assign({}, action);
     delete copiedAction.kinesisSeqNo;
-  
+
     const message = {
       Id: uuid,
       DelaySeconds: 0,
