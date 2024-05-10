@@ -7,10 +7,10 @@ async function getQueueNameFromParameterStore(actionType, details, parameterStor
     return queueName;
 }
 
-async function getQueueName(actionType, details) {
+async function getQueueName(actionType, details, envVarName) {
     const completeActionType = getCompleteActionType(actionType, details);
     console.log("Complete action type: ", completeActionType);
-    const queueName = getQueueFromEnvVar(completeActionType);
+    const queueName = getQueueFromEnvVar(completeActionType, envVarName);
     return queueName;
 }
 
@@ -24,8 +24,16 @@ function getCompleteActionType(actionType, details) {
     return actionType;
 }
 
-function getQueueFromEnvVar(completeActionType) {
-    const jsonMap = JSON.parse(process.env.ACTION_QUEUE_MAP);
+function getQueueFromEnvVar(completeActionType, envVarName) {
+    const envVarValue = process.env[envVarName];
+    var jsonMap;
+    try {
+        jsonMap = JSON.parse(envVarValue);
+    } catch(ex) {
+        console.error("Invalid env var value: ", envVarValue);
+        throw new Error("Invalid env var value");
+    }
+    
     const foundObject = jsonMap.find(item => item.tipologiaAzione === completeActionType);
     if (!foundObject) {
         console.error("Unable to find queue for action type: ", completeActionType);

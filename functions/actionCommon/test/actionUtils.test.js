@@ -9,6 +9,7 @@ const expect = chai.expect;
 
 describe("action utils test", function() {
     let mock;
+    let envVarName = "ACTION_QUEUE_MAP";
 
     before(() => {
         mock = new MockAdapter(axios);
@@ -25,11 +26,19 @@ describe("action utils test", function() {
         mock.restore();
     });
 
+    it("get queue name wrong env var name - fail", async () => {
+        const actionType = "NOTIFICATION_VALIDATION";
+
+        await expect(
+            getQueueName(actionType, null, "WRONG_ACTION_QUEUE_MAP")
+          ).to.be.rejectedWith(Error, "Invalid env var value");
+    });
+
     it("get queue name no details - success", async () => {
         const actionType = "NOTIFICATION_VALIDATION";
         const expectedQueueName = "delivery_push_queue_validation";
         
-        const queueName = await getQueueName(actionType, null);
+        const queueName = await getQueueName(actionType, null, envVarName);
         expect(queueName).to.equal(expectedQueueName);
     });
 
@@ -38,7 +47,7 @@ describe("action utils test", function() {
         const details = { documentCreationType: 'NO_SENDER_ACK' }
         const expectedQueueName = "delivery_push_queue_no_sender_ack";
         
-        const queueName = await getQueueName(actionType, details);
+        const queueName = await getQueueName(actionType, details, envVarName);
         expect(queueName).to.equal(expectedQueueName);
     });
 
@@ -47,7 +56,7 @@ describe("action utils test", function() {
         const details = { documentCreationType: 'SENDER_ACK' }
         const expectedQueueName = "delivery_push_queue_sender_ack";
         
-        const queueName = await getQueueName(actionType, details);
+        const queueName = await getQueueName(actionType, details, envVarName);
         expect(queueName).to.equal(expectedQueueName);
     });
 
@@ -55,7 +64,7 @@ describe("action utils test", function() {
         const actionType = "VALIDATION";
 
         await expect(
-            getQueueName(actionType, null)
+            getQueueName(actionType, null, envVarName)
           ).to.be.rejectedWith(Error, "Unable to find queue");
     });
 
