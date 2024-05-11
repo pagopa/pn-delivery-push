@@ -31,6 +31,10 @@
               },
               "actionId": {
                 "S": "actionId-queue2"
+              },
+
+              "type": {
+                "S": "type2"
               }
             },
             "SizeBytes": 126
@@ -77,6 +81,10 @@
               },
               "actionId": {
                 "S": "actionId-queue1"
+              },
+
+              "type": {
+                "S": "type1"
               }
             },
             "SizeBytes": 126
@@ -123,6 +131,10 @@
               },
               "actionId": {
                 "S": "actionId-queue1"
+              },
+
+              "type": {
+                "S": "type1"
               }
             },
             "SizeBytes": 126

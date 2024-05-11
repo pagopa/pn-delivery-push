@@ -3,7 +3,7 @@ const { unmarshall } = require("@aws-sdk/util-dynamodb");
 const config = require("config");
 
 const { insideWorkingWindow, getWorkingTime } = require("./workingTimeUtils");
-const { getCurrentDestination } = require("./utils");
+const { getQueueName } = require("./utils");
 
 const TOLLERANCE_IN_MILLIS = config.get("RUN_TOLLERANCE_IN_MILLIS");
 
@@ -94,7 +94,11 @@ async function handleEvent(event, context) {
       console.debug("EVENT IS INSIDE WORKING WINDOW");
       action.seqNo = record.kinesis.sequenceNumber;
 
-      let currentDestination = getCurrentDestination(action);
+      let currentDestination = getQueueName(
+        action?.type,
+        action?.details,
+        "TEST"
+      );
       //  destination changed
       if (lastDestination && currentDestination != lastDestination) {
         // send records to previous destination

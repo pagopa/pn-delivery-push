@@ -27,10 +27,7 @@ describe("eventHandler test ", function () {
         },
       },
       "./utils.js": {
-        getCurrentDestination: (action) => {
-          const splitted = action.actionId.split("-");
-          return splitted.length == 2 ? splitted[1] : splitted;
-        },
+        getQueueName: (actionType, details, envVarName) => actionType,
       },
     });
 
@@ -65,10 +62,7 @@ describe("eventHandler test ", function () {
         },
       },
       "./utils.js": {
-        getCurrentDestination: (action) => {
-          const splitted = action.actionId.split("-");
-          return splitted.length == 2 ? splitted[1] : splitted;
-        },
+        getQueueName: (actionType, details, envVarName) => actionType,
       },
     });
 
@@ -103,10 +97,7 @@ describe("eventHandler test ", function () {
         },
       },
       "./utils.js": {
-        getCurrentDestination: (action) => {
-          const splitted = action.actionId.split("-");
-          return splitted.length == 2 ? splitted[1] : splitted;
-        },
+        getQueueName: (actionType, details, envVarName) => actionType,
       },
     });
 
@@ -141,10 +132,7 @@ describe("eventHandler test ", function () {
         },
       },
       "./utils.js": {
-        getCurrentDestination: (action) => {
-          const splitted = action.actionId.split("-");
-          return splitted.length == 2 ? splitted[1] : splitted;
-        },
+        getQueueName: (actionType, details, envVarName) => actionType,
       },
     });
 
@@ -179,10 +167,7 @@ describe("eventHandler test ", function () {
         },
       },
       "./utils.js": {
-        getCurrentDestination: (action) => {
-          const splitted = action.actionId.split("-");
-          return splitted.length == 2 ? splitted[1] : splitted;
-        },
+        getQueueName: (actionType, details, envVarName) => actionType,
       },
     });
 
@@ -217,10 +202,7 @@ describe("eventHandler test ", function () {
         },
       },
       "./utils.js": {
-        getCurrentDestination: (action) => {
-          const splitted = action.actionId.split("-");
-          return splitted.length == 2 ? splitted[1] : splitted;
-        },
+        getQueueName: (actionType, details, envVarName) => actionType,
       },
     });
 
