@@ -2,18 +2,17 @@ const { SendMessageBatchCommand, SQSClient } = require("@aws-sdk/client-sqs");
 const { NodeHttpHandler } = require("@aws-sdk/node-http-handler");
 
 const { v4 } = require("uuid");
+const config = require("config");
 
 const { SQSServiceException, TimeoutException } = require("./exceptions");
 
-const MAX_SQS_BATCH = 1;
-const DEFAULT_SOCKET_TIMEOUT = 1000;
-const DEFAULT_REQUEST_TIMEOUT = 1000;
-const DEFAULT_CONNECTION_TIMEOUT = 1000;
-const TIMEOUT_EXCEPTIONS = [
-  "TimeoutError",
-  "RequestTimeout",
-  "RequestTimeoutException",
-];
+const MAX_SQS_BATCH = config.get("MAX_SQS_BATCH_SIZE");
+const DEFAULT_SOCKET_TIMEOUT = config.get("timeout.DEFAULT_SOCKET_TIMEOUT");
+const DEFAULT_REQUEST_TIMEOUT = config.get("timeout.DEFAULT_REQUEST_TIMEOUT");
+const DEFAULT_CONNECTION_TIMEOUT = config.get(
+  "timeout.DEFAULT_CONNECTION_TIMEOUT"
+);
+const TIMEOUT_EXCEPTIONS = config.get("TIMEOUT_EXCEPTIONS");
 
 const defaultRequestHandler = new NodeHttpHandler({
   connectionTimeout: DEFAULT_CONNECTION_TIMEOUT,

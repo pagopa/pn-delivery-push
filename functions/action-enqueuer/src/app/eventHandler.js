@@ -1,18 +1,18 @@
 const { putMessages } = require("./sqsFunctions");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
-const { insideWorkingWindow, getWorkingTime } = require("./workingTimeUtils");
+const config = require("config");
 
-const TOLLERANCE_IN_MILLIS = 3000;
+const { insideWorkingWindow, getWorkingTime } = require("./workingTimeUtils");
+const { getCurrentDestination } = require("./utils");
+
+const TOLLERANCE_IN_MILLIS = config.get("RUN_TOLLERANCE_IN_MILLIS");
 
 const isTimeToLeave = (context) =>
   context.getRemainingTimeInMillis() < TOLLERANCE_IN_MILLIS;
 
 function decodeBase64(data) {
-  //var decodedString = Buffer.from(encodedRecord, "base64").toString();
   const payload = Buffer.from(data, "base64").toString("ascii");
-  const back = Buffer.from(payload, "ascii").toString("base64");
   let decodedPayload = JSON.parse(payload);
-  //console.debug("[ACTION_ENQUEUER]", "Payload", data, payload, back);
   return decodedPayload;
 }
 
@@ -28,10 +28,6 @@ function mapMessageFromKinesisToAction(record) {
 
 // const getRecordCreation = (record) =>
 //   new Date(record.dynamodb.ApproximateCreationDateTime).toISOString();
-
-const getCurrentDestination = (action) => {
-  return "https://sqs.eu-central-1.amazonaws.com/830192246553/PocWrite-PocScheduledActionsQueue-vdcddODDraxb";
-};
 
 const sendMessages = async (destinationEndpoint, actions, timeoutFn) => {
   const notSendedResult = {
@@ -86,14 +82,16 @@ async function handleEvent(event, context) {
   for (let i = 0; i < event.Records.length; i++) {
     let record = event.Records[i];
     let decodedRecord = decodeBase64(record.kinesis.data);
-    console.log("DECODED", decodedRecord);
+    console.debug("DECODED!", JSON.stringify(decodedRecord));
     if (isRecordToSend(decodedRecord)) {
+      console.debug("TO ELEBORATE");
       const action = mapMessageFromKinesisToAction(decodedRecord);
 
       // feature flag check
       if (!insideWorkingWindow(action, workingTime.start, workingTime.end))
         continue;
 
+      console.debug("EVENT IS INSIDE WORKING WINDOW");
       action.seqNo = record.kinesis.sequenceNumber;
 
       let currentDestination = getCurrentDestination(action);
@@ -118,6 +116,11 @@ async function handleEvent(event, context) {
     }
   }
   if (actions.length !== 0) {
+    console.debug(
+      "[ACTION_ENQUEUER]",
+      "Sending last actions",
+      JSON.stringify(actions)
+    );
     const notSended = await sendMessages(lastDestination, actions, isTimedOut);
     if (notSended.batchItemFailures.length != 0) {
       return notSended;

@@ -33,7 +33,9 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.536.0",
     "@aws-sdk/node-http-handler": "^3.374.0",
+    "@aws-sdk/util-dynamodb": "^3.572.0",
     "axios": "^1.6.8",
+    "config": "^3.3.11",
     "uuid": "^9.0.1"
   }
 }

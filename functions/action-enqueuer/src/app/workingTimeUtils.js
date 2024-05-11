@@ -1,9 +1,7 @@
-const { getParameterFromLayer } = require("./utils");
+const config = require("config");
 
 const getWorkingTime = async () => {
-  const workingTime = await getParameterFromLayer(
-    "/pn-delivery-push/featureFlag"
-  );
+  const workingTime = config.get("featureFlag");
   console.info(
     "[ACTION_ENQUEUER]",
     `Operating window is from [${workingTime.start}, ${workingTime.end}]`
