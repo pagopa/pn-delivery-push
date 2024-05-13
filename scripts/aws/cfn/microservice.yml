@@ -336,12 +336,12 @@ Parameters:
 
   PagoPaNotificationFee:
     Type: String
-    Description: 'PagoPa notification fee'
+    Description: 'PagoPa notification fee per le notifiche create PRIMA della v2.1. Per le successive, il default viene impostato da pn-delivery e arriva nella notifica.'
     Default: '100'
 
   PagoPaNotificationVat:
     Type: String
-    Description: 'PagoPa notification vat'
+    Description: 'PagoPa notification vat per le notifiche create PRIMA della v2.1. Per le successive, il default viene impostato da pn-delivery e arriva nella notifica.'
     Default: '22'
 
   SafeStorageToDeliveryPushQueueName:
