@@ -8,6 +8,7 @@ const MAX_SQS_BATCH = config.get("MAX_SQS_BATCH_SIZE");
 const DEFAULT_SOCKET_TIMEOUT = config.get("timeout.DEFAULT_SOCKET_TIMEOUT");
 const DEFAULT_REQUEST_TIMEOUT = config.get("timeout.DEFAULT_REQUEST_TIMEOUT");
 const DEFAULT_CONNECTION_TIMEOUT = config.get("timeout.DEFAULT_CONNECTION_TIMEOUT");
+const TIMEOUT_EXCEPTIONS = config.get("TIMEOUT_EXCEPTIONS");
 
 const sqs = new SQSClient({
     requestHandler: new NodeHttpHandler({
@@ -15,7 +16,7 @@ const sqs = new SQSClient({
       requestTimeout: DEFAULT_REQUEST_TIMEOUT,
       socketTimeout: DEFAULT_SOCKET_TIMEOUT,
     }),
-  });
+});
 
 async function writeMessagesToQueue(immediateActions, context, destinationQueueUrl) {
   console.log("Starting writeMessagesToQueue");
@@ -33,7 +34,7 @@ async function writeMessagesToQueue(immediateActions, context, destinationQueueU
 
     const input = {
       Entries: actionsToSendMapped,
-      QueueUrl: QUEUE_URL,
+      QueueUrl: destinationQueueUrl,
     };
     console.log("Sending batch message: %j", input);
     const command = new SendMessageBatchCommand(input);
@@ -42,7 +43,7 @@ async function writeMessagesToQueue(immediateActions, context, destinationQueueU
       checkMandatoryInformation(actionsToSendMapped, destinationQueueUrl);
       const response = await sqs.send(command);
       console.log("Sent message response: %j", response);
-
+      
       if (response.Failed && response.Failed.length > 0) {
         return checkAndReturnFailedAction(splicedActionsArray, response);
       }
@@ -77,10 +78,14 @@ function checkMandatoryInformation(actionsToSendMapped, destinationQueueUrl){
     console.debug("message to send cannot be empty need to reschedule actions ", JSON.stringify(actionsToSendMapped));
     throw new Error("message to send cannot be empty");
   }
-
 }
+
 function checkAndReturnFailedAction(splicedActionsArray, response){
+  console.log('There is an error in sending message ', response.Failed)
   let failedActionArray = [];
+  
+  console.log('Start find error in actionToSend ',JSON.stringify(splicedActionsArray) )
+
   splicedActionsArray.forEach((element) => {
     if (
       response.Failed.filter((currFailed) => currFailed.Id == element.Id)
@@ -96,6 +101,7 @@ function getMappedMessageToSend(splicedActionsArray){
   let actionsToSendMapped = [];
   splicedActionsArray.forEach(function (action) {
     let messageToSend = mapActionToQueueMessage(action);
+    action.Id = messageToSend.Id;
     actionsToSendMapped.push(messageToSend);
   });
   return actionsToSendMapped;

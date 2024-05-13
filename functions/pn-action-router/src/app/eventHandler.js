@@ -2,6 +2,7 @@ const { isRecordToSend, isFutureAction } = require("./utils/utils.js");
 const { getActionDestination } = require("./utils/getActionDestination.js");
 const { writeMessagesToQueue } = require("./sqs/writeToSqs.js");
 const { writeMessagesToDynamo } = require("./dynamo/writeToDynamo.js");
+const { insideWorkingWindow, getWorkingTime } = require("./workingTimeUtils");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 
 async function handleEvent(event, context){
@@ -19,19 +20,25 @@ async function handleEvent(event, context){
   return result;
 }
 
-async function startHandleEvent (event, context) {
+async function startHandleEvent(event, context) {
   console.log('startHandleEvent Start')
   console.log(JSON.stringify(event, null, 2));
   let actionToSend = [];
   let lastActionType = undefined; //future or immediate
   let lastDestinationQueue = undefined;
+  const workingTime = await getWorkingTime();
+  console.log('workingTime for action is ', workingTime)
 
   for (var i = 0; i < event.Records.length; i++) {
     let record = event.Records[i];
     let sequenceNumber = record.kinesis.sequenceNumber;
     let decodedRecord = decodeBase64(record.kinesis.data);
 
-    if (isRecordToSend(decodedRecord)) {
+    if (isRecordToSend(decodedRecord) && insideWorkingWindow(action, workingTime.start, workingTime.end)) {
+      // feature flag check
+      if (!insideWorkingWindow(action, workingTime.start, workingTime.end))
+        continue;
+
       console.log('the record is to send ', decodedRecord );
 
       const action = mapMessageFromKinesisToAction(decodedRecord,sequenceNumber);
