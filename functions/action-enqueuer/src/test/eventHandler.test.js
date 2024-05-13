@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const { expect } = require("chai");
 const { describe, it } = require("mocha");
 const proxyquire = require("proxyquire").noPreserveCache();
@@ -21,13 +22,13 @@ describe("eventHandler test ", function () {
 
     const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
       "./sqsFunctions.js": {
-        putMessages: (sqsConfig, actions, isTimedOut) => {
+        putMessages: (_sqsConfig, _actions, _isTimedOut) => {
           invokedCount++;
           return [];
         },
       },
       "./utils.js": {
-        getQueueName: (actionType, details, envVarName) => actionType,
+        getQueueName: (actionType, _details, _envVarName) => actionType,
       },
     });
 
@@ -56,13 +57,13 @@ describe("eventHandler test ", function () {
 
     const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
       "./sqsFunctions.js": {
-        putMessages: (sqsConfig, actions, isTimedOut) => {
+        putMessages: (_sqsConfig, _actions, _isTimedOut) => {
           invokedCount++;
           return [];
         },
       },
       "./utils.js": {
-        getQueueName: (actionType, details, envVarName) => actionType,
+        getQueueName: (actionType, _details, _envVarName) => actionType,
       },
     });
 
@@ -91,13 +92,13 @@ describe("eventHandler test ", function () {
 
     const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
       "./sqsFunctions.js": {
-        putMessages: (sqsConfig, actions, isTimedOut) => {
+        putMessages: (_sqsConfig, _actions, _isTimedOut) => {
           invokedCount++;
           return [];
         },
       },
       "./utils.js": {
-        getQueueName: (actionType, details, envVarName) => actionType,
+        getQueueName: (actionType, _details, _envVarName) => actionType,
       },
     });
 
@@ -126,13 +127,14 @@ describe("eventHandler test ", function () {
 
     const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
       "./sqsFunctions.js": {
-        putMessages: (sqsConfig, actions, isTimedOut) => {
+        // eslint-disable-next-line no-unused-vars
+        putMessages: (_sqsConfig, _actions, _isTimedOut) => {
           invokedCount++;
           return [];
         },
       },
       "./utils.js": {
-        getQueueName: (actionType, details, envVarName) => actionType,
+        getQueueName: (actionType, _details, _envVarName) => actionType,
       },
     });
 
@@ -161,13 +163,13 @@ describe("eventHandler test ", function () {
 
     const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
       "./sqsFunctions.js": {
-        putMessages: (sqsConfig, actions, isTimedOut) => {
+        putMessages: (_sqsConfig, _actions, _isTimedOut) => {
           invokedCount++;
           return [];
         },
       },
       "./utils.js": {
-        getQueueName: (actionType, details, envVarName) => actionType,
+        getQueueName: (actionType, _details, _envVarName) => actionType,
       },
     });
 
@@ -194,17 +196,7 @@ describe("eventHandler test ", function () {
 
     let invokedCount = 0;
 
-    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
-      "./sqsFunctions.js": {
-        putMessages: (sqsConfig, actions, isTimedOut) => {
-          invokedCount++;
-          return [];
-        },
-      },
-      "./utils.js": {
-        getQueueName: (actionType, details, envVarName) => actionType,
-      },
-    });
+    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {});
 
     const result = await lambda.handleEvent(testData, {
       getRemainingTimeInMillis: () => 10000000000,
