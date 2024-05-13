@@ -4,9 +4,9 @@ const { writeMessagesToQueue } = require("./sqs/writeToSqs.js");
 const { writeMessagesToDynamo } = require("./dynamo/writeToDynamo.js");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 
-const handleEvent = async (event, context) => {
+async function handleEvent(event, context){
   let notSendedActions = await startHandleEvent(event, context);
-
+  console.log('startHandleEvent finished')
   const result = {
     batchItemFailures: [],
   };
@@ -20,8 +20,8 @@ const handleEvent = async (event, context) => {
 }
 
 async function startHandleEvent (event, context) {
+  console.log('startHandleEvent Start')
   console.log(JSON.stringify(event, null, 2));
-
   let actionToSend = [];
   let lastActionType = undefined; //future or immediate
   let lastDestinationQueue = undefined;
@@ -32,12 +32,17 @@ async function startHandleEvent (event, context) {
     let decodedRecord = decodeBase64(record.kinesis.data);
 
     if (isRecordToSend(decodedRecord)) {
+      console.log('the record is to send ', decodedRecord );
+
       const action = mapMessageFromKinesisToAction(decodedRecord,sequenceNumber);
+      console.log('start handling action ', action.actionId)
       let currentActionType;
       if(isFutureAction(action.notBefore)){
+        console.log('Start to check future action ', action.actionId)
         currentActionType = 'FutureAction';
         if(lastActionType != currentActionType && actionToSend.length > 0){
           const notSended = await writeMessagesToQueue(actionToSend, context, lastDestinationQueue);
+          console.log('notSended returned from queue 1 is ', notSended)
           if (notSended != 0) {
             return notSended;
           }
@@ -45,17 +50,24 @@ async function startHandleEvent (event, context) {
           lastDestinationQueue = undefined; //probabilmente non serve
         }
       }else{
+        console.log('Start to check immediate action ', action.actionId)
         currentActionType = 'ImmediateAction';
         if(lastActionType != currentActionType && actionToSend.length > 0){
           const notSended = await writeMessagesToDynamo(actionToSend,context);
+          console.log('notSended returned from dynamo is ', notSended)
           if (notSended != 0) {
+            console.log("there are 'Not sended item', need to return")
             return notSended;
           }
+          console.log("All items are sent correctly")
           actionToSend = [];
         }
         let currentDestinationQueue = getActionDestination(action);
         if (currentDestinationQueue != lastDestinationQueue && actionToSend.length > 0) {
+          console.log('currentDestinationQueue is different from lastDestination, need to send message ')
+
           const notSended = await writeMessagesToQueue(actionToSend, context, lastDestinationQueue);
+          console.log('notSended returned from queue 2 is ', notSended)
           if (notSended != 0) {
             return notSended;
           }
@@ -63,9 +75,12 @@ async function startHandleEvent (event, context) {
         }
         lastDestinationQueue = currentDestinationQueue;
       }
-
+      
       actionToSend.push(action);
       lastActionType = currentActionType;
+      console.log('Handling action completed ', action.actionId)
+    }else{
+      console.log('The record is not to send ', decodedRecord)
     }
   }
 

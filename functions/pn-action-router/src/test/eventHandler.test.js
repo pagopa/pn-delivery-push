@@ -30,18 +30,22 @@ const eventHandler = proxyquire.noCallThru().load("../app/eventHandler.js", {
     },
 
     "./sqs/writeToSqs.js": {
-        writeMessagesToQueue: (actionsToSend, context, destinationQueueName) =>{
+        writeMessagesToQueue: async (actionsToSend, context, destinationQueueName) =>{
             let notSendedImmediateActions = [];
 
             //Vengono aggiunte le azioni inviate all'array delle azioni inviate in coda
             for (var i = 0; i < actionsToSend.length; i++) {
+
               let action = actionsToSend[i];
               if(! action.actionToFail){
+                console.log('[TEST] action is not to fail ', action)
+
                 let copiedAction = Object.assign({}, action);
                 copiedAction.destinationQueueName = destinationQueueName;
                 sendedActionToQueue.push(copiedAction);  
               }else{
                 //viene simulato il fallimento nell'invio di un action alla coda
+                console.log('[TEST] action to fail ', action)
                 notSendedImmediateActions = actionsToSend
               }
             }
@@ -50,14 +54,14 @@ const eventHandler = proxyquire.noCallThru().load("../app/eventHandler.js", {
         }
     },
     "./dynamo/writeToDynamo.js": {
-        writeMessagesToDynamo: (futureActions, context) =>{
+        writeMessagesToDynamo: async (futureActions, context) =>{
             //Simula risposta positiva, notSendedAction vuoto []           
             let notSendedFutureActions = [];
 
             for (var i = 0; i < futureActions.length; i++) {
-              let action = futureActions[i];
-              if(! action.actionToFail){
-                sendedActionToDynamo.push(futureActions);  
+              let futureAction = futureActions[i];
+              if(! futureAction.actionToFail){
+                sendedActionToDynamo.push(futureAction);  
               }else{
                 //viene simulato il fallimento nell'invio di un action alla coda
                 notSendedFutureActions = actionsToSend
@@ -72,8 +76,7 @@ const eventHandler = proxyquire.noCallThru().load("../app/eventHandler.js", {
 describe("eventHandlerTest", function () {
   it("complete-test", async () => {
     //GIVEN
-    sendedActionToQueue = [];
-    sendedActionToDynamo = [];
+    initializeMockData()
     let isActionToFail = false;
 
     //Vengono definite le action da sottoporre al test
@@ -123,9 +126,11 @@ describe("eventHandlerTest", function () {
 
   it("one-item-test", async () => {
     //GIVEN
-    sendedActionToQueue = [];
-    sendedActionToDynamo = [];
+    initializeMockData();
+    isRecordToSend = true;
+
     let isActionToFail = false;
+    
 
     //Vengono definite le action da sottoporre al test
     let futureAction1Data = getData('futureAction1', futureActionDate, null, true, isActionToFail);
@@ -155,8 +160,7 @@ describe("eventHandlerTest", function () {
 
   it("no-record-to-send", async () => {
     //GIVEN
-    sendedActionToQueue = [];
-    sendedActionToDynamo = [];
+    initializeMockData()
     isRecordToSend = false;
     let isActionToFail = false;
 
@@ -193,8 +197,7 @@ describe("eventHandlerTest", function () {
 
   it("action-to-fail", async () => {
     //GIVEN
-    sendedActionToQueue = [];
-    sendedActionToDynamo = [];
+    initializeMockData()
     let isActionToFail = false;
 
     //Vengono definite le action da sottoporre al test
@@ -219,6 +222,7 @@ describe("eventHandlerTest", function () {
     }
 
     //WHEN
+    console.log("STARTING action-to-fail")
     const res = await eventHandler.handleEvent(mockEvent, contextMock);
 
     //THEN
@@ -243,11 +247,7 @@ describe("eventHandlerTest", function () {
     //Viene verificato che sia stata inviata la sola azione attesa futureAction1Data
     checkAllEventSentToCorrectDestination(arrayInsertedData, sendedActionToDynamo, sendedActionToQueue);
   });
-
 });
-
-
-
 
 function checkAllEventSentToCorrectDestination(arrayInsertedData, sendedActionToDynamo, sendedActionToQueue){
   for (var i = 0; i < arrayInsertedData.length; i++) {
@@ -375,4 +375,10 @@ function getImmediateActionDate(){
 
 function setElementInMap(map, actionData){
   map.set(actionData.dynamodb.NewImage.actionId, actionData.dynamodb.NewImage);
+}
+
+function initializeMockData(){
+  sendedActionToQueue = [];
+  sendedActionToDynamo = [];
+  isRecordToSend = true;
 }
