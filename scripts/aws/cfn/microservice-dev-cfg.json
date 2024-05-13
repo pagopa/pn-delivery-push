@@ -51,6 +51,8 @@
     "RaddOperatorCaf": "true",
     "RaddOperatorMooney": "true",
     "RaddOperatorSailpost": "true",
-    "ErrorCorrectionLevelQrCode": "h"
+    "ErrorCorrectionLevelQrCode": "h",
+    "PerformanceImprovementStartDate": "2024-06-01T00:00:00Z",
+    "PerformanceImprovementEndDate": "2025-06-01T00:00:00Z"
   }
 }
