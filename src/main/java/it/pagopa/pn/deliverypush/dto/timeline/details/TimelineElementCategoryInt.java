@@ -11,6 +11,8 @@ public enum TimelineElementCategoryInt {
     VALIDATED_F24(ValidatedF24DetailInt.class, DiagnosticTimelineElementCategory.VALIDATED_F24.value, TimelineElementCategoryInt.VERSION_20),
     NORMALIZED_ADDRESS(NormalizedAddressDetailsInt.class, TimelineElementCategoryV23.NORMALIZED_ADDRESS.getValue(), TimelineElementCategoryInt.VERSION_10),
     REQUEST_ACCEPTED(NotificationRequestAcceptedDetailsInt.class, TimelineElementCategoryV23.REQUEST_ACCEPTED.getValue(), TimelineElementCategoryInt.VERSION_10),
+    GENERATE_F24_REQUEST(ValidateF24Int.class, DiagnosticTimelineElementCategory.GENERATE_F24_REQUEST.value, TimelineElementCategoryInt.VERSION_23),
+    GENERATED_F24(GeneratedF24DetailsInt.class, DiagnosticTimelineElementCategory.GENERATED_F24.value, TimelineElementCategoryInt.VERSION_23),
     SEND_COURTESY_MESSAGE(SendCourtesyMessageDetailsInt.class, TimelineElementCategoryV23.SEND_COURTESY_MESSAGE.getValue(), TimelineElementCategoryInt.VERSION_10),
     GET_ADDRESS(GetAddressInfoDetailsInt.class, TimelineElementCategoryV23.GET_ADDRESS.getValue(), TimelineElementCategoryInt.VERSION_10),
     PUBLIC_REGISTRY_CALL(PublicRegistryCallDetailsInt.class, TimelineElementCategoryV23.PUBLIC_REGISTRY_CALL.getValue(), TimelineElementCategoryInt.VERSION_10),
@@ -90,7 +92,9 @@ public enum TimelineElementCategoryInt {
 
     public enum DiagnosticTimelineElementCategory {
         VALIDATED_F24("VALIDATED_F24"),
-        VALIDATE_F24_REQUEST("VALIDATE_F24_REQUEST");
+        VALIDATE_F24_REQUEST("VALIDATE_F24_REQUEST"),
+        GENERATED_F24("GENERATED_F24"),
+        GENERATE_F24_REQUEST("GENERATE_F24_REQUEST");
 
         private final String value;
         DiagnosticTimelineElementCategory(String value) {

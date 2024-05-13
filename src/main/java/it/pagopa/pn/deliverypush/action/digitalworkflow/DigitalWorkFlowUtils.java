@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.SEND_COURTESY_MESSAGE;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
@@ -194,7 +195,9 @@ public class DigitalWorkFlowUtils {
      */
     public TimelineElementInternal getMostRecentTimelineElement(String iun, Integer recIndex) {
         Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimeline(iun, false);
-        Optional<TimelineElementInternal> timelineElementInternal = timelineElementInternals.stream().max(Comparator.comparing(TimelineElementInternal::getTimestamp));
+        Optional<TimelineElementInternal> timelineElementInternal = timelineElementInternals.stream()
+                .filter(timeElementInternal -> !timeElementInternal.getCategory().equals(SEND_COURTESY_MESSAGE))    //potrebbe essere arrivato un evento di courtesy per esempio l'attivazione di IO che va ignorato. Tutti gli altri eventi vanno considerati invece.
+                .max(Comparator.comparing(TimelineElementInternal::getTimestamp));
 
         if (timelineElementInternal.isPresent()) {
             return timelineElementInternal.get();

@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
 import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
+import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
@@ -36,10 +37,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattribut
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
-import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
-import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
-import it.pagopa.pn.deliverypush.service.SafeStorageService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
@@ -147,7 +145,8 @@ public class AbstractWorkflowTestConfiguration {
                                                @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
                                                @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
                                                @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler, 
-                                               @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler
+                                               @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler,
+                                               @Lazy ScheduleRecipientWorkflow scheduleRecipientWorkflow
     ) {
         return new ActionHandlerMock(
                 digitalWorkFlowHandler,
@@ -161,7 +160,8 @@ public class AbstractWorkflowTestConfiguration {
                 receivedLegalFactCreationRequest,
                 notificationRefusedActionHandler,
                 checkAttachmentRetentionHandler,
-                sendDigitalFinalStatusResponseHandler);
+                sendDigitalFinalStatusResponseHandler,
+                scheduleRecipientWorkflow);
     }
     
     @Bean
@@ -179,5 +179,7 @@ public class AbstractWorkflowTestConfiguration {
     public ParameterConsumer pnParameterConsumerClientTest(){
         return new AbstractCachedSsmParameterConsumerMock();
     }
-    
+
+    @Bean
+    public F24Service f24Service(){return Mockito.mock(F24Service.class);}
 }

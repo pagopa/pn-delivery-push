@@ -32,56 +32,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogFailureWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogSuccessWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.CompletelyUnreachableCreationRequestDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.CompletelyUnreachableDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalDeliveryCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalFailureWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSuccessWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NormalizedAddressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancellationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationPaidDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRADDRetrievedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareAnalogDomicileFailureDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareDigitalDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryResponseDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.RequestRefusedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleAnalogWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleRefinementDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogProgressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SenderAckCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendingReceipt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ServiceLevelInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterProgressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ValidateF24Int;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ValidateNormalizeAddressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ValidatedF24DetailInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -97,6 +48,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+
 
 @Component
 @Slf4j
@@ -1196,6 +1148,34 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLED, elementId, details);
     }
 
+    public TimelineElementInternal buildGeneratedF24TimelineElement(NotificationInt notification, int recipientIndex, List<String> f24Attachments) {
+        log.debug("buildGeneratedF24TimelineElement - IUN={} and id={}", notification.getIun(), recipientIndex);
+
+        String elementId = TimelineEventId.GENERATED_F24.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recipientIndex)
+                        .build());
+        GeneratedF24DetailsInt details = GeneratedF24DetailsInt.builder()
+                .f24Attachments(f24Attachments)
+                .recIndex(recipientIndex)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.GENERATED_F24, elementId, details);
+    }
+
+    public TimelineElementInternal buildGenerateF24RequestTimelineElement(NotificationInt notification) {
+        log.debug("buildGenerateF24RequestTimelineElement - IUN={}", notification.getIun());
+
+        String elementId = TimelineEventId.GENERATE_F24_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        GenerateF24Int details = GenerateF24Int.builder().build();
+        return buildTimeline(notification, TimelineElementCategoryInt.GENERATE_F24_REQUEST, elementId, details);
+    }
+
     public List<LegalFactsIdInt> singleLegalFactId(String legalFactKey, LegalFactCategoryInt type) {
         return Collections.singletonList(LegalFactsIdInt.builder()
                 .key(legalFactKey)
@@ -1398,6 +1378,23 @@ public class TimelineUtils {
                         .recIndex(recIndex)
                         .build());
 
+        return timelineService.getTimelineElement(iun, elementId);
+    }
+
+    public Optional<TimelineElementInternal> getValidatedF24(String iun){
+        String elementId = TimelineEventId.VALIDATED_F24.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+        return timelineService.getTimelineElement(iun, elementId);
+    }
+
+    public Optional<TimelineElementInternal> getGeneratedF24(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.GENERATED_F24.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
         return timelineService.getTimelineElement(iun, elementId);
     }
 

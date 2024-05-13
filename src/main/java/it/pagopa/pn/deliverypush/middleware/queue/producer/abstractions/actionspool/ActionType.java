@@ -141,6 +141,14 @@ public enum ActionType {
         );
     }
     
+  },
+
+  POST_ACCEPTED_PROCESSING_COMPLETED(NotHandledDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      return String.format("%s_post_accepted_processing",
+              action.getIun());
+    }
   };
 
   private final Class<? extends ActionDetails> detailsJavaClass;
