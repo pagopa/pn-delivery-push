@@ -8,7 +8,11 @@ public interface PnF24Client {
 
     String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_F24;
     String VALIDATE_F24_PROCESS_NAME = "VALIDATE F24";
+    String PREPARE_F24_PROCESS_NAME = "PREPARE_F24";
 
     Mono<RequestAccepted> validate(String iun);
+
+    Mono<RequestAccepted> preparePDF(String requestId, String iun, Integer cost);
+
 }
  

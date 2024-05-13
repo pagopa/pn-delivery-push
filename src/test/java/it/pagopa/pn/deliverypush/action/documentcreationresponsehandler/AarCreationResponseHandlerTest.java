@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
+import it.pagopa.pn.deliverypush.service.F24Service;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -31,6 +32,9 @@ class AarCreationResponseHandlerTest extends CommonTestConfiguration {
     TimelineService timelineService;
     @MockBean
     TimelineUtils timelineUtils;
+
+    @MockBean
+    F24Service f24Service;
 
     @Autowired
     AarCreationResponseHandler handler;

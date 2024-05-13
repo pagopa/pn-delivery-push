@@ -139,7 +139,7 @@ public class PnEventInboundService {
             eventType = "ADDRESS_MANAGER_EVENTS";
         }
         else if(Objects.equals(queueName, validateF24EventQueueName)) {
-            eventType = "VALIDATE_F24_EVENTS";
+            eventType = "F24_EVENTS";
         }
         else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
