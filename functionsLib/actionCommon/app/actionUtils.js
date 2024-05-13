@@ -33,26 +33,25 @@ function getQueueFromEnvVar(completeActionType, envVarName) {
         console.error("Invalid env var value: ", envVarValue);
         throw new Error("Invalid env var value");
     }
-    
-    const foundObject = jsonMap.find(item => item.tipologiaAzione === completeActionType);
-    if (!foundObject) {
+    const queueName = jsonMap[completeActionType];
+    if (!queueName) {
         console.error("Unable to find queue for action type: ", completeActionType);
         throw new Error("Unable to find queue");
     }
-    console.log("found object: ", foundObject);
-    return foundObject.queueName;
+    console.log("found queueName: ", queueName);
+    return queueName;
 }
 
 async function getQueueFromParameterStore(completeActionType, parameterStoreName) {    
     const parameterStoreMap = await utils.getParameterFromLayer(parameterStoreName);
     const jsonMap = JSON.parse(parameterStoreMap);
-    const foundObject = jsonMap.find(item => item.tipologiaAzione === completeActionType);
-    if (!foundObject) {
+    const queueName = jsonMap[completeActionType]
+    if (!queueName) {
         console.error("Unable to find queue for action type: ", completeActionType);
         throw new Error("Unable to find queue");
     }
-    console.log("found object: ", foundObject);
-    return foundObject.queueName;
+    console.log("found queueName: ", queueName);
+    return queueName;
 }
 
 

@@ -14,7 +14,7 @@ describe("action utils test", function() {
     before(() => {
         mock = new MockAdapter(axios);
         process.env = Object.assign(process.env, {
-            ACTION_QUEUE_MAP : "[{\"tipologiaAzione\":\"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\",\"queueName\":\"delivery_push_queue_sender_ack\"},{\"tipologiaAzione\":\"DOCUMENT_CREATION_RESPONSE\",\"queueName\":\"delivery_push_queue_no_sender_ack\"},{\"tipologiaAzione\":\"NOTIFICATION_CREATION\",\"queueName\":\"delivery_push_queue_creation\"},{\"tipologiaAzione\":\"NOTIFICATION_VALIDATION\",\"queueName\":\"delivery_push_queue_validation\"}]"
+            ACTION_QUEUE_MAP : "{\"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"delivery_push_queue_sender_ack\",\"DOCUMENT_CREATION_RESPONSE\"\:\"delivery_push_queue_no_sender_ack\",\"NOTIFICATION_CREATION\":\"delivery_push_queue_creation\",\"NOTIFICATION_VALIDATION\":\"delivery_push_queue_validation\"}"
           });
     });
 
@@ -73,7 +73,7 @@ describe("action utils test", function() {
         const expectedQueueName = "delivery_push_queue_validation";
         const parameterStoreName = "parameterStoreName";
         const url = `http://localhost:2773/systemsmanager/parameters/get?name=${encodeURIComponent(parameterStoreName)}`;
-        const parameterValue = "[{\"tipologiaAzione\":\"NOTIFICATION_VALIDATION\",\"queueName\":\"delivery_push_queue_validation\"},{\"tipologiaAzione\":\"NOTIFICATION_CREATION\",\"queueName\":\"delivery_push_queue_creation\"}]";
+        const parameterValue = "{\"NOTIFICATION_VALIDATION\":\"delivery_push_queue_validation\",\"NOTIFICATION_CREATION\":\"delivery_push_queue_creation\"}";
         mock.onGet(url).reply(200, JSON.stringify( { Parameter: { Value: parameterValue } } ), {"Content-Type": "application/json"})
         
         const queueName = await getQueueNameFromParameterStore(actionType, null, parameterStoreName);
@@ -86,7 +86,7 @@ describe("action utils test", function() {
         const expectedQueueName = "delivery_push_queue_validation";
         const parameterStoreName = "parameterStoreName";
         const url = `http://localhost:2773/systemsmanager/parameters/get?name=${encodeURIComponent(parameterStoreName)}`;
-        const parameterValue = "[{\"tipologiaAzione\":\"DOCUMENT_CREATION_RESPONSE\",\"queueName\":\"delivery_push_queue_validation\"},{\"tipologiaAzione\":\"NOTIFICATION_CREATION\",\"queueName\":\"delivery_push_queue_creation\"}]";
+        const parameterValue = "{\"DOCUMENT_CREATION_RESPONSE\":\"delivery_push_queue_validation\",\"NOTIFICATION_CREATION\":\"delivery_push_queue_creation\"}";
         mock.onGet(url).reply(200, JSON.stringify( { Parameter: { Value: parameterValue } } ), {"Content-Type": "application/json"})
         
         const queueName = await getQueueNameFromParameterStore(actionType, details, parameterStoreName);
@@ -99,7 +99,7 @@ describe("action utils test", function() {
         const expectedQueueName = "delivery_push_queue_validation";
         const parameterStoreName = "parameterStoreName";
         const url = `http://localhost:2773/systemsmanager/parameters/get?name=${encodeURIComponent(parameterStoreName)}`;
-        const parameterValue = "[{\"tipologiaAzione\":\"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\",\"queueName\":\"delivery_push_queue_validation\"},{\"tipologiaAzione\":\"NOTIFICATION_CREATION\",\"queueName\":\"delivery_push_queue_creation\"}]";
+        const parameterValue = "{\"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"delivery_push_queue_validation\",\"NOTIFICATION_CREATION\":\"delivery_push_queue_creation\"}";
         mock.onGet(url).reply(200, JSON.stringify( { Parameter: { Value: parameterValue } } ), {"Content-Type": "application/json"})
         
         const queueName = await getQueueNameFromParameterStore(actionType, details, parameterStoreName);
@@ -111,7 +111,7 @@ describe("action utils test", function() {
         const expectedQueueName = "delivery_push_queue_validation";
         const parameterStoreName = "parameterStoreName";
         const url = `http://localhost:2773/systemsmanager/parameters/get?name=${encodeURIComponent(parameterStoreName)}`;
-        const parameterValue = "[{\"tipologiaAzione\":\"NOTIFICATION_VALIDATION\",\"queueName\":\"delivery_push_queue_validation\"},{\"tipologiaAzione\":\"NOTIFICATION_CREATION\",\"queueName\":\"delivery_push_queue_creation\"}]";
+        const parameterValue = "{\"NOTIFICATION_VALIDATION\":\"delivery_push_queue_validation\",\"NOTIFICATION_CREATION\":\"delivery_push_queue_creation\"}";
         mock.onGet(url).reply(200, JSON.stringify( { Parameter: { Value: parameterValue } } ), {"Content-Type": "application/json"})
 
         await expect(
