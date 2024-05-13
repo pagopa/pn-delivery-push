@@ -42,4 +42,20 @@ class PnF24ClientImplTest {
                 .verifyComplete();
     }
 
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void preparePDF(){
+
+        RequestAccepted response = new RequestAccepted();
+        response.setDescription("description");
+        response.setStatus("status");
+
+        Mockito.when(f24ControllerApi.preparePDF(any(), any(), any())).thenReturn(Mono.just(response));
+
+        StepVerifier.create(client.preparePDF("cxId","123ReqeustId",10))
+                .expectNext(response)
+                .verifyComplete();
+    }
+
 }
