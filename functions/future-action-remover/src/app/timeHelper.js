@@ -45,4 +45,3 @@ module.exports = {
   actTime,
   toString,
 };
-console.log(toString(actTime()));

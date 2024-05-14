@@ -4,9 +4,9 @@ const {
   parseISO,
   actTime,
   toString: dateToString,
-} = require("./timeHelper.js");
+} = require("./timeHelper");
 
-const { generateKoResponse, generateOkResponse } = require("./responses.js");
+const { generateKoResponse, generateOkResponse } = require("./responses");
 const {
   getLastTimeSlotWorked,
   setLastTimeSlotWorked,
@@ -27,7 +27,6 @@ const isTimeToLeave = (context) =>
 
 async function handleEvent(event, context) {
   console.log("[FUTURE_ACTIONS_REMOVER]", "Started");
-  console.log("[FUTURE_ACTIONS_REMOVER]", "Event DATA", event);
 
   let lastPollTable = config.get("LAST_POLL_TABLE_NAME");
   let futureActionTable = config.get("FUTURE_TABLE_NAME");
