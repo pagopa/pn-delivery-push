@@ -1,4 +1,4 @@
-const {getQueueNameFromParameterStore, getQueueName} = require("../app/actionUtils");
+const {getQueueNameFromParameterStore, getQueueName, getQueueUrl} = require("../app/actionUtils");
 const axios = require('axios');
 const chaiAsPromised = require("chai-as-promised");
 const chai = require("chai");
@@ -10,11 +10,13 @@ const expect = chai.expect;
 describe("action utils test", function() {
     let mock;
     let envVarName = "ACTION_QUEUE_MAP";
+    let envVarUrl = "QUEUE_NAME_URL_MAP";
 
     before(() => {
         mock = new MockAdapter(axios);
         process.env = Object.assign(process.env, {
-            ACTION_QUEUE_MAP : "{\"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"delivery_push_queue_sender_ack\",\"DOCUMENT_CREATION_RESPONSE\"\:\"delivery_push_queue_no_sender_ack\",\"NOTIFICATION_CREATION\":\"delivery_push_queue_creation\",\"NOTIFICATION_VALIDATION\":\"delivery_push_queue_validation\"}"
+            ACTION_QUEUE_MAP : "{\"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"delivery_push_queue_sender_ack\",\"DOCUMENT_CREATION_RESPONSE\"\:\"delivery_push_queue_no_sender_ack\",\"NOTIFICATION_CREATION\":\"delivery_push_queue_creation\",\"NOTIFICATION_VALIDATION\":\"delivery_push_queue_validation\"}",
+            QUEUE_NAME_URL_MAP: "{\"delivery_push_queue_validation\":\"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions\"}"
           });
     });
 
@@ -25,6 +27,29 @@ describe("action utils test", function() {
     after(() => {
         mock.restore();
     });
+
+    it("get queue url - success", async () => {
+        const actionType = "NOTIFICATION_VALIDATION";
+        const expectedQueueUrl = "https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions";
+        const queueUrl = await getQueueUrl(actionType, null, envVarName, envVarUrl);
+        expect(queueUrl).to.equal(expectedQueueUrl);
+    })
+
+    it("get queue url wrong env var name - fail", async () => {
+        const actionType = "DOCUMENT_CREATION_RESPONSE";
+    
+        await expect(
+            getQueueUrl(actionType, null, envVarName, "WRONG_QUEUE_NAME_URL_MAP")
+          ).to.be.rejectedWith(Error, "Invalid env var value");
+    })
+
+    it("get queue url - fail", async () => {
+        const actionType = "NOTIFICATION_CREATION";
+
+        await expect(
+            getQueueUrl(actionType, null, envVarName, envVarUrl)
+          ).to.be.rejectedWith(Error, "Unable to find queue url");
+    })
 
     it("get queue name wrong env var name - fail", async () => {
         const actionType = "NOTIFICATION_VALIDATION";
