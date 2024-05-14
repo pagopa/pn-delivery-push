@@ -1,0 +1,7 @@
+{
+  "FUTURE_TABLE_NAME": "pn-FutureAction",
+  "LAST_POLL_TABLE_NAME": "pn-LastPollForFutureActionTable",
+  "MAX_BATCH_SIZE": 25,
+  "LAST_WORKED_KEY": "1",
+  "TOLLERANCE_IN_MILLIS": 3000
+}
