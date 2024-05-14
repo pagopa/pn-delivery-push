@@ -2,7 +2,6 @@ const { expect } = require("chai");
 const { describe, it } = require("mocha");
 const proxyquire = require("proxyquire").noPreserveCache();
 
-const isTimedOut = () => false;
 const fakeActions = [
   {
     notBefore: "2024-05-12T13:00:00.384Z",

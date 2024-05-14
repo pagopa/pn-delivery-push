@@ -353,14 +353,6 @@ function getKinesisRecord(data, itemIdentifier){
   }
 }
 
-
-function decodeBase64(encodedRecord) {
-  var decodedString = Buffer.from(encodedRecord, "base64").toString();
-  let decodedJson = JSON.parse(decodedString);
-  console.log("decodedJson", decodedJson);
-  return decodedJson;
-}
-
 function getFutureActionDate(){
   var date = new Date();
   date.setDate(date.getDate() + 1);
@@ -371,10 +363,6 @@ function getImmediateActionDate(){
   var date = new Date();
   date.setDate(date.getDate() - 1);
   return date.toISOString();
-}
-
-function setElementInMap(map, actionData){
-  map.set(actionData.dynamodb.NewImage.actionId, actionData.dynamodb.NewImage);
 }
 
 function initializeMockData(){

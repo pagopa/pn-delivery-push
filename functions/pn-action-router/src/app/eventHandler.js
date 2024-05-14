@@ -2,7 +2,7 @@ const { isRecordToSend, isFutureAction } = require("./utils/utils.js");
 const { getActionDestination } = require("./utils/getActionDestination.js");
 const { writeMessagesToQueue } = require("./sqs/writeToSqs.js");
 const { writeMessagesToDynamo } = require("./dynamo/writeToDynamo.js");
-const { insideWorkingWindow, getWorkingTime } = require("./workingTimeUtils");
+const { insideWorkingWindow, getWorkingTime } = require("./utils/workingTimeUtils.js");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 
 async function handleEvent(event, context){
@@ -34,58 +34,60 @@ async function startHandleEvent(event, context) {
     let sequenceNumber = record.kinesis.sequenceNumber;
     let decodedRecord = decodeBase64(record.kinesis.data);
 
-    if (isRecordToSend(decodedRecord) && insideWorkingWindow(action, workingTime.start, workingTime.end)) {
-      // feature flag check
-      if (!insideWorkingWindow(action, workingTime.start, workingTime.end))
-        continue;
+    if (isRecordToSend(decodedRecord)) {
 
       console.log('the record is to send ', decodedRecord );
 
       const action = mapMessageFromKinesisToAction(decodedRecord,sequenceNumber);
-      console.log('start handling action ', action.actionId)
-      let currentActionType;
-      if(isFutureAction(action.notBefore)){
-        console.log('Start to check future action ', action.actionId)
-        currentActionType = 'FutureAction';
-        if(lastActionType != currentActionType && actionToSend.length > 0){
-          const notSended = await writeMessagesToQueue(actionToSend, context, lastDestinationQueue);
-          console.log('notSended returned from queue 1 is ', notSended)
-          if (notSended != 0) {
-            return notSended;
+      if(insideWorkingWindow(action, workingTime.start, workingTime.end)){
+        
+        console.log('start handling action ', action.actionId)
+        let currentActionType;
+        if(isFutureAction(action.notBefore)){
+          console.log('Start to check future action ', action.actionId)
+          currentActionType = 'FutureAction';
+          if(lastActionType != currentActionType && actionToSend.length > 0){
+            const notSended = await writeMessagesToQueue(actionToSend, context, lastDestinationQueue);
+            console.log('notSended returned from queue 1 is ', notSended)
+            if (notSended != 0) {
+              return notSended;
+            }
+            actionToSend = [];
+            lastDestinationQueue = undefined; //probabilmente non serve
           }
-          actionToSend = [];
-          lastDestinationQueue = undefined; //probabilmente non serve
+        }else{
+          console.log('Start to check immediate action ', action.actionId)
+          currentActionType = 'ImmediateAction';
+          if(lastActionType != currentActionType && actionToSend.length > 0){
+            const notSended = await writeMessagesToDynamo(actionToSend,context);
+            console.log('notSended returned from dynamo is ', notSended)
+            if (notSended != 0) {
+              console.log("there are 'Not sended item', need to return")
+              return notSended;
+            }
+            console.log("All items are sent correctly")
+            actionToSend = [];
+          }
+          let currentDestinationQueue = getActionDestination(action);
+          if (currentDestinationQueue != lastDestinationQueue && actionToSend.length > 0) {
+            console.log('currentDestinationQueue is different from lastDestination, need to send message ')
+  
+            const notSended = await writeMessagesToQueue(actionToSend, context, lastDestinationQueue);
+            console.log('notSended returned from queue 2 is ', notSended)
+            if (notSended != 0) {
+              return notSended;
+            }
+            actionToSend = [];
+          }
+          lastDestinationQueue = currentDestinationQueue;
         }
+        
+        actionToSend.push(action);
+        lastActionType = currentActionType;
+        console.log('Handling action completed ', action.actionId)  
       }else{
-        console.log('Start to check immediate action ', action.actionId)
-        currentActionType = 'ImmediateAction';
-        if(lastActionType != currentActionType && actionToSend.length > 0){
-          const notSended = await writeMessagesToDynamo(actionToSend,context);
-          console.log('notSended returned from dynamo is ', notSended)
-          if (notSended != 0) {
-            console.log("there are 'Not sended item', need to return")
-            return notSended;
-          }
-          console.log("All items are sent correctly")
-          actionToSend = [];
-        }
-        let currentDestinationQueue = getActionDestination(action);
-        if (currentDestinationQueue != lastDestinationQueue && actionToSend.length > 0) {
-          console.log('currentDestinationQueue is different from lastDestination, need to send message ')
-
-          const notSended = await writeMessagesToQueue(actionToSend, context, lastDestinationQueue);
-          console.log('notSended returned from queue 2 is ', notSended)
-          if (notSended != 0) {
-            return notSended;
-          }
-          actionToSend = [];
-        }
-        lastDestinationQueue = currentDestinationQueue;
+        console.log('Action is not in working windows ', action.notBefore)
       }
-      
-      actionToSend.push(action);
-      lastActionType = currentActionType;
-      console.log('Handling action completed ', action.actionId)
     }else{
       console.log('The record is not to send ', decodedRecord)
     }

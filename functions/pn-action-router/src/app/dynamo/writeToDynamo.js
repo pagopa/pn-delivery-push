@@ -1,109 +1,109 @@
 const { DynamoDBDocument } = require("@aws-sdk/lib-dynamodb");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { isTimeToLeave } = require("../utils/utils.js");
+const config = require("config");
+
+const MAX_DYNAMO_BATCH = config.get("MAX_DYNAMO_BATCH");
+const FUTURE_ACTION_TABLE_NAME = config.get("FUTURE_ACTION_TABLE_NAME");
 
 const ddbClient = new DynamoDBClient();
-
 const ddbDocClient = DynamoDBDocument.from(ddbClient, {
   marshallOptions: {
     removeUndefinedValues: true,
   },
 });
 
-async function writeMessagesToDynamo(futureActions, context) {
-    while (futureActions.length > 0 && !isTimeToLeave(context)) {
-      let splicedFutureActionsArray = futureActions.splice(0, 1); // prendo i primi 10 e rimuovendoli dall'array originale
+async function writeMessagesToDynamo(arrayActionToStore, context) {
+    while (arrayActionToStore.length > 0 && !isTimeToLeave(context)) {
+      let splicedActionsArray = arrayActionToStore.splice(0, MAX_DYNAMO_BATCH); // vengono presi i primi N elementi rimuovendoli dall'array originale
   
-      var actionItemMappedDynamoArray = [];
-      splicedFutureActionsArray.forEach(function (action) {
-        var date = new Date();
-        let isoDateNow = date.toISOString();
-    
-        let futureAction = {
-          timeSlot: action.timeslot,
-          actionId: action.actionId,
-          notBefore: action.notBefore,
-          recipientIndex: action.recipientIndex,
-          type: action.type,
-          timelineId: action.timelineId,
-          iun: action.iun,
-          details: getActionDetails(action.details),
-          insertActionTimestamp: action.insertActionTimestamp,
-          insertFutureActionTimestamp: isoDateNow
-        };
-        console.log("futureAction is ", futureAction);
-  
-        var actionItemDynamo = {
+      var futureActionItemMappedDynamoArray = [];
+      splicedActionsArray.forEach(function (action) {
+
+        let futureActionToDynamo = getFutureAction(action);
+        console.log("futureAction is ", futureActionToDynamo);
+        var futureActionItemDynamo = {
           PutRequest: {
-            Item: futureAction,
+            Item: futureActionToDynamo
           },
         };
-  
-        actionItemMappedDynamoArray.push(actionItemDynamo);
+        futureActionItemMappedDynamoArray.push(futureActionItemDynamo);
       });
   
-      var params = {
-        RequestItems: {
-          PocFutureAction: actionItemMappedDynamoArray,
-        },
-      };
-  
       try {
-        console.log("start to batchWrite itemes  ", actionItemMappedDynamoArray);
+        console.log("start to batchWrite items  ", futureActionItemMappedDynamoArray);
+        
+        let retryCount = 0;
+        var params = {
+          RequestItems: {
+            [FUTURE_ACTION_TABLE_NAME]: futureActionItemMappedDynamoArray,
+          }
+        };
   
-        let response = await ddbDocClient.batchWrite(params);
-  
-        console.log("response received from dynamo is ", response);
-        console.log("response.UnprocessedItems ", response.UnprocessedItems);
-  
-        // some items are written (but maybe not all of them)
-        if (
-          response.UnprocessedItems &&
-          response.UnprocessedItems.PocFutureAction
-        ) {
-          console.log(
-            "There are unprocessed items ",
-            response.UnprocessedItems.PocFutureAction
-          );
-  
-          splicedFutureActionsArray.forEach(function (splicedFutureAction) {
-            if (
-              response.UnprocessedItems.PocFutureAction.filter(
-                ((unprocessedFutureAction) =>
-                  unprocessedFutureAction.actionId ==
-                  splicedFutureAction.actionId).length !== 0
-              )
-            ) {
-              futureActions.push(splicedFutureAction); //Se fallisce nella put, l'action viene reinserita tra quelle da inviare
-            }
-          });
-  
-          return futureActions;
-        }
+        await handleBatchWriteItems(params, retryCount, context);
+
       } catch (exceptions) {
         console.error("Dynamo cannot write items. Exception is", exceptions);
-        futureActions = futureActions.concat(splicedFutureActionsArray);
-        console.log(
-          "splicedFutureActionsArray length ",
-          splicedFutureActionsArray.length
-        );
-        console.log(
-          "splicedFutureActionsArray ",
-          JSON.stringify(splicedFutureActionsArray)
-        );
-        console.log("futureActions length", futureActions.length);
-        console.log("futureActions ", JSON.stringify(futureActions));
-        return futureActions;
+        return splicedActionsArray;
       }
     }
   
     console.log(
-      "writeMessagesToDynamo completed. futureActions length is",
-      futureActions
+      "writeMessagesToDynamo completed. returned element is ",
+      JSON.stringify(arrayActionToStore)
     );
-    return futureActions;
+    return arrayActionToStore;
 }
+
+async function handleBatchWriteItems(params, retryCount, context){
+  console.log('send batchWriteItem with params', JSON.stringify(params) )
+
+  if(!isTimeToLeave(context)){
+    let res = await ddbDocClient.batchWrite(params);
+    console.log("Completed batchWrite. Response received from dynamo is ", res);
   
+    if (Object.keys(res.UnprocessedItems).length !== 0) {
+      console.error(
+        "[PN_ACTION_ROUTER]",
+        `Unprocessed items in chunk: retry`,
+        JSON.stringify(res.UnprocessedItems)
+      );
+      params = {
+        RequestItems: res.UnprocessedItems
+      };
+      
+      retryCount = retryCount + 1;
+      let waitMsTime = 2 ** retryCount * 10;
+      console.log('waitMsTime ', waitMsTime);
+      await wait(waitMsTime);
+      console.log('sono dopo il wait')
+      await handleBatchWriteItems(params, retryCount, context); 
+    }
+  
+  }else{
+    throw new Error('lambda execution time is close to expire');
+  }
+}
+
+async function wait(delay) {
+  return new Promise(resolve => setTimeout(resolve, delay));
+}
+
+function getFutureAction(action){
+  let futureAction = {
+    timeSlot: action.timeslot,
+    actionId: action.actionId,
+    notBefore: action.notBefore,
+    recipientIndex: action.recipientIndex,
+    type: action.type,
+    timelineId: action.timelineId,
+    iun: action.iun,
+    details: getActionDetails(action.details)
+  };
+
+  return futureAction;
+}
+
 function getActionDetails(actionDetails) {
     if (actionDetails) {
         return {
