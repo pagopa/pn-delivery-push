@@ -14,10 +14,7 @@ const {
   batchDelete,
 } = require("./dynamoFunctions.js");
 
-const {
-  getWorkingTime,
-  insideWorkingWindow,
-} = require("./workingTimeUtils.js");
+const { getWorkingTime } = require("./workingTimeUtils.js");
 
 const { BatchOperationException } = require("./exceptions.js");
 const config = require("config");
