@@ -2,19 +2,17 @@
 const { expect } = require("chai");
 const { describe, it, before, after } = require("mocha");
 const proxyquire = require("proxyquire").noPreserveCache();
+const { getWorkingTime } = require("../app/workingTimeUtils");
+const config = require("config");
 
 describe("eventHandler test ", function () {
-  let envVarName = "ACTION_QUEUE_MAP";
-
   before(() => {
-    process.env = Object.assign(process.env, {
-      ACTION_QUEUE_MAP:
-        '[{"tipologiaAzione":"NOTIFICATION_CREATION","queueName":"https://sqs.eu-south-1.amazonaws.com/830192246553/q1"},{"tipologiaAzione":"NOTIFICATION_VALIDATION","queueName":"https://sqs.eu-south-1.amazonaws.com/830192246553/q2"}]',
-    });
+    process.env[config.get("ACTION_MAP_ENV_VARIABLE")] =
+      '{"DOCUMENT_CREATION_RESPONSE_SENDER_ACK":"actionId-queue2","DOCUMENT_CREATION_RESPONSE":"actionId-queue2","NOTIFICATION_CREATION":"actionId-queue2","NOTIFICATION_VALIDATION":"actionId-queue1"}';
   });
 
   after(() => {
-    delete process.env.ACTION_QUEUE_MAP;
+    delete process.env[[config.get("ACTION_MAP_ENV_VARIABLE")]];
   });
 
   it("send record in oneQueue - one element", async () => {
@@ -226,5 +224,45 @@ describe("eventHandler test ", function () {
     expect(result).to.be.not.null;
     expect(result.batchItemFailures).to.be.empty;
     expect(invokedCount).equal(3);
+  });
+
+  it("filter with working window", async () => {
+    const testData = require("./streamData/one_of_three_working_window.json");
+
+    testData.Records.map((record) => {
+      const dataEncoded = Buffer.from(
+        JSON.stringify(record.kinesis.data),
+        "ascii"
+      ).toString("base64");
+      record.kinesis.data = dataEncoded;
+      return record;
+    });
+
+    let invokedCount = 0;
+
+    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
+      "./sqsFunctions.js": {
+        putMessages: (_sqsConfig, _actions, _isTimedOut) => {
+          invokedCount += _actions.length;
+          return [];
+        },
+      },
+      "./utils.js": {
+        getQueueName: (actionType, _details, _envVarName) => actionType,
+      },
+      "./workingTimeUtils": {
+        insideWorkingWindow: (action, start, end) => {
+          return action.actionId === "ACCEPT";
+        },
+        getWorkingTime: getWorkingTime,
+      },
+    });
+
+    const result = await lambda.handleEvent(testData, {
+      getRemainingTimeInMillis: () => 10000000000,
+    });
+    expect(result).to.be.not.null;
+    expect(result.batchItemFailures).to.be.empty;
+    expect(invokedCount).equal(1);
   });
 });

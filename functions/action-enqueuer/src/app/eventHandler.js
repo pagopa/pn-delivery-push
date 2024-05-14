@@ -79,6 +79,8 @@ async function handleEvent(event, context) {
 
   let actions = [];
   let lastDestination;
+  const destinationsEndPoint = JSON.parse(config.get("QUEUE_ENDPOINTS"));
+
   for (let i = 0; i < event.Records.length; i++) {
     let record = event.Records[i];
     let decodedRecord = decodeBase64(record.kinesis.data);
@@ -97,7 +99,7 @@ async function handleEvent(event, context) {
         config.get("ACTION_MAP_ENV_VARIABLE")
       );
 
-      console.log("CODA ATTUALE", currentDestination);
+      console.debug("CODA ATTUALE", currentDestination);
       //  destination changed
       if (lastDestination && currentDestination != lastDestination) {
         // send records to previous destination
@@ -113,6 +115,16 @@ async function handleEvent(event, context) {
       }
       //destination endpoint update
       lastDestination = currentDestination;
+      if (!destinationsEndPoint[lastDestination]) {
+        console.error(
+          "[ACTION_ENQUEUER]",
+          `No endpoint URL for ${lastDestination} queue`,
+          destinationsEndPoint
+        );
+        emptyResult.batchItemFailures.push(action.seqNo);
+        return emptyResult;
+      }
+
       actions.push(action);
     } else {
       console.log("[ACTION_ENQUEUER]", "Discarded record", decodedRecord);

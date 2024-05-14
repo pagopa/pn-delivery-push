@@ -4,14 +4,14 @@
   "description": "Put Actions in an SQS queue",
   "main": "index.js",
   "scripts": {
-    "test-build": "(cd ../actionCommon && npm ci) && npm run-script test && npm run-script coverage && npm run-script sonar && npm run-script build",
+    "test-build": "(cd ../../functionsLib/actionCommon && npm ci) && npm run-script test && npm run-script coverage && npm run-script sonar && npm run-script build",
     "zip:full": "zip -r ./function.zip . -x './src/test/*' -x '*.md' -x './nodejs/*' -x './.nyc_output/*' -x './.scannerwork/*' -x './coverage/*' -x '*.env' -x '*.zip'  -x '*.gitignore'",
     "zip:code": "zip -r ./code_layer.zip . -x './src/test/*' -x '*.md' -x './nodejs/*' -x './.nyc_output/*' -x './.scannerwork/*' -x './coverage/*' -x '*.env' -x '*.zip'  -x '*.gitignore' -x './node_modules/*'",
     "zip:libs": "zip -r ./lib_layer.zip nodejs -x '*.md'",
-    "build:single": "(cd ../actionCommon && npm prune --production) && npm prune --production && rm -f ./function.zip && npm run-script zip:full",
+    "build:single": "(cd ../../functionsLib/actionCommon && npm prune --production) && npm prune --production && rm -f ./function.zip && npm run-script zip:full",
     "build:multiLayer": "(cd ../../actionCommon && npm prune --production) && rm -rf nodejs && mkdir -p nodejs && npm prune --production  && cp -Lrf node_modules nodejs && rm -f ./code_layer.zip && npm run-script zip:code && rm -f ./lib_layer.zip && npm run-script zip:libs",
     "build": "npm run-script build:single && npm run-script build:multiLayer",
-    "test": "(cd ../actionCommon && npm ci) && nyc --reporter=html --reporter=text mocha './src/test/**/*.test.js' --recursive --timeout=6000 --exit -r dotenv/config",
+    "test": "(cd ../../functionsLib/actionCommon && npm ci) && nyc --reporter=html --reporter=text mocha './src/test/**/*.test.js' --recursive --timeout=6000 --exit -r dotenv/config",
     "coverage": "nyc report --reporter=lcov",
     "sonar": "node sonarqube-scanner.js -Dsonar.login=${SONAR_TOKEN}"
   },
@@ -36,7 +36,7 @@
     "@aws-sdk/util-dynamodb": "^3.572.0",
     "axios": "^1.6.8",
     "config": "^3.3.11",
-    "pn-action-common": "file:../actionCommon",
+    "pn-action-common": "file:../../functionsLib/actionCommon",
     "uuid": "^9.0.1"
   }
 }

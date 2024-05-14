@@ -15,5 +15,7 @@
     "RequestTimeout",
     "RequestTimeoutException"
   ],
+
+  "QUEUE_ENDPOINTS": "{\"actionId-queue1\": \"fake-queue1-endpoint\",\"actionId-queue2\": \"fake-queue2-endpoint\"}",
   "ACTION_MAP_ENV_VARIABLE": "ACTION_QUEUE_MAP"
 }
