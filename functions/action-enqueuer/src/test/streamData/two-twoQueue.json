@@ -33,7 +33,7 @@
                 "S": "actionId-queue2"
               },
               "type": {
-                "S": "type2"
+                "S": "NOTIFICATION_CREATION"
               }
             },
             "SizeBytes": 126
@@ -83,7 +83,7 @@
               },
 
               "type": {
-                "S": "type1"
+                "S": "NOTIFICATION_VALIDATION"
               }
             },
             "SizeBytes": 126

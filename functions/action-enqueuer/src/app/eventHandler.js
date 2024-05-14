@@ -3,7 +3,7 @@ const { unmarshall } = require("@aws-sdk/util-dynamodb");
 const config = require("config");
 
 const { insideWorkingWindow, getWorkingTime } = require("./workingTimeUtils");
-const { getQueueName } = require("./utils");
+const { ActionUtils } = require("pn-action-common");
 
 const TOLLERANCE_IN_MILLIS = config.get("RUN_TOLLERANCE_IN_MILLIS");
 
@@ -82,23 +82,22 @@ async function handleEvent(event, context) {
   for (let i = 0; i < event.Records.length; i++) {
     let record = event.Records[i];
     let decodedRecord = decodeBase64(record.kinesis.data);
-    console.debug("DECODED!", JSON.stringify(decodedRecord));
     if (isRecordToSend(decodedRecord)) {
-      console.debug("TO ELEBORATE");
       const action = mapMessageFromKinesisToAction(decodedRecord);
 
       // feature flag check
       if (!insideWorkingWindow(action, workingTime.start, workingTime.end))
         continue;
 
-      console.debug("EVENT IS INSIDE WORKING WINDOW");
       action.seqNo = record.kinesis.sequenceNumber;
 
-      let currentDestination = getQueueName(
+      let currentDestination = await ActionUtils.getQueueName(
         action?.type,
         action?.details,
-        "TEST"
+        config.get("ACTION_MAP_ENV_VARIABLE")
       );
+
+      console.log("CODA ATTUALE", currentDestination);
       //  destination changed
       if (lastDestination && currentDestination != lastDestination) {
         // send records to previous destination

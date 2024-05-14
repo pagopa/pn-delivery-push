@@ -2,6 +2,7 @@
   "Records": [
     {
       "kinesis": {
+        "sequenceNumber": 1,
         "data": {
           "awsRegion": "eu-central-1",
           "eventID": "2c19ee21-4cb5-4fcf-aadb-7aac6555b46f",
@@ -32,9 +33,8 @@
               "actionId": {
                 "S": "actionId-queue1"
               },
-
               "type": {
-                "S": "type1"
+                "S": "NOTIFICATION_CREATION"
               }
             },
             "SizeBytes": 126
@@ -52,6 +52,7 @@
     },
     {
       "kinesis": {
+        "sequenceNumber": 2,
         "data": {
           "awsRegion": "eu-central-1",
           "eventID": "2c19ee21-4cb5-4fcf-aadb-7aac6555b46f",
@@ -84,7 +85,7 @@
               },
 
               "type": {
-                "S": "type2"
+                "S": "NOTIFICATION_VALIDATION"
               }
             },
             "SizeBytes": 126
@@ -102,6 +103,7 @@
     },
     {
       "kinesis": {
+        "sequenceNumber": 3,
         "data": {
           "awsRegion": "eu-central-1",
           "eventID": "2c19ee21-4cb5-4fcf-aadb-7aac6555b46f",
@@ -134,7 +136,7 @@
               },
 
               "type": {
-                "S": "type1"
+                "S": "NOTIFICATION_CREATION"
               }
             },
             "SizeBytes": 126

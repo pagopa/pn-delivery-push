@@ -1,9 +1,22 @@
 /* eslint-disable no-unused-vars */
 const { expect } = require("chai");
-const { describe, it } = require("mocha");
+const { describe, it, before, after } = require("mocha");
 const proxyquire = require("proxyquire").noPreserveCache();
 
 describe("eventHandler test ", function () {
+  let envVarName = "ACTION_QUEUE_MAP";
+
+  before(() => {
+    process.env = Object.assign(process.env, {
+      ACTION_QUEUE_MAP:
+        '[{"tipologiaAzione":"NOTIFICATION_CREATION","queueName":"https://sqs.eu-south-1.amazonaws.com/830192246553/q1"},{"tipologiaAzione":"NOTIFICATION_VALIDATION","queueName":"https://sqs.eu-south-1.amazonaws.com/830192246553/q2"}]',
+    });
+  });
+
+  after(() => {
+    delete process.env.ACTION_QUEUE_MAP;
+  });
+
   it("send record in oneQueue - one element", async () => {
     const testData = require("./streamData/one.json");
 
@@ -180,6 +193,7 @@ describe("eventHandler test ", function () {
     expect(result.batchItemFailures).to.be.empty;
     expect(invokedCount).equal(2);
   });
+
   it("send record in two Queue - three element - 3", async () => {
     const testData = require("./streamData/three-twoQueue-permutation3.json");
 
@@ -192,11 +206,19 @@ describe("eventHandler test ", function () {
       return record;
     });
 
-    console.log("DATA ENCODED", testData);
-
     let invokedCount = 0;
 
-    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {});
+    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
+      "./sqsFunctions.js": {
+        putMessages: (_sqsConfig, _actions, _isTimedOut) => {
+          invokedCount++;
+          return [];
+        },
+      },
+      "./utils.js": {
+        getQueueName: (actionType, _details, _envVarName) => actionType,
+      },
+    });
 
     const result = await lambda.handleEvent(testData, {
       getRemainingTimeInMillis: () => 10000000000,

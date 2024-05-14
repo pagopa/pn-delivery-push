@@ -14,5 +14,6 @@
     "TimeoutError",
     "RequestTimeout",
     "RequestTimeoutException"
-  ]
+  ],
+  "ACTION_MAP_ENV_VARIABLE": "ACTION_QUEUE_MAP"
 }

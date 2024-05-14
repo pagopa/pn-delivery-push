@@ -32,9 +32,8 @@
               "actionId": {
                 "S": "actionId-queue1"
               },
-
               "type": {
-                "S": "type1"
+                "S": "NOTIFICATION_CREATION"
               }
             },
             "SizeBytes": 126
@@ -83,7 +82,7 @@
                 "S": "actionId-queue1"
               },
               "type": {
-                "S": "type1"
+                "S": "NOTIFICATION_CREATION"
               }
             },
             "SizeBytes": 126
