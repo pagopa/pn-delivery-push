@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 const { expect } = require("chai");
-const { describe, it, before, after } = require("mocha");
+const { describe, it } = require("mocha");
 const proxyquire = require("proxyquire").noPreserveCache();
 const {
   parseISO,
@@ -29,22 +29,11 @@ const testOverride = (
 ) => {
   return {
     "./timeHelper.js": {
-      actTime: () => {
-        console.log(
-          "CHIAMATA L'OVERRIDEEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-        );
-        const dt = parseISO("2024-05-22T12:00");
-        return dt;
-      },
+      actTime: () => parseISO("2024-05-22T12:00"),
       parseISO,
       nextTimeSlot,
       isAfter,
-      toString: (d) => {
-        console.log(
-          "*************************************************************"
-        );
-        return dateToString(d);
-      },
+      toString: (d) => dateToString(d),
     },
 
     "./dynamoFunctions.js": {
@@ -56,7 +45,6 @@ const testOverride = (
         { timeSlot, _sub_unused1, _sub_unused2 },
         _unused2
       ) => {
-        console.log("REQUESTED TIMESLOT", JSON.stringify(timeSlot));
         let dataSet;
         switch (timeSlot) {
           case SLOT_1:
@@ -109,7 +97,6 @@ describe("eventHandler tests", () => {
     const result = await lambda.handleEvent(null, {
       getRemainingTimeInMillis: () => 10000000000,
     });
-    console.log(read, deletion, "DATA");
     expect(result).to.not.be.null;
     expect(result.statusCode).to.be.eq(200);
     expect(result).to.have.property("body");
@@ -139,7 +126,6 @@ describe("eventHandler tests", () => {
     const result = await lambda.handleEvent(null, {
       getRemainingTimeInMillis: () => 10000000000,
     });
-    console.log(read, deletion, "DATA");
     expect(result).to.not.be.null;
     expect(result.statusCode).to.be.eq(200);
     expect(result).to.have.property("body");
@@ -169,7 +155,6 @@ describe("eventHandler tests", () => {
     const result = await lambda.handleEvent(null, {
       getRemainingTimeInMillis: () => 10000000000,
     });
-    console.log(read, deletion, "DATA");
     expect(result).to.not.be.null;
     expect(result.statusCode).to.be.eq(200);
     expect(result).to.have.property("body");

@@ -78,15 +78,15 @@ async function handleEvent(event, context) {
         `Looking for items at timestlot ${startTimeSlot} with lastKey ${lastEvaluatedKey}`
       );
 
-      console.info(
-        "[FUTURE_ACTIONS_REMOVER]",
-        "CALLING GETACTIONBYTIMESLOT WITH",
-        {
-          timeSlot: dateToString(startTimeSlot),
-          startTime: workingTime.start,
-          endTime: workingTime.end,
-        }
-      );
+      // console.info(
+      //   "[FUTURE_ACTIONS_REMOVER]",
+      //   "CALLING GETACTIONBYTIMESLOT WITH",
+      //   {
+      //     timeSlot: dateToString(startTimeSlot),
+      //     startTime: workingTime.start,
+      //     endTime: workingTime.end,
+      //   }
+      // );
 
       let result = await getActionsByTimeSlot(
         futureActionTable,

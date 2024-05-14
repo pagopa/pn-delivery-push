@@ -1,5 +1,9 @@
+/* eslint-disable no-unused-vars */
 const { expect, assert } = require("chai");
 const { describe, it, before, after, afterEach } = require("mocha");
+const sinon = require("sinon");
+const proxyquire = require("proxyquire").noPreserveCache();
+
 const {
   DynamoDBDocumentClient,
   GetCommand,
@@ -15,7 +19,6 @@ const {
   getLastTimeSlotWorked,
   setLastTimeSlotWorked,
   getActionsByTimeSlot,
-  batchDelete,
 } = require("../app/dynamoFunctions.js");
 
 const config = require("config");
@@ -178,7 +181,79 @@ describe("dynamoFunctions tests", function () {
     });
   });
 
-  it("test BatchDelete: item less than batch", async () => {});
+  it("test BatchDelete: item less than batch", async () => {
+    let mockResponse = {
+      UnprocessedItems: {},
+    };
 
-  it("test BatchDelete: item more than  a batch", async () => {});
+    // Stubbing DynamoDBClient and DynamoDBDocumentClient
+    const DynamoDBClientStub = sinon.stub();
+    const batchWriteStub = sinon.stub();
+
+    // Assegna la funzione di stubbing al metodo batchWrite di DynamoDBDocumentClient
+    DynamoDBClientStub.prototype.batchWrite = batchWriteStub;
+    batchWriteStub.returns(mockResponse);
+    let count = 0;
+    const lambda = proxyquire.noCallThru().load("../app/dynamoFunctions.js", {
+      "@aws-sdk/lib-dynamodb": {
+        DynamoDBClient: DynamoDBClientStub,
+        BatchWriteCommand: sinon.stub(),
+        DynamoDBDocumentClient: {
+          from: () => ({
+            batchWrite: batchWriteStub,
+            send: (params) => {
+              count++;
+
+              return mockResponse;
+            },
+          }),
+        },
+      },
+    });
+
+    const result = await lambda.batchDelete(
+      "placeholder",
+      require("./testData/deleteTest-lessBatchSize/dataset.json")
+    );
+    expect(count).to.be.equal(1);
+    expect(result).to.be.true;
+  });
+
+  it("test BatchDelete: item more than  a batch", async () => {
+    let mockResponse = {
+      UnprocessedItems: {},
+    };
+
+    // Stubbing DynamoDBClient and DynamoDBDocumentClient
+    const DynamoDBClientStub = sinon.stub();
+    const batchWriteStub = sinon.stub();
+
+    // Assegna la funzione di stubbing al metodo batchWrite di DynamoDBDocumentClient
+    DynamoDBClientStub.prototype.batchWrite = batchWriteStub;
+    batchWriteStub.returns(mockResponse);
+    let count = 0;
+    const lambda = proxyquire.noCallThru().load("../app/dynamoFunctions.js", {
+      "@aws-sdk/lib-dynamodb": {
+        DynamoDBClient: DynamoDBClientStub,
+        BatchWriteCommand: sinon.stub(),
+        DynamoDBDocumentClient: {
+          from: () => ({
+            batchWrite: batchWriteStub,
+            send: (params) => {
+              count++;
+
+              return mockResponse;
+            },
+          }),
+        },
+      },
+    });
+
+    const result = await lambda.batchDelete(
+      "placeholder",
+      require("./testData/deleteTest-moreBatchSize/dataset.json")
+    );
+    expect(result).to.be.true;
+    expect(count).to.be.equal(2);
+  });
 });
