@@ -32,7 +32,7 @@ async function writeMessagesToDynamo(arrayActionToStore, context) {
   
       try {
         console.log("start to batchWrite items  ", futureActionItemMappedDynamoArray);
-        
+
         let retryCount = 0;
         var params = {
           RequestItems: {

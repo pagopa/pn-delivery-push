@@ -1,6 +1,8 @@
 const { expect } = require("chai");
 const sinon = require("sinon");
 const proxyquire = require("proxyquire").noPreserveCache();
+const config = require("config");
+const FUTURE_ACTION_TABLE_NAME = config.get("FUTURE_ACTION_TABLE_NAME");
 
 describe("DynamoDB tests", function () {
   const arrayActionToStore = [
@@ -43,7 +45,7 @@ describe("DynamoDB tests", function () {
     startDate: startDate
   };
 
-  it("test persistEvents", async () => {
+  it.only("test persistEvents", async () => {
     
     // Stubbing isTimeToLeave function
     const isTimeToLeaveStub = sinon.stub().returns(false); // Modifica questo valore a seconda del comportamento che desideri simulare
@@ -78,7 +80,7 @@ describe("DynamoDB tests", function () {
           from: () => ({
             batchWrite: (params) =>{
               console.log(params)
-              params.RequestItems.pnFutureAction.forEach((element) => {
+              params.RequestItems[FUTURE_ACTION_TABLE_NAME].forEach((element) => {
                 let action = element.PutRequest.Item;
                 writedActionArray.push(action);
               });

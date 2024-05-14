@@ -2,7 +2,7 @@
     "RUN_TOLLERANCE_IN_MILLIS": 3000,
     "MAX_SQS_BATCH_SIZE": 1,
     "MAX_DYNAMO_BATCH": 1,
-    "FUTURE_ACTION_TABLE_NAME":"pnFutureAction",
+    "FUTURE_ACTION_TABLE_NAME":"pn-FutureAction",
     "timeout": {
       "DEFAULT_SOCKET_TIMEOUT": 1000,
       "DEFAULT_REQUEST_TIMEOUT": 1000,
