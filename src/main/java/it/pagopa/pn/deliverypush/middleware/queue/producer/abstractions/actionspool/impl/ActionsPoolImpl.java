@@ -78,21 +78,34 @@ public class ActionsPoolImpl implements ActionsPool {
      */
     @Override
     public void startActionOrScheduleFutureAction(Action action) {
-        boolean isFutureSchedule = Instant.now().plus(configs.getActionPoolBeforeDelay()).isBefore(action.getNotBefore());
+        if(isPerformanceImprovementEnabled(action.getNotBefore())) {
+            actionService.addOnlyAction(action);
+        } else {
+            boolean isFutureSchedule = Instant.now().plus(configs.getActionPoolBeforeDelay()).isBefore(action.getNotBefore());
 
-        final String timeSlot = computeTimeSlot( action.getNotBefore() );
-        action = action.toBuilder()
-                .timeslot( timeSlot)
-                .build();
+            final String timeSlot = computeTimeSlot( action.getNotBefore() );
+            action = action.toBuilder()
+                    .timeslot( timeSlot)
+                    .build();
 
-        if (isFutureSchedule) {
-            actionService.addActionAndFutureActionIfAbsent(action, timeSlot);
+            if (isFutureSchedule) {
+                actionService.addActionAndFutureActionIfAbsent(action, timeSlot);
+            }
+            else {
+                actionService.addOnlyActionIfAbsent(action);
+                addToActionsQueue(action);
+            }
         }
-        else {
-            actionService.addOnlyActionIfAbsent(action);
-            addToActionsQueue(action);
-        }
+    }
 
+    private boolean isPerformanceImprovementEnabled(Instant notBefore) {
+        boolean isEnabled = false;
+        Instant startDate = Instant.parse(configs.getPerformanceImprovementStartDate());
+        Instant endDate = Instant.parse(configs.getPerformanceImprovementEndDate());
+        if ( notBefore.compareTo(startDate) >= 0 && notBefore.compareTo(endDate) <= 0) {
+            isEnabled = true;
+        }
+        return isEnabled;
     }
 
     @Override
@@ -163,19 +176,21 @@ public class ActionsPoolImpl implements ActionsPool {
             log.debug("timeSlot size is {}", actionList.size());
             
             for(Action action: actionList){
-                /*Viene verificato se si sta andando oltre il lockAtMostFor, in quel caso per evitare che il lock si sblocchi quando un nodo sta ancora lavorando,
-                si esce semplicemente dal for */
-                Duration timeSpent = getTimeSpent(start);
-                Duration closeToLookAtMostFor = lockAtMostFor.minus(timeToBreak);
-                
-                if(timeSpent.compareTo(closeToLookAtMostFor) < 0){
-                    if(start.isAfter(action.getNotBefore())){
-                        this.scheduleOne(action, timeSlot);
+                if(!isPerformanceImprovementEnabled(action.getNotBefore())) {
+                    /*Viene verificato se si sta andando oltre il lockAtMostFor, in quel caso per evitare che il lock si sblocchi quando un nodo sta ancora lavorando,
+                    si esce semplicemente dal for */
+                    Duration timeSpent = getTimeSpent(start);
+                    Duration closeToLookAtMostFor = lockAtMostFor.minus(timeToBreak);
+
+                    if(timeSpent.compareTo(closeToLookAtMostFor) < 0){
+                        if(start.isAfter(action.getNotBefore())){
+                            this.scheduleOne(action, timeSlot);
+                        }
+                    } else {
+                        log.warn("Polling is interrupted because it is very close to lockAtMostFor");
+                        toBreak = true;
+                        break;
                     }
-                } else {
-                    log.warn("Polling is interrupted because it is very close to lockAtMostFor");
-                    toBreak = true;
-                    break;
                 }
             }
             

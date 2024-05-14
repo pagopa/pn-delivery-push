@@ -29,6 +29,11 @@ public class ActionServiceImpl implements ActionService {
     }
 
     @Override
+    public void addOnlyAction(Action action) {
+        actionDao.addOnlyAction(action);
+    }
+
+    @Override
     public Optional<Action> getActionById(String actionId) {
         return actionDao.getActionById(actionId);
     }
