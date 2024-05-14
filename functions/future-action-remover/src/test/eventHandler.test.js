@@ -2,7 +2,7 @@
 const { expect } = require("chai");
 const { describe, it, before, after } = require("mocha");
 const proxyquire = require("proxyquire").noPreserveCache();
-const { parseISO, nextTimeSlot } = require("../app/timeHelper");
+const { parseISO, nextTimeSlot, isAfter } = require("../app/timeHelper");
 
 describe("eventHandler tests", () => {
   it("first test", async () => {
@@ -18,6 +18,7 @@ describe("eventHandler tests", () => {
         },
         parseISO,
         nextTimeSlot,
+        isAfter,
       },
 
       "./dynamoFunctions.js": {
