@@ -7,11 +7,17 @@ async function getQueueNameFromParameterStore(actionType, details, parameterStor
     return queueName;
 }
 
-async function getQueueName(actionType, details, envVarName) {
+async function getQueueName(actionType, details, envVarMapQueueName) {
     const completeActionType = getCompleteActionType(actionType, details);
     console.log("Complete action type: ", completeActionType);
-    const queueName = getQueueFromEnvVar(completeActionType, envVarName);
+    const queueName = getQueueNameFromEnvVar(completeActionType, envVarMapQueueName);
     return queueName;
+}
+
+async function getQueueUrl(actionType, details, envVarMapQueueName, envVarMapUrlName) {
+    const queueName = await getQueueName(actionType, details, envVarMapQueueName);
+    const queueUrl = await getQueueUrlFromEnvVar(queueName, envVarMapUrlName);
+    return queueUrl;
 }
 
 function getCompleteActionType(actionType, details) {
@@ -24,8 +30,26 @@ function getCompleteActionType(actionType, details) {
     return actionType;
 }
 
-function getQueueFromEnvVar(completeActionType, envVarName) {
-    const envVarValue = process.env[envVarName];
+async function getQueueUrlFromEnvVar(queueName, envVarMapUrlName) {
+    const envVarValue = process.env[envVarMapUrlName];
+    var jsonMap;
+    try {
+        jsonMap = JSON.parse(envVarValue);
+    } catch(ex) {
+        console.error("Invalid env var value: ", envVarValue);
+        throw new Error("Invalid env var value");
+    }
+    const queueUrl = jsonMap[queueName];
+    if (!queueUrl) {
+        console.error("Unable to find queue url for queue: ", queueName);
+        throw new Error("Unable to find queue url");
+    }
+    console.log("found queueUrl: ", queueUrl);
+    return queueUrl;
+}
+
+function getQueueNameFromEnvVar(completeActionType, envVarMapQueueName) {
+    const envVarValue = process.env[envVarMapQueueName];
     var jsonMap;
     try {
         jsonMap = JSON.parse(envVarValue);
@@ -58,5 +82,6 @@ async function getQueueFromParameterStore(completeActionType, parameterStoreName
 
 module.exports = {
     getQueueNameFromParameterStore,
-    getQueueName
+    getQueueName,
+    getQueueUrl
 }
