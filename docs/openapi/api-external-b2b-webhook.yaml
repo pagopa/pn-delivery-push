@@ -4,16 +4,14 @@
 # <span id="webhookTtl">7</span> pn.delivery-push.webhook.ttl = retention per gli eventi webhook PN-2264
 openapi: 3.0.3
 info:
-  termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
+  termsOfService: https://selfcare.notifichedigitali.it/termini-di-servizio
   title: 'Piattaforma Notifiche: API B2B avanzamento notifiche'
   x-summary: 'API B2B avanzamento notifiche'
   version: '2.3.0'
   #  x-api-id: api-external-b2b-webhook # ONLY EXTERNAL
   contact:
-    email: pn-supporto-enti@pagopa.it
-  license:
-    name: Licenza di PN
-    url: 'https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html'
+    name: 'SEND: supporto enti'
+    url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
   description: >-
     I mittenti di notifiche possono seguire il loro flusso di avanzamento in modo automatico.
 
@@ -24,7 +22,7 @@ info:
       - inserimento di elementi di timeline delle notifiche
 
 
-    E' possibile definire fino ad un __massimo di <span id="webhookMaxStreams">10</span>
+    É possibile definire fino ad un __massimo di <span id="webhookMaxStreams">10</span>
     configurazioni di flussi attive per singola PA__.
 
 
@@ -186,7 +184,7 @@ info:
     filtrati in base alla configurazione impostata negli streams.
 
 
-    La api restituisce un __massimo di <span id="webhookMaxLength">50</span> elementi per chiamata__.
+    La API restituisce un __massimo di <span id="webhookMaxLength">50</span> elementi per chiamata__.
 
 
     Se esistono ulteriori eventi nello stream, allora la response del servizio
@@ -432,7 +430,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      summary: Leggi metadati dello stream
+      summary: Leggi metadata dello stream
       description: >-
         Lettura delle configurazioni di uno stream di eventi.
       tags:
