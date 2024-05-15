@@ -104,7 +104,7 @@ async function handleEvent(event, context) {
       if (lastDestination && currentDestination != lastDestination) {
         // send records to previous destination
         const notSended = await sendMessages(
-          lastDestination,
+          destinationsEndPoint[lastDestination],
           actions,
           isTimedOut
         );
