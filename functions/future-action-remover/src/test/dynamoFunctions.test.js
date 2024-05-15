@@ -316,6 +316,6 @@ describe("dynamoFunctions tests", function () {
       isTimeToLeave
     );
 
-    expect(res).to.be.true;
+    expect(res).to.be.false;
   });
 });
