@@ -15,9 +15,17 @@ public class ConsoleAppenderCustom extends ConsoleAppender<ILoggingEvent> {
     private static List<LogEvent> eventListWarning
         = new ArrayList<>();
 
+    private static List<LogEvent> allEvents = new ArrayList<>();
+
     @Override
     protected void append(ILoggingEvent event) {
         super.append(event);
+        allEvents.add(LogEvent.builder()
+            .classPath(event.getLoggerName())
+            .message(event.getFormattedMessage())
+            .logLevel(LogLevel.valueOf(event.getLevel().levelStr))
+            .build());
+
         if(Level.ERROR.equals(event.getLevel())){
             
             eventList.add(LogEvent.builder()
@@ -46,6 +54,14 @@ public class ConsoleAppenderCustom extends ConsoleAppender<ILoggingEvent> {
 
     public static void checkWarningLogs(String acceptedError){
         checkLogs(eventListWarning, acceptedError);
+    }
+
+    public static void checkAuditLog(String message){
+        long count = allEvents.stream().filter( event ->
+            event.getMessage().contains(message)
+            && event.getClassPath().equals("it.pagopa.pn.commons.log.PnAuditLog")).count();
+
+        if (count == 0) throw new RuntimeException("Expcted AUDIT_LOG not found");
     }
 
     private static void checkLogs(List<LogEvent> list, String acceptedError){

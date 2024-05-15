@@ -10,9 +10,6 @@ info:
 
   contact:
     email: pn@pagopa.it
-  license:
-    name: Licenza di PN
-    url: 'https://da-definire/'
 servers:
 - url: https://api.pn.pagopa.it
   description: Ambiente di produzione

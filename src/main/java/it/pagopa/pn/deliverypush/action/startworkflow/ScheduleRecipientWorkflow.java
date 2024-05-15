@@ -22,8 +22,9 @@ public class ScheduleRecipientWorkflow {
     private final SchedulerService schedulerService;
     private final NotificationUtils notificationUtils;
 
-    public void startScheduleRecipientWorkflow(NotificationInt notification) {
-        log.info( "StartScheduleRecipientWorkflow for iun={}", notification.getIun());
+    public void startScheduleRecipientWorkflow(String iun) {
+        log.info( "StartScheduleRecipientWorkflow for iun={}", iun);
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         Map<String, String> quickAccessLinkTokens = notificationService.getRecipientsQuickAccessLinkToken(notification.getIun());
 

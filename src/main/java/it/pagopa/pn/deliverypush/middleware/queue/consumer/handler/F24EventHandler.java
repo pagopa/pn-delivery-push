@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
+import it.pagopa.pn.api.dto.events.DetailedTypePayload;
 import it.pagopa.pn.api.dto.events.PnF24MetadataValidationEndEvent;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24.PnF24Client;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
@@ -19,12 +20,12 @@ public class F24EventHandler {
     private F24ResponseHandler handler;
 
     @Bean
-    public Consumer<Message<PnF24MetadataValidationEndEvent.Detail>> pnF24EventInboundConsumer() {
+    public Consumer<Message<DetailedTypePayload>> pnF24EventInboundConsumer() {
         return message -> {
             try {
                 log.debug("Handle message from {} with content {}", PnF24Client.CLIENT_NAME, message);
-                PnF24MetadataValidationEndEvent.Detail event = message.getPayload();
-                handler.handleResponseReceived(event);
+                DetailedTypePayload event = message.getPayload();
+                handler.handleEventF24(event);
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
@@ -32,4 +33,7 @@ public class F24EventHandler {
 
         };
     }
+
+
+
 }
