@@ -25,13 +25,13 @@ async function getActionsByTimeSlot(
 ) {
   const params = {
     TableName: tableName,
-    KeyConditionExpression:
-      "timeSlot = :ts and notBefore >= :tS and notBefore <= :tE",
+    KeyConditionExpression: "timeSlot = :ts",
     ExpressionAttributeValues: {
       ":ts": timeSlot,
       ":tS": startTime,
       ":tE": endTime,
     },
+    FilterExpression: "notBefore >= :tS AND notBefore <= :tE",
   };
 
   console.debug(

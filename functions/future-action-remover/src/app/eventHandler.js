@@ -1,6 +1,6 @@
 const {
   nextTimeSlot,
-  isAfter,
+  isAfterEq,
   parseISO,
   actTime,
   toString: dateToString,
@@ -61,7 +61,7 @@ async function handleEvent(event, context) {
   console.debug("[FUTURE_ACTIONS_REMOVER]", "NEXT TIMESLOT", startTimeSlot);
 
   const workingTime = await getWorkingTime();
-  while (isAfter(endTimeSlot, startTimeSlot)) {
+  while (isAfterEq(endTimeSlot, startTimeSlot)) {
     let lastEvaluatedKey = undefined;
 
     const isTimingOut = (context) => () => isTimeToLeave(context);
