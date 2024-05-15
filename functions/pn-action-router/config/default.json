@@ -16,5 +16,7 @@
       "TimeoutError",
       "RequestTimeout",
       "RequestTimeoutException"
-    ]
+    ],
+    "QUEUE_ENDPOINTS_ENV_VARIABLE": "QUEUE_URL_MAP",
+    "ACTION_MAP_ENV_VARIABLE": "ACTION_QUEUE_MAP"
   }

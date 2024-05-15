@@ -10,7 +10,7 @@ const ddbClient = new DynamoDBClient();
 const ddbDocClient = DynamoDBDocument.from(ddbClient, {
   marshallOptions: {
     removeUndefinedValues: true,
-  },
+  }
 });
 
 async function writeMessagesToDynamo(arrayActionToStore, context) {
@@ -107,17 +107,17 @@ function getFutureAction(action){
 function getActionDetails(actionDetails) {
     if (actionDetails) {
         return {
-        quickAccessLinkToken: actionDetails.quickAccessLinkToken,
-        key: actionDetails.key,
-        documentCreationType: actionDetails.documentCreationType,
-        timelineId: actionDetails.timelineId,
-        retryAttempt: actionDetails.retryAttempt,
-        startWorkflowTime: actionDetails.startWorkflowTime,
-        errors: actionDetails.errors,
-        isFirstSendRetry: actionDetails.isFirstSendRetry,
-        alreadyPresentRelatedFeedbackTimelineId:
-            actionDetails.alreadyPresentRelatedFeedbackTimelineId,
-        lastAttemptAddressInfo: actionDetails.lastAttemptAddressInfo,
+          quickAccessLinkToken: actionDetails.quickAccessLinkToken,
+          key: actionDetails.key,
+          documentCreationType: actionDetails.documentCreationType,
+          timelineId: actionDetails.timelineId,
+          retryAttempt: actionDetails.retryAttempt,
+          startWorkflowTime: actionDetails.startWorkflowTime,
+          errors: actionDetails.errors,
+          isFirstSendRetry: actionDetails.isFirstSendRetry,
+          alreadyPresentRelatedFeedbackTimelineId:
+          actionDetails.alreadyPresentRelatedFeedbackTimelineId,
+          lastAttemptAddressInfo: actionDetails.lastAttemptAddressInfo,
         };
     }
     return actionDetails;

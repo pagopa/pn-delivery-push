@@ -4,6 +4,8 @@ const { writeMessagesToQueue } = require("./sqs/writeToSqs.js");
 const { writeMessagesToDynamo } = require("./dynamo/writeToDynamo.js");
 const { insideWorkingWindow, getWorkingTime } = require("./utils/workingTimeUtils.js");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
+const { ActionUtils } = require("pn-action-common");
+const config = require("config");
 
 async function handleEvent(event, context){
   let notSendedActions = await startHandleEvent(event, context);
@@ -68,7 +70,12 @@ async function startHandleEvent(event, context) {
             console.log("All items are sent correctly")
             actionToSend = [];
           }
-          let currentDestinationQueue = getActionDestination(action);
+          let currentDestinationQueue = await ActionUtils.getQueueUrl(
+            action?.type,
+            action?.details,
+            config.get("ACTION_MAP_ENV_VARIABLE"),
+            config.get("QUEUE_ENDPOINTS_ENV_VARIABLE")
+          );
           if (currentDestinationQueue != lastDestinationQueue && actionToSend.length > 0) {
             console.log('currentDestinationQueue is different from lastDestination, need to send message ')
   

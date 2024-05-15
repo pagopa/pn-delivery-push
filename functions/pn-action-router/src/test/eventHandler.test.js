@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const proxyquire = require("proxyquire").noPreserveCache();
 const { describe, it } = require('mocha');
+const config = require("config");
 
 const futureActionDate = getFutureActionDate();
 const immediateAction = getImmediateActionDate();
@@ -23,14 +24,9 @@ const eventHandler = proxyquire.noCallThru().load("../app/eventHandler.js", {
         return isoDateNow < notBefore;
       }
     },
-    "./utils/getActionDestination.js": {
-      getActionDestination: (action) => {
-        return action.destinationQueueName; //viene inserita in fase di test la destination
-      }
-    },
 
     "./sqs/writeToSqs.js": {
-        writeMessagesToQueue: async (actionsToSend, context, destinationQueueName) =>{
+        writeMessagesToQueue: async (actionsToSend, context, destinationQueueUrl) =>{
             let notSendedImmediateActions = [];
 
             //Vengono aggiunte le azioni inviate all'array delle azioni inviate in coda
@@ -41,7 +37,7 @@ const eventHandler = proxyquire.noCallThru().load("../app/eventHandler.js", {
                 console.log('[TEST] action is not to fail ', action)
 
                 let copiedAction = Object.assign({}, action);
-                copiedAction.destinationQueueName = destinationQueueName;
+                copiedAction.destinationQueueUrl = destinationQueueUrl;
                 sendedActionToQueue.push(copiedAction);  
               }else{
                 //viene simulato il fallimento nell'invio di un action alla coda
@@ -74,21 +70,37 @@ const eventHandler = proxyquire.noCallThru().load("../app/eventHandler.js", {
 });
 
 describe("eventHandlerTest", function () {
+  let queueAction1Url = "https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions1";
+  let queueAction2Url = "https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions2";
+
+  before(() => {
+    process.env[config.get("ACTION_MAP_ENV_VARIABLE")] =
+      '{"DOCUMENT_CREATION_RESPONSE_SENDER_ACK":"actionId-queue2","DOCUMENT_CREATION_RESPONSE":"actionId-queue2","NOTIFICATION_CREATION":"actionId-queue2","NOTIFICATION_VALIDATION":"actionId-queue1"}';
+    
+    process.env[config.get("QUEUE_ENDPOINTS_ENV_VARIABLE")] =
+      '{"actionId-queue2":"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions2", "actionId-queue1":"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions1"}';
+  });
+
+  after(() => {
+    delete process.env[[config.get("ACTION_MAP_ENV_VARIABLE")]];
+    delete process.env[[config.get("QUEUE_ENDPOINTS_ENV_VARIABLE")]];
+  });
+
   it("complete-test", async () => {
     //GIVEN
     initializeMockData()
     let isActionToFail = false;
 
     //Vengono definite le action da sottoporre al test
-    let futureAction1Data = getData('futureAction1', futureActionDate, null, true, isActionToFail);
-    let immAction1Data = getData('immediateAction1', immediateAction, queue1, false, isActionToFail);
-    let immAction2Data = getData('immediateAction2', immediateAction, queue1, false, isActionToFail);
-    let futureAction2Data = getData('futureAction2', futureActionDate, null, true, isActionToFail);
-    let immAction3Data = getData('immediateAction3', immediateAction, queue2, false, isActionToFail);
-    let immAction4Data = getData('immediateAction4', immediateAction, queue2, false, isActionToFail);
-    let immAction5Data = getData('immediateAction5', immediateAction, queue1, false, isActionToFail);
-    let futureAction3Data = getData('futureAction3', futureActionDate, null, true, isActionToFail);
-    let futureAction4Data = getData('futureAction4', futureActionDate, null, true, isActionToFail);
+    let futureAction1Data = getData('futureAction1', futureActionDate, 'REFINEMENT', true, isActionToFail, null);
+    let immAction1Data = getData('immediateAction1', immediateAction, 'NOTIFICATION_VALIDATION', false, isActionToFail, queueAction1Url);
+    let immAction2Data = getData('immediateAction2', immediateAction, 'NOTIFICATION_VALIDATION', false, isActionToFail, queueAction1Url);
+    let futureAction2Data = getData('futureAction2', futureActionDate, 'DIGITAL_DELIVERY', true, isActionToFail, null);
+    let immAction3Data = getData('immediateAction3', immediateAction, 'NOTIFICATION_CREATION', false, isActionToFail, queueAction2Url);
+    let immAction4Data = getData('immediateAction4', immediateAction, 'NOTIFICATION_CREATION', false, isActionToFail, queueAction2Url);
+    let immAction5Data = getData('immediateAction5', immediateAction, 'NOTIFICATION_VALIDATION', false, isActionToFail, queueAction1Url);
+    let futureAction3Data = getData('futureAction3', futureActionDate, 'NOTIFICATION_VIEWED', true, isActionToFail, null);
+    let futureAction4Data = getData('futureAction4', futureActionDate, 'NOTIFICATION_PAID', true, isActionToFail, null);
 
     //Viene definito l'array delle action inserite
     let arrayInsertedData = [futureAction1Data,immAction1Data,immAction2Data,futureAction2Data,immAction3Data,immAction4Data,
@@ -118,9 +130,12 @@ describe("eventHandlerTest", function () {
     expect(res).deep.equals({
       batchItemFailures: [],
     });
-
+    
+    let actionToQueueNameMap;
+    let queueNameMapToQueueUrlMap;
+  
     //Viene verificato che le azioni siano state inserite in maniera corretta in futureAction piuttosto che in coda (e nella coda giusta)
-    checkAllEventSentToCorrectDestination(arrayInsertedData, sendedActionToDynamo, sendedActionToQueue);
+    checkAllEventSentToCorrectDestination(arrayInsertedData, sendedActionToDynamo, sendedActionToQueue, actionToQueueNameMap, queueNameMapToQueueUrlMap);
 
   });
 
@@ -133,7 +148,7 @@ describe("eventHandlerTest", function () {
     
 
     //Vengono definite le action da sottoporre al test
-    let futureAction1Data = getData('futureAction1', futureActionDate, null, true, isActionToFail);
+    let futureAction1Data = getData('futureAction1', futureActionDate, 'REFINEMENT', true, isActionToFail, null);
 
     //Viene definito l'array delle action inserite
     let arrayInsertedData = [futureAction1Data];
@@ -165,10 +180,10 @@ describe("eventHandlerTest", function () {
     let isActionToFail = false;
 
     //Vengono definite le action da sottoporre al test
-    let futureAction1Data = getData('futureAction1', futureActionDate, null, true, isActionToFail);
-    let immAction1Data = getData('immediateAction1', immediateAction, queue1, false, isActionToFail);
-    let immAction2Data = getData('immediateAction2', immediateAction, queue1, false, isActionToFail);
-    
+    let futureAction1Data = getData('futureAction1', futureActionDate, 'REFINEMENT', true, isActionToFail, null);
+    let immAction1Data = getData('immediateAction1', immediateAction, 'NOTIFICATION_CREATION', false, isActionToFail, queueAction2Url);
+    let immAction2Data = getData('immediateAction2', immediateAction, 'NOTIFICATION_CREATION', false, isActionToFail, queueAction2Url);
+
     //Viene strutturato l'evento di mock così come lo definisce kinesis
     const mockEvent = {
         Records: [
@@ -201,12 +216,12 @@ describe("eventHandlerTest", function () {
     let isActionToFail = false;
 
     //Vengono definite le action da sottoporre al test
-    let futureAction1Data = getData('futureAction1', futureActionDate, null, true, isActionToFail);
-    let immAction1Data = getData('immediateAction1', immediateAction, queue1, false, isActionToFail);
-    let immAction2Data = getData('immediateAction2', immediateAction, queue1, false, true);
-    let futureAction2Data = getData('futureAction2', futureActionDate, null, true, isActionToFail);
-    let immAction3Data = getData('immediateAction3', immediateAction, queue2, false, isActionToFail);
-
+    let futureAction1Data = getData('futureAction1', futureActionDate, 'REFINEMENT', true, isActionToFail, null);
+    let immAction1Data = getData('immediateAction1', immediateAction, 'NOTIFICATION_VALIDATION', false, isActionToFail, queueAction1Url);
+    let immAction2Data = getData('immediateAction2', immediateAction, 'NOTIFICATION_VALIDATION', false, true, queueAction1Url);
+    let futureAction2Data = getData('futureAction2', futureActionDate, 'REFINEMENT', true, isActionToFail, null);
+    let immAction3Data = getData('immediateAction3', immediateAction, 'NOTIFICATION_CREATION', false, isActionToFail, queueAction2Url);
+ 
     //Viene definito l'array delle action inserite
     let arrayInsertedData = [futureAction1Data ];
     
@@ -222,7 +237,6 @@ describe("eventHandlerTest", function () {
     }
 
     //WHEN
-    console.log("STARTING action-to-fail")
     const res = await eventHandler.handleEvent(mockEvent, contextMock);
 
     //THEN
@@ -249,7 +263,7 @@ describe("eventHandlerTest", function () {
   });
 });
 
-function checkAllEventSentToCorrectDestination(arrayInsertedData, sendedActionToDynamo, sendedActionToQueue){
+function checkAllEventSentToCorrectDestination(arrayInsertedData, sendedActionToDynamo, sendedActionToQueue, actionToQueueNameMap, queueNameMapToQueueUrlMap){
   for (var i = 0; i < arrayInsertedData.length; i++) {
     let actionData = arrayInsertedData[i];
     let actionDataInfo = actionData.dynamodb.NewImage;
@@ -264,7 +278,7 @@ function checkAllEventSentToCorrectDestination(arrayInsertedData, sendedActionTo
       const findInSendToQueue = sendedActionToQueue.filter( actionSendToQueue => 
         actionSendToQueue.actionId == actionDataInfo.actionId.S 
         &&
-        actionSendToQueue.destinationQueueName == actionDataInfo.destinationQueueName.S
+        actionSendToQueue.destinationQueueUrl == actionDataInfo.expectedDestinationQueueUrl.S
       );
       expect(findInSendToQueue.length).deep.equals(1);
     }
@@ -283,7 +297,7 @@ function getRemainingTimeInMillis(){
     return 1000000;
 }
 
-function getData(actionId, notBefore, destinationQueueName, isFutureAction, isActionToFail){
+function getData(actionId, notBefore, actionType, isFutureAction, isActionToFail, expectedDestinationQueueUrl){
   return {
     "isFutureAction": isFutureAction, //ONLY FOR TEST SCOPE
     "eventID": actionId + '_eventId',
@@ -317,16 +331,19 @@ function getData(actionId, notBefore, destinationQueueName, isFutureAction, isAc
              "S":"2024-04-15T20:59"
           },
           "type":{
-             "S": 'ActionType'
+             "S": actionType
           },
           "actionId":{
              "S": actionId
           },
-          "destinationQueueName":{ //ONLY FOR TEST SCOPE
-            "S": destinationQueueName 
+          "details":{
+            "S": 'details' 
          },
          "actionToFail":{ //ONLY FOR TEST SCOPE
           "S": isActionToFail 
+         },
+         "expectedDestinationQueueUrl":{ //ONLY FOR TEST SCOPE
+          "S": expectedDestinationQueueUrl 
          }
        },
        "SizeBytes":407

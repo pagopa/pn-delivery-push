@@ -45,7 +45,7 @@ describe("DynamoDB tests", function () {
     startDate: startDate
   };
 
-  it.only("test persistEvents", async () => {
+  it("test persistEvents", async () => {
     
     // Stubbing isTimeToLeave function
     const isTimeToLeaveStub = sinon.stub().returns(false); // Modifica questo valore a seconda del comportamento che desideri simulare
