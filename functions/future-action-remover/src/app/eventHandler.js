@@ -64,6 +64,7 @@ async function handleEvent(event, context) {
   while (isAfter(endTimeSlot, startTimeSlot)) {
     let lastEvaluatedKey = undefined;
 
+    const isTimingOut = (context) => () => isTimeToLeave(context);
     do {
       if (isTimeToLeave(context)) {
         console.info(
@@ -110,7 +111,13 @@ async function handleEvent(event, context) {
           "[FUTURE_ACTIONS_REMOVER]",
           `REMOVING ${result.items.length} items from ${startTimeSlot}`
         );
-        if (!(await batchDelete(futureActionTable, result.items))) {
+        if (
+          !(await batchDelete(
+            futureActionTable,
+            result.items,
+            isTimingOut(context)
+          ))
+        ) {
           console.warn(
             "[FUTURE_ACTIONS_REMOVER]",
             "Batch delete failure: operation aborted"

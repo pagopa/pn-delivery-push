@@ -213,7 +213,8 @@ describe("dynamoFunctions tests", function () {
 
     const result = await lambda.batchDelete(
       "placeholder",
-      require("./testData/deleteTest-lessBatchSize/dataset.json")
+      require("./testData/deleteTest-lessBatchSize/dataset.json"),
+      () => false
     );
     expect(count).to.be.equal(1);
     expect(result).to.be.true;
@@ -251,9 +252,70 @@ describe("dynamoFunctions tests", function () {
 
     const result = await lambda.batchDelete(
       "placeholder",
-      require("./testData/deleteTest-moreBatchSize/dataset.json")
+      require("./testData/deleteTest-moreBatchSize/dataset.json"),
+      () => false
     );
     expect(result).to.be.true;
     expect(count).to.be.equal(2);
+  });
+
+  it("test BatchDelete: batch operation Error", async () => {
+    // Stubbing DynamoDBClient and DynamoDBDocumentClient
+
+    const testData = require("./testData/deleteTest-moreBatchSize/dataset.json");
+
+    let mockResponse = {
+      UnprocessedItems: {
+        "pn-FutureAction": [
+          {
+            DeleteRequest: {
+              Item: testData[0],
+            },
+          },
+        ],
+      },
+    };
+
+    const DynamoDBClientStub = sinon.stub();
+    const batchWriteStub = sinon.stub();
+
+    // Assegna la funzione di stubbing al metodo batchWrite di DynamoDBDocumentClient
+    DynamoDBClientStub.prototype.batchWrite = batchWriteStub;
+    batchWriteStub.returns(mockResponse);
+    let count = 0;
+    const lambda = proxyquire.noCallThru().load("../app/dynamoFunctions.js", {
+      "@aws-sdk/lib-dynamodb": {
+        DynamoDBClient: DynamoDBClientStub,
+        BatchWriteCommand: sinon.stub(),
+        DynamoDBDocumentClient: {
+          from: () => ({
+            batchWrite: batchWriteStub,
+            send: (params) => {
+              count++;
+
+              return mockResponse;
+            },
+          }),
+        },
+      },
+    });
+
+    let retryNo = 0;
+    const MAX_RETRY_NO = 5;
+
+    const isTimeToLeave = () => {
+      retryNo++;
+      if (retryNo < MAX_RETRY_NO) return false;
+
+      return true;
+    };
+
+    const res = await lambda.batchDelete(
+      "placeholder",
+      testData,
+      isTimeToLeave
+    );
+
+    expect(res).to.be.true;
   });
 });

@@ -17,7 +17,7 @@ const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
 const config = require("config");
 const MAX_BATCH_SIZE = config.get("MAX_BATCH_SIZE");
-
+const SLEEP_FOR_UNPROCESSED = config.get("SLEEP_FOR_UNPROCESSED");
 async function getActionsByTimeSlot(
   tableName,
   { timeSlot, startTime, endTime },
@@ -92,7 +92,15 @@ const _chunkIntoN = (arr, chunkSize) => {
   return chunks;
 };
 
-async function batchDelete(tableName, items) {
+async function _wait(delay) {
+  console.debug(
+    "[FUTURE_ACTIONS_REMOVER]",
+    `SLEEPING FOR ${delay} milliseconds`
+  );
+  return new Promise((resolve) => setTimeout(resolve, delay));
+}
+
+async function batchDelete(tableName, items, isTimingOut) {
   let chunks = _chunkIntoN(items, MAX_BATCH_SIZE);
   console.debug(
     "[FUTURE_ACTIONS_REMOVER]",
@@ -116,6 +124,8 @@ async function batchDelete(tableName, items) {
     });
     let doCycle = true;
     while (doCycle) {
+      if (isTimingOut()) return false;
+
       const res = await ddbDocClient.send(command);
 
       if (Object.keys(res.UnprocessedItems).length !== 0) {
@@ -128,6 +138,7 @@ async function batchDelete(tableName, items) {
         command = new BatchWriteCommand({
           RequestItems: res.UnprocessedItems,
         });
+        await _wait(SLEEP_FOR_UNPROCESSED);
       } else doCycle = false;
     }
   }

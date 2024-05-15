@@ -66,7 +66,7 @@ const testOverride = (
           return { items: testData, lastEvaluatedKey: 1 };
         }
       },
-      batchDelete: async (_unused1, _unused2) => {
+      batchDelete: async (_unused1, _unused2, _unused3) => {
         deletion[currSlot] != undefined
           ? deletion[currSlot]++
           : (deletion[currSlot] = 1);
