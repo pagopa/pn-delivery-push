@@ -310,7 +310,7 @@ class LegalFactPdfGeneratorTest {
                         .build();
                 String quickAccessToken = "test";
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
-                        .recipientType(RecipientTypeInt.PG)
+                        .recipientType(RecipientTypeInt.PF)
                         .denomination("Lorem ipsum dolor sit")
                         .taxId("LRMPSM80A01H501U")
                         .build();
