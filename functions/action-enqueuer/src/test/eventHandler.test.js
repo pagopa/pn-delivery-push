@@ -9,10 +9,14 @@ describe("eventHandler test ", function () {
   before(() => {
     process.env[config.get("ACTION_MAP_ENV_VARIABLE")] =
       '{"DOCUMENT_CREATION_RESPONSE_SENDER_ACK":"actionId-queue2","DOCUMENT_CREATION_RESPONSE":"actionId-queue2","NOTIFICATION_CREATION":"actionId-queue2","NOTIFICATION_VALIDATION":"actionId-queue1"}';
+
+    process.env[config.get("QUEUE_ENDPOINTS_ENV_VARIABLE")] =
+      '{"actionId-queue2":"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions2", "actionId-queue1":"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions1"}';
   });
 
   after(() => {
     delete process.env[[config.get("ACTION_MAP_ENV_VARIABLE")]];
+    delete process.env[[config.get("QUEUE_ENDPOINTS_ENV_VARIABLE")]];
   });
 
   it("send record in oneQueue - one element", async () => {

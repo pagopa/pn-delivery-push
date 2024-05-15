@@ -79,7 +79,6 @@ async function handleEvent(event, context) {
 
   let actions = [];
   let lastDestination;
-  const destinationsEndPoint = JSON.parse(config.get("QUEUE_ENDPOINTS"));
 
   for (let i = 0; i < event.Records.length; i++) {
     let record = event.Records[i];
@@ -93,18 +92,31 @@ async function handleEvent(event, context) {
 
       action.seqNo = record.kinesis.sequenceNumber;
 
-      let currentDestination = await ActionUtils.getQueueName(
-        action?.type,
-        action?.details,
-        config.get("ACTION_MAP_ENV_VARIABLE")
-      );
+      let currentDestination;
+      try {
+        currentDestination = await ActionUtils.getQueueUrl(
+          action?.type,
+          action?.details,
+          config.get("ACTION_MAP_ENV_VARIABLE"),
+          config.get("QUEUE_ENDPOINTS_ENV_VARIABLE")
+        );
+      } catch (e) {
+        console.error(
+          "[ACTION_ENQUEUER]",
+          `No endpoint queue for action`,
+          action,
+          e
+        );
+        emptyResult.batchItemFailures.push(action.seqNo);
+        return emptyResult;
+      }
 
-      console.debug("CODA ATTUALE", currentDestination);
+      console.debug("ENDOPINT ATTUALE", currentDestination);
       //  destination changed
       if (lastDestination && currentDestination != lastDestination) {
         // send records to previous destination
         const notSended = await sendMessages(
-          destinationsEndPoint[lastDestination],
+          lastDestination,
           actions,
           isTimedOut
         );
@@ -115,15 +127,6 @@ async function handleEvent(event, context) {
       }
       //destination endpoint update
       lastDestination = currentDestination;
-      if (!destinationsEndPoint[lastDestination]) {
-        console.error(
-          "[ACTION_ENQUEUER]",
-          `No endpoint URL for ${lastDestination} queue`,
-          destinationsEndPoint
-        );
-        emptyResult.batchItemFailures.push(action.seqNo);
-        return emptyResult;
-      }
 
       actions.push(action);
     } else {
