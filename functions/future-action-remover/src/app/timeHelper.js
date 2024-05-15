@@ -36,7 +36,10 @@ const toString = (d) =>
     suppressSeconds: true,
     includeOffset: false,
   });
-
+console.log(
+  "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+  isAfterEq
+);
 module.exports = {
   nextTimeSlot,
   isAfter,

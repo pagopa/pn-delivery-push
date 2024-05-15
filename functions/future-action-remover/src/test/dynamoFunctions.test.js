@@ -125,13 +125,13 @@ describe("dynamoFunctions tests", function () {
     const keyValue = "2024-05-20T12:00";
     const params = {
       TableName: FUTURE_TABLE_NAME,
-      KeyConditionExpression:
-        "timeSlot = :ts and notBefore >= :tS and notBefore <= :tE",
+      KeyConditionExpression: "timeSlot = :ts",
       ExpressionAttributeValues: {
         ":ts": keyValue,
         ":tS": keyValue,
         ":tE": keyValue,
       },
+      FilterExpression: "notBefore >= :tS AND notBefore <= :tE",
     };
 
     const resultItems = [];
@@ -153,15 +153,16 @@ describe("dynamoFunctions tests", function () {
 
   it("test getActionsByTimeSlot not found", async () => {
     const keyValue = "2024-05-20T12:00";
+
     const params = {
       TableName: FUTURE_TABLE_NAME,
-      KeyConditionExpression:
-        "timeSlot = :ts and notBefore >= :tS and notBefore <= :tE",
+      KeyConditionExpression: "timeSlot = :ts",
       ExpressionAttributeValues: {
         ":ts": keyValue,
         ":tS": keyValue,
         ":tE": keyValue,
       },
+      FilterExpression: "notBefore >= :tS AND notBefore <= :tE",
     };
     const resultItems = [{ iun: "iunTest" }];
 
