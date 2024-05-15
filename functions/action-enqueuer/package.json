@@ -9,7 +9,7 @@
     "zip:code": "zip -r ./code_layer.zip . -x './src/test/*' -x '*.md' -x './nodejs/*' -x './.nyc_output/*' -x './.scannerwork/*' -x './coverage/*' -x '*.env' -x '*.zip'  -x '*.gitignore' -x './node_modules/*'",
     "zip:libs": "zip -r ./lib_layer.zip nodejs -x '*.md'",
     "build:single": "(cd ../../functionsLib/actionCommon && npm prune --production) && npm prune --production && rm -f ./function.zip && npm run-script zip:full",
-    "build:multiLayer": "(cd ../../actionCommon && npm prune --production) && rm -rf nodejs && mkdir -p nodejs && npm prune --production  && cp -Lrf node_modules nodejs && rm -f ./code_layer.zip && npm run-script zip:code && rm -f ./lib_layer.zip && npm run-script zip:libs",
+    "build:multiLayer": "(cd ../../functionsLib/actionCommon && npm prune --production) && rm -rf nodejs && mkdir -p nodejs && npm prune --production  && cp -Lrf node_modules nodejs && rm -f ./code_layer.zip && npm run-script zip:code && rm -f ./lib_layer.zip && npm run-script zip:libs",
     "build": "npm run-script build:single && npm run-script build:multiLayer",
     "test": "(cd ../../functionsLib/actionCommon && npm ci) && nyc --reporter=html --reporter=text mocha './src/test/**/*.test.js' --recursive --timeout=6000 --exit -r dotenv/config",
     "coverage": "nyc report --reporter=lcov",
