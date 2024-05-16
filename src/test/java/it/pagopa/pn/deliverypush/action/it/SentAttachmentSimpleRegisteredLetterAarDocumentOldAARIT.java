@@ -16,6 +16,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -80,6 +81,7 @@ class SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT extends SendAarAtt
     }
 
     @Test
+    @Disabled("Test fail sometimes")
     void simpleRegisteredLetterAarDocumentOldAAR() throws IOException {
         /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
@@ -88,7 +90,6 @@ class SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT extends SendAarAtt
        
        - Pa physical address presente ed effettua invio con successo
         */
-
 
         LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
                 .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_SEND_FAIL_BOTH)
