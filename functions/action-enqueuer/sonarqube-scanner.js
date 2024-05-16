@@ -1,6 +1,6 @@
 const options = {
   "sonar.organization": "pagopa",
-  "sonar.projectKey": "pagopa_pn-auth-fleet_future-action-remover",
+  "sonar.projectKey": "pagopa_pn-delivery-push-ActionEnqueuer",
 };
 
 if (process.env.PR_NUM) {
