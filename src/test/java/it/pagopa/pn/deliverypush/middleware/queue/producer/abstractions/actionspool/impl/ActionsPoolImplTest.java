@@ -100,6 +100,9 @@ class ActionsPoolImplTest {
         List<Action> actions = new ArrayList<>();
         actions.add(action);
 
+        // performance improvement disabled
+        Mockito.when( configs.getPerformanceImprovementStartDate() ).thenReturn( now.plus(Duration.ofSeconds(100)).toString());
+        Mockito.when( configs.getPerformanceImprovementEndDate() ).thenReturn( now.plus(Duration.ofSeconds(200)).toString() );
         Mockito.when(lastFutureActionPoolExecutionTimeDao.getLastPollTime()).thenReturn(Optional.of(lastPool));
         Mockito.when(clock.instant()).thenReturn(now);
         
@@ -181,6 +184,9 @@ class ActionsPoolImplTest {
                 .build();
 
 
+        // performance improvement disabled
+        Mockito.when( configs.getPerformanceImprovementStartDate() ).thenReturn( now.plus(Duration.ofSeconds(100)).toString());
+        Mockito.when( configs.getPerformanceImprovementEndDate() ).thenReturn( now.plus(Duration.ofSeconds(200)).toString() );
 
         //WHEN
         actionsPool.startActionOrScheduleFutureAction(action);
@@ -201,7 +207,9 @@ class ActionsPoolImplTest {
                 .type(ActionType.ANALOG_WORKFLOW)
                 .build();
 
-
+        // performance improvement disabled
+        Mockito.when( configs.getPerformanceImprovementStartDate() ).thenReturn( now.plus(Duration.ofSeconds(100)).toString());
+        Mockito.when( configs.getPerformanceImprovementEndDate() ).thenReturn( now.plus(Duration.ofSeconds(200)).toString() );
 
         //WHEN
         actionsPool.startActionOrScheduleFutureAction(action);
