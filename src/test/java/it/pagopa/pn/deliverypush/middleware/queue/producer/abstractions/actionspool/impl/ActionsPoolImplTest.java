@@ -207,7 +207,6 @@ class ActionsPoolImplTest {
                 .type(ActionType.ANALOG_WORKFLOW)
                 .build();
 
-
         // performance improvement enables
         Mockito.when( configs.getPerformanceImprovementStartDate() ).thenReturn( now.minus(Duration.ofSeconds(100)).toString());
         Mockito.when( configs.getPerformanceImprovementEndDate() ).thenReturn( now.plus(Duration.ofSeconds(200)).toString() );
