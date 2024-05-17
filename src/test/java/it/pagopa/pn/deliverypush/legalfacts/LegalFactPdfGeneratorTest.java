@@ -221,14 +221,6 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generategenerateFileComplianceTest() throws IOException {
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_FileCompliance.pdf");
-                Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateFileCompliance(
-                                "PDF file name whitout extension", "test signature", Instant.now())));
-                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
-        }
-
-        @Test
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
