@@ -51,6 +51,12 @@
     "RaddOperatorCaf": "true",
     "RaddOperatorMooney": "true",
     "RaddOperatorSailpost": "true",
-    "ErrorCorrectionLevelQrCode": "h"
+    "ErrorCorrectionLevelQrCode": "h",
+    "ActionQueueMap": "ACTION_QUEUE_MAP={\"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"PocWrite-PocRouterDLQ\",\"DOCUMENT_CREATION_RESPONSE\":\"PocWrite-PocRouterDLQ\",\"NOTIFICATION_CREATION\":\"PocWrite-PocRouterDLQ\",\"NOTIFICATION_VALIDATION\":\"PocWrite-PocScheduledActionsQueue\"}",
+    "QueueUrlMap": "QUEUE_URL_MAP={\"PocWrite-PocRouterDLQ\":\"https://sqs.eu-central-1.amazonaws.com/830192246553/PocWrite-PocRouterDLQ-eR8Flj4obqXK\", \"PocWrite-PocScheduledActionsQueue\":\"https://sqs.eu-central-1.amazonaws.com/830192246553/PocWrite-PocScheduledActionsQueue-vdcddODDraxb\"}",
+    "ActionRouterKinesisBatchSize": "1",
+    "ActionCdcKinesisStreamShardCount": "12",
+    "ActionCdcKinesisStandardAlarmThresholdsMs": "1000000",
+    "ActionCdcKinesisOnCallAlarmThresholdsMs": "3600000"
   }
 }

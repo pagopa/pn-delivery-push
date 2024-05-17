@@ -62,6 +62,14 @@ Parameters:
     Type: String
     Description: 'Defines how long before the attachment retention expires need to start "check attachment retention"'
   
+  ActionQueueMap:
+    Type: String
+    Description: 'Define relation from actionType to sqs queue name'
+  
+  QueueUrlMap:
+    Type: String
+    Description: 'Define relation from queue name to sqs queue url'
+    
   AttachmentTimeToAddAfterExpiration:
     Type: String
     Description: 'Time to add when attachment retention is expiring'
@@ -125,11 +133,34 @@ Parameters:
   ScheduledActionsQueueARN:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
+  
+  ScheduledValidationActionsQueueName:
+    Type: String
+    Description: 'Send and pull ready-to-do actions th this queue'
 
+  ScheduledValidationActionsQueueARN:
+    Type: String
+    Description: 'Send and pull ready-to-do actions th this queue'
+  
+  ValidationMessageQueueName:
+    Type: String
+    Description: 'Send and pull ready-to-do actions th this queue'
+
+  ValidationMessageQueueARN:
+    Type: String
+    Description: 'Send and pull ready-to-do actions th this queue'
+  
+  ActionRouterDLQName:
+    Type: String
+    Description: 'DLQ Name for ActionRouterLambda'
+
+  ActionRouterDLQARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouterLambda'
+      
   DoneActionsQueueName:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
-
 
   DoneActionsQueueURL:
     Type: String
@@ -565,7 +596,30 @@ Parameters:
     Type: Number
     Description: 'VersioningV1V2WebhookLambdaProvisionedConcurrency'
     Default: 1
-
+      
+  ActionRouterKinesisBatchSize:
+    Type: Number
+    Description: "Batch size for kinesis to lambda action router"
+  
+  ActionCdcKinesisStreamShardCount:
+    Type: Number
+    Description: "Shard count for action cdc stream kinesis"
+  
+  ActionCdcKinesisStreamRetention:
+    Type: Number
+    Description: "Retention for action cdc stream kinesis"
+  
+  ActionCdcKinesisStandardAlarmThresholdsMs:
+    Type: Number
+    Description: "Standard alarm threshold for action cdc kinesis"
+  
+  ActionCdcKinesisOnCallAlarmThresholdsMs:
+    Type: Number
+    Description: "OnCall alarm threshold for action cdc kinesis"
+    
+  ActionRouterLambdaName:
+    Type: String
+    
   WebhookEventManagerLambdaName:
     Type: String
 
@@ -616,7 +670,10 @@ Parameters:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
 
-
+  ActionCdcKinesisStreamArn:
+    Type: String
+    Description: 'Where to send action CDC'
+    
   #Webhook event manager lambda parameters
   WebhookEventManagerLambdaMaximumBatchingWindowInSeconds:
     Type: String
@@ -1100,7 +1157,129 @@ Resources:
       Parameters:
         FunctionName: !Ref WebhookEventManagerLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+  
+  #TODO Da valutare se portare fuori
+  ActionCdcKinesisStream:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-data-stream.yaml"
+      Parameters:
+        StreamName: "ActionCdcKinesisStream"
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        StreamShardsCount: !Ref ActionCdcKinesisStreamShardCount
+        StreamRetentionHours: !Ref ActionCdcKinesisStreamRetention
+        StandardAlarmThresholdsMs: !Ref ActionCdcKinesisStandardAlarmThresholdsMs
+        OnCallAlarmThresholdsMs: !Ref ActionCdcKinesisOnCallAlarmThresholdsMs
 
+  # CDC to Lambda action router
+  ActionRouterKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: !Ref ActionRouterKinesisBatchSize
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !GetAtt ActionCdcKinesisStream.Outputs.KinesisStreamArn
+      FunctionName: !Ref ActionRouterLambda
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref ActionRouterDLQARN
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      FilterCriteria:
+        { "Filters": [ { "Pattern": '{"data": {"eventName": ["INSERT"]}}' } ] }
+      MaximumBatchingWindowInSeconds: 300
+      MaximumRetryAttempts: 5
+      StartingPosition: TRIM_HORIZON
+
+  ActionRouterLambdaLibrariesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - nodejs18.x
+      Content:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
+      Description: NodeJs Libs layer
+      LayerName: actionRouterLambda-libs-layer
+
+  ActionRouterLambda:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
+      Parameters:
+        FunctionName: !Ref ActionRouterLambdaName
+        Handler: "index.handler"
+        FunctionBucketName: !Ref MicroserviceBucketName
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router.zip"
+        MemorySize: 512
+        Timeout: 10
+        Runtime: nodejs18.x
+        RoleArn: !GetAtt ActionRouterLambdaRole.Arn
+        Layer1: !Ref ActionRouterLambdaLibrariesLayer
+        FunctionEnvEntry1: !Ref ActionQueueMap
+        FunctionEnvEntry2: !Ref QueueUrlMap
+        #TODO Valutare la necessità di inserire la VPC
+  
+  # Lambda function role
+  ActionRouterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-actionRouterLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  ActionRouterLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-ActionRouterLambdaPolicy
+      Roles:
+        - !Ref ActionRouterLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref ActionCdcKinesisStreamArn
+          - Effect: "Allow"
+            Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource:
+              - !Ref ScheduledActionsQueueARN
+              - !Ref ScheduledValidationActionsQueueARN
+              - !Ref ValidationMessageQueueARN
+              - !Ref ActionRouterDLQARN
+          - Effect: Allow
+            Action:
+              - "dynamodb:PutItem"
+              - "dynamodb:BatchWriteItem"
+            Resource:
+              - !Ref FutureActionDynamoTableArn
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
   DeliveryPushMicroservicePublicIoAPI:
