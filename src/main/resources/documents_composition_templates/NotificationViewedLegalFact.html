@@ -27,6 +27,7 @@
         @bottom-center { 
           content: element(footer);
         }
+
       }
 
       * {
@@ -65,11 +66,21 @@
 
       #footer {
         position: running(footer);
+      }
+
+      #footer {
         font-size: 8px;
-        color: #475A6D;
         border-top: 1px solid #E3E7EB;
+        color: #475A6D;
         padding-top: 3mm;
         margin-bottom: 10mm;
+      }
+
+      #disclaimer {
+        padding-bottom: 3mm;
+        font-size: 10px;
+        position: fixed;
+        bottom: 0;
       }
 
       #footer p {
@@ -139,27 +150,30 @@
 	</head>
 	<body>
 		<div class="container">
-          <div id="header" class="row">
+        <div id="header" class="row">
+          <div class="left-col">
+            <img src="images/pn-logo-header.png" style="width:126px; height:35px"  />
+          </div>
+          <div class="right-col">
+            <img src="images/send-logo.png" style="width:81px; height:26.24px;" />
+          </div>
+        </div>
+			<!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
+        <div id="footer">
+          
+          <div class="row" id="pagopa-details">
             <div class="left-col">
-              <img src="images/pn-logo-header.png" style="width:126px; height:35px"  />
+              <p>PagoPA S.p.A.</p>
+              <p>società per azioni con socio unico</p>
+              <p>capitale sociale di euro 1,000,000 interamente versato</p>
+              <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
+              <p>n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009</p>
             </div>
             <div class="right-col">
-              <img src="images/send-logo.png" style="width:81px; height:26.24px;" />
+              <img src="images/pn-logo-footer.png" />
             </div>
           </div>
-			<!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
-      <div id="footer" class="row">
-        <div class="left-col">
-          <p>PagoPA S.p.A.</p>
-          <p>società per azioni con socio unico</p>
-          <p>capitale sociale di euro 1,000,000 interamente versato</p>
-          <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
-          <p>n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009</p>
         </div>
-        <div class="right-col">
-          <img src="images/pn-logo-footer.png" />
-        </div>
-      </div>
 
       <h3 id="subject">Attestazione opponibile a terzi: avvenuto accesso</h3>
       
@@ -245,7 +259,11 @@
           <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>
         </div>
       </div>
+
 		</div>
+    <div class="row" id="disclaimer">
+      <p class="caption">L’attestazione riporta la data in cui il destinatario (o il suo delegato) per la prima volta ha avuto accesso tramite la piattaforma al documento oggetto di notificazione. Ai fini di individuare la giusta data di perfezionamento della notifica, si invita il destinatario (o il suo delegato) a verificare se prima della data di accesso riportata nella presente attestazione, sia scaduto il termine di legge correlato all’invio della notifica al domicilio digitale o in via cartacea, poiché la data di accesso non necessariamente corrisponde alla data di perfezionamento della notifica, che può anche essere antecedente per decorrenza termini.</p>
+    </div>
 	</body>
 </html>
 
