@@ -106,7 +106,7 @@ describe("DynamoDB tests", function () {
 
   });
 
-  it.only("test persistEvents Error", async () => {
+  it("test persistEvents Error", async () => {
     // Stubbing DynamoDBClient and DynamoDBDocumentClient
     const DynamoDBClientStub = sinon.stub();
     const batchWriteStub = sinon.stub();
