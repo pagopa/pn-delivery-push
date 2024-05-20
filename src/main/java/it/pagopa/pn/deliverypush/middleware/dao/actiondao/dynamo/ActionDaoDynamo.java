@@ -61,6 +61,11 @@ public class ActionDaoDynamo implements ActionDao {
     }
 
     @Override
+    public void addOnlyAction(Action action) {
+        actionEntityDao.put(DtoToEntityActionMapper.dtoToEntity(action, actionTtl));
+    }
+
+    @Override
     public void addOnlyActionIfAbsent(Action action) {
         String expression = String.format(
                 "%s(%s)",

@@ -100,6 +100,9 @@ class ActionsPoolImplTest {
         List<Action> actions = new ArrayList<>();
         actions.add(action);
 
+        // performance improvement disabled
+        Mockito.when( configs.getPerformanceImprovementStartDate() ).thenReturn( now.plus(Duration.ofSeconds(100)).toString());
+        Mockito.when( configs.getPerformanceImprovementEndDate() ).thenReturn( now.plus(Duration.ofSeconds(200)).toString() );
         Mockito.when(lastFutureActionPoolExecutionTimeDao.getLastPollTime()).thenReturn(Optional.of(lastPool));
         Mockito.when(clock.instant()).thenReturn(now);
         
@@ -181,12 +184,40 @@ class ActionsPoolImplTest {
                 .build();
 
 
+        // performance improvement disabled
+        Mockito.when( configs.getPerformanceImprovementStartDate() ).thenReturn( now.plus(Duration.ofSeconds(100)).toString());
+        Mockito.when( configs.getPerformanceImprovementEndDate() ).thenReturn( now.plus(Duration.ofSeconds(200)).toString() );
 
         //WHEN
         actionsPool.startActionOrScheduleFutureAction(action);
         //THEN
         Mockito.verify(actionService).addOnlyActionIfAbsent(Mockito.any(Action.class));
         Mockito.verify(actionsQueue).push(Mockito.any(ActionEvent.class));
+    }
+
+    @Test
+    void scheduleFutureActionBeforeWithPerformanceImprovement() {
+        //GIVEN
+        final Instant now = Instant.now();
+        Action action = Action.builder()
+                .iun("01")
+                .actionId("001")
+                .recipientIndex(0)
+                .notBefore(now.minus(Duration.ofSeconds(10)))
+                .type(ActionType.ANALOG_WORKFLOW)
+                .build();
+
+
+        // performance improvement enables
+        Mockito.when( configs.getPerformanceImprovementStartDate() ).thenReturn( now.minus(Duration.ofSeconds(100)).toString());
+        Mockito.when( configs.getPerformanceImprovementEndDate() ).thenReturn( now.plus(Duration.ofSeconds(200)).toString() );
+
+        //WHEN
+        actionsPool.startActionOrScheduleFutureAction(action);
+        //THEN
+        Mockito.verify(actionService).addOnlyAction(Mockito.any(Action.class));
+        Mockito.verify(actionService, Mockito.never()).addOnlyActionIfAbsent(Mockito.any(Action.class));
+        Mockito.verify(actionsQueue, Mockito.never()).push(Mockito.any(ActionEvent.class));
     }
 
     @Test
@@ -201,7 +232,9 @@ class ActionsPoolImplTest {
                 .type(ActionType.ANALOG_WORKFLOW)
                 .build();
 
-
+        // performance improvement disabled
+        Mockito.when( configs.getPerformanceImprovementStartDate() ).thenReturn( now.plus(Duration.ofSeconds(100)).toString());
+        Mockito.when( configs.getPerformanceImprovementEndDate() ).thenReturn( now.plus(Duration.ofSeconds(200)).toString() );
 
         //WHEN
         actionsPool.startActionOrScheduleFutureAction(action);

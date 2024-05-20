@@ -721,6 +721,14 @@ Parameters:
       - "q"
       - "h"
 
+  PerformanceImprovementStartDate:
+    Type: String
+    Description: 'Start Date enable feature flag performance improvement'
+
+  PerformanceImprovementEndDate:
+    Type: String
+    Description: 'End date enable feature flag performance improvement'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -828,6 +836,8 @@ Resources:
         ContainerEnvEntry71: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORMOONEY=${RaddOperatorMooney}'
         ContainerEnvEntry72: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORSAILPOST=${RaddOperatorSailpost}'
         ContainerEnvEntry73: !Sub 'PN_DELIVERYPUSH_ERRORCORRECTIONLEVELQRCODE=${ErrorCorrectionLevelQrCode}'
+        ContainerEnvEntry74: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
+        ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
