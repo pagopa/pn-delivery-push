@@ -142,11 +142,11 @@ Parameters:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
   
-  ValidationMessageQueueName:
+  DeliveryPushValidationInputsQueueName:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
 
-  ValidationMessageQueueARN:
+  DeliveryPushValidationInputsQueueARN:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
   
