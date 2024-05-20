@@ -48,7 +48,7 @@ describe("DynamoDB tests", function () {
   it("test persistEvents", async () => {
     
     // Stubbing isTimeToLeave function
-    const isTimeToLeaveStub = sinon.stub().returns(false); // Modifica questo valore a seconda del comportamento che desideri simulare
+    const isTimeToLeaveStub = sinon.stub().returns(false);
 
     let mockResponse= {
       '$metadata': {
@@ -64,15 +64,12 @@ describe("DynamoDB tests", function () {
     
     let writedActionArray = [];
 
-    // Stubbing DynamoDBClient and DynamoDBDocumentClient
     const DynamoDBClientStub = sinon.stub();
     const batchWriteStub = sinon.stub();
     
-    // Assegna la funzione di stubbing al metodo batchWrite di DynamoDBDocumentClient
     DynamoDBClientStub.prototype.batchWrite = batchWriteStub;
     batchWriteStub.returns(mockResponse);
 
-    // Carica il modulo con il proxyquire e sostituisci le dipendenze necessarie con gli stub creati sopra
     const writeToDynamo = proxyquire("../../app/dynamo/writeToDynamo.js", {
       "@aws-sdk/lib-dynamodb": {
         DynamoDBClient: DynamoDBClientStub,
@@ -109,7 +106,7 @@ describe("DynamoDB tests", function () {
 
   });
 
-  it("test persistEvents Error", async () => {
+  it.only("test persistEvents Error", async () => {
     // Stubbing DynamoDBClient and DynamoDBDocumentClient
     const DynamoDBClientStub = sinon.stub();
     const batchWriteStub = sinon.stub();
@@ -133,11 +130,9 @@ describe("DynamoDB tests", function () {
      }
     }
 
-    // Assegna la funzione di stubbing al metodo batchWrite di DynamoDBDocumentClient
     DynamoDBClientStub.prototype.batchWrite = batchWriteStub;
     batchWriteStub.returns(mockResponse);
 
-    // Carica il modulo con il proxyquire e sostituisci le dipendenze necessarie con gli stub creati sopra
     const writeToDynamo = proxyquire("../../app/dynamo/writeToDynamo.js", {
       "@aws-sdk/lib-dynamodb": {
         DynamoDBClient: DynamoDBClientStub,
@@ -151,8 +146,9 @@ describe("DynamoDB tests", function () {
         isTimeToLeave: (context) =>{
           console.log('Context is ', context);
           var nowDate   = new Date();
-          var seconds = (nowDate.getTime() - context.startDate.getTime()) / 1000;
-          if(seconds > 1){
+          var milliseconds = nowDate.getTime() - context.startDate.getTime() ;
+          console.log('passed millisecond is ', milliseconds)
+          if(milliseconds > 1000){
             return true;
           }
           return false;

@@ -5,6 +5,7 @@ const config = require("config");
 
 const MAX_DYNAMO_BATCH = config.get("MAX_DYNAMO_BATCH");
 const FUTURE_ACTION_TABLE_NAME = config.get("FUTURE_ACTION_TABLE_NAME");
+const MAX_EXPONENTIAL_BACKOFF = config.get("MAX_EXPONENTIAL_BACKOFF");
 
 const ddbClient = new DynamoDBClient();
 const ddbDocClient = DynamoDBDocument.from(ddbClient, {
@@ -21,7 +22,7 @@ async function writeMessagesToDynamo(arrayActionToStore, context) {
       splicedActionsArray.forEach(function (action) {
 
         let futureActionToDynamo = getFutureAction(action);
-        console.log("futureAction is ", futureActionToDynamo);
+        console.log("futureAction to send is ", futureActionToDynamo);
         var futureActionItemDynamo = {
           PutRequest: {
             Item: futureActionToDynamo
@@ -71,22 +72,30 @@ async function handleBatchWriteItems(params, retryCount, context){
       params = {
         RequestItems: res.UnprocessedItems
       };
-      
       retryCount = retryCount + 1;
-      let waitMsTime = 2 ** retryCount * 10;
-      console.log('waitMsTime ', waitMsTime);
+      let waitMsTime = getWaitTime(retryCount);
       await wait(waitMsTime);
-      console.log('sono dopo il wait')
       await handleBatchWriteItems(params, retryCount, context); 
     }
   
   }else{
+    console.warn('Lambda execution time is close to expire, need to return')
     throw new Error('lambda execution time is close to expire');
   }
 }
 
 async function wait(delay) {
   return new Promise(resolve => setTimeout(resolve, delay));
+}
+
+function getWaitTime(retryCount){
+  console.log('Retry count is ', retryCount)
+  let waitMsTime = 2 ** retryCount * 10;
+  console.log('waitMsTime is', waitMsTime)
+
+  if(waitMsTime > MAX_EXPONENTIAL_BACKOFF){
+    return MAX_EXPONENTIAL_BACKOFF;
+  }
 }
 
 function getFutureAction(action){

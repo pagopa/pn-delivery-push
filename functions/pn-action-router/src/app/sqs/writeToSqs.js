@@ -49,7 +49,7 @@ async function writeMessagesToQueue(immediateActions, context, destinationQueueU
       }
     }
     catch (exceptions) {
-      console.log("Error in send sqs message ", exceptions);
+      console.error("Error in send sqs message ", exceptions);
       console.log("Stringfy exception ", JSON.stringify(exceptions));
       if (exceptions.name && TIMEOUT_EXCEPTIONS.includes(exceptions.name)) {
         console.error(
@@ -58,7 +58,7 @@ async function writeMessagesToQueue(immediateActions, context, destinationQueueU
           JSON.stringify(actionsToSendMapped)
         );
       }else{
-        console.log('Generic exception in SQS send message, need to reschedule');
+        console.info('Generic exception in SQS send message, need to reschedule');
         return splicedActionsArray; //Non si conoscono gli item specifici falliti, viene restituito tutto il batch
       }
     }
