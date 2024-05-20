@@ -81,7 +81,21 @@ Resources:
         VisibilityTimeout: 60
         MaxReceiveCount: 10
         DelaySeconds: 1
-
+  
+  # Internal queues
+  ScheduledValidationActionsQueue:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_push_validation_actions'
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10
+        DelaySeconds: 1
+        
   DoneActionsQueue:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -137,7 +151,33 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ: "false"
         QueueHasAlarm: "true"
-
+  
+  ActionRouterDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_push_action_router_DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        QueueHasAlarm: "true"
+  
+  ActionEnqueuerDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_push_action_enqueuer_DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        QueueHasAlarm: "true"
+        
   # Notification Timeline DynamoDB Table
   TimelinesTable:
     Type: AWS::DynamoDB::Table
@@ -430,7 +470,24 @@ Outputs:
   ScheduledActionsQueueAgeAlarmARN:
     Value: !GetAtt ScheduledActionsQueue.Outputs.SqsAgeAlarmArn
     Description: pn-delivery-push actions queue age alarm ARN
-
+  
+  # Scheduled Actions
+  ScheduledValidationActionsQueueName:
+    Value: !GetAtt ScheduledValidationActionsQueue.Outputs.QueueName
+    Description: pn-delivery-push validation actions queue name
+  ScheduledValidationActionsQueueURL:
+    Value: !GetAtt ScheduledValidationActionsQueue.Outputs.QueueURL
+    Description: pn-delivery-push validation actions queue URL
+  ScheduledValidationActionsQueueARN:
+    Value: !GetAtt ScheduledValidationActionsQueue.Outputs.QueueARN
+    Description: pn-delivery-push validation actions queue ARN
+  ScheduledValidationActionsQueueAlarmARN:
+    Value: !GetAtt ScheduledValidationActionsQueue.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery-push validation actions queue dlq alarm queue
+  ScheduledValidationActionsQueueAgeAlarmARN:
+    Value: !GetAtt ScheduledValidationActionsQueue.Outputs.SqsAgeAlarmArn
+    Description: pn-delivery-push validation actions queue age alarm ARN
+  
   # Already Done Actions
   DoneActionsQueueName:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueName
