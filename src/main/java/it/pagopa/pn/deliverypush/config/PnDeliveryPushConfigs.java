@@ -213,6 +213,7 @@ public class PnDeliveryPushConfigs {
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
         private Map<String, String> additional;
+        private String legalFactDisclaimer;
    }
 
     @Data
