@@ -1,0 +1,12 @@
+{
+  "FUTURE_TABLE_NAME": "pn-FutureAction",
+  "LAST_POLL_TABLE_NAME": "pn-LastPollForFutureActionTable",
+  "MAX_BATCH_SIZE": 25,
+  "LAST_WORKED_KEY": "1",
+  "TOLLERANCE_IN_MILLIS": 3000,
+  "featureFlag": {
+    "start": "2024-05-10T12:00",
+    "end": "2026-05-30T12:00"
+  },
+  "SLEEP_FOR_UNPROCESSED": 1000
+}
