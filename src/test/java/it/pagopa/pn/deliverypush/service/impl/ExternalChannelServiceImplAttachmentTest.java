@@ -82,7 +82,9 @@ public class ExternalChannelServiceImplAttachmentTest {
                 notificationProcessCostService,
                 pnSendModeUtils,
                 aarUtils,
-                notificationUtils);
+                notificationUtils,
+                timelineUtils
+                );
 
         externalChannelService = new ExternalChannelServiceImpl(
                 externalChannelUtils,

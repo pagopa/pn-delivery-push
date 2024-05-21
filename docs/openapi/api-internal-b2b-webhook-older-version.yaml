@@ -23,7 +23,7 @@ servers:
 tags:
   - name: HealthCheck
     description: >-
-      Invocazioni per sapere lo stato del microservizio # il servizio è ancora in fase di sviluppo
+      Invocazioni per sapere lo stato del micro-servizio # il servizio è ancora in fase di sviluppo
   - name: Streams
     description: >-
       Gestione degli stream di eventi che PN mette a disposizione
@@ -52,6 +52,7 @@ paths:
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
     post:
+      deprecated: true
       summary: Crea nuovo stream di eventi
       description: >-
         Viene richiesta la creazione di un flusso di eventi specificando se gli eventi saranno
@@ -90,6 +91,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
     get:
+      deprecated: true
       summary: Elenca stream di eventi
       description: >-
         Elenca gli stream di eventi
@@ -125,6 +127,7 @@ paths:
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/pathStreamId'
     get:
+      deprecated: true
       summary: Leggi metadati dello stream
       description: >-
         Permette di leggere le configurazioni di uno stream di eventi.
@@ -154,6 +157,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
     put:
+      deprecated: true
       summary: Update Stream metadata
       description: >-
         Permette di cambiare le configurazioni dei filtri associati a uno stream di eventi
@@ -188,6 +192,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
     delete:
+      deprecated: true
       summary: Remove Event Stream
       description: >-
         Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli eventi
@@ -221,6 +226,7 @@ paths:
 
   '/delivery-progresses/streams/{streamId}/events':
     get:
+      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Permette di leggere gli eventi presenti nello stream di aggiornamenti e indica che

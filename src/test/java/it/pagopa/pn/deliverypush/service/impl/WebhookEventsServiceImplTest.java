@@ -20,6 +20,7 @@ import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
+import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.EventEntityBatch;
@@ -641,6 +642,7 @@ class WebhookEventsServiceImplTest {
 
     @Test
     void consumeEventStreamNotFound() {
+        ConsoleAppenderCustom.initializeLog();
         //GIVEN
         String xpagopacxid = "PA-xpagopacxid";
         String lasteventid = null;
@@ -661,7 +663,9 @@ class WebhookEventsServiceImplTest {
         //THEN
         Mockito.verify(eventEntityDao, Mockito.never()).findByStreamId(Mockito.anyString(), Mockito.any());
         Mockito.verify(schedulerService, Mockito.never()).scheduleWebhookEvent(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
-
+        ConsoleAppenderCustom.checkLogs("[{}] {} - Error in reading stream");
+        ConsoleAppenderCustom.checkAuditLog("BEFORE");
+        ConsoleAppenderCustom.checkAuditLog("FAILURE");
     }
 
     @Test
