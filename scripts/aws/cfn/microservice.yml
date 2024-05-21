@@ -757,16 +757,7 @@ Parameters:
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
-
-Mappings:
-  Mapping:
-    QueueUrl:
-      Name: !Select [ "0", !Ref DeliveryPushInputValidationArrayInfo ]
-    QueueName:
-      Name: !Select [ "1", !Ref DeliveryPushInputValidationArrayInfo ]
       
-#!Select [ "1", !Ref DeliveryPushInputValidationArrayInfo ]
-
 Resources:
 
   # PN-Delivery-push microservice
