@@ -640,3 +640,17 @@ Outputs:
   PaperEventsCostUpdateDLQAlarmARN:
     Value: !GetAtt PaperEventsCostUpdateDLQ.Outputs.SqsDLQAlarmArn
     Description: pn-delivery-push_paper_events_costo_update_DLQ alarm ARN
+  
+  ActionRouterDLQARN:
+    Value: !GetAtt ActionRouterDLQ.Outputs.QueueARN
+    Description: ActionRouterDLQ queue ARN
+  ActionRouterDLQAlarmARN:
+    Value: !GetAtt ActionRouterDLQ.Outputs.SqsDLQAlarmArn
+    Description: ActionRouterDLQ alarm ARN
+  
+  ActionEnqueuerDLQARN:
+    Value: !GetAtt ActionEnqueuerDLQ.Outputs.QueueARN
+    Description: ActionEnqueuerDLQ queue ARN
+  ActionEnqueuerDLQAlarmARN:
+    Value: !GetAtt ActionEnqueuerDLQ.Outputs.SqsDLQAlarmArn
+    Description: ActionEnqueuerDLQ alarm ARN
