@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.exceptions.PnFileGoneException;
 import it.pagopa.pn.deliverypush.exceptions.PnFileNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
@@ -80,7 +81,7 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
                         log.error("File deleted from safeStorage fileKey={} error={}", finalFileKey, error);
                         String errorDetail = "Allegato non disponibile: superati i termini di conservazione. fileKey=" + finalFileKey;
                         return Mono.error(
-                            new PnFileNotFoundException(
+                            new PnFileGoneException(
                                 errorDetail,
                                 error
                             )

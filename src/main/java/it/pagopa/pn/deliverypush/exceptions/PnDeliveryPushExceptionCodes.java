@@ -70,6 +70,7 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DATAVAULT_FAILED = "ERROR_CODE_DATAVAULT_FAILED";
     public static final String ERROR_CODE_EXTERNAL_REGISTRY_GROUP_FAILED = "ERROR_CODE_EXTERNAL_REGISTRY_GROUP_FAILED";
     public static final String ERROR_CODE_DELIVERYPUSH_STREAMNOTFOUND = "PN_DELIVERYPUSH_STREAMNOTFOUND";
+    public static final String ERROR_CODE_DELIVERYPUSH_FILE_GONE = "PN_DELIVERYPUSH_FILE_GONE";
 
     @Getter
     public enum NotificationRefusedErrorCodeInt {
