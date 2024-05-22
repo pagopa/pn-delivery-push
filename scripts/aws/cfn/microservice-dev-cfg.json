@@ -56,6 +56,7 @@
     "QueueUrlMap": "QUEUE_URL_MAP={\"PocWrite-PocRouterDLQ\":\"https://sqs.eu-central-1.amazonaws.com/830192246553/PocWrite-PocRouterDLQ-eR8Flj4obqXK\", \"PocWrite-PocScheduledActionsQueue\":\"https://sqs.eu-central-1.amazonaws.com/830192246553/PocWrite-PocScheduledActionsQueue-vdcddODDraxb\"}",
     "ActionRouterKinesisBatchSize": "1",
     "ActionCdcKinesisStreamShardCount": "12",
+    "ActionCdcKinesisStreamRetention": "15",
     "ActionCdcKinesisStandardAlarmThresholdsMs": "1000000",
     "ActionCdcKinesisOnCallAlarmThresholdsMs": "3600000",
     "PerformanceImprovementStartDate": "2024-06-01T00:00:00Z",

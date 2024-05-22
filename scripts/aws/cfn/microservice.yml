@@ -160,7 +160,19 @@ Parameters:
 
   ActionRouterDLQARN:
     Type: String
-    Description: 'DLQ ARN for ActionRouterLambda'
+    Description: 'DLQ ARN for ActionRouter lambda'
+  
+  ActionRouterDLQAlarmARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
+
+  ActionEnqueuerDLQARN:
+    Type: String
+    Description: 'DLQ ARN for ActionEnqueuer lambda'
+    
+  ActionEnqueuerDLQAlarmARN:
+    Type: String
+    Description: 'DLQ ARN for ActionEnqueuer lambda'
       
   DoneActionsQueueName:
     Type: String
@@ -654,20 +666,6 @@ Parameters:
     Type: String
     Description: 'DLQ Alarm ARN for PaperEventsCostUpdateLambda'
   
-  ActionRouterDLQARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-  
-  ActionRouterDLQAlarmARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-
-  ActionEnqueuerDLQARN:
-    Type: String
-    Description: 'DLQ ARN for ActionEnqueuer lambda'
-  ActionEnqueuerDLQAlarmARN:
-    Type: String
-    Description: 'DLQ ARN for ActionEnqueuer lambda'
     
   # Lambda parameters
 
@@ -697,7 +695,7 @@ Parameters:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
 
-  ActionCdcKinesisStreamArn:
+  CdCPnActionArn:
     Type: String
     Description: 'Where to send action CDC'
     
@@ -1300,20 +1298,19 @@ Resources:
               - kinesis:ListShards
               - kinesis:ListStreams
               - kinesis:SubscribeToShard
-            Resource: !Ref ActionCdcKinesisStreamArn
+            Resource: !Ref CdCPnActionArn
           - Effect: "Allow"
             Action:
               - "logs:CreateLogGroup"
               - "logs:CreateLogStream"
               - "logs:PutLogEvents"
             Resource: "*"
-          - Effect: Allow
+          - Effect: Allow 
             Action:
               - sqs:SendMessage
             Resource:
               - !Ref ScheduledActionsQueueARN
               - !Ref ScheduledValidationActionsQueueARN
-              - !Ref ValidationMessageQueueARN
               - !Ref ActionRouterDLQARN
           - Effect: Allow
             Action:
