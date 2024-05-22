@@ -109,11 +109,27 @@ Parameters:
   DeliveryPushInputsQueueAgeAlarmARN:
     Type: String
     Description: pn-delivery-push input queue age alarm ARN
-  
-  DeliveryPushInputValidationArrayInfo:
+    
+  DeliveryPushValidationInputsQueueName:
     Type: String
-    Description: 'pn-delivery-push validation input queue. Parameter [0 = QueueURL, 1 = QueueARN, 2 = QueueName, 3 = SqsDLQAlarmArn, 4 = SqsAgeAlarmArn]'
-  
+    Description: DeliveryPushValidationInputsQueue queue name
+    
+  DeliveryPushValidationInputsQueueURL:
+    Type: String
+    Description: DeliveryPushValidationInputsQueue queue URL
+    
+  DeliveryPushValidationInputsQueueARN:
+    Type: String
+    Description: DeliveryPushValidationInputsQueue queue ARN
+    
+  DeliveryPushValidationInputsQueueAlarmARN:
+    Type: String
+    Description: DeliveryPushValidationInputsQueue alarm ARN
+    
+  DeliveryPushValidationInputsQueueAgeAlarmARN:
+    Type: String
+    Description: DeliveryPushValidationInputsQueue age alarm ARN
+
   ExternalChannelsOutputsQueueName:
     Type: String
     Description: 'Pull external-channel messages from this Queue'
@@ -826,8 +842,7 @@ Resources:
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry29: !Sub
-          - 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${ DeliveryPushInputValidationQueueName}, ${ScheduledValidationActionsQueueName}, ${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
-          - {DeliveryPushInputValidationQueueName:!Select [ "3", !Ref DeliveryPushInputValidationArrayInfo ]}
+          - 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${ DeliveryPushValidationInputsQueueName}, ${ScheduledValidationActionsQueueName}, ${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -909,7 +924,7 @@ Resources:
               - sqs:SendMessageBatch
             Resource:
               - !Ref DeliveryPushInputsQueueARN
-              - !Select [ "1", !Ref DeliveryPushInputValidationArrayInfo ] #1 = QueueARN
+              - !Ref DeliveryPushValidationInputsQueueARN
               - !Ref ExternalChannelsOutputsQueueARN
               - !Ref ScheduledActionsQueueARN
               - !Ref ScheduledValidationActionsQueueARN
@@ -1527,8 +1542,8 @@ Resources:
           - - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !Ref DeliveryPushInputsQueueAlarmARN
             - !Ref DeliveryPushInputsQueueAgeAlarmARN
-            - !Select [ "3", !Ref DeliveryPushInputValidationArrayInfo ] #3 = SqsDLQAlarmArn
-            - !Select [ "4", !Ref DeliveryPushInputValidationArrayInfo ] #4 = SqsAgeAlarmArn
+            - !Ref DeliveryPushValidationInputsQueueAlarmARN
+            - !Ref DeliveryPushValidationInputsQueueAgeAlarmARN
             - !Ref SafeStorageToDeliveryPushQueueAlarmARN
             - !Ref SafeStorageToDeliveryPushQueueAgeAlarmARN
             - !Ref DoneActionsQueueAlarmARN
@@ -1561,7 +1576,7 @@ Resources:
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
-            - !Select [ "1", !Ref DeliveryPushInputValidationArrayInfo ] #1 = QueueARN
+            - !Ref DeliveryPushValidationInputsQueueARN
             - !Ref ExternalChannelsOutputsQueueARN
             - !Ref ScheduledActionsQueueARN
             - !Ref ScheduledValidationActionsQueueARN
