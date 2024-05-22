@@ -57,6 +57,8 @@
     "ActionRouterKinesisBatchSize": "1",
     "ActionCdcKinesisStreamShardCount": "12",
     "ActionCdcKinesisStandardAlarmThresholdsMs": "1000000",
-    "ActionCdcKinesisOnCallAlarmThresholdsMs": "3600000"
+    "ActionCdcKinesisOnCallAlarmThresholdsMs": "3600000",
+    "PerformanceImprovementStartDate": "2024-06-01T00:00:00Z",
+    "PerformanceImprovementEndDate": "2025-06-01T00:00:00Z"
   }
 }

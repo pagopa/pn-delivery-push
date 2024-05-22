@@ -119,6 +119,10 @@ public class PnDeliveryPushConfigs {
 
     private ErrorCorrectionLevel errorCorrectionLevelQrCode;
 
+    private String performanceImprovementStartDate;
+
+    private String performanceImprovementEndDate;
+
     @Data
     public static class Topics {
 

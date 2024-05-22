@@ -117,7 +117,11 @@ Parameters:
   DeliveryPushInputsQueueAgeAlarmARN:
     Type: String
     Description: pn-delivery-push input queue age alarm ARN
-
+  
+  DeliveryPushInputValidationArrayInfo:
+    Type: String
+    Description: 'pn-delivery-push validation input queue. Parameter [0 = QueueURL, 1 = QueueARN, 2 = QueueName, 3 = SqsDLQAlarmArn, 4 = SqsAgeAlarmArn]'
+  
   ExternalChannelsOutputsQueueName:
     Type: String
     Description: 'Pull external-channel messages from this Queue'
@@ -133,7 +137,7 @@ Parameters:
   ScheduledActionsQueueARN:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
-  
+
   ScheduledValidationActionsQueueName:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
@@ -428,6 +432,14 @@ Parameters:
   ScheduledActionsQueueAgeAlarmARN:
     Type: String
     Description: delivery push actions done queue age alarm ARN
+  
+  ScheduledValidationActionsQueueAlarmARN:
+    Type: String
+    Description: delivery push validation actions queue dlq alarm ARN
+    
+  ScheduledValidationActionsQueueAgeAlarmARN:
+    Type: String
+    Description: delivery push validation actions queue age alarm ARN
 
   AlbSecurityGroup:
     Type: String
@@ -641,7 +653,22 @@ Parameters:
   PaperEventsCostUpdateDLQAlarmARN:
     Type: String
     Description: 'DLQ Alarm ARN for PaperEventsCostUpdateLambda'
+  
+  ActionRouterDLQARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
+  
+  ActionRouterDLQAlarmARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
 
+  ActionEnqueuerDLQARN:
+    Type: String
+    Description: 'DLQ ARN for ActionEnqueuer lambda'
+  ActionEnqueuerDLQAlarmARN:
+    Type: String
+    Description: 'DLQ ARN for ActionEnqueuer lambda'
+    
   # Lambda parameters
 
   NotificationCancellationActionInsertLambdaName:
@@ -778,9 +805,17 @@ Parameters:
       - "q"
       - "h"
 
+  PerformanceImprovementStartDate:
+    Type: String
+    Description: 'Start Date enable feature flag performance improvement'
+
+  PerformanceImprovementEndDate:
+    Type: String
+    Description: 'End date enable feature flag performance improvement'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
-  
+      
 Resources:
 
   # PN-Delivery-push microservice
@@ -840,7 +875,9 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
+        ContainerEnvEntry29: !Sub
+          - 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${ DeliveryPushInputValidationQueueName}, ${ScheduledValidationActionsQueueName}, ${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
+          - {DeliveryPushInputValidationQueueName:!Select [ "3", !Ref DeliveryPushInputValidationArrayInfo ]}
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -885,6 +922,8 @@ Resources:
         ContainerEnvEntry71: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORMOONEY=${RaddOperatorMooney}'
         ContainerEnvEntry72: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORSAILPOST=${RaddOperatorSailpost}'
         ContainerEnvEntry73: !Sub 'PN_DELIVERYPUSH_ERRORCORRECTIONLEVELQRCODE=${ErrorCorrectionLevelQrCode}'
+        ContainerEnvEntry74: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
+        ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -920,8 +959,10 @@ Resources:
               - sqs:SendMessageBatch
             Resource:
               - !Ref DeliveryPushInputsQueueARN
+              - !Select [ "1", !Ref DeliveryPushInputValidationArrayInfo ] #1 = QueueARN
               - !Ref ExternalChannelsOutputsQueueARN
               - !Ref ScheduledActionsQueueARN
+              - !Ref ScheduledValidationActionsQueueARN
               - !Ref DoneActionsQueueARN
               - !Ref SafeStorageToDeliveryPushQueueARN
               - !Ref NationalRegistries2DeliveryPushQueueARN
@@ -1658,12 +1699,16 @@ Resources:
           - - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !Ref DeliveryPushInputsQueueAlarmARN
             - !Ref DeliveryPushInputsQueueAgeAlarmARN
+            - !Select [ "3", !Ref DeliveryPushInputValidationArrayInfo ] #3 = SqsDLQAlarmArn
+            - !Select [ "4", !Ref DeliveryPushInputValidationArrayInfo ] #4 = SqsAgeAlarmArn
             - !Ref SafeStorageToDeliveryPushQueueAlarmARN
             - !Ref SafeStorageToDeliveryPushQueueAgeAlarmARN
             - !Ref DoneActionsQueueAlarmARN
             - !Ref DoneActionsQueueAgeAlarmARN
             - !Ref ScheduledActionsQueueAlarmARN
             - !Ref ScheduledActionsQueueAgeAlarmARN
+            - !Ref ScheduledValidationActionsQueueAlarmARN
+            - !Ref ScheduledValidationActionsQueueAgeAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
             - !Ref AddressManagerToDeliveryPushQueueAlarmARN
@@ -1675,6 +1720,8 @@ Resources:
             - !Ref WebhookEventManagerDLQAlarmARN
             - !GetAtt WebhookEventManagerLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PaperEventsCostUpdateDLQAlarmARN
+            - !Ref ActionRouterDLQAlarmARN
+            - !Ref ActionEnqueuerDLQAlarmARN
             - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V2WebhookLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
@@ -1686,8 +1733,10 @@ Resources:
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
+            - !Select [ "1", !Ref DeliveryPushInputValidationArrayInfo ] #1 = QueueARN
             - !Ref ExternalChannelsOutputsQueueARN
             - !Ref ScheduledActionsQueueARN
+            - !Ref ScheduledValidationActionsQueueARN
             - !Ref DoneActionsQueueARN
             - !Ref SafeStorageToDeliveryPushQueueARN
             - !Ref NationalRegistries2DeliveryPushQueueARN
