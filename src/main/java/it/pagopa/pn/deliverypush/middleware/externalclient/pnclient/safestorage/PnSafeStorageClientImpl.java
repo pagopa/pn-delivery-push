@@ -6,10 +6,18 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.exceptions.PnFileNotFoundException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.OperationResultCodeResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileDownloadApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileMetadataUpdateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage_reactive.api.FileUploadApi;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.net.URI;
+import java.net.URL;
 import lombok.CustomLog;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
@@ -26,11 +34,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.net.URI;
-import java.net.URL;
 
 @Component
 @CustomLog
@@ -72,6 +75,15 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
                                         errorDetail,
                                         error      
                                 )
+                        );
+                    } else if(error.getStatusCode().equals(HttpStatus.GONE)){
+                        log.error("File deleted from safeStorage fileKey={} error={}", finalFileKey, error);
+                        String errorDetail = "Allegato non disponibile: superati i termini di conservazione. fileKey=" + finalFileKey;
+                        return Mono.error(
+                            new PnFileNotFoundException(
+                                errorDetail,
+                                error
+                            )
                         );
                     }
                     
