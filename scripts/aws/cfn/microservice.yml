@@ -776,7 +776,7 @@ Parameters:
 
   MountEfs:
     Type: String
-    Default: false
+    Default: "false"
     AllowedValues:
       - "true"
       - "false"
@@ -875,7 +875,7 @@ Resources:
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry29: !Sub
           - 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${ DeliveryPushInputValidationQueueName}, ${ScheduledValidationActionsQueueName}, ${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
-          - {DeliveryPushInputValidationQueueName:!Select [ "3", !Ref DeliveryPushInputValidationArrayInfo ]}
+          - {DeliveryPushInputValidationQueueName: !Select [ "3", !Ref DeliveryPushInputValidationArrayInfo ]}
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
