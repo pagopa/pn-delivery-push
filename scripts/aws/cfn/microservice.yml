@@ -1501,7 +1501,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
-  # Lambda function IAM policy
+  # Lambda function IAM policye 
   PaperEventsCostUpdateLambdaPolicy:
     Type: AWS::IAM::Policy
     Properties:
