@@ -68,6 +68,7 @@ Resources:
             ExposedHeaders:
               - "x-amz-version-id"
   
+  # TODO Da spostare in pn-infra
   #TODO La generazione andrebbe condizionata all'ambiente, ma come posso conoscere l'ambiente?
   ### Communication between PN-DELIVERY and PN-DELIVERY-PUSH - FOR NEW NOTIFICATION EVENT ###
   DeliveryPushValidationInputsQueue:
@@ -602,6 +603,9 @@ Outputs:
 
   VersioningV1V2WebhookLambdaName:
     Value: !Sub "${ProjectName}-versioningV1V2WebhookLambda"
+
+  ValidationMessageEventBridgeToQueueLambdaName:
+    Value: !Sub "${ProjectName}-validationMessageEventBridgeToQueueLambda"
 
   # Webhook Step Manager DLQ
   WebhookEventManagerDLQName:
