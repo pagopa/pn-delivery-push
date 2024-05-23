@@ -1258,8 +1258,14 @@ Resources:
         Runtime: nodejs18.x
         RoleArn: !GetAtt ActionRouterLambdaRole.Arn
         Layer1: !Ref ActionRouterLambdaLibrariesLayer
-        FunctionEnvEntry1: !Ref ActionQueueMap
-        FunctionEnvEntry2: !Ref QueueUrlMap
+        EnvVariables:
+          !Sub [
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap}",
+            {
+              actionQueueMap: !Ref ActionQueueMap,
+              QueueUrlMap: !Ref QueueUrlMap 
+            },
+          ]
         #TODO Valutare la necessità di inserire la VPC
   
   # Lambda function role
