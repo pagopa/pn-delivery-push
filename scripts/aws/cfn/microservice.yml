@@ -359,7 +359,11 @@ Parameters:
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
-
+  
+  CdcPnActionArn:
+    Type: String
+    Description: 'Kinesis stream for pn-action'
+    
   IsMvpDefaultValue:
     Type: String
     Description: 'default value to return if paTaxId not present in parameter store'
@@ -1206,28 +1210,13 @@ Resources:
         FunctionName: !Ref WebhookEventManagerLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
   
-  #TODO Da valutare se portare fuori
-  ActionCdcKinesisStream:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-data-stream.yaml"
-      Parameters:
-        StreamName: "ActionCdcKinesisStream"
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        StreamShardsCount: !Ref ActionCdcKinesisStreamShardCount
-        StreamRetentionHours: !Ref ActionCdcKinesisStreamRetention
-        StandardAlarmThresholdsMs: !Ref ActionCdcKinesisStandardAlarmThresholdsMs
-        OnCallAlarmThresholdsMs: !Ref ActionCdcKinesisOnCallAlarmThresholdsMs
-
   # CDC to Lambda action router
   ActionRouterKinesisSource:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
       BatchSize: !Ref ActionRouterKinesisBatchSize
       BisectBatchOnFunctionError: true
-      EventSourceArn: !GetAtt ActionCdcKinesisStream.Outputs.KinesisStreamArn
+      EventSourceArn: !Ref CdcPnActionArn
       FunctionName: !Ref ActionRouterLambda
       DestinationConfig:
         OnFailure:
