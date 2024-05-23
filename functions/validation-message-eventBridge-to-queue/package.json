@@ -1,5 +1,5 @@
 {
-  "name": "eventbridge-to-action",
+  "name": "validation-message-eventBridge-to-queue",
   "version": "1.0.0",
   "description": "Put Actions in an SQS queue",
   "main": "index.js",

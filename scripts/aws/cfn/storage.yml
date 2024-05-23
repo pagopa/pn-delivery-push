@@ -604,6 +604,9 @@ Outputs:
   VersioningV1V2WebhookLambdaName:
     Value: !Sub "${ProjectName}-versioningV1V2WebhookLambda"
 
+  ValidationMessageEventBridgeToQueueLambdaName:
+    Value: !Sub "${ProjectName}-validationMessageEventBridgeToQueueLambda"
+
   # Webhook Step Manager DLQ
   WebhookEventManagerDLQName:
     Value: !GetAtt WebhookEventManagerDLQ.Outputs.QueueName

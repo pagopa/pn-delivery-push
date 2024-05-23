@@ -601,10 +601,13 @@ Parameters:
     Type: Number
     Description: 'VersioningV1V2WebhookLambdaProvisionedConcurrency'
     Default: 1
-
+  
+  ValidationMessageEventBridgeToQueueLambdaName:
+    Type: String
+    
   WebhookEventManagerLambdaName:
     Type: String
-
+  
   WebhookEventManagerDLQARN:
     Type: String
     Description: 'DLQ ARN for WebhookEventManagerLambda'
@@ -1470,44 +1473,89 @@ Resources:
 #                  "originalEvent": <aws.events.event.json>
 #              }       
         - Id: !Sub '${ProjectName}-CoreEventBus-Delivery2DeliveryPush-Validation'
-          Arn: !Ref PNDeliveryToDeliveryPushValidationFunction
+          Arn: !Ref ValidationMessageEventBridgeToQueueLambda
 #          DeadLetterConfig:   # TODO Da decommentare in pn-infra
 #            Arn: !GetAtt EventBusDeadLetterQueue.Arn  
   
   # TODO Da spostare in pn-infra
-  # Lambda validation message from delivery (eventBridge) to delivery-push
-  PNDeliveryToDeliveryPushValidationFunction:
-    Type: AWS::Lambda::Function
+  ValidationMessageEventBridgeToQueueLambdaLibrariesLayer:
+    Type: AWS::Lambda::LayerVersion
     Properties:
-      FunctionName: PNDeliveryToDeliveryPushValidationLimiterFunction
-      Environment:
-        Variables:
-          QUEUE_URL: !Ref DeliveryPushValidationInputsQueueURL
-      Code:
-        ZipFile: |
-          const { SQSClient, SendMessageCommand } = require("@aws-sdk/client-sqs");
-          const client = new SQSClient({region: process.env.REGION});
+      CompatibleRuntimes:
+        - nodejs18.x
+      Content:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/validation-message-eventBridge-to-queue_libs.zip"
+      Description: NodeJs Libs layer
+      LayerName: ValidationMessageEventBridgeToQueue-libs-layer
+  
+  # TODO Da spostare in pn-infra
+  # Lambda validation message from delivery (eventBridge) to delivery-push validation queue message
+  ValidationMessageEventBridgeToQueueLambda:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
+      Parameters:
+        FunctionName: !Ref ValidationMessageEventBridgeToQueueLambdaName
+        Handler: "index.handler"
+        FunctionBucketName: !Ref MicroserviceBucketName
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/validation-message-eventBridge-to-queue.zip"
+        MemorySize: 512
+        Timeout: 10
+        Runtime: nodejs18.x
+        RoleArn: !GetAtt ValidationMessageEventBridgeToQueueRole.Arn
+        Layer1: !Ref ValidationMessageEventBridgeToQueueLambdaLibrariesLayer
+        EnvVariables:
+          [
+            !Sub [
+              "DESTINATION_ENDPOINT=${url}",
+              { url: !Select [ "0", !Ref DeliveryPushValidationInputsQueueURL ] },
+            ]
+          ]
+  
+  # TODO Da spostare in pn-infra
+  # Lambda function role
+  ValidationMessageEventBridgeToQueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-validationMessageEventBridgeToQueueRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  
+  # TODO Da spostare in pn-infra
+  # Lambda function IAM policy
+  ValidationMessageEventBridgeToQueuePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-validationMessageEventBridgeToQueuePolicy
+      Roles:
+        - !Ref ValidationMessageEventBridgeToQueueRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - sqs:SendMessage
+            Resource:
+              - !Ref DeliveryPushValidationInputsQueueARN
 
-          exports.handler = async function(event) {
-            const input = {
-              QueueUrl: process.env.QUEUE_URL,
-              MessageBody: JSON.stringify(event.detail.body)
-            }
-            const command = new SendMessageCommand(input);
-            const response = await client.send(command);
-            return response;
-          };
-
-      Handler: index.handler
-      Runtime: nodejs18.x
-      Role: !GetAtt PNAddressManagerToDeliveryPushLimiterExecutionRole.Arn
-      ReservedConcurrentExecutions: !Ref ReservedConcurrentLambdaExecution
-      DeadLetterConfig:
-        TargetArn: !GetAtt EventBusDeadLetterQueue.Arn
-      Tags:
-        - Key: Microservice
-          Value: pn-address-manager
-            
   #########################################################
   ###              VersioningV1V2Webhook              ### # converte la risposta V2.3 a V1 e può essere estesa
   #########################################################
