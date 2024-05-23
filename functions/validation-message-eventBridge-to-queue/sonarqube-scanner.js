@@ -1,6 +1,6 @@
 const options = {
   "sonar.organization": "pagopa",
-  "sonar.projectKey": "pagopa_pn-delivery-push-ActionEnqueuer",
+  "sonar.projectKey": "pagopa_pn-delivery-push-ValidationMessageEventBridgeToQueue",
 };
 
 if (process.env.PR_NUM) {
