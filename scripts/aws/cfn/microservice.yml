@@ -1470,13 +1470,13 @@ Resources:
 #                  "originalEvent": <aws.events.event.json>
 #              }       
         - Id: !Sub '${ProjectName}-CoreEventBus-Delivery2DeliveryPush-Validation'
-          Arn: !Ref PNDeliveryToDeliveryPushValidationLimiterFunction
+          Arn: !Ref PNDeliveryToDeliveryPushValidationFunction
 #          DeadLetterConfig:   # TODO Da decommentare in pn-infra
 #            Arn: !GetAtt EventBusDeadLetterQueue.Arn  
   
   # TODO Da spostare in pn-infra
   # Lambda validation message from delivery (eventBridge) to delivery-push
-  PNDeliveryToDeliveryPushValidationLimiterFunction:
+  PNDeliveryToDeliveryPushValidationFunction:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: PNDeliveryToDeliveryPushValidationLimiterFunction
@@ -1491,7 +1491,6 @@ Resources:
           exports.handler = async function(event) {
             const input = {
               QueueUrl: process.env.QUEUE_URL,
-              DelaySeconds: Math.floor(Math.random() * (SQS_MAX_DELAY - 1) + 1),
               MessageBody: JSON.stringify(event.detail.body)
             }
             const command = new SendMessageCommand(input);
