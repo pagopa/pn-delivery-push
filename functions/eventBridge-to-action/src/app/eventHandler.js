@@ -56,6 +56,8 @@ async function handleEvent(event, context) {
     DelaySeconds: event.detail.DelaySeconds,
     MessageAttributes: event.detail.MessageAttributes,
     MessageBody: event.detail.body,
+    MessageGroupId: event.detail.MessageGroupId,
+    MessageDeduplicationId: event.detail.MessageDeduplicationId,
   };
   console.info("[EVENTBRIDGE_TO_ACTION]", "SENDING MESSAGE", message);
   const res = await putMessage(sqsParams, message);
