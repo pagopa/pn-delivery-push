@@ -161,15 +161,7 @@ Parameters:
   ScheduledValidationActionsQueueARN:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
-  
-  DeliveryPushValidationInputsQueueName:
-    Type: String
-    Description: 'Send and pull ready-to-do actions th this queue'
-
-  DeliveryPushValidationInputsQueueARN:
-    Type: String
-    Description: 'Send and pull ready-to-do actions th this queue'
-  
+    
   ActionRouterDLQName:
     Type: String
     Description: 'DLQ Name for ActionRouterLambda'
