@@ -1507,13 +1507,12 @@ Resources:
         Runtime: nodejs18.x
         RoleArn: !GetAtt ValidationMessageEventBridgeToQueueRole.Arn
         Layer1: !Ref ValidationMessageEventBridgeToQueueLambdaLibrariesLayer
-        EnvVariables:
-          [
+        EnvVariables:          
             !Sub [
               "DESTINATION_ENDPOINT=${url}",
-              { url: !Select [ "0", !Ref DeliveryPushValidationInputsQueueURL ] },
+              { url: !Ref DeliveryPushValidationInputsQueueURL },
             ]
-          ]
+          
   
   # TODO Da spostare in pn-infra
   # Lambda function role
