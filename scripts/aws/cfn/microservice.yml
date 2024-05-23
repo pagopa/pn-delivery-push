@@ -1410,7 +1410,105 @@ Resources:
       Parameters:
         FunctionName: !Ref PaperEventsCostUpdateLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+  
+  # TODO Da eliminare ed aggiungere coda DeliveryPushValidationInputsQueueARN alla regola in pn-infra
+  # Allow event bus rules to write to queues
+  EventBusEnqueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+      Policies:
+        - PolicyName: putEventIntoQueues
+          PolicyDocument:
+            Statement:
+              - Sid: putEvents
+                Action:
+                  - sqs:ChangeMessageVisibility
+                  - sqs:ChangeMessageVisibilityBatch
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                  - sqs:SendMessageBatch
+                Effect: Allow
+                Resource:
+                  - !Ref DeliveryPushValidationInputsQueueARN
+      Tags:
+        - Key: Microservice
+          Value: pn-infra-core
 
+  # TODO Da spostare in pn-infra
+  # New notification message rule from delivery to delivery-push
+  PnCoreEventBusDeliveryToDeliveryPushValidationQueue:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: New notification message rule from delivery to delivery-push
+      RoleArn: !GetAtt "EventBusEnqueueRole.Arn"
+      EventBusName: !Sub '${ProjectName}-CoreEventBus' #Al momento non si ha la possibilità di ricevere il nome come parametro di input
+      EventPattern:
+        detail-type: [ "PnDeliveryValidationOutcomeEvent" ]
+        detail:
+          cxId: [ "pn-delivery-push" ]
+      Targets:
+# TODO Da riattivare quando regola viene spostata in Infra
+#        - Arn: !GetAtt MatchedEventsLoggerFunction.Arn
+#          Id: !Sub ${ProjectName}-Logger-AddressManager2DeliveryPush
+#          InputTransformer:
+#            InputPathsMap:
+#              "timestamp": "$.time"
+#            InputTemplate: |
+#              {
+#                  "timestamp": <timestamp>,
+#                  "ruleArn": <aws.events.rule-arn>,
+#                  "ruleName": <aws.events.rule-name>,
+#                  "ingestionTime": <aws.events.event.ingestion-time>,
+#                  "originalEvent": <aws.events.event.json>
+#              }       
+        - Id: !Sub '${ProjectName}-CoreEventBus-Delivery2DeliveryPush-Validation'
+          Arn: !Ref PNDeliveryToDeliveryPushValidationLimiterFunction
+#          DeadLetterConfig:   # TODO Da decommentare in pn-infra
+#            Arn: !GetAtt EventBusDeadLetterQueue.Arn  
+  
+  # TODO Da spostare in pn-infra
+  # Lambda validation message from delivery (eventBridge) to delivery-push
+  PNDeliveryToDeliveryPushValidationLimiterFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: PNDeliveryToDeliveryPushValidationLimiterFunction
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref DeliveryPushValidationInputsQueueURL
+      Code:
+        ZipFile: |
+          const { SQSClient, SendMessageCommand } = require("@aws-sdk/client-sqs");
+          const client = new SQSClient({region: process.env.REGION});
+
+          exports.handler = async function(event) {
+            const input = {
+              QueueUrl: process.env.QUEUE_URL,
+              DelaySeconds: Math.floor(Math.random() * (SQS_MAX_DELAY - 1) + 1),
+              MessageBody: JSON.stringify(event.detail.body)
+            }
+            const command = new SendMessageCommand(input);
+            const response = await client.send(command);
+            return response;
+          };
+
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Role: !GetAtt PNAddressManagerToDeliveryPushLimiterExecutionRole.Arn
+      ReservedConcurrentExecutions: !Ref ReservedConcurrentLambdaExecution
+      DeadLetterConfig:
+        TargetArn: !GetAtt EventBusDeadLetterQueue.Arn
+      Tags:
+        - Key: Microservice
+          Value: pn-address-manager
+            
   #########################################################
   ###              VersioningV1V2Webhook              ### # converte la risposta V2.3 a V1 e può essere estesa
   #########################################################
