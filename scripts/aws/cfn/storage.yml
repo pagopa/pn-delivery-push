@@ -610,7 +610,10 @@ Outputs:
 
   VersioningV1V2WebhookLambdaName:
     Value: !Sub "${ProjectName}-versioningV1V2WebhookLambda"
-
+  
+  ActionRouterLambdaName:
+    Value: !Sub "${ProjectName}-actionRouterLambda"
+  
   ValidationMessageEventBridgeToQueueLambdaName:
     Value: !Sub "${ProjectName}-validationMessageEventBridgeToQueueLambda"
 
