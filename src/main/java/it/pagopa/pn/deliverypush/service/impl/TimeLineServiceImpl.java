@@ -106,8 +106,13 @@ public class TimeLineServiceImpl implements TimelineService {
                 // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
                 // asincrona da una lambda che opera partendo da stream Kinesis
 
-                String successMsg = "Timeline event inserted with iun=" + dto.getIun() + " elementId = " + dto.getElementId();
                 String alreadyInsertMsg = "Timeline event was already inserted before - timelineId="+ dto.getElementId();
+                String successMsg = String.format("Timeline event inserted with: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s TIMESTAMP=%s",
+                    dto.getCategory(),
+                    dto.getIun(),
+                    dto.getDetails() != null ? dto.getDetails().toLog() : null,
+                    dto.getElementId(),
+                    dto.getTimestamp());
                 logEvent.generateSuccess(timelineInsertSkipped ? alreadyInsertMsg : successMsg).log();
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);

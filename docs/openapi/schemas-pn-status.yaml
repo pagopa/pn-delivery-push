@@ -24,9 +24,9 @@ components:
           * `DELIVERED` - La notifica è stata consegnata a tutti i destinatari
           * `VIEWED` - Il destinatario ha letto la notifica entro il termine stabilito
           * `EFFECTIVE_DATE` - Il destinatario non ha letto la notifica entro il termine stabilito
-          * `PAID` - Uno dei destinatari ha pagato la notifica
           * `UNREACHABLE` - Il destinatario non è reperibile
           * `CANCELLED` - L'ente ha annullato l'invio della notifica
+          * `PAID` - [DEPRECATO] Uno dei destinatari ha pagato la notifica
       enum:
         - IN_VALIDATION 
         - ACCEPTED 
