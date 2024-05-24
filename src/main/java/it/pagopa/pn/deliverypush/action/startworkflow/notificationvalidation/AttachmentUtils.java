@@ -224,7 +224,7 @@ public class AttachmentUtils {
 
     @NotNull
     private Mono<FileDownloadResponseInt> handleNotFoundError(PnFileNotFoundException ex) {
-        log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, ex.getMessage());
+        log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, "handleNotFoundError:"+ex.getMessage());
         return Mono.error(
                 new PnValidationFileNotFoundException(
                         ex.getMessage(),
@@ -235,7 +235,7 @@ public class AttachmentUtils {
 
     @NotNull
     private Mono<FileDownloadResponseInt> handleGoneError(PnFileGoneException ex) {
-        log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, ex.getMessage());
+        log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, "handleGoneError:"+ex.getMessage());
         return Mono.error(
             new PnValidationFileNotFoundException(
                 ex.getMessage(),
