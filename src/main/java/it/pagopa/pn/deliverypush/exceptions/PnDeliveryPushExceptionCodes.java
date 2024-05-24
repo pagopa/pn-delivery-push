@@ -94,7 +94,9 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
         PAYMENT_NOT_VALID("PAYMENT_NOT_VALID"),
         //quickWorkAroundForPN-9116
-        SENDER_DISABLED_MORE_THAN_20_GRAMS("SENDER_DISABLED_MORE_THAN_20_GRAMS");
+        SENDER_DISABLED_MORE_THAN_20_GRAMS("SENDER_DISABLED_MORE_THAN_20_GRAMS"),
+
+        FILE_GONE("FILE_GONE");
 
         private final String value;
 
