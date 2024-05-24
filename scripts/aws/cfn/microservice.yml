@@ -781,10 +781,15 @@ Parameters:
   PerformanceImprovementEndDate:
     Type: String
     Description: 'End date enable feature flag performance improvement'
-
+  
+  EnvironmentType:
+    Type: String
+    Description: Environment type
+    
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
-      
+  IsEnvironmentDev: !Equals [ !Ref EnvironmentType, "dev" ]
+
 Resources:
 
   # PN-Delivery-push microservice
@@ -1414,9 +1419,10 @@ Resources:
         FunctionName: !Ref PaperEventsCostUpdateLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
   
-  # TODO Da eliminare ed aggiungere coda DeliveryPushValidationInputsQueueARN alla regola in pn-infra
+  # TODO Da eliminare tutta la regola, aggiungere dynque coda DeliveryPushValidationInputsQueueARN alla regola in pn-infra
   # Allow event bus rules to write to queues
   EventBusEnqueueRole:
+    Condition: IsEnvironmentDev
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -1448,6 +1454,7 @@ Resources:
   # TODO Da spostare in pn-infra
   # New notification message rule from delivery to delivery-push
   PnCoreEventBusDeliveryToDeliveryPushValidationQueue:
+    Condition: IsEnvironmentDev
     Type: AWS::Events::Rule
     Properties:
       Description: New notification message rule from delivery to delivery-push
@@ -1479,6 +1486,7 @@ Resources:
   
   # TODO Da spostare in pn-infra
   ValidationMessageEventBridgeToQueueLambdaLibrariesLayer:
+    Condition: IsEnvironmentDev
     Type: AWS::Lambda::LayerVersion
     Properties:
       CompatibleRuntimes:
@@ -1492,6 +1500,7 @@ Resources:
   # TODO Da spostare in pn-infra
   # Lambda validation message from delivery (eventBridge) to delivery-push validation queue message
   ValidationMessageEventBridgeToQueueLambda:
+    Condition: IsEnvironmentDev
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
@@ -1517,6 +1526,7 @@ Resources:
   # TODO Da spostare in pn-infra
   # Lambda function role
   ValidationMessageEventBridgeToQueueRole:
+    Condition: IsEnvironmentDev
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub ${ProjectName}-validationMessageEventBridgeToQueueRole
@@ -1535,6 +1545,7 @@ Resources:
   # TODO Da spostare in pn-infra
   # Lambda function IAM policy
   ValidationMessageEventBridgeToQueuePolicy:
+    Condition: IsEnvironmentDev
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: !Sub ${ProjectName}-validationMessageEventBridgeToQueuePolicy
