@@ -1514,15 +1514,15 @@ Resources:
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
-        RoleArn: !GetAtt ValidationMessageEventBridgeToQueueRole.Arn
+        TracingConfigMode: "Active"
+        Role: !GetAtt ValidationMessageEventBridgeToQueueRole.Arn
         Layer1: !Ref ValidationMessageEventBridgeToQueueLambdaLibrariesLayer
         EnvVariables:          
             !Sub [
               "DESTINATION_ENDPOINT=${url}",
               { url: !Ref DeliveryPushValidationInputsQueueURL },
             ]
-          
-  
+
   # TODO Da spostare in pn-infra
   # Lambda function role
   ValidationMessageEventBridgeToQueueRole:
