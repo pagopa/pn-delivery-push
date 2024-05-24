@@ -1259,7 +1259,8 @@ Resources:
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
-        RoleArn: !GetAtt ActionRouterLambdaRole.Arn
+        TracingConfigMode: "Active"
+        Role: !GetAtt ActionRouterLambdaRole.Arn
         Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
@@ -1270,7 +1271,7 @@ Resources:
             },
           ]
         #TODO Valutare la necessità di inserire la VPC
-  
+    
   # Lambda function role
   ActionRouterLambdaRole:
     Type: AWS::IAM::Role
