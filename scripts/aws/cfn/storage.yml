@@ -39,6 +39,70 @@ Parameters:
     Type: String
     Description: Environment type
 
+    ## KINESIS STREAM PARAMS USED FOR NEW kinesis-data-stream.yml fragment template
+  CdcPnFutureActionShards:
+    Type: Number
+    Default: 8
+    Description: Number of shards for the stream CdcPnFutureAction, 0 for OnDemand
+
+  CdcPnActionShards:
+    Type: Number
+    Default: 12
+    Description: Number of shards for the stream CdcPnActionShards, 0 for OnDemand
+
+  CdcPnFutureActionStreamRetentionHours:
+    Type: Number
+    Default: 168
+    Description: Number of hours to retain data records in the stream
+
+  CdcPnActionStreamRetentionHours:
+    Type: Number
+    Default: 168
+    Description: Number of hours to retain data records in the stream
+
+  CdcActionStandardAlarmThresholdsMs:
+    Type: Number
+    Default: 2000000
+    Description: Threshold for standard alarms in milliseconds
+
+  CdcActionOnCallAlarmThresholdsMs:
+    Type: Number
+    Default: 2000000
+    Description: Threshold for oncall alarms in milliseconds for pn-<xx>Action tables
+
+  CdcActionDatapointsToAlarmStandard:
+    Type: Number
+    Default: 10
+    Description: Number of datapoints to alarm for standard alarms for pn-<xx>Action tables
+
+  CdcActionStandardAlarmPeriodSeconds:
+    Type: Number
+    Default: 60
+    Description: Period to alarm for standard alarms for pn-<xx>Action tables
+
+  CdcActionStandardAlarmEvaluationPeriods:
+    Type: Number
+    Default: 60
+    Description: Evaluation periods for standard alarms for pn-<xx>Action tables
+
+  CdcActionDatapointsToAlarmOncall:
+    Type: Number
+    Default: 10
+    Description: Number of datapoints to alarm for oncall alarms for pn-<xx>Action tables
+
+  CdcActionOncallAlarmPeriodSeconds:
+    Type: Number
+    Default: 60
+    Description: Period to alarm for oncall alarms for pn-<xx>Action tables
+
+  CdcActionOncallAlarmEvaluationPeriods:
+    Type: Number
+    Default: 60
+    Description: Evaluation periods for oncall alarms for pn-<xx>Action tables
+  
+  AlarmSNSTopicArn:
+    Type: String
+
 Conditions:
   IsEnvironmentDev: !Equals [ !Ref EnvironmentType, "dev" ]
 
@@ -477,6 +541,57 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
+          ### Kinesis Data Stream: CDC for PN-ACTION DynamoDB Table (INSERT CDC ARE THE INTERESTED ONE)
+  CdcPnActionStream:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-data-stream.yaml"
+      Parameters:
+        StreamName: "pn-action-cdc"
+        # PROVISIONED MODE: follow shard configuration
+        StreamShardsCount: !Ref CdcPnActionShards
+        StreamRetentionHours: !Ref CdcPnActionStreamRetentionHours
+        RequireManagedKey: false
+        # USES SNSTopic used for all Kinesis alarms
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+        ## TODO: check alarms parameters
+        DatapointsToAlarmStandard: !Ref CdcActionDatapointsToAlarmOncall
+        StandardAlarmThresholdsMs: !Ref CdcActionStandardAlarmThresholdsMs
+        OnCallAlarmThresholdsMs: !Ref CdcActionOnCallAlarmThresholdsMs
+        StandardAlarmPeriodSeconds: !Ref CdcActionStandardAlarmPeriodSeconds
+        StandardAlarmEvaluationPeriods: !Ref CdcActionStandardAlarmEvaluationPeriods
+        DatapointsToAlarmOncall: !Ref CdcActionDatapointsToAlarmStandard
+        OncallAlarmPeriodSeconds: !Ref CdcActionOncallAlarmPeriodSeconds
+        OncallAlarmEvaluationPeriods: !Ref CdcActionOncallAlarmEvaluationPeriods
+
+  ### Kinesis Data Stream: CDC for PN-FUTURE-ACTION DynamoDB Table
+  CdcPnFutureActionStream:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-data-stream.yaml"
+      Parameters:
+        StreamName: "pn-future-action-cdc"
+        # PROVISIONED MODE: follow shard configuration
+        StreamShardsCount: !Ref CdcPnFutureActionShards
+        StreamRetentionHours: !Ref CdcPnFutureActionStreamRetentionHours
+        RequireManagedKey: false
+        # USES SNSTopic used for all Kinesis alarms
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        ## TODO: check alarms parameters
+        DatapointsToAlarmStandard: !Ref CdcActionDatapointsToAlarmOncall
+        StandardAlarmThresholdsMs: !Ref CdcActionStandardAlarmThresholdsMs
+        OnCallAlarmThresholdsMs: !Ref CdcActionOnCallAlarmThresholdsMs
+        StandardAlarmPeriodSeconds: !Ref CdcActionStandardAlarmPeriodSeconds
+        StandardAlarmEvaluationPeriods: !Ref CdcActionStandardAlarmEvaluationPeriods
+        DatapointsToAlarmOncall: !Ref CdcActionDatapointsToAlarmStandard
+        OncallAlarmPeriodSeconds: !Ref CdcActionOncallAlarmPeriodSeconds
+        OncallAlarmEvaluationPeriods: !Ref CdcActionOncallAlarmEvaluationPeriods
+
 Outputs:
 
   # Scheduled Actions
@@ -700,3 +815,11 @@ Outputs:
   ActionEnqueuerDLQAlarmARN:
     Value: !GetAtt ActionEnqueuerDLQ.Outputs.SqsDLQAlarmArn
     Description: ActionEnqueuerDLQ alarm ARN
+
+  CdcPnFutureActionArn:
+    Value: !GetAtt CdcPnFutureActionStream.Outputs.KinesisStreamArn
+    Description: "Kinesis source stream name ARN"
+
+  CdcPnActionArn:
+    Value: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
+    Description: "Kinesis source stream name ARN"
