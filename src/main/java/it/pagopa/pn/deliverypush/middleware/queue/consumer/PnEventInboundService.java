@@ -5,10 +5,6 @@
  */
 package it.pagopa.pn.deliverypush.middleware.queue.consumer;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ACTIONEXCEPTION;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ACTIONTYPENOTSUPPORTED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_EVENTTYPENOTSUPPORTED;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -16,10 +12,6 @@ import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionEventType;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.MDC;
@@ -30,6 +22,13 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
+
 @Configuration
 @Slf4j
 public class PnEventInboundService {
@@ -39,7 +38,8 @@ public class PnEventInboundService {
     private final String nationalRegistriesEventQueueName;
     private final String addressManagerEventQueueName;
     private final String validateF24EventQueueName;
-    
+    private final String deliveryValidationEvents;
+
     public PnEventInboundService(EventHandler eventHandler, PnDeliveryPushConfigs cfg) {
         this.eventHandler = eventHandler;
         this.externalChannelEventQueueName = cfg.getTopics().getFromExternalChannel();
@@ -47,6 +47,7 @@ public class PnEventInboundService {
         this.nationalRegistriesEventQueueName = cfg.getTopics().getNationalRegistriesEvents();
         this.addressManagerEventQueueName = cfg.getTopics().getAddressManagerEvents();
         this.validateF24EventQueueName = cfg.getTopics().getF24Events();
+        this.deliveryValidationEvents = cfg.getTopics().getDeliveryValidationEvents();
     }
 
     @Bean
@@ -102,8 +103,6 @@ public class PnEventInboundService {
                 eventType = handleOtherEvent(message);
             }
         }else {
-            //EXTERNAL CHANNEL dovrà INVIARE UN EventType specifico PN-1998
-            
             //Se l'eventType non è valorizzato entro sicuramente qui
             eventType = handleOtherEvent(message);
         }
@@ -140,6 +139,9 @@ public class PnEventInboundService {
         }
         else if(Objects.equals(queueName, validateF24EventQueueName)) {
             eventType = "F24_EVENTS";
+        }
+        else if(Objects.equals(queueName, deliveryValidationEvents)) {
+            eventType = "NEW_NOTIFICATION";
         }
         else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());
