@@ -103,9 +103,6 @@ Parameters:
   AlarmSNSTopicArn:
     Type: String
 
-Conditions:
-  IsEnvironmentDev: !Equals [ !Ref EnvironmentType, "dev" ]
-
 Resources:
 
   # Legal Facts S3 Storage
@@ -138,24 +135,6 @@ Resources:
               - "*"
             ExposedHeaders:
               - "x-amz-version-id"
-  
-  # TODO Da spostare in pn-infra
-  ### Communication between PN-DELIVERY and PN-DELIVERY-PUSH - FOR NEW NOTIFICATION EVENT ###
-  DeliveryPushValidationInputsQueue:
-    Condition: IsEnvironmentDev
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
-      Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_validation_inputs'
-        DelaySeconds: 10
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        FifoQueue: true
-      Tags:
-        - Key: "Microservice"
-          Value: "pn-delivery-push"
 
   # Internal queues
   ScheduledActionsQueue:
@@ -785,22 +764,6 @@ Outputs:
   PaperEventsCostUpdateDLQAlarmARN:
     Value: !GetAtt PaperEventsCostUpdateDLQ.Outputs.SqsDLQAlarmArn
     Description: pn-delivery-push_paper_events_costo_update_DLQ alarm ARN
-  
-  DeliveryPushValidationInputsQueueName:
-    Value: !GetAtt DeliveryPushValidationInputsQueue.Outputs.QueueName
-    Description: DeliveryPushValidationInputsQueue queue name
-  DeliveryPushValidationInputsQueueURL:
-    Value: !GetAtt DeliveryPushValidationInputsQueue.Outputs.QueueURL
-    Description: DeliveryPushValidationInputsQueue queue URL
-  DeliveryPushValidationInputsQueueARN:
-    Value: !GetAtt DeliveryPushValidationInputsQueue.Outputs.QueueARN
-    Description: DeliveryPushValidationInputsQueue queue ARN
-  DeliveryPushValidationInputsQueueAlarmARN:
-    Value: !GetAtt DeliveryPushValidationInputsQueue.Outputs.SqsDLQAlarmArn
-    Description: DeliveryPushValidationInputsQueue alarm ARN
-  DeliveryPushValidationInputsQueueAgeAlarmARN:
-    Value: !GetAtt DeliveryPushValidationInputsQueue.Outputs.SqsAgeAlarmArn
-    Description:  DeliveryPushValidationInputsQueue age alarm ARN
 
   ActionRouterDLQARN:
     Value: !GetAtt ActionRouterDLQ.Outputs.QueueARN

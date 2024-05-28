@@ -17,10 +17,6 @@ Parameters:
     Type: String
     Description: 'Url del portale della Persona Giuridica da inserire degli AAR'    
 
-  AddressBookUrl:
-    Type: String
-    Description: 'The URL of address book mock service'
-
   WebhookScanInterval:
     Type: String
     Description: 'Time interval between two webhook-scans every scan send notifications
@@ -122,10 +118,6 @@ Parameters:
     Type: String
     Description: DeliveryPushValidationInputsQueue queue name
     
-  DeliveryPushValidationInputsQueueURL:
-    Type: String
-    Description: DeliveryPushValidationInputsQueue queue URL
-    
   DeliveryPushValidationInputsQueueARN:
     Type: String
     Description: DeliveryPushValidationInputsQueue queue ARN
@@ -162,10 +154,7 @@ Parameters:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
     
-  ActionRouterDLQName:
-    Type: String
-    Description: 'DLQ Name for ActionRouterLambda'
-
+ 
   ActionRouterDLQARN:
     Type: String
     Description: 'DLQ ARN for ActionRouter lambda'
@@ -173,10 +162,6 @@ Parameters:
   ActionRouterDLQAlarmARN:
     Type: String
     Description: 'DLQ ARN for ActionRouter lambda'
-
-  ActionEnqueuerDLQARN:
-    Type: String
-    Description: 'DLQ ARN for ActionEnqueuer lambda'
     
   ActionEnqueuerDLQAlarmARN:
     Type: String
@@ -636,27 +621,8 @@ Parameters:
   ActionRouterKinesisBatchSize:
     Type: Number
     Description: "Batch size for kinesis to lambda action router"
-  
-  ActionCdcKinesisStreamShardCount:
-    Type: Number
-    Description: "Shard count for action cdc stream kinesis"
-  
-  ActionCdcKinesisStreamRetention:
-    Type: Number
-    Description: "Retention for action cdc stream kinesis"
-  
-  ActionCdcKinesisStandardAlarmThresholdsMs:
-    Type: Number
-    Description: "Standard alarm threshold for action cdc kinesis"
-  
-  ActionCdcKinesisOnCallAlarmThresholdsMs:
-    Type: Number
-    Description: "OnCall alarm threshold for action cdc kinesis"
     
   ActionRouterLambdaName:
-    Type: String
-    
-  ValidationMessageEventBridgeToQueueLambdaName:
     Type: String
     
   WebhookEventManagerLambdaName:
@@ -831,7 +797,6 @@ Parameters:
     
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
-  IsEnvironmentDev: !Equals [ !Ref EnvironmentType, "dev" ]
 
 Resources:
 
@@ -892,8 +857,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub
-          - 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${ DeliveryPushValidationInputsQueueName}, ${ScheduledValidationActionsQueueName}, ${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${ DeliveryPushValidationInputsQueueName}, ${ScheduledValidationActionsQueueName}, ${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -1575,153 +1539,7 @@ Resources:
       Parameters:
         FunctionName: !Ref PaperEventsCostUpdateLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-  
-  # TODO Da eliminare tutta la regola, aggiungere dynque coda DeliveryPushValidationInputsQueueARN alla regola in pn-infra
-  # Allow event bus rules to write to queues
-  EventBusEnqueueRole:
-    Condition: IsEnvironmentDev
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: events.amazonaws.com
-        Version: "2012-10-17"
-      Policies:
-        - PolicyName: putEventIntoQueues
-          PolicyDocument:
-            Statement:
-              - Sid: putEvents
-                Action:
-                  - sqs:ChangeMessageVisibility
-                  - sqs:ChangeMessageVisibilityBatch
-                  - sqs:GetQueueAttributes
-                  - sqs:GetQueueUrl
-                  - sqs:SendMessage
-                  - sqs:SendMessageBatch
-                Effect: Allow
-                Resource:
-                  - !Ref DeliveryPushValidationInputsQueueARN
-      Tags:
-        - Key: Microservice
-          Value: pn-infra-core
 
-  # TODO Da spostare in pn-infra
-  # New notification message rule from delivery to delivery-push
-  PnCoreEventBusDeliveryToDeliveryPushValidationQueue:
-    Condition: IsEnvironmentDev
-    Type: AWS::Events::Rule
-    Properties:
-      Description: New notification message rule from delivery to delivery-push
-      RoleArn: !GetAtt "EventBusEnqueueRole.Arn"
-      EventBusName: !Sub '${ProjectName}-CoreEventBus' #Al momento non si ha la possibilità di ricevere il nome come parametro di input
-      EventPattern:
-        detail-type: [ "PnDeliveryValidationOutcomeEvent" ]
-        detail:
-          cxId: [ "pn-delivery-push" ]
-      Targets:
-# TODO Da riattivare quando regola viene spostata in Infra
-#        - Arn: !GetAtt MatchedEventsLoggerFunction.Arn
-#          Id: !Sub ${ProjectName}-Logger-AddressManager2DeliveryPush
-#          InputTransformer:
-#            InputPathsMap:
-#              "timestamp": "$.time"
-#            InputTemplate: |
-#              {
-#                  "timestamp": <timestamp>,
-#                  "ruleArn": <aws.events.rule-arn>,
-#                  "ruleName": <aws.events.rule-name>,
-#                  "ingestionTime": <aws.events.event.ingestion-time>,
-#                  "originalEvent": <aws.events.event.json>
-#              }       
-        - Id: !Sub '${ProjectName}-CoreEventBus-Delivery2DeliveryPush-Validation'
-          Arn: !Ref ValidationMessageEventBridgeToQueueLambda
-#          DeadLetterConfig:   # TODO Da decommentare in pn-infra
-#            Arn: !GetAtt EventBusDeadLetterQueue.Arn  
-  
-  # TODO Da spostare in pn-infra
-  ValidationMessageEventBridgeToQueueLambdaLibrariesLayer:
-    Condition: IsEnvironmentDev
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      CompatibleRuntimes:
-        - nodejs18.x
-      Content:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/validation-message-eventBridge-to-queue_libs.zip"
-      Description: NodeJs Libs layer
-      LayerName: ValidationMessageEventBridgeToQueue-libs-layer
-  
-  # TODO Da spostare in pn-infra
-  # Lambda validation message from delivery (eventBridge) to delivery-push validation queue message
-  ValidationMessageEventBridgeToQueueLambda:
-    Condition: IsEnvironmentDev
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
-      Parameters:
-        FunctionName: !Ref ValidationMessageEventBridgeToQueueLambdaName
-        Handler: "index.handler"
-        FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/validation-message-eventBridge-to-queue.zip"
-        MemorySize: 512
-        Timeout: 10
-        Runtime: nodejs18.x
-        TracingConfigMode: "Active"
-        Role: !GetAtt ValidationMessageEventBridgeToQueueRole.Arn
-        Layer1: !Ref ValidationMessageEventBridgeToQueueLambdaLibrariesLayer
-        EnvVariables:          
-            !Sub [
-              "DESTINATION_ENDPOINT=${url}",
-              { url: !Ref DeliveryPushValidationInputsQueueURL },
-            ]
-
-  # TODO Da spostare in pn-infra
-  # Lambda function role
-  ValidationMessageEventBridgeToQueueRole:
-    Condition: IsEnvironmentDev
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-validationMessageEventBridgeToQueueRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  
-  # TODO Da spostare in pn-infra
-  # Lambda function IAM policy
-  ValidationMessageEventBridgeToQueuePolicy:
-    Condition: IsEnvironmentDev
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-validationMessageEventBridgeToQueuePolicy
-      Roles:
-        - !Ref ValidationMessageEventBridgeToQueueRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: "Allow"
-            Action:
-              - "logs:CreateLogGroup"
-              - "logs:CreateLogStream"
-              - "logs:PutLogEvents"
-            Resource: "*"
-          - Effect: Allow
-            Action:
-              - sqs:SendMessage
-            Resource:
-              - !Ref DeliveryPushValidationInputsQueueARN
 
   #########################################################
   ###              VersioningV1V2Webhook              ### # converte la risposta V2.3 a V1 e può essere estesa
