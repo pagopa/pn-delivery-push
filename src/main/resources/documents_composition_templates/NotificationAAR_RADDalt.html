@@ -469,7 +469,7 @@
 
     <div id="main">
       <div id="main__subject">
-        <b>Avviso di Avvenuta Ricezione (AAR): ${notification.subject} ${notification.iun}</b>
+        <b>Avviso di Avvenuta Ricezione (AAR): ${notification.subject}</b>
       </div>
       <div id="main__disclaimer" class="ten-px">
         <p>${notification.sender.paDenomination} ti ha notificato una comunicazione a valore legale tramite SEND: <b>prendi visione dei documenti notificati</b>. Se i documenti non sono inclusi in questo avviso cartaceo, <b>puoi accedervi online su SEND o richiederne una copia presso i Punti di ritiro SEND</b>, in corso di attivazione. La scadenza per il pagamento, se previsto, e il termine per eventuali impugnazioni sono indicati nei documenti.
@@ -547,7 +547,7 @@
         </div>
         </#if>
         <#if recipient.recipientType=="PG">
-          <p id="radd-termini-condizioni" class="eight-px">Una volta usufruito del servizio, non potrai richiedere una nuova copia degli stessi documenti. Scopri di più su <br><b><a
+          <p id="radd-termini-condizioni" class="eight-px">Scopri di più su <br><b><a
           href="${sendURL}punti-di-ritiro/come-funziona">${sendURLLAbel}/punti-di-ritiro/come-funziona</a></b></p>
         </#if>
         <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
@@ -700,7 +700,7 @@
           </div>
           <div id="print-explanation__content">
             <p>Se non hai SPID o CIE o non hai accesso a internet, <b>puoi richiedere una copia dei documenti presso un Punto di ritiro SEND</b> vicino a te.</p>
-            <p class="eight-px">Una volta usufruito del servizio, non potrai richiedere una nuova copia degli stessi documenti. Scopri come funziona su <br><b><a
+            <p class="eight-px">Scopri come funziona su <br><b><a
               href="${sendURL}punti-di-ritiro/come-funziona">${sendURLLAbel}/punti-di-ritiro/come-funziona</a></b></p>
           </div>
         </div>
