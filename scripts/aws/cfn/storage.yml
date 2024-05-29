@@ -783,6 +783,6 @@ Outputs:
     Value: !GetAtt CdcPnFutureActionStream.Outputs.KinesisStreamArn
     Description: "Kinesis source stream name ARN"
 
-  CdCPnActionArn:
+  CdcPnActionArn:
     Value: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
     Description: "Kinesis source stream name ARN"
