@@ -674,10 +674,6 @@ Parameters:
   CdcKinesisSourceStreamKeyArn:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
-
-  CdCPnActionArn:
-    Type: String
-    Description: 'Where to send action CDC'
     
   #Webhook event manager lambda parameters
   WebhookEventManagerLambdaMaximumBatchingWindowInSeconds:
@@ -1273,7 +1269,7 @@ Resources:
               - kinesis:ListShards
               - kinesis:ListStreams
               - kinesis:SubscribeToShard
-            Resource: !Ref CdCPnActionArn
+            Resource: !Ref CdcPnActionArn
           - Effect: "Allow"
             Action:
               - "logs:CreateLogGroup"
