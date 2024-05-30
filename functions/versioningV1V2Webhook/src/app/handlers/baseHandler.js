@@ -1,8 +1,12 @@
 class EventHandler {
 
     baseUrl;
+    attemptTimeout;
+    numRetry;
     constructor() {
         this.baseUrl = process.env.PN_WEBHOOK_URL;
+        this.attemptTimeout = process.env.ATTEMPT_TIMEOUT * 1000;
+        this.numRetry = process.env.NUM_RETRY;
     }
 
     checkOwnership(event, context){}

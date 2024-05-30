@@ -26,7 +26,27 @@ class ConsumeEventStreamHandler extends EventHandler {
 
 
         console.log('calling ', url);
-        let response = await axios.get(url, {headers: headers});
+        let response;
+        let lastError = null;
+        for (var i=0; i< this.numRetry; i++) {
+            console.log('attempt #',i);
+            try {
+                response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
+                if (response) {
+                    lastError = null;
+                    break;
+                } else {
+                  console.log('cannot fetch data');
+                }
+            } catch (error) {
+                lastError = error;
+                console.log('cannot fetch data');
+            }
+        }
+
+        if (lastError != null) {
+            throw lastError;
+        }
 
         // RESPONSE BODY
         // Il controllo della presenza di element avviene solo nel transitorio

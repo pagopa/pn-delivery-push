@@ -26,7 +26,29 @@ class CreateEventStreamHandler extends EventHandler {
 
         console.log('calling ', url);
         console.log(requestBodyV22);
-        let response = await axios.post(url, requestBodyV22, {headers: headers});
+
+        let response;
+        let lastError = null;
+        for (var i=0; i< this.numRetry; i++) {
+            console.log('attempt #',i);
+            try{
+                response = await axios.post(url, requestBodyV22, {headers: headers, timeout: this.attemptTimeout});
+                if (response) {
+                    lastError = null;
+                    break;
+                } else {
+                  console.log('cannot fetch data');
+                }
+            } catch (error) {
+                lastError = error;
+                console.log('cannot fetch data');
+            }
+        }
+
+        if (lastError != null) {
+            throw lastError;
+        }
+
         // RESPONSE BODY
         const transformedObject = createStreamMetadataResponseV10(response.data);
 

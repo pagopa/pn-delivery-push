@@ -1388,11 +1388,13 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.3"
+          NUM_RETRY: 3
+          ATTEMPT_TIMEOUT: 5
       TracingConfig:
         Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
+      Timeout: 30
       MemorySize: 512
       Tags:
         - Key: "pn-eni-related"

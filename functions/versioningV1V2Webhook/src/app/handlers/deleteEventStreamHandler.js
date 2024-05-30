@@ -21,7 +21,28 @@ class DeleteEventStreamHandler extends EventHandler {
         const url = `${this.baseUrl}/streams/${streamId}`;
 
         console.log('calling ', url);
-        let response = await axios.delete(url, { headers: headers});
+        let response;
+        let lastError = null;
+        for (var i=0; i< this.numRetry; i++) {
+            console.log('attempt #',i);
+            try {
+                response = await axios.delete(url, { headers: headers, timeout: this.attemptTimeout});
+                if (response) {
+                    lastError = null;
+                    break;
+                } else {
+                  console.log('cannot fetch data');
+                }
+            } catch (error) {
+                lastError = error;
+                console.log('cannot fetch data');
+            }
+        }
+
+        if (lastError != null) {
+            throw lastError;
+        }
+
 
         const ret = {
             statusCode: response.status,
