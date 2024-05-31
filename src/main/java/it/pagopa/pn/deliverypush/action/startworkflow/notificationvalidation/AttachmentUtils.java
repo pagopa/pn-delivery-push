@@ -25,6 +25,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.GeneratedF24DetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnFileGoneException;
 import it.pagopa.pn.deliverypush.exceptions.PnFileNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileGoneException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationPDFNotValidException;
@@ -237,7 +238,7 @@ public class AttachmentUtils {
     private Mono<FileDownloadResponseInt> handleGoneError(PnFileGoneException ex) {
         log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, "handleGoneError:"+ex.getMessage());
         return Mono.error(
-            new PnValidationFileNotFoundException(
+            new PnValidationFileGoneException(
                 ex.getMessage(),
                 ex.getCause()
             )
