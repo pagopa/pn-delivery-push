@@ -66,7 +66,7 @@ public class PnSafeStorageClientImpl extends CommonBaseClient implements PnSafeS
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly )
                 .doOnSuccess( res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, GET_FILE))
                 .onErrorResume( WebClientResponseException.class, error ->{
-                    log.error("Exception in call getFile fileKey={} error=", finalFileKey, error);
+                    log.error("Exception in call getFile fileKey={} error={}", finalFileKey, error);
 
                     if(error.getStatusCode().equals(HttpStatus.NOT_FOUND)){
                         log.error("File not found from safeStorage fileKey={} error={}", finalFileKey, error);
