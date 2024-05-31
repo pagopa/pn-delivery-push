@@ -707,6 +707,13 @@ Outputs:
   
   ActionRouterLambdaName:
     Value: !Sub "${ProjectName}-actionRouterLambda"
+
+  ActionEnqueuerLambdaName:
+    Value: !Sub "${ProjectName}-actionEnqueuer"
+
+  ActionRemoverLambdaName:
+    Value: !Sub "${ProjectName}-actionRemover"
+
   
   ValidationMessageEventBridgeToQueueLambdaName:
     Value: !Sub "${ProjectName}-validationMessageEventBridgeToQueueLambda"

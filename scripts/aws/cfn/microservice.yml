@@ -158,6 +158,10 @@ Parameters:
   ActionRouterDLQARN:
     Type: String
     Description: 'DLQ ARN for ActionRouter lambda'
+
+  ActionEnqueuerDLQARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
   
   ActionRouterDLQAlarmARN:
     Type: String
@@ -348,6 +352,10 @@ Parameters:
   CdcPnActionArn:
     Type: String
     Description: 'Kinesis stream for pn-action'
+
+  CdcPnFutureActionArn:
+    Type: String
+    Description: 'Kinesis stream for pn-futureAction'
     
   IsMvpDefaultValue:
     Type: String
@@ -624,7 +632,18 @@ Parameters:
     
   ActionRouterLambdaName:
     Type: String
+
+  ActionEnqueuerKinesisBatchSize:
+    Type: Number
+    Description: "Batch size for kinesis to lambda action router"
+    Default: 10
     
+  ActionEnqueuerLambdaName:
+    Type: String
+
+  ActionRemoverLambdaName:
+    Type: String
+
   WebhookEventManagerLambdaName:
     Type: String
   
@@ -978,7 +997,7 @@ Resources:
             Resource:
               - !Sub "${PaperNotificationFailedDynamoTableArn}"
               - !Sub "${FutureActionDynamoTableArn}"
-              - !Sub "${LastPollForFutureActionDynamoTableArn}"
+              - !Ref LastPollForFutureActionDynamoTableArn
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
               - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
               - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
@@ -1231,7 +1250,6 @@ Resources:
               QueueUrlMap: !Ref QueueUrlMap 
             },
           ]
-        #TODO Valutare la necessità di inserire la VPC
     
   # Lambda function role
   ActionRouterLambdaRole:
@@ -1289,6 +1307,176 @@ Resources:
               - "dynamodb:BatchWriteItem"
             Resource:
               - !Ref FutureActionDynamoTableArn
+
+  # CDC To ActionEnqueuer
+  ActionEnqueuerKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: !Ref ActionEnqueuerKinesisBatchSize
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcPnActionArn
+      FunctionName: !Ref ActionEnqueuerLambda
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref ActionEnqueuerDLQARN
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      FilterCriteria:
+        { "Filters": [ { "Pattern": '{"data": {"eventName": ["REMOVE"]}}' } ] }
+      MaximumBatchingWindowInSeconds: 300
+      MaximumRetryAttempts: 5
+      StartingPosition: TRIM_HORIZON
+
+  ActionEnqueuerLambda:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
+      Parameters:
+        FunctionName: !Ref ActionEnqueuerLambdaName
+        Handler: "index.handler"
+        FunctionBucketName: !Ref MicroserviceBucketName
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-enqueuer.zip"
+        MemorySize: 512
+        Timeout: 10
+        Runtime: nodejs18.x
+        TracingConfigMode: "Active"
+        Role: !GetAtt ActionEnqueuerLambdaRole.Arn
+        EnvVariables:
+          !Sub [
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap}",
+            {
+              actionQueueMap: !Ref ActionQueueMap,
+              QueueUrlMap: !Ref QueueUrlMap 
+            },
+          ]
+    
+  # Lambda function role
+  ActionEnqueuerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-actionEnqueuerLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  ActionEnqueuerLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-ActionEnqueuerLambdaPolicy
+      Roles:
+        - !Ref ActionEnqueuerLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcPnFutureActionArn
+          - Effect: "Allow"
+            Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
+          - Effect: Allow 
+            Action:
+              - sqs:SendMessage
+            Resource:
+              - !Ref ScheduledActionsQueueARN
+              - !Ref ScheduledValidationActionsQueueARN
+              - !Ref ActionEnqueuerDLQARN
+          - Effect: Allow
+            Action:
+              - "dynamodb:PutItem"
+              - "dynamodb:BatchWriteItem"
+            Resource:
+              - !Ref FutureActionDynamoTableArn            
+
+
+  # Future Action Remover
+  ActionRemoverLambda:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
+      Parameters:
+        FunctionName: !Ref ActionRemoverLambdaName
+        Handler: "index.handler"
+        FunctionBucketName: !Ref MicroserviceBucketName
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-remover.zip"
+        MemorySize: 512
+        Timeout: 10
+        Runtime: nodejs18.x
+        TracingConfigMode: "Active"
+        Role: !GetAtt ActionRemoverLambdaRole.Arn
+        EnvVariables: [ "LAST_WORKED_KEY=NEW_ACTION_POOL" ]
+    
+  # Lambda function role
+  ActionRemoverLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-actionRemoverLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  ActionRemoverLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-ActionRemoverLambdaPolicy
+      Roles:
+        - !Ref ActionRemoverLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
+          - Effect: Allow
+                Action:
+                  - "dynamodb:GetItem"
+                  - "dynamodb:DeleteItem"
+                  - "dynamodb:BatchWriteItem"
+                  - "dynamodb:Query"
+                Resource:
+                  - !Ref FutureActionDynamoTableArn
+          - Effect: Allow
+                Action:
+                  - "dynamodb:GetItem"
+                  - "dynamodb:PutItem"
+                Resource:
+                  - !Ref LastPollForFutureActionDynamoTableArn   
+  
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
   DeliveryPushMicroservicePublicIoAPI:
