@@ -1,4 +1,5 @@
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
 class DeleteEventStreamHandler extends EventHandler {
     constructor() {
@@ -20,29 +21,11 @@ class DeleteEventStreamHandler extends EventHandler {
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}`;
 
+        axiosRetry(axios, { retries: this.numRetry, shouldResetTimeout: true });
+
         console.log('calling ', url);
         let response;
-        let lastError = null;
-        for (var i=0; i< this.numRetry; i++) {
-            console.log('attempt #',i);
-            try {
-                response = await axios.delete(url, { headers: headers, timeout: this.attemptTimeout});
-                if (response) {
-                    lastError = null;
-                    break;
-                } else {
-                  console.log('cannot fetch data');
-                }
-            } catch (error) {
-                lastError = error;
-                console.log('cannot fetch data');
-            }
-        }
-
-        if (lastError != null) {
-            throw lastError;
-        }
-
+        response = await axios.delete(url, { headers: headers, timeout: this.attemptTimeout});
 
         const ret = {
             statusCode: response.status,

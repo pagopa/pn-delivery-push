@@ -1,4 +1,5 @@
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
 const { createStreamMetadataResponseV10 } = require("./mapper/transformStreamMetadataResponseFromV23ToV10.js");
 const { createStreamRequestV22 } = require("./mapper/transformStreamRequestFromV10ToV23")
@@ -23,30 +24,13 @@ class UpdateEventStreamHandler extends EventHandler {
 
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}`;
+        axiosRetry(axios, { retries: this.numRetry, shouldResetTimeout: true });
 
         console.log('calling ', url);
         console.log(requestBodyV22);
         let response;
-        let lastError = null;
-        for (var i=0; i< this.numRetry; i++) {
-            console.log('attempt #',i);
-            try{
-                response = await axios.put(url, requestBodyV22, {headers: headers, timeout: this.attemptTimeout});
-                if (response) {
-                    lastError = null;
-                    break;
-                } else {
-                  console.log('cannot fetch data');
-                }
-            } catch (error) {
-                lastError = error;
-                console.log('cannot fetch data');
-            }
-        }
+        response = await axios.put(url, requestBodyV22, {headers: headers, timeout: this.attemptTimeout});
 
-        if (lastError != null) {
-            throw lastError;
-        }
         // RESPONSE BODY
         const transformedObject = createStreamMetadataResponseV10(response.data);
 

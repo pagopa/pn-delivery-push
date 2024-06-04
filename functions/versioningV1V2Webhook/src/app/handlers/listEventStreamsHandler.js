@@ -1,4 +1,6 @@
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
+
 const EventHandler  = require('./baseHandler.js');
 class ListEventStreamsHandler extends EventHandler {
     constructor() {
@@ -16,29 +18,11 @@ class ListEventStreamsHandler extends EventHandler {
         // HEADERS
         const headers = this.prepareHeaders(event);
         const url = `${this.baseUrl}/streams`;
+        axiosRetry(axios, { retries: this.numRetry, shouldResetTimeout: true });
 
         console.log('calling ', url);
         let response;
-        let lastError = null;
-        for (var i=0; i< this.numRetry; i++) {
-            console.log('attempt #',i);
-            try{
-                response= await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
-                if (response) {
-                    lastError = null;
-                    break;
-                } else {
-                  console.log('cannot fetch data');
-                }
-            } catch (error) {
-                lastError = error;
-                console.log('cannot fetch data');
-            }
-        }
-
-        if (lastError != null) {
-            throw lastError;
-        }
+        response= await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
         return {
             statusCode: response.status,

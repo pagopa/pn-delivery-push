@@ -1,4 +1,5 @@
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
 const {createProgressResponseV10} = require("./mapper/transformProgressResponseFromV23ToV10");
 class ConsumeEventStreamHandler extends EventHandler {
@@ -23,30 +24,12 @@ class ConsumeEventStreamHandler extends EventHandler {
           lastEventIdQueryParam = `?lastEventId=${lastEventId}`;
         let url = `${this.baseUrl}/streams/${streamId}/events${lastEventIdQueryParam}`;
 
-
+        axiosRetry(axios, { retries: this.numRetry, shouldResetTimeout: true });
 
         console.log('calling ', url);
         let response;
-        let lastError = null;
-        for (var i=0; i< this.numRetry; i++) {
-            console.log('attempt #',i);
-            try {
-                response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
-                if (response) {
-                    lastError = null;
-                    break;
-                } else {
-                  console.log('cannot fetch data');
-                }
-            } catch (error) {
-                lastError = error;
-                console.log('cannot fetch data');
-            }
-        }
-
-        if (lastError != null) {
-            throw lastError;
-        }
+        
+        response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
         // Il controllo della presenza di element avviene solo nel transitorio
