@@ -1,5 +1,9 @@
 package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ATTACHMENTCHANGESTATUSFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINEEVENTNOTFOUND;
+
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.MDCUtils;
@@ -7,21 +11,38 @@ import it.pagopa.pn.deliverypush.action.utils.AarUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileTagEnumInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.F24Int;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
+import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileTagEnumInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.GeneratedF24DetailsInt;
-import it.pagopa.pn.deliverypush.exceptions.*;
+import it.pagopa.pn.deliverypush.exceptions.PnFileGoneException;
+import it.pagopa.pn.deliverypush.exceptions.PnFileNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileGoneException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationPDFNotValidException;
+import it.pagopa.pn.deliverypush.exceptions.PnValidationPDFTooBigValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.UpdateFileMetadataRequest;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
@@ -31,16 +52,6 @@ import org.springframework.util.unit.DataSize;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
 @CustomLog
@@ -164,6 +175,7 @@ public class AttachmentUtils {
         FileDownloadResponseInt fd = MDCUtils.addMDCToContextAndExecute(
                 safeStorageService.getFile(ref.getKey(),false)
                         .onErrorResume(PnFileNotFoundException.class, this::handleNotFoundError)
+                        .onErrorResume(PnFileGoneException.class, this::handleGoneError)
         ).block();
 
         if(fd != null){
@@ -213,12 +225,23 @@ public class AttachmentUtils {
 
     @NotNull
     private Mono<FileDownloadResponseInt> handleNotFoundError(PnFileNotFoundException ex) {
-        log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, ex.getMessage());
+        log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, "handleNotFoundError:"+ex.getMessage());
         return Mono.error(
                 new PnValidationFileNotFoundException(
                         ex.getMessage(),
                         ex.getCause()
                 )
+        );
+    }
+
+    @NotNull
+    private Mono<FileDownloadResponseInt> handleGoneError(PnFileGoneException ex) {
+        log.logCheckingOutcome(VALIDATE_ATTACHMENT_PROCESS, false, "handleGoneError:"+ex.getMessage());
+        return Mono.error(
+            new PnValidationFileGoneException(
+                ex.getMessage(),
+                ex.getCause()
+            )
         );
     }
 
