@@ -78,6 +78,7 @@ class LegalFactPdfGeneratorTest {
                 additional.put("raddoperatormooney", "false");
                 additional.put("raddoperatorsailpost", "false");
                 pnDeliveryPushConfigs.getWebapp().setAdditional(additional);
+                pnDeliveryPushConfigs.getWebapp().setLegalFactDisclaimer("prova disclaimer");
                 pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
                 pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");
