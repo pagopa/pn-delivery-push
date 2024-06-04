@@ -78,6 +78,7 @@ public class LegalFactGenerator {
     public static final String FIELD_LOGO = "logoBase64";
     private static final String FIELD_ADDITIONAL = "additional_";
     private static final String FIELD_DISCLAIMER = "disclaimer";
+    public static final String FIELD_SUBJECT = "subject";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -121,6 +122,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_DIGESTS, extractNotificationAttachmentDigests( notification ) );
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
+        templateModel.put(FIELD_SUBJECT, notification.getSubject());
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.REQUEST_ACCEPTED,
@@ -231,7 +233,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
-        
+
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW,
                 templateModel
@@ -256,33 +258,8 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
 
-
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE,
-                templateModel
-        );
-    }
-    
-    /**
-     * Generate the File Compliance Certificate, according to design 4h of: 
-     * https://www.figma.com/file/HjyZhnoAKbzCbxkmQCGsZw/Piattaforma-Notifiche?node-id=13514%3A94002
-     * 
-     * @param pdfFileName - the fileName to certificate, without extension
-     * @param signature - the signature (footprint) of file
-     * @param timeReference - file temporal reference
-     * @return documento pdf
-     * @throws IOException in caso di generazione fallita
-     */
-    public byte[] generateFileCompliance(String pdfFileName, String signature, Instant timeReference) throws IOException {
-
-        Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SIGNATURE, signature);
-        templateModel.put(FIELD_TIME_REFERENCE, timeReference);
-        templateModel.put(FIELD_PDF_FILE_NAME, pdfFileName );
-        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( Instant.now()/*, true*/ ) );
-
-        return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.FILE_COMPLIANCE,
                 templateModel
         );
     }
