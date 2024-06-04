@@ -1,14 +1,12 @@
 openapi: 3.0.3
 info:
-  termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
+  termsOfService: https://selfcare.notifichedigitali.it/termini-di-servizio
   title: 'Piattaforma Notifiche: API B2B avanzamento notifiche'
   x-summary: API B2B avanzamento notifiche
   version: 2.3.0
   contact:
-    email: pn-supporto-enti@pagopa.it
-  license:
-    name: Licenza di PN
-    url: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
+    name: 'SEND: supporto enti'
+    url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
   description: >-
     I mittenti di notifiche possono seguire il loro flusso di avanzamento in
     modo automatico.
@@ -20,7 +18,7 @@ info:
       - inserimento di elementi di timeline delle notifiche
 
 
-    E' possibile definire fino ad un __massimo di <span
+    É possibile definire fino ad un __massimo di <span
     id="webhookMaxStreams">10</span> configurazioni di flussi attive per singola
     PA__.
 
@@ -201,7 +199,7 @@ info:
     configurazione impostata negli streams.
 
 
-    La api restituisce un __massimo di <span id="webhookMaxLength">50</span>
+    La API restituisce un __massimo di <span id="webhookMaxLength">50</span>
     elementi per chiamata__.
 
 
@@ -447,7 +445,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      summary: Leggi metadati dello stream
+      summary: Leggi metadata dello stream
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
@@ -688,6 +686,7 @@ paths:
                 $ref: remote-refs.yaml#/components/schemas/Problem
   /delivery-progresses/streams:
     post:
+      deprecated: true
       summary: Crea nuovo stream di eventi
       description: >-
         Viene richiesta la creazione di un flusso di eventi specificando se gli
@@ -726,6 +725,7 @@ paths:
               schema:
                 $ref: remote-refs.yaml#/components/schemas/Problem
     get:
+      deprecated: true
       summary: Elenca stream di eventi
       description: Elenca gli stream di eventi
       tags:
@@ -756,6 +756,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
+      deprecated: true
       summary: Leggi metadati dello stream
       description: Permette di leggere le configurazioni di uno stream di eventi.
       tags:
@@ -783,6 +784,7 @@ paths:
               schema:
                 $ref: remote-refs.yaml#/components/schemas/Problem
     put:
+      deprecated: true
       summary: Update Stream metadata
       description: >-
         Permette di cambiare le configurazioni dei filtri associati a uno stream
@@ -818,6 +820,7 @@ paths:
               schema:
                 $ref: remote-refs.yaml#/components/schemas/Problem
     delete:
+      deprecated: true
       summary: Remove Event Stream
       description: >-
         Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli
@@ -844,6 +847,7 @@ paths:
                 $ref: remote-refs.yaml#/components/schemas/Problem
   /delivery-progresses/streams/{streamId}/events:
     get:
+      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Permette di leggere gli eventi presenti nello stream di aggiornamenti e
