@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateChooseStrategy;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -21,12 +23,13 @@ public class PnSendModeUtils {
     public static final int SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX = 2;
     public static final int DIGITAL_SEND_ATTACHMENT_MODE_INDEX = 3;
     public static final int AAR_TEMPLATE_TYPE_INDEX = 4;
-    
     private final List<PnSendMode> pnSendModesList;
+    private  final AarTemplateStrategyFactory aarTemplateStrategyFactory;
     
-    public PnSendModeUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs){
+    public PnSendModeUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs, AarTemplateStrategyFactory aarTemplateStrategyFactory){
         List<PnSendMode> pnSendModesListNotSorted = getPnSendModeFromString(pnDeliveryPushConfigs.getPnSendMode());
         pnSendModesList = getSortedList(pnSendModesListNotSorted);
+        this.aarTemplateStrategyFactory = aarTemplateStrategyFactory;
     }
     
     public PnSendMode getPnSendMode(Instant time){
@@ -36,6 +39,13 @@ public class PnSendModeUtils {
         return pnSendMode;
     }
 
+    public PnSendMode getPnSendMode(Instant time, PhysicalAddressInt address){
+        log.debug("Start getPnSendMode for time={} and address", time);
+        PnSendMode pnSendMode =  getCorrectPnSendModeFromDate(time, pnSendModesList);
+        log.debug("End getPnSendMode. PnSendMode for time={} is {}", time, pnSendMode);
+        return pnSendMode;
+    }
+    
     private PnSendMode getCorrectPnSendModeFromDate(Instant time, List<PnSendMode> pnSendModesList) {
         for(int i = pnSendModesList.size() - 1; i >=0; i--){
             PnSendMode elem = pnSendModesList.get(i);
@@ -62,17 +72,18 @@ public class PnSendModeUtils {
             String analogSendAttachmentMode = arrayObj[ANALOG_SEND_ATTACHMENT_MODE_INDEX];
             String simpleRegisteredLetterSendAttachmentMode = arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX];
             String digitalSendAttachmentMode = arrayObj[DIGITAL_SEND_ATTACHMENT_MODE_INDEX];
-            String aarTemplateType = arrayObj[AAR_TEMPLATE_TYPE_INDEX];
+            String stringAarTemplateType = arrayObj[AAR_TEMPLATE_TYPE_INDEX];
+            AarTemplateChooseStrategy aarTemplateChooseStrategy = aarTemplateStrategyFactory.getAarTemplateStrategy(stringAarTemplateType);
             
             return PnSendMode.builder()
                     .startConfigurationTime(Instant.parse(configStartDate))
                     .analogSendAttachmentMode(SendAttachmentMode.fromValue(analogSendAttachmentMode))
                     .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.fromValue(simpleRegisteredLetterSendAttachmentMode))
                     .digitalSendAttachmentMode(SendAttachmentMode.fromValue(digitalSendAttachmentMode))
-                    .aarTemplateType(DocumentComposition.TemplateType.valueOf(aarTemplateType))
+                    .aarTemplateTypeChooseStrategy(aarTemplateChooseStrategy)
                     .build();
         }).toList();
-        
     }
+    
 
 }
