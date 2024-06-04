@@ -1389,7 +1389,7 @@ Resources:
           REGION: !Sub ${AWS::Region}
           PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.3"
           NUM_RETRY: 3
-          ATTEMPT_TIMEOUT: 5
+          ATTEMPT_TIMEOUT: 7
       TracingConfig:
         Mode: Active
       Layers:
