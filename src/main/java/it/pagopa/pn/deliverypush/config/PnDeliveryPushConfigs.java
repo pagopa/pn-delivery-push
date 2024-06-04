@@ -108,6 +108,10 @@ public class PnDeliveryPushConfigs {
     
     private int pagoPaNotificationBaseCost;
 
+    private int pagoPaNotificationFee;
+
+    private int pagoPaNotificationVat;
+
     private List<String> paperSendMode;
 
     private List<String> pnSendMode;

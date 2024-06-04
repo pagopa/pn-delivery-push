@@ -34,6 +34,10 @@ import reactor.core.publisher.Mono;
 public class NotificationProcessCostServiceImpl implements NotificationProcessCostService {
     public static final double MIN_VERSION_PAFEE_VAT_MANDATORY = 2.3;
     private final int sendFee;
+
+    private final int defaultVat;
+
+    private final int defaultFee;
     private final TimelineService timelineService;
     private final PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive;
     
@@ -44,6 +48,8 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
         this.timelineService = timelineService;
         this.pnExternalRegistriesClientReactive = pnExternalRegistriesClientReactive;
         this.sendFee = cfg.getPagoPaNotificationBaseCost();
+        this.defaultFee = cfg.getPagoPaNotificationFee();
+        this.defaultVat = cfg.getPagoPaNotificationVat();
     }
 
     @Override
@@ -134,15 +140,14 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
         if(NotificationFeePolicy.DELIVERY_MODE.equals(notificationFeePolicy) && Boolean.TRUE.equals(applyCost)) {
             //... viene valorizzato sempre il costo parziale di notificazione (senza iva e pafee) ...
             notificationProcessPartialCost = sendFee + analogCost;
-            if (vat != null && paFee != null) {
-                //... se inoltre, iva e pafee sono valorizzati, viene calcolato anche il costo totale di notificazione (con iva e pafee)
-                Integer analogCostWithVat = CostUtils.getCostWithVat(vat, analogCost);
-                notificationProcessTotalCost = sendFee + analogCostWithVat + paFee;
-            } else {
-                //... se invece iva e pafee non sono valorizzati viene ritornato null. Vale solo per le sole notifiche precedenti alla v2,1 in cui
-                // non risultavano presenti tali campi, dalla v2,1 in poi i campi ci sono ed è previsto sempre un default
-                notificationProcessTotalCost = null;
+            if (vat == null || paFee == null) {
+                //... se iva e pafee NON sono valorizzati, ,vanno usati i valori di default.
+                // si noti che per le notifiche create dopo lo sviluppo, questi sono comunque presenti nella notifica.
+                vat = vat ==null? defaultVat:vat;
+                paFee = paFee ==null? defaultFee:paFee;
             }
+            int analogCostWithVatPlusFee = CostUtils.getCostWithVat(vat, analogCost) + paFee;
+            notificationProcessTotalCost = sendFee + analogCostWithVatPlusFee;
         }
         
         log.info("End getNotificationProcessCost: notificationFeePolicy={} analogCost={} notificationBaseCost={} notificationProcessPartialCost={} notificationProcessTotalCost={} paFeeCost={} notificationViewDate={}, refinementDate={} - iun={} id={}",
@@ -174,8 +179,8 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
             if( timelineElement.getDetails() instanceof RecipientRelatedTimelineElementDetails timelineElementRec 
                     && recIndex == timelineElementRec.getRecIndex()){
                 
-                if ( timelineElement.getDetails() instanceof NotificationViewedCreationRequestDetailsInt ){
-                    notificationViewDate = ((NotificationViewedCreationRequestDetailsInt) timelineElement.getDetails()).getEventTimestamp();
+                if ( timelineElement.getDetails() instanceof NotificationViewedCreationRequestDetailsInt  notificationViewedCreationRequestDetailsInt){
+                    notificationViewDate = notificationViewedCreationRequestDetailsInt.getEventTimestamp();
                 } else {
                     refinementDate = getRefinementDate(recIndex, refinementDate, timelineElement);
                 }
