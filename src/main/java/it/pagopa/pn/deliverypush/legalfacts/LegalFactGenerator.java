@@ -77,6 +77,7 @@ public class LegalFactGenerator {
     public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
     public static final String FIELD_LOGO = "logoBase64";
     private static final String FIELD_ADDITIONAL = "additional_";
+    private static final String FIELD_DISCLAIMER = "disclaimer";
     public static final String FIELD_SUBJECT = "subject";
 
     private final DocumentComposition documentComposition;
@@ -174,6 +175,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( timeStamp, true));
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
+        templateModel.put(FIELD_DISCLAIMER, this.getlegalFactDisclaimer());
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.NOTIFICATION_VIEWED,
@@ -460,6 +462,10 @@ public class LegalFactGenerator {
             throw new PnReadFileException("error during file conversion", e);
         }
 
+    }
+
+    private String getlegalFactDisclaimer(){
+        return pnDeliveryPushConfigs.getWebapp().getLegalFactDisclaimer();
     }
 }
 
