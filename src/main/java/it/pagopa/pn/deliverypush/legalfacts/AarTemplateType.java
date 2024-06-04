@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public enum AarTemplateType {
     AAR_NOTIFICATION(false, DocumentComposition.TemplateType.AAR_NOTIFICATION),
     AAR_NOTIFICATION_RADD(true, DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD),
