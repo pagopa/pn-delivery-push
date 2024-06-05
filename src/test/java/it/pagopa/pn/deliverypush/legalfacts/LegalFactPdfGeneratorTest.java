@@ -98,7 +98,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationReceivedLegalFactTest() throws IOException {
+        void generateNotificationReceivedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact.pdf");
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationReceivedLegalFact(buildNotification())));
@@ -106,7 +106,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationReceivedLegalFactTestWithSinglePaymentPagoPA() throws IOException {
+        void generateNotificationReceivedLegalFactTestWithSinglePaymentPagoPA() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact.pdf");
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationReceivedLegalFact(buildNotificationWithSinglePayment())));
@@ -114,7 +114,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationReceivedLegalFactTestWithMultipaymentPagoPaAndF24() throws IOException {
+        void generateNotificationReceivedLegalFactTestWithMultipaymentPagoPaAndF24() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact.pdf");
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationReceivedLegalFact(buildNotificationWithMultiPayment())));
@@ -122,7 +122,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationViewedLegalFactTest() throws IOException {
+        void generateNotificationViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
                 NotificationRecipientInt recipient = buildRecipients().get(0);
@@ -134,7 +134,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationDelegateViewedLegalFactTest() throws IOException {
+        void generateNotificationDelegateViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_DelegateViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
                 NotificationRecipientInt recipient = buildRecipients().get(0);
@@ -155,17 +155,13 @@ class LegalFactPdfGeneratorTest {
         void generateAnalogDeliveryFailureWorkflowLegalFact() {
                 Path filePath = Paths.get(
                                 TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
-                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
-                                ResponseStatusInt.OK);
                 NotificationInt notification = buildNotification();
                 NotificationRecipientInt recipient = buildRecipients().get(0);
                 EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
                 Instant sentDate = Instant.now().minus(Duration.ofDays(1));
 
-                Assertions.assertDoesNotThrow(() -> {
-                        return Files.write(filePath, pdfUtils.generateAnalogDeliveryFailureWorkflowLegalFact(
-                                        notification, recipient, endWorkflowStatus, sentDate));
-                });
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateAnalogDeliveryFailureWorkflowLegalFact(
+                                notification, recipient, endWorkflowStatus, sentDate)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -179,11 +175,9 @@ class LegalFactPdfGeneratorTest {
                 EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
                 Instant sentDate = Instant.now().minus(Duration.ofDays(1));
 
-                Assertions.assertDoesNotThrow(() -> {
-                        return Files.write(filePath,
-                                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
-                                                        notification, recipient, endWorkflowStatus, sentDate));
-                });
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                                pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
+                                                notification, recipient, endWorkflowStatus, sentDate)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -197,11 +191,9 @@ class LegalFactPdfGeneratorTest {
                 EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
                 Instant sentDate = Instant.now().minus(Duration.ofDays(1));
 
-                Assertions.assertDoesNotThrow(() -> {
-                        return Files.write(filePath,
-                                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
-                                                        notification, recipient, endWorkflowStatus, sentDate));
-                });
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                                pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
+                                                notification, recipient, endWorkflowStatus, sentDate)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -221,7 +213,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generategenerateFileComplianceTest() throws IOException {
+        void generategenerateFileComplianceTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_FileCompliance.pdf");
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateFileCompliance(
                                 "PDF file name whitout extension", "test signature", Instant.now())));
@@ -232,7 +224,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                                 .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
@@ -260,7 +252,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADDPFTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
+                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
                                 .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PF.pdf");
@@ -291,7 +283,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADD_ALT_Test() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD_ALT)
+                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
                         .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
@@ -320,9 +312,9 @@ class LegalFactPdfGeneratorTest {
 
         @Test
         @ExtendWith(SpringExtension.class)
-        void generateNotificationAAR_RADDPGTest() throws IOException {
+        void generateNotificationAAR_RADDPGTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
+                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
                                 .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PG.pdf");
@@ -351,9 +343,9 @@ class LegalFactPdfGeneratorTest {
 
         @Test
         @ExtendWith(SpringExtension.class)
-        void generateNotificationAAR_RADD_NumericPGTest() throws IOException {
+        void generateNotificationAAR_RADD_NumericPGTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
+                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
                         .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_numericPG.pdf");
@@ -384,7 +376,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARPGTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
                                 .build());
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PG.pdf");
 
@@ -417,7 +409,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationAAREmailTest_Legal() throws IOException {
+        void generateNotificationAAREmailTest_Legal() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
                 NotificationInt notificationInt = buildNotification();
                 NotificationRecipientInt recipient = buildRecipientsLegalWithSpecialChar().get(0);
@@ -480,7 +472,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationAARSubjectTest() throws IOException {
+        void generateNotificationAARSubjectTest() {
                 NotificationInt notificationInt = buildNotification();
 
                 Assertions.assertDoesNotThrow(() -> {
@@ -538,17 +530,17 @@ class LegalFactPdfGeneratorTest {
                                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
                                 .iun("Example_IUN_1234_Test")
                                 .subject("notification Titolo di 134 caratteri massimi spazi compresi. Aid olotielit, sed eiusmod tempora incidunt ue et et dolore magna aliqua aliqua aliqua")
-                                .documents(Arrays.asList(
-                                                NotificationDocumentInt.builder()
-                                                                .ref(NotificationDocumentInt.Ref.builder()
-                                                                                .key("doc00")
-                                                                                .versionToken("v01_doc00")
-                                                                                .build())
-                                                                .digests(NotificationDocumentInt.Digests.builder()
-                                                                                .sha256((Base64Utils.encodeToString(
-                                                                                                "sha256_doc01".getBytes())))
-                                                                                .build())
-                                                                .build()))
+                                .documents(Collections.singletonList(
+                                        NotificationDocumentInt.builder()
+                                                .ref(NotificationDocumentInt.Ref.builder()
+                                                        .key("doc00")
+                                                        .versionToken("v01_doc00")
+                                                        .build())
+                                                .digests(NotificationDocumentInt.Digests.builder()
+                                                        .sha256((Base64Utils.encodeToString(
+                                                                "sha256_doc01".getBytes())))
+                                                        .build())
+                                                .build()))
                                 .recipients(buildRecipients())
                                 .build();
         }
@@ -559,17 +551,17 @@ class LegalFactPdfGeneratorTest {
                                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
                                 .iun("Example_IUN_1234_Test")
                                 .subject("notification test subject")
-                                .documents(Arrays.asList(
-                                                NotificationDocumentInt.builder()
-                                                                .ref(NotificationDocumentInt.Ref.builder()
-                                                                                .key("doc00")
-                                                                                .versionToken("v01_doc00")
-                                                                                .build())
-                                                                .digests(NotificationDocumentInt.Digests.builder()
-                                                                                .sha256((Base64Utils.encodeToString(
-                                                                                                "sha256_doc01".getBytes())))
-                                                                                .build())
-                                                                .build()))
+                                .documents(Collections.singletonList(
+                                        NotificationDocumentInt.builder()
+                                                .ref(NotificationDocumentInt.Ref.builder()
+                                                        .key("doc00")
+                                                        .versionToken("v01_doc00")
+                                                        .build())
+                                                .digests(NotificationDocumentInt.Digests.builder()
+                                                        .sha256((Base64Utils.encodeToString(
+                                                                "sha256_doc01".getBytes())))
+                                                        .build())
+                                                .build()))
                                 .recipients(buildRecipientsSinglePayment())
                                 .build();
         }
@@ -580,17 +572,17 @@ class LegalFactPdfGeneratorTest {
                                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
                                 .iun("Example_IUN_1234_Test")
                                 .subject("notification test subject")
-                                .documents(Arrays.asList(
-                                                NotificationDocumentInt.builder()
-                                                                .ref(NotificationDocumentInt.Ref.builder()
-                                                                                .key("doc00")
-                                                                                .versionToken("v01_doc00")
-                                                                                .build())
-                                                                .digests(NotificationDocumentInt.Digests.builder()
-                                                                                .sha256((Base64Utils.encodeToString(
-                                                                                                "sha256_doc01".getBytes())))
-                                                                                .build())
-                                                                .build()))
+                                .documents(Collections.singletonList(
+                                        NotificationDocumentInt.builder()
+                                                .ref(NotificationDocumentInt.Ref.builder()
+                                                        .key("doc00")
+                                                        .versionToken("v01_doc00")
+                                                        .build())
+                                                .digests(NotificationDocumentInt.Digests.builder()
+                                                        .sha256((Base64Utils.encodeToString(
+                                                                "sha256_doc01".getBytes())))
+                                                        .build())
+                                                .build()))
                                 .recipients(buildRecipientsMultiPayments())
                                 .build();
         }
@@ -768,9 +760,9 @@ class LegalFactPdfGeneratorTest {
         }
 
         private ObjectMapper buildObjectMapper() {
-                ObjectMapper objectMapper = ((JsonMapper.Builder) ((JsonMapper.Builder) JsonMapper.builder()
-                                .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false))
-                                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)).build();
+                ObjectMapper objectMapper = JsonMapper.builder()
+                                .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
+                                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).build();
                 objectMapper.registerModule(new JavaTimeModule());
                 return objectMapper;
         }

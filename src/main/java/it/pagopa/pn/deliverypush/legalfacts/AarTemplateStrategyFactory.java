@@ -14,7 +14,7 @@ public class AarTemplateStrategyFactory {
             return raddExperimentationChooseStrategy;
         }else{
             final AarTemplateType aarTemplateType = AarTemplateType.valueOf(baseAarTemplateType);
-            return new DefaultAarTemplateChooseStrategy(aarTemplateType);
+            return new BasicAarTemplateChooseStrategy(aarTemplateType);
         }
     }
 }

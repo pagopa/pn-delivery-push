@@ -18,7 +18,8 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
+import it.pagopa.pn.deliverypush.legalfacts.BasicAarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
@@ -38,9 +39,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.action.it.utils.TestUtils.getNotificationV2WithDocument;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 
-public class ExternalChannelServiceImplAttachmentTest {
+class ExternalChannelServiceImplAttachmentTest {
 
     @Mock
     private SafeStorageService safeStorageService;
@@ -66,17 +68,14 @@ public class ExternalChannelServiceImplAttachmentTest {
     private NotificationService notificationService;
     @Mock
     private AuditLogService auditLogService;
-
-    private ExternalChannelUtils externalChannelUtils;
-    private AttachmentUtils attachmentUtils;
     private ExternalChannelService externalChannelService;
 
 
     @BeforeEach
     void setup() {
-        externalChannelUtils = new ExternalChannelUtils(timelineService, timelineUtils);
+        ExternalChannelUtils externalChannelUtils = new ExternalChannelUtils(timelineService, timelineUtils);
 
-        attachmentUtils = new AttachmentUtils(
+        AttachmentUtils attachmentUtils = new AttachmentUtils(
                 safeStorageService,
                 pnDeliveryPushConfigs,
                 notificationProcessCostService,
@@ -123,7 +122,7 @@ public class ExternalChannelServiceImplAttachmentTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
 
@@ -193,7 +192,7 @@ public class ExternalChannelServiceImplAttachmentTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
 
@@ -261,7 +260,7 @@ public class ExternalChannelServiceImplAttachmentTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
 
@@ -296,7 +295,7 @@ public class ExternalChannelServiceImplAttachmentTest {
         );
 
         //attachments result list
-        List<String> attachmentsList = Arrays.asList(aarKey);
+        List<String> attachmentsList = List.of(aarKey);
         Mockito.verify(externalChannel).sendLegalNotification(notification, notificationRecipientInt,  notificationRecipientInt.getDigitalDomicile(), eventIdExpected, attachmentsList, quickAccessToken);
     }
 

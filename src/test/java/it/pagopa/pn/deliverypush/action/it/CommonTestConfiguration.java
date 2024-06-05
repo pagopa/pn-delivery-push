@@ -28,12 +28,15 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForR
 import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
+import it.pagopa.pn.deliverypush.legalfacts.RADDExperimentationChooseStrategy;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
+import it.pagopa.pn.deliverypush.utils.CheckRADDExperimentation;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -155,7 +158,10 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         ActionPoolMock.class,
         SendDigitalFinalStatusResponseHandler.class,
         //quickWorkAroundForPN-9116
-        SendMoreThan20GramsParameterConsumer.class
+        SendMoreThan20GramsParameterConsumer.class,
+        AarTemplateStrategyFactory.class,
+        RADDExperimentationChooseStrategy.class,
+        CheckRADDExperimentation.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")

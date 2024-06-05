@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
@@ -24,23 +23,16 @@ public class PnSendModeUtils {
     public static final int DIGITAL_SEND_ATTACHMENT_MODE_INDEX = 3;
     public static final int AAR_TEMPLATE_TYPE_INDEX = 4;
     private final List<PnSendMode> pnSendModesList;
-    private  final AarTemplateStrategyFactory aarTemplateStrategyFactory;
+    private final AarTemplateStrategyFactory aarTemplateStrategyFactory;
     
     public PnSendModeUtils(PnDeliveryPushConfigs pnDeliveryPushConfigs, AarTemplateStrategyFactory aarTemplateStrategyFactory){
+        this.aarTemplateStrategyFactory = aarTemplateStrategyFactory;
         List<PnSendMode> pnSendModesListNotSorted = getPnSendModeFromString(pnDeliveryPushConfigs.getPnSendMode());
         pnSendModesList = getSortedList(pnSendModesListNotSorted);
-        this.aarTemplateStrategyFactory = aarTemplateStrategyFactory;
     }
     
     public PnSendMode getPnSendMode(Instant time){
         log.debug("Start getPnSendMode for time={}", time);
-        PnSendMode pnSendMode =  getCorrectPnSendModeFromDate(time, pnSendModesList);
-        log.debug("End getPnSendMode. PnSendMode for time={} is {}", time, pnSendMode);
-        return pnSendMode;
-    }
-
-    public PnSendMode getPnSendMode(Instant time, PhysicalAddressInt address){
-        log.debug("Start getPnSendMode for time={} and address", time);
         PnSendMode pnSendMode =  getCorrectPnSendModeFromDate(time, pnSendModesList);
         log.debug("End getPnSendMode. PnSendMode for time={} is {}", time, pnSendMode);
         return pnSendMode;

@@ -12,6 +12,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
+import it.pagopa.pn.deliverypush.legalfacts.BasicAarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
@@ -37,19 +39,22 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
     static Instant sentNotificationTime = Instant.now();
 
     //Viene valorizzata la configurazione vecchia, cioè INSTANT.NOW meno 10 giorni
+    static AarTemplateType notCurrentConfTemplateType = AarTemplateType.AAR_NOTIFICATION;
+
     static PnSendMode notCurrentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-            .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+            .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(notCurrentConfTemplateType))
             .build();
 
     //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 1 giorni
+    static AarTemplateType currentConfAaarTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD;
     static PnSendMode currentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(1, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR)
             .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-            .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD)
+            .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(currentConfAaarTemplateType))
             .build();
 
     @TestConfiguration
@@ -64,8 +69,8 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
         public PnDeliveryPushConfigs pnDeliveryPushConfigs() {
             PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
 
-            final String notCurrentConfString = getStringConfiguration(notCurrentConf);
-            final String currentConfString = getStringConfiguration(currentConf);
+            final String notCurrentConfString = getStringConfiguration(notCurrentConf, notCurrentConfTemplateType);
+            final String currentConfString = getStringConfiguration(currentConf, currentConfAaarTemplateType);
 
             List<String> pnSendModeList = new ArrayList<>();
             pnSendModeList.add(notCurrentConfString);
@@ -157,6 +162,7 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
         //Viene ottenuta la lista di tutti i documenti generati
         final List<DocumentComposition.TemplateType> listDocumentTypeGenerated = getListDocumentTypeGenerated(2);
         //Viene quindi verificato se nella lista dei documenti generati c'è il documento atteso
-        Assertions.assertTrue(listDocumentTypeGenerated.contains(currentConf.getAarTemplateType()));
+        
+        Assertions.assertTrue(listDocumentTypeGenerated.contains(currentConfAaarTemplateType.getTemplateType()));
     }
 }
