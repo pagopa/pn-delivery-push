@@ -1066,11 +1066,7 @@ public class TimelineUtils {
     public TimelineElementInternal buildAarCreationRequest(NotificationInt notification, int recIndex, PdfInfo pdfInfo) {
         log.debug("buildAarCreationRequest- iun={}", notification.getIun());
 
-        String elementId = TimelineEventId.AAR_CREATION_REQUEST.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(recIndex)
-                        .build());
+        String elementId = this.createEventIdForAarCreationRequest(notification.getIun(), recIndex);
 
         AarCreationRequestDetailsInt details = AarCreationRequestDetailsInt.builder()
                 .recIndex(recIndex)
@@ -1089,6 +1085,14 @@ public class TimelineUtils {
                 details,
                 timelineBuilder
         );
+    }
+
+    public String createEventIdForAarCreationRequest(String iun, Integer recIndex) {
+        return TimelineEventId.AAR_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
     }
 
     public TimelineElementInternal buildDigitalDeliveryLegalFactCreationRequestTimelineElement(NotificationInt notification,

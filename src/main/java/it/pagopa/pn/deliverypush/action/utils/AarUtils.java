@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
@@ -9,6 +10,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
@@ -80,5 +82,13 @@ public class AarUtils {
             throw new PnInternalException("cannot retreieve AAR pdf safestoragekey", ERROR_CODE_DELIVERYPUSH_GENERATEPDFFAILED);
         }
         return detailOpt.get();
+    }
+
+    public AarCreationRequestDetailsInt getAarCreationRequestDetailsInt(NotificationInt notification, Integer recIndex) {
+        String elementId = timelineUtils.createEventIdForAarCreationRequest(notification.getIun(), recIndex);
+
+        return timelineService.getTimelineElementDetails(notification.getIun(), elementId, AarCreationRequestDetailsInt.class)
+                .orElseThrow(() -> new PnInternalException("Cannot retrieve AarCreationRequestDetails with elementId " + elementId, ERROR_CODE_DELIVERYPUSH_NOTFOUND));
+
     }
 }
