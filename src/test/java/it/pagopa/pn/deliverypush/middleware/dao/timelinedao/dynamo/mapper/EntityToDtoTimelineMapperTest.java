@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RequestRefusedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
@@ -12,11 +13,10 @@ import java.time.Instant;
 import java.util.List;
 
 class EntityToDtoTimelineMapperTest {
-    private EntityToDtoTimelineMapper mapper;
+    private final EntityToDtoTimelineMapper mapper = new EntityToDtoTimelineMapper();
     
     @Test
     void entityToDtoSendAnalogDomicile() {
-        mapper = new EntityToDtoTimelineMapper();
 
         TimelineElementEntity entity = TimelineElementEntity.builder()
                 .paId("PaId")
@@ -66,7 +66,6 @@ class EntityToDtoTimelineMapperTest {
 
     @Test
     void entityToDtoRefusedError() {
-        mapper = new EntityToDtoTimelineMapper();
 
         TimelineElementEntity entity = TimelineElementEntity.builder()
                 .paId("PaId")
@@ -91,8 +90,7 @@ class EntityToDtoTimelineMapperTest {
     
     @Test
     void entityToDto() {
-        mapper = new EntityToDtoTimelineMapper();
-        
+
         TimelineElementEntity entity = TimelineElementEntity.builder()
                 .paId("PaId")
                 .iun("iun")
@@ -118,6 +116,34 @@ class EntityToDtoTimelineMapperTest {
         Assertions.assertEquals(entity.getDetails().getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(entity.getDetails().getSentAttemptMade(), details.getSentAttemptMade());
         Assertions.assertEquals(entity.getDetails().getDeliveryMode().getValue(), details.getDeliveryMode().getValue());
+    }
+
+    @Test
+    void entityToDtoAarCreationRequest() {
+
+        TimelineElementEntity entity = TimelineElementEntity.builder()
+                .paId("PaId")
+                .iun("iun")
+                .timelineElementId("AAR_CREATION_REQUEST.IUN_AAAA-WLRL-YUKX-202405-Z-1.RECINDEX_0")
+                .category( TimelineElementCategoryEntity.AAR_CREATION_REQUEST )
+                .notificationSentAt(Instant.now())
+                .timestamp(Instant.now())
+                .details( TimelineElementDetailsEntity.builder()
+                        .aarKey("safestorage://PN_AAR-mock.pdf")
+                        .numberOfPages(2)
+                        .recIndex(0)
+                        .aarWithRadd(true)
+                        .build())
+                .build();
+
+        TimelineElementInternal actual = mapper.entityToDto(entity);
+
+        AarCreationRequestDetailsInt details = (AarCreationRequestDetailsInt) actual.getDetails();
+
+        Assertions.assertEquals(entity.getDetails().getAarKey(), details.getAarKey());
+        Assertions.assertEquals(entity.getDetails().getNumberOfPages(), details.getNumberOfPages());
+        Assertions.assertEquals(entity.getDetails().getRecIndex(), details.getRecIndex());
+        Assertions.assertEquals(entity.getDetails().getAarWithRadd(), details.getAarWithRadd());
     }
     
 }
