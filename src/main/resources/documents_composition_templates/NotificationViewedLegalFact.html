@@ -17,7 +17,7 @@
 
       @page {
         size: A4;
-         margin: 36mm 10mm 32mm 10mm;
+          margin: 36mm 10mm 32mm 10mm;
 
         @top-left {
           content: element(header);
@@ -81,6 +81,13 @@
       #footer img {
         width: 45px;
         height: 45px;
+      }
+
+      #disclaimer {
+        padding-bottom: 3mm;
+        font-size: 10px;
+        position: fixed;
+        bottom: 0;
       }
 
       .row {
@@ -148,7 +155,7 @@
             </div>
           </div>
 			<!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
-      <div id="footer" class="row">
+      <div id="footer">
         <div class="left-col">
           <p>PagoPA S.p.A.</p>
           <p>società per azioni con socio unico</p>
@@ -246,6 +253,8 @@
         </div>
       </div>
 		</div>
+    <div class="row" id="disclaimer">
+      <p class="caption">${disclaimer}</p>
+    </div>
 	</body>
 </html>
-

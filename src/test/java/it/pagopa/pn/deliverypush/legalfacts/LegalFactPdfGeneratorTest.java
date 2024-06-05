@@ -78,7 +78,7 @@ class LegalFactPdfGeneratorTest {
                 additional.put("raddoperatormooney", "false");
                 additional.put("raddoperatorsailpost", "false");
                 pnDeliveryPushConfigs.getWebapp().setAdditional(additional);
-                pnDeliveryPushConfigs.getWebapp().setLegalFactDisclaimer("prova disclaimer");
+                pnDeliveryPushConfigs.getWebapp().setLegalFactDisclaimer("L'attestazione riporta la data in cui il destinatario (o il suo delegato) per la prima volta ha avuto accesso tramite la piattaforma al documento oggetto di notificazione. Ai fini di individuare la giusta data di perfezionamento della notifica, si invita il destinatario (o il suo delegato) a verificare se prima della data di accesso riportata nella presente attestazione, sia scaduto il termine di legge correlato all'invio della notifica al domicilio digitale o in via cartacea, poiché la data di accesso non necessariamente corrisponde alla data di perfezionamento della notifica, che può anche essere antecedente per decorrenza termini.");
                 pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
                 pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");
