@@ -262,6 +262,7 @@ public class CommonTestConfiguration {
         webapp.setFaqUrlTemplateSuffix("faq.html");
         webapp.setQuickAccessUrlAarDetailSuffix("notifica?aar");
         webapp.setLandingUrl("https://www.dev.pn.pagopa.it");
+        webapp.setLegalFactDisclaimer("prova disclaimer");
         Mockito.when(cfg.getWebapp()).thenReturn(webapp);
 
         // Impostazione delle proprietà ExternalChannel
