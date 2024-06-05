@@ -1,12 +1,15 @@
+
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
+import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 
+@Component
 
 @Slf4j
 public class CheckRADDExperimentation {
@@ -55,4 +58,5 @@ public class CheckRADDExperimentation {
         log.debug("zipCode={} not found in experimental list", zipCode);
         return false;
     }
+
 }
