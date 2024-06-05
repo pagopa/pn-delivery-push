@@ -21,11 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DtoToEntityTimelineMapperTest {
 
+    private final DtoToEntityTimelineMapper mapper = new DtoToEntityTimelineMapper();
+
     @Test
     void dtoToEntity() {
-        DtoToEntityTimelineMapper dto = new DtoToEntityTimelineMapper();
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
-        TimelineElementEntity actual = dto.dtoToEntity(timelineElementInternal);
+        TimelineElementEntity actual = mapper.dtoToEntity(timelineElementInternal);
 
         assertThat(actual).isNotNull();
         assertThat(actual.getIun()).isEqualTo(timelineElementInternal.getIun());
@@ -49,7 +50,6 @@ class DtoToEntityTimelineMapperTest {
 
     @Test
     void dtoToEntityPaid() {
-        DtoToEntityTimelineMapper dto = new DtoToEntityTimelineMapper();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .elementId("NOTIFICATION_PAID.IUN_MPKG-MHLY-GXHE-202301-P-1.CODE_PPA30229167420586447277777777777")
                 .category(TimelineElementCategoryInt.PAYMENT)
@@ -66,7 +66,7 @@ class DtoToEntityTimelineMapperTest {
                         .build())
                 .build();
 
-        TimelineElementEntity actual = dto.dtoToEntity(timelineElementInternal);
+        TimelineElementEntity actual = mapper.dtoToEntity(timelineElementInternal);
 
         assertThat(actual).isNotNull();
         assertThat(actual.getIun()).isEqualTo(timelineElementInternal.getIun());
@@ -88,9 +88,9 @@ class DtoToEntityTimelineMapperTest {
 
     }
 
+
     @Test
     void dtoToEntityPrepareAnalogDomicile_ServiceLevel_AR_REGISTERED_LETTER() {
-        DtoToEntityTimelineMapper dto = new DtoToEntityTimelineMapper();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .elementId("PREPARE_ANALOG_DOMICILE.IUN_ATVR-VRDL-GPQG-202304-J-1.RECINDEX_0.SENTATTEMPTMADE_0")
                 .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
@@ -105,7 +105,7 @@ class DtoToEntityTimelineMapperTest {
                         .build())
                 .build();
 
-        TimelineElementEntity actual = dto.dtoToEntity(timelineElementInternal);
+        TimelineElementEntity actual = mapper.dtoToEntity(timelineElementInternal);
 
         assertThat(actual).isNotNull();
         assertThat(actual.getIun()).isEqualTo(timelineElementInternal.getIun());
@@ -125,7 +125,6 @@ class DtoToEntityTimelineMapperTest {
 
     @Test
     void dtoToEntityPrepareAnalogDomicile_ServiceLevel_REGISTERED_LETTER_890() {
-        DtoToEntityTimelineMapper dto = new DtoToEntityTimelineMapper();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .elementId("PREPARE_ANALOG_DOMICILE.IUN_ATVR-VRDL-GPQG-202304-J-1.RECINDEX_0.SENTATTEMPTMADE_0")
                 .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
@@ -140,7 +139,7 @@ class DtoToEntityTimelineMapperTest {
                         .build())
                 .build();
 
-        TimelineElementEntity actual = dto.dtoToEntity(timelineElementInternal);
+        TimelineElementEntity actual = mapper.dtoToEntity(timelineElementInternal);
 
         assertThat(actual).isNotNull();
         assertThat(actual.getIun()).isEqualTo(timelineElementInternal.getIun());
@@ -156,6 +155,42 @@ class DtoToEntityTimelineMapperTest {
         assertThat(actual.getDetails().getRecIndex()).isEqualTo(details.getRecIndex());
         assertThat(actual.getDetails().getServiceLevel().name()).isEqualTo(details.getServiceLevel().name());
         assertThat(actual.getDetails().getSentAttemptMade()).isEqualTo(details.getSentAttemptMade());
+
+    }
+
+    @Test
+    void dtoToEntityAarCreationRequest() {
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("AAR_CREATION_REQUEST.IUN_AAAA-WLRL-YUKX-202405-Z-1.RECINDEX_0")
+                .category(TimelineElementCategoryInt.AAR_CREATION_REQUEST)
+                .notificationSentAt(Instant.now())
+                .paId("aa6e8c72-7944-4dcd-8668-f596447fec6d")
+                .timestamp(Instant.now())
+                .details(AarCreationRequestDetailsInt.builder()
+                        .aarKey("safestorage://PN_AAR-mock.pdf")
+                        .numberOfPages(2)
+                        .recIndex(0)
+                        .aarWithRadd(true)
+                        .build())
+                .build();
+
+        TimelineElementEntity actual = mapper.dtoToEntity(timelineElementInternal);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getIun()).isEqualTo(timelineElementInternal.getIun());
+        assertThat(actual.getTimelineElementId()).isEqualTo(timelineElementInternal.getElementId());
+        assertThat(actual.getPaId()).isEqualTo(timelineElementInternal.getPaId());
+        assertThat(actual.getNotificationSentAt()).isEqualTo(timelineElementInternal.getNotificationSentAt());
+        assertThat(actual.getCategory().name()).isEqualTo(timelineElementInternal.getCategory().name());
+        assertThat(actual.getTimestamp()).isEqualTo(timelineElementInternal.getTimestamp());
+
+        // verifica details
+        AarCreationRequestDetailsInt details = (AarCreationRequestDetailsInt) timelineElementInternal.getDetails();
+        assertThat(actual.getDetails()).isNotNull();
+        assertThat(actual.getDetails().getAarKey()).isEqualTo(details.getAarKey());
+        assertThat(actual.getDetails().getNumberOfPages()).isEqualTo(details.getNumberOfPages());
+        assertThat(actual.getDetails().getRecIndex()).isEqualTo(details.getRecIndex());
+        assertThat(actual.getDetails().getAarWithRadd()).isEqualTo(details.getAarWithRadd());
 
     }
 
