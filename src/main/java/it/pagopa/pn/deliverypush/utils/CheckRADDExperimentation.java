@@ -11,13 +11,9 @@ import java.util.Optional;
 @Slf4j
 public class CheckRADDExperimentation {
     private static final String[] EXPERIMENTAL_COUNTRIES = {"it", "italia", "italy"};
-    private static final String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST =
-            {"radd-experimentation-zip-1",
-                    "radd-experimentation-zip-2",
-                    "radd-experimentation-zip-3",
-                    "radd-experimentation-zip-4",
-                    "radd-experimentation-zip-5"
-            };
+    public static final String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-experimentation-zip-1",
+            "radd-experimentation-zip-2", "radd-experimentation-zip-3",
+            "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
     private final ParameterConsumer parameterConsumer;
 
     public CheckRADDExperimentation(ParameterConsumer parameterConsumer) {
@@ -27,9 +23,8 @@ public class CheckRADDExperimentation {
     private static boolean isAnExperimentalCountry(final String countryToCheck) {
         if (StringUtils.isBlank(countryToCheck)) return true;
 
-        for (String currentCountry :CheckRADDExperimentation.EXPERIMENTAL_COUNTRIES) {
-            if (StringUtils.equalsIgnoreCase(currentCountry, countryToCheck))
-                return true;
+        for (String currentCountry : CheckRADDExperimentation.EXPERIMENTAL_COUNTRIES) {
+            if (StringUtils.equalsIgnoreCase(currentCountry, countryToCheck)) return true;
         }
         return false;
     }
@@ -39,8 +34,7 @@ public class CheckRADDExperimentation {
         if (CheckRADDExperimentation.isAnExperimentalCountry(toCheck.getForeignState())) {
             // country in admitted countries
             for (String currentStore : CheckRADDExperimentation.PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST) {
-                if (isInStore(toCheck.getZip(), currentStore))
-                    return true;
+                if (isInStore(toCheck.getZip(), currentStore)) return true;
             }
         }
         return false;
