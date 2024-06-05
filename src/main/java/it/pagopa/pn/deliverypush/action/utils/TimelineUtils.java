@@ -1076,6 +1076,7 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .aarKey(pdfInfo.getKey())
                 .numberOfPages(pdfInfo.getNumberOfPages())
+                .aarWithRadd(pdfInfo.getAarWithRadd())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
