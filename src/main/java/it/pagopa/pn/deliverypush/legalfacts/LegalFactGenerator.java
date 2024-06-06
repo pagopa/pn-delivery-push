@@ -290,10 +290,13 @@ public class LegalFactGenerator {
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
         
         PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
-
+        
         if(pnSendMode != null){
+            final AarTemplateChooseStrategy aarTemplateTypeChooseStrategy = pnSendMode.getAarTemplateTypeChooseStrategy();
+            final AarTemplateType aarTemplateType = aarTemplateTypeChooseStrategy.choose(recipient.getPhysicalAddress());
+            log.debug("aarTemplateType generated is ={} - iun={}", aarTemplateType, notification.getIun());
             return documentComposition.executePdfTemplate(
-                    pnSendMode.getAarTemplateType(),
+                    aarTemplateType.getTemplateType(),
                     templateModel
             );
         } else {

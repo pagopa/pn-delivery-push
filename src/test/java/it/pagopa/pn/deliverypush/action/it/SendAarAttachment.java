@@ -8,9 +8,9 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
@@ -100,21 +100,19 @@ public class SendAarAttachment extends CommonTestConfiguration{
         return notificationDocumentList.stream().map(elem -> elem.getRef().getKey()).toList();
     }
 
-    static String getStringConfiguration(PnSendMode conf) {
+    static String getStringConfiguration(PnSendMode conf, AarTemplateType aarTemplateType) {
         Instant startConfTime = conf.getStartConfigurationTime().truncatedTo(ChronoUnit.SECONDS);
         return String.format("%s;%s;%s;%s;%s",
                 startConfTime,
                 conf.getAnalogSendAttachmentMode(),
                 conf.getSimpleRegisteredLetterSendAttachmentMode(),
                 conf.getDigitalSendAttachmentMode(),
-                conf.getAarTemplateType());
+                aarTemplateType.getTemplateType().name());
     }
 
     static void checkSentAndExpectedAttachmentAreEquals(List<String> listAttachmentExpectedToSend, List<String> prepareAttachmentKeySent) {
         Assertions.assertEquals(listAttachmentExpectedToSend.size(), prepareAttachmentKeySent.size());
-        listAttachmentExpectedToSend.forEach(attachmentExpectedToSend -> {
-            Assertions.assertTrue(prepareAttachmentKeySent.contains(attachmentExpectedToSend));
-        });
+        listAttachmentExpectedToSend.forEach(attachmentExpectedToSend -> Assertions.assertTrue(prepareAttachmentKeySent.contains(attachmentExpectedToSend)));
     }
 
     @NotNull
@@ -141,16 +139,7 @@ public class SendAarAttachment extends CommonTestConfiguration{
         //Viene sempre rimossa la stringa safeStorage e i query param
         return replaceSafeStorageKeyFromListAttachment(replaceQueryParamsFromListAttachment(sentAttachmentKey));
     }
-
-    List<String> getSentAttachmentKeyFromSend() {
-        ArgumentCaptor<PaperChannelSendRequest> paperChannelSendRequestCaptor = ArgumentCaptor.forClass(PaperChannelSendRequest.class);
-        Mockito.verify(paperChannelMock, Mockito.times(1)).send(paperChannelSendRequestCaptor.capture());
-        PaperChannelSendRequest paperChannelSendRequest = paperChannelSendRequestCaptor.getValue();
-        List<String> sentAttachmentKey = paperChannelSendRequest.getAttachments();
-        //Viene sempre rimossa la stringa safeStorage
-        return replaceSafeStorageKeyFromListAttachment(sentAttachmentKey);
-    }
-
+    
     String getAarKey(NotificationInt notification, Integer recIndex) {
         String elementId = TimelineEventId.AAR_CREATION_REQUEST.buildEventId(
                 EventId.builder()
