@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>it.pagopa.pn</groupId>
 	<artifactId>pn-delivery-push</artifactId>
-	<version>2.6.0</version>
+	<version>2.6.1-SNAPSHOT</version>
 	<name>pn-delivery-push</name>
 	<description>Orchestrate Notification Workflow</description>
 	<scm>
@@ -599,7 +599,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-channel/9eee1d25ba52418e059e0213e4559e7f6d5b70f4/docs/openapi/api-internal-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-channel/3c6df304e1bd5b8359f4e186a7e5c388f4b3061e/docs/openapi/api-internal-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

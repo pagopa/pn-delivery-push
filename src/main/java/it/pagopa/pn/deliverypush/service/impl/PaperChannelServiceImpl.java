@@ -126,6 +126,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
     private void prepareSimpleRegisteredLetter(NotificationInt notification, Integer recIndex) {
         String eventId = paperChannelUtils.buildPrepareSimpleRegisteredLetterEventId(notification, recIndex);
+        Boolean aarWithRadd = attachmentUtils.getAarWithRadd(notification, recIndex);
 
         // recupero gli allegati
         List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.SIMPLE_REGISTERED_LETTER), true, Collections.emptyList());
@@ -135,10 +136,17 @@ public class PaperChannelServiceImpl implements PaperChannelService {
             // nel caso della simple registgered, l'indirizzo è sempre quello fornito dalla pa
             PhysicalAddressInt receiverAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
 
-            paperChannelSendClient.prepare (new PaperChannelPrepareRequest(notification,
-                    notificationUtils.getRecipientFromIndex(notification, recIndex),
-                    receiverAddress, eventId, PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER,
-                    attachments, null, null));
+            var prepareRequest = PaperChannelPrepareRequest.builder()
+                    .notificationInt(notification)
+                    .recipientInt(notificationUtils.getRecipientFromIndex(notification, recIndex))
+                    .paAddress(receiverAddress)
+                    .requestId(eventId)
+                    .analogType(PhysicalAddressInt.ANALOG_TYPE.SIMPLE_REGISTERED_LETTER)
+                    .attachments(attachments)
+                    .aarWithRadd(aarWithRadd)
+                    .build();
+
+            paperChannelSendClient.prepare(prepareRequest);
 
             String timelineId = paperChannelUtils.addPrepareSimpleRegisteredLetterToTimeline(notification, receiverAddress, recIndex, eventId);
 
@@ -152,6 +160,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
     private void prepareAnalogDomicile(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         String eventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade);
+        Boolean aarWithRadd = attachmentUtils.getAarWithRadd(notification, recIndex);
 
         // recupero gli allegati
         List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.ANALOG_NOTIFICATION), true, Collections.emptyList());
@@ -197,10 +206,19 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 receiverAddress = analogWorkflowUtils.getPhysicalAddress(notification, recIndex);
             }
 
-            paperChannelSendClient.prepare (new PaperChannelPrepareRequest(notification,
-                    notificationUtils.getRecipientFromIndex(notification, recIndex),
-                    receiverAddress, eventId, analogType,
-                    attachments, relatedEventId, discoveredAddress));
+
+            var prepareRequest = PaperChannelPrepareRequest.builder()
+                    .notificationInt(notification)
+                    .recipientInt(notificationUtils.getRecipientFromIndex(notification, recIndex))
+                    .paAddress(receiverAddress)
+                    .requestId(eventId)
+                    .analogType(analogType)
+                    .attachments(attachments)
+                    .relatedRequestId(relatedEventId)
+                    .discoveredAddress(discoveredAddress)
+                    .aarWithRadd(aarWithRadd)
+                    .build();
+            paperChannelSendClient.prepare(prepareRequest);
 
 
             String timelineId = paperChannelUtils.addPrepareAnalogNotificationToTimeline(notification, receiverAddress, recIndex, relatedEventId, sentAttemptMade, eventId, discoveredAddress);
