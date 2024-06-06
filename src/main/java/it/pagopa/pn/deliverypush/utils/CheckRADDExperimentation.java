@@ -4,14 +4,13 @@ import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.Optional;
 
 
 @Slf4j
 public class CheckRADDExperimentation {
     private static final String[] EXPERIMENTAL_COUNTRIES = {"it", "italia", "italy"};
-    public static final String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-experimentation-zip-1",
+    protected static final String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-experimentation-zip-1",
             "radd-experimentation-zip-2", "radd-experimentation-zip-3",
             "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
     private final ParameterConsumer parameterConsumer;
@@ -20,7 +19,7 @@ public class CheckRADDExperimentation {
         this.parameterConsumer = parameterConsumer;
     }
 
-    private static boolean isAnExperimentalCountry(final String countryToCheck) {
+    private boolean isAnExperimentalCountry(final String countryToCheck) {
         if (StringUtils.isBlank(countryToCheck)) return true;
 
         for (String currentCountry : CheckRADDExperimentation.EXPERIMENTAL_COUNTRIES) {
@@ -31,7 +30,7 @@ public class CheckRADDExperimentation {
 
     public boolean checkAddress(PhysicalAddressInt toCheck) {
 
-        if (CheckRADDExperimentation.isAnExperimentalCountry(toCheck.getForeignState())) {
+        if (isAnExperimentalCountry(toCheck.getForeignState())) {
             // country in admitted countries
             for (String currentStore : CheckRADDExperimentation.PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST) {
                 if (isInStore(toCheck.getZip(), currentStore)) return true;

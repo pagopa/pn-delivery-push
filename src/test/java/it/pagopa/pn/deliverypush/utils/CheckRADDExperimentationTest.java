@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
-public class CheckRADDExperimentationTest {
+class CheckRADDExperimentationTest {
     @Mock
     private ParameterConsumer parameterConsumer;
 
