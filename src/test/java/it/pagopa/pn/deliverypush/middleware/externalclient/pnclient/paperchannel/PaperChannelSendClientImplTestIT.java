@@ -17,7 +17,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.MediaType;
@@ -25,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 import java.util.List;
@@ -58,7 +56,6 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
     }
 
     @Test
-    @ExtendWith(SpringExtension.class)
     void prepare890() {
         String requestId = "requestId";
         String path = "/paper-channel-private/v1/b2b/paper-deliveries-prepare/{requestId}"
@@ -73,6 +70,7 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
                 .recipientInt(NotificationRecipientTestBuilder.builder().build())
                 .notificationInt(NotificationTestBuilder.builder().build())
                 .attachments(List.of("Att"))
+                .aarWithRadd(true)
                 .build();
         
         new MockServerClient("localhost", 9998)
@@ -92,7 +90,6 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
     }
 
     @Test
-    @ExtendWith(SpringExtension.class)
     void prepareAR() {
         String requestId = "requestId";
         String path = "/paper-channel-private/v1/b2b/paper-deliveries-prepare/{requestId}"
@@ -107,6 +104,7 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
                 .recipientInt(NotificationRecipientTestBuilder.builder().build())
                 .notificationInt(NotificationTestBuilder.builder().build())
                 .attachments(List.of("Att"))
+                .aarWithRadd(false)
                 .build();
 
         new MockServerClient("localhost", 9998)
@@ -127,7 +125,6 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
 
 
     @Test
-    @ExtendWith(SpringExtension.class)
     void prepareAR_secondrequest() {
         String requestId = "requestId";
         String path = "/paper-channel-private/v1/b2b/paper-deliveries-prepare/{requestId}"
@@ -140,6 +137,7 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
                 .recipientInt(NotificationRecipientTestBuilder.builder().build())
                 .notificationInt(NotificationTestBuilder.builder().build())
                 .attachments(List.of("Att"))
+                .aarWithRadd(null)
                 .build();
 
         new MockServerClient("localhost", 9998)
@@ -159,7 +157,6 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
     }
 
     @Test
-    @ExtendWith(SpringExtension.class)
     void prepareSimpleRegisteredLetter() {
         String requestId = "requestId";
         String path = "/paper-channel-private/v1/b2b/paper-deliveries-prepare/{requestId}"
@@ -181,6 +178,7 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
                         .withTaxId("GeneratedTaxId_9ce24c59-862c-4024-aa75-40d888e6acac").build())
                 .notificationInt(notificationInt)
                 .attachments(List.of("Att"))
+                .aarWithRadd(true)
                 .build();
 
         // notare che il campo sentAt nel body non viene serializzato nel formato data
