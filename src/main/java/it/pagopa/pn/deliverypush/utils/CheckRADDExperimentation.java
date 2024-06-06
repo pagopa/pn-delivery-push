@@ -1,11 +1,13 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -13,13 +15,14 @@ import java.util.Optional;
 @Component
 public class CheckRADDExperimentation {
     private static final String[] EXPERIMENTAL_COUNTRIES = {"it", "italia", "italy"};
-    protected static final String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-experimentation-zip-1",
-            "radd-experimentation-zip-2", "radd-experimentation-zip-3",
-            "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
+
+
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final ParameterConsumer parameterConsumer;
 
-    public CheckRADDExperimentation(ParameterConsumer parameterConsumer) {
+    public CheckRADDExperimentation(ParameterConsumer parameterConsumer, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.parameterConsumer = parameterConsumer;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     private boolean isAnExperimentalCountry(final String countryToCheck) {
@@ -35,7 +38,10 @@ public class CheckRADDExperimentation {
 
         if (isAnExperimentalCountry(toCheck.getForeignState())) {
             // country in admitted countries
-            for (String currentStore : CheckRADDExperimentation.PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST) {
+            List<String> storeNames = pnDeliveryPushConfigs.getRaddExperimentationStoresName();
+            if (storeNames == null) return false;
+            for (String currentStore : storeNames) {
+                log.info("Current Store {}", currentStore);
                 if (isInStore(toCheck.getZip(), currentStore)) return true;
             }
         }

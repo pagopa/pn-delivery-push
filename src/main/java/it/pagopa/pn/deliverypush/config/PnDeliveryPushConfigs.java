@@ -110,6 +110,8 @@ public class PnDeliveryPushConfigs {
 
     private List<String> paperSendMode;
 
+    private List<String> raddExperimentationStoresName;
+
     private List<String> pnSendMode;
 
     //quickWorkAroundForPN-9116
