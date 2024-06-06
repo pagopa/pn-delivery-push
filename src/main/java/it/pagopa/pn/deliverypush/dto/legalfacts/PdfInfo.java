@@ -8,4 +8,5 @@ import lombok.Getter;
 public class PdfInfo {
     private String key;
     private int numberOfPages;
+    private Boolean aarWithRadd;
 }

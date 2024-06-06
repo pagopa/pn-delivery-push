@@ -13,13 +13,15 @@ public class AarCreationRequestDetailsInt implements RecipientRelatedTimelineEle
     private int recIndex;
     private String aarKey;
     private Integer numberOfPages; //Nota il campo potrà essere eliminato in futuro dal momento che il numero di pagine viene calcolato da paperChannel
+    private Boolean aarWithRadd;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d aarKey=%s numberOfPages=%s",
+                "recIndex=%d aarKey=%s numberOfPages=%s aarWithRadd=%s",
                 recIndex,
                 aarKey,
-                numberOfPages
+                numberOfPages,
+                aarWithRadd
         );
     }
 }
