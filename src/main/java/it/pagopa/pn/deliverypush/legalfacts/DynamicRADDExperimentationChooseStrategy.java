@@ -3,11 +3,9 @@ package it.pagopa.pn.deliverypush.legalfacts;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.utils.CheckRADDExperimentation;
 import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
 
-@Component
 @AllArgsConstructor
-public class RADDExperimentationChooseStrategy implements AarTemplateChooseStrategy{
+public class DynamicRADDExperimentationChooseStrategy implements AarTemplateChooseStrategy{
     private final CheckRADDExperimentation checkRADDExperimentation;
     @Override
     public AarTemplateType choose(PhysicalAddressInt address) {

@@ -19,7 +19,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
-import it.pagopa.pn.deliverypush.legalfacts.BasicAarTemplateChooseStrategy;
+import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
@@ -122,7 +122,7 @@ class ExternalChannelServiceImplAttachmentTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
+                .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
 
@@ -192,7 +192,7 @@ class ExternalChannelServiceImplAttachmentTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
+                .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
 
@@ -260,7 +260,7 @@ class ExternalChannelServiceImplAttachmentTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
+                .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
 

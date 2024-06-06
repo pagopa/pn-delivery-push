@@ -1,20 +1,21 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
+import it.pagopa.pn.deliverypush.action.utils.AarUtils;
+import it.pagopa.pn.deliverypush.utils.CheckRADDExperimentation;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
 public class AarTemplateStrategyFactory {
-    private final RADDExperimentationChooseStrategy raddExperimentationChooseStrategy;
-    public static final String START_DYNAMIC_PROPERTY_CHARACTER = "<";
+    private final CheckRADDExperimentation checkRADDExperimentation;
 
     public AarTemplateChooseStrategy getAarTemplateStrategy(String baseAarTemplateType){
-        if(baseAarTemplateType.startsWith(START_DYNAMIC_PROPERTY_CHARACTER)){
-            return raddExperimentationChooseStrategy;
+        if(AarUtils.needDynamicAarRADDDefinition(baseAarTemplateType)){
+            return new DynamicRADDExperimentationChooseStrategy(checkRADDExperimentation);
         }else{
             final AarTemplateType aarTemplateType = AarTemplateType.valueOf(baseAarTemplateType);
-            return new BasicAarTemplateChooseStrategy(aarTemplateType);
+            return new StaticAarTemplateChooseStrategy(aarTemplateType);
         }
     }
 }

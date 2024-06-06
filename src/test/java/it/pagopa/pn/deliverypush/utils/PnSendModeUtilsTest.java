@@ -2,12 +2,8 @@ package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
-import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
-import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
-import it.pagopa.pn.deliverypush.legalfacts.RADDExperimentationChooseStrategy;
+import it.pagopa.pn.deliverypush.legalfacts.*;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,15 +22,11 @@ class PnSendModeUtilsTest {
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     @Mock
-    private RADDExperimentationChooseStrategy raddExperimentationChooseStrategy;
     private AarTemplateStrategyFactory aarTemplateStrategyFactory;
-    
+    @Mock
+    CheckRADDExperimentation checkRADDExperimentation;
+
     private PnSendModeUtils pnSendModeUtils;
-    
-    @BeforeEach
-    public void init(){
-        aarTemplateStrategyFactory = new AarTemplateStrategyFactory(raddExperimentationChooseStrategy);
-    }
     
     @Test
     void getPnSendModeNoConfiguration() {
@@ -66,7 +58,9 @@ class PnSendModeUtilsTest {
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
         configurationList.add(firstCorrectConfiguration);
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
-        
+        AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
+        Mockito.when(aarTemplateStrategyFactory.getAarTemplateStrategy(Mockito.anyString())).thenReturn(aarTemplateChooseStrategy);
+
         pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs, aarTemplateStrategyFactory);
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
 
@@ -101,8 +95,12 @@ class PnSendModeUtilsTest {
         SendAttachmentMode correctSimpleRegisteredLetterSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX]);
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
+        AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
+        Mockito.when(aarTemplateStrategyFactory.getAarTemplateStrategy(Mockito.anyString())).thenReturn(aarTemplateChooseStrategy);
+
         pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs, aarTemplateStrategyFactory);
 
+        
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
         //WHEN
         PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(time);
@@ -132,6 +130,9 @@ class PnSendModeUtilsTest {
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
 
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
+        AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
+        Mockito.when(aarTemplateStrategyFactory.getAarTemplateStrategy(Mockito.anyString())).thenReturn(aarTemplateChooseStrategy);
+
         pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs, aarTemplateStrategyFactory);
 
         //WHEN
@@ -163,8 +164,11 @@ class PnSendModeUtilsTest {
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
 
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
-        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs, aarTemplateStrategyFactory);
+        AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
+        Mockito.when(aarTemplateStrategyFactory.getAarTemplateStrategy(Mockito.anyString())).thenReturn(aarTemplateChooseStrategy);
 
+        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs, aarTemplateStrategyFactory);
+        
         Instant time = correctConfigStartDate.plus(1, ChronoUnit.DAYS);
         
         //WHEN
@@ -196,8 +200,11 @@ class PnSendModeUtilsTest {
         DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
 
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
-        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs, aarTemplateStrategyFactory);
+        AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
+        Mockito.when(aarTemplateStrategyFactory.getAarTemplateStrategy(Mockito.anyString())).thenReturn(aarTemplateChooseStrategy);
 
+        pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs, aarTemplateStrategyFactory);
+    
         String[] secondConfObj = secondConfiguration.split(SEPARATOR);
         Instant secondConfStartDate = Instant.parse(secondConfObj[INDEX_START_DATE]);
         
@@ -230,10 +237,14 @@ class PnSendModeUtilsTest {
         Instant correctConfigStartDate = Instant.parse(arrayObj[INDEX_START_DATE]);
         SendAttachmentMode correctAnalogSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[ANALOG_SEND_ATTACHMENT_MODE_INDEX]);
         SendAttachmentMode correctSimpleRegisteredLetterSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX]);
-
-        AarTemplateType aarTemplateTypeExpected = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
-        Mockito.when(raddExperimentationChooseStrategy.choose(Mockito.any())).thenReturn(aarTemplateTypeExpected);
-
+        
+        Mockito.when(checkRADDExperimentation.checkAddress(Mockito.any())).thenReturn(true);
+        AarTemplateChooseStrategy aarTemplateChooseStrategy = new DynamicRADDExperimentationChooseStrategy(checkRADDExperimentation);
+        Mockito.when(aarTemplateStrategyFactory.getAarTemplateStrategy(Mockito.anyString())).thenReturn(aarTemplateChooseStrategy);
+        
+        AarTemplateChooseStrategy templateChooseStrategy = new DynamicRADDExperimentationChooseStrategy(checkRADDExperimentation);
+        Mockito.when(aarTemplateStrategyFactory.getAarTemplateStrategy(Mockito.anyString())).thenReturn(templateChooseStrategy);
+        
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
         pnSendModeUtils = new PnSendModeUtils(pnDeliveryPushConfigs, aarTemplateStrategyFactory);
 
@@ -246,7 +257,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
         DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(null).getTemplateType();
-        Assertions.assertEquals(aarTemplateTypeExpected.getTemplateType(), actualAaarTemplateType);
+        Assertions.assertEquals(AarTemplateType.AAR_NOTIFICATION_RADD_ALT.getTemplateType(), actualAaarTemplateType);
     }
 
     @Test

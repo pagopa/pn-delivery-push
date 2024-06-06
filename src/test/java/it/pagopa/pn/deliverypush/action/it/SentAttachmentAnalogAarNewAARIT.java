@@ -13,7 +13,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
-import it.pagopa.pn.deliverypush.legalfacts.BasicAarTemplateChooseStrategy;
+import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
@@ -45,7 +45,7 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-            .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(notCurrentConfTemplateType))
+            .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(notCurrentConfTemplateType))
             .build();
 
     //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 1 giorni
@@ -54,7 +54,7 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
             .startConfigurationTime(sentNotificationTime.minus(1, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR)
             .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-            .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(currentConfAaarTemplateType))
+            .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(currentConfAaarTemplateType))
             .build();
 
     @TestConfiguration

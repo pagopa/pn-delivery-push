@@ -224,7 +224,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                                 .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
@@ -252,7 +252,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADDPFTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
                                 .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PF.pdf");
@@ -283,7 +283,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADD_ALT_Test() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
                         .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
@@ -314,7 +314,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADDPGTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
                                 .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PG.pdf");
@@ -345,7 +345,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADD_NumericPGTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
                         .build());
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_numericPG.pdf");
@@ -376,7 +376,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARPGTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
                                 .build());
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PG.pdf");
 
@@ -517,7 +517,7 @@ class LegalFactPdfGeneratorTest {
                                 .notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
                                 .build();
 
-                List<SendDigitalFeedbackDetailsInt> result = new ArrayList<SendDigitalFeedbackDetailsInt>();
+                List<SendDigitalFeedbackDetailsInt> result = new ArrayList<>();
                 result.add(sdf);
                 result.add(sdf2);
                 result.add(sdf3);

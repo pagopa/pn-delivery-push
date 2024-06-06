@@ -29,7 +29,7 @@ import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
-import it.pagopa.pn.deliverypush.legalfacts.RADDExperimentationChooseStrategy;
+import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
@@ -160,7 +160,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         //quickWorkAroundForPN-9116
         SendMoreThan20GramsParameterConsumer.class,
         AarTemplateStrategyFactory.class,
-        RADDExperimentationChooseStrategy.class,
+        DynamicRADDExperimentationChooseStrategy.class,
         CheckRADDExperimentation.class
 })
 @ExtendWith(SpringExtension.class)

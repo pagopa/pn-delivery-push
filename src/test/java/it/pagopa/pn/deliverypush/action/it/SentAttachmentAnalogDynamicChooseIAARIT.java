@@ -13,9 +13,9 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
-import it.pagopa.pn.deliverypush.legalfacts.BasicAarTemplateChooseStrategy;
+import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
-import it.pagopa.pn.deliverypush.legalfacts.RADDExperimentationChooseStrategy;
+import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ import static org.awaitility.Awaitility.await;
 @ContextConfiguration(classes = SentAttachmentAnalogDynamicChooseIAARIT.InnerTestConfiguration.class)
 class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
     @Autowired
-    static RADDExperimentationChooseStrategy raddExperimentationChooseStrategy;
+    static DynamicRADDExperimentationChooseStrategy raddExperimentationChooseStrategy;
     static Instant sentNotificationTime = Instant.now();
 
     //Viene valorizzata la configurazione vecchia, cioè INSTANT.NOW meno 10 giorni
@@ -48,7 +48,7 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-            .aarTemplateTypeChooseStrategy(new BasicAarTemplateChooseStrategy(notCurrentConfTemplateType))
+            .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(notCurrentConfTemplateType))
             .build();
     
     //La configurazione dell'AarTemplateType dipende da raddExperimentationChooseStrategy, quella attesa per questo test è AAR_NOTIFICATION_RADD

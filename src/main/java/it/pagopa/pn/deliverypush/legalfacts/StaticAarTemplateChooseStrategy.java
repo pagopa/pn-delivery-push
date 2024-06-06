@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class BasicAarTemplateChooseStrategy implements AarTemplateChooseStrategy{
+public class StaticAarTemplateChooseStrategy implements AarTemplateChooseStrategy{
     private final AarTemplateType aarTemplateType;
     
     @Override
