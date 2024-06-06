@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.LegalFactCategoryEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.LegalFactsIdEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
@@ -170,7 +171,7 @@ class DtoToEntityTimelineMapperTest {
                         .aarKey("safestorage://PN_AAR-mock.pdf")
                         .numberOfPages(2)
                         .recIndex(0)
-                        .aarWithRadd(true)
+                        .aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT)
                         .build())
                 .build();
 
@@ -190,8 +191,7 @@ class DtoToEntityTimelineMapperTest {
         assertThat(actual.getDetails().getAarKey()).isEqualTo(details.getAarKey());
         assertThat(actual.getDetails().getNumberOfPages()).isEqualTo(details.getNumberOfPages());
         assertThat(actual.getDetails().getRecIndex()).isEqualTo(details.getRecIndex());
-        assertThat(actual.getDetails().getAarWithRadd()).isEqualTo(details.getAarWithRadd());
-
+        assertThat(actual.getDetails().getAarTemplateType().name()).isEqualTo(details.getAarTemplateType().getTemplateType().name());
     }
 
     private TimelineElementInternal buildTimelineElementInternal() {

@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -112,7 +113,7 @@ class AarUtilsTest {
                 .recIndex(0)
                 .aarKey("safestorage://PN-AAR-mock.pdf")
                 .numberOfPages(2)
-                .aarWithRadd(true)
+                .aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT)
                 .build();
         var expectedDetails = Optional.of(aarInt);
         String timelineEventId = "AAR_CREATION_REQUEST#IUN_IUN_01#RECINDEX_0".replace("#", TimelineEventIdBuilder.DELIMITER);
