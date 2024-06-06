@@ -69,7 +69,7 @@ public class CheckRADDExperimentation {
         log.debug("Looking for zip code={}", zipCode);
         Optional<Set> zipLists = parameterConsumer.getParameterValue(storeName, Set.class);
         if (zipLists.isPresent()) {
-            Set<String> experimentalZipList = zipLists.get();
+            Set experimentalZipList =  zipLists.get();
             log.debug("Test={} in experimental list:{}", zipCode, experimentalZipList.contains(zipCode));
             return experimentalZipList.contains(zipCode);
 //            for (String currentZip : experimentalZipList) {
