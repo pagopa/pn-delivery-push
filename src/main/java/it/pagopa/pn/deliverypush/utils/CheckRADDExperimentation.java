@@ -4,10 +4,13 @@ import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
 import java.util.Optional;
 
 
 @Slf4j
+@Component
 public class CheckRADDExperimentation {
     private static final String[] EXPERIMENTAL_COUNTRIES = {"it", "italia", "italy"};
     protected static final String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-experimentation-zip-1",
