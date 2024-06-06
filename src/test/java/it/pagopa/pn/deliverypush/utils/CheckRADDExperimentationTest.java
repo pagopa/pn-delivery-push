@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushSchedulingConfiguration;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
