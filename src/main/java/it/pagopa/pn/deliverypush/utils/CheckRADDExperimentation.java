@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -48,17 +49,35 @@ public class CheckRADDExperimentation {
         return false;
     }
 
+//    private boolean isInStore(String zipCode, String storeName) {
+//        log.debug("Looking for zip code={}", zipCode);
+//        Optional<String[]> zipLists = parameterConsumer.getParameterValue(storeName, String[].class);
+//        if (zipLists.isPresent()) {
+//            String[] experimentalZipList = zipLists.get();
+//            for (String currentZip : experimentalZipList) {
+//                if (currentZip.equals(zipCode)) {
+//                    log.debug("zipCode={} is in experimental list", zipCode);
+//                    return true;
+//                }
+//            }
+//        }
+//        log.debug("zipCode={} not found in experimental list", zipCode);
+//        return false;
+//    }
+
     private boolean isInStore(String zipCode, String storeName) {
         log.debug("Looking for zip code={}", zipCode);
-        Optional<String[]> zipLists = parameterConsumer.getParameterValue(storeName, String[].class);
+        Optional<Set> zipLists = parameterConsumer.getParameterValue(storeName, Set.class);
         if (zipLists.isPresent()) {
-            String[] experimentalZipList = zipLists.get();
-            for (String currentZip : experimentalZipList) {
-                if (currentZip.equals(zipCode)) {
-                    log.debug("zipCode={} is in experimental list", zipCode);
-                    return true;
-                }
-            }
+            Set<String> experimentalZipList = zipLists.get();
+            log.debug("Test={} in experimental list:{}", zipCode, experimentalZipList.contains(zipCode));
+            return experimentalZipList.contains(zipCode);
+//            for (String currentZip : experimentalZipList) {
+//                if (currentZip.equals(zipCode)) {
+//                    log.debug("zipCode={} is in experimental list", zipCode);
+//                    return true;
+//                }
+//            }
         }
         log.debug("zipCode={} not found in experimental list", zipCode);
         return false;
