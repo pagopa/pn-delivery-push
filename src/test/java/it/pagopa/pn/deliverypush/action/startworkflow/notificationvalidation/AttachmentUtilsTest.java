@@ -23,7 +23,8 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
+import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
@@ -151,7 +152,6 @@ class AttachmentUtilsTest {
         resp3.setChecksum( "a2V5UGFnb1BhRm9ybQ==" );
         resp3.setDownload(FileDownloadInfoInt.builder().build());
 
-        //Mockito.doNothing().when(validator).checkPreloadedDigests(Mockito.anyString(), Mockito.any( NotificationDocumentInt.Digests.class), Mockito.any( NotificationDocumentInt.Digests.class));
         Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", false)).thenReturn(Mono.just(resp1));
         Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", false)).thenReturn(Mono.just(resp2));
         Mockito.when(safeStorageService.getFile( "keyPagoPaForm", false)).thenReturn(Mono.just(resp3));
@@ -333,7 +333,7 @@ class AttachmentUtilsTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
         //WHEN
@@ -350,7 +350,7 @@ class AttachmentUtilsTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
         //WHEN
@@ -367,7 +367,7 @@ class AttachmentUtilsTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
         //WHEN
