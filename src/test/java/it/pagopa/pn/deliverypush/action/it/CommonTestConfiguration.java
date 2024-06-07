@@ -54,10 +54,7 @@ import org.springframework.util.unit.DataSize;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.awaitility.Awaitility.setDefaultTimeout;
 
@@ -268,8 +265,13 @@ public class CommonTestConfiguration {
         webapp.setFaqUrlTemplateSuffix("faq.html");
         webapp.setQuickAccessUrlAarDetailSuffix("notifica?aar");
         webapp.setLandingUrl("https://www.dev.pn.pagopa.it");
+        Map<String, String> additionalSetting = new HashMap<>();
+        additionalSetting.put("raddoperatorcaf", "true");
+        additionalSetting.put("raddoperatormooney", "true");
+        additionalSetting.put("raddoperatorsailpost", "true");
+        webapp.setAdditional(additionalSetting);
         Mockito.when(cfg.getWebapp()).thenReturn(webapp);
-
+        
         // Impostazione delle proprietà ExternalChannel
         PnDeliveryPushConfigs.ExternalChannel externalChannel = new PnDeliveryPushConfigs.ExternalChannel();
         externalChannel.setDigitalCodesProgress(Collections.singletonList("C001"));
