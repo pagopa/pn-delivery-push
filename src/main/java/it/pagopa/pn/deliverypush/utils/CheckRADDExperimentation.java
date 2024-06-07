@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-
 import java.util.Set;
 
 @Slf4j
@@ -66,20 +65,14 @@ public class CheckRADDExperimentation {
 //    }
 
     private boolean isInStore(String zipCode, String storeName) {
-        log.debug("Looking for zip code={}", zipCode);
-        Optional<Set> zipLists = parameterConsumer.getParameterValue(storeName, Set.class);
+        log.debug("Looking for zip code={} in store {}", zipCode, storeName);
+        @SuppressWarnings("unchecked") Optional<Set<String>> zipLists = parameterConsumer.getParameterValue(storeName, (Class<Set<String>>) (Object) Set.class);
         if (zipLists.isPresent()) {
-            Set experimentalZipList =  zipLists.get();
-            log.debug("Test={} in experimental list:{}", zipCode, experimentalZipList.contains(zipCode));
+            Set<String> experimentalZipList = zipLists.get();
+            log.debug("ZipCode ({}) in experimental list? {}", zipCode, experimentalZipList.contains(zipCode));
             return experimentalZipList.contains(zipCode);
-//            for (String currentZip : experimentalZipList) {
-//                if (currentZip.equals(zipCode)) {
-//                    log.debug("zipCode={} is in experimental list", zipCode);
-//                    return true;
-//                }
-//            }
         }
-        log.debug("zipCode={} not found in experimental list", zipCode);
+        log.debug("ZipCode ({}) not found in experimental list", zipCode);
         return false;
     }
 }

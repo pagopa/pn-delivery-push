@@ -51,6 +51,7 @@
     "RaddOperatorCaf": "true",
     "RaddOperatorMooney": "true",
     "RaddOperatorSailpost": "true",
-    "ErrorCorrectionLevelQrCode": "h"
+    "ErrorCorrectionLevelQrCode": "h",
+    "RaddParameterStoresNames": "radd-experimentation-zip-1,radd-experimentation-zip-2,radd-experimentation-zip-3,radd-experimentation-zip-4,radd-experimentation-zip-5"
   }
 }
