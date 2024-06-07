@@ -721,10 +721,10 @@ Parameters:
       - "q"
       - "h"
 
-    RaddPhoneNumber:
-      Type: String
-      Description: 'Phone number for assistance for RADD'
-      Default: '06.4520.2323'
+  RaddPhoneNumber:
+    Type: String
+    Description: 'Phone number for assistance for RADD'
+    Default: '06.4520.2323'
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
