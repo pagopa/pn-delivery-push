@@ -86,6 +86,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("notRefinedRecipientIndexes")})) private List<Integer> notRefinedRecipientIndexes;
     @Getter(onMethod=@__({@DynamoDbAttribute("failureCause")})) private String failureCause;
     @Getter(onMethod=@__({@DynamoDbAttribute("vat")})) private Integer vat;
-    @Getter(onMethod=@__({@DynamoDbAttribute("aarWithRadd")})) private Boolean aarWithRadd;
+    @Getter(onMethod=@__({@DynamoDbAttribute("aarTemplateType")})) private AarTemplateTypeEntity aarTemplateType;
 
 }

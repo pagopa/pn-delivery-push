@@ -558,7 +558,7 @@ class AttachmentUtilsTest {
     void getAarWithRadd() {
         var notificationInt = getNotificationInt(getNotificationRecipientInt());
         when(aarUtils.getAarCreationRequestDetailsInt(notificationInt, 0))
-                .thenReturn(AarCreationRequestDetailsInt.builder().aarWithRadd(true).build());
+                .thenReturn(AarCreationRequestDetailsInt.builder().aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT).build());
 
         var raddAarTypeActual = attachmentUtils.getAarWithRadd(notificationInt, 0);
         Assertions.assertEquals(true, raddAarTypeActual);

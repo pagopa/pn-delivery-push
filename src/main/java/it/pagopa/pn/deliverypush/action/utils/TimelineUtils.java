@@ -1,22 +1,9 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.REQUEST_REFUSED;
-import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
-
-import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.SendInformation;
+import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.DigitalMessageReferenceInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
@@ -27,76 +14,21 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogFailureWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogSuccessWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.CompletelyUnreachableCreationRequestDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.CompletelyUnreachableDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalDeliveryCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalFailureWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSuccessWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NormalizedAddressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotHandledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancellationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationPaidDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRADDRetrievedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareAnalogDomicileFailureDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareDigitalDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryCallDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PublicRegistryResponseDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.RequestRefusedDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleAnalogWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleDigitalWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleRefinementDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogProgressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SenderAckCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendingReceipt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ServiceLevelInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterProgressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ValidateF24Int;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ValidateNormalizeAddressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ValidatedF24DetailInt;
+import it.pagopa.pn.deliverypush.dto.timeline.*;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.util.*;
+
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.REQUEST_REFUSED;
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
 
 @Component
 @Slf4j
@@ -1072,9 +1004,9 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .aarKey(pdfInfo.getKey())
                 .numberOfPages(pdfInfo.getNumberOfPages())
-                .aarWithRadd(pdfInfo.getAarWithRadd())
+                .aarTemplateType(pdfInfo.getAarTemplateType())
                 .build();
-
+                
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(Collections.emptyList());
 

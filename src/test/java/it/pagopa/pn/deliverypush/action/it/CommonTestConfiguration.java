@@ -54,10 +54,7 @@ import org.springframework.util.unit.DataSize;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.awaitility.Awaitility.setDefaultTimeout;
 
@@ -168,6 +165,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
 @DirtiesContext
 @EnableScheduling
 public class CommonTestConfiguration {
+    private final static String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-expeAAArimentation-zip-1", "radd-experimentation-zip-2", "radd-experimentation-zip-3", "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
+
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
         public SpringTestConfiguration() {
@@ -268,8 +267,14 @@ public class CommonTestConfiguration {
         webapp.setFaqUrlTemplateSuffix("faq.html");
         webapp.setQuickAccessUrlAarDetailSuffix("notifica?aar");
         webapp.setLandingUrl("https://www.dev.pn.pagopa.it");
+        Map<String, String> additionalSetting = new HashMap<>();
+        additionalSetting.put("raddoperatorcaf", "true");
+        additionalSetting.put("raddoperatormooney", "true");
+        additionalSetting.put("raddoperatorsailpost", "true");
+        webapp.setAdditional(additionalSetting);
+        webapp.setRaddPhoneNumber("06.4520.2323");
         Mockito.when(cfg.getWebapp()).thenReturn(webapp);
-
+        
         // Impostazione delle proprietà ExternalChannel
         PnDeliveryPushConfigs.ExternalChannel externalChannel = new PnDeliveryPushConfigs.ExternalChannel();
         externalChannel.setDigitalCodesProgress(Collections.singletonList("C001"));
@@ -303,6 +308,14 @@ public class CommonTestConfiguration {
         Mockito.when(cfg.getPagoPaNotificationBaseCost()).thenReturn(100);
 
         Mockito.when(cfg.getErrorCorrectionLevelQrCode()).thenReturn(ErrorCorrectionLevel.H);
+
+        List<String> pnRaddExperimentationStore = new ArrayList<>();
+        pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[0]);
+        pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[1]);
+        pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[2]);
+        pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[3]);
+        pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[4]);
+        Mockito.when(cfg.getRaddExperimentationStoresName()).thenReturn(pnRaddExperimentationStore);
     }
 
 }
