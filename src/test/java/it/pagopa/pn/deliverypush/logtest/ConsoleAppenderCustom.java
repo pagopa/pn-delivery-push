@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,11 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 public class ConsoleAppenderCustom extends ConsoleAppender<ILoggingEvent> {
 
     private static List<LogEvent> eventList
-            = new ArrayList<>();
+            = Collections.synchronizedList(new ArrayList<>());
     private static List<LogEvent> eventListWarning
-        = new ArrayList<>();
+        = Collections.synchronizedList(new ArrayList<>());
 
-    private static List<LogEvent> allEvents = new ArrayList<>();
+    private static List<LogEvent> allEvents = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     protected void append(ILoggingEvent event) {
@@ -88,7 +89,7 @@ public class ConsoleAppenderCustom extends ConsoleAppender<ILoggingEvent> {
     }
 
     public static void initializeLog() {
-        eventList = new ArrayList<>();
-        eventListWarning = new ArrayList<>();
+        eventList = Collections.synchronizedList(new ArrayList<>());
+        eventListWarning = Collections.synchronizedList(new ArrayList<>());
     }
 }
