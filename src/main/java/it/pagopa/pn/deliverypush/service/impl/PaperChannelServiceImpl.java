@@ -127,6 +127,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private void prepareSimpleRegisteredLetter(NotificationInt notification, Integer recIndex) {
         String eventId = paperChannelUtils.buildPrepareSimpleRegisteredLetterEventId(notification, recIndex);
         Boolean aarWithRadd = attachmentUtils.getAarWithRadd(notification, recIndex);
+        log.debug("Starting prepareSimpleRegisteredLetter for eventId={} aarWithRadd={}", eventId, aarWithRadd);
 
         // recupero gli allegati
         List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.SIMPLE_REGISTERED_LETTER), true, Collections.emptyList());
@@ -161,7 +162,8 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private void prepareAnalogDomicile(NotificationInt notification, Integer recIndex, int sentAttemptMade) {
         String eventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade);
         Boolean aarWithRadd = attachmentUtils.getAarWithRadd(notification, recIndex);
-
+        log.debug("Starting prepareAnalogDomicile for eventId={} aarWithRadd={}", eventId, aarWithRadd);
+        
         // recupero gli allegati
         List<String> attachments = attachmentUtils.retrieveAttachments(notification, recIndex, attachmentUtils.retrieveSendAttachmentMode(notification, NotificationChannelType.ANALOG_NOTIFICATION), true, Collections.emptyList());
         PhysicalAddressInt.ANALOG_TYPE analogType = getAnalogType(notification);
