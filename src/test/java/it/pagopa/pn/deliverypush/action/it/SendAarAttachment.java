@@ -110,6 +110,16 @@ public class SendAarAttachment extends CommonTestConfiguration{
                 aarTemplateType.getTemplateType().name());
     }
 
+    static String getStringConfiguration(PnSendMode conf, String aarTemplateType) {
+        Instant startConfTime = conf.getStartConfigurationTime().truncatedTo(ChronoUnit.SECONDS);
+        return String.format("%s;%s;%s;%s;%s",
+                startConfTime,
+                conf.getAnalogSendAttachmentMode(),
+                conf.getSimpleRegisteredLetterSendAttachmentMode(),
+                conf.getDigitalSendAttachmentMode(),
+                aarTemplateType);
+    }
+    
     static void checkSentAndExpectedAttachmentAreEquals(List<String> listAttachmentExpectedToSend, List<String> prepareAttachmentKeySent) {
         Assertions.assertEquals(listAttachmentExpectedToSend.size(), prepareAttachmentKeySent.size());
         listAttachmentExpectedToSend.forEach(attachmentExpectedToSend -> Assertions.assertTrue(prepareAttachmentKeySent.contains(attachmentExpectedToSend)));

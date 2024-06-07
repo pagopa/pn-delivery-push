@@ -94,7 +94,6 @@ public class AarUtils {
 
         return timelineService.getTimelineElementDetails(notification.getIun(), elementId, AarCreationRequestDetailsInt.class)
                 .orElseThrow(() -> new PnInternalException("Cannot retrieve AarCreationRequestDetails with elementId " + elementId, ERROR_CODE_DELIVERYPUSH_NOTFOUND));
-
     }
 
     public static boolean needDynamicAarRADDDefinition(String aarTemplateType) {
