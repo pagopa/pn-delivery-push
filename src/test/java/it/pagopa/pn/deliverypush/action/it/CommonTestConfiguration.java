@@ -270,6 +270,7 @@ public class CommonTestConfiguration {
         additionalSetting.put("raddoperatormooney", "true");
         additionalSetting.put("raddoperatorsailpost", "true");
         webapp.setAdditional(additionalSetting);
+        webapp.setRaddPhoneNumber("06.4520.2323");
         Mockito.when(cfg.getWebapp()).thenReturn(webapp);
         
         // Impostazione delle proprietà ExternalChannel
