@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.legalfacts.*;
 import org.junit.jupiter.api.Assertions;
@@ -73,7 +74,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
         
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(null).getTemplateType();
+        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
 
@@ -109,7 +110,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(null).getTemplateType();
+        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
     
@@ -143,7 +144,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(null).getTemplateType();
+        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
 
@@ -179,7 +180,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(null).getTemplateType();
+        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
 
@@ -217,7 +218,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(null).getTemplateType();
+        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
 
@@ -256,7 +257,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(null).getTemplateType();
+        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
         Assertions.assertEquals(AarTemplateType.AAR_NOTIFICATION_RADD_ALT.getTemplateType(), actualAaarTemplateType);
     }
 

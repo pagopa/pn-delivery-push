@@ -9,6 +9,8 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
+import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
@@ -255,25 +257,29 @@ class LegalFactPdfGeneratorTest {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
                                 .build());
-
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PF.pdf");
                 NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                                 .paId("TEST_PA_ID")
                                 .paTaxId("TEST_TAX_ID")
                                 .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
                                 .build();
-
+                
                 NotificationInt notificationInt = NotificationInt.builder()
                                 .sender(notificationSenderInt)
                                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
                                 .iun("Example_IUN_1234_Test")
                                 .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
-                                .build();
+                        .build();
                 String quickAccessToken = "test";
+                PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                        .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                        .withZip("80078")
+                        .build();
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
                                 .recipientType(RecipientTypeInt.PF)
                                 .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
                                 .taxId("RSSMRA80A01H501U")
+                                .physicalAddress(paPhysicalAddress)
                                 .build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
@@ -301,10 +307,15 @@ class LegalFactPdfGeneratorTest {
                         .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et libero velit. Cras dignissim consequat ornare. Etiam sed justo sit.")
                         .build();
                 String quickAccessToken = "test";
+                PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                        .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                        .withZip("80078")
+                        .build();
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
                         .recipientType(RecipientTypeInt.PF)
                         .denomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
                         .taxId("LRMPSM80A01H501U")
+                        .physicalAddress(paPhysicalAddress)
                         .build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                         pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
@@ -332,10 +343,15 @@ class LegalFactPdfGeneratorTest {
                                 .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
                                 .build();
                 String quickAccessToken = "test";
+                PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                        .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                        .withZip("80078")
+                        .build();
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
                                 .recipientType(RecipientTypeInt.PG)
                                 .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
                                 .taxId("RSSMRA80A01H501U")
+                        .physicalAddress(paPhysicalAddress)
                                 .build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
@@ -363,10 +379,15 @@ class LegalFactPdfGeneratorTest {
                                 .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
                                 .build();
                 String quickAccessToken = "test";
+                PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                        .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                        .withZip("80078")
+                        .build();
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
                                 .recipientType(RecipientTypeInt.PG)
                                 .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
                                 .taxId("15376371009")
+                                .physicalAddress(paPhysicalAddress)
                                 .build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
