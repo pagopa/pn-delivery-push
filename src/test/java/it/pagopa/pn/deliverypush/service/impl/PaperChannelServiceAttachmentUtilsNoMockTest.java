@@ -22,6 +22,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsI
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
@@ -101,7 +102,7 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
         NotificationInt notificationInt = newNotification("taxid");
 
         AarCreationRequestDetailsInt aarCreationRequestDetailsInt = AarCreationRequestDetailsInt.builder()
-                .aarWithRadd(true).build();
+                .aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT).build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
@@ -109,7 +110,7 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
         Mockito.when(paperChannelUtils.buildPrepareAnalogDomicileEventId(Mockito.any(), Mockito.anyInt(), Mockito.anyInt())).thenReturn("timeline_id_1");
 
         Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(null);
-
+        
         Mockito.when(aarUtils.getAarCreationRequestDetailsInt(Mockito.any(), Mockito.anyInt())).thenReturn(aarCreationRequestDetailsInt);
 
         // WHEN
@@ -125,7 +126,7 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
                 .generatedAarUrl("http").build();
 
         AarCreationRequestDetailsInt aarCreationRequestDetailsInt = AarCreationRequestDetailsInt.builder()
-                .aarWithRadd(true).build();
+                .aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT).build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
@@ -159,7 +160,7 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
                 .generatedAarUrl("http").build();
 
         AarCreationRequestDetailsInt aarCreationRequestDetailsInt = AarCreationRequestDetailsInt.builder()
-                .aarWithRadd(true).build();
+                .aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT).build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
@@ -193,7 +194,7 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
                 .generatedAarUrl("http").build();
 
         AarCreationRequestDetailsInt aarCreationRequestDetailsInt = AarCreationRequestDetailsInt.builder()
-                .aarWithRadd(true).build();
+                .aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT).build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
@@ -249,7 +250,7 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
                 .generatedAarUrl("http").build();
 
         AarCreationRequestDetailsInt aarCreationRequestDetailsInt = AarCreationRequestDetailsInt.builder()
-                .aarWithRadd(true).build();
+                .aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT).build();
 
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
@@ -309,7 +310,7 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
                 .generatedAarUrl("http").build();
 
         AarCreationRequestDetailsInt aarCreationRequestDetailsInt = AarCreationRequestDetailsInt.builder()
-                .aarWithRadd(true).build();
+                .aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT).build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationPaid(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);

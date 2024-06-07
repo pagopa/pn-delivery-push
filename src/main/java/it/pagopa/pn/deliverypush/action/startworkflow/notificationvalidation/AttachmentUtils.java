@@ -389,7 +389,7 @@ public class AttachmentUtils {
 
     public Boolean getAarWithRadd(NotificationInt notification, Integer recIndex) {
         var details = aarUtils.getAarCreationRequestDetailsInt(notification, recIndex);
-        return details.getAarWithRadd();
+        return details.getAarTemplateType() != null && details.getAarTemplateType().isAarRADD();
     }
 
 }

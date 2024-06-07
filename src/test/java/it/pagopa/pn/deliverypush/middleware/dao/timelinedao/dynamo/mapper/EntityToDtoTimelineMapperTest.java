@@ -132,7 +132,7 @@ class EntityToDtoTimelineMapperTest {
                         .aarKey("safestorage://PN_AAR-mock.pdf")
                         .numberOfPages(2)
                         .recIndex(0)
-                        .aarWithRadd(true)
+                        .aarTemplateType(AarTemplateTypeEntity.AAR_NOTIFICATION_RADD_ALT)
                         .build())
                 .build();
 
@@ -143,7 +143,7 @@ class EntityToDtoTimelineMapperTest {
         Assertions.assertEquals(entity.getDetails().getAarKey(), details.getAarKey());
         Assertions.assertEquals(entity.getDetails().getNumberOfPages(), details.getNumberOfPages());
         Assertions.assertEquals(entity.getDetails().getRecIndex(), details.getRecIndex());
-        Assertions.assertEquals(entity.getDetails().getAarWithRadd(), details.getAarWithRadd());
+        Assertions.assertEquals(entity.getDetails().getAarTemplateType().name(), details.getAarTemplateType().name());
     }
     
 }

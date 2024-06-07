@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
@@ -284,8 +285,7 @@ public class LegalFactGenerator {
                 templateModel
         );
     }
-
-    public byte[] generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
+    public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
         
@@ -295,10 +295,15 @@ public class LegalFactGenerator {
             final AarTemplateChooseStrategy aarTemplateTypeChooseStrategy = pnSendMode.getAarTemplateTypeChooseStrategy();
             final AarTemplateType aarTemplateType = aarTemplateTypeChooseStrategy.choose(recipient.getPhysicalAddress());
             log.debug("aarTemplateType generated is ={} - iun={}", aarTemplateType, notification.getIun());
-            return documentComposition.executePdfTemplate(
+            byte[] bytesArrayGeneratedAar = documentComposition.executePdfTemplate(
                     aarTemplateType.getTemplateType(),
                     templateModel
             );
+
+            return AARInfo.builder()
+                    .bytesArrayGeneratedAar(bytesArrayGeneratedAar)
+                    .templateType(aarTemplateType)
+                    .build();
         } else {
             String msg = String.format("There isn't correct AAR configuration for date=%s - iun=%s", notification.getSentAt(), notification.getIun());
             log.error(msg);

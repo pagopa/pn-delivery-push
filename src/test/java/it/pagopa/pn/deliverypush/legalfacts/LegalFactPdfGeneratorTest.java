@@ -233,7 +233,7 @@ class LegalFactPdfGeneratorTest {
                 NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder()
                                 .recipientType(RecipientTypeInt.PF).build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
-                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 System.out.print("*** AAR pdf successfully created at: " + filePath);
         }
 
@@ -275,7 +275,7 @@ class LegalFactPdfGeneratorTest {
                                 .taxId("RSSMRA80A01H501U")
                                 .build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
-                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -306,7 +306,7 @@ class LegalFactPdfGeneratorTest {
                         .taxId("LRMPSM80A01H501U")
                         .build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
-                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -337,7 +337,7 @@ class LegalFactPdfGeneratorTest {
                                 .taxId("RSSMRA80A01H501U")
                                 .build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
-                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -368,7 +368,7 @@ class LegalFactPdfGeneratorTest {
                                 .taxId("15376371009")
                                 .build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
-                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -385,7 +385,7 @@ class LegalFactPdfGeneratorTest {
                 NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder()
                                 .recipientType(RecipientTypeInt.PG).build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
-                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken)));
+                                pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
