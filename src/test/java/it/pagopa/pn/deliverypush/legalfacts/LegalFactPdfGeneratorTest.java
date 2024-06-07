@@ -73,6 +73,7 @@ class LegalFactPdfGeneratorTest {
                 pnDeliveryPushConfigs.getWebapp()
                                 .setDirectAccessUrlTemplateLegal("https://imprese.notifichedigitali.it/");
                 pnDeliveryPushConfigs.getWebapp().setQuickAccessUrlAarDetailSuffix("?aar");
+                pnDeliveryPushConfigs.getWebapp().setRaddPhoneNumber("06.4520.2323");
                 Map<String, String> additional = new HashMap<>();
                 additional.put("raddoperatorcaf", "true");
                 additional.put("raddoperatormooney", "false");
@@ -297,7 +298,7 @@ class LegalFactPdfGeneratorTest {
                         .sender(notificationSenderInt)
                         .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
                         .iun("Example_IUN_1234_Test")
-                        .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et libero velit. Cras dignissim consequat ornare. Etiam sed justo sit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et libero velit. Cras dignissim consequat ornare. Etiam sed justo sit.")
+                        .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et libero velit. Cras dignissim consequat ornare. Etiam sed justo sit.")
                         .build();
                 String quickAccessToken = "test";
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()

@@ -78,6 +78,7 @@ public class LegalFactGenerator {
     public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
     public static final String FIELD_LOGO = "logoBase64";
     private static final String FIELD_ADDITIONAL = "additional_";
+    private static final String FIELD_RADDPHONENUMBER = "raddPhoneNumber";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -387,6 +388,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PERFEZIONAMENTO, this.getPerfezionamentoLink());
         templateModel.put(FIELD_PERFEZIONAMENTO_LABEL, this.getPerfezionamentoLinkLabel());
         templateModel.put(FIELD_LOGO_LINK, this.getLogoLink());
+        templateModel.put(FIELD_RADDPHONENUMBER, this.getRaddPhoneNumber());
         addAdditional(templateModel);
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
@@ -470,6 +472,10 @@ public class LegalFactGenerator {
 
     private String getLogoLink() {
         return this.getAssetsLink() + "aar-logo-short-small.png";
+    }
+
+    private String getRaddPhoneNumber() {
+        return pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber();
     }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
