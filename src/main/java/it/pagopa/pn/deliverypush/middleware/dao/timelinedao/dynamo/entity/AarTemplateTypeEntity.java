@@ -8,7 +8,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public enum AarTemplateTypeEntity {
-    AAR_NOTIFICATION,
-    AAR_NOTIFICATION_RADD,
-    AAR_NOTIFICATION_RADD_ALT
+    AAR_NOTIFICATION("AAR_NOTIFICATION"),
+    AAR_NOTIFICATION_RADD("AAR_NOTIFICATION_RADD"),
+    AAR_NOTIFICATION_RADD_ALT("AAR_NOTIFICATION_RADD_ALT");
+
+    private final String value;
 }
