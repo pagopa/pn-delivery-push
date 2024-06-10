@@ -48,22 +48,6 @@ public class CheckRADDExperimentation {
         return false;
     }
 
-//    private boolean isInStore(String zipCode, String storeName) {
-//        log.debug("Looking for zip code={}", zipCode);
-//        Optional<String[]> zipLists = parameterConsumer.getParameterValue(storeName, String[].class);
-//        if (zipLists.isPresent()) {
-//            String[] experimentalZipList = zipLists.get();
-//            for (String currentZip : experimentalZipList) {
-//                if (currentZip.equals(zipCode)) {
-//                    log.debug("zipCode={} is in experimental list", zipCode);
-//                    return true;
-//                }
-//            }
-//        }
-//        log.debug("zipCode={} not found in experimental list", zipCode);
-//        return false;
-//    }
-
     private boolean isInStore(String zipCode, String storeName) {
         log.debug("Looking for zip code={} in store {}", zipCode, storeName);
         @SuppressWarnings("unchecked") Optional<Set<String>> zipLists = parameterConsumer.getParameterValue(storeName, (Class<Set<String>>) (Object) Set.class);
