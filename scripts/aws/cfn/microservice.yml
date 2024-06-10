@@ -726,6 +726,10 @@ Parameters:
     Description: 'Phone number for assistance for RADD'
     Default: '06.4520.2323'
 
+  RaddParameterStoresNames:
+    Type: String
+    Description: 'RADD Parameter Store Names'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
