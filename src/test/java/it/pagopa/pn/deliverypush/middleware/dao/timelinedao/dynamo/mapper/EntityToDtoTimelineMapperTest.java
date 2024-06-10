@@ -106,6 +106,7 @@ class EntityToDtoTimelineMapperTest {
                                 )
                                 .sentAttemptMade(0)
                                 .sendDate(Instant.now())
+                                .aarTemplateType(AarTemplateTypeEntity.AAR_NOTIFICATION)
                                 .build()
                 )
                 .build();
