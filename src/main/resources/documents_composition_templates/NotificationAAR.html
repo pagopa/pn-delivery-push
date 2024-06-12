@@ -149,7 +149,7 @@
         border: 1px solid black;
         border-radius: 5px;
         font-size: 11.93px;
-        line.height: 17.2px;
+        line-height: 17.2px;
       }
 
       .section-list {
@@ -174,7 +174,7 @@
       #view-online-box {
         position: absolute;
         margin-top: 2mm;
-        width: 546px;
+        width: 140mm;
       }
       /* END VIEW ONLINE BOX */
 
@@ -182,7 +182,7 @@
       #description-box {
         margin-top: 2mm;
         position: absolute;
-        width: 168.41px;
+        width: 44mm;
         padding: 1.75mm 2.5mm;
         right: 0mm;
       }
@@ -191,7 +191,7 @@
       /* IO NOTIFICATIONS BOX */
       #io-notifications {
         position: absolute;
-        width: 90mm;
+        width: 92mm;
       }
 
       #io-notifications .rounded-box {
@@ -222,7 +222,7 @@
       #mandate-box {
         position: absolute;
         right: 0;
-        width: 323.56px;
+        width: 92mm;
       }
       /* END MANDATE BOX */
     </style>
@@ -262,8 +262,7 @@
         <#else>
         persona giuridica con Codice Fiscale
         </#if>
-        ${recipient.taxId}.<br />
-        Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti.
+        ${recipient.taxId}. Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti.
       </div>
     </div>
 
@@ -280,17 +279,13 @@
             </ol>
             I documenti notificati sono consultabili online per 120 giorni dalla data di perfezionamento della notifica.
             Per conoscerla, vai su <strong><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}.</a></strong>
-            <br>
-            <br>
-            Il termine per il pagamento, se previsto, e per eventuali impugnazioni è indicato nei documenti.
-            <!--            I documenti sono disponibili online per 120 giorni dalla data di perfezionamento della notifica. Per conoscerla, vai su <strong><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></strong>-->
           </div>
+          <br>
+          <p >Il termine per il pagamento, se previsto, e per eventuali impugnazioni è indicato nei documenti.</p>
         </div>
+        
         <div id="description-box" class="rounded-box">
-          <strong>Cos’è SEND?</strong><br/> È uno strumento che rende
-          l’invio di notifiche da parte della Pubblica Amministrazione sicuro,
-          efficiente ed economico. Per saperne di più e per ricevere assistenza,
-          visita il sito <strong><a href="${sendURL}">${sendURLLAbel}</a></strong>
+          <strong>Cos’è SEND?</strong><br/> SEND è uno strumento che rende l’invio di notifiche da parte della Pubblica Amministrazione sicuro, efficiente ed economico. Per saperne di più e per ricevere assistenza, visita il sito notifichedigitali.pagopa.it <strong><a href="${sendURL}">${sendURLLAbel}</a></strong>
         </div>
       </div>
     </div>
