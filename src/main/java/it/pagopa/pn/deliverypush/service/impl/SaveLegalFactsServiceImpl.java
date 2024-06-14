@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
+import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.legalfacts.PdfInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
@@ -59,21 +60,21 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
         try {
             log.debug("Start sendCreationRequestForAAR - iun={}", notification.getIun());
 
-            byte[] pdfByte = legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken);
-            int numberOfPages = legalFactBuilder.getNumberOfPages(pdfByte);
+            AARInfo aarInfo = legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken);
+            int numberOfPages = legalFactBuilder.getNumberOfPages(aarInfo.getBytesArrayGeneratedAar());
 
             FileCreationWithContentRequest fileCreationRequest = new FileCreationWithContentRequest();
             fileCreationRequest.setContentType(LEGALFACTS_MEDIATYPE_STRING);
             fileCreationRequest.setDocumentType(PN_AAR);
             fileCreationRequest.setStatus(SAVED);
-            fileCreationRequest.setContent(pdfByte);
-
+            fileCreationRequest.setContent(aarInfo.getBytesArrayGeneratedAar());
 
             return MDCUtils.addMDCToContextAndExecute(
                  safeStorageService.createAndUploadContent(fileCreationRequest).map( fileCreationResponse ->{
                             PdfInfo pdfInfo = PdfInfo.builder()
                                     .key(FileUtils.getKeyWithStoragePrefix(fileCreationResponse.getKey()))
                                     .numberOfPages(numberOfPages)
+                                    .aarTemplateType(aarInfo.getTemplateType())
                                     .build();
     
                             log.debug("End sendCreationRequestForAAR - iun={} key={}", notification.getIun(), fileCreationResponse);
