@@ -24,8 +24,19 @@ class ConsumeEventStreamHandler extends EventHandler {
           lastEventIdQueryParam = `?lastEventId=${lastEventId}`;
         let url = `${this.baseUrl}/streams/${streamId}/events${lastEventIdQueryParam}`;
 
-        axiosRetry(axios, { retries: this.numRetry, shouldResetTimeout: true });
-
+        axiosRetry(axios, {
+            retries: numRetry,
+            shouldResetTimeout: true ,
+            retryCondition: (error) => {
+              return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+            },
+            onRetry: (retryCount, error, requestConfig) => {
+                console.warn(`Retry num ${retryCount} - error:${error.message}`);
+            },
+            onMaxRetryTimesExceeded: (error, retryCount) => {
+                console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
+            }
+        });
         console.log('calling ', url);
         let response;
         
