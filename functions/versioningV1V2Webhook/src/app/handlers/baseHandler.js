@@ -5,7 +5,7 @@ class EventHandler {
     numRetry;
     constructor() {
         this.baseUrl = process.env.PN_WEBHOOK_URL;
-        this.attemptTimeout = process.env.ATTEMPT_TIMEOUT * 1000;
+        this.attemptTimeout = process.env.ATTEMPT_TIMEOUT_SEC * 1000;
         this.numRetry = process.env.NUM_RETRY;
     }
 

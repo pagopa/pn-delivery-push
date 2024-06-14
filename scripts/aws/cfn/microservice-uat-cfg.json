@@ -34,6 +34,8 @@
     "PagoPaNotificationBaseCost": "100",
     "RaddOperatorCaf": "Consulta CAF",
     "RaddOperatorMooney": "Mooney",
-    "RaddOperatorSailpost": "Sailpost"
+    "RaddOperatorSailpost": "Sailpost",
+    "AttemptTimeoutSec": "7",
+    "NumRetry": "3"
   }
 }

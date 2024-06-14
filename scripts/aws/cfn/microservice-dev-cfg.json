@@ -51,6 +51,8 @@
     "RaddOperatorCaf": "true",
     "RaddOperatorMooney": "true",
     "RaddOperatorSailpost": "true",
-    "ErrorCorrectionLevelQrCode": "h"
+    "ErrorCorrectionLevelQrCode": "h",
+    "AttemptTimeoutSec": "7",
+    "NumRetry": "3"
   }
 }
