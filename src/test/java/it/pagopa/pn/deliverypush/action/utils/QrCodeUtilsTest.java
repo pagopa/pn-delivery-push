@@ -27,8 +27,7 @@ class QrCodeUtilsTest {
   @Test
   void generateQRCodeWithLongUrlWithLErrorLevel() throws IOException, NotFoundException {
 
-    var url = "https://cittadini.hotfix.notifichedigitali.it/" +
-            "auth/login" + "?aar=" +
+    var url = "https://cittadini.hotfix.notifichedigitali.it/" + "?aar=" +
             "TFVOWi1WQU1QLVZZUFQtMjAyNDA0LUUtMV9QRi1hMDFiNjJkNC1lM2Y4LTQ4ZjMtYTRkOC1jZjYyOGEzNGI3NDVfOWEyNDQwMjEtZTExOS00MjZkLWE1OTAtOTlkZDZjNWZhYjQ4";
 
     byte[] qrCode = QrCodeUtils.generateQRCodeImage(url, 160, 160, ErrorCorrectionLevel.L);

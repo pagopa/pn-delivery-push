@@ -107,11 +107,12 @@ public class TimeLineServiceImpl implements TimelineService {
                 // asincrona da una lambda che opera partendo da stream Kinesis
 
                 String alreadyInsertMsg = "Timeline event was already inserted before - timelineId="+ dto.getElementId();
-                String successMsg = String.format("Timeline event inserted with: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s TIMESTAMP=%s",
+                String successMsg = String.format("Timeline event inserted with: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s paId=%s TIMESTAMP=%s",
                     dto.getCategory(),
                     dto.getIun(),
                     dto.getDetails() != null ? dto.getDetails().toLog() : null,
                     dto.getElementId(),
+                    dto.getPaId(),
                     dto.getTimestamp());
                 logEvent.generateSuccess(timelineInsertSkipped ? alreadyInsertMsg : successMsg).log();
 
@@ -143,14 +144,13 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     private PnAuditLogEvent getPnAuditLogEvent(TimelineElementInternal dto, PnAuditLogBuilder auditLogBuilder) {
-        String auditLog = String.format(
-                "Add timeline element: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s TIMESTAMP=%s",
-                dto.getCategory(),
-                dto.getIun(),
-                dto.getDetails() != null ? dto.getDetails().toLog() : null,
-                dto.getElementId(),
-                dto.getTimestamp()
-        );
+        String auditLog = String.format("Timeline event inserted with: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s paId=%s TIMESTAMP=%s",
+            dto.getCategory(),
+            dto.getIun(),
+            dto.getDetails() != null ? dto.getDetails().toLog() : null,
+            dto.getElementId(),
+            dto.getPaId(),
+            dto.getTimestamp());
         return auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_TIMELINE, auditLog)
                 .iun(dto.getIun())
