@@ -535,7 +535,7 @@ Parameters:
   PnSendMode:
     Default: '1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR;AAR;AAR_NOTIFICATION,2024-02-13T23:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION,2024-03-31T23:00:00Z;AAR;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION_RADD'
     Type: String
-    Description: 'Configuration for send notification attachment, AAR, and AAR type. Comma separated list made up by: "Configuration start time" (UTC);"Send attachment mode for analog";"Send attachment mode for simple registered letter";"Send attachment mode for legal mail";"AAR template type"'
+    Description: 'Configuration for send notification attachment, AAR, and AAR type. Comma separated list made up by: "Configuration start time" (UTC);"Send attachment mode for analog";"Send attachment mode for simple registered letter";"Send attachment mode for legal mail";"AAR template type" - if last parameter value ("AAR template type") is <RADD_TEMPLATE_DEFINITION> it means that the AAR template type need to be obtained dynamically, used for RADD experimentation'
 
   SafeStorageFileNotFoundRetry:
     Default: false
@@ -731,6 +731,15 @@ Parameters:
       - "q"
       - "h"
 
+  RaddPhoneNumber:
+    Type: String
+    Description: 'Phone number for assistance for RADD'
+    Default: '06.4520.2323'
+
+  RaddParameterStoresNames:
+    Type: String
+    Description: 'RADD Parameter Store Names'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   
@@ -840,6 +849,8 @@ Resources:
         ContainerEnvEntry73: !Sub 'PN_DELIVERYPUSH_ERRORCORRECTIONLEVELQRCODE=${ErrorCorrectionLevelQrCode}'
         ContainerEnvEntry74: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
         ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
+        ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
+        ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -905,6 +916,7 @@ Resources:
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendMoreThan20Grams'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/radd-experimentation-zip-*'
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'

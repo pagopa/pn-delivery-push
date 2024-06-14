@@ -23,4 +23,5 @@ public class PaperChannelPrepareRequest {
     private final List<String> attachments;
     private final String relatedRequestId;
     private final PhysicalAddressInt discoveredAddress;
+    private final Boolean aarWithRadd;
 }

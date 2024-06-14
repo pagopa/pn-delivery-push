@@ -1,14 +1,5 @@
 package it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation;
 
-import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
@@ -22,20 +13,14 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.F24Int;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.UpdateFileMetadataResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.GeneratedF24DetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnFileGoneException;
@@ -43,35 +28,37 @@ import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationFileGoneException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationNotMatchingShaException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
+import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.unit.DataSize;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.Base64Utils;
-import org.springframework.util.unit.DataSize;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
 
-@ExtendWith(SpringExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AttachmentUtilsTest {
 
     private AttachmentUtils attachmentUtils;
@@ -173,7 +160,6 @@ class AttachmentUtilsTest {
         resp3.setChecksum( "a2V5UGFnb1BhRm9ybQ==" );
         resp3.setDownload(FileDownloadInfoInt.builder().build());
 
-        //Mockito.doNothing().when(validator).checkPreloadedDigests(Mockito.anyString(), Mockito.any( NotificationDocumentInt.Digests.class), Mockito.any( NotificationDocumentInt.Digests.class));
         Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAw", false)).thenReturn(Mono.just(resp1));
         Mockito.when(safeStorageService.getFile( "c2hhMjU2X2RvYzAx", false)).thenReturn(Mono.just(resp2));
         Mockito.when(safeStorageService.getFile( "keyPagoPaForm", false)).thenReturn(Mono.just(resp3));
@@ -304,7 +290,6 @@ class AttachmentUtilsTest {
             "RESOLVE_WITH_TIMELINE, false, http", // formatWithDocTag = false
             "URL, true, http?docTag=AAR", // formatWithDocTag = true
     })
-    @ExtendWith(MockitoExtension.class)
     void retrieveAttachmentsAAR(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedResult) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2();
@@ -329,7 +314,6 @@ class AttachmentUtilsTest {
             "RESOLVE_WITH_TIMELINE, false, http, safestorage://test", // formatWithDocTag = false
             "URL, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT" // formatWithDocTag = true
     })
-    @ExtendWith(MockitoExtension.class)
     void retrieveAttachmentsAAR_DOCUMENTS(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2WithDocument();
@@ -357,7 +341,7 @@ class AttachmentUtilsTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
         //WHEN
@@ -374,7 +358,7 @@ class AttachmentUtilsTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
         //WHEN
@@ -391,7 +375,7 @@ class AttachmentUtilsTest {
                 .digitalSendAttachmentMode(SendAttachmentMode.AAR)
                 .simpleRegisteredLetterSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS)
                 .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-                .aarTemplateType(DocumentComposition.TemplateType.AAR_NOTIFICATION)
+                .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                 .build();
         Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(pnSendMode);
         //WHEN
@@ -410,7 +394,6 @@ class AttachmentUtilsTest {
             "URL, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA, f24set://IUN_01/0?cost=2&vat=23&docTag=ATTACHMENT_F24, 4", // formatWithDocTag = true
             "RESOLVE_WITH_REPLACED_LIST, true, http?docTag=AAR, safestorage://test?docTag=DOCUMENT, safestorage://paymentAttach?docTag=ATTACHMENT_PAGOPA, replacedF24AttachmentUrls, 4" // formatWithDocTag = true
     })
-    @ExtendWith(MockitoExtension.class)
     void retrieveAttachmentsAAR_DOCUMENTS_PAYMENTS(F24ResolutionMode resolveF24Mode, Boolean formatWithDocTag, String expectedAarUrl, String expectedDocumentUrl, String expectedPagoPaUrl, String expectedF24Url , int expectedSize) {
         //GIVEN
         NotificationInt notification = TestUtils.getNotificationV2WithF24();
@@ -447,7 +430,6 @@ class AttachmentUtilsTest {
             "0, safestorage://PN_NOTIFICATION_ATTACHMENTS-91a87a946c0d4c1ba17cd2a0037665db.pdf, safestorage://key, f24set://iun/0?cost=5&vat=22, 5", // formatWithDocTag = false
             "1, safestorage://PN_NOTIFICATION_ATTACHMENTS-91a87a946c0d4c1ba17cd2a0037665db.pdf, safestorage://PN_NOTIFICATION_ATTACHMENTS-a75e827e953c4917b6d1beaf6df56755.pdf, f24set://iun/1?cost=8&vat=22, 8" // formatWithDocTag = false
     })
-    @ExtendWith(MockitoExtension.class)
     void getAttachmentsAndPaymentsByRecipient(int recIndexRecipient, String expectedDocumentUrl,  String expectedPagoPaUrl, String expectedF24Url, int cost) {
         //GIVEN
         NotificationInt notification = getNotificationWithMultipleRecipients();
@@ -619,6 +601,16 @@ class AttachmentUtilsTest {
 
         //THEN
         Mockito.verify(safeStorageService, Mockito.times(1)).updateFileMetadata(any(), any());
+    }
+
+    @Test
+    void getAarWithRadd() {
+        var notificationInt = getNotificationInt(getNotificationRecipientInt());
+        when(aarUtils.getAarCreationRequestDetailsInt(notificationInt, 0))
+                .thenReturn(AarCreationRequestDetailsInt.builder().aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT).build());
+
+        var raddAarTypeActual = attachmentUtils.getAarWithRadd(notificationInt, 0);
+        Assertions.assertEquals(true, raddAarTypeActual);
     }
 
     private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
