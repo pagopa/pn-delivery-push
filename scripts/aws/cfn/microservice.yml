@@ -1463,19 +1463,57 @@ Resources:
               - "logs:PutLogEvents"
             Resource: "*"
           - Effect: Allow
-                Action:
-                  - "dynamodb:GetItem"
-                  - "dynamodb:DeleteItem"
-                  - "dynamodb:BatchWriteItem"
-                  - "dynamodb:Query"
-                Resource:
-                  - !Ref FutureActionDynamoTableArn
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:DeleteItem"
+              - "dynamodb:BatchWriteItem"
+              - "dynamodb:Query"
+            Resource:
+              - !Ref FutureActionDynamoTableArn
           - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:PutItem"
+            Resource:
+              - !Ref LastPollForFutureActionDynamoTableArn   
+
+  # Action Remover scheduler BEGIN
+  ActionRemoverSchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: LambdScheduleExecutionPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
                 Action:
-                  - "dynamodb:GetItem"
-                  - "dynamodb:PutItem"
+                  - lambda:InvokeFunction
                 Resource:
-                  - !Ref LastPollForFutureActionDynamoTableArn   
+                  - !GetAtt ActionRemoverLambda.Arn
+
+  ActionRemoverScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: "Schedule Action Remover every minute"
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: "ActionRemoverShedule"
+      ScheduleExpression: "rate(1 minutes)"
+      State: ENABLED
+      Target:
+        Arn: !GetAtt ActionRemoverLambda.Arn
+        RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
+  # Action Remover scheduler END
+
   
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
