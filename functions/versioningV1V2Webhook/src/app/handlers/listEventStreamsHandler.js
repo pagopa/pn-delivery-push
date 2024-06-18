@@ -19,7 +19,7 @@ class ListEventStreamsHandler extends EventHandler {
         const headers = this.prepareHeaders(event);
         const url = `${this.baseUrl}/streams`;
         axiosRetry(axios, {
-            retries: numRetry,
+            retries: this.numRetry,
             shouldResetTimeout: true ,
             retryCondition: (error) => {
               return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
