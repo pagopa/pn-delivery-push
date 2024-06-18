@@ -22,7 +22,7 @@ class DeleteEventStreamHandler extends EventHandler {
         const url = `${this.baseUrl}/streams/${streamId}`;
 
         axiosRetry(axios, {
-            retries: numRetry,
+            retries: this.numRetry,
             shouldResetTimeout: true ,
             retryCondition: (error) => {
               return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';

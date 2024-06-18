@@ -25,7 +25,7 @@ class ConsumeEventStreamHandler extends EventHandler {
         let url = `${this.baseUrl}/streams/${streamId}/events${lastEventIdQueryParam}`;
 
         axiosRetry(axios, {
-            retries: numRetry,
+            retries: this.numRetry,
             shouldResetTimeout: true ,
             retryCondition: (error) => {
               return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
