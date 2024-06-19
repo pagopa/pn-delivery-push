@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -181,9 +182,6 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                 return false;
             }
 
-            log.info("Just to check my release!" );
-            log.info("request.getGroups():"+request.getGroups());
-            log.info("getGroups(r):"+getGroups(r));
             if (request.getGroups() != null && !request.getGroups().containsAll(getGroups(r))){
                 return false;
             }
@@ -253,7 +251,6 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
     }
 
     private List<String> getGroups(StreamEntity streamEntity) {
-        //return streamEntity.getGroups() == null ? Collections.EMPTY_LIST : streamEntity.getGroups();
-        return streamEntity.getGroups();
+        return streamEntity.getGroups() == null ? Collections.EMPTY_LIST : streamEntity.getGroups();
     }
 }
