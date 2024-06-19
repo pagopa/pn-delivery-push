@@ -181,7 +181,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                 return false;
             }
 
-            if (!request.getGroups().containsAll(r.getGroups())){
+            if (!request.getGroups().containsAll(getGroups(r))){
                 return false;
             }
 
@@ -189,7 +189,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                 ? pnExternalRegistryClient.getGroups(xPagopaPnUid, xPagopaPnCxId)
                 : xPagopaPnCxGroups;
 
-            return allowedGroups.containsAll(r.getGroups());
+            return allowedGroups.containsAll(getGroups(r));
         };
     }
 
@@ -249,4 +249,8 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     }
 
+    private List<String> getGroups(StreamEntity streamEntity) {
+        //return streamEntity.getGroups() == null ? Collections.EMPTY_LIST : streamEntity.getGroups();
+        return streamEntity.getGroups();
+    }
 }
