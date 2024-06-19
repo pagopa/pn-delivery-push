@@ -181,7 +181,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                 return false;
             }
 
-            if (!request.getGroups().containsAll(getGroups(r))){
+            if (request.getGroups() != null && !request.getGroups().containsAll(getGroups(r))){
                 return false;
             }
 
