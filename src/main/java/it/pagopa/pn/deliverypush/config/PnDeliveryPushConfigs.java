@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.unit.DataSize;
+import javax.annotation.PostConstruct;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -109,7 +110,13 @@ public class PnDeliveryPushConfigs {
     
     private int pagoPaNotificationBaseCost;
 
+    private int pagoPaNotificationFee;
+
+    private int pagoPaNotificationVat;
+
     private List<String> paperSendMode;
+
+    private List<String> raddExperimentationStoresName;
 
     private List<String> pnSendMode;
 
@@ -220,6 +227,8 @@ public class PnDeliveryPushConfigs {
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
         private Map<String, String> additional;
+        private String legalFactDisclaimer;
+        private String raddPhoneNumber;
    }
 
     @Data
@@ -271,5 +280,10 @@ public class PnDeliveryPushConfigs {
     }
 
     private boolean safeStorageFileNotFoundRetry;
+
+    @PostConstruct
+    public void init() {
+        System.out.println(this);
+    }
 
 }

@@ -17,6 +17,10 @@ Parameters:
     Type: String
     Description: 'Url del portale della Persona Giuridica da inserire degli AAR'    
 
+  AddressBookUrl:
+    Type: String
+    Description: 'The URL of address book mock service'
+
   WebhookScanInterval:
     Type: String
     Description: 'Time interval between two webhook-scans every scan send notifications
@@ -386,6 +390,16 @@ Parameters:
     Description: 'PagoPa notification base cost'
     Default: '100'
 
+  PagoPaNotificationFee:
+    Type: String
+    Description: 'PagoPa notification fee per le notifiche create PRIMA della v2.1. Per le successive, il default viene impostato da pn-delivery e arriva nella notifica.'
+    Default: '100'
+
+  PagoPaNotificationVat:
+    Type: String
+    Description: 'PagoPa notification vat per le notifiche create PRIMA della v2.1. Per le successive, il default viene impostato da pn-delivery e arriva nella notifica.'
+    Default: '22'
+
   SafeStorageToDeliveryPushQueueName:
     Type: String
     Description: 'SafeStorage-to-delivery-push queue Name'
@@ -585,7 +599,7 @@ Parameters:
   PnSendMode:
     Default: '1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR;AAR;AAR_NOTIFICATION,2024-02-13T23:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION,2024-03-31T23:00:00Z;AAR;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION_RADD'
     Type: String
-    Description: 'Configuration for send notification attachment, AAR, and AAR type. Comma separated list made up by: "Configuration start time" (UTC);"Send attachment mode for analog";"Send attachment mode for simple registered letter";"Send attachment mode for legal mail";"AAR template type"'
+    Description: 'Configuration for send notification attachment, AAR, and AAR type. Comma separated list made up by: "Configuration start time" (UTC);"Send attachment mode for analog";"Send attachment mode for simple registered letter";"Send attachment mode for legal mail";"AAR template type" - if last parameter value ("AAR template type") is <RADD_TEMPLATE_DEFINITION> it means that the AAR template type need to be obtained dynamically, used for RADD experimentation'
 
   SafeStorageFileNotFoundRetry:
     Default: false
@@ -665,7 +679,7 @@ Parameters:
   PaperEventsCostUpdateDLQAlarmARN:
     Type: String
     Description: 'DLQ Alarm ARN for PaperEventsCostUpdateLambda'
-  
+
   # Lambda parameters
 
   NotificationCancellationActionInsertLambdaName:
@@ -683,7 +697,7 @@ Parameters:
     Default: 365
     Type: Number
     Description: TTL in days for pn-Action table rows
-  
+
   # CDC
 
   CdcKinesisSourceStreamArn:
@@ -693,7 +707,8 @@ Parameters:
   CdcKinesisSourceStreamKeyArn:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
-    
+
+
   #Webhook event manager lambda parameters
   WebhookEventManagerLambdaMaximumBatchingWindowInSeconds:
     Type: String
@@ -771,7 +786,7 @@ Parameters:
 
   MountEfs:
     Type: String
-    Default: "false"
+    Default: false
     AllowedValues:
       - "true"
       - "false"
@@ -814,6 +829,15 @@ Parameters:
     Default: 365
     Type: Number
     Description: TTL in days days to add to the futureAction start date
+
+  RaddPhoneNumber:
+    Type: String
+    Description: 'Phone number for assistance for RADD'
+    Default: '06.4520.2323'
+
+  RaddParameterStoresNames:
+    Type: String
+    Description: 'RADD Parameter Store Names'
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
@@ -922,9 +946,13 @@ Resources:
         ContainerEnvEntry71: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORMOONEY=${RaddOperatorMooney}'
         ContainerEnvEntry72: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORSAILPOST=${RaddOperatorSailpost}'
         ContainerEnvEntry73: !Sub 'PN_DELIVERYPUSH_ERRORCORRECTIONLEVELQRCODE=${ErrorCorrectionLevelQrCode}'
-        ContainerEnvEntry74: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
-        ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
-        ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
+        ContainerEnvEntry74: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
+        ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
+        ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
+        ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
+        ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
+        ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
+        ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -992,6 +1020,7 @@ Resources:
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendMoreThan20Grams'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/radd-experimentation-zip-*'
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -1002,7 +1031,7 @@ Resources:
             Resource:
               - !Sub "${PaperNotificationFailedDynamoTableArn}"
               - !Sub "${FutureActionDynamoTableArn}"
-              - !Ref LastPollForFutureActionDynamoTableArn
+              - !Sub "${LastPollForFutureActionDynamoTableArn}"
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
               - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
               - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
@@ -1767,7 +1796,6 @@ Resources:
       Parameters:
         FunctionName: !Ref PaperEventsCostUpdateLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-
 
   #########################################################
   ###              VersioningV1V2Webhook              ### # converte la risposta V2.3 a V1 e può essere estesa
