@@ -1,6 +1,6 @@
 const { DynamoDBDocument } = require("@aws-sdk/lib-dynamodb");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { isTimeToLeave } = require("../utils/utils.js");
+const { isTimeToLeave, addDaysToDate } = require("../utils/utils.js");
 const config = require("config");
 
 const MAX_DYNAMO_BATCH = config.get("MAX_DYNAMO_BATCH");
@@ -99,6 +99,11 @@ function getWaitTime(retryCount){
 }
 
 function getFutureAction(action){
+  console.log('Starting get future action for ', JSON.stringify(action))
+  const ttlTimeToAdd = config.get("FUTURE_ACTION_TTL_EXTRA_DAYS");
+  let ttl = addDaysToDate(action.notBefore, ttlTimeToAdd);
+  console.log('ttl calculated is ', ttl)
+
   let futureAction = {
     timeSlot: action.timeslot,
     actionId: action.actionId,
@@ -107,7 +112,8 @@ function getFutureAction(action){
     type: action.type,
     timelineId: action.timelineId,
     iun: action.iun,
-    details: getActionDetails(action.details)
+    details: getActionDetails(action.details),
+    ttl: ttl
   };
 
   return futureAction;
@@ -124,8 +130,7 @@ function getActionDetails(actionDetails) {
           startWorkflowTime: actionDetails.startWorkflowTime,
           errors: actionDetails.errors,
           isFirstSendRetry: actionDetails.isFirstSendRetry,
-          alreadyPresentRelatedFeedbackTimelineId:
-          actionDetails.alreadyPresentRelatedFeedbackTimelineId,
+          alreadyPresentRelatedFeedbackTimelineId: actionDetails.alreadyPresentRelatedFeedbackTimelineId,
           lastAttemptAddressInfo: actionDetails.lastAttemptAddressInfo,
         };
     }

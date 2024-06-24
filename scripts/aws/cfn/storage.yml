@@ -348,6 +348,9 @@ Resources:
           Projection:
             ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
@@ -535,16 +538,8 @@ Resources:
         RequireManagedKey: false
         # USES SNSTopic used for all Kinesis alarms
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-
-        ## TODO: check alarms parameters
-        DatapointsToAlarmStandard: !Ref CdcActionDatapointsToAlarmOncall
         StandardAlarmThresholdsMs: !Ref CdcActionStandardAlarmThresholdsMs
         OnCallAlarmThresholdsMs: !Ref CdcActionOnCallAlarmThresholdsMs
-        StandardAlarmPeriodSeconds: !Ref CdcActionStandardAlarmPeriodSeconds
-        StandardAlarmEvaluationPeriods: !Ref CdcActionStandardAlarmEvaluationPeriods
-        DatapointsToAlarmOncall: !Ref CdcActionDatapointsToAlarmStandard
-        OncallAlarmPeriodSeconds: !Ref CdcActionOncallAlarmPeriodSeconds
-        OncallAlarmEvaluationPeriods: !Ref CdcActionOncallAlarmEvaluationPeriods
 
   ### Kinesis Data Stream: CDC for PN-FUTURE-ACTION DynamoDB Table
   CdcPnFutureActionStream:
@@ -561,15 +556,8 @@ Resources:
         RequireManagedKey: false
         # USES SNSTopic used for all Kinesis alarms
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        ## TODO: check alarms parameters
-        DatapointsToAlarmStandard: !Ref CdcActionDatapointsToAlarmOncall
         StandardAlarmThresholdsMs: !Ref CdcActionStandardAlarmThresholdsMs
         OnCallAlarmThresholdsMs: !Ref CdcActionOnCallAlarmThresholdsMs
-        StandardAlarmPeriodSeconds: !Ref CdcActionStandardAlarmPeriodSeconds
-        StandardAlarmEvaluationPeriods: !Ref CdcActionStandardAlarmEvaluationPeriods
-        DatapointsToAlarmOncall: !Ref CdcActionDatapointsToAlarmStandard
-        OncallAlarmPeriodSeconds: !Ref CdcActionOncallAlarmPeriodSeconds
-        OncallAlarmEvaluationPeriods: !Ref CdcActionOncallAlarmEvaluationPeriods
 
 Outputs:
 

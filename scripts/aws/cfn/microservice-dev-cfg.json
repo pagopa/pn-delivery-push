@@ -52,8 +52,8 @@
     "RaddOperatorMooney": "true",
     "RaddOperatorSailpost": "true",
     "ErrorCorrectionLevelQrCode": "h",
-    "ActionQueueMap": "ACTION_QUEUE_MAP={\"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"PocWrite-PocRouterDLQ\",\"DOCUMENT_CREATION_RESPONSE\":\"PocWrite-PocRouterDLQ\",\"NOTIFICATION_CREATION\":\"PocWrite-PocRouterDLQ\",\"NOTIFICATION_VALIDATION\":\"PocWrite-PocScheduledActionsQueue\"}",
-    "QueueUrlMap": "QUEUE_URL_MAP={\"PocWrite-PocRouterDLQ\":\"https://sqs.eu-central-1.amazonaws.com/830192246553/PocWrite-PocRouterDLQ-eR8Flj4obqXK\", \"PocWrite-PocScheduledActionsQueue\":\"https://sqs.eu-central-1.amazonaws.com/830192246553/PocWrite-PocScheduledActionsQueue-vdcddODDraxb\"}",
+    "ActionQueueMap": "ACTION_QUEUE_MAP={\"NOTIFICATION_VALIDATION\":\"ActionValidationQueue\",\"NOTIFICATION_REFUSED\":\"ActionValidationQueue\",\"NOTIFICATION_CANCELLATION\":\"ActionQueue\",\"SCHEDULE_RECEIVED_LEGALFACT_GENERATION\":\"ActionQueue\", \"CHECK_ATTACHMENT_RETENTION\":\"ActionQueue\", \"START_RECIPIENT_WORKFLOW\":\"ActionValidationQueue\", \"CHOOSE_DELIVERY_MODE\":\"ActionQueue\", \"ANALOG_WORKFLOW\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NEXT_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_RETRY_ACTION\":\"ActionQueue\", \"SEND_DIGITAL_FINAL_STATUS_RESPONSE\":\"ActionQueue\", \"REFINEMENT_NOTIFICATION\":\"ActionQueue\", \"SENDER_ACK\":\"ActionQueue\", \"DOCUMENT_CREATION_RESPONSE\":\"ActionQueue\", \"POST_ACCEPTED_PROCESSING_COMPLETED\":\"ActionQueue\", \"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"ActionValidationQueue\"}",
+    "QueueUrlMap": "QUEUE_URL_MAP={\"ActionQueue\":\"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions\", \"ActionValidationQueue\":\"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_validation_actions\"}",
     "ActionRouterKinesisBatchSize": "1",
     "CdcPnActionShards": "12",
     "CdcPnFutureActionShards": "8",
@@ -63,6 +63,7 @@
     "CdcActionOnCallAlarmThresholdsMs": 2000000,
     "ActionEnqueuerKinesisBatchSize": 10,
     "PerformanceImprovementStartDate": "2024-06-01T00:00:00Z",
-    "PerformanceImprovementEndDate": "2025-06-01T00:00:00Z"
+    "PerformanceImprovementEndDate": "2025-06-01T00:00:00Z",
+    "FutureActionTtlExtraDays": "10"
   }
 }

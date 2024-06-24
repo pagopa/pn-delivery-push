@@ -683,7 +683,7 @@ Parameters:
     Default: 365
     Type: Number
     Description: TTL in days for pn-Action table rows
-
+  
   # CDC
 
   CdcKinesisSourceStreamArn:
@@ -809,7 +809,12 @@ Parameters:
   EnvironmentType:
     Type: String
     Description: Environment type
-    
+  
+  FutureActionTtlExtraDays:
+    Default: 365
+    Type: Number
+    Description: TTL in days days to add to the futureAction start date
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
 
@@ -1214,16 +1219,16 @@ Resources:
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
 
-  # ActionRouterLambdaLibrariesLayer:
-  #   Type: AWS::Lambda::LayerVersion
-  #   Properties:
-  #     CompatibleRuntimes:
-  #       - nodejs18.x
-  #     Content:
-  #       S3Bucket: !Ref MicroserviceBucketName
-  #       S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
-  #     Description: NodeJs Libs layer
-  #     LayerName: actionRouterLambda-libs-layer
+  ActionRouterLambdaLibrariesLayer:
+   Type: AWS::Lambda::LayerVersion
+   Properties:
+     CompatibleRuntimes:
+       - nodejs18.x
+     Content:
+       S3Bucket: !Ref MicroserviceBucketName
+       S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
+     Description: NodeJs Libs layer
+     LayerName: actionRouterLambda-libs-layer
 
   ActionRouterLambda:
     Type: AWS::CloudFormation::Stack
@@ -1241,13 +1246,14 @@ Resources:
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         Role: !GetAtt ActionRouterLambdaRole.Arn
-        # Layer1: !Ref ActionRouterLambdaLibrariesLayer
+        Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap}",
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays} ",
             {
               actionQueueMap: !Ref ActionQueueMap,
-              QueueUrlMap: !Ref QueueUrlMap 
+              QueueUrlMap: !Ref QueueUrlMap,
+              FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays
             },
           ]
     

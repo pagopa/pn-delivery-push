@@ -56,6 +56,7 @@ async function writeMessagesToQueue(immediateActions, context, destinationQueueU
           "[ACTION_ENQUEUER]",
           "Timeout detected for:",
           JSON.stringify(actionsToSendMapped)
+          //Non si conoscono gli item falliti e quelli andati a buon fine - è necessario un check manuale
         );
       }else{
         console.info('Generic exception in SQS send message, need to reschedule');
