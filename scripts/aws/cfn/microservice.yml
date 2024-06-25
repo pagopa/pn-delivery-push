@@ -1959,6 +1959,7 @@ Resources:
             - !Ref PaperEventsCostUpdateDLQAlarmARN
             - !Ref ActionRouterDLQAlarmARN
             - !Ref ActionEnqueuerDLQAlarmARN
+            - !Ref ActionTimeoutErrorDLQAlarmARN
             - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V2WebhookLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
