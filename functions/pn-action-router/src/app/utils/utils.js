@@ -24,9 +24,4 @@ function addDaysToDate(startDate, daysToAdd) {
     return date;
 }
 
-var date = new Date();
-
-console.log(date.addDays(5));
-
-
 module.exports = { isRecordToSend, isTimeToLeave, isFutureAction, addDaysToDate};
