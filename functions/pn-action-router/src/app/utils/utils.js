@@ -18,4 +18,15 @@ function isFutureAction(notBefore) {
     return isoDateNow < notBefore;
 }
 
-module.exports = { isRecordToSend, isTimeToLeave, isFutureAction};
+function addDaysToDate(startDate, daysToAdd) {
+    var date = new Date(startDate);
+    date.setDate(date.getDate() + daysToAdd);
+    return date;
+}
+
+var date = new Date();
+
+console.log(date.addDays(5));
+
+
+module.exports = { isRecordToSend, isTimeToLeave, isFutureAction, addDaysToDate};
