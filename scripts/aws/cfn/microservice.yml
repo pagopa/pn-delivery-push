@@ -157,7 +157,6 @@ Parameters:
   ScheduledValidationActionsQueueARN:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
-    
  
   ActionRouterDLQARN:
     Type: String
@@ -167,6 +166,10 @@ Parameters:
     Type: String
     Description: 'DLQ ARN for ActionRouter lambda'
   
+  ActionTimeoutErrorDLQARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
+
   ActionRouterDLQAlarmARN:
     Type: String
     Description: 'DLQ ARN for ActionRouter lambda'
@@ -174,7 +177,12 @@ Parameters:
   ActionEnqueuerDLQAlarmARN:
     Type: String
     Description: 'DLQ ARN for ActionEnqueuer lambda'
-      
+  
+  ActionTimeoutErrorDLQAlarmARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
+
+  
   DoneActionsQueueName:
     Type: String
     Description: 'Send done actions to this queue read by webhook'

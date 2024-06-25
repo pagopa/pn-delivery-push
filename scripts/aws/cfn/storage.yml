@@ -245,6 +245,19 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ: "false"
         QueueHasAlarm: "true"
+  
+  ActionTimeoutErrorDLQ:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_push_action-timeout-error-DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        HasDLQ: "false"
+        QueueHasAlarm: "true"
         
   # Notification Timeline DynamoDB Table
   TimelinesTable:
@@ -773,6 +786,13 @@ Outputs:
   ActionEnqueuerDLQAlarmARN:
     Value: !GetAtt ActionEnqueuerDLQ.Outputs.SqsDLQAlarmArn
     Description: ActionEnqueuerDLQ alarm ARN
+  
+  ActionTimeoutErrorDLQARN:
+    Value: !GetAtt ActionTimeoutErrorDLQ.Outputs.QueueARN
+    Description: ActionTimeoutErrorDLQ queue ARN
+  ActionTimeoutErrorDLQAlarmARN:
+    Value: !GetAtt ActionTimeoutErrorDLQ.Outputs.SqsDLQAlarmArn
+    Description: ActionTimeoutErrorDLQ alarm ARN
 
   CdcPnFutureActionArn:
     Value: !GetAtt CdcPnFutureActionStream.Outputs.KinesisStreamArn
