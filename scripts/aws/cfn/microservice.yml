@@ -182,6 +182,9 @@ Parameters:
     Type: String
     Description: 'DLQ ARN for ActionRouter lambda'
 
+  ActionTimeoutErrorDLQURL:
+    Type: String
+    Description: 'DLQ for timeout write on SQS by lambda'
   
   DoneActionsQueueName:
     Type: String
@@ -1388,10 +1391,11 @@ Resources:
         Role: !GetAtt ActionEnqueuerLambdaRole.Arn
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap}",
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
             {
               actionQueueMap: !Ref ActionQueueMap,
-              QueueUrlMap: !Ref QueueUrlMap 
+              QueueUrlMap: !Ref QueueUrlMap
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL 
             },
           ]
     
