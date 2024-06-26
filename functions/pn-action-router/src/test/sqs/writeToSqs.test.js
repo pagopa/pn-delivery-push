@@ -109,18 +109,72 @@ describe("test SQS putMessage", () => {
     expect(result).to.be.an("array").that.is.empty;
   });
 
-  it("SQS sendMessageTimeout", async () => {
+  it.only("SQS sendMessageTimeoutAndFailInsertInDlq", async () => {
     let destinationQueueUrl = 'Test-destination-queue';
 
     const mockSQSClient = {
-      send: async () => {
+      send: async (command) => {
+        console.log("test ", command)
         class TimeoutException extends Error {
           constructor(e) {
             super(`${e.message}`);
             this.name = "TimeoutError";
           }
         }
-        throw new TimeoutException("Timeout SQS send error");
+        throw new TimeoutException("Timeout SQS send error"); //Errore la prima volta, inserimento in coda        
+      },
+    };
+
+    const writeToSqs = proxyquire.noCallThru().load("../../app/sqs/writeToSqs.js", {
+      "../utils/utils.js": {
+        isTimeToLeave: () =>{
+          return false;
+        },
+      },
+      uuid: {
+        v4: () => 'testUuid',
+      },
+  
+      "@aws-sdk/client-sqs": {
+        SQSClient: class {
+          constructor() {
+            return mockSQSClient;
+          }
+        },
+        SendMessageBatchCommand: class {},
+      },
+    });
+
+    const result = await writeToSqs.writeMessagesToQueue(
+      fakeActions,
+      contextMock,
+      destinationQueueUrl
+    );
+
+    expect(result).to.be.an("array").that.is.empty;
+  });
+
+  it("SQS sendMessageTimeoutAndInsertInDlq", async () => {
+    let destinationQueueUrl = 'Test-destination-queue';
+    let putSqsCount = 0;
+
+    const mockSQSClient = {
+      send: async (command) => {
+        console.log("test ", command)
+        if(putSqsCount == 0){
+          putSqsCount = putSqsCount + 1;
+          class TimeoutException extends Error {
+            constructor(e) {
+              super(`${e.message}`);
+              this.name = "TimeoutError";
+            }
+          }
+          throw new TimeoutException("Timeout SQS send error"); //Errore la prima volta, inserimento in coda
+        }else{
+          putSqsCount = putSqsCount + 1;
+          return {}; //successo la seconda volta (inserimento in DLQ)
+        }
+        
       },
     };
 

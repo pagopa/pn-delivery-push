@@ -48,7 +48,7 @@ async function writeMessagesToQueue(immediateActions, context, destinationQueueU
       console.log("Stringfy exception ", JSON.stringify(exceptions));
       if (exceptions.name && TIMEOUT_EXCEPTIONS.includes(exceptions.name)) {
         console.warn(
-          "[ACTION_ENQUEUER]",
+          "[ACTION_ROUTER]",
           "Timeout detected for:",
           JSON.stringify(actionsToSendMapped)
         );
@@ -144,7 +144,7 @@ function mapActionToQueueMessage(action) {
 async function writeMessagesToSqsWithoutReturnFailed(actionsToSendMapped, destinationQueueUrl) {
   console.log(
     "writeMessagesToWithoutReturnFailed " +
-      immediateActions.length +
+      actionsToSendMapped.length +
       " messages to " +
       destinationQueueUrl
   );
@@ -157,7 +157,7 @@ async function writeMessagesToSqsWithoutReturnFailed(actionsToSendMapped, destin
     
     if (response.Failed && response.Failed.length > 0) {
       console.error(
-        "[ACTION_ENQUEUER]",
+        "[ACTION_ROUTER]",
         "Insert action failed:",
         JSON.stringify(response.Failed)
       );
@@ -166,7 +166,7 @@ async function writeMessagesToSqsWithoutReturnFailed(actionsToSendMapped, destin
   catch (exceptions) {
     console.error("Error in send sqs message ", exceptions);
     console.error(
-      "[ACTION_ENQUEUER]",
+      "[ACTION_ROUTER]",
       "Insert action failed:",
       JSON.stringify(response.Failed)
     );

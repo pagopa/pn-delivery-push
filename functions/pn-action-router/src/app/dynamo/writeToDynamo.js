@@ -79,6 +79,8 @@ async function handleBatchWriteItems(params, retryCount, context){
     }
   
   }else{
+    //TODOGestione del caso in cui esce per tempo finito, non si può restituire tutto l'array così come avviene oggi c'è un altra gestione da effettuare
+    //Probabilmente si evita la gestione del backOff e si prevede la restituzione degli unprocessedItem (cioè ricercarli in splicedActionArray e restituirli)
     console.warn('Lambda execution time is close to expire, need to return')
     throw new Error('lambda execution time is close to expire');
   }
