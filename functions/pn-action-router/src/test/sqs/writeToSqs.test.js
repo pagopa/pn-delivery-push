@@ -109,7 +109,7 @@ describe("test SQS putMessage", () => {
     expect(result).to.be.an("array").that.is.empty;
   });
 
-  it.only("SQS sendMessageTimeoutAndFailInsertInDlq", async () => {
+  it("SQS sendMessageTimeoutAndFailInsertInDlq", async () => {
     let destinationQueueUrl = 'Test-destination-queue';
 
     const mockSQSClient = {
