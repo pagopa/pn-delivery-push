@@ -184,7 +184,7 @@ Parameters:
 
   ActionTimeoutErrorDLQURL:
     Type: String
-    Description: 'DLQ for timeout write on SQS by lambda'
+    Description: 'DLQ URL for ActionRouter lambda'
   
   DoneActionsQueueName:
     Type: String
@@ -1289,11 +1289,12 @@ Resources:
         Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays} ",
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays},ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL} ",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
-              FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays
+              FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays,
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
             },
           ]
     
@@ -1347,6 +1348,7 @@ Resources:
               - !Ref ScheduledActionsQueueARN
               - !Ref ScheduledValidationActionsQueueARN
               - !Ref ActionRouterDLQARN
+              - !Ref ActionTimeoutErrorDLQARN
           - Effect: Allow
             Action:
               - "dynamodb:PutItem"

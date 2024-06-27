@@ -793,6 +793,9 @@ Outputs:
   ActionTimeoutErrorDLQAlarmARN:
     Value: !GetAtt ActionTimeoutErrorDLQ.Outputs.SqsDLQAlarmArn
     Description: ActionTimeoutErrorDLQ alarm ARN
+  ActionTimeoutErrorDLQURL:
+    Value: !GetAtt ActionTimeoutErrorDLQ.Outputs.QueueURL
+    Description: ActionTimeoutErrorDLQ queue URL
 
   CdcPnFutureActionArn:
     Value: !GetAtt CdcPnFutureActionStream.Outputs.KinesisStreamArn
