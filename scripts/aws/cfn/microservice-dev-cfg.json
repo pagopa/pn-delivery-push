@@ -56,6 +56,7 @@
     "RaddPhoneNumber": "06.4520.2323",
     "ActionQueueMap": "ACTION_QUEUE_MAP={\"NOTIFICATION_VALIDATION\":\"ActionValidationQueue\",\"NOTIFICATION_REFUSED\":\"ActionValidationQueue\",\"NOTIFICATION_CANCELLATION\":\"ActionQueue\",\"SCHEDULE_RECEIVED_LEGALFACT_GENERATION\":\"ActionQueue\", \"CHECK_ATTACHMENT_RETENTION\":\"ActionQueue\", \"START_RECIPIENT_WORKFLOW\":\"ActionValidationQueue\", \"CHOOSE_DELIVERY_MODE\":\"ActionQueue\", \"ANALOG_WORKFLOW\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NEXT_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_RETRY_ACTION\":\"ActionQueue\", \"SEND_DIGITAL_FINAL_STATUS_RESPONSE\":\"ActionQueue\", \"REFINEMENT_NOTIFICATION\":\"ActionQueue\", \"SENDER_ACK\":\"ActionQueue\", \"DOCUMENT_CREATION_RESPONSE\":\"ActionQueue\", \"POST_ACCEPTED_PROCESSING_COMPLETED\":\"ActionQueue\", \"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"ActionValidationQueue\"}",
     "QueueUrlMap": "QUEUE_URL_MAP={\"ActionQueue\":\"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions\", \"ActionValidationQueue\":\"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_validation_actions\"}",
+    "ActionTimeoutErrorDLQURL": "https://sqs.eu-south-1.amazonaws.com/830192246553/pn-action-timeout-error-DLQ",
     "ActionRouterKinesisBatchSize": "1",
     "CdcPnActionShards": "12",
     "CdcPnFutureActionShards": "8",

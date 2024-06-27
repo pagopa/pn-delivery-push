@@ -797,7 +797,7 @@ Parameters:
 
   MountEfs:
     Type: String
-    Default: false
+    Default: "false"
     AllowedValues:
       - "true"
       - "false"
@@ -1393,10 +1393,11 @@ Resources:
         Role: !GetAtt ActionEnqueuerLambdaRole.Arn
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap}",
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
             {
               actionQueueMap: !Ref ActionQueueMap,
-              QueueUrlMap: !Ref QueueUrlMap 
+              QueueUrlMap: !Ref QueueUrlMap,
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL 
             },
           ]
     

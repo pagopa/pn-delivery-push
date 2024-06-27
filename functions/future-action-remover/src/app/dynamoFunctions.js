@@ -129,7 +129,7 @@ async function batchDelete(tableName, items, isTimingOut) {
       const res = await ddbDocClient.send(command);
 
       if (Object.keys(res.UnprocessedItems).length !== 0) {
-        console.error(
+        console.warn(
           "[FUTURE_ACTIONS_REMOVER]",
           `Unprocessed items in chunk: retry`,
           JSON.stringify(res.UnprocessedItems)

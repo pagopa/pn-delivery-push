@@ -5,7 +5,6 @@ const {
   toString: dateToString,
   isAfterEq,
 } = require("./timeHelper");
-console.log("**********************************", require("./timeHelper.js"));
 const { generateKoResponse, generateOkResponse } = require("./responses");
 const {
   getLastTimeSlotWorked,

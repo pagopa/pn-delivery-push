@@ -90,25 +90,22 @@ async function putMessages(sqsConfig, actions, isTimedOut) {
       }
     } catch (ex) {
       if (ex instanceof TimeoutException) {
-        console.error(
+        manageTimeout(sqsConfig, messagesToSend);
+      }
+      else {
+        console.log(
           "[ACTION_ENQUEUER]",
-          "Discarding not sended messeges",
-          JSON.stringify(actions)
+          "Adding back the current chunk and aborting"
         );
+        currentChunk.forEach((element) => {
+          delete element.Id;
+          actions.push(element);
+        });
+        console.log("[ACTION_ENQUEUER]", "Remaining actions:", actions);
         return actions;
       }
-      console.log(
-        "[ACTION_ENQUEUER]",
-        "Adding back the current chunk and aborting"
-      );
-      currentChunk.forEach((element) => {
-        delete element.Id;
-        actions.push(element);
-      });
-      console.log("[ACTION_ENQUEUER]", "Remaining actions:", actions);
-      return actions;
     }
-  }
+  } //while
   if (actions.length !== 0)
     console.log(
       "[ACTION_ENQUEUER]",
@@ -116,6 +113,30 @@ async function putMessages(sqsConfig, actions, isTimedOut) {
       actions
     );
   return actions;
+}
+
+async function manageTimeout(sqsConfig, messagesToSend) {
+  let timeoutConfig = Object.assign({}, sqsConfig);
+  timeoutConfig.endpoint = sqsConfig.timeoutEndpoint;
+  console.log("XXXXXXX", timeoutConfig);
+  try {
+    const failed = await _sendMessages(timeoutConfig, messagesToSend);
+
+    if (failed.length != 0)
+      console.error(
+        "[ACTION_ENQUEUER]",
+        "Can't write timeouted message on DLQ:",
+        JSON.stringify(failed)
+      );
+
+
+  } catch (ex) {
+    console.error(
+      "[ACTION_ENQUEUER]",
+      "Timeout detected for:",
+      JSON.stringify(messagesToSend)
+    );
+  }
 }
 
 async function _sendMessages(sqsParams, messages) {
@@ -157,25 +178,28 @@ async function _sendMessages(sqsParams, messages) {
     const response = await sqs.send(command);
     console.debug("[ACTION_ENQUEUER]", "Sent message response", response);
     if (response.Failed && response.Failed.length > 0) {
-      console.error("[ACTION_ENQUEUER]", "Failed Messages", response.Failed);
+      console.warn("[ACTION_ENQUEUER]", "Failed Messages", response.Failed);
       return response.Failed;
     }
   } catch (exc) {
-    console.error(
-      "[ACTION_ENQUEUER]",
-      "Error sending messages",
-      JSON.stringify(messages),
-      sqsParams,
-      exc
-    );
+
     if (TIMEOUT_EXCEPTIONS.includes(exc.name)) {
-      console.error(
+      console.warn(
         "[ACTION_ENQUEUER]",
         "Timeout detected for:",
         JSON.stringify(messages)
       );
       throw new TimeoutException(exc);
-    } else throw new SQSServiceException(exc);
+    } else {
+      console.error(
+        "[ACTION_ENQUEUER]",
+        "Error sending messages",
+        JSON.stringify(messages),
+        sqsParams,
+        exc
+      );
+      throw new SQSServiceException(exc);
+    }
   }
   return [];
 }

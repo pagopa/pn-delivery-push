@@ -28,7 +28,7 @@ const fakeActions2 = [
   },
 ];
 
-const sqsConfig = { endpoint: "fakeEndpoint" };
+const sqsConfig = { endpoint: "fakeEndpoint", timeoutEndpoint: "dlqTimeoutEnpoint" };
 
 describe("test SQS putMessage", () => {
   it("SQS configuration Error", async () => {
@@ -42,7 +42,7 @@ describe("test SQS putMessage", () => {
             return mockSQSClient;
           }
         },
-        SendMessageBatchCommand: class {},
+        SendMessageBatchCommand: class { },
       },
     });
 
@@ -66,7 +66,7 @@ describe("test SQS putMessage", () => {
             return mockSQSClient;
           }
         },
-        SendMessageBatchCommand: class {},
+        SendMessageBatchCommand: class { },
       },
     });
 
@@ -98,7 +98,7 @@ describe("test SQS putMessage", () => {
             return mockSQSClient;
           }
         },
-        SendMessageBatchCommand: class {},
+        SendMessageBatchCommand: class { },
       },
     });
 
@@ -131,7 +131,7 @@ describe("test SQS putMessage", () => {
             return mockSQSClient;
           }
         },
-        SendMessageBatchCommand: class {},
+        SendMessageBatchCommand: class { },
       },
     });
 
@@ -164,7 +164,7 @@ describe("test SQS putMessage", () => {
             return mockSQSClient;
           }
         },
-        SendMessageBatchCommand: class {},
+        SendMessageBatchCommand: class { },
       },
       uuid: {
         v4: () => current++,
@@ -181,4 +181,56 @@ describe("test SQS putMessage", () => {
     expect(result.length).equal(1);
     expect(result[0].iun).equal("iunFake2");
   });
+
+  it("SQS sendMessageTimeoutAndInsertInDlq", async () => {
+    let putSqsCount = 0;
+    const mockSQSClient = {
+      send: async (command) => {
+        console.log(command, "COMMAND")
+        if (putSqsCount == 0) {
+          putSqsCount = putSqsCount + 1;
+          class TimeoutException extends Error {
+            constructor(e) {
+              super(`${e.message}`);
+              this.name = "TimeoutError";
+            }
+          }
+          throw new TimeoutException("Timeout SQS send error");
+        } else {
+          putSqsCount = putSqsCount + 1;
+          return {}; //successo la seconda volta (inserimento in DLQ)
+        }
+      },
+    };
+    let queueInsertion = {};
+    const lambda = proxyquire.noCallThru().load("../app/sqsFunctions.js", {
+      "@aws-sdk/client-sqs": {
+        SQSClient: class {
+          constructor() {
+            return mockSQSClient;
+          }
+        },
+        SendMessageBatchCommand: class { constructor(commandData) {
+          if (queueInsertion[commandData.QUEUE_URL]==undefined) queueInsertion[commandData.QUEUE_URL] = 0;
+          queueInsertion[commandData.QUEUE_URL]++;
+        }},
+      },
+      uuid: {
+        v4: () => 1,
+      },
+    });
+    let myFakeActions = fakeActions2.map((x) => Object.assign({}, x));
+    const result = await lambda.putMessages(
+      sqsConfig,
+      myFakeActions,
+      isTimedOut
+    );
+
+    expect(result).to.be.an("array").that.is.empty;
+    expect(queueInsertion).not.empty
+    expect(queueInsertion[sqsConfig.endpoint]).equal(2);
+    expect(queueInsertion[sqsConfig.timeoutEndpoint]).equal(1);
+    // expect(result.length).equal(0);t
+   
+});
 });
