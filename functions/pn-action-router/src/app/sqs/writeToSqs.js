@@ -32,12 +32,7 @@ async function writeMessagesToQueue(immediateActions, context, destinationQueueU
     let splicedActionsArray = immediateActions.splice(0, MAX_SQS_BATCH);
     let actionsToSendMapped = getMappedMessageToSend(splicedActionsArray);
 
-    const input = {
-      Entries: actionsToSendMapped,
-      QueueUrl: destinationQueueUrl,
-    };
-    console.log("Sending batch message: %j", input);
-    const command = new SendMessageBatchCommand(input);
+    const command = createBatchCommand(actionsToSendMapped, destinationQueueUrl);
 
     try {
       checkMandatoryInformation(actionsToSendMapped, destinationQueueUrl);
@@ -52,12 +47,14 @@ async function writeMessagesToQueue(immediateActions, context, destinationQueueU
       console.error("Error in send sqs message ", exceptions);
       console.log("Stringfy exception ", JSON.stringify(exceptions));
       if (exceptions.name && TIMEOUT_EXCEPTIONS.includes(exceptions.name)) {
-        console.error(
-          "[ACTION_ENQUEUER]",
+        console.warn(
+          "[ACTION_ROUTER]",
           "Timeout detected for:",
           JSON.stringify(actionsToSendMapped)
-          //Non si conoscono gli item falliti e quelli andati a buon fine - è necessario un check manuale
         );
+        let actionTimeoutDlqUrl = config.get("ACTION_TIMEOUT_ERROR_DLQ_URL");
+        writeMessagesToSqsWithoutReturnFailed(actionsToSendMapped, actionTimeoutDlqUrl);
+
       }else{
         console.info('Generic exception in SQS send message, need to reschedule');
         return splicedActionsArray; //Non si conoscono gli item specifici falliti, viene restituito tutto il batch
@@ -143,5 +140,46 @@ function mapActionToQueueMessage(action) {
     return message;
 }
 
-module.exports = { writeMessagesToQueue };
 
+async function writeMessagesToSqsWithoutReturnFailed(actionsToSendMapped, destinationQueueUrl) {
+  console.log(
+    "writeMessagesToWithoutReturnFailed " +
+      actionsToSendMapped.length +
+      " messages to " +
+      destinationQueueUrl
+  );
+  const command = createBatchCommand(actionsToSendMapped, destinationQueueUrl);
+
+  try {
+    checkMandatoryInformation(actionsToSendMapped, destinationQueueUrl);
+    const response = await sqs.send(command);
+    console.log("Sent message response: %j", response);
+    
+    if (response.Failed && response.Failed.length > 0) {
+      console.error(
+        "[ACTION_ROUTER]",
+        "Insert action failed:",
+        JSON.stringify(response.Failed)
+      );
+    }
+  }
+  catch (exceptions) {
+    console.error("Error in send sqs message ", exceptions);
+    console.error(
+      "[ACTION_ROUTER]",
+      "Insert action failed:",
+      JSON.stringify(response.Failed)
+    );
+  }  
+}
+
+function createBatchCommand(actionsToSendMapped, destinationQueueUrl){
+  const input = {
+    Entries: actionsToSendMapped,
+    QueueUrl: destinationQueueUrl,
+  };
+  console.log("Sending batch message: %j", input);
+  return new SendMessageBatchCommand(input);
+}
+
+module.exports = { writeMessagesToQueue };

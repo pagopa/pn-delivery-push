@@ -5,7 +5,6 @@ const config = require("config");
 
 const MAX_DYNAMO_BATCH = config.get("MAX_DYNAMO_BATCH");
 const FUTURE_ACTION_TABLE_NAME = config.get("FUTURE_ACTION_TABLE_NAME");
-const MAX_EXPONENTIAL_BACKOFF = config.get("MAX_EXPONENTIAL_BACKOFF");
 
 const ddbClient = new DynamoDBClient();
 const ddbDocClient = DynamoDBDocument.from(ddbClient, {
@@ -34,15 +33,18 @@ async function writeMessagesToDynamo(arrayActionToStore, context) {
       try {
         console.log("start to batchWrite items  ", futureActionItemMappedDynamoArray);
 
-        let retryCount = 0;
         var params = {
           RequestItems: {
             [FUTURE_ACTION_TABLE_NAME]: futureActionItemMappedDynamoArray,
           }
         };
-  
-        await handleBatchWriteItems(params, retryCount, context);
-
+        let response = await ddbDocClient.batchWrite(params);
+        if (
+          response.UnprocessedItems &&
+          response.UnprocessedItems[FUTURE_ACTION_TABLE_NAME]
+        ) {
+          return handleUnprocessedItems(splicedActionsArray, response);
+        }
       } catch (exceptions) {
         console.error("Dynamo cannot write items. Exception is", exceptions);
         return splicedActionsArray;
@@ -56,46 +58,28 @@ async function writeMessagesToDynamo(arrayActionToStore, context) {
     return arrayActionToStore;
 }
 
-async function handleBatchWriteItems(params, retryCount, context){
-  console.log('send batchWriteItem with params', JSON.stringify(params) )
+function handleUnprocessedItems(splicedActionsArray, response) {
+  let unprocessedItems = response.UnprocessedItems[FUTURE_ACTION_TABLE_NAME];
+  let notPushedAction = [];
 
-  if(!isTimeToLeave(context)){
-    let res = await ddbDocClient.batchWrite(params);
-    console.log("Completed batchWrite. Response received from dynamo is ", res);
-  
-    if (Object.keys(res.UnprocessedItems).length !== 0) {
-      console.error(
-        "[PN_ACTION_ROUTER]",
-        `Unprocessed items in chunk: retry`,
-        JSON.stringify(res.UnprocessedItems)
-      );
-      params = {
-        RequestItems: res.UnprocessedItems
-      };
-      retryCount = retryCount + 1;
-      let waitMsTime = getWaitTime(retryCount);
-      await wait(waitMsTime);
-      await handleBatchWriteItems(params, retryCount, context); 
+  console.log(
+    "There are unprocessed items ",
+    unprocessedItems
+  );
+
+  splicedActionsArray.forEach(function (splicedFutureAction) {
+    if (unprocessedItems.filter( (unprocessedItem) => checkIsPresent(unprocessedItem, splicedFutureAction.actionId)).length != 0) {
+      notPushedAction.push(splicedFutureAction);
     }
-  
-  }else{
-    console.warn('Lambda execution time is close to expire, need to return')
-    throw new Error('lambda execution time is close to expire');
-  }
+  });
+
+  return notPushedAction;
 }
-
-async function wait(delay) {
-  return new Promise(resolve => setTimeout(resolve, delay));
-}
-
-function getWaitTime(retryCount){
-  console.log('Retry count is ', retryCount)
-  let waitMsTime = 2 ** retryCount * 10;
-  console.log('waitMsTime is', waitMsTime)
-
-  if(waitMsTime > MAX_EXPONENTIAL_BACKOFF){
-    return MAX_EXPONENTIAL_BACKOFF;
+function checkIsPresent(unprocessedItem, actionIdToFind){
+  if(unprocessedItem.PutRequest && unprocessedItem.PutRequest.Item){
+    return  unprocessedItem.PutRequest.Item.actionId == actionIdToFind ;
   }
+  return false;
 }
 
 function getFutureAction(action){
