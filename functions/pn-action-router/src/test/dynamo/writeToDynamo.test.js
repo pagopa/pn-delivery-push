@@ -110,6 +110,9 @@ describe("DynamoDB tests", function () {
     // Stubbing DynamoDBClient and DynamoDBDocumentClient
     const DynamoDBClientStub = sinon.stub();
     const batchWriteStub = sinon.stub();
+
+    let itemNotSended = arrayActionToStore[0];
+    
     let mockResponse= {
       '$metadata': {
         httpStatusCode: 200,
@@ -123,7 +126,7 @@ describe("DynamoDB tests", function () {
         "pn-FutureAction":[
            {
               PutRequest:{
-                 Item: arrayActionToStore[0]
+                 Item: itemNotSended
               }
            }
         ]
@@ -143,14 +146,7 @@ describe("DynamoDB tests", function () {
         }
       },
       "../utils/utils.js": {
-        isTimeToLeave: (context) =>{
-          console.log('Context is ', context);
-          var nowDate   = new Date();
-          var milliseconds = nowDate.getTime() - context.startDate.getTime() ;
-          console.log('passed millisecond is ', milliseconds)
-          if(milliseconds > 1000){
-            return true;
-          }
+        isTimeToLeave: () =>{
           return false;
         },
       },
@@ -160,5 +156,6 @@ describe("DynamoDB tests", function () {
     
     expect(res).to.not.be.null;
     expect(res.length).equal(1);
+    expect(res[0].actionId).equal(itemNotSended.actionId)
   });
 });
