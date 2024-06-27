@@ -328,11 +328,42 @@ Resources:
           Projection:
             ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
+      KinesisStreamSpecification:
+        StreamArn: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+  
+  # Rescheduling Action Table
+  ReschedulingActionTable:
+    Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TableName: !Sub '${ProjectName}-ReschedulingAction'
+      AttributeDefinitions:
+        - AttributeName: "actionId"
+          AttributeType: "S"
+        - AttributeName: "iun"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "actionId"
+          KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: "iun-index"
+          KeySchema:
+            - AttributeName: "iun"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+      BillingMode: "PAY_PER_REQUEST"
+      KinesisStreamSpecification:
+        StreamArn: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
 
   # Future Action Table
   FutureActionTable:
@@ -361,6 +392,8 @@ Resources:
           Projection:
             ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
+      KinesisStreamSpecification:
+        StreamArn: !GetAtt CdcPnFutureActionStream.Outputs.KinesisStreamArn
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
@@ -536,7 +569,7 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
-          ### Kinesis Data Stream: CDC for PN-ACTION DynamoDB Table (INSERT CDC ARE THE INTERESTED ONE)
+  ### Kinesis Data Stream: CDC for PN-ACTION DynamoDB Table (INSERT CDC ARE THE INTERESTED ONE)
   CdcPnActionStream:
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Retain
