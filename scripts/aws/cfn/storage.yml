@@ -351,13 +351,6 @@ Resources:
       KeySchema:
         - AttributeName: "actionId"
           KeyType: "HASH"
-      GlobalSecondaryIndexes:
-        - IndexName: "iun-index"
-          KeySchema:
-            - AttributeName: "iun"
-              KeyType: "HASH"
-          Projection:
-            ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
       KinesisStreamSpecification:
         StreamArn: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
