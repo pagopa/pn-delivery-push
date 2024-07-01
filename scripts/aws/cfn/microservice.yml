@@ -62,6 +62,14 @@ Parameters:
     Type: String
     Description: 'Defines how long before the attachment retention expires need to start "check attachment retention"'
   
+  ActionQueueMap:
+    Type: String
+    Description: 'Define relation from actionType to sqs queue name'
+  
+  QueueUrlMap:
+    Type: String
+    Description: 'Define relation from queue name to sqs queue url'
+    
   AttachmentTimeToAddAfterExpiration:
     Type: String
     Description: 'Time to add when attachment retention is expiring'
@@ -109,6 +117,22 @@ Parameters:
   DeliveryPushInputsQueueAgeAlarmARN:
     Type: String
     Description: pn-delivery-push input queue age alarm ARN
+    
+  DeliveryPushValidationInputsQueueName:
+    Type: String
+    Description: DeliveryPushValidationInputsQueue queue name
+    
+  DeliveryPushValidationInputsQueueARN:
+    Type: String
+    Description: DeliveryPushValidationInputsQueue queue ARN
+    
+  DeliveryPushValidationInputsQueueAlarmARN:
+    Type: String
+    Description: DeliveryPushValidationInputsQueue alarm ARN
+    
+  DeliveryPushValidationInputsQueueAgeAlarmARN:
+    Type: String
+    Description: DeliveryPushValidationInputsQueue age alarm ARN
 
   ExternalChannelsOutputsQueueName:
     Type: String
@@ -126,10 +150,45 @@ Parameters:
     Type: String
     Description: 'Send and pull ready-to-do actions th this queue'
 
+  ScheduledValidationActionsQueueName:
+    Type: String
+    Description: 'Send and pull ready-to-do actions th this queue'
+
+  ScheduledValidationActionsQueueARN:
+    Type: String
+    Description: 'Send and pull ready-to-do actions th this queue'
+ 
+  ActionRouterDLQARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
+
+  ActionEnqueuerDLQARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
+  
+  ActionTimeoutErrorDLQARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
+
+  ActionRouterDLQAlarmARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
+    
+  ActionEnqueuerDLQAlarmARN:
+    Type: String
+    Description: 'DLQ ARN for ActionEnqueuer lambda'
+  
+  ActionTimeoutErrorDLQAlarmARN:
+    Type: String
+    Description: 'DLQ ARN for ActionRouter lambda'
+
+  ActionTimeoutErrorDLQURL:
+    Type: String
+    Description: 'DLQ URL for ActionRouter lambda'
+  
   DoneActionsQueueName:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
-
 
   DoneActionsQueueURL:
     Type: String
@@ -304,7 +363,15 @@ Parameters:
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
+  
+  CdcPnActionArn:
+    Type: String
+    Description: 'Kinesis stream for pn-action'
 
+  CdcPnFutureActionArn:
+    Type: String
+    Description: 'Kinesis stream for pn-futureAction'
+    
   IsMvpDefaultValue:
     Type: String
     Description: 'default value to return if paTaxId not present in parameter store'
@@ -407,6 +474,14 @@ Parameters:
   ScheduledActionsQueueAgeAlarmARN:
     Type: String
     Description: delivery push actions done queue age alarm ARN
+  
+  ScheduledValidationActionsQueueAlarmARN:
+    Type: String
+    Description: delivery push validation actions queue dlq alarm ARN
+    
+  ScheduledValidationActionsQueueAgeAlarmARN:
+    Type: String
+    Description: delivery push validation actions queue age alarm ARN
 
   AlbSecurityGroup:
     Type: String
@@ -575,10 +650,28 @@ Parameters:
     Type: Number
     Description: 'VersioningV1V2WebhookLambdaProvisionedConcurrency'
     Default: 1
+      
+  ActionRouterKinesisBatchSize:
+    Type: Number
+    Description: "Batch size for kinesis to lambda action router"
+    
+  ActionRouterLambdaName:
+    Type: String
+
+  ActionEnqueuerKinesisBatchSize:
+    Type: Number
+    Description: "Batch size for kinesis to lambda action router"
+    Default: 10
+    
+  ActionEnqueuerLambdaName:
+    Type: String
+
+  ActionRemoverLambdaName:
+    Type: String
 
   WebhookEventManagerLambdaName:
     Type: String
-
+  
   WebhookEventManagerDLQARN:
     Type: String
     Description: 'DLQ ARN for WebhookEventManagerLambda'
@@ -704,7 +797,7 @@ Parameters:
 
   MountEfs:
     Type: String
-    Default: false
+    Default: "false"
     AllowedValues:
       - "true"
       - "false"
@@ -731,6 +824,23 @@ Parameters:
       - "q"
       - "h"
 
+  PerformanceImprovementStartDate:
+    Type: String
+    Description: 'Start Date enable feature flag performance improvement'
+
+  PerformanceImprovementEndDate:
+    Type: String
+    Description: 'End date enable feature flag performance improvement'
+  
+  EnvironmentType:
+    Type: String
+    Description: Environment type
+  
+  FutureActionTtlExtraDays:
+    Default: 365
+    Type: Number
+    Description: TTL in days days to add to the futureAction start date
+
   RaddPhoneNumber:
     Type: String
     Description: 'Phone number for assistance for RADD'
@@ -742,7 +852,7 @@ Parameters:
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
-  
+
 Resources:
 
   # PN-Delivery-push microservice
@@ -802,7 +912,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${ DeliveryPushValidationInputsQueueName}, ${ScheduledValidationActionsQueueName}, ${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -851,6 +961,9 @@ Resources:
         ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
         ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
         ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
+        ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
+        ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
+        ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -886,8 +999,10 @@ Resources:
               - sqs:SendMessageBatch
             Resource:
               - !Ref DeliveryPushInputsQueueARN
+              - !Ref DeliveryPushValidationInputsQueueARN
               - !Ref ExternalChannelsOutputsQueueARN
               - !Ref ScheduledActionsQueueARN
+              - !Ref ScheduledValidationActionsQueueARN
               - !Ref DoneActionsQueueARN
               - !Ref SafeStorageToDeliveryPushQueueARN
               - !Ref NationalRegistries2DeliveryPushQueueARN
@@ -1124,7 +1239,331 @@ Resources:
       Parameters:
         FunctionName: !Ref WebhookEventManagerLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+  
+  # CDC to Lambda action router
+  ActionRouterKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: !Ref ActionRouterKinesisBatchSize
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcPnActionArn
+      FunctionName: !Ref ActionRouterLambda
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref ActionRouterDLQARN
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      FilterCriteria:
+        { "Filters": [ { "Pattern": '{"data": {"eventName": ["INSERT"]}}' } ] }
+      MaximumBatchingWindowInSeconds: 300
+      MaximumRetryAttempts: 5
+      StartingPosition: TRIM_HORIZON
 
+  ActionRouterLambdaLibrariesLayer:
+   Type: AWS::Lambda::LayerVersion
+   Properties:
+     CompatibleRuntimes:
+       - nodejs18.x
+     Content:
+       S3Bucket: !Ref MicroserviceBucketName
+       S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
+     Description: NodeJs Libs layer
+     LayerName: actionRouterLambda-libs-layer
+
+  ActionRouterLambda:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
+      Parameters:
+        FunctionName: !Ref ActionRouterLambdaName
+        Handler: "index.handler"
+        FunctionBucketName: !Ref MicroserviceBucketName
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router.zip"
+        MemorySize: 512
+        Timeout: 10
+        Runtime: nodejs18.x
+        TracingConfigMode: "Active"
+        Role: !GetAtt ActionRouterLambdaRole.Arn
+        Layer1: !Ref ActionRouterLambdaLibrariesLayer
+        EnvVariables:
+          !Sub [
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays},ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL} ",
+            {
+              actionQueueMap: !Ref ActionQueueMap,
+              QueueUrlMap: !Ref QueueUrlMap,
+              FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays,
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
+            },
+          ]
+    
+  # Lambda function role
+  ActionRouterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-actionRouterLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  ActionRouterLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-ActionRouterLambdaPolicy
+      Roles:
+        - !Ref ActionRouterLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcPnActionArn
+          - Effect: "Allow"
+            Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
+          - Effect: Allow 
+            Action:
+              - sqs:SendMessage
+            Resource:
+              - !Ref ScheduledActionsQueueARN
+              - !Ref ScheduledValidationActionsQueueARN
+              - !Ref ActionRouterDLQARN
+              - !Ref ActionTimeoutErrorDLQARN
+          - Effect: Allow
+            Action:
+              - "dynamodb:PutItem"
+              - "dynamodb:BatchWriteItem"
+            Resource:
+              - !Ref FutureActionDynamoTableArn
+
+  # CDC To ActionEnqueuer
+  ActionEnqueuerKinesisSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: !Ref ActionEnqueuerKinesisBatchSize
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcPnActionArn
+      FunctionName: !Ref ActionEnqueuerLambda
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref ActionEnqueuerDLQARN
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      FilterCriteria:
+        { "Filters": [ { "Pattern": '{"data": {"eventName": ["REMOVE"]}}' } ] }
+      MaximumBatchingWindowInSeconds: 300
+      MaximumRetryAttempts: 5
+      StartingPosition: TRIM_HORIZON
+
+  ActionEnqueuerLambda:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
+      Parameters:
+        FunctionName: !Ref ActionEnqueuerLambdaName
+        Handler: "index.handler"
+        FunctionBucketName: !Ref MicroserviceBucketName
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-enqueuer.zip"
+        MemorySize: 512
+        Timeout: 10
+        Runtime: nodejs18.x
+        TracingConfigMode: "Active"
+        Role: !GetAtt ActionEnqueuerLambdaRole.Arn
+        EnvVariables:
+          !Sub [
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
+            {
+              actionQueueMap: !Ref ActionQueueMap,
+              QueueUrlMap: !Ref QueueUrlMap,
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL 
+            },
+          ]
+    
+  # Lambda function role
+  ActionEnqueuerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-actionEnqueuerLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  ActionEnqueuerLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-ActionEnqueuerLambdaPolicy
+      Roles:
+        - !Ref ActionEnqueuerLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - kinesis:DescribeStream
+              - kinesis:DescribeStreamSummary
+              - kinesis:GetShardIterator
+              - kinesis:GetRecords
+              - kinesis:ListShards
+              - kinesis:ListStreams
+              - kinesis:SubscribeToShard
+            Resource: !Ref CdcPnFutureActionArn
+          - Effect: "Allow"
+            Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
+          - Effect: Allow 
+            Action:
+              - sqs:SendMessage
+            Resource:
+              - !Ref ScheduledActionsQueueARN
+              - !Ref ScheduledValidationActionsQueueARN
+              - !Ref ActionEnqueuerDLQARN
+          - Effect: Allow
+            Action:
+              - "dynamodb:PutItem"
+              - "dynamodb:BatchWriteItem"
+            Resource:
+              - !Ref FutureActionDynamoTableArn            
+
+
+  # Future Action Remover
+  ActionRemoverLambda:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
+      Parameters:
+        FunctionName: !Ref ActionRemoverLambdaName
+        Handler: "index.handler"
+        FunctionBucketName: !Ref MicroserviceBucketName
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-remover.zip"
+        MemorySize: 512
+        Timeout: 10
+        Runtime: nodejs18.x
+        TracingConfigMode: "Active"
+        Role: !GetAtt ActionRemoverLambdaRole.Arn
+        EnvVariables: [ "LAST_WORKED_KEY=NEW_ACTION_POOL" ]
+    
+  # Lambda function role
+  ActionRemoverLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-actionRemoverLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  ActionRemoverLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-ActionRemoverLambdaPolicy
+      Roles:
+        - !Ref ActionRemoverLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:DeleteItem"
+              - "dynamodb:BatchWriteItem"
+              - "dynamodb:Query"
+            Resource:
+              - !Ref FutureActionDynamoTableArn
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:PutItem"
+            Resource:
+              - !Ref LastPollForFutureActionDynamoTableArn   
+
+  # Action Remover scheduler BEGIN
+  ActionRemoverSchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: LambdScheduleExecutionPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !GetAtt ActionRemoverLambda.Arn
+
+  ActionRemoverScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: "Schedule Action Remover every minute"
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: "ActionRemoverShedule"
+      ScheduleExpression: "rate(1 minutes)"
+      State: ENABLED
+      Target:
+        Arn: !GetAtt ActionRemoverLambda.Arn
+        RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
+  # Action Remover scheduler END
+
+  
 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
   DeliveryPushMicroservicePublicIoAPI:
@@ -1503,12 +1942,16 @@ Resources:
           - - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !Ref DeliveryPushInputsQueueAlarmARN
             - !Ref DeliveryPushInputsQueueAgeAlarmARN
+            - !Ref DeliveryPushValidationInputsQueueAlarmARN
+            - !Ref DeliveryPushValidationInputsQueueAgeAlarmARN
             - !Ref SafeStorageToDeliveryPushQueueAlarmARN
             - !Ref SafeStorageToDeliveryPushQueueAgeAlarmARN
             - !Ref DoneActionsQueueAlarmARN
             - !Ref DoneActionsQueueAgeAlarmARN
             - !Ref ScheduledActionsQueueAlarmARN
             - !Ref ScheduledActionsQueueAgeAlarmARN
+            - !Ref ScheduledValidationActionsQueueAlarmARN
+            - !Ref ScheduledValidationActionsQueueAgeAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAlarmARN
             - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
             - !Ref AddressManagerToDeliveryPushQueueAlarmARN
@@ -1520,6 +1963,9 @@ Resources:
             - !Ref WebhookEventManagerDLQAlarmARN
             - !GetAtt WebhookEventManagerLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PaperEventsCostUpdateDLQAlarmARN
+            - !Ref ActionRouterDLQAlarmARN
+            - !Ref ActionEnqueuerDLQAlarmARN
+            - !Ref ActionTimeoutErrorDLQAlarmARN
             - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V2WebhookLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
@@ -1531,8 +1977,10 @@ Resources:
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
+            - !Ref DeliveryPushValidationInputsQueueARN
             - !Ref ExternalChannelsOutputsQueueARN
             - !Ref ScheduledActionsQueueARN
+            - !Ref ScheduledValidationActionsQueueARN
             - !Ref DoneActionsQueueARN
             - !Ref SafeStorageToDeliveryPushQueueARN
             - !Ref NationalRegistries2DeliveryPushQueueARN

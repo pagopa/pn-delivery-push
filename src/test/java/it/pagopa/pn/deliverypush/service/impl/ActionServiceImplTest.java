@@ -49,6 +49,15 @@ class ActionServiceImplTest {
     }
 
     @Test
+    void addOnlyAction() {
+        Action action = buildAction();
+
+        actionService.addOnlyAction(action);
+
+        Mockito.verify(actionDao, Mockito.times(1)).addOnlyAction(action);
+    }
+
+    @Test
     void getActionById() {
 
         Action action = buildAction();
