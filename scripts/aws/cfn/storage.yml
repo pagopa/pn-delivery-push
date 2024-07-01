@@ -330,6 +330,8 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       KinesisStreamSpecification:
         StreamArn: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
@@ -354,6 +356,8 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       KinesisStreamSpecification:
         StreamArn: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
@@ -387,6 +391,8 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       KinesisStreamSpecification:
         StreamArn: !GetAtt CdcPnFutureActionStream.Outputs.KinesisStreamArn
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
