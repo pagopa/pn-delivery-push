@@ -348,8 +348,6 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "actionId"
           AttributeType: "S"
-        - AttributeName: "iun"
-          AttributeType: "S"
       KeySchema:
         - AttributeName: "actionId"
           KeyType: "HASH"
