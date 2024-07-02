@@ -1545,7 +1545,7 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource:
-                  - !GetAtt ActionRemoverLambda.Arn
+                  - !GetAtt ActionRemoverLambda.Outputs.FunctionArn
 
   ActionRemoverScheduler:
     Type: AWS::Scheduler::Schedule
@@ -1557,7 +1557,7 @@ Resources:
       ScheduleExpression: "rate(1 minutes)"
       State: ENABLED
       Target:
-        Arn: !GetAtt ActionRemoverLambda.Arn
+        Arn: !GetAtt ActionRemoverLambda.Outputs.FunctionArn
         RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
   # Action Remover scheduler END
 
