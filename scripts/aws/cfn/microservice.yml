@@ -1360,7 +1360,7 @@ Resources:
     Properties:
       BatchSize: !Ref ActionEnqueuerKinesisBatchSize
       BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcPnActionArn
+      EventSourceArn: !Ref CdcPnFutureActionArn
       FunctionName: !GetAtt ActionEnqueuerLambda.Outputs.FunctionName
       DestinationConfig:
         OnFailure:
