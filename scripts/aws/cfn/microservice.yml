@@ -1270,6 +1270,7 @@ Resources:
 
   ActionRouterLambda:
     Type: AWS::CloudFormation::Stack
+    DependsOn: ActionRouterLambdaRole
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
     Properties:
@@ -1312,7 +1313,7 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
+  
   # Lambda function IAM policy
   ActionRouterLambdaPolicy:
     Type: AWS::IAM::Policy
@@ -1375,6 +1376,7 @@ Resources:
 
   ActionEnqueuerLambda:
     Type: AWS::CloudFormation::Stack
+    DependsOn: ActionEnqueuerLambdaRole
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
     Properties:
@@ -1460,6 +1462,7 @@ Resources:
   # Future Action Remover
   ActionRemoverLambda:
     Type: AWS::CloudFormation::Stack
+    DependsOn: ActionRemoverLambdaRole
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
     Properties:
