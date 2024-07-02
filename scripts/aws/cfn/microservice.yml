@@ -1257,16 +1257,16 @@ Resources:
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
 
-  ActionRouterLambdaLibrariesLayer:
-   Type: AWS::Lambda::LayerVersion
-   Properties:
-     CompatibleRuntimes:
-       - nodejs18.x
-     Content:
-       S3Bucket: !Ref MicroserviceBucketName
-       S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
-     Description: NodeJs Libs layer
-     LayerName: actionRouterLambda-libs-layer
+#  ActionRouterLambdaLibrariesLayer:
+#   Type: AWS::Lambda::LayerVersion
+#   Properties:
+#     CompatibleRuntimes:
+#       - nodejs18.x
+#     Content:
+#       S3Bucket: !Ref MicroserviceBucketName
+#       S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
+#     Description: NodeJs Libs layer
+#     LayerName: actionRouterLambda-libs-layer
 
   ActionRouterLambda:
     Type: AWS::CloudFormation::Stack
@@ -1284,7 +1284,7 @@ Resources:
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         Role: !GetAtt ActionRouterLambdaRole.Arn
-        Layer1: !Ref ActionRouterLambdaLibrariesLayer
+#        Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
             "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays},ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL} ",
