@@ -1283,7 +1283,7 @@ Resources:
         Timeout: 10
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
-        Role: !GetAtt ActionRouterLambdaRole.Arn
+        RoleArn: !GetAtt ActionRouterLambdaRole.Arn
 #        Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
@@ -1388,7 +1388,7 @@ Resources:
         Timeout: 10
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
-        Role: !GetAtt ActionEnqueuerLambdaRole.Arn
+        RoleArn: !GetAtt ActionEnqueuerLambdaRole.Arn
         EnvVariables:
           !Sub [
             "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
@@ -1473,8 +1473,8 @@ Resources:
         Timeout: 10
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
-        Role: !GetAtt ActionRemoverLambdaRole.Arn
-        EnvVariables: [ "LAST_WORKED_KEY=NEW_ACTION_POOL" ]
+        RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
+        EnvVariables: "LAST_WORKED_KEY=NEW_ACTION_POOL"
     
   # Lambda function role
   ActionRemoverLambdaRole:
