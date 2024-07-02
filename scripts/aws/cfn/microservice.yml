@@ -1383,7 +1383,7 @@ Resources:
         FunctionName: !Ref ActionEnqueuerLambdaName
         Handler: "index.handler"
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-enqueuer.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer.zip"
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
@@ -1468,7 +1468,7 @@ Resources:
         FunctionName: !Ref ActionRemoverLambdaName
         Handler: "index.handler"
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-remover.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover.zip"
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
