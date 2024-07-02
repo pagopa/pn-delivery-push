@@ -340,13 +340,11 @@ Parameters:
 
   NotificationNonVisibilityTime:
     Type: String
-    Description: 'After this time the notification may not have been read by recipient in that day. Format hh:mm example 21:00. 
-    Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
+    Description: 'After this time the notification may not have been read by recipient in that day. Format hh:mm example 21:00. Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
 
   TimeToAddInNonVisibilityTimeCase:
     Type: String
-    Description: 'Time to add to scheduling in case the notification arrived after the time defined in notificationNonVisibilityTime
-    Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
+    Description: 'Time to add to scheduling in case the notification arrived after the time defined in notificationNonVisibilityTime. Link Documentation https://pagopa.atlassian.net/wiki/spaces/PN/pages/523304961/Piattaforma+Notifiche+-+Manuale+Operativo#:~:text=La%20notifica%20si,L.%2076/2020).'
 
   ExternalChannelDigitalRetryCount:
     Type: String
@@ -1547,7 +1545,7 @@ Resources:
                 Action:
                   - lambda:InvokeFunction
                 Resource:
-                  - !GetAtt ActionRemoverLambda.Arn
+                  - !GetAtt ActionRemoverLambda.Outputs.FunctionArn
 
   ActionRemoverScheduler:
     Type: AWS::Scheduler::Schedule
@@ -1559,7 +1557,7 @@ Resources:
       ScheduleExpression: "rate(1 minutes)"
       State: ENABLED
       Target:
-        Arn: !GetAtt ActionRemoverLambda.Arn
+        Arn: !GetAtt ActionRemoverLambda.Outputs.FunctionArn
         RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
   # Action Remover scheduler END
 
