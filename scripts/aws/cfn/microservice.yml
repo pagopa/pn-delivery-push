@@ -1245,7 +1245,7 @@ Resources:
       BatchSize: !Ref ActionRouterKinesisBatchSize
       BisectBatchOnFunctionError: true
       EventSourceArn: !Ref CdcPnActionArn
-      FunctionName: !Ref ActionRouterLambda
+      FunctionName: !Ref ActionRouterLambdaName
       DestinationConfig:
         OnFailure:
           Destination: !Ref ActionRouterDLQARN
@@ -1361,7 +1361,7 @@ Resources:
       BatchSize: !Ref ActionEnqueuerKinesisBatchSize
       BisectBatchOnFunctionError: true
       EventSourceArn: !Ref CdcPnActionArn
-      FunctionName: !Ref ActionEnqueuerLambda
+      FunctionName: !Ref ActionEnqueuerLambdaName
       DestinationConfig:
         OnFailure:
           Destination: !Ref ActionEnqueuerDLQARN
