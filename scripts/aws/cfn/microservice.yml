@@ -1245,7 +1245,7 @@ Resources:
       BatchSize: !Ref ActionRouterKinesisBatchSize
       BisectBatchOnFunctionError: true
       EventSourceArn: !Ref CdcPnActionArn
-      FunctionName: !Ref ActionRouterLambda
+      FunctionName: !GetAtt ActionRouterLambda.Outputs.FunctionName
       DestinationConfig:
         OnFailure:
           Destination: !Ref ActionRouterDLQARN
@@ -1312,7 +1312,7 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
+  
   # Lambda function IAM policy
   ActionRouterLambdaPolicy:
     Type: AWS::IAM::Policy
@@ -1360,8 +1360,8 @@ Resources:
     Properties:
       BatchSize: !Ref ActionEnqueuerKinesisBatchSize
       BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcPnActionArn
-      FunctionName: !Ref ActionEnqueuerLambda
+      EventSourceArn: !Ref CdcPnFutureActionArn
+      FunctionName: !GetAtt ActionEnqueuerLambda.Outputs.FunctionName
       DestinationConfig:
         OnFailure:
           Destination: !Ref ActionEnqueuerDLQARN
@@ -1383,7 +1383,7 @@ Resources:
         FunctionName: !Ref ActionEnqueuerLambdaName
         Handler: "index.handler"
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-enqueuer.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer.zip"
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
@@ -1468,7 +1468,7 @@ Resources:
         FunctionName: !Ref ActionRemoverLambdaName
         Handler: "index.handler"
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-remover.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover.zip"
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
@@ -1524,41 +1524,41 @@ Resources:
             Resource:
               - !Ref LastPollForFutureActionDynamoTableArn   
 
-  # Action Remover scheduler BEGIN
-  ActionRemoverSchedulerRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: scheduler.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: "/"
-      Policies:
-        - PolicyName: LambdScheduleExecutionPolicy
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - lambda:InvokeFunction
-                Resource:
-                  - !GetAtt ActionRemoverLambda.Outputs.FunctionArn
+  # Action Remover scheduler BEGIN TODO Da riattivare
+#  ActionRemoverSchedulerRole:
+#    Type: AWS::IAM::Role
+#    Properties:
+#      AssumeRolePolicyDocument:
+#        Version: "2012-10-17"
+#        Statement:
+#          - Effect: Allow
+#            Principal:
+#              Service: scheduler.amazonaws.com
+#            Action:
+#              - sts:AssumeRole
+#      Path: "/"
+#      Policies:
+#        - PolicyName: LambdScheduleExecutionPolicy
+#          PolicyDocument:
+#            Statement:
+#              - Effect: Allow
+#                Action:
+#                  - lambda:InvokeFunction
+#                Resource:
+#                  - !GetAtt ActionRemoverLambda.Outputs.FunctionArn
 
-  ActionRemoverScheduler:
-    Type: AWS::Scheduler::Schedule
-    Properties:
-      Description: "Schedule Action Remover every minute"
-      FlexibleTimeWindow:
-        Mode: "OFF"
-      Name: "ActionRemoverShedule"
-      ScheduleExpression: "rate(1 minutes)"
-      State: ENABLED
-      Target:
-        Arn: !GetAtt ActionRemoverLambda.Outputs.FunctionArn
-        RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
+#  ActionRemoverScheduler:
+#    Type: AWS::Scheduler::Schedule
+#    Properties:
+#      Description: "Schedule Action Remover every minute"
+#      FlexibleTimeWindow:
+#        Mode: "OFF"
+#      Name: "ActionRemoverShedule"
+#      ScheduleExpression: "rate(1 minutes)"
+#      State: ENABLED
+#      Target:
+#        Arn: !GetAtt ActionRemoverLambda.Outputs.FunctionArn
+#        RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
   # Action Remover scheduler END
 
   
