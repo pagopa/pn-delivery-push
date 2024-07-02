@@ -1245,7 +1245,7 @@ Resources:
       BatchSize: !Ref ActionRouterKinesisBatchSize
       BisectBatchOnFunctionError: true
       EventSourceArn: !Ref CdcPnActionArn
-      FunctionName: !Ref ActionRouterLambdaName
+      FunctionName: !GetAtt ActionRouterLambda.Outputs.FunctionName
       DestinationConfig:
         OnFailure:
           Destination: !Ref ActionRouterDLQARN
@@ -1270,7 +1270,6 @@ Resources:
 
   ActionRouterLambda:
     Type: AWS::CloudFormation::Stack
-    DependsOn: ActionRouterLambdaRole
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
     Properties:
@@ -1362,7 +1361,7 @@ Resources:
       BatchSize: !Ref ActionEnqueuerKinesisBatchSize
       BisectBatchOnFunctionError: true
       EventSourceArn: !Ref CdcPnActionArn
-      FunctionName: !Ref ActionEnqueuerLambdaName
+      FunctionName: !GetAtt ActionEnqueuerLambda.Outputs.FunctionName
       DestinationConfig:
         OnFailure:
           Destination: !Ref ActionEnqueuerDLQARN
@@ -1376,7 +1375,6 @@ Resources:
 
   ActionEnqueuerLambda:
     Type: AWS::CloudFormation::Stack
-    DependsOn: ActionEnqueuerLambdaRole
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
     Properties:
@@ -1462,7 +1460,6 @@ Resources:
   # Future Action Remover
   ActionRemoverLambda:
     Type: AWS::CloudFormation::Stack
-    DependsOn: ActionRemoverLambdaRole
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain
     Properties:
