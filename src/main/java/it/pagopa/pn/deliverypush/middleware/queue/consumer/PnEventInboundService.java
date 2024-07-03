@@ -50,6 +50,10 @@ public class PnEventInboundService {
         this.deliveryValidationEvents = cfg.getTopics().getDeliveryValidationEvents();
     }
 
+    //Viene definita un implementazione (anonima) di MessageRoutingCallback. Nel contesto di Spring, quando viene ricevuto un messaggio da una coda gestita da Spring Cloud Stream,
+    // il framework cerca un bean che implementa l'interfaccia MessageRoutingCallback, per richiamarne il metodo routingResult, che dovrà fornirne il nome del bean che gestisce quello
+    // specifico messaggio, dunque l'handler per quel messaggio. Spring utilizza il nome del bean per cercare all'interno del proprio contesto  e recuperare l'istanza del bean corrispondente.
+    // Questo avviene attraverso il "BeanFactory" di Spring.
     @Bean
     public MessageRoutingCallback customRouter() {
         return new MessageRoutingCallback() {

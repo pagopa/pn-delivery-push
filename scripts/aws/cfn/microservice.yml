@@ -910,7 +910,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${ DeliveryPushValidationInputsQueueName}, ${ScheduledValidationActionsQueueName}, ${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${DeliveryPushValidationInputsQueueName},${ScheduledValidationActionsQueueName},${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -1287,12 +1287,14 @@ Resources:
 #        Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays},ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL} ",
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays},ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL},FEATURE_FLAG_START=${PerformanceImprovementStartDate},FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
               FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
+              PerformanceImprovementStartDate: !Ref PerformanceImprovementStartDate,
+              PerformanceImprovementEndDate: !Ref PerformanceImprovementEndDate
             },
           ]
     
@@ -1391,11 +1393,13 @@ Resources:
         RoleArn: !GetAtt ActionEnqueuerLambdaRole.Arn
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
+            "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL},FEATURE_FLAG_START=${PerformanceImprovementStartDate},FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL 
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
+              PerformanceImprovementStartDate: !Ref PerformanceImprovementStartDate,
+              PerformanceImprovementEndDate: !Ref PerformanceImprovementEndDate
             },
           ]
     
@@ -1474,7 +1478,14 @@ Resources:
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
-        EnvVariables: "LAST_WORKED_KEY=2"
+        EnvVariables: 
+          !Sub [
+              "LAST_WORKED_KEY=2,FEATURE_FLAG_START=${PerformanceImprovementStartDate},FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
+              {
+                PerformanceImprovementStartDate: !Ref PerformanceImprovementStartDate,
+                PerformanceImprovementEndDate: !Ref PerformanceImprovementEndDate
+              },
+            ]
     
   # Lambda function role
   ActionRemoverLambdaRole:

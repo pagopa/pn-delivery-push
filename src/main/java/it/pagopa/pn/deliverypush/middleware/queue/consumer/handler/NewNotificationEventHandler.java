@@ -32,7 +32,7 @@ public class NewNotificationEventHandler {
                         .payload(message.getPayload())
                         .header(HandleEventUtils.mapStandardEventHeader(message.getHeaders()))
                         .build();
-                String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
+                String iun = pnDeliveryNewNotificationEvent.getPayload().getIun();
 
                 HandleEventUtils.addIunToMdc(iun);
 
