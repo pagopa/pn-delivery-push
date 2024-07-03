@@ -1474,7 +1474,7 @@ Resources:
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
-        EnvVariables: "LAST_WORKED_KEY=NEW_ACTION_POOL"
+        EnvVariables: "LAST_WORKED_KEY=2"
     
   # Lambda function role
   ActionRemoverLambdaRole:
@@ -1524,41 +1524,41 @@ Resources:
             Resource:
               - !Ref LastPollForFutureActionDynamoTableArn   
 
-  # Action Remover scheduler BEGIN TODO Da riattivare
-#  ActionRemoverSchedulerRole:
-#    Type: AWS::IAM::Role
-#    Properties:
-#      AssumeRolePolicyDocument:
-#        Version: "2012-10-17"
-#        Statement:
-#          - Effect: Allow
-#            Principal:
-#              Service: scheduler.amazonaws.com
-#            Action:
-#              - sts:AssumeRole
-#      Path: "/"
-#      Policies:
-#        - PolicyName: LambdScheduleExecutionPolicy
-#          PolicyDocument:
-#            Statement:
-#              - Effect: Allow
-#                Action:
-#                  - lambda:InvokeFunction
-#                Resource:
-#                  - !GetAtt ActionRemoverLambda.Outputs.FunctionArn
+  # Action Remover scheduler BEGIN
+  ActionRemoverSchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: LambdScheduleExecutionPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource:
+                  - !GetAtt ActionRemoverLambda.Outputs.FunctionArn
 
-#  ActionRemoverScheduler:
-#    Type: AWS::Scheduler::Schedule
-#    Properties:
-#      Description: "Schedule Action Remover every minute"
-#      FlexibleTimeWindow:
-#        Mode: "OFF"
-#      Name: "ActionRemoverShedule"
-#      ScheduleExpression: "rate(1 minutes)"
-#      State: ENABLED
-#      Target:
-#        Arn: !GetAtt ActionRemoverLambda.Outputs.FunctionArn
-#        RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
+  ActionRemoverScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: "Schedule Action Remover every minute"
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: "ActionRemoverShedule"
+      ScheduleExpression: "rate(1 minutes)"
+      State: ENABLED
+      Target:
+        Arn: !GetAtt ActionRemoverLambda.Outputs.FunctionArn
+        RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
   # Action Remover scheduler END
 
   
