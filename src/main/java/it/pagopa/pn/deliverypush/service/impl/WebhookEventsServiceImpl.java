@@ -28,14 +28,8 @@ import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.service.mapper.ProgressResponseElementMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementWebhookMapper;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -94,7 +88,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                             .flatMapMany(items -> {
                                 if (webhookUtils.getVersion(xPagopaPnApiVersion) == 10)
                                     return Flux.fromStream(items.stream());
-                                return addConfidentialInformationAtEventTimelineList(items);
+                                return addConfidentialInformationAtEventTimelineList(removeDuplicatedItems(items));
                             })
                             // converto l'eventTimelineInternalDTO in ProgressResponseElementV23
                             .map(this::getProgressResponseFromEventTimeline)
@@ -117,6 +111,8 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                             .doOnError(error -> generateAuditLog(PnAuditLogEventType.AUD_WH_CONSUME, msg, args).generateFailure("Error in consumeEventStream").log())
                 );
     }
+
+
 
     private ProgressResponseElementV23 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline) {
         var response = ProgressResponseElementMapper.internalToExternalv23(eventTimeline.getEventEntity());
@@ -289,6 +285,14 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         return categoriesSet;
     }
 
+    private List<EventTimelineInternalDto> removeDuplicatedItems(List<EventTimelineInternalDto> eventEntities) {
+        return new ArrayList<>(eventEntities.stream()
+                .collect(Collectors.toMap(
+                        dto -> dto.getTimelineElementInternal().getElementId(),
+                        dto -> dto,
+                        (existing, replacement) -> existing
+                )).values());
+    }
 
     protected Flux<EventTimelineInternalDto> addConfidentialInformationAtEventTimelineList(List<EventTimelineInternalDto> eventEntities) {
         List<TimelineElementInternal> timelineElementInternals = eventEntities.stream()
