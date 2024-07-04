@@ -78,16 +78,16 @@ public class ActionsPoolImpl implements ActionsPool {
      */
     @Override
     public void startActionOrScheduleFutureAction(Action action) {
+        final String timeSlot = computeTimeSlot( action.getNotBefore() );
+        action = action.toBuilder()
+                .timeslot( timeSlot)
+                .build();
+        
         if(isPerformanceImprovementEnabled(action.getNotBefore())) {
             actionService.addOnlyAction(action);
         } else {
             boolean isFutureSchedule = Instant.now().plus(configs.getActionPoolBeforeDelay()).isBefore(action.getNotBefore());
-
-            final String timeSlot = computeTimeSlot( action.getNotBefore() );
-            action = action.toBuilder()
-                    .timeslot( timeSlot)
-                    .build();
-
+            
             if (isFutureSchedule) {
                 actionService.addActionAndFutureActionIfAbsent(action, timeSlot);
             }

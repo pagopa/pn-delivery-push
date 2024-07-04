@@ -36,7 +36,7 @@ async function getQueueUrlFromEnvVar(queueName, envVarMapUrlName) {
     try {
         jsonMap = JSON.parse(envVarValue);
     } catch(ex) {
-        console.error("Invalid env var value: ", envVarValue);
+        console.error("Invalid env var value: ", envVarValue, envVarMapUrlName);
         throw new Error("Invalid env var value");
     }
     const queueUrl = jsonMap[queueName];
@@ -54,7 +54,7 @@ function getQueueNameFromEnvVar(completeActionType, envVarMapQueueName) {
     try {
         jsonMap = JSON.parse(envVarValue);
     } catch(ex) {
-        console.error("Invalid env var value: ", envVarValue);
+        console.error("Invalid env var value: ", envVarValue, envVarMapQueueName);
         throw new Error("Invalid env var value");
     }
     const queueName = jsonMap[completeActionType];

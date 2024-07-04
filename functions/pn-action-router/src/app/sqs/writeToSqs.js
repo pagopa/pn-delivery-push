@@ -109,6 +109,13 @@ function mapActionToQueueMessage(action) {
     let uuid = uuidv4();
     let copiedAction = Object.assign({}, action);
     delete copiedAction.kinesisSeqNo;
+    delete copiedAction.ttl;
+
+    if(copiedAction.details){
+      copiedAction.details.actionType = action.type;
+    }
+
+    console.log("copiedAction", JSON.stringify(copiedAction));
 
     const message = {
       Id: uuid,
