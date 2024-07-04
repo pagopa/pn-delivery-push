@@ -1257,6 +1257,7 @@ Resources:
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
 
+
   ActionRouterLambdaLibrariesLayer:
     Type: AWS::Lambda::LayerVersion
     Properties:
@@ -1375,6 +1376,17 @@ Resources:
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
 
+  ActionEnqueuerLambdaLibrariesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - nodejs18.x
+      Content:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_libs.zip"
+      Description: NodeJs Libs layer
+      LayerName: actionEnqueuer-libs-layer    
+
   ActionEnqueuerLambda:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -1385,12 +1397,13 @@ Resources:
         FunctionName: !Ref ActionEnqueuerLambdaName
         Handler: "index.handler"
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_code.zip"
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionEnqueuerLambdaRole.Arn
+        Layer1: !Ref ActionEnqueuerLambdaLibrariesLayer
         EnvVariables:
           !Sub [
             "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL},FEATURE_FLAG_START=${PerformanceImprovementStartDate},FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
@@ -1460,6 +1473,16 @@ Resources:
             Resource:
               - !Ref FutureActionDynamoTableArn            
 
+  ActionRemoverLambdaLibrariesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - nodejs18.x
+      Content:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_libs.zip"
+      Description: NodeJs Libs layer
+      LayerName: actionRemover-libs-layer 
 
   # Future Action Remover
   ActionRemoverLambda:
@@ -1472,12 +1495,13 @@ Resources:
         FunctionName: !Ref ActionRemoverLambdaName
         Handler: "index.handler"
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_code.zip"
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
+        Layer1: !Ref ActionRemoverLambdaLibrariesLayer 
         EnvVariables: 
           !Sub [
               "LAST_WORKED_KEY=2,FEATURE_FLAG_START=${PerformanceImprovementStartDate},FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
