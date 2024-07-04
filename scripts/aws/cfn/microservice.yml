@@ -910,7 +910,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST= ${DeliveryPushValidationInputsQueueName},${ScheduledValidationActionsQueueName},${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushValidationInputsQueueName},${ScheduledValidationActionsQueueName},${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${SafeStorageToDeliveryPushQueueName},${NationalRegistries2DeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${DoneActionsQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -1257,16 +1257,17 @@ Resources:
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
 
-#  ActionRouterLambdaLibrariesLayer:
-#   Type: AWS::Lambda::LayerVersion
-#   Properties:
-#     CompatibleRuntimes:
-#       - nodejs18.x
-#     Content:
-#       S3Bucket: !Ref MicroserviceBucketName
-#       S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
-#     Description: NodeJs Libs layer
-#     LayerName: actionRouterLambda-libs-layer
+
+  ActionRouterLambdaLibrariesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - nodejs18.x
+      Content:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
+      Description: NodeJs Libs layer
+      LayerName: actionRouterLambda-libs-layer
 
   ActionRouterLambda:
     Type: AWS::CloudFormation::Stack
@@ -1278,13 +1279,13 @@ Resources:
         FunctionName: !Ref ActionRouterLambdaName
         Handler: "index.handler"
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_code.zip"
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRouterLambdaRole.Arn
-#        Layer1: !Ref ActionRouterLambdaLibrariesLayer
+        Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
             "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays},ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL},FEATURE_FLAG_START=${PerformanceImprovementStartDate},FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
@@ -1375,6 +1376,17 @@ Resources:
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
 
+  ActionEnqueuerLambdaLibrariesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - nodejs18.x
+      Content:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_libs.zip"
+      Description: NodeJs Libs layer
+      LayerName: actionEnqueuer-libs-layer    
+
   ActionEnqueuerLambda:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -1385,12 +1397,13 @@ Resources:
         FunctionName: !Ref ActionEnqueuerLambdaName
         Handler: "index.handler"
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_code.zip"
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionEnqueuerLambdaRole.Arn
+        Layer1: !Ref ActionEnqueuerLambdaLibrariesLayer
         EnvVariables:
           !Sub [
             "ACTION_QUEUE_MAP=${actionQueueMap},QUEUE_URL_MAP=${QueueUrlMap},TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL},FEATURE_FLAG_START=${PerformanceImprovementStartDate},FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
@@ -1460,6 +1473,16 @@ Resources:
             Resource:
               - !Ref FutureActionDynamoTableArn            
 
+  ActionRemoverLambdaLibrariesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+        - nodejs18.x
+      Content:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_libs.zip"
+      Description: NodeJs Libs layer
+      LayerName: actionRemover-libs-layer 
 
   # Future Action Remover
   ActionRemoverLambda:
@@ -1472,12 +1495,13 @@ Resources:
         FunctionName: !Ref ActionRemoverLambdaName
         Handler: "index.handler"
         FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover.zip"
+        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_code.zip"
         MemorySize: 512
         Timeout: 10
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
+        Layer1: !Ref ActionRemoverLambdaLibrariesLayer 
         EnvVariables: 
           !Sub [
               "LAST_WORKED_KEY=2,FEATURE_FLAG_START=${PerformanceImprovementStartDate},FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
