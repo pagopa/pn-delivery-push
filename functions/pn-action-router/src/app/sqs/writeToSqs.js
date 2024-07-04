@@ -109,6 +109,7 @@ function mapActionToQueueMessage(action) {
     let uuid = uuidv4();
     let copiedAction = Object.assign({}, action);
     delete copiedAction.kinesisSeqNo;
+    delete copiedAction.ttl;
 
     const message = {
       Id: uuid,
