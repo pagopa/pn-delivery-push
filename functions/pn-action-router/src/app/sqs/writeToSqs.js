@@ -111,6 +111,16 @@ function mapActionToQueueMessage(action) {
     delete copiedAction.kinesisSeqNo;
     delete copiedAction.ttl;
 
+    if(copiedAction.details){
+      copiedAction.details.actionType = action.type;
+    }else{
+      copiedAction.details = {
+        actionType:action.type
+      }
+    }
+
+    console.log("copiedAction", JSON.stringify(copiedAction));
+
     const message = {
       Id: uuid,
       DelaySeconds: 0,
