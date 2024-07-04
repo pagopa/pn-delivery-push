@@ -113,10 +113,6 @@ function mapActionToQueueMessage(action) {
 
     if(copiedAction.details){
       copiedAction.details.actionType = action.type;
-    }else{
-      copiedAction.details = {
-        actionType:action.type
-      }
     }
 
     console.log("copiedAction", JSON.stringify(copiedAction));
