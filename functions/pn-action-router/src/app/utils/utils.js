@@ -19,9 +19,10 @@ function isFutureAction(notBefore) {
 }
 
 function addDaysToDate(startDate, daysToAdd) {
-    var date = new Date(startDate);
+    var date = new Date(startDate)
     date.setDate(date.getDate() + daysToAdd);
-    return date;
+    var isoStringDate = date.toISOString();
+    return isoStringDate;
 }
 
 module.exports = { isRecordToSend, isTimeToLeave, isFutureAction, addDaysToDate};
