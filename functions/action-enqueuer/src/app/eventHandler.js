@@ -21,6 +21,12 @@ const isRecordToSend = (record) => record.eventName === "REMOVE";
 function mapMessageFromKinesisToAction(record) {
   let action = record.dynamodb.OldImage;
   const regularAction = unmarshall(action);
+
+  if(regularAction.details){
+    regularAction.details.actionType = regularAction.type;
+  }
+  
+  console.debug("regularAction", regularAction);
   return regularAction;
 }
 

@@ -88,10 +88,15 @@ public class SchedulerServiceImpl implements SchedulerService {
                     .actionId(action.getType().buildActionId(action))
                     .build();
             
-            if(! scheduleNowIfAbsent){
-                this.actionsPool.startActionOrScheduleFutureAction(action);
-            } else {
-                this.actionsPool.scheduleFutureAction(action);
+            if(actionsPool.isPerformanceImprovementEnabled(action.getNotBefore())) {
+                actionsPool.addOnlyAction(action);
+            }else {
+                //Da eliminare Una volta stabilizzata la feature miglioramento performance workflow, che include una gestione diverse per le action. Qui andrà sempre e solo inserita una action
+                if(! scheduleNowIfAbsent){
+                    this.actionsPool.startActionOrScheduleFutureAction(action);
+                } else {
+                    this.actionsPool.scheduleFutureAction(action);
+                }
             }
 
         } else {
@@ -143,4 +148,5 @@ public class SchedulerServiceImpl implements SchedulerService {
         ActionType actionType, String timelineId) {
       this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, timelineId, null, false);
     }
+    
 }

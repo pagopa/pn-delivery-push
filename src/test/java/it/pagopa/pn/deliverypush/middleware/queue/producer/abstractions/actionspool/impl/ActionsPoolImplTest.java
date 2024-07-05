@@ -215,9 +215,7 @@ class ActionsPoolImplTest {
         //WHEN
         actionsPool.startActionOrScheduleFutureAction(action);
         //THEN
-        Mockito.verify(actionService).addOnlyAction(Mockito.any(Action.class));
-        Mockito.verify(actionService, Mockito.never()).addOnlyActionIfAbsent(Mockito.any(Action.class));
-        Mockito.verify(actionsQueue, Mockito.never()).push(Mockito.any(ActionEvent.class));
+        Mockito.verify(actionService).addOnlyActionIfAbsent(Mockito.any(Action.class));
     }
 
     @Test

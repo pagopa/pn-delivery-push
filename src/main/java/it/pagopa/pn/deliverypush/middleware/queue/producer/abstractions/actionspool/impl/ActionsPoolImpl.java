@@ -78,27 +78,33 @@ public class ActionsPoolImpl implements ActionsPool {
      */
     @Override
     public void startActionOrScheduleFutureAction(Action action) {
+        boolean isFutureSchedule = Instant.now().plus(configs.getActionPoolBeforeDelay()).isBefore(action.getNotBefore());
+
         final String timeSlot = computeTimeSlot( action.getNotBefore() );
         action = action.toBuilder()
                 .timeslot( timeSlot)
                 .build();
-        
-        if(isPerformanceImprovementEnabled(action.getNotBefore())) {
-            actionService.addOnlyAction(action);
-        } else {
-            boolean isFutureSchedule = Instant.now().plus(configs.getActionPoolBeforeDelay()).isBefore(action.getNotBefore());
-            
-            if (isFutureSchedule) {
-                actionService.addActionAndFutureActionIfAbsent(action, timeSlot);
-            }
-            else {
-                actionService.addOnlyActionIfAbsent(action);
-                addToActionsQueue(action);
-            }
+
+        if (isFutureSchedule) {
+            actionService.addActionAndFutureActionIfAbsent(action, timeSlot);
+        }
+        else {
+            actionService.addOnlyActionIfAbsent(action);
+            addToActionsQueue(action);
         }
     }
 
-    private boolean isPerformanceImprovementEnabled(Instant notBefore) {
+    @Override
+    public void addOnlyAction(Action action){
+        final String timeSlot = computeTimeSlot( action.getNotBefore() );
+        action = action.toBuilder()
+                .timeslot( timeSlot)
+                .build();
+        actionService.addOnlyAction(action);
+    }
+    
+    @Override
+    public boolean isPerformanceImprovementEnabled(Instant notBefore) {
         boolean isEnabled = false;
         Instant startDate = Instant.parse(configs.getPerformanceImprovementStartDate());
         Instant endDate = Instant.parse(configs.getPerformanceImprovementEndDate());
