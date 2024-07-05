@@ -59,7 +59,7 @@ async function getLastTimeSlotWorked(tableName, keyValue) {
   const command = new GetCommand({
     TableName: tableName,
     Key: {
-      lastPoolKey: keyValue,
+      lastPoolKey: +keyValue,
     },
   });
   const dynamoItem = await ddbDocClient.send(command);
@@ -74,7 +74,7 @@ async function setLastTimeSlotWorked(tableName, keyValue, timeSlot) {
   const command = new PutCommand({
     TableName: tableName,
     Item: {
-      lastPoolKey: keyValue,
+      lastPoolKey: +keyValue,
       lastPollExecuted: timeSlot,
     },
   });
