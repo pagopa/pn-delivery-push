@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     private final WebhooksPool webhooksPool;
     private final Clock clock;
     private final TimelineUtils timelineUtils;
+    private final FeatureEnabledUtils featureEnabledUtils;
 
     @Override
     public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType) {
@@ -88,7 +90,7 @@ public class SchedulerServiceImpl implements SchedulerService {
                     .actionId(action.getType().buildActionId(action))
                     .build();
             
-            if(actionsPool.isPerformanceImprovementEnabled(action.getNotBefore())) {
+            if(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())) {
                 actionsPool.addOnlyAction(action);
             }else {
                 //Da eliminare Una volta stabilizzata la feature miglioramento performance workflow, che include una gestione diverse per le action. Qui andrà sempre e solo inserita una action
