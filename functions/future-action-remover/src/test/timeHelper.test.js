@@ -8,6 +8,9 @@ const {
   nextTimeSlot,
   toString,
   isAfterEq,
+  isEqStr,
+  isAfterEqStr,
+  isAfterStr
 } = require("../app/timeHelper");
 
 const { InvalidDateException } = require("../app/exceptions");
@@ -32,7 +35,7 @@ describe("Test Time Functions 1", () => {
     );
   });
 
-  it.only("isAfter: false", () => {
+  it("isAfter: false", () => {
     const dateStr = "2024-12-01T12:01:00Z";
     const dt = parseISO(dateStr);
     const act = actTime();
@@ -85,6 +88,22 @@ describe("Test Time Functions 1", () => {
     expect(res).to.be.true;
   });
 
+  it("isAfterEqStr: major => true", () => {
+    const dateStr = "2024-12-01T12:01:00Z";
+    const act = actTime().toString()
+    const res = isAfterEqStr(dateStr, act);
+
+    expect(res).to.be.true;
+  });
+
+  it("isAfterStr: major => true", () => {
+    const dateStr = "2024-12-01T12:01:00Z";
+    const act = actTime().toString()
+    const res = isAfterStr(dateStr, act);
+
+    expect(res).to.be.true;
+  });
+  
   it("isAfterEq: equal => true", () => {
     const dateStr1 = "2024-12-01T12:01:00Z";
     const dt1 = parseISO(dateStr1);
@@ -95,6 +114,13 @@ describe("Test Time Functions 1", () => {
     expect(res1).to.be.true;
 
     const res2 = isAfterEq(dt2, dt1);
+    expect(res2).to.be.true;
+  });
+
+  it("isAfterEqStr: equal => true", () => {
+    const dateStr1 = "2024-12-01T12:01:00Z";
+    const dateStr2 = "2024-12-01T12:01:00Z";
+    const res2 = isAfterEqStr(dateStr2, dateStr1);
     expect(res2).to.be.true;
   });
 
@@ -112,5 +138,19 @@ describe("Test Time Functions 1", () => {
     const res = toString(nextTimeSlot(dt));
 
     expect(res).to.be.equal("2023-10-24T00:00");
+  });
+
+  it("same time in string", () => {
+    const dateStr = "2024-12-01T12:01:00Z";
+    const dateStr1 = "2024-12-01T12:01:01Z";
+    const res = isEqStr(dateStr, dateStr1);
+    expect(res).to.be.equal(true);
+  });
+
+  it("different time in string", () => {
+    const dateStr = "2024-12-01T12:01:00Z";
+    const dateStr1 = "2024-12-01T12:02:00Z";
+    const res = isEqStr(dateStr, dateStr1);
+    expect(res).to.be.equal(false);
   });
 });

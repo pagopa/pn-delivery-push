@@ -378,7 +378,7 @@
     "notBefore": "2023-06-10T15:34:47.057316194Z",
     "recipientIndex": 0,
     "timelineId": "SEND_DIGITAL.IUN_EHDN-WVJW-JTAH-202306-V-1.RECINDEX_0.SOURCE_SPECIAL.REPEAT_false.ATTEMPT_0",
-    "timeslot": "2024-05-22T11:584",
+    "timeslot": "2024-05-22T11:58",
     "ttl": "",
     "type": "DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION"
   },
@@ -606,7 +606,7 @@
     "notBefore": "2023-06-01T15:05:02.985411105Z",
     "recipientIndex": "",
     "timelineId": "",
-    "timeslot": "2024-05-22T11:585",
+    "timeslot": "2024-05-22T11:58",
     "ttl": "",
     "type": "NOTIFICATION_VALIDATION"
   },

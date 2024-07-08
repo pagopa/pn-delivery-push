@@ -3,7 +3,7 @@ const {
   actTime,
   nextTimeSlot,
   toString: dateToString,
-  isAfterEq,
+  isAfter,
 } = require("./timeHelper");
 const { generateKoResponse, generateOkResponse } = require("./responses");
 const {
@@ -60,10 +60,11 @@ async function handleEvent(event, context) {
   console.debug("[FUTURE_ACTIONS_REMOVER]", "NEXT TIMESLOT", startTimeSlot);
 
   const workingTime = await getWorkingTime();
-  while (isAfterEq(endTimeSlot, startTimeSlot)) {
+  while (isAfter(endTimeSlot, startTimeSlot)) {
     let lastEvaluatedKey = undefined;
 
     const isTimingOut = (context) => () => isTimeToLeave(context);
+    let haveDiscardedRecords = false;
     do {
       if (isTimeToLeave(context)) {
         console.info(
@@ -78,15 +79,6 @@ async function handleEvent(event, context) {
         `Looking for items at timestlot ${startTimeSlot} with lastKey ${lastEvaluatedKey}`
       );
 
-      // console.info(
-      //   "[FUTURE_ACTIONS_REMOVER]",
-      //   "CALLING GETACTIONBYTIMESLOT WITH",
-      //   {
-      //     timeSlot: dateToString(startTimeSlot),
-      //     startTime: workingTime.start,
-      //     endTime: workingTime.end,
-      //   }
-      // );
 
       let result = await getActionsByTimeSlot(
         futureActionTable,
@@ -110,19 +102,22 @@ async function handleEvent(event, context) {
           "[FUTURE_ACTIONS_REMOVER]",
           `REMOVING ${result.items.length} items from ${startTimeSlot}`
         );
-        if (
-          !(await batchDelete(
-            futureActionTable,
-            result.items,
-            isTimingOut(context)
-          ))
-        ) {
+
+        const deleteResult = await batchDelete(
+          futureActionTable,
+          result.items,
+          isTimingOut(context)
+        );
+        if (!deleteResult.operationResult) {
           console.warn(
             "[FUTURE_ACTIONS_REMOVER]",
             "Batch delete failure: operation aborted"
           );
           return generateOkResponse(false);
         }
+
+        //do not override a override a true  value for discarded flag
+        haveDiscardedRecords |= (deleteResult.discarded != 0);
 
         if (isTimeToLeave(context)) {
           console.info(
@@ -142,12 +137,22 @@ async function handleEvent(event, context) {
         );
       }
     } while (lastEvaluatedKey);
-
+    
+    // discarded records are present?
+    if (haveDiscardedRecords) {
+      console.warn(
+        "[FUTURE_ACTIONS_REMOVER]",
+        `Discarded record in timeslot  ${startTimeSlot}, exiting`
+      );
+      return generateKoResponse(new Error(`Discarded record in timeslot  ${startTimeSlot}`));
+    }
+    else {
     setLastTimeSlotWorked(
       lastPollTable,
       LAST_WORKED_KEY,
       dateToString(startTimeSlot)
     );
+  }
     console.log(
       "[FUTURE_ACTIONS_REMOVER]",
       `Last TimeSlot Worked  ${startTimeSlot}`

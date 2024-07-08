@@ -5,7 +5,7 @@ const proxyquire = require("proxyquire").noPreserveCache();
 const {
   parseISO,
   nextTimeSlot,
-  isAfterEq,
+  isAfter,
   toString: dateToString,
 } = require("../app/timeHelper");
 
@@ -29,10 +29,10 @@ const testOverride = (
 ) => {
   return {
     "./timeHelper.js": {
-      actTime: () => parseISO("2024-05-22T11:59"),
+      actTime: () => parseISO("2024-05-22T12:00"),
       parseISO,
       nextTimeSlot,
-      isAfterEq,
+      isAfter,
       toString: (d) => dateToString(d),
     },
 
@@ -70,7 +70,7 @@ const testOverride = (
         deletion[currSlot] != undefined
           ? deletion[currSlot]++
           : (deletion[currSlot] = 1);
-        return true;
+        return { operationResult: true, discarded: 0};
       },
     },
   };

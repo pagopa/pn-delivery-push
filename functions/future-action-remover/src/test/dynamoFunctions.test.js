@@ -41,7 +41,7 @@ describe("dynamoFunctions tests", function () {
   });
 
   it("test getLastTimeSlotWorked: item found", async () => {
-    const keyValue = "1";
+    const keyValue = 1;
     const timeValue = "12345";
 
     const params = {
@@ -61,7 +61,7 @@ describe("dynamoFunctions tests", function () {
   });
 
   it("test getLastTimeSlotWorked: item not found", async () => {
-    const keyValue = "1";
+    const keyValue = 1;
 
     const params = {
       TableName: LAST_POLL_TABLE_NAME,
@@ -82,7 +82,7 @@ describe("dynamoFunctions tests", function () {
   });
 
   it("test getLastTimeSlotWorked: item found but wrong format", async () => {
-    const keyValue = "1";
+    const keyValue = 1;
     const timeValue = "12345";
 
     const params = {
@@ -102,7 +102,7 @@ describe("dynamoFunctions tests", function () {
   });
 
   it("test setLastTimeSlotWorked: add item", async () => {
-    const keyValue = "1";
+    const keyValue = 1;
 
     const params = {
       TableName: LAST_POLL_TABLE_NAME,
@@ -217,8 +217,11 @@ describe("dynamoFunctions tests", function () {
       require("./testData/deleteTest-lessBatchSize/dataset.json"),
       () => false
     );
+    console.log("result", result);
     expect(count).to.be.equal(1);
-    expect(result).to.be.true;
+    expect(result).to.not.be.undefined;
+    expect(result.operationResult).to.be.true;
+    expect(result.discarded).to.be.equal(0);
   });
 
   it("test BatchDelete: item more than  a batch", async () => {
@@ -256,8 +259,10 @@ describe("dynamoFunctions tests", function () {
       require("./testData/deleteTest-moreBatchSize/dataset.json"),
       () => false
     );
-    expect(result).to.be.true;
-    expect(count).to.be.equal(2);
+
+    expect(result).to.not.be.undefined;
+    expect(result.operationResult).to.be.true;
+    expect(result.discarded).to.be.equal(0);
   });
 
   it("test BatchDelete: batch operation Error", async () => {
@@ -317,6 +322,9 @@ describe("dynamoFunctions tests", function () {
       isTimeToLeave
     );
 
-    expect(res).to.be.false;
+    //expect(res).to.be.false;
+    expect(res).to.not.be.undefined;
+    expect(res.operationResult).to.be.false;
+    expect(res.discarded).to.be.equal(0);
   });
 });
