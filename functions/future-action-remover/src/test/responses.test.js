@@ -7,7 +7,7 @@ const {
 } = require("../app/responses.js");
 
 describe("responses tests", () => {
-  it.only("generateOkResponse for timeout", () => {
+  it("generateOkResponse for timeout", () => {
     const result = generateOkResponse(true);
 
     expect(result).to.not.be.null;

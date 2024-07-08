@@ -28,7 +28,15 @@ const parseISO = (str) => {
   return getCleanTime(converted);
 };
 
-const actTime = () => getCleanTime(DateTime.local().toUTC());
+const actTime = () =>{
+  let actualTime = DateTime.local().toUTC();
+  console.log('actual time is ', actualTime)
+  const duration = { minutes: 2 };
+  const newDateTime = actualTime.minus(duration);
+  console.log('newDateTime time is ', newDateTime)
+
+  return getCleanTime(newDateTime);
+}
 
 const toString = (d) =>
   d.toISO({

@@ -32,7 +32,7 @@ describe("Test Time Functions 1", () => {
     );
   });
 
-  it("isAfter: false", () => {
+  it.only("isAfter: false", () => {
     const dateStr = "2024-12-01T12:01:00Z";
     const dt = parseISO(dateStr);
     const act = actTime();

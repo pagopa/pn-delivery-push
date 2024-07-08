@@ -100,7 +100,7 @@ public class ActionsPoolImpl implements ActionsPool {
         action = action.toBuilder()
                 .timeslot( timeSlot)
                 .build();
-        actionService.addOnlyAction(action);
+        actionService.addOnlyActionIfAbsent(action);
     }
     
     @Override
