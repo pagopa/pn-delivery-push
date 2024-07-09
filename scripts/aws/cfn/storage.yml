@@ -178,18 +178,18 @@ Resources:
         DelaySeconds: 1
 
   # internal queues DLQ
-  NotificationCancellationActionInsertDLQ:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
-      Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_cdc_DLQ'
-        DelaySeconds: 1
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "false"
-        QueueHasAlarm: "true"
+#  NotificationCancellationActionInsertDLQ:
+#    Type: AWS::CloudFormation::Stack
+#    UpdateReplacePolicy: Retain
+#    DeletionPolicy: Retain
+#    Properties:
+#      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+#      Parameters:
+#        QueueName: !Sub '${ProjectName}-delivery_push_cdc_DLQ'
+#        DelaySeconds: 1
+#        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+#        HasDLQ: "false"
+#        QueueHasAlarm: "true"
 
 
   # internal queues DLQ
@@ -524,16 +524,16 @@ Resources:
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
         LogGroupRetention: !Ref LogRetention
 
-  NotificationCancellationActionInsertLambdaLogGroup:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain    
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
-      Parameters:
-        LogGroupName: !Sub "${ProjectName}-notificationCancellationActionInsertLambda"
-        LogGroupRetention: !Ref LogRetention
-        LogGroupPrefix: '/aws/lambda'
+#  NotificationCancellationActionInsertLambdaLogGroup:
+#    Type: AWS::CloudFormation::Stack
+#    UpdateReplacePolicy: Retain
+#    DeletionPolicy: Retain    
+#    Properties:
+#      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+#      Parameters:
+#        LogGroupName: !Sub "${ProjectName}-notificationCancellationActionInsertLambda"
+#        LogGroupRetention: !Ref LogRetention
+#        LogGroupPrefix: '/aws/lambda'
 
   WebhookEventManagerLambdaLogGroup:
     Type: AWS::CloudFormation::Stack
@@ -774,19 +774,19 @@ Outputs:
   NotificationCancellationActionInsertLambdaName:
     Value: !Sub "${ProjectName}-notificationCancellationActionInsertLambda"
 
-  # NotificationCancellationActionInsertLambdaAlarms DLQ
-  NotificationCancellationActionInsertDLQName:
-    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueName
-    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue name
-  NotificationCancellationActionInsertDLQURL:
-    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueURL
-    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue URL
-  NotificationCancellationActionInsertDLQARN:
-    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueARN
-    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue ARN
-  NotificationCancellationActionInsertDLQAlarmARN:
-    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.SqsDLQAlarmArn
-    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ alarm ARN
+#  # NotificationCancellationActionInsertLambdaAlarms DLQ
+#  NotificationCancellationActionInsertDLQName:
+#    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueName
+#    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue name
+#  NotificationCancellationActionInsertDLQURL:
+#    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueURL
+#    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue URL
+#  NotificationCancellationActionInsertDLQARN:
+#    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueARN
+#    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue ARN
+#  NotificationCancellationActionInsertDLQAlarmARN:
+#    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.SqsDLQAlarmArn
+#    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ alarm ARN
 
   # Lambda functions
   PaperEventsCostUpdateLambdaName:
