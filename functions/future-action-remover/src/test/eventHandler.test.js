@@ -14,15 +14,6 @@ const {
 } = require("../app/exceptions");
 
 
-const {
-  DynamoDBDocumentClient,
-  BatchWriteCommand
-} = require("@aws-sdk/lib-dynamodb");
-
-const { mockClient } = require("aws-sdk-client-mock");
-const { batchDelete } = require("../app/dynamoFunctions");
-
-
 const STEP_SIZE = 10;
 const SLOT_1 = "2024-05-22T11:58";
 const SLOT_2 = "2024-05-22T11:59";
@@ -38,7 +29,7 @@ const chunk = (items, step) => {
 };
 
 const testOverride = (
-  lastWorkedTimeslot,
+  timeslot,
   read,
   deletion,
   testDir,
@@ -54,9 +45,9 @@ const testOverride = (
     },
 
     "./dynamoFunctions.js": {
-      getLastTimeSlotWorked: async (_unused1, _unused2) => lastWorkedTimeslot,
+      getLastTimeSlotWorked: async (_unused1, _unused2) => timeslot.lastWorkedTimeslot,
       setLastTimeSlotWorked: async (_unused1, _unused2, newTime) =>
-        (lastWorkedTimeslot = newTime),
+        timeslot.lastWorkedTimeslot = newTime,
       getActionsByTimeSlot: async (
         _unused1,
         { timeSlot, _sub_unused1, _sub_unused2 },
@@ -94,22 +85,9 @@ const testOverride = (
 };
 
 describe("eventHandler tests", () => {
-  let ddbMock;
-
-  before(() => {
-    ddbMock = mockClient(DynamoDBDocumentClient);
-  });
-
-  afterEach(() => {
-    ddbMock.reset();
-  });
-
-  after(() => {
-    ddbMock.restore();
-  });
 
   it("two slot with data partition", async () => {
-    let lastWorkedTimeslot = "2024-05-22T11:57";
+    let timeslot = {lastWorkedTimeslot: "2024-05-22T11:57"};
     let currSlot;
     let deletion = {};
     let read = {};
@@ -118,7 +96,7 @@ describe("eventHandler tests", () => {
       .load(
         "../app/eventHandler.js",
         testOverride(
-          lastWorkedTimeslot,
+          timeslot,
           read,
           deletion,
           "./testData/test-twoRepeats",
@@ -136,10 +114,11 @@ describe("eventHandler tests", () => {
     expect(read[SLOT_2]).to.be.equal(5);
     expect(deletion[SLOT_1]).to.be.equal(5);
     expect(deletion[SLOT_2]).to.be.equal(5);
+    expect(timeslot.lastWorkedTimeslot).to.be.equal("2024-05-22T11:59");
   });
 
   it("first slot with data partition", async () => {
-    let lastWorkedTimeslot = "2024-05-22T11:57";
+    let timeslot = {lastWorkedTimeslot: "2024-05-22T11:57"};
     let currSlot;
     let deletion = {};
     let read = {};
@@ -148,7 +127,7 @@ describe("eventHandler tests", () => {
       .load(
         "../app/eventHandler.js",
         testOverride(
-          lastWorkedTimeslot,
+          timeslot,
           read,
           deletion,
           "./testData/test-onlyOneRepeat",
@@ -166,17 +145,18 @@ describe("eventHandler tests", () => {
     expect(read[SLOT_2]).to.be.equal(1);
     expect(deletion[SLOT_1]).to.be.equal(5);
     expect(deletion[SLOT_2]).to.be.equal(1);
+    expect(timeslot.lastWorkedTimeslot).to.be.equal("2024-05-22T11:59");
   });
 
   it("two slot with some elements to discard", async () => {
-    let lastWorkedTimeslot = "2024-05-22T11:57";
+    let timeslot = {lastWorkedTimeslot: "2024-05-22T11:57"};
     let currSlot;
     let deletion = {};
     let read = {};
 
 
     const opsOverride = testOverride(
-      lastWorkedTimeslot,
+      timeslot,
       read,
       deletion,
       "./testData/test-with-discarded",
@@ -213,18 +193,20 @@ describe("eventHandler tests", () => {
     expect(read[SLOT_1]).to.be.equal(5);
     expect(deletion[SLOT_1]).to.be.equal(5);
     expect(deletion[SLOT_2]).to.be.undefined;
+
+    expect(timeslot.lastWorkedTimeslot).to.be.equal("2024-05-22T11:57");
   });
 
 
   it("two slot with one slot less in deletion", async () => {
-    let lastWorkedTimeslot = "2024-05-22T11:57";
+    let timeslot = {lastWorkedTimeslot: "2024-05-22T11:57"};
     let currSlot;
     let deletion = {};
     let read = {};
 
 
     const opsOverride = testOverride(
-      lastWorkedTimeslot,
+      timeslot,
       read,
       deletion,
       "./testData/test-with-discarded-one-slot-less",
@@ -261,10 +243,11 @@ describe("eventHandler tests", () => {
     expect(read[SLOT_1]).to.be.equal(5);
     expect(deletion[SLOT_1]).to.be.equal(5);
     expect(deletion[SLOT_2]).to.be.undefined;
+    expect(timeslot.lastWorkedTimeslot).to.be.equal("2024-05-22T11:57");
   });
 
   it("empty slot", async () => {
-    let lastWorkedTimeslot = "2024-05-22T11:57";
+    let timeslot = {lastWorkedTimeslot: "2024-05-22T11:57"};
     let currSlot;
     let deletion = {};
     let read = {};
@@ -273,7 +256,7 @@ describe("eventHandler tests", () => {
       .load(
         "../app/eventHandler.js",
         testOverride(
-          lastWorkedTimeslot,
+          timeslot,
           read,
           deletion,
           "./testData/empty",
@@ -291,5 +274,7 @@ describe("eventHandler tests", () => {
     expect(read[SLOT_2]).to.be.undefined;
     expect(deletion[SLOT_1]).to.be.undefined;
     expect(deletion[SLOT_2]).to.be.undefined;
+    expect(timeslot.lastWorkedTimeslot).to.be.equal("2024-05-22T11:59");
+
   });
 });
