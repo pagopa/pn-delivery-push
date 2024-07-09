@@ -86,7 +86,8 @@ async function setLastTimeSlotWorked(tableName, keyValue, timeSlot) {
 }
 
 const _isToDiscard = (elem) => {
-  return isAfterStr(elem.notBefore, elem.timeslot);
+  return isAfterStr(elem.notBefore, elem.timeSlot);
+  //return false;
 };
 
 async function _wait(delay) {
@@ -103,7 +104,7 @@ async function batchDelete(tableName, items, isTimingOut) {
     "[FUTURE_ACTIONS_REMOVER]",
     `RECEIVED ${items.length} items to DELETE: will be done in  ${chunkingResult.chunks.length} chunks`
   );
-  
+
   // For every chunk of MAX_BATCH_SIZE actions, make one BatchWrite request.
   for (const chunk of chunkingResult.chunks) {
     console.debug("[FUTURE_ACTIONS_REMOVER]", "DELETING  chunk", chunk);
