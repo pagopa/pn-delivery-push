@@ -5,10 +5,18 @@ class BatchOperationException extends Error {
     this.stack = e.stack;
   }
 }
+
 class ItemNotFoundException extends Error {
   constructor(key, tableName) {
     super(`Item with with id = ${key} not found on table ${tableName}`);
     this.name = "ItemNotFoundException";
+  }
+}
+
+class InvalidItemException extends Error {
+  constructor() {
+    super(`Item not valid in batch`);
+    this.name = "InvalidItemException";
   }
 }
 
@@ -22,5 +30,6 @@ class InvalidDateException extends Error {
 module.exports = {
   InvalidDateException,
   ItemNotFoundException,
+  InvalidItemException,
   BatchOperationException,
 };

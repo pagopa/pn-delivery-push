@@ -15,7 +15,7 @@ const {
 
 const { getWorkingTime } = require("./workingTimeUtils.js");
 
-const { BatchOperationException } = require("./exceptions.js");
+const { BatchOperationException, InvalidItemException } = require("./exceptions.js");
 const config = require("config");
 
 const LAST_WORKED_KEY = config.get("LAST_WORKED_KEY");
@@ -118,7 +118,6 @@ async function handleEvent(event, context) {
 
         //do not override a override a true  value for discarded flag
         haveDiscardedRecords |= (deleteResult.discarded != 0);
-
         if (isTimeToLeave(context)) {
           console.info(
             "[FUTURE_ACTIONS_REMOVER]",
@@ -144,7 +143,7 @@ async function handleEvent(event, context) {
         "[FUTURE_ACTIONS_REMOVER]",
         `Discarded record in timeslot  ${startTimeSlot}, exiting`
       );
-      return generateKoResponse(new Error(`Discarded record in timeslot  ${startTimeSlot}`));
+      return generateKoResponse(new InvalidItemException());
     }
     else {
     setLastTimeSlotWorked(
