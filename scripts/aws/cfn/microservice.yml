@@ -1617,7 +1617,7 @@ Resources:
       Code:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationCancellationActionInsert.zip"
-      Role: !GetAtt   NotificationCancellationActionInsertLambdaRole.Arn
+      Role: !GetAtt NotificationCancellationActionInsertLambdaRole.Arn
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
@@ -1693,6 +1693,7 @@ Resources:
   # CDC to NotificationCancellationActionInsert
   NotificationCancellationActionInsertLambdaSource:
     Type: AWS::Lambda::EventSourceMapping
+    DependsOn: NotificationCancellationActionInsertLambdaPolicy
     Properties:
       BatchSize: !Sub ${NotificationCancellationActionInsertLambdaBatchSize}
       BisectBatchOnFunctionError: true
