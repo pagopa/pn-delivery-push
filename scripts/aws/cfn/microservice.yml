@@ -1968,7 +1968,7 @@ Resources:
             - !Ref AddressManagerToDeliveryPushQueueAgeAlarmARN
             - !Ref F24ToDeliveryPushQueueAgeAlarmARN
             - !Ref NotificationCancellationActionInsertDLQAlarmARN
-            - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            #- !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref WebhookEventManagerDLQAlarmARN
             - !GetAtt WebhookEventManagerLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PaperEventsCostUpdateDLQAlarmARN
@@ -1979,8 +1979,8 @@ Resources:
             - !GetAtt VersioningV1V2WebhookLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
-          - - !GetAtt NotificationCancellationActionInsertLambda.Arn
-            - !GetAtt WebhookEventManagerLambda.Arn
+          - - !GetAtt WebhookEventManagerLambda.Arn
+            #- !GetAtt NotificationCancellationActionInsertLambda.Arn
             - !GetAtt PaperEventsCostUpdateLambda.Arn
             - !GetAtt VersioningV1V2WebhookLambda.Arn
         QueueArns: !Join
