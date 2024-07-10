@@ -11,11 +11,14 @@ const { ItemNotFoundException } = require("./exceptions.js");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { captureAWSv3Client } = require("aws-xray-sdk");
 
+const { chunkIntoN } = require("./utils");
+
 const ddbClient = captureAWSv3Client(new DynamoDBClient());
 
 const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
 const config = require("config");
+const { isAfterStr } = require("./timeHelper.js");
 const MAX_BATCH_SIZE = config.get("MAX_BATCH_SIZE");
 const SLEEP_FOR_UNPROCESSED = config.get("SLEEP_FOR_UNPROCESSED");
 async function getActionsByTimeSlot(
@@ -59,7 +62,7 @@ async function getLastTimeSlotWorked(tableName, keyValue) {
   const command = new GetCommand({
     TableName: tableName,
     Key: {
-      lastPoolKey: keyValue,
+      lastPoolKey: +keyValue,
     },
   });
   const dynamoItem = await ddbDocClient.send(command);
@@ -74,7 +77,7 @@ async function setLastTimeSlotWorked(tableName, keyValue, timeSlot) {
   const command = new PutCommand({
     TableName: tableName,
     Item: {
-      lastPoolKey: keyValue,
+      lastPoolKey: +keyValue,
       lastPollExecuted: timeSlot,
     },
   });
@@ -82,14 +85,9 @@ async function setLastTimeSlotWorked(tableName, keyValue, timeSlot) {
   //TODO CHECK RESPONSE
 }
 
-const _chunkIntoN = (arr, chunkSize) => {
-  const chunks = [];
-
-  for (let i = 0; i < arr.length; i += chunkSize) {
-    const chunk = arr.slice(i, i + chunkSize);
-    chunks.push(chunk);
-  }
-  return chunks;
+const _isToDiscard = (elem) => {
+  return isAfterStr(elem.notBefore, elem.timeSlot);
+  //return false;
 };
 
 async function _wait(delay) {
@@ -101,13 +99,14 @@ async function _wait(delay) {
 }
 
 async function batchDelete(tableName, items, isTimingOut) {
-  let chunks = _chunkIntoN(items, MAX_BATCH_SIZE);
+  let chunkingResult = chunkIntoN(items, MAX_BATCH_SIZE, _isToDiscard);
   console.debug(
     "[FUTURE_ACTIONS_REMOVER]",
-    `RECEIVED ${items.length} items to DELETE: will be done in  ${chunks.length} chunks`
+    `RECEIVED ${items.length} items to DELETE: will be done in  ${chunkingResult.chunks.length} chunks`
   );
+
   // For every chunk of MAX_BATCH_SIZE actions, make one BatchWrite request.
-  for (const chunk of chunks) {
+  for (const chunk of chunkingResult.chunks) {
     console.debug("[FUTURE_ACTIONS_REMOVER]", "DELETING  chunk", chunk);
     const deleteRequests = chunk.map((action) => ({
       DeleteRequest: {
@@ -124,7 +123,7 @@ async function batchDelete(tableName, items, isTimingOut) {
     });
     let doCycle = true;
     while (doCycle) {
-      if (isTimingOut()) return false;
+      if (isTimingOut()) return { operationResult: false, discarded: chunkingResult.discarded};
 
       const res = await ddbDocClient.send(command);
 
@@ -142,7 +141,7 @@ async function batchDelete(tableName, items, isTimingOut) {
       } else doCycle = false;
     }
   }
-  return true;
+  return { operationResult: true, discarded: chunkingResult.discarded};
 }
 
 module.exports = {

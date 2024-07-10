@@ -24,6 +24,13 @@ function mapActionToQueueMessage(action) {
   let uuid = v4();
   let origAction = Object.assign({}, action);
   origAction.timeslot = action.timeSlot;
+
+  if(origAction.details){
+    origAction.details.actionType = action.type;
+  }
+  
+  console.debug("origAction", origAction);
+
   delete origAction.timeSlot;
   delete origAction.seqNo;
   const message = {

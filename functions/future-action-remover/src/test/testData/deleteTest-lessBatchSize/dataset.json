@@ -13,7 +13,7 @@
     "notBefore": "2023-06-30T02:49:59.038205356Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1719629398,
     "type": "START_RECIPIENT_WORKFLOW"
   },
@@ -24,7 +24,7 @@
     "notBefore": "2023-07-06T19:14:16.129516498Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1720206855,
     "type": "ANALOG_WORKFLOW"
   },
@@ -35,7 +35,7 @@
     "notBefore": "2023-07-07T20:17:11.971082354Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1720297030,
     "type": "CHOOSE_DELIVERY_MODE"
   },
@@ -46,7 +46,7 @@
     "notBefore": "2023-06-22T06:37:46.223799120Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1718951714,
     "type": "REFINEMENT_NOTIFICATION"
   },
@@ -57,7 +57,7 @@
     "notBefore": "2023-06-13T01:59:56.308641777Z",
     "recipientIndex": 0,
     "timelineId": "PREPARE_DIGITAL_DOMICILE.IUN_ZWZW-YJXT-DQRK-202306-Y-1.RECINDEX_0.SOURCE_GENERAL.ATTEMPT_1.CORRELATIONID_SCHEDULE_DIGITAL_WORKFLOW.IUN_ZWZW-YJXT-DQRK-202306-Y-1.RECINDEX_0.SOURCE_SPECIAL.ATTEMPT_0",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": "",
     "type": "DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION"
   },
@@ -68,7 +68,7 @@
     "notBefore": "2023-06-07T14:06:13.064452329Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": "",
     "type": "REFINEMENT_NOTIFICATION"
   },
@@ -79,7 +79,7 @@
     "notBefore": "2023-07-19T01:14:12.361287012Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1721265251,
     "type": "CHOOSE_DELIVERY_MODE"
   },
@@ -90,7 +90,7 @@
     "notBefore": "2023-06-22T04:27:38.127755790Z",
     "recipientIndex": 0,
     "timelineId": "PREPARE_DIGITAL_DOMICILE.IUN_XHVP-MDVP-RAJT-202306-V-1.RECINDEX_0.SOURCE_GENERAL.ATTEMPT_0",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1718944057,
     "type": "DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION"
   },
@@ -108,7 +108,7 @@
     "notBefore": "2023-07-31T09:18:45.632504334Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1722331124,
     "type": "START_RECIPIENT_WORKFLOW"
   },
@@ -126,7 +126,7 @@
     "notBefore": "2023-08-08T17:31:18.614082399Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1723051877,
     "type": "START_RECIPIENT_WORKFLOW"
   },
@@ -137,7 +137,7 @@
     "notBefore": "2023-08-18T01:27:16.041715029Z",
     "recipientIndex": "",
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1723858035,
     "type": "SCHEDULE_RECEIVED_LEGALFACT_GENERATION"
   },
@@ -152,7 +152,7 @@
     "notBefore": "2023-06-30T02:29:37.353941452Z",
     "recipientIndex": "",
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1719628176,
     "type": "NOTIFICATION_VALIDATION"
   },
@@ -176,7 +176,7 @@
     "notBefore": "2023-07-06T14:40:25.511048225Z",
     "recipientIndex": 0,
     "timelineId": "AAR_CREATION_REQUEST.IUN_EMAN-EXEV-NPRY-202307-P-1.RECINDEX_0",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1720190424,
     "type": "DOCUMENT_CREATION_RESPONSE"
   },
@@ -194,7 +194,7 @@
     "notBefore": "2023-07-31T08:50:17.346113153Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1722329416,
     "type": "START_RECIPIENT_WORKFLOW"
   },
@@ -205,7 +205,7 @@
     "notBefore": "2023-06-13T20:13:04.999706579Z",
     "recipientIndex": 0,
     "timelineId": "SEND_DIGITAL.IUN_HKGT-ULGL-HKXV-202306-H-1.RECINDEX_0.SOURCE_SPECIAL.REPEAT_false.ATTEMPT_0",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": "",
     "type": "DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION"
   },
@@ -216,7 +216,7 @@
     "notBefore": "2023-06-27T15:35:14.990726239Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1719416113,
     "type": "REFINEMENT_NOTIFICATION"
   },
@@ -227,7 +227,7 @@
     "notBefore": "2023-06-29T18:16:13.968053729Z",
     "recipientIndex": 0,
     "timelineId": "SEND_DIGITAL.IUN_GPWU-NKQD-GPGW-202306-L-1.RECINDEX_0.SOURCE_PLATFORM.REPEAT_false.ATTEMPT_0",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1719504973,
     "type": "DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION"
   },
@@ -238,7 +238,7 @@
     "notBefore": "2023-06-09T20:43:07.182893362Z",
     "recipientIndex": 0,
     "timelineId": "SEND_DIGITAL.IUN_TYXP-PVKW-XRQH-202306-U-1.RECINDEX_0.SOURCE_GENERAL.REPEAT_false.ATTEMPT_0",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": "",
     "type": "DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION"
   },
@@ -262,7 +262,7 @@
     "notBefore": "2023-06-28T14:31:50.470917831Z",
     "recipientIndex": "",
     "timelineId": "SENDERACK_LEGALFACT_CREATION_REQUEST.IUN_MZGY-MZUL-TEKZ-202306-D-1",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1719498709,
     "type": "DOCUMENT_CREATION_RESPONSE"
   },
@@ -273,7 +273,7 @@
     "notBefore": "2023-07-26T17:52:04.706131880Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1721929923,
     "type": "REFINEMENT_NOTIFICATION"
   },
@@ -284,7 +284,7 @@
     "notBefore": "2023-08-08T18:41:20.709073240Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1723056079,
     "type": "CHOOSE_DELIVERY_MODE"
   },
@@ -308,7 +308,7 @@
     "notBefore": "2023-08-02T16:20:49.846565524Z",
     "recipientIndex": "",
     "timelineId": "SENDERACK_LEGALFACT_CREATION_REQUEST.IUN_TMNT-JVQG-WEAN-202308-Q-1",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1722529248,
     "type": "DOCUMENT_CREATION_RESPONSE"
   },
@@ -319,7 +319,7 @@
     "notBefore": "2023-08-08T18:08:04.097718491Z",
     "recipientIndex": "",
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1723054083,
     "type": "SCHEDULE_RECEIVED_LEGALFACT_GENERATION"
   },
@@ -330,7 +330,7 @@
     "notBefore": "2023-06-30T05:14:05.408901603Z",
     "recipientIndex": 0,
     "timelineId": "",
-    "timeslot": "2024-05-22T11:58",
+    "timeSlot": "2024-05-22T11:58",
     "ttl": 1719638044,
     "type": "CHOOSE_DELIVERY_MODE"
   }

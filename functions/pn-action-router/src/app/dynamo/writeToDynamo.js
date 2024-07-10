@@ -85,6 +85,8 @@ function checkIsPresent(unprocessedItem, actionIdToFind){
 function getFutureAction(action){
   console.log('Starting get future action for ', JSON.stringify(action))
   const ttlTimeToAdd = config.get("FUTURE_ACTION_TTL_EXTRA_DAYS");
+  console.log('ttlTimeToAdd is ', ttlTimeToAdd)
+
   let ttl = addDaysToDate(action.notBefore, ttlTimeToAdd);
   console.log('ttl calculated is ', ttl)
 

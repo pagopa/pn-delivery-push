@@ -2,12 +2,17 @@ const {
   InvalidDateException,
   ItemNotFoundException,
   BatchOperationException,
+  InvalidItemException
 } = require("../app/exceptions");
 
 const { expect } = require("chai");
 const { describe, it } = require("mocha");
 
+
+
 describe("test InvalidDateException", () => {
+
+
   it("should set name", () => {
     const message = "test";
     const exception = new InvalidDateException(message);
@@ -25,6 +30,13 @@ describe("test ItemNotFoundException", () => {
     expect(exception.message).to.eq(
       `Item with with id = ${key} not found on table ${tableName}`
     );
+  });
+});
+
+describe("test InvalidItemException", () => {
+  it("should set name", () => {
+    const exception = new InvalidItemException();
+    expect(exception.name).to.eq("InvalidItemException");   
   });
 });
 

@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,10 @@ class SchedulerServiceImplTest {
     private Clock clock;
     @Mock
     private TimelineUtils timelineUtils;
+    @Mock
+    private FeatureEnabledUtils featureEnabledUtils;
 
+    
     private SchedulerServiceImpl schedulerService;
     
     @BeforeEach
@@ -39,7 +43,7 @@ class SchedulerServiceImplTest {
         webhooksPool = Mockito.mock(WebhooksPool.class);
         clock = Mockito.mock(Clock.class);
 
-        schedulerService = new SchedulerServiceImpl(actionsPool, webhooksPool, clock, timelineUtils);
+        schedulerService = new SchedulerServiceImpl(actionsPool, webhooksPool, clock, timelineUtils, featureEnabledUtils);
     }
 
     

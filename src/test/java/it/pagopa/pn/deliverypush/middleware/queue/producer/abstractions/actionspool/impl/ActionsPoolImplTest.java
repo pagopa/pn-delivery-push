@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActio
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.ActionService;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import net.javacrumbs.shedlock.core.LockAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,7 @@ class ActionsPoolImplTest {
     private ActionsPoolImpl actionsPool;
     private Duration lockAtMostFor;
     private Duration timeToBreak;
+    private FeatureEnabledUtils featureEnabledUtils;
 
     @BeforeEach
     void setup() { 
@@ -44,8 +46,9 @@ class ActionsPoolImplTest {
         lockAtMostFor = Duration.ofSeconds(600);
         timeToBreak = Duration.ofSeconds(10);
         actionsQueue = Mockito.mock(MomProducer.class);
-        
-        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, lockAtMostFor, timeToBreak);
+        featureEnabledUtils = Mockito.mock(FeatureEnabledUtils.class);
+
+        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, featureEnabledUtils, lockAtMostFor, timeToBreak);
     }
 
     @Test
@@ -141,7 +144,7 @@ class ActionsPoolImplTest {
     void pollForFutureActionsCloseToLookAtMostFor() {
         lockAtMostFor = Duration.ofMillis(10);
         timeToBreak = Duration.ofMillis(1);
-        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, lockAtMostFor, timeToBreak);
+        actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, lastFutureActionPoolExecutionTimeDao, configs, featureEnabledUtils, lockAtMostFor, timeToBreak);
 
         //GIVEN
         final Instant now = Instant.now();
@@ -215,9 +218,7 @@ class ActionsPoolImplTest {
         //WHEN
         actionsPool.startActionOrScheduleFutureAction(action);
         //THEN
-        Mockito.verify(actionService).addOnlyAction(Mockito.any(Action.class));
-        Mockito.verify(actionService, Mockito.never()).addOnlyActionIfAbsent(Mockito.any(Action.class));
-        Mockito.verify(actionsQueue, Mockito.never()).push(Mockito.any(ActionEvent.class));
+        Mockito.verify(actionService).addOnlyActionIfAbsent(Mockito.any(Action.class));
     }
 
     @Test
