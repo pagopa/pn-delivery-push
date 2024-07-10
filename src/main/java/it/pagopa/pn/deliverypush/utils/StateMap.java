@@ -275,6 +275,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
         ;
         this.fromState(NotificationStatusInt.CANCELLED)
+                .withTimelineGoToState(TimelineElementCategoryInt.GENERATED_F24, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.GET_ADDRESS, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_CALL, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
