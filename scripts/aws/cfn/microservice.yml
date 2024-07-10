@@ -1714,23 +1714,22 @@ Resources:
               - sqs:SendMessage
             Resource: !Ref NotificationCancellationActionInsertDLQARN
 
-#TODO Da decommentare
   # CDC to NotificationCancellationActionInsert
-#  NotificationCancellationActionInsertLambdaSource:
-#    Type: AWS::Lambda::EventSourceMapping
-#    DependsOn: NotificationCancellationActionInsertLambdaPolicy
-#    Properties:
-#      BatchSize: !Sub ${NotificationCancellationActionInsertLambdaBatchSize}
-#      BisectBatchOnFunctionError: true
-#      EventSourceArn: !Ref CdcKinesisSourceStreamArn
-#      FunctionName: !Ref NotificationCancellationActionInsertLambda
-#      FunctionResponseTypes:
-#        - ReportBatchItemFailures
-#      MaximumBatchingWindowInSeconds: !Sub ${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}
-#      StartingPosition: TRIM_HORIZON
-#      DestinationConfig:
-#        OnFailure:
-#          Destination: !Ref NotificationCancellationActionInsertDLQARN
+  NotificationCancellationActionInsertLambdaSource:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn: NotificationCancellationActionInsertLambdaPolicy
+    Properties:
+      BatchSize: !Sub ${NotificationCancellationActionInsertLambdaBatchSize}
+      BisectBatchOnFunctionError: true
+      EventSourceArn: !Ref CdcKinesisSourceStreamArn
+      FunctionName: !Ref NotificationCancellationActionInsertLambda
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+      MaximumBatchingWindowInSeconds: !Sub ${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}
+      StartingPosition: TRIM_HORIZON
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref NotificationCancellationActionInsertDLQARN
 
   NotificationCancellationActionInsertLambdaAlarms:
     Type: AWS::CloudFormation::Stack
