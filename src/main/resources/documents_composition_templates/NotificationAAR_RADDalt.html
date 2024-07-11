@@ -493,15 +493,15 @@
             <div class="rounded-box relative-box">
               <img id="io-notifications__image" src="images/io-on-light.jpg" />
               <div id="io-notifications__content" class="eight-px">
-                Scarica l’<b>app IO</b> e attiva il servizio SEND - Notifiche digitali. Se riceverai nuove notifiche, potrai
-                accedere ai documenti e pagare eventuali spese direttamente in app.
+                Laden Sie die <b>IO-App</b> herunter und aktivieren Sie den Dienst SEND – Servizio Notifiche Digitali. Wenn Sie neue Benachrichtigungen erhalten, können Sie dies tun
+                Greifen Sie auf Dokumente zu und bezahlen Sie etwaige Ausgaben direkt in der App.
               </div>
             </div>
             <#else>
             <div id="send-info">
               <div class="rounded-box relative-box">
                 <div id="send-info__content" class="eight-px">
-                  <b>SEND</b> è uno strumento che rende l’invio di notifiche da parte della Pubblica Amministrazione sicuro, efficiente ed economico. Trovi maggiori informazioni su <strong><a href="${sendURL}">${sendURLLAbel}</a></strong>
+                  <b>SEND</b> je orodje, ki omogoča varno, učinkovito in ekonomično pošiljanje obvestil s strani javne uprave. Več informacij najdete na <strong><a href="${sendURL}">${sendURLLAbel}</a></strong>
                 </div>
               </div>
             </div>
@@ -524,8 +524,8 @@
             <li>Puoi richiedere i documenti notificati anche senza SPID o CIE presso i Punti di ritiro SEND (CAF e altri esercenti convenzionati). Per conoscere i punti di ritiro più vicini a te vai su <b><a href="${sendURL}punti-di-ritiro">${sendURLLAbel}/punti-di-ritiro</a></b> oppure <b>chiama il numero ${raddPhoneNumber}</b></li>
             <li>Al Punto di ritiro SEND mostra:
               <ul id="square-list">
-                <li>questo avviso di avvenuta ricezione;</li>
-                <li>un tuo documento di riconoscimento;</li>
+                <li>caratteri speciali tedesco: äÄ, öÖ, üÜ, ß;</li>
+                <li>caratteri speciali sloveni: Čč, Šš, Žž;</li>
                 <li>il tuo codice fiscale<#if recipient.recipientType=="PF">.</li><#else>;</li>
                   <li>un documento che attesti il tuo
                       ruolo
@@ -533,14 +533,14 @@
                 </#if>
               </ul>
             </li>
-            <li>Paga il costo del servizio e ritira i documenti notificati.</li>
+            <li>caratteri speciali francesi: â, ç, ê, î, ô, û, ÿ, ï.</li>
           </ol>
         </div>
         <#if recipient.recipientType=="PF">
         <div id="send-info">
           <div class="rounded-box relative-box">
             <div id="send-info__content" class="eight-px">
-              <b>SEND</b> è uno strumento che rende l’invio di notifiche da parte della Pubblica Amministrazione sicuro, efficiente ed economico. Trovi maggiori informazioni sul retro di questo foglio e su <b><a
+              <b>SEND</b>est un outil qui rend l'envoi de notifications par l'administration publique sûr, efficace et économique. Vous trouverez plus d'informations au dos de cette fiche et sur <b><a
                   href="${sendURL}">${sendURLLAbel}</a></b>
             </div>
           </div>
@@ -551,7 +551,7 @@
           href="${sendURL}punti-di-ritiro/come-funziona">${sendURLLAbel}/punti-di-ritiro/come-funziona</a></b></p>
         </#if>
         <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
-          Hai 120 giorni dalla data di perfezionamento della notifica (data in cui assume valore di legge per tutte le diverse finalità) per ottenere i documenti. Scopri di più su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b>
+          Sie haben ab dem Datum der Fertigstellung der Meldung (dem Datum, an dem sie für alle verschiedenen Zwecke Rechtskraft erlangt) Zeit, um die Dokumente zu erhalten. Erfahren Sie mehr über <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b>
         </div>
       </div>
       <div id="mandate-box">
@@ -582,7 +582,7 @@
           </div>
         </div>
         <div class="section-list">
-          Al Punto di ritiro SEND la persona delegata dovrà mostrare:
+          Na prevzemnem mestu SEND mora pooblaščena oseba pokazati:
           <ul id="square-list">
             <li>questo avviso con la delega compilata e firmata;</li>
             <li>un suo documento di riconoscimento;</li>
