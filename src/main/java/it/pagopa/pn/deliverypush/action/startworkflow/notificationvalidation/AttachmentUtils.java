@@ -438,4 +438,10 @@ public class AttachmentUtils {
             throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND);
         }
     }
+
+    public Boolean getAarWithRadd(NotificationInt notification, Integer recIndex) {
+        var details = aarUtils.getAarCreationRequestDetailsInt(notification, recIndex);
+        return details.getAarTemplateType() != null && details.getAarTemplateType().isAarRADD();
+    }
+
 }

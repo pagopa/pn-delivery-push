@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActionsDao;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.service.ActionService;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import net.javacrumbs.shedlock.core.LockAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,8 @@ class ActionPoolImplTest {
     private TestActionsPoolImpl service;
     private ActionService actionService;
     private LastPollForFutureActionsDao lastPollForFutureActionsDao;
+    private FeatureEnabledUtils featureEnabledUtils;
+    
     private Clock clock;
     private PnDeliveryPushConfigs configs;
 
@@ -40,7 +43,9 @@ class ActionPoolImplTest {
         lastPollForFutureActionsDao = Mockito.mock(LastPollForFutureActionsDao.class);
         configs = Mockito.mock( PnDeliveryPushConfigs.class );
 
-        service = new TestActionsPoolImpl(actionsQueue, actionService, clock, lastPollForFutureActionsDao, configs);
+        featureEnabledUtils = Mockito.mock(FeatureEnabledUtils.class);
+                
+        service = new TestActionsPoolImpl(actionsQueue, actionService, clock, lastPollForFutureActionsDao, configs, featureEnabledUtils);
     }
 
     @Test
@@ -122,9 +127,10 @@ class ActionPoolImplTest {
                 ActionService actionService,
                 Clock clock,
                 LastPollForFutureActionsDao lastPollForFutureActionsDao,
-                PnDeliveryPushConfigs configs
+                PnDeliveryPushConfigs configs,
+                FeatureEnabledUtils featureEnabledUtils
         ) {
-            super(actionsQueue, actionService, clock, lastPollForFutureActionsDao, configs, Duration.ofSeconds(600), Duration.ofSeconds(10));
+            super(actionsQueue, actionService, clock, lastPollForFutureActionsDao, configs, featureEnabledUtils, Duration.ofSeconds(600), Duration.ofSeconds(10));
         }
 
         @Override

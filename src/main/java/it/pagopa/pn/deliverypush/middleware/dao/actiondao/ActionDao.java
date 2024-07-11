@@ -10,6 +10,8 @@ public interface ActionDao {
 
     void addAction( Action action, String timeSlot );
 
+    void addOnlyAction(Action action);
+
     void addOnlyActionIfAbsent(Action action);
     void addActionAndFutureActionIfAbsent(Action action, String timeSlot);
         
