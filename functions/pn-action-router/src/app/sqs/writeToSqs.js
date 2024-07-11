@@ -53,7 +53,7 @@ async function writeMessagesToQueue(immediateActions, context, destinationQueueU
           JSON.stringify(actionsToSendMapped)
         );
         let actionTimeoutDlqUrl = config.get("ACTION_TIMEOUT_ERROR_DLQ_URL");
-        writeMessagesToSqsWithoutReturnFailed(actionsToSendMapped, actionTimeoutDlqUrl);
+        await writeMessagesToSqsWithoutReturnFailed(actionsToSendMapped, actionTimeoutDlqUrl);
 
       }else{
         console.info('Generic exception in SQS send message, need to reschedule');
@@ -175,7 +175,7 @@ async function writeMessagesToSqsWithoutReturnFailed(actionsToSendMapped, destin
     console.error(
       "[ACTION_ROUTER]",
       "Insert action failed:",
-      JSON.stringify(response.Failed)
+      JSON.stringify(actionsToSendMapped)
     );
   }  
 }
