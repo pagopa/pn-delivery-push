@@ -1,4 +1,5 @@
-const TOLLERANCE_IN_MILLIS = 3000;
+const config = require("config");
+const TOLLERANCE_IN_MILLIS = config.get("RUN_TOLLERANCE_IN_MILLIS");
 
 function isTimeToLeave (context){
     return context.getRemainingTimeInMillis() < TOLLERANCE_IN_MILLIS;
