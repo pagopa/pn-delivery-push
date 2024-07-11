@@ -1466,6 +1466,7 @@ Resources:
               - !Ref ScheduledActionsQueueARN
               - !Ref ScheduledValidationActionsQueueARN
               - !Ref ActionEnqueuerDLQARN
+              - !Ref ActionTimeoutErrorDLQARN
           - Effect: Allow
             Action:
               - "dynamodb:PutItem"
