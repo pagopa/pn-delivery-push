@@ -66,7 +66,7 @@
     "CdcActionOnCallAlarmThresholdsMs": "2000000",
     "ActionEnqueuerKinesisBatchSize": "10",
     "PerformanceImprovementStartDate": "2024-06-01T00:00:00Z",
-    "PerformanceImprovementEndDate": "2025-06-01T00:00:00Z",
+    "PerformanceImprovementEndDate": "2024-07-14T20:00:00Z",
     "FutureActionTtlExtraDays": "10"
   }
 }
