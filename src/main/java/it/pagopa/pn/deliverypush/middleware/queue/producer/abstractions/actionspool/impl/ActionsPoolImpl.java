@@ -177,6 +177,8 @@ public class ActionsPoolImpl implements ActionsPool {
                 if(!featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())) {
                     /*Viene verificato se si sta andando oltre il lockAtMostFor, in quel caso per evitare che il lock si sblocchi quando un nodo sta ancora lavorando,
                     si esce semplicemente dal for */
+                    log.debug("ActionPool: Performance improvement NOT ENABLED - actionId={}", action.getActionId());
+
                     Duration timeSpent = getTimeSpent(start);
                     Duration closeToLookAtMostFor = lockAtMostFor.minus(timeToBreak);
 
@@ -190,6 +192,8 @@ public class ActionsPoolImpl implements ActionsPool {
                         break;
                     }
                 }
+                else 
+                    log.debug("ActionPool: Performance improvement ENABLED - actionId={}", action.getActionId());
             }
             
             /*Viene effettuato l'update lastPoolTime con l'ultimo timeslot ottenuto (NOTA, potrebbe anche essere un timeslot parsato in parte, dunque il prossimo nodo

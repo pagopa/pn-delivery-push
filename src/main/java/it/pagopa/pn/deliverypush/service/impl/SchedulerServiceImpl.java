@@ -91,8 +91,10 @@ public class SchedulerServiceImpl implements SchedulerService {
                     .build();
             
             if(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())) {
+                log.debug("ScheduleEvent: performance improvement IS ENABLED for iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
                 actionsPool.addOnlyAction(action);
             }else {
+                log.debug("ScheduleEvent: performance improvement NOT ENABLED for iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
                 //Da eliminare Una volta stabilizzata la feature miglioramento performance workflow, che include una gestione diverse per le action. Qui andrà sempre e solo inserita una action
                 if(! scheduleNowIfAbsent){
                     this.actionsPool.startActionOrScheduleFutureAction(action);
