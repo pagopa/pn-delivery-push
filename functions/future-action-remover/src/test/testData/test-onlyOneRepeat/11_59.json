@@ -1,0 +1,20 @@
+[
+  {
+    "actionId": "DVMD-VHWE-WHYV-202306-A-1_start_recipient_workflow_0",
+    "details": {
+      "quickAccessLinkToken": {
+        "S": "RFZNRC1WSFdFLVdIWVYtMjAyMzA2LUEtMV9QRi0wNzk4OWRlMi1mMDcxLTRkY2QtYmVlZS04NTNjNDM0NDExN2ZfNTFmNGZjYTMtNjEyOS00ZGJlLWI2ZmEtMzhmODJhY2YzMDI2"
+      },
+      "retryAttempt": {
+        "N": "0"
+      }
+    },
+    "iun": "DVMD-VHWE-WHYV-202306-A-1",
+    "notBefore": "2023-06-30T02:49:59.038205356Z",
+    "recipientIndex": 0,
+    "timelineId": "",
+    "timeslot": "2024-05-22T11:59",
+    "ttl": 1719629398,
+    "type": "START_RECIPIENT_WORKFLOW"
+  }
+]

@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
@@ -79,6 +80,7 @@ public class LegalFactGenerator {
     private static final String FIELD_ADDITIONAL = "additional_";
     private static final String FIELD_DISCLAIMER = "disclaimer";
     public static final String FIELD_SUBJECT = "subject";
+    private static final String FIELD_RADDPHONENUMBER = "raddPhoneNumber";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -264,17 +266,25 @@ public class LegalFactGenerator {
         );
     }
 
-    public byte[] generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
+    public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
         
         PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
-
+        
         if(pnSendMode != null){
-            return documentComposition.executePdfTemplate(
-                    pnSendMode.getAarTemplateType(),
+            final AarTemplateChooseStrategy aarTemplateTypeChooseStrategy = pnSendMode.getAarTemplateTypeChooseStrategy();
+            final AarTemplateType aarTemplateType = aarTemplateTypeChooseStrategy.choose(recipient.getPhysicalAddress());
+            log.debug("aarTemplateType generated is ={} - iun={}", aarTemplateType, notification.getIun());
+            byte[] bytesArrayGeneratedAar = documentComposition.executePdfTemplate(
+                    aarTemplateType.getTemplateType(),
                     templateModel
             );
+
+            return AARInfo.builder()
+                    .bytesArrayGeneratedAar(bytesArrayGeneratedAar)
+                    .templateType(aarTemplateType)
+                    .build();
         } else {
             String msg = String.format("There isn't correct AAR configuration for date=%s - iun=%s", notification.getSentAt(), notification.getIun());
             log.error(msg);
@@ -358,6 +368,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PERFEZIONAMENTO, this.getPerfezionamentoLink());
         templateModel.put(FIELD_PERFEZIONAMENTO_LABEL, this.getPerfezionamentoLinkLabel());
         templateModel.put(FIELD_LOGO_LINK, this.getLogoLink());
+        templateModel.put(FIELD_RADDPHONENUMBER, this.getRaddPhoneNumber());
         addAdditional(templateModel);
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
@@ -441,6 +452,10 @@ public class LegalFactGenerator {
 
     private String getLogoLink() {
         return this.getAssetsLink() + "aar-logo-short-small.png";
+    }
+
+    private String getRaddPhoneNumber() {
+        return pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber();
     }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {

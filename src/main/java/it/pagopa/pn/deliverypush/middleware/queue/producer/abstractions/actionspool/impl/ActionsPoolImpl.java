@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.actiondao.LastPollForFutureActio
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.service.ActionService;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.CustomLog;
 import net.javacrumbs.shedlock.core.LockAssert;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -33,18 +34,20 @@ public class ActionsPoolImpl implements ActionsPool {
     private final Clock clock;
     private final LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao;
     private final PnDeliveryPushConfigs configs;
+    private final FeatureEnabledUtils featureEnabledUtils;
 
     private Duration lockAtMostFor;
     private Duration timeToBreak;
     
     public ActionsPoolImpl(MomProducer<ActionEvent> actionsQueue, ActionService actionService,
                            Clock clock, LastPollForFutureActionsDao lastFutureActionPoolExecutionTimeDao, PnDeliveryPushConfigs configs,
-                           @Value("${lockAtMostFor}") Duration lockAtMostFor, @Value("${timeToBreak}") Duration timeToBreak) {
+                           FeatureEnabledUtils featureEnabledUtils, @Value("${lockAtMostFor}") Duration lockAtMostFor, @Value("${timeToBreak}") Duration timeToBreak) {
         this.actionsQueue = actionsQueue;
         this.actionService = actionService;
         this.clock = clock;
         this.lastFutureActionPoolExecutionTimeDao = lastFutureActionPoolExecutionTimeDao;
         this.configs = configs;
+        this.featureEnabledUtils = featureEnabledUtils;
         this.lockAtMostFor = lockAtMostFor;
         this.timeToBreak = timeToBreak;
     }
@@ -92,7 +95,15 @@ public class ActionsPoolImpl implements ActionsPool {
             actionService.addOnlyActionIfAbsent(action);
             addToActionsQueue(action);
         }
+    }
 
+    @Override
+    public void addOnlyAction(Action action){
+        final String timeSlot = computeTimeSlot( action.getNotBefore() );
+        action = action.toBuilder()
+                .timeslot( timeSlot)
+                .build();
+        actionService.addOnlyActionIfAbsent(action);
     }
 
     @Override
@@ -163,19 +174,21 @@ public class ActionsPoolImpl implements ActionsPool {
             log.debug("timeSlot size is {}", actionList.size());
             
             for(Action action: actionList){
-                /*Viene verificato se si sta andando oltre il lockAtMostFor, in quel caso per evitare che il lock si sblocchi quando un nodo sta ancora lavorando,
-                si esce semplicemente dal for */
-                Duration timeSpent = getTimeSpent(start);
-                Duration closeToLookAtMostFor = lockAtMostFor.minus(timeToBreak);
-                
-                if(timeSpent.compareTo(closeToLookAtMostFor) < 0){
-                    if(start.isAfter(action.getNotBefore())){
-                        this.scheduleOne(action, timeSlot);
+                if(!featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())) {
+                    /*Viene verificato se si sta andando oltre il lockAtMostFor, in quel caso per evitare che il lock si sblocchi quando un nodo sta ancora lavorando,
+                    si esce semplicemente dal for */
+                    Duration timeSpent = getTimeSpent(start);
+                    Duration closeToLookAtMostFor = lockAtMostFor.minus(timeToBreak);
+
+                    if(timeSpent.compareTo(closeToLookAtMostFor) < 0){
+                        if(start.isAfter(action.getNotBefore())){
+                            this.scheduleOne(action, timeSlot);
+                        }
+                    } else {
+                        log.warn("Polling is interrupted because it is very close to lockAtMostFor");
+                        toBreak = true;
+                        break;
                     }
-                } else {
-                    log.warn("Polling is interrupted because it is very close to lockAtMostFor");
-                    toBreak = true;
-                    break;
                 }
             }
             
