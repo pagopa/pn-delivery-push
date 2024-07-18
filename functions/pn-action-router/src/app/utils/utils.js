@@ -27,8 +27,10 @@ function addDaysToDate(startDate, daysToAdd) {
 
     let datePlusDays =  new Date(millisecond + 86400000 * daysToAdd)
     console.log('datePlusDays is ', datePlusDays)
+    const unixTimestamp = Math.floor(datePlusDays.getTime() / 1000);
+    console.log('unixTimestamp is ', unixTimestamp)
 
-    return datePlusDays.toISOString();
+    return unixTimestamp;
 }
 
 module.exports = { isRecordToSend, isTimeToLeave, isFutureAction, addDaysToDate};
