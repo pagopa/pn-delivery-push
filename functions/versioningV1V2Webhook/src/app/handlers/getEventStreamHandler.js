@@ -36,8 +36,7 @@ class GetEventStreamHandler extends EventHandler {
         });
 
         console.log('calling ', url);
-        let response;
-        response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
+        let response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
         const transformedObject = createStreamMetadataResponseV10(response.data);

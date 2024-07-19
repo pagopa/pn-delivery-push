@@ -40,8 +40,7 @@ class UpdateEventStreamHandler extends EventHandler {
 
         console.log('calling ', url);
         console.log(requestBodyV22);
-        let response;
-        response = await axios.put(url, requestBodyV22, {headers: headers, timeout: this.attemptTimeout});
+        let response = await axios.put(url, requestBodyV22, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
         const transformedObject = createStreamMetadataResponseV10(response.data);

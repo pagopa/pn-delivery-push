@@ -33,8 +33,7 @@ class ListEventStreamsHandler extends EventHandler {
         });
 
         console.log('calling ', url);
-        let response;
-        response= await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
+        let response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
         return {
             statusCode: response.status,

@@ -27,9 +27,8 @@ class CreateEventStreamHandler extends EventHandler {
         console.log('calling ', url);
         console.log(requestBodyV22);
 
-        let response;
         let postTimeout = this.attemptTimeout * this.numRetry;
-        response = await axios.post(url, requestBodyV22, {headers: headers, timeout: postTimeout});
+        let response = await axios.post(url, requestBodyV22, {headers: headers, timeout: postTimeout});
 
         // RESPONSE BODY
         const transformedObject = createStreamMetadataResponseV10(response.data);

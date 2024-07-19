@@ -37,8 +37,7 @@ class DeleteEventStreamHandler extends EventHandler {
 
 
         console.log('calling ', url);
-        let response;
-        response = await axios.delete(url, { headers: headers, timeout: this.attemptTimeout});
+        let response = await axios.delete(url, { headers: headers, timeout: this.attemptTimeout});
 
         const ret = {
             statusCode: response.status,

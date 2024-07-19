@@ -38,9 +38,7 @@ class ConsumeEventStreamHandler extends EventHandler {
             }
         });
         console.log('calling ', url);
-        let response;
-        
-        response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
+        let response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
         // Il controllo della presenza di element avviene solo nel transitorio
