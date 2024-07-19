@@ -35,10 +35,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
-import it.pagopa.pn.deliverypush.utils.AuthUtils;
-import it.pagopa.pn.deliverypush.utils.CheckRADDExperimentation;
-import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
-import it.pagopa.pn.deliverypush.utils.StatusUtils;
+import it.pagopa.pn.deliverypush.utils.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -158,7 +155,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         SendMoreThan20GramsParameterConsumer.class,
         AarTemplateStrategyFactory.class,
         DynamicRADDExperimentationChooseStrategy.class,
-        CheckRADDExperimentation.class
+        CheckRADDExperimentation.class,
+        FeatureEnabledUtils.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")
