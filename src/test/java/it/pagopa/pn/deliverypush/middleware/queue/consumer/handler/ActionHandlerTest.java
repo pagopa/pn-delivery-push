@@ -1,16 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
-import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
-import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
-import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
-import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
+import it.pagopa.pn.deliverypush.action.details.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.SendDigitalFinalStatusResponseHandler;
@@ -25,10 +18,6 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +27,14 @@ import org.mockito.Mockito;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.function.Consumer;
+
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 class ActionHandlerTest {
@@ -206,14 +203,14 @@ class ActionHandlerTest {
 
         //THEN
         Action action = message.getPayload();
-        verify(digitalWorkFlowRetryHandler).elapsedExtChannelTimeout(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+        verify(digitalWorkFlowRetryHandler).elapsedExtChannelTimeout(action.getIun(), action.getRecipientIndex(), action.getTimelineId(), action.getNotBefore());
     }
 
     @Test
     void pnDeliveryPushWebhookActionConsumer() {
         //GIVEN
         Message<WebhookAction> message = getWebhookActionMessage();
-
+ 
         //WHEN
         Consumer<Message<WebhookAction>> consumer = actionHandler.pnDeliveryPushWebhookActionConsumer();
         consumer.accept(message);
