@@ -1,4 +1,6 @@
-const TOLLERANCE_IN_MILLIS = 3000;
+const config = require("config");
+const TOLLERANCE_IN_MILLIS = config.get("RUN_TOLLERANCE_IN_MILLIS");
+const TTL_TIME_TO_ADD_IN_MILLIS = config.get("TTL_TIME_TO_ADD_IN_MILLIS");
 
 function isTimeToLeave (context){
     return context.getRemainingTimeInMillis() < TOLLERANCE_IN_MILLIS;
@@ -24,10 +26,12 @@ function addDaysToDate(startDate, daysToAdd) {
     var date = new Date(startDate)
     let millisecond = date.getTime();
 
-    let datePlusDays =  new Date(millisecond + 86400000 * daysToAdd)
+    let datePlusDays =  new Date(millisecond + TTL_TIME_TO_ADD_IN_MILLIS * daysToAdd)
     console.log('datePlusDays is ', datePlusDays)
+    const unixTimestamp = Math.floor(datePlusDays.getTime() / 1000);
+    console.log('unixTimestamp is ', unixTimestamp)
 
-    return datePlusDays.toISOString();
+    return unixTimestamp;
 }
 
 module.exports = { isRecordToSend, isTimeToLeave, isFutureAction, addDaysToDate};

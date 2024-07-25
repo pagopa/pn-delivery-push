@@ -97,7 +97,7 @@ async function putMessages(sqsConfig, actions, isTimedOut) {
       }
     } catch (ex) {
       if (ex instanceof TimeoutException) {
-        manageTimeout(sqsConfig, messagesToSend);
+        await manageTimeout(sqsConfig, messagesToSend);
       }
       else {
         console.log(
@@ -125,7 +125,6 @@ async function putMessages(sqsConfig, actions, isTimedOut) {
 async function manageTimeout(sqsConfig, messagesToSend) {
   let timeoutConfig = Object.assign({}, sqsConfig);
   timeoutConfig.endpoint = sqsConfig.timeoutEndpoint;
-  console.log("XXXXXXX", timeoutConfig);
   try {
     const failed = await _sendMessages(timeoutConfig, messagesToSend);
 
