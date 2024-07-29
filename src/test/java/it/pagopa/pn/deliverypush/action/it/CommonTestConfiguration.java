@@ -28,7 +28,9 @@ import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
 import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -154,7 +156,10 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         DynamicRADDExperimentationChooseStrategy.class,
         CheckRADDExperimentation.class,
         FeatureEnabledUtils.class,
-        AnalogFinalStatusResponseHandler.class
+        AnalogFinalStatusResponseHandler.class,
+        ActionHandler.class,
+        WebhookActionsEventHandler.class,
+        WebhookEventsServiceMock.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")

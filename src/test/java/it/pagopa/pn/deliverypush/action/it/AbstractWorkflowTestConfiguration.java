@@ -9,20 +9,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogFinalStatusResponseHandler;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowRetryHandler;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.SendDigitalFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
-import it.pagopa.pn.deliverypush.action.refinement.RefinementHandler;
-import it.pagopa.pn.deliverypush.action.refused.NotificationRefusedActionHandler;
-import it.pagopa.pn.deliverypush.action.startworkflow.ReceivedLegalFactCreationRequest;
-import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
-import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
@@ -35,7 +22,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregi
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClientImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
-import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.service.*;
@@ -135,36 +122,9 @@ public class AbstractWorkflowTestConfiguration {
     }
     
     @Bean
-    public ActionHandlerMock ActionHandlerMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
-                                               @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
-                                               @Lazy AnalogWorkflowHandler analogWorkflowHandler,
-                                               @Lazy RefinementHandler refinementHandler,
-                                               @Lazy StartWorkflowForRecipientHandler startWorkflowForRecipientHandler,
-                                               @Lazy ChooseDeliveryModeHandler chooseDeliveryModeHandler,
-                                               @Lazy DocumentCreationResponseHandler documentCreationResponseHandler,
-                                               @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
-                                               @Lazy ReceivedLegalFactCreationRequest receivedLegalFactCreationRequest,
-                                               @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
-                                               @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler, 
-                                               @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler,
-                                               @Lazy ScheduleRecipientWorkflow scheduleRecipientWorkflow,
-                                               @Lazy AnalogFinalStatusResponseHandler analogFinalStatusResponseHandler
+    public ActionHandlerMock ActionHandlerMock(@Lazy ActionHandler actionHandler
     ) {
-        return new ActionHandlerMock(
-                digitalWorkFlowHandler,
-                digitalWorkFlowRetryHandler,
-                analogWorkflowHandler,
-                refinementHandler,
-                startWorkflowForRecipientHandler, 
-                chooseDeliveryModeHandler, 
-                documentCreationResponseHandler,
-                notificationValidationActionHandler,
-                receivedLegalFactCreationRequest,
-                notificationRefusedActionHandler,
-                checkAttachmentRetentionHandler,
-                sendDigitalFinalStatusResponseHandler,
-                scheduleRecipientWorkflow,
-                analogFinalStatusResponseHandler);
+        return new ActionHandlerMock(actionHandler);
     }
     
     @Bean
