@@ -257,6 +257,7 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
                 .replace("{requestId}", requestId);
 
         Problem response = new Problem();
+        response.setTitle("Error");
         response.setStatus(422);
         response.setDetail("costo");
         response.setErrors(List.of(new ProblemError()));
@@ -304,6 +305,7 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
                 .replace("{requestId}", requestId);
 
         Problem response = new Problem();
+        response.setTitle("Error");
         response.setStatus(422);
         response.setDetail("costo");
         response.setErrors(List.of(new ProblemError()));

@@ -19,7 +19,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Slf4j
 @AllArgsConstructor
 @Component
-public class AnalogFinalResponseHandler {
+public class AnalogFinalStatusResponseHandler {
     private TimelineService timelineService;
     private CompletionWorkFlowHandler completionWorkFlow;
     private final AnalogWorkflowHandler analogWorkflowHandler;

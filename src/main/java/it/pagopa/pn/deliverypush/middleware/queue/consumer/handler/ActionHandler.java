@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 
 import it.pagopa.pn.commons.utils.MDCUtils;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogFinalResponseHandler;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
@@ -55,7 +55,7 @@ public class ActionHandler {
     private final TimelineUtils timelineUtils;
     private final SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
     private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
-    private final AnalogFinalResponseHandler analogFinalResponseHandler;
+    private final AnalogFinalStatusResponseHandler analogFinalResponseHandler;
     
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {

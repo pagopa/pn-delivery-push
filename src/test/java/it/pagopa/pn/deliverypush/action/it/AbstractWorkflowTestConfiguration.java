@@ -9,6 +9,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
@@ -146,7 +147,8 @@ public class AbstractWorkflowTestConfiguration {
                                                @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
                                                @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler, 
                                                @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler,
-                                               @Lazy ScheduleRecipientWorkflow scheduleRecipientWorkflow
+                                               @Lazy ScheduleRecipientWorkflow scheduleRecipientWorkflow,
+                                               @Lazy AnalogFinalStatusResponseHandler analogFinalStatusResponseHandler
     ) {
         return new ActionHandlerMock(
                 digitalWorkFlowHandler,
@@ -161,7 +163,8 @@ public class AbstractWorkflowTestConfiguration {
                 notificationRefusedActionHandler,
                 checkAttachmentRetentionHandler,
                 sendDigitalFinalStatusResponseHandler,
-                scheduleRecipientWorkflow);
+                scheduleRecipientWorkflow,
+                analogFinalStatusResponseHandler);
     }
     
     @Bean

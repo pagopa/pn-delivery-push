@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
@@ -34,6 +35,7 @@ public class ActionHandlerMock {
     private final CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
     private final SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
     private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
+    private final AnalogFinalStatusResponseHandler analogFinalStatusResponseHandler;
     
     public ActionHandlerMock(@Lazy DigitalWorkFlowHandler digitalWorkFlowHandler,
                                 @Lazy DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler,
@@ -47,7 +49,8 @@ public class ActionHandlerMock {
                                 @Lazy NotificationRefusedActionHandler notificationRefusedActionHandler,
                                 @Lazy CheckAttachmentRetentionHandler checkAttachmentRetentionHandler,
                                 @Lazy SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler,
-                                @Lazy ScheduleRecipientWorkflow scheduleRecipientWorkflow) {
+                                @Lazy ScheduleRecipientWorkflow scheduleRecipientWorkflow,
+                                @Lazy AnalogFinalStatusResponseHandler analogFinalStatusResponseHandler) {
         this.digitalWorkFlowHandler = digitalWorkFlowHandler;
         this.digitalWorkFlowRetryHandler = digitalWorkFlowRetryHandler;
         this.analogWorkflowHandler = analogWorkflowHandler;
@@ -61,6 +64,7 @@ public class ActionHandlerMock {
         this.checkAttachmentRetentionHandler = checkAttachmentRetentionHandler;
         this.sendDigitalFinalStatusResponseHandler = sendDigitalFinalStatusResponseHandler;
         this.scheduleRecipientWorkflow = scheduleRecipientWorkflow;
+        this.analogFinalStatusResponseHandler = analogFinalStatusResponseHandler;
     }
 
     public void handleSchedulingAction(Action action) {
@@ -101,6 +105,8 @@ public class ActionHandlerMock {
                         sendDigitalFinalStatusResponseHandler.handleSendDigitalFinalStatusResponse(action.getIun(), (SendDigitalFinalStatusResponseDetails) action.getDetails());
                 case POST_ACCEPTED_PROCESSING_COMPLETED ->
                         scheduleRecipientWorkflow.startScheduleRecipientWorkflow(action.getIun());
+                case SEND_ANALOG_FINAL_STATUS_RESPONSE ->
+                        analogFinalStatusResponseHandler.handleFinalResponse(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
                 default ->
                         log.error("[TEST] actionType not found {}", action.getType());
             }
