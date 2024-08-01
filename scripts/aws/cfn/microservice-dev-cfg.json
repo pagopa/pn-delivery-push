@@ -11,7 +11,7 @@
     "SchedulingDaysFailureAnalogRefinement": "4m",
     "WebhookScanInterval": "60000",
     "WebhookMaxLength": "50",
-    "WebhookMaxStream": "50",
+    "WebhookMaxStreams": "50",
     "ExternalChannelDigitalRetryCount": "3",
     "ExternalChannelDigitalRetryDelay": "10m",
     "ExternalChannelDigitalSendNoResponseTimeout": "48h",
