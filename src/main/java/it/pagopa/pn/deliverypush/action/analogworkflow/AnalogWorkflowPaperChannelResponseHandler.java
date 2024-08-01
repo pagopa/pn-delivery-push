@@ -3,8 +3,6 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
-import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -20,44 +18,34 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineEl
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
+@AllArgsConstructor
 @Slf4j
 public class AnalogWorkflowPaperChannelResponseHandler {
 
     private final NotificationService notificationService;
     private final PaperChannelService paperChannelService;
-    private final CompletionWorkFlowHandler completionWorkFlow;
     private final AnalogWorkflowUtils analogWorkflowUtils;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final PaperChannelUtils paperChannelUtils;
     private final AuditLogService auditLogService;
-
-
-    public AnalogWorkflowPaperChannelResponseHandler(NotificationService notificationService,
-                                                     PaperChannelService paperChannelService,
-                                                     CompletionWorkFlowHandler completionWorkFlow,
-                                                     AnalogWorkflowUtils analogWorkflowUtils,
-                                                     AnalogWorkflowHandler analogWorkflowHandler,
-                                                     PaperChannelUtils paperChannelUtils, AuditLogService auditLogService) {
-        this.notificationService = notificationService;
-        this.paperChannelService = paperChannelService;
-        this.completionWorkFlow = completionWorkFlow;
-        this.analogWorkflowUtils = analogWorkflowUtils;
-        this.analogWorkflowHandler = analogWorkflowHandler;
-        this.paperChannelUtils = paperChannelUtils;
-        this.auditLogService = auditLogService;
-    }
+    private final SchedulerService schedulerService;
+    
 
     public void paperChannelPrepareResponseHandler(PrepareEventInt response) {
 
@@ -160,49 +148,28 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         TimelineElementInternal timelineElementInternal = paperChannelUtils.getPaperChannelNotificationTimelineElement(response.getIun(), response.getRequestId());
         
         if(timelineElementInternal.getDetails() instanceof BaseRegisteredLetterDetailsInt simpleRegisteredLetterDetails){
-            //Al momento l'eventuale risposta alla send della simple registered letter viene solo loggata
-            log.info("Received response for SendSimpleRegistered letter, statusCode={} iun={} recIndex={}", 
-                    response.getStatusCode(), iun, simpleRegisteredLetterDetails.getRecIndex());
-            NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-            Integer recIndex = simpleRegisteredLetterDetails.getRecIndex();
-            HandleEventUtils.addRecIndexToMdc(recIndex);
-            
-            final String prepareRequestId = timelineElementInternal.getElementId();
-            String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
-
-            handleStatusProgressSimpleRegisteredLetter(response, simpleRegisteredLetterDetails, notification, response.getAttachments(), sendRequestId);
+            handleResponseForSimpleRegisteredLetter(response, simpleRegisteredLetterDetails, iun, timelineElementInternal);
         }
         else if (timelineElementInternal.getDetails() instanceof BaseAnalogDetailsInt sendPaperDetails){
-
-            NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-            Integer recIndex = sendPaperDetails.getRecIndex();
-            HandleEventUtils.addRecIndexToMdc(recIndex);
-            
-            ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
-
-            final String prepareRequestId = timelineElementInternal.getElementId();
-            String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
-            
-            if (status!= null) {
-                switch (status) {
-                    case PROGRESS -> 
-                            handleStatusProgress(response, sendPaperDetails, notification, response.getAttachments(), sendRequestId);
-                    case OK ->
-                            handleStatusOK(response, sendPaperDetails, notification, recIndex, response.getAttachments(), sendRequestId);
-                    case KO -> 
-                            handleStatusKO(response, sendPaperDetails, notification, recIndex, response.getAttachments(), sendRequestId);
-                    default -> 
-                            throw new PnInternalException("Invalid status from PaperChannel response", ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
-                }
-            } else {
-                handleStatusIgnored(response, iun, recIndex);
-            }
+            handleResponseForSendPaper(response, sendPaperDetails, iun, timelineElementInternal);
         } else
             throw new PnInternalException("Unexpected details of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
     }
+    
+    private void handleResponseForSimpleRegisteredLetter(SendEventInt response, BaseRegisteredLetterDetailsInt simpleRegisteredLetterDetails, String iun, TimelineElementInternal timelineElementInternal) {
+        //Al momento l'eventuale risposta alla send della simple registered letter viene solo loggata
+        log.info("Received response for SendSimpleRegistered letter, statusCode={} iun={} recIndex={}", 
+                response.getStatusCode(), iun, simpleRegisteredLetterDetails.getRecIndex());
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
 
+        Integer recIndex = simpleRegisteredLetterDetails.getRecIndex();
+        HandleEventUtils.addRecIndexToMdc(recIndex);
+
+        final String prepareRequestId = timelineElementInternal.getElementId();
+        String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
+
+        handleStatusProgressSimpleRegisteredLetter(response, simpleRegisteredLetterDetails, notification, response.getAttachments(), sendRequestId);
+    }
 
     private void handleStatusProgressSimpleRegisteredLetter(SendEventInt response,
                                                             BaseRegisteredLetterDetailsInt sendPaperDetails,
@@ -217,6 +184,33 @@ public class AnalogWorkflowPaperChannelResponseHandler {
                 sendRequestId);
     }
 
+    private void handleResponseForSendPaper(SendEventInt response, BaseAnalogDetailsInt sendPaperDetails, String iun, TimelineElementInternal timelineElementInternal) {
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+        Integer recIndex = sendPaperDetails.getRecIndex();
+        HandleEventUtils.addRecIndexToMdc(recIndex);
+
+        ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
+
+        final String prepareRequestId = timelineElementInternal.getElementId();
+        String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
+
+        if (status!= null) {
+            switch (status) {
+                case PROGRESS ->
+                        handleStatusProgress(response, sendPaperDetails, notification, response.getAttachments(), sendRequestId);
+                case OK ->
+                        handleStatusOK(response, sendPaperDetails, notification, recIndex, response.getAttachments(), sendRequestId);
+                case KO ->
+                        handleStatusKO(response, sendPaperDetails, notification, recIndex, response.getAttachments(), sendRequestId);
+                default ->
+                        throw new PnInternalException("Invalid status from PaperChannel response", ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+            }
+        } else {
+            handleStatusIgnored(response, iun, recIndex);
+        }
+    }
+    
     private void handleStatusProgress(SendEventInt response,
                                       BaseAnalogDetailsInt sendPaperDetails,
                                       NotificationInt notification,
@@ -241,8 +235,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
         try {
             String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, attachments,  sendPaperDetails, response, sendRequestId);
-            completionWorkFlow.completionAnalogWorkflow(notification, recIndex, response.getStatusDateTime(), sendPaperDetails.getPhysicalAddress(), EndWorkflowStatus.SUCCESS);
-
+            scheduleSendAnalogFinalStatusResponseHandling(notification.getIun(), recIndex, timelineId);
             logEvent.generateSuccess("generated success timelineid={}", timelineId).log();
         } catch (Exception e) {
             logEvent.generateFailure("Error handling execute response", e).log();
@@ -261,14 +254,19 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         try {
             // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
             String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails, response, sendRequestId);
-            int sentAttemptMade = sendPaperDetails.getSentAttemptMade() + 1;
-            analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, response.getStatusDateTime());
+            scheduleSendAnalogFinalStatusResponseHandling(notification.getIun(), recIndex, timelineId);
             logEvent.generateWarning("Analog notification failed with failure cause {} generated failure timelineid={}", response.getDeliveryFailureCause(), timelineId).log();
 
         } catch (Exception e) {
             logEvent.generateFailure("Error handling execute response", e).log();
             throw  e;
         }
+    }
+
+    private void scheduleSendAnalogFinalStatusResponseHandling(String iun, int recIndex, String analogFeedbackTimelineId){
+        schedulerService.scheduleEvent(
+                iun, recIndex, Instant.now(), ActionType.SEND_ANALOG_FINAL_STATUS_RESPONSE, analogFeedbackTimelineId 
+        );
     }
 
     private void handleStatusIgnored(SendEventInt event, String iun, Integer recIndex) {
