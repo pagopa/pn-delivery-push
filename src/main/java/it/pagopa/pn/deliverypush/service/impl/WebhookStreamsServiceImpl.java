@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -181,7 +182,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                 return false;
             }
 
-            if (!request.getGroups().containsAll(r.getGroups())){
+            if (!request.getGroups().containsAll(getGroups(r))){
                 return false;
             }
 
@@ -189,7 +190,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
                 ? pnExternalRegistryClient.getGroups(xPagopaPnUid, xPagopaPnCxId)
                 : xPagopaPnCxGroups;
 
-            return allowedGroups.containsAll(r.getGroups());
+            return allowedGroups.containsAll(getGroups(r));
         };
     }
 
@@ -249,4 +250,7 @@ public class WebhookStreamsServiceImpl extends WebhookServiceImpl implements Web
 
     }
 
+    private List<String> getGroups(StreamEntity streamEntity) {
+        return streamEntity.getGroups() == null ? Collections.EMPTY_LIST : streamEntity.getGroups();
+    }
 }
