@@ -1,4 +1,5 @@
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
 const { createStreamMetadataResponseV10 } = require("./mapper/transformStreamMetadataResponseFromV23ToV10.js");
 
@@ -20,9 +21,22 @@ class GetEventStreamHandler extends EventHandler {
 
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}`;
+        axiosRetry(axios, {
+            retries: this.numRetry,
+            shouldResetTimeout: true ,
+            retryCondition: (error) => {
+              return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+            },
+            onRetry: (retryCount, error, requestConfig) => {
+                console.warn(`Retry num ${retryCount} - error:${error.message}`);
+            },
+            onMaxRetryTimesExceeded: (error, retryCount) => {
+                console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
+            }
+        });
 
         console.log('calling ', url);
-        let response = await axios.get(url, {headers: headers});
+        let response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
         const transformedObject = createStreamMetadataResponseV10(response.data);

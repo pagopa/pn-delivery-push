@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
@@ -77,6 +78,9 @@ public class LegalFactGenerator {
     public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
     public static final String FIELD_LOGO = "logoBase64";
     private static final String FIELD_ADDITIONAL = "additional_";
+    private static final String FIELD_DISCLAIMER = "disclaimer";
+    public static final String FIELD_SUBJECT = "subject";
+    private static final String FIELD_RADDPHONENUMBER = "raddPhoneNumber";
 
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
@@ -120,6 +124,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_DIGESTS, extractNotificationAttachmentDigests( notification ) );
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
+        templateModel.put(FIELD_SUBJECT, notification.getSubject());
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.REQUEST_ACCEPTED,
@@ -172,6 +177,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( timeStamp, true));
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
+        templateModel.put(FIELD_DISCLAIMER, this.getlegalFactDisclaimer());
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.NOTIFICATION_VIEWED,
@@ -229,7 +235,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
-        
+
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW,
                 templateModel
@@ -254,48 +260,31 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
 
-
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE,
                 templateModel
         );
     }
-    
-    /**
-     * Generate the File Compliance Certificate, according to design 4h of: 
-     * https://www.figma.com/file/HjyZhnoAKbzCbxkmQCGsZw/Piattaforma-Notifiche?node-id=13514%3A94002
-     * 
-     * @param pdfFileName - the fileName to certificate, without extension
-     * @param signature - the signature (footprint) of file
-     * @param timeReference - file temporal reference
-     * @return documento pdf
-     * @throws IOException in caso di generazione fallita
-     */
-    public byte[] generateFileCompliance(String pdfFileName, String signature, Instant timeReference) throws IOException {
 
-        Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SIGNATURE, signature);
-        templateModel.put(FIELD_TIME_REFERENCE, timeReference);
-        templateModel.put(FIELD_PDF_FILE_NAME, pdfFileName );
-        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( Instant.now()/*, true*/ ) );
-
-        return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.FILE_COMPLIANCE,
-                templateModel
-        );
-    }
-
-    public byte[] generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
+    public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
 
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
         
         PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
-
+        
         if(pnSendMode != null){
-            return documentComposition.executePdfTemplate(
-                    pnSendMode.getAarTemplateType(),
+            final AarTemplateChooseStrategy aarTemplateTypeChooseStrategy = pnSendMode.getAarTemplateTypeChooseStrategy();
+            final AarTemplateType aarTemplateType = aarTemplateTypeChooseStrategy.choose(recipient.getPhysicalAddress());
+            log.debug("aarTemplateType generated is ={} - iun={}", aarTemplateType, notification.getIun());
+            byte[] bytesArrayGeneratedAar = documentComposition.executePdfTemplate(
+                    aarTemplateType.getTemplateType(),
                     templateModel
             );
+
+            return AARInfo.builder()
+                    .bytesArrayGeneratedAar(bytesArrayGeneratedAar)
+                    .templateType(aarTemplateType)
+                    .build();
         } else {
             String msg = String.format("There isn't correct AAR configuration for date=%s - iun=%s", notification.getSentAt(), notification.getIun());
             log.error(msg);
@@ -379,6 +368,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_PERFEZIONAMENTO, this.getPerfezionamentoLink());
         templateModel.put(FIELD_PERFEZIONAMENTO_LABEL, this.getPerfezionamentoLinkLabel());
         templateModel.put(FIELD_LOGO_LINK, this.getLogoLink());
+        templateModel.put(FIELD_RADDPHONENUMBER, this.getRaddPhoneNumber());
         addAdditional(templateModel);
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
@@ -412,7 +402,7 @@ public class LegalFactGenerator {
     }
 
     private String getQuickAccessLink(NotificationRecipientInt recipient, String quickAccessToken) {
-        String templateUrl = getAccessUrl(recipient) + "auth/login" + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix() ;
+        String templateUrl = getAccessUrl(recipient) + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix() ;
 
         log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, quickAccessToken );
         return templateUrl + '=' + quickAccessToken;
@@ -464,6 +454,10 @@ public class LegalFactGenerator {
         return this.getAssetsLink() + "aar-logo-short-small.png";
     }
 
+    private String getRaddPhoneNumber() {
+        return pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber();
+    }
+
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
         return recipientInt.getRecipientType() == RecipientTypeInt.PG ? "giuridica" : "fisica";
     }
@@ -483,6 +477,10 @@ public class LegalFactGenerator {
             throw new PnReadFileException("error during file conversion", e);
         }
 
+    }
+
+    private String getlegalFactDisclaimer(){
+        return pnDeliveryPushConfigs.getWebapp().getLegalFactDisclaimer();
     }
 }
 

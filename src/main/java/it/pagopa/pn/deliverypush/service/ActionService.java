@@ -10,6 +10,8 @@ public interface ActionService {
 
     void addOnlyActionIfAbsent(Action action);
 
+    void addOnlyAction(Action action);
+
     Optional<Action> getActionById(String actionId );
 
     List<Action> findActionsByTimeSlot(String timeSlot );

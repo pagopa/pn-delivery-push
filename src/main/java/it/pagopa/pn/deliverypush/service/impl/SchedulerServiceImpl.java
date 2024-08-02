@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhooks
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     private final WebhooksPool webhooksPool;
     private final Clock clock;
     private final TimelineUtils timelineUtils;
+    private final FeatureEnabledUtils featureEnabledUtils;
 
     @Override
     public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType) {
@@ -88,10 +90,17 @@ public class SchedulerServiceImpl implements SchedulerService {
                     .actionId(action.getType().buildActionId(action))
                     .build();
             
-            if(! scheduleNowIfAbsent){
-                this.actionsPool.startActionOrScheduleFutureAction(action);
-            } else {
-                this.actionsPool.scheduleFutureAction(action);
+            if(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())) {
+                log.debug("ScheduleEvent: performance improvement IS ENABLED for iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
+                actionsPool.addOnlyAction(action);
+            }else {
+                log.debug("ScheduleEvent: performance improvement NOT ENABLED for iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
+                //Da eliminare Una volta stabilizzata la feature miglioramento performance workflow, che include una gestione diverse per le action. Qui andrà sempre e solo inserita una action
+                if(! scheduleNowIfAbsent){
+                    this.actionsPool.startActionOrScheduleFutureAction(action);
+                } else {
+                    this.actionsPool.scheduleFutureAction(action);
+                }
             }
 
         } else {
@@ -143,4 +152,5 @@ public class SchedulerServiceImpl implements SchedulerService {
         ActionType actionType, String timelineId) {
       this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, timelineId, null, false);
     }
+    
 }

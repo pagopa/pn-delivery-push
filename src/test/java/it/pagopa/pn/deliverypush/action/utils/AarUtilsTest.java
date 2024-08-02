@@ -9,8 +9,10 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -101,6 +103,46 @@ class AarUtilsTest {
         AarGenerationDetailsInt tmp = aarUtils.getAarGenerationDetails(notificationInt, recIndex);
 
         Assertions.assertEquals(tmp, aarGenerationDetailsInt.get());
+    }
+
+    @Test
+    void getAarCreationRequestDetailsIntOk() {
+
+        NotificationInt notificationInt = newNotification();
+        var aarInt = AarCreationRequestDetailsInt.builder()
+                .recIndex(0)
+                .aarKey("safestorage://PN-AAR-mock.pdf")
+                .numberOfPages(2)
+                .aarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD_ALT)
+                .build();
+        var expectedDetails = Optional.of(aarInt);
+        String timelineEventId = "AAR_CREATION_REQUEST#IUN_IUN_01#RECINDEX_0".replace("#", TimelineEventIdBuilder.DELIMITER);
+
+        Mockito.when(timelineService.getTimelineElementDetails(notificationInt.getIun(), timelineEventId, AarCreationRequestDetailsInt.class))
+                .thenReturn(expectedDetails);
+
+        Mockito.when(timelineUtils.createEventIdForAarCreationRequest(notificationInt.getIun(), 0))
+                .thenReturn(timelineEventId);
+
+        AarCreationRequestDetailsInt actual = aarUtils.getAarCreationRequestDetailsInt(notificationInt, recIndex);
+
+        Assertions.assertEquals(expectedDetails.get(), actual);
+    }
+
+    @Test
+    void getAarCreationRequestDetailsIntKo() {
+
+        NotificationInt notificationInt = newNotification();
+        String timelineEventId = "AAR_CREATION_REQUEST#IUN_IUN_01#RECINDEX_0".replace("#", TimelineEventIdBuilder.DELIMITER);
+
+        Mockito.when(timelineService.getTimelineElementDetails(notificationInt.getIun(), timelineEventId, AarCreationRequestDetailsInt.class))
+                .thenReturn(Optional.empty());
+
+        Mockito.when(timelineUtils.createEventIdForAarCreationRequest(notificationInt.getIun(), 0))
+                .thenReturn(timelineEventId);
+
+        Assertions.assertThrows(PnInternalException.class, () -> aarUtils.getAarCreationRequestDetailsInt(notificationInt, recIndex));
+
     }
 
     private TimelineElementInternal newTimelineElementInternal() {

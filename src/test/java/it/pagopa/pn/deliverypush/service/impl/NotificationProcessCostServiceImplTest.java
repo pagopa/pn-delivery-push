@@ -50,9 +50,13 @@ class NotificationProcessCostServiceImplTest {
     private NotificationProcessCostService service;
 
     Integer notificationCost = 100;
+    Integer notificationFee = 99;
+    Integer notificationVat = 22;
     @BeforeEach
     void setUp() {
         Mockito.when(cfg.getPagoPaNotificationBaseCost()).thenReturn(notificationCost);
+        Mockito.when(cfg.getPagoPaNotificationFee()).thenReturn(notificationFee);
+        Mockito.when(cfg.getPagoPaNotificationVat()).thenReturn(notificationVat);
 
         service = new NotificationProcessCostServiceImpl(timelineService, pnExternalRegistriesClientReactive, cfg);
     }
@@ -215,7 +219,18 @@ class NotificationProcessCostServiceImplTest {
                 vat,
                 version
         );
-        Assertions.assertThrows(PnInternalException.class, notificationProcessCostMono::block);
+
+        Integer notificationCost  = notificationProcessCostMono.block();
+
+        int notificationProcessPartialCostExpected = getNotificationProcessTotalCostExpected(
+                service.getSendFee(),
+                simpleRegisteredLetterCost,
+                paFee,
+                notificationVat
+        );
+
+        Assertions.assertNotNull(notificationCost);
+        Assertions.assertEquals(notificationCost, notificationProcessPartialCostExpected);
     }
 
     @Test
@@ -267,9 +282,11 @@ class NotificationProcessCostServiceImplTest {
 
 
         //THEN
-        int notificationProcessPartialCostExpected = getNotificationProcessPartialCostExpected(
+        int notificationProcessPartialCostExpected = getNotificationProcessTotalCostExpected(
                 service.getSendFee(),
-                simpleRegisteredLetterCost
+                simpleRegisteredLetterCost,
+                paFee,
+                notificationVat
         );
 
         Assertions.assertNotNull(notificationCost);
@@ -325,9 +342,11 @@ class NotificationProcessCostServiceImplTest {
 
 
         //THEN
-        int notificationProcessPartialCostExpected = getNotificationProcessPartialCostExpected(
+        int notificationProcessPartialCostExpected = getNotificationProcessTotalCostExpected(
                 service.getSendFee(),
-                simpleRegisteredLetterCost
+                simpleRegisteredLetterCost,
+                paFee,
+                notificationVat
         );
 
         Assertions.assertNotNull(notificationCost);
@@ -380,7 +399,18 @@ class NotificationProcessCostServiceImplTest {
                 vat,
                 version
         );
-        Assertions.assertThrows(PnInternalException.class, notificationProcessCostMono::block);
+
+        Integer notificationCost  = notificationProcessCostMono.block();
+
+        int notificationProcessPartialCostExpected = getNotificationProcessTotalCostExpected(
+                service.getSendFee(),
+                simpleRegisteredLetterCost,
+                notificationFee,
+                notificationVat
+        );
+
+        Assertions.assertNotNull(notificationCost);
+        Assertions.assertEquals(notificationCost, notificationProcessPartialCostExpected);
     }
 
 
@@ -574,13 +604,13 @@ class NotificationProcessCostServiceImplTest {
         Integer notificationProcessTotalCostExpected = getNotificationProcessTotalCostExpected(
                 service.getSendFee(),
                 analogCost,
-                paFee,
+                notificationFee,
                 vat
         );
 
         Assertions.assertNotNull(notificationProcessCostResponse);
         checkCost(notificationProcessCostResponse, notificationProcessPartialCostExpected, notificationProcessTotalCostExpected);
-        checkCostData(notificationProcessCostResponse, analogCost, vat, paFee);
+        checkCostData(notificationProcessCostResponse, analogCost, vat, notificationFee);
 
         Assertions.assertNull(notificationProcessCostResponse.getNotificationViewDate());
         Assertions.assertEquals(refinement.getTimestamp(), notificationProcessCostResponse.getRefinementDate());
@@ -651,13 +681,13 @@ class NotificationProcessCostServiceImplTest {
         Integer notificationProcessTotalCostExpected = getNotificationProcessTotalCostExpected(
                 service.getSendFee(),
                 analogCost,
-                paFee,
-                vat
+                notificationFee,
+                notificationVat
         );
 
         Assertions.assertNotNull(notificationProcessCostResponse);
         checkCost(notificationProcessCostResponse, notificationProcessPartialCostExpected, notificationProcessTotalCostExpected);
-        checkCostData(notificationProcessCostResponse, analogCost, vat, paFee);
+        checkCostData(notificationProcessCostResponse, analogCost, notificationVat, notificationFee);
 
         Assertions.assertNull(notificationProcessCostResponse.getNotificationViewDate());
         Assertions.assertEquals(refinementDetails.getSchedulingDate(), notificationProcessCostResponse.getRefinementDate());
@@ -831,13 +861,13 @@ class NotificationProcessCostServiceImplTest {
         Integer notificationProcessTotalCostExpected = getNotificationProcessTotalCostExpected(
                 service.getSendFee(),
                 analogCost,
-                paFee,
+                notificationFee,
                 vat
         );
 
         Assertions.assertNotNull(notificationProcessCostResponse);
         checkCost(notificationProcessCostResponse, notificationProcessPartialCostExpected, notificationProcessTotalCostExpected);
-        checkCostData(notificationProcessCostResponse, analogCost, vat, paFee);
+        checkCostData(notificationProcessCostResponse, analogCost, vat, notificationFee);
         Assertions.assertEquals(notificationViewRec0.getTimestamp(), notificationProcessCostResponse.getNotificationViewDate());
         Assertions.assertNull(notificationProcessCostResponse.getRefinementDate());
     }

@@ -1,4 +1,5 @@
 const axios = require("axios");
+const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
 const {createProgressResponseV10} = require("./mapper/transformProgressResponseFromV23ToV10");
 class ConsumeEventStreamHandler extends EventHandler {
@@ -23,10 +24,21 @@ class ConsumeEventStreamHandler extends EventHandler {
           lastEventIdQueryParam = `?lastEventId=${lastEventId}`;
         let url = `${this.baseUrl}/streams/${streamId}/events${lastEventIdQueryParam}`;
 
-
-
+        axiosRetry(axios, {
+            retries: this.numRetry,
+            shouldResetTimeout: true ,
+            retryCondition: (error) => {
+              return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+            },
+            onRetry: (retryCount, error, requestConfig) => {
+                console.warn(`Retry num ${retryCount} - error:${error.message}`);
+            },
+            onMaxRetryTimesExceeded: (error, retryCount) => {
+                console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
+            }
+        });
         console.log('calling ', url);
-        let response = await axios.get(url, {headers: headers});
+        let response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
         // Il controllo della presenza di element avviene solo nel transitorio

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateChooseStrategy;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,7 +19,7 @@ public class PnSendMode implements Comparable<PnSendMode>{
     private SendAttachmentMode analogSendAttachmentMode;
     private SendAttachmentMode simpleRegisteredLetterSendAttachmentMode;
     private SendAttachmentMode digitalSendAttachmentMode;
-    private DocumentComposition.TemplateType aarTemplateType;
+    private AarTemplateChooseStrategy aarTemplateTypeChooseStrategy;
 
     @Override
     public int compareTo(@NotNull PnSendMode o) {

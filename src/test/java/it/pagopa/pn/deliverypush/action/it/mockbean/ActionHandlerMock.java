@@ -84,7 +84,7 @@ public class ActionHandlerMock {
                                 action.getIun() + "_retry_action_" + action.getRecipientIndex());
                 case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION ->
                         digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(action.getIun(), action.getRecipientIndex(),
-                                action.getIun() + "_retry_action_" + action.getRecipientIndex());
+                                action.getIun() + "_retry_action_" + action.getRecipientIndex(),action.getNotBefore());
                 case NOTIFICATION_VALIDATION ->
                         notificationValidationActionHandler.validateNotification(action.getIun(), (NotificationValidationActionDetails)  action.getDetails());
                 case SCHEDULE_RECEIVED_LEGALFACT_GENERATION ->

@@ -36,7 +36,7 @@
       }
 
       body {
-        font-size: 16px;
+        font-size: 12px;
         font-family: "Montserrat", sans-serif;
         font-weight: 400;
       }
@@ -75,7 +75,7 @@
       #footer p {
         margin: 0;
         padding: 0;
-        line-height: 1em;
+        line-height: 1.2em;
       }
 
       #footer img {
@@ -121,7 +121,7 @@
       }
 
       #subject {
-        font-size: 20px;
+        font-size: 14px;
         margin-bottom: 7mm;
       }
 
@@ -129,6 +129,11 @@
         margin: 7mm 0;
         /* text-align: justify;
         text-justify: inter-word; */
+      }
+
+      .document-type {
+        margin: 0 0 7mm 0;
+        font-size: 11px;
       }
 
       .hash-list li {
@@ -162,7 +167,7 @@
         </div>
     </div>
 
-    <h3 id="subject">Attestazione opponibile a terzi: notifica presa in carico</h3>
+    <h3 class="document-type" id="subject">Attestazione opponibile a terzi: notifica presa in carico</h3>
 
     <p class="paragraph">
         Ai sensi dell'art. 26, comma 11, del decreto-legge 76/2020 s.m.i., la PagoPA S.p.A. nella sua qualità di
@@ -183,15 +188,15 @@
     <ul class="hash-list">
         <#list digests as digest>
         <li><strong>${digest}</strong></li>
-       </#list>
+        </#list>
     </ul>
     </p>
 
     <p class="paragraph">
-        il soggetto mittente ha richiesto che la notificazione di tali documenti fosse eseguita nei
-        confronti dei seguenti soggetti destinatari che in seguito alle verifiche di cui all’art. 7,
-        commi 1 e 2, del Decreto del Ministro per la Trasformazione Digitale 58/2022, sono indicati unitamente al loro domicilio digitale o,
-        in assenza, al loro indirizzo fisico utile ai fini della notificazione richiesta:
+        il soggetto mittente ha richiesto che la notificazione di tali documenti riporti come oggetto ${subject} e che venga eseguita nei confronti dei destinatari che si riportano di seguito unitamente all'eventuale domicilio digitale speciale e al loro indirizzo fisico, come forniti dal soggetto mittente stesso.
+    </p>
+    <p>        
+      Si attesta, altresì, che ai fini dell'individuazione del domicilio digitale da utilizzare in via prioritaria per la notificazione, restano ferme le risultanze delle verifiche di cui all'art. 7, commi 1 e 2, del Decreto del Ministro per la Trasformazione Digitale 58/2022.
     </p>
 
     <#list notification.recipients as recipient>

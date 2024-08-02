@@ -1,20 +1,22 @@
 package it.pagopa.pn.deliverypush.config;
 
-import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
-
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.unit.DataSize;
+import javax.annotation.PostConstruct;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+
+import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
@@ -108,7 +110,13 @@ public class PnDeliveryPushConfigs {
     
     private int pagoPaNotificationBaseCost;
 
+    private int pagoPaNotificationFee;
+
+    private int pagoPaNotificationVat;
+
     private List<String> paperSendMode;
+
+    private List<String> raddExperimentationStoresName;
 
     private List<String> pnSendMode;
 
@@ -118,6 +126,10 @@ public class PnDeliveryPushConfigs {
     private List<String> listCategoriesPa;
 
     private ErrorCorrectionLevel errorCorrectionLevelQrCode;
+
+    private String performanceImprovementStartDate;
+
+    private String performanceImprovementEndDate;
 
     @Data
     public static class Topics {
@@ -143,6 +155,8 @@ public class PnDeliveryPushConfigs {
         private String addressManagerEvents;
 
         private String f24Events;
+        
+        private String deliveryValidationEvents;
     }
 
     @Data
@@ -213,6 +227,8 @@ public class PnDeliveryPushConfigs {
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
         private Map<String, String> additional;
+        private String legalFactDisclaimer;
+        private String raddPhoneNumber;
    }
 
     @Data
@@ -264,5 +280,10 @@ public class PnDeliveryPushConfigs {
     }
 
     private boolean safeStorageFileNotFoundRetry;
+
+    @PostConstruct
+    public void init() {
+        System.out.println(this);
+    }
 
 }
