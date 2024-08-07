@@ -149,6 +149,15 @@ public enum ActionType {
       return String.format("%s_post_accepted_processing",
               action.getIun());
     }
+  },
+
+  SEND_ANALOG_FINAL_STATUS_RESPONSE(NotHandledDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+
+      return String.format("send_analog_final_status_response_feedback-timeline-id_%s",
+              action.getTimelineId());
+    }
   };
 
   private final Class<? extends ActionDetails> detailsJavaClass;

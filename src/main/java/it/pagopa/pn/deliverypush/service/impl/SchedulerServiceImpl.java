@@ -74,7 +74,6 @@ public class SchedulerServiceImpl implements SchedulerService {
             boolean scheduleNowIfAbsent
     ) {
         log.info("Schedule {} in schedulingDate={} - iun={}", actionType, dateToSchedule, iun);
-        log.debug("ScheduleEvent iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
         
         if(! timelineUtils.checkIsNotificationCancellationRequested(iun)){
             Action action = Action.builder()
@@ -90,6 +89,8 @@ public class SchedulerServiceImpl implements SchedulerService {
                     .actionId(action.getType().buildActionId(action))
                     .build();
             
+            log.debug("ScheduleEvent iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={} actionId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId, action.getActionId());
+
             if(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())) {
                 log.debug("ScheduleEvent: performance improvement IS ENABLED for iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
                 actionsPool.addOnlyAction(action);

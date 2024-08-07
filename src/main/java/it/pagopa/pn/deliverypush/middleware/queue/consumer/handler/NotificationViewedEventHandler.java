@@ -27,7 +27,7 @@ public class NotificationViewedEventHandler {
 
     @Bean
     public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
-        final String processName = "NOTIFICATION PAID EVENT";
+        final String processName = "NOTIFICATION VIEWED EVENT";
 
         return message -> {
             try {
