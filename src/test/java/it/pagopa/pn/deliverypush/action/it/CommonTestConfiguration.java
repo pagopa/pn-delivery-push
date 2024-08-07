@@ -2,10 +2,7 @@ package it.pagopa.pn.deliverypush.action.it;
 
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowPaperChannelResponseHandler;
-import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action.analogworkflow.*;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
@@ -31,7 +28,9 @@ import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
 import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
@@ -156,7 +155,11 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         AarTemplateStrategyFactory.class,
         DynamicRADDExperimentationChooseStrategy.class,
         CheckRADDExperimentation.class,
-        FeatureEnabledUtils.class
+        FeatureEnabledUtils.class,
+        AnalogFinalStatusResponseHandler.class,
+        ActionHandler.class,
+        WebhookActionsEventHandler.class,
+        WebhookEventsServiceMock.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")

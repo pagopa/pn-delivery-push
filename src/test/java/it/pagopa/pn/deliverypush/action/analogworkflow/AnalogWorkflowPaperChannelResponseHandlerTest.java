@@ -3,25 +3,25 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.FailureDetailCodeEnum;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.StatusCodeEnum;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.PrepareEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.FailureDetailCodeEnum;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.StatusCodeEnum;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,25 +42,25 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
     @Mock
     private PaperChannelService paperChannelService;
     @Mock
-    private CompletionWorkFlowHandler completionWorkFlow;
-    @Mock
     private AnalogWorkflowUtils analogWorkflowUtils;
-
     @Mock
     private AnalogWorkflowHandler analogWorkflowHandler;
     @Mock
     private PaperChannelUtils paperChannelUtils;
     @Mock
     private AuditLogService auditLogService;
-
+    @Mock
+    private SchedulerService schedulerService;
+    
     @BeforeEach
     public void setup() {
         analogWorkflowPaperChannelResponseHandler = new AnalogWorkflowPaperChannelResponseHandler(notificationService,
                 paperChannelService,
-                completionWorkFlow,
                 analogWorkflowUtils,
                 analogWorkflowHandler,
-                paperChannelUtils, auditLogService);
+                paperChannelUtils,
+                auditLogService,
+                schedulerService);
     }
 
     @ExtendWith(MockitoExtension.class)
