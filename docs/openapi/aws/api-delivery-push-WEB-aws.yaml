@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: BaNeOIQqDE5nvtxA4yI3f2u91T1GAKwbVpGby6GXYBU=
+  version: XqBAd9yWKOGLU1fpUM+QramH76m8awvdq504sFAIDoM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -59,10 +59,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -130,10 +130,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -201,10 +201,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
           integration.request.path.legalFactType: method.request.path.legalFactType
           integration.request.path.legalFactId: method.request.path.legalFactId
@@ -275,10 +275,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
           integration.request.path.legalFactId: method.request.path.legalFactId
         passthroughBehavior: when_no_match
@@ -348,10 +348,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
           integration.request.path.iun: method.request.path.iun
           integration.request.path.documentType: method.request.path.documentType
         passthroughBehavior: when_no_match
