@@ -10,10 +10,10 @@ components:
         - requestId
         - eventType
         - qos
-        - clientRequestTimeStamp
-        - channel
+        - clientRequestTimeStamp 
+        - channel    
         - receiverDigitalAddress
-        - messageText
+        - messageText      
       type: object
       properties:
         requestId:
@@ -37,37 +37,40 @@ components:
             - BATCH
           description: >-
             Interactive/Batch (quality of service, "entro quanto tempo" devo rispondere, con che livello di servizio)
-        # TODO: visto che da problemi con openapi generator 5.4.0, essendo opzionale, per ora lo commentiamo
-        #       provare a decommentarlo al passaggio a openapi generator 6.0.0
-        #tags:
-        #  type: object
-        #  properties:
-        #    iun:
-        #      type: string
-        #      description: >-
-        #        Identificativo Unico della Notifica.
-        #        Non è obbligatorio (ad es in una richiesta di verifica indirizzi non abbiamo un identificativo di notifica).
-        #  additionalProperties: true
+        tags:
+          type: object
+          properties:
+          # Durante la generazione delle classi Java, non riesce a gestire la presenza di valori di default all'interno di una mappa
+          #            iun:
+          #              type: string
+          #              description: >-
+          #                Identificativo Unico della Notifica.
+          #                Non è obbligatorio (ad es in una richiesta di verifica indirizzi non abbiamo un identificativo di notifica).
+          #          required:
+          #            - iun
+          additionalProperties:
+            type: string
         clientRequestTimeStamp:
           type: string
           format: date-time
           description: >-
-            Timestamp della richiesta in UTC
+            Timestamp della richiesta in UTC con timezone
         receiverDigitalAddress:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" #NO EXTERNAL
           type: string
-          x-field-extra-annotation: "@lombok.ToString.Exclude"
           description: >-
             Indirizzo PEC del destinatario (o in genere recapito digitale certificato a valore legale). 
             L’indirizzo si assume valido ed attivo: i servizi erogatori non eseguono ulteriori validazioni sullo stesso.
             Non sono previste mail con più destinatari. 
             In caso di comunicazioni a più destinatari saranno richieste più comunicazioni (in questo modo avremo un requestId univoco per ogni comunicazione/evento/pec).
         messageText:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" #NO EXTERNAL
           type: string
-          x-field-extra-annotation: "@lombok.ToString.Exclude"
           description: >-
             Testo del corpo della comunicazione digitale.  
             Può essere a discrezione del chiamante in plain text od html (un campo ad hoc che discrimini il formato è opportuno?).
         senderDigitalAddress:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" #NO EXTERNAL
           type: string
           description: >-
             Indirizzo PEC (o analoga comunicazione digitale a valore legale) del mittente della comunicazione.
@@ -82,7 +85,7 @@ components:
         - $ref: '#/components/schemas/BaseDigitalMessageRequest'
         - type: object
           required:
-            - channel
+            - channel    
             - subjectText
             - messageContentType
           properties:
@@ -90,11 +93,12 @@ components:
               type: string
               enum:
                 - PEC
-                - REM
+                - REM            
               description: >-
                 Canale di recapito con cui il Sender chiede l’erogazione del servizio. In un primo momento sarà PEC, 
-                ma il dominio dovrà prevedere a breve SERQ, PEC_REM, ed in futuro ogni forma di recapito digitale a valore legale.
+                ma il dominio dovrà prevedere a breve SERQ, PEC_REM, ed in futuro ogni forma di recapito digitale a valore legale.            
             subjectText:
+              x-field-extra-annotation: "@lombok.ToString.Exclude" #NO EXTERNAL
               type: string
               description: >-
                 Oggetto del corpo della comunicazione digitale.
@@ -104,7 +108,7 @@ components:
                 - 'text/plain'
                 - 'text/html'
               description: >-
-                Formato: HTML o PLAIN
+                Formato: HTML o PLAIN 
             attachmentUrls:
               type: array
               items:
@@ -114,7 +118,7 @@ components:
                   (i.e. url del file dentro Safe Storage che si occuperà di crypt/decrypt dei documenti).
                   Il Safe Storge si occuperà di calcolare la presigned url per il recupero dell'allegato che sarà decifrato.
                   documentUrl può rispondere (alla GET) con un 403 per redirect vs servizio (i.e. lambda, safe storage, presigned url vs bucket s3 non cifrato). 
-
+    
     ### - EMAIL
     ###########################################
     DigitalCourtesyMailRequest:
@@ -123,15 +127,15 @@ components:
         - $ref: '#/components/schemas/DigitalNotificationRequest'
         - type: object
           required:
-            - channel
+            - channel    
           properties:
             channel:
               type: string
               enum:
-                - EMAIL
+                - EMAIL          
               description: >-
                 Canale di recapito con cui il Sender chiede l’erogazione del servizio. Per ora solo email
-
+    
     ### - SMS
     ###########################################
     DigitalCourtesySmsRequest:
@@ -145,7 +149,7 @@ components:
             channel:
               type: string
               enum:
-                - SMS
+                - SMS          
               description: >-
                 Canale di recapito con cui il Sender chiede l’erogazione del servizio. In un primo momento sarà PEC, 
                 ma il dominio dovrà prevedere a breve SERQ, PEC_REM, ed in futuro ogni forma di recapito digitale a valore legale.            
@@ -154,7 +158,7 @@ components:
     #############################################################################################
     ###                     EVENTI DI PROGRESSIONE MESSAGGISTICA DIGITALE                     ###
     #############################################################################################
-
+  
     ProgressEventCategory:
       type: string
       enum:
@@ -168,13 +172,14 @@ components:
         - system
         - id
       properties:
-        system:
+        system: 
           type: string
-        id:
+        id: 
           type: string
         location:
           type: string
-          
+        
+
     BaseMessageProgressEvent:
       title: Schema base per gli eventi di avanzamento messaggi digitali
       type: object
@@ -186,6 +191,9 @@ components:
         requestId:
           type: string
         eventTimestamp:
+          description: >
+            timestamp della creazione dell'evento, in UTC con definizione della timezione 
+            secondo rfc 3339
           type: string
           format: date-time
         status:
@@ -194,7 +202,7 @@ components:
           type: string
         generatedMessage:
           $ref: '#/components/schemas/DigitalMessageReference'
-
+      
 
     CourtesyMessageProgressEvent:
       title: Avanzamento per messaggi di cortesia
@@ -225,7 +233,7 @@ components:
                 * OK         S003 = SMS - Sent
                 * ERROR      S008 = SMS - Error
                 * ERROR      S010 = SMS - Internal error
-
+    
     LegalMessageSentDetails:
       title: Avanzamento per messaggi legali
       allOf:
@@ -248,6 +256,7 @@ components:
                 - C008
                 - C009
                 - C010
+                - C011
               description: >-
                 * STATUS     EVENTCODE
                 * PROGRESS   C000 = PEC - PREACCETTAZIONE (Conferma avvenuta comunicazione con Wrapper Pec)
@@ -260,4 +269,5 @@ components:
                 * ERROR      C008 = PEC - ERRORE_COMUNICAZIONE_SERVER_PEC
                 * ERROR      C009 = PEC - ERRORE_DOMINIO_PEC_NON_VALIDO
                 * ERROR      C010 = PEC - ERROR_INVIO_PEC
+                * ERROR      C011 = PEC - ADDRESS_ERROR
                 * OK         C003 = PEC - StatusPec.AVVENUTA_CONSEGNA
