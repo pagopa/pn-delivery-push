@@ -6,17 +6,17 @@
   <title>Avviso di Avvenuta Ricezione</title>
   <style type="text/css" media="all">
     @font-face {
-      font-family: "Titillium Web";
+      font-family: "Titillium Pro";
       font-style: normal;
       font-weight: normal;
-      src: url(fonts/Titillium_Web/TitilliumWeb-Regular.ttf) format('truetype');
+      src: url(fonts/Titillium_Pro/TitilliumSansPro-Regular.ttf) format('truetype');
     }
 
     @font-face {
-      font-family: "Titillium Web";
+      font-family: "Titillium Pro";
       font-style: normal;
       font-weight: bold;
-      src: url(fonts/Titillium_Web/TitilliumWeb-Bold.ttf) format('truetype');
+      src: url(fonts/Titillium_Pro/TitilliumSansPro-Bold.ttf) format('truetype');
     }
 
     @page {
@@ -32,17 +32,24 @@
     }
 
     body {
-      font-family: "Titillium Web", sans-serif;
+      font-family: "Titillium Pro", sans-serif;
       font-weight: 400;
       font-size: 13.3px;
       line-height: 18.6px;
     }
 
     /* font equivalence */
-    .seven-px { font-size: 9.3px; }
-    .eight-px { font-size: 10.7px; }
-    .nine-px { font-size: 12px; }
-    .ten-px { font-size: 13.3px; }
+    .seven-px { font-size: 9.333px; } /* 7pt on Figma */
+    .eight-px { font-size: 10.667px; } /* 8pt on Figma */
+    .nine-px { font-size: 12px; } /* 9pt on Figma */
+    .ten-px { font-size: 13.333px; } /* 10pt on Figma */
+    .eleven-px { font-size: 14.3px; } /* 11pt on Figma */
+    .twelve-px { font-size: 16px; } /* 12pt on Figma */
+
+    /* line-height equivalence */
+    .sixteen-lh { line-height: 21.333px; } /* 16pt on Figma */
+    .eleven-lh { line-height: 14.667px; } /* 11pt on Figma */
+
 
     /* logo-box style */
     #logo-box, #logo-box-right {
@@ -102,16 +109,13 @@
     }
 
     #main__subject {
-      line-height: 26.5px;
       padding-top: 0mm;
-      font-size: 22.54px;
       word-wrap: break-word;
       margin-bottom: 1.5mm;
     }
 
     #main__disclaimer {
       margin: 1.5mm 0;
-      line-height: 18.6px;
     }
 
     .heading {
@@ -121,11 +125,6 @@
       text-transform: uppercase;
       font-weight: bold;
       padding: .9mm 2.5mm;
-    }
-
-    .row {
-      /* margin: 8px 37.13px 0mm 37.13px; */
-      width: 100%;
     }
 
     .relative-box {
@@ -159,7 +158,12 @@
 
     #view-online-box {
       position: absolute;
-      width: 90mm;
+      width: 93mm;
+    }
+    #payment-box {
+      position: absolute;
+      right: 0;
+      width: 93mm;
     }
 
     #io-notifications {
@@ -230,12 +234,6 @@
     #mandate-box__content {
       padding-left: 5.3px;
       margin: 2mm 0;
-    }
-    
-    #payment-box {
-      position: absolute;
-      right: 0;
-      width: 90mm;
     }
 
     ul#square-list li {
@@ -465,10 +463,10 @@
   
     </div>
     <div id="center-section" class="relative-box" style="height: 99mm;">
-      <div id="main__subject">
-        <b>Avviso di Avvenuta Ricezione (AAR): ${notification.subject}</b>
+      <div id="main__subject" class="twelve-px sixteen-lh">
+        <b>Avviso di Avvenuta Ricezione: ${notification.subject}</b>
       </div>
-      <div id="main__disclaimer" class="ten-px">
+      <div id="main__disclaimer" class="eleven-px sixteen-lh">
         <p>Hai ricevuto una comunicazione a valore legale da ${notification.sender.paDenomination}: <b>prendi visione dei documenti notificati</b>. Se non sono inclusi in questo avviso, <b>accedi ai documenti online su SEND o richiedine una copia presso i Punti di ritiro SEND</b>, in corso di attivazione. Se è previsto un pagamento, nei documenti troverai la data di scadenza e quella per eventuali ricorsi.</p>
       </div>
       <div class="row">
@@ -480,7 +478,7 @@
             <div class="heading ten-px">
               Ritira una copia sul territorio - A Pagamento
             </div>
-            <div class="section-list">
+            <div class="section-list nine-px eleven-lh">
               <ol>
                 <li>Richiedi i documenti notificati anche senza SPID o CIE presso i Punti di ritiro SEND (CAF e altri esercenti convenzionati). Cerca i punti di ritiro più vicini a te su <b><a href="${sendURL}punti-di-ritiro">${sendURLLAbel}/punti-di-ritiro</a></b> oppure <b>chiama il numero ${raddPhoneNumber}</b></li>
                 <li>Porta con te:
@@ -500,160 +498,20 @@
           </div>
       </div>
     </div>
-    <div id="lower-section" style="height: 99mm;">
-
-    </div>
-
-    <div class="row">
-      <#if recipient.recipientType=="PF">
-        <div class="relative-box" style="height: 96mm;">
-          <#else>
-            <div class="relative-box" style="height: 102mm;">
-      </#if>
-
-      <div id="mandate-box">
-        <div class="heading ten-px">
-          Vuoi delegare qualcuno al ritiro?
-        </div>
-        <div id="mandate-box__content">
-          <#if recipient.recipientType=="PF">
-            Io, ${recipient.denomination} ${recipient.taxId}, delego
-            <#else>
-              <div>
-                Io,
-                <span style="width: 86mm; display: inline-block; margin-top: 0;" class="eight-px border-bottom">
-                  Nome e Cognome
-                </span>
-                in qualità di legale rappresentante di ${recipient.denomination} ${recipient.taxId}, delego
-              </div>
-          </#if>
-          <div class="eight-px border-bottom">
-            Nome e Cognome
-          </div>
-          <div class="eight-px border-bottom margin-bottom-1">
-            Codice Fiscale
-          </div>
-          a ritirare i documenti notificati.
-          <div class="eight-px border-bottom">
-            Firma
-          </div>
-        </div>
-        <div class="section-list">
-          Al Punto di ritiro SEND la persona delegata dovrà mostrare:
-          <ul id="square-list">
-            <li>questo avviso con la delega compilata e firmata;</li>
-            <li>un suo documento di riconoscimento;</li>
-            <li>il suo codice fiscale;</li>
-            <li>una copia o l’originale del tuo codice fiscale e di un tuo documento di riconoscimento<#if recipient.recipientType=="PF">.</li>
-                <#else>;</li>
-                  <li>un documento che attesti il tuo ruolo
-                    di
-                    legale rappresentante.</li>
-              </#if>
-          </ul>
-        </div>
+    <div id="lower-section" class="relative-box" style="height: 99mm;">
+      <div class="section-list nine-px eleven-lh">
+        <ol>
+          <li>Inquadra il codice QR o vai su <b><a
+                href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b></li>
+          <li>Entra con SPID o CIE (Carta d'Identità Elettronica);</li>
+          <li>Accedi ai documenti notificati.</li>
+        </ol>
+      </div>
+      <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
+        Hai 120 giorni dalla data di perfezionamento della notifica (data in cui assume valore di legge per tutte le diverse finalità) per ottenere i documenti. Scopri di più su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b>
       </div>
     </div>
-    <#if recipient.recipientType=="PF">
-    <div id="read-more">
-      <p><b>Scopri di più</b></p>
-      <img id="arrow_image" src="images/arrow.jpg" />
-    </div>
-    </#if>
   </div>
-  </div>
-
-  <#if recipient.recipientType=="PF">
-  <!--------------------------- PAGE 2 (294mm x 192mm) --------------------------->
-  <div style="height: 294mm;">
-      <div class="relative-box">
-        <div id="send-explanation">
-          <div class="explanation-title">
-            <h4 class="ten-px">UN MODO INNOVATIVO PER RICEVERE LE RACCOMANDATE DELLA PUBBLICA AMMINISTRAZIONE</h4>
-            <img id="message-send_explanation" src="./images/notification.png" />
-          </div>
-          <div id="send-explanation__content">
-            <p>Con SEND - Servizio Notifiche Digitali <b>ricevi le comunicazioni a valore legale degli enti in digitale</b>,  tramite un avviso con le istruzioni per ottenere i documenti notificati dove ti è più comodo, e senza bisogno della raccomandata cartacea.</p>
-            <p>Su <b><a
-              href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b> inserisci i tuoi recapiti PEC, indirizzo e-mail o numero di cellulare. Potrai così accedere ai documenti e pagare eventuali importi direttamente online.</p>
-            <p>Poiché SEND è in corso di adozione da parte degli enti sul territorio nazionale, potresti ricevere ancora alcune comunicazioni a valore legale com'è avvenuto finora.</p>
-          </div>
-        </div>
-        <div id="howto-explanation">
-          <div class="explanation-title">
-            <h4>SEND: COSA CAMBIA PER TE</h4>
-            <img id="icon-howto_explanation" src="./images/veloce.jpg" />
-          </div>
-          <div id="howto-explanation__content">
-            <p>Quando un ente pubblico ti invia una comunicazione a valore legale tramite SEND, puoi venirne a conoscenza:</p>
-            <ul id="square-list">
-              <li>con un <b>messaggio su IO</b>, se attivi il servizio SEND - Notifiche digitali in app;</li>
-              <li>con una <b>PEC</b>, se la inserisci nella tua area riservata SEND, se l’hai comunicata all’ente in precedenza o se è presente nei registri pubblici;</li>
-              <li>con una <b>e-mail</b> o un <b>SMS</b>, se inserisci i recapiti nella tua area riservata SEND.</li>
-            </ul>
-            <p>Se SEND non riesce a raggiungerti via PEC o se non apri la notifica online o su app IO entro i termini previsti dal servizio, continuerai a ricevere la raccomandata cartacea.</p>
-          </div>
-        </div>
-      </div>
-      <div id="advantages" class="relative-box">
-        <div id="advantages-explanation">
-          <h3 class="ten-px">I VANTAGGI DI RICEVERE LE NOTIFICHE TRAMITE UN CANALE DIGITALE</h3>
-          <div class="advantage-col" style="left:0">
-            <img class="message-advantages_explanation" src="./images/moneypig.jpg" />
-            <div class="advantages-explanation__content">
-              <b>Ti costa meno</b>:<br>
-              diminuiscono i costi di notificazione
-            </div>
-          </div>
-          <div class="advantage-col" style="left:25%">
-            <img class="message-advantages_explanation" src="./images/time.jpg" />
-            <div class="advantages-explanation__content">
-              <b>Risparmi tempo</b>:<br>
-              niente più attese per il ritiro della raccomandata            
-            </div>
-          </div>
-          <div class="advantage-col" style="left:50%">
-            <img class="message-advantages_explanation" src="./images/world.jpg" />
-            <div class="advantages-explanation__content">
-              <b>Non importa dove sei</b>:<br>
-              trovi le tue notifiche e documenti online o su IO
-            </div>
-          </div>
-          <div class="advantage-col" style="left:75%">
-            <img class="message-advantages_explanation" src="./images/sustainable.jpg" />
-            <div class="advantages-explanation__content">
-              <b>Proteggi l'ambiente</b>:<br>
-              meno emissioni per il trasporto e meno carta
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="relative-box">
-        <div id="io-box_explanation">
-          <img id="icon-io_explanation" src="./images/appio-hand-vlq.jpg" />
-          <div id="io-explanation">
-            <div class="explanation-title">
-              <h4>CON L'APP IO CONVIENE</h4>
-            </div>
-            <div id="io-explanation__content">
-              <p><b>Attiva il servizio SEND - Notifiche digitali su app IO</b> per ricevere le prossime comunicazioni a valore legale direttamente sul tuo dispositivo.</p>
-              <p>Se non hai IO, scaricala gratuitamente dallo store.</p>
-            </div>
-          </div>
-        </div>
-        <div id="print-explanation">
-          <div class="explanation-title">
-            <h4 class="ten-px">VUOI UNA COPIA DEI DOCUMENTI?</h4>
-          </div>
-          <div id="print-explanation__content">
-            <p>Se non hai SPID o CIE o non hai accesso a internet, <b>puoi richiedere una copia dei documenti presso un Punto di ritiro SEND</b> vicino a te.</p>
-            <p class="eight-px">Scopri come funziona su <br><b><a
-              href="${sendURL}punti-di-ritiro/come-funziona">${sendURLLAbel}/punti-di-ritiro/come-funziona</a></b></p>
-          </div>
-        </div>
-      </div>
-  </div>
-  </#if>
 
 </body>
 </html>
