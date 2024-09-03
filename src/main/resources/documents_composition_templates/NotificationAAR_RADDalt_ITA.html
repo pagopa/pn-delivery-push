@@ -271,7 +271,6 @@
     /* SECOND PAGE */
     #send-explanation {
       width: 94mm;
-      background-color: #ECECEC;
       border-radius: 5px;
       padding: 3mm 4mm 3mm 3mm;
       height: 90mm;
@@ -290,37 +289,42 @@
 
     #send-explanation p, #print-explanation p, #io-box_explanation p, #howto-explanation p, #print-explanation .explanation-title, #io-explanation .explanation-title {
       margin-bottom: 2mm;
+      text-align: left;
     }
 
     #howto-explanation {
       border: solid #ECECEC 0.66px;
-      width: 93mm;
+      width: 94mm;
       border-radius: 5px;
-      padding: 3mm 4mm;
+      padding: 4.23mm 2.7mm;
       float: left;
+      background-color: #ECECEC;
+      height: 76mm;
     }
 
     #howto-explanation #square-list li, #howto-explanation li{
-      margin-top: 0;
+      margin-top: 1.4mm;
     }
 
     #io-box_explanation {
       float: right;
       width: 94mm;
-      border: solid #b2b2b2 1px;
+      border: solid #ECECEC 0.66px;
       border-radius: 5px;
+      padding: 5.6mm 5.8mm 0 4.2mm;
+      text-align: center;
+      height: 76mm;
+      position: relative;
     }
 
     #advantages {
-      width: 100%; height: 50mm;
+      width: 100%;
     }
 
     #advantages-explanation {
-      position: absolute;
       text-align: center;
       margin: 5.6mm 0 5.6mm 0;
       width: 100%;
-      height: 39mm;
       border: solid #ECECEC 0.66px;
       border-radius: 8px;
     }
@@ -334,8 +338,7 @@
     }
 
     #advantages-explanation h3 {
-      margin: 3mm;
-      margin-bottom: 5.6mm;
+      margin: 5mm;
     }
 
     #read-more {
@@ -357,10 +360,15 @@
       bottom: -4mm;
     }
 
+    .advantages-row {
+      height: 35mm;
+      position: relative;
+    }
+
     .advantage-col {
-      width: 47.5mm;
-      margin-bottom: 5.6mm;
       position: absolute;
+      width: 25%;
+      margin-bottom: 5.6mm;
     }
 
     .advantages-explanation__content {
@@ -424,8 +432,11 @@
     }
 
     #icon-io_explanation {
-      width: 35mm;
-      margin: 0 2mm;
+      width: 32mm;
+      padding: 0 2mm;
+      position: absolute;
+      bottom: 0;
+      left: 40%;
     }
 
     #icon-io_logo {
@@ -585,38 +596,40 @@
 
   <#if recipient.recipientType=="PF">
   <!--------------------------- PAGE 2 --------------------------->
-  <div style="height: 294mm;">
+  <div >
     <div id="main-page2">
       <h2 class="sixteen-lh twelve-px">Con SEND - Servizio notifiche digitali ricevi le comunicazioni a valore legale della Pubblica Amministrazione in digitale, dove ti è più comodo e senza raccomandata cartacea</h2>
-      <div id="advantages" class="relative-box">
+      <div id="advantages">
         <div id="advantages-explanation">
           <h3 class="ten-px">I VANTAGGI DELLE NOTIFICHE DIGITALI</h3>
-          <div class="advantage-col" style="left:0">
-            <img class="message-advantages_explanation" src="./images/moneypig.jpg" />
-            <div class="advantages-explanation__content">
-              <b>Ti costa meno</b>:<br>
-              diminuiscono i costi di notificazione
+          <div class="advantages-row">
+            <div class="advantage-col">
+              <img class="message-advantages_explanation" src="./images/moneypig.jpg" />
+              <div class="advantages-explanation__content">
+                <b>Ti costa meno</b>:<br>
+                diminuiscono i costi di notificazione
+              </div>
             </div>
-          </div>
-          <div class="advantage-col" style="left:25%">
-            <img class="message-advantages_explanation" src="./images/time.jpg" />
-            <div class="advantages-explanation__content">
-              <b>Risparmi tempo</b>:<br>
-              niente più attese per il ritiro della raccomandata            
+            <div class="advantage-col" style="left: 25%;" >
+              <img class="message-advantages_explanation" src="./images/time.jpg" />
+              <div class="advantages-explanation__content">
+                <b>Risparmi tempo</b>:<br>
+                niente più attese per il ritiro della raccomandata            
+              </div>
             </div>
-          </div>
-          <div class="advantage-col" style="left:50%">
-            <img class="message-advantages_explanation" src="./images/world.jpg" />
-            <div class="advantages-explanation__content">
-              <b>Non importa dove sei</b>:<br>
-              trovi le tue notifiche e documenti online o su IO
+            <div class="advantage-col" style="left: 50%;">
+              <img class="message-advantages_explanation" src="./images/world.jpg" />
+              <div class="advantages-explanation__content">
+                <b>Non importa dove sei</b>:<br>
+                trovi le tue notifiche e documenti online o su IO
+              </div>
             </div>
-          </div>
-          <div class="advantage-col" style="left:75%">
-            <img class="message-advantages_explanation" src="./images/sustainable.jpg" />
-            <div class="advantages-explanation__content">
-              <b>Proteggi l'ambiente</b>:<br>
-              meno emissioni per il trasporto e meno carta
+            <div class="advantage-col" style="left: 75%;">
+              <img class="message-advantages_explanation" src="./images/sustainable.jpg" />
+              <div class="advantages-explanation__content">
+                <b>Proteggi l'ambiente</b>:<br>
+                meno emissioni per il trasporto e meno carta
+              </div>
             </div>
           </div>
         </div>
@@ -624,7 +637,7 @@
       <div class="relative-box">
         <div id="howto-explanation">
           <div class="explanation-title">
-            <h4>SEND: COSA CAMBIA PER TE</h4>
+            <h4>COSA CAMBIA PER TE</h4>
             <img id="icon-howto_explanation" src="./images/veloce.jpg" />
           </div>
           <div id="howto-explanation__content" class="nine-px eleven-lh">
@@ -639,16 +652,16 @@
           </div>
         </div>
         <div id="io-box_explanation">
-          <img id="icon-io_explanation" src="./images/appio-hand-vlq.jpg" />
           <div id="io-explanation">
             <div class="explanation-title">
-              <h4>CON L'APP IO CONVIENE</h4>
+              <h4 class="ten-px">CON L'APP IO CONVIENE</h4>
             </div>
-            <div id="io-explanation__content">
-              <p><b>Attiva il servizio SEND - Notifiche digitali su app IO</b> per ricevere le prossime comunicazioni a valore legale direttamente sul tuo dispositivo.</p>
+            <div id="io-explanation__content" class="nine-px eleven-lh">
+              <p><b>Attiva il servizio SEND - Notifiche digitali su app IO</b> per ricevere le <b>prossime</b> comunicazioni a valore legale direttamente sul tuo dispositivo.</p>
               <p>Se non hai IO, scaricala gratuitamente dallo store.</p>
             </div>
           </div>
+          <img id="icon-io_explanation" src="./images/appio-hand-vlq.jpg" />
         </div>
       </div>
     </div>
