@@ -110,6 +110,8 @@
     #main-page2 {
       margin: 10mm;
       width: 190mm;
+      height: 274mm;
+      position: relative;
     }
 
     #main__subject {
@@ -277,19 +279,22 @@
     }
 
     #print-explanation {
-      width: 94mm;
-      background: #ECECEC;
+      width: 190mm;
       border-radius: 5px;
-      padding: 4mm;
+      padding: 3mm;
+      height: 19mm;
+      border: solid #ECECEC 0.66px;
       position: absolute;
-      right: 0;
-      top: 0;
-      height: 50mm;
+      bottom: 0;
     }
 
-    #send-explanation p, #print-explanation p, #io-box_explanation p, #howto-explanation p, #print-explanation .explanation-title, #io-explanation .explanation-title {
+    #send-explanation p, #print-explanation p, #io-box_explanation p, #howto-explanation p, #io-explanation .explanation-title {
       margin-bottom: 2mm;
       text-align: left;
+    }
+
+    #print-explanation .explanation-title {
+      margin-bottom: 0.5mm;
     }
 
     #howto-explanation {
@@ -343,8 +348,8 @@
 
     #read-more {
       position: absolute;
-      right: 1.3cm;
-      bottom: 2cm;
+      right: 1cm;
+      bottom: 1.7cm;
       width: 100%;
     }
 
@@ -446,7 +451,7 @@
     }
 
     img.message-advantages_explanation {
-      height: 26px;
+      height: 34px;
       margin: 3mm;
       margin-bottom: 1mm;
     }
@@ -634,7 +639,7 @@
           </div>
         </div>
       </div>
-      <div class="relative-box">
+      <div class="relative-box" style="height: 76mm;">
         <div id="howto-explanation">
           <div class="explanation-title">
             <h4>COSA CAMBIA PER TE</h4>
@@ -662,6 +667,15 @@
             </div>
           </div>
           <img id="icon-io_explanation" src="./images/appio-hand-vlq.jpg" />
+        </div>
+      </div>
+      <div id="print-explanation">
+        <div class="explanation-title">
+          <h4 class="ten-px">VUOI UNA COPIA DEI DOCUMENTI?</h4>
+        </div>
+        <div id="print-explanation__content">
+          <p class="nine-px eleven-lh">Se non hai SPID o CIE o non hai accesso a internet, puoi<b> richiedere una copia dei documenti presso un Punto di ritiro SEND</b> vicino a te. <br>Scopri come funziona su <b><a
+            href="${sendURL}punti-di-ritiro/come-funziona">${sendURLLAbel}/punti-di-ritiro/come-funziona</a></b></p>
         </div>
       </div>
     </div>
