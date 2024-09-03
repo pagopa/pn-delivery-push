@@ -12,7 +12,8 @@ import lombok.experimental.SuperBuilder;
 public class LegalDigitalAddressInt extends DigitalAddressInt{
     
     public enum LEGAL_DIGITAL_ADDRESS_TYPE{
-        PEC("PEC");
+        PEC("PEC"),
+        SERCQ("SERCQ");
 
         private final String value;
 
