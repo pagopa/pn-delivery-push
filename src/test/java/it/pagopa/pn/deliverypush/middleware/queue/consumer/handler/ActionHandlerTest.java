@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
@@ -67,6 +68,9 @@ class ActionHandlerTest {
     private CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
     @Mock
     private SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
+    @Mock
+    private AnalogFinalStatusResponseHandler analogFinalResponseHandler;
+
 
     @Mock
     private TimelineUtils timelineUtils;
@@ -359,7 +363,23 @@ class ActionHandlerTest {
         Action action = message.getPayload();
         verify(sendDigitalFinalStatusResponseHandler).handleSendDigitalFinalStatusResponse(action.getIun(), (SendDigitalFinalStatusResponseDetails) action.getDetails());
     }
-    
+
+    @Test
+    void pnDeliveryPushSendAnalogFinalStatusResponse() {
+        //GIVEN
+        Message<Action> message = getActionMessage();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
+
+        //WHEN
+        Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushSendAnalogFinalStatusResponse();
+        consumer.accept(message);
+
+        //THEN
+        Action action = message.getPayload();
+        verify(analogFinalResponseHandler).handleFinalResponse(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+    }
+
+
     @NotNull
     private static Message<Action> getActionMessage() {
         return new Message<>() {

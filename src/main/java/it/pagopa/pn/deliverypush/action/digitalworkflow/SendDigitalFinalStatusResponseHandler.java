@@ -66,7 +66,7 @@ public class SendDigitalFinalStatusResponseHandler {
                         digitalAddressInfoSentAttemptDetail
                 ).build();
         return details;
-    }
+    } 
 
     private void handleSuccessfulSending(String iun, SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails, SendDigitalFinalStatusResponseDetails details) {
         int recIndex = sendDigitalFeedbackDetails.getRecIndex();

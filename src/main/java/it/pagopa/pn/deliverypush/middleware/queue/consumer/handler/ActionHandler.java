@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogFinalStatusResponseHandler;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
@@ -19,6 +20,7 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForR
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
@@ -53,10 +55,11 @@ public class ActionHandler {
     private final TimelineUtils timelineUtils;
     private final SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
     private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
+    private final AnalogFinalStatusResponseHandler analogFinalResponseHandler;
     
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
-        final String processName = "START RECIPIENT WORKFLOW";
+        final String processName = ActionType.START_RECIPIENT_WORKFLOW.name();
         
         return message -> {
             try {
@@ -81,7 +84,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushChooseDeliveryMode() {
-        final String processName = "CHOOSE DELIVERY MODE";
+        final String processName = ActionType.CHOOSE_DELIVERY_MODE.name();
         
         return message -> {
             try {
@@ -105,7 +108,7 @@ public class ActionHandler {
     
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowConsumer() {
-        final String processName = "START ANALOG WORKFLOW";
+        final String processName = ActionType.ANALOG_WORKFLOW.name();
         
         return message -> {
             try {
@@ -129,7 +132,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushRefinementConsumer() {
-        final String processName = "HANDLE REFINEMENT";
+        final String processName = ActionType.REFINEMENT_NOTIFICATION.name();
         
         return message -> {
             try {
@@ -154,7 +157,7 @@ public class ActionHandler {
     //From Scheduling
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushDigitalNextActionConsumer() {
-        final String processName = "SCHEDULED NEXT WORKFLOW ACTION";
+        final String processName = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.name();
         
         return message -> {
             try {
@@ -178,7 +181,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushDigitalNextExecuteConsumer() {
-        final String processName = "START NEXT WORKFLOW ACTION";
+        final String processName = ActionType.DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION.name();
         
         return message -> {
             try {
@@ -203,7 +206,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushDigitalRetryActionConsumer() {
-        final String processName = "SCHEDULED RETRY WORKFLOW";
+        final String processName = ActionType.DIGITAL_WORKFLOW_RETRY_ACTION.name();
         
         return message -> {
             try {
@@ -227,7 +230,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushElapsedExternalChannelNoResponseTimeoutActionConsumer() {
-        final String processName = "EXTERNAL CHANNEL NO RESPONSE TIMEOUT ACTION";
+        final String processName = ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION.name();
         
         return message -> {
             try {
@@ -277,7 +280,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushDocumentCreationResponseConsumer() {
-        final String processName = "DOCUMENT CREATION RESPONSE";
+        final String processName = ActionType.DOCUMENT_CREATION_RESPONSE.name();
         
         return message -> {
             try {
@@ -307,7 +310,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushNotificationValidation() {
-        final String processName = "NOTIFICATION VALIDATION";
+        final String processName = ActionType.NOTIFICATION_VALIDATION.name();
         
         return message -> {
             try {
@@ -331,7 +334,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushNotificationCancellation(){
-        final String processName = "NOTIFICATION CANCELLATION";
+        final String processName = ActionType.NOTIFICATION_CANCELLATION.name();
 
         return message -> {
             try {
@@ -352,7 +355,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushReceivedLegalFactGeneration() {
-        final String processName = "SAVE NOTIFICATION RECEIVED LEGALFACT";
+        final String processName = ActionType.SCHEDULE_RECEIVED_LEGALFACT_GENERATION.name();
         
         return message -> {
             try {
@@ -375,7 +378,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushNotificationRefused(){
-        final String processName = "NOTIFICATION REFUSED";
+        final String processName = ActionType.NOTIFICATION_REFUSED.name();
 
         return message -> {
             try {
@@ -398,7 +401,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushCheckAttachmentRetention(){
-        final String processName = "CHECK ATTACHMENT RETENTION";
+        final String processName = ActionType.CHECK_ATTACHMENT_RETENTION.name();
 
         return message -> {
             try {
@@ -420,7 +423,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushSendDigitalFinalStatusResponse(){
-        final String processName = "SEND DIGITAL FINAL STATUS RESPONSE";
+        final String processName = ActionType.SEND_DIGITAL_FINAL_STATUS_RESPONSE.name();
 
         return message -> {
             try {
@@ -442,7 +445,7 @@ public class ActionHandler {
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushPostAcceptedProcessingCompleted(){
-        final String processName = "SEND POST ACCEPTED PROCESSING COMPLETED";
+        final String processName = ActionType.POST_ACCEPTED_PROCESSING_COMPLETED.name();
 
         return message -> {
             try {
@@ -457,9 +460,30 @@ public class ActionHandler {
                 throw ex;
             }
         };
-
     }
-    
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushSendAnalogFinalStatusResponse(){
+        final String processName = ActionType.SEND_ANALOG_FINAL_STATUS_RESPONSE.name();
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushSendAnalogFinalStatusResponse, with content {}", message);
+                Action action = message.getPayload();
+                HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
+
+                log.logStartingProcess(processName);
+                analogFinalResponseHandler.handleFinalResponse(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+                log.logEndingProcess(processName);
+            } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+
     private void checkNotificationCancelledAndExecute(Action action, Consumer<Action> functionToCall) {
         if (! timelineUtils.checkIsNotificationCancellationRequested(action.getIun())) {
             functionToCall.accept(action);

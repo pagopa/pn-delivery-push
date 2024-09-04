@@ -29,7 +29,11 @@ Parameters:
   WebhookMaxLength:
     Type: String
     Description: 'Max elements quantity for each webhook call'
-
+    
+  WebhookMaxStreams:
+    Type: String
+    Description: 'Max stream number'
+  
   WaitingForReadCourtesyMessage:
     Type: String
     Description: 'Time to wait before starting the analog workflow. See https://docs.spring.io/spring-boot/docs/2.1.12.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-duration'
@@ -848,6 +852,16 @@ Parameters:
     Type: String
     Description: 'RADD Parameter Store Names'
 
+  AttemptTimeoutSec:
+    Type: Number
+    Description: 'Timeout in seconds for each retry attempt for each idempotent versioning lambda'
+    Default: 7
+
+  NumRetry:
+    Type: Number
+    Description: 'Number of retries for each idempotent versioning lambda'
+    Default: 3
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
 
@@ -962,6 +976,7 @@ Resources:
         ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
         ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
+        ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -1874,11 +1889,13 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.3"
+          NUM_RETRY: !Ref NumRetry
+          ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
         Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
+      Timeout: 30
       MemorySize: 512
       Tags:
         - Key: "pn-eni-related"
