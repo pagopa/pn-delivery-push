@@ -19,7 +19,8 @@ public enum EventCodeInt {
     C007("C007"), // StatusPec.PREAVVISO_ERRORE_CONSEGNA  (senza busta)
     C008("C008"), // StatusPec.ERRORE_COMUNICAZIONE_SERVER_PEC  - con retry da parte di PN (senza busta)
     C009("C009"), // StatusPec.ERRORE_DOMINIO_PEC_NON_VALIDO - senza retry:  indica un dominio pec non valido; (senza busta)
-    C010("C010"); // StatusPec.ERROR_INVIO_PEC - con retry da parte di PN: indica un errore generico di invio pec (senza busta)
+    C010("C010"), // StatusPec.ERROR_INVIO_PEC - con retry da parte di PN: indica un errore generico di invio pec (senza busta)
+    C011("C011"); // PEC - ADDRESS_ERROR
 
     private final String value;
 
