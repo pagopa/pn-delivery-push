@@ -8,7 +8,8 @@ import lombok.ToString;
 public enum AarTemplateType {
     AAR_NOTIFICATION(false, DocumentComposition.TemplateType.AAR_NOTIFICATION),
     AAR_NOTIFICATION_RADD(true, DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD),
-    AAR_NOTIFICATION_RADD_ALT(true, DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD_ALT);
+    AAR_NOTIFICATION_RADD_ALT(true, DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD_ALT),
+    AAR_NOTIFICATION_RADD_ALT_ITA(true,DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD_ALT_ITA);
 
     private final boolean aarRADD;
     private final DocumentComposition.TemplateType templateType;
