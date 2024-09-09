@@ -47,7 +47,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
                                       List<String> fileKeys,
                                       String quickAccessToken)
     {
-        if (digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) {
+        if (digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC || digitalAddress.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
             sendNotificationPEC(timelineEventId, notificationInt, recipientInt, digitalAddress,fileKeys, quickAccessToken);
         } else {
             log.error("channel type not supported for iun={}", notificationInt.getIun());
@@ -77,13 +77,14 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
     private void sendNotificationPEC(String requestId,
                                      NotificationInt notificationInt,
                                      NotificationRecipientInt recipientInt,
-                                     DigitalAddressInt digitalAddress,
+                                     LegalDigitalAddressInt digitalAddress,
                                      List<String> fileKeys,
                                      String quickAccessToken)
     {
         try {
             log.logInvokingAsyncExternalService(CLIENT_NAME, LEGAL_NOTIFICATION_REQUEST, requestId);
-            log.debug("[enter] sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
+            String maskedAddress = digitalAddress.getType().equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) ? LogUtils.maskEmailAddress(digitalAddress.getAddress()) : LogUtils.maskGeneric(digitalAddress.getAddress());
+            log.debug("[enter] sendNotificationPEC address={} requestId={} recipient={}", maskedAddress, requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
 
             String mailBody = legalFactGenerator.generateNotificationAARPECBody(notificationInt, recipientInt, quickAccessToken);
             String mailSubj = legalFactGenerator.generateNotificationAARSubject(notificationInt);
@@ -108,7 +109,7 @@ public class ExternalChannelSendClientImpl implements ExternalChannelSendClient 
 
             digitalLegalMessagesApi.sendDigitalLegalMessage(requestId, cfg.getExternalchannelCxId(), digitalNotificationRequestDto);
 
-            log.debug("[exit] sendNotificationPEC address={} requestId={} recipient={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
+            log.debug("[exit] sendNotificationPEC address={} requestId={} recipient={}", maskedAddress, requestId, LogUtils.maskGeneric(recipientInt.getDenomination()));
         } catch (Exception e) {
             log.error("error sending PEC notification for iun={}", notificationInt.getIun());
             throw new PnInternalException("error sending PEC notification", ERROR_CODE_DELIVERYPUSH_SENDPECNOTIFICATIONFAILED, e);
