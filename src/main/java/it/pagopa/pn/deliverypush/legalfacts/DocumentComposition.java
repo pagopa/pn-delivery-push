@@ -40,6 +40,7 @@ public class DocumentComposition {
         AAR_NOTIFICATION("documents_composition_templates/NotificationAAR.html"),
         AAR_NOTIFICATION_RADD("documents_composition_templates/NotificationAAR_RADD.html"),
         AAR_NOTIFICATION_RADD_ALT("documents_composition_templates/NotificationAAR_RADDalt.html"),
+        AAR_NOTIFICATION_RADD_ALT_bilingual("documents_composition_templates/NotificationAAR_RADDalt_bilingual.html"),
         AAR_NOTIFICATION_RADD_ALT_ITA("documents_composition_templates/NotificationAAR_RADDalt_ITA.html"),
         AAR_NOTIFICATION_EMAIL("documents_composition_templates/NotificationAARForEMAIL.html"),
         AAR_NOTIFICATION_PEC("documents_composition_templates/NotificationAARForPEC.html"),
