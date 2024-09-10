@@ -11,15 +11,22 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 class AddressBookServiceImplTest {
     private UserAttributesClient userAttributesClient;
     private AddressBookService addressBookService;
+
+    private static final String LEGAL_ADDRESS = "indirizzo@prova.com";
+    private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:SEND-self:notification-already-delivered";
     
     @BeforeEach
     void setup() {
@@ -31,12 +38,13 @@ class AddressBookServiceImplTest {
 
     }
     
-    @Test
-    void getPlatformAddresses() {
+    @ParameterizedTest(name = "Test getPlatformAddresses with channelType={0} and address={1}")
+    @MethodSource("getLegalChannelTypes")
+    void getPlatformAddresses(LegalChannelType channelType, String address) {
         //GIVEN
         LegalDigitalAddress legalDigitalAddress = new LegalDigitalAddress();
-        legalDigitalAddress.setValue("indirizzo@prova.com");
-        legalDigitalAddress.setChannelType(LegalChannelType.PEC);
+        legalDigitalAddress.setValue(address);
+        legalDigitalAddress.setChannelType(channelType);
         
         List<LegalDigitalAddress> listLegalDigitalAddresses = Collections.singletonList(legalDigitalAddress);
                  
@@ -72,6 +80,14 @@ class AddressBookServiceImplTest {
         Assertions.assertTrue(listCourtesyAddressOpt.isPresent());
         List<CourtesyDigitalAddressInt> listCourtesyAddress = listCourtesyAddressOpt.get();
         Assertions.assertEquals(courtesyDigitalAddress.getValue(), listCourtesyAddress.get(0).getAddress());
+    }
+
+    private static Stream<Arguments> getLegalChannelTypes() {
+        return Stream.of(
+                Arguments.of(LegalChannelType.PEC, LEGAL_ADDRESS),
+                Arguments.of(LegalChannelType.SERCQ, SERCQ_ADDRESS)
+
+        );
     }
     
 }
