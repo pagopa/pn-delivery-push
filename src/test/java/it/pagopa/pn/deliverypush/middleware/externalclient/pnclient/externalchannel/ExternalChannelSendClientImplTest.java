@@ -15,6 +15,8 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
@@ -66,13 +68,13 @@ class ExternalChannelSendClientImplTest {
     }
 
 
-
-    @Test
+    @ParameterizedTest
+    @CsvSource({"test@dominioPec.it, PEC", "x-pagopa-pn-sercq:SEND-self:notification-already-delivered, SERCQ"})
     @ExtendWith(SpringExtension.class)
-    void sendLegalNotification() {
+    void sendLegalNotification(String address, LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType) {
         NotificationInt notificationInt = buildNotification();
-        NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt();
-        LegalDigitalAddressInt legalDigitalAddressInt = buildLegalDigitalAddressInt();
+        NotificationRecipientInt notificationRecipientInt = buildNotificationRecipientInt(address, channelType);
+        LegalDigitalAddressInt legalDigitalAddressInt = buildLegalDigitalAddressInt(address, channelType);
         String timelineEventId = "001";
         String aarKey = "testKey";
         String quickAccessToken = "test";
@@ -121,9 +123,10 @@ class ExternalChannelSendClientImplTest {
         assertDoesNotThrow(() -> client.sendCourtesyNotification(notificationInt, notificationRecipientInt, courtesyDigitalAddressInt, timelineEventId, aarKey, ""));
     }
 
-    @Test
+    @ParameterizedTest
     @ExtendWith(SpringExtension.class)
-    void sendLegalNotificationPEC() {
+    @CsvSource({"test@dominioPec.it, PEC", "x-pagopa-pn-sercq:SEND-self:notification-already-delivered, SERCQ"})
+    void sendLegalNotificationPEC(String address, LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType) {
 
         //Given
         NotificationInt notificationInt = mock(NotificationInt.class);
@@ -135,8 +138,8 @@ class ExternalChannelSendClientImplTest {
 
         Mockito.when(restTemplate.exchange(Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(ResponseEntity.ok(""));
-        when(addressInt.getType()).thenReturn(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
-        when(addressInt.getAddress()).thenReturn("email@email.it");
+        when(addressInt.getType()).thenReturn(channelType);
+        when(addressInt.getAddress()).thenReturn(address);
 
         //When
 
@@ -151,6 +154,28 @@ class ExternalChannelSendClientImplTest {
                 .digitalDomicile(LegalDigitalAddressInt.builder()
                         .address("test@dominioPec.it")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                        .build())
+                .physicalAddress(new PhysicalAddressInt(
+                        "Galileo Bruno",
+                        "Palazzo dell'Inquisizione",
+                        "corso Italia 666",
+                        "Piano Terra (piatta)",
+                        "00100",
+                        "Roma",
+                        null,
+                        "RM",
+                        "IT"
+                ))
+                .build();
+    }
+
+    private NotificationRecipientInt buildNotificationRecipientInt(String address, LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType) {
+        return NotificationRecipientInt.builder()
+                .taxId("CDCFSC11R99X001Z")
+                .denomination("Galileo Bruno")
+                .digitalDomicile(LegalDigitalAddressInt.builder()
+                        .address(address)
+                        .type(channelType)
                         .build())
                 .physicalAddress(new PhysicalAddressInt(
                         "Galileo Bruno",
@@ -194,17 +219,17 @@ class ExternalChannelSendClientImplTest {
         NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
                 .taxId("CDCFSC11R99X001Z")
                 .denomination("Galileo Bruno")
-                .digitalDomicile(buildLegalDigitalAddressInt())
+                .digitalDomicile(buildLegalDigitalAddressInt("test@dominioPec.it", LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC))
                 .physicalAddress(buildPhysicalAddressInt())
                 .build();
 
         return Collections.singletonList(rec1);
     }
 
-    private LegalDigitalAddressInt buildLegalDigitalAddressInt() {
+    private LegalDigitalAddressInt buildLegalDigitalAddressInt(String address, LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType) {
         return LegalDigitalAddressInt.builder()
-                .address("test@dominioPec.it")
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .address(address)
+                .type(channelType)
                 .build();
     }
 
