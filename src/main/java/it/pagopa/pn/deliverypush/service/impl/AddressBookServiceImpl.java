@@ -45,7 +45,7 @@ public class AddressBookServiceImpl implements AddressBookService {
           for(LegalDigitalAddressInt address : digitalAddresses){
               log.debug("For senderId={} address type={} is available", senderId, address.getType());
 
-              if(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC.equals(address.getType())){
+              if(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC.equals(address.getType()) || LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(address.getType())){
                   return Optional.of(address);
               }
           }
