@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
@@ -86,6 +87,9 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
 
         try {
             DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, false);
+
+            if (sendInformation.getDigitalAddress().getType().equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
+                addInformationToAddress(notification.getIun(), recIndex, sendInformation.getDigitalAddress());
 
             String eventId;
             if (!sendAlreadyInProgress)
@@ -204,7 +208,14 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         return new DigitalParameters(fileKeys, recipientFromIndex, recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
     }
 
-
+    private void addInformationToAddress(String iun, int recIndex, LegalDigitalAddressInt legalDigitalAddressInt) {
+        String eventId = TimelineEventId.AAR_GENERATION.buildEventId(EventId.builder().iun(iun).recIndex(recIndex).build());
+        Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(iun, eventId);
+        if (timeline.isPresent()) {
+            Instant timestamp = timeline.get().getTimestamp();
+            legalDigitalAddressInt.setAddress(legalDigitalAddressInt.getAddress() + "?timestamp=" + timestamp);
+        }
+    }
 
     private PnAuditLogEvent buildAuditLogEvent(String iun, LegalDigitalAddressInt legalDigitalAddressInt, int recIndex) {
         if (legalDigitalAddressInt.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) {
