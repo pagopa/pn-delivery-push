@@ -26,6 +26,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import java.time.Instant;
 import java.util.*;
 
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -40,13 +41,14 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final AuditLogService auditLogService;
     private final TimelineUtils timelineUtils;
     private final AttachmentUtils attachmentUtils;
+    private final TimelineService timelineService;
 
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
                                       NotificationService notificationService, AuditLogService auditLogService,
-                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils) {
+                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
@@ -55,6 +57,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         this.auditLogService = auditLogService;
         this.timelineUtils = timelineUtils;
         this.attachmentUtils = attachmentUtils;
+        this.timelineService = timelineService;
     }
 
     /**
@@ -206,6 +209,8 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private PnAuditLogEvent buildAuditLogEvent(String iun, LegalDigitalAddressInt legalDigitalAddressInt, int recIndex) {
         if (legalDigitalAddressInt.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) {
             return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DD_SEND, "sendPECMessage");
+        } else if (legalDigitalAddressInt.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DD_SEND, "sendSERCQMessage");
         }
 
         throw new PnInternalException("Unsupported LEGAL_DIGITAL_ADDRESS_TYPE " + legalDigitalAddressInt.getType().getValue(), PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDRESSTYPENOTSUPPORTED);
