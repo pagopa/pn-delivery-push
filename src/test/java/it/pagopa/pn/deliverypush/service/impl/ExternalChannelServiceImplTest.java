@@ -49,6 +49,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 
 class ExternalChannelServiceImplTest {
@@ -182,6 +183,83 @@ class ExternalChannelServiceImplTest {
     }
 
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendDigitalNotification_SERCQ_TimelineElementNotFound() {
+        //GIVEN
+        String iun = "IUN01";
+        String taxId = "taxId";
+        String quickAccessToken = "test";
+
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+                .address(SERCQ_ADDRESS)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ)
+                .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
+                .withDigitalDomicile(digitalDomicile)
+                .withPhysicalAddress(
+                        PhysicalAddressBuilder.builder()
+                                .withAddress("_Via Nuova")
+                                .build()
+                )
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        String aarKey = "testKey";
+        String attachments = "test1";
+        Mockito.when( attachmentUtils.retrieveAttachments(any(),any(),any(),eq(F24ResolutionMode.RESOLVE_WITH_TIMELINE),any(),any()) ).thenReturn(Arrays.asList(aarKey,attachments));
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_SEND), Mockito.anyString())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+
+        Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
+        Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
+
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
+        int recIndex = 0;
+        int sentAttemptMade = 0;
+
+        Mockito.when(timelineService.getTimelineElement(eq(iun), anyString())).thenReturn(Optional.empty());
+
+        //WHEN
+        final boolean isFirstSendRetry = false;
+
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalDomicile)
+                .digitalAddressSource(addressSource)
+                .retryNumber(sentAttemptMade)
+                .isFirstSendRetry(isFirstSendRetry)
+                .relatedFeedbackTimelineId(null)
+                .build();
+
+        assertThrows(PnInternalException.class, () -> externalChannelService.sendDigitalNotification(notification, recIndex, false, sendInformation));
+
+        //THEN
+        String eventIdExpected = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .source(addressSource)
+                        .sentAttemptMade(sentAttemptMade)
+                        .isFirstSendRetry(isFirstSendRetry)
+                        .build()
+        );
+
+        Mockito.verify(externalChannel, Mockito.never()).sendLegalNotification(any(NotificationInt.class), any(NotificationRecipientInt.class), any(LegalDigitalAddressInt.class), anyString(), anyList(), anyString());
+        Mockito.verify(externalChannelUtils, Mockito.never()).addSendDigitalNotificationToTimeline(notification, recIndex, sendInformation, eventIdExpected);
+        Mockito.verify(auditLogEvent).log();
+        Mockito.verify(auditLogEvent).generateFailure(any(), any());
+    }
 
     @ExtendWith(MockitoExtension.class)
     @ParameterizedTest

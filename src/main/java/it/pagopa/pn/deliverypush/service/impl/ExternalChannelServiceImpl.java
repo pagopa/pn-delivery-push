@@ -31,6 +31,8 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT;
+
 @Slf4j
 @Service
 public class ExternalChannelServiceImpl implements ExternalChannelService {
@@ -214,7 +216,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         if (timeline.isPresent()) {
             Instant timestamp = timeline.get().getTimestamp();
             legalDigitalAddressInt.setAddress(legalDigitalAddressInt.getAddress() + "?timestamp=" + timestamp);
-        }
+        } else throw new PnInternalException(String.format("Timeline element with eventId '%s' not found for iun=%s", eventId, iun), ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
     }
 
     private PnAuditLogEvent buildAuditLogEvent(String iun, LegalDigitalAddressInt legalDigitalAddressInt, int recIndex) {
