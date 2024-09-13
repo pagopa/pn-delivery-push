@@ -344,8 +344,9 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             ERROR         C004 = StatusPec.ERReveORE_CONSEGNA (con busta)
             ERROR         C006 = StatusPec.RILEVAZIONE_VIRUS (con busta)
             ERROR         C008 = ERRORE_COMUNICAZIONE_SERVER_PEC - con retry  (senza busta)
-            ERROR         C009   = ERRORE_DOMINIO_PEC_NON_VALIDO - senza retry:  indica un dominio pec non valido; (senza busta)
-            ERROR         C0010 = ERROR_INVIO_PEC - con retry da parte di PN: indica un errore generico di invio pec (senza busta)
+            ERROR         C009 = ERRORE_DOMINIO_PEC_NON_VALIDO - senza retry:  indica un dominio pec non valido; (senza busta)
+            ERROR         C010 = ERROR_INVIO_PEC - con retry da parte di PN: indica un errore generico di invio pec (senza busta)
+            ERROR         C011 = ERRORE INDIRIZZO PEC - senza retry (senza busta)
             OK            C003 = StatusPec.AVVENUTA_CONSEGNA (con busta)
             OK            Q003 = SERCQ - SENT
             ERROR         Q010 = SERCQ - ERRORE_INVIO_SERCQ

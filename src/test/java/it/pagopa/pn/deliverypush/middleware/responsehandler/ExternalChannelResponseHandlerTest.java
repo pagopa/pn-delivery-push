@@ -80,5 +80,32 @@ class ExternalChannelResponseHandlerTest {
         Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
 
+    @Test
+    void legalUpdateTestC011() {
+
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        LegalMessageSentDetails extChannelResponse = new LegalMessageSentDetails();
+        extChannelResponse.setStatus(ProgressEventCategory.OK);
+        extChannelResponse.setEventTimestamp(instant.atOffset(ZoneOffset.UTC));
+        extChannelResponse.setRequestId("iun_event_idx_0");
+        extChannelResponse.setEventCode(LegalMessageSentDetails.EventCodeEnum.C011);
+        SingleStatusUpdate singleStatusUpdate = new SingleStatusUpdate();
+        singleStatusUpdate.setDigitalLegal(extChannelResponse);
+
+        Mockito.when(timelineUtils.getIunFromTimelineId("iun_event_idx_0")).thenReturn("iun_event_idx_0");
+
+        handler.extChannelResponseReceiver(singleStatusUpdate);
+
+        ExtChannelDigitalSentResponseInt tmp = ExtChannelDigitalSentResponseInt.builder()
+                .iun("iun_event_idx_0")
+                .requestId("iun_event_idx_0")
+                .status(ExtChannelProgressEventCat.OK)
+                .eventTimestamp(instant)
+                .eventCode(EventCodeInt.C011)
+                .build();
+
+        Mockito.verify(digitalWorkFlowHandler, Mockito.times(1)).handleExternalChannelResponse(tmp);
+    }
 
 }
