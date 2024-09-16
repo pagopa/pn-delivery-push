@@ -667,12 +667,12 @@ class DigitalWorkFlowHandlerTest {
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        PnDeliveryPushConfigs.ExternalChannel externalChannel = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
-        Mockito.when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
-        Mockito.when(externalChannel.getDigitalCodesRetryable()).thenReturn(List.of("C008", "C010"));
-        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
-        Mockito.when(externalChannel.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
+        PnDeliveryPushConfigs.ExternalChannel externalChannelConfig = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
+        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannelConfig);
+        Mockito.when(externalChannelConfig.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannelConfig.getDigitalCodesRetryable()).thenReturn(List.of("C008", "C010"));
+        Mockito.when(externalChannelConfig.getDigitalRetryCount()).thenReturn(-1);
+        Mockito.when(externalChannelConfig.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
@@ -706,7 +706,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(0);
+        Mockito.when(externalChannelConfig.getDigitalRetryCount()).thenReturn(0);
         
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -729,7 +729,7 @@ class DigitalWorkFlowHandlerTest {
         // GIVEN
         Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.reset(auditLogEvent);
-        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(3);
+        Mockito.when(externalChannelConfig.getDigitalRetryCount()).thenReturn(3);
         Mockito.when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(Boolean.class), Mockito.any())).thenReturn(Collections.EMPTY_SET);
 
 
@@ -761,7 +761,7 @@ class DigitalWorkFlowHandlerTest {
         Mockito.reset(auditLogEvent);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(3);
+        Mockito.when(externalChannelConfig.getDigitalRetryCount()).thenReturn(3);
 
         TimelineElementInternal t1 = TimelineElementInternal.builder()
                 .iun("iun1").elementId("aaaa1").timestamp(Instant.now().minusMillis(30000))
