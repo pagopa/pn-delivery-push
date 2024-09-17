@@ -623,7 +623,7 @@ paths:
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
     ############################################################################################
 
-  '/delivery-progresses/v2.3/streams/{streamId}/events':
+  '/delivery-progresses/v2.4/streams/{streamId}/events':
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -632,7 +632,7 @@ paths:
         e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStreamV23
+      operationId: consumeEventStreamV24
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -659,7 +659,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProgressResponseV23"
+                $ref: "#/components/schemas/ProgressResponseV24"
         '429':
           description: Too Many Requests
           headers:
@@ -929,12 +929,12 @@ components:
     ###  - EVENTI GENERATI DA PN
     ###################################
 
-    ProgressResponseV23:
+    ProgressResponseV24:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV23'
+        $ref: '#/components/schemas/ProgressResponseElementV24'
 
-    ProgressResponseElementV23:
+    ProgressResponseElementV24:
       type: object
       required:
         - eventId
