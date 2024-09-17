@@ -282,78 +282,78 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-    '/delivery-progresses/v2.3/streams/{streamId}/events':
-      get:
-        summary: Leggi progressi notifiche
-        description: >-
-          Lettura degli eventi presenti nello stream di aggiornamenti con indicazione che
-          il mittente ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_
-          e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
-        tags:
-          - Events
-        operationId: consumeEventStreamV23
-        x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
-        x-pagopa-lambda-account: core
-        parameters:
-          - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
-          - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
-          - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
-          - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
-          - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
-          - $ref: '#/components/parameters/pathStreamId'
-          - $ref: '#/components/parameters/queryLastEventId'
-        responses:
-          '200':
-            description: OK
-            headers:
-              retry-after:
-                schema:
-                  type: integer
-                  format: int32
-                description: >-
-                  Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi.
+  '/delivery-progresses/v2.3/streams/{streamId}/events':
+    get:
+      summary: Leggi progressi notifiche
+      description: >-
+        Lettura degli eventi presenti nello stream di aggiornamenti con indicazione che
+        il mittente ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_
+        e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
+      tags:
+        - Events
+      operationId: consumeEventStreamV23
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
+        - $ref: '#/components/parameters/pathStreamId'
+        - $ref: '#/components/parameters/queryLastEventId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi.
 
-                  Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per 
-                  raggiunta dimensione massima della risposta.
+                Sarà valorizzato a zero se ci sono eventi in coda che non sono stati forniti per 
+                raggiunta dimensione massima della risposta.
 
-                  Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/ProgressResponseV23"
-          '429':
-            description: Too Many Requests
-            headers:
-              retry-after:
-                schema:
-                  type: integer
-                  format: int32
-                description: >-
-                  Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi.
-          '400':
-            description: Invalid input
-            content:
-              application/problem+json:
-                schema:
-                  $ref: 'remote-refs.yaml#/components/schemas/Problem'
-          '403':
-            description: Not allowed to consume details
-            content:
-              application/problem+json:
-                schema:
-                  $ref: 'remote-refs.yaml#/components/schemas/Problem'
-          '404':
-            description: Stream not found
-            content:
-              application/problem+json:
-                schema:
-                  $ref: 'remote-refs.yaml#/components/schemas/Problem'
-          '500':
-            description: Internal Server Error
-            content:
-              application/problem+json:
-                schema:
-                  $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                Sarà maggiore di zero se gli eventi in coda sono stati tutti inviati.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressResponseV23"
+        '429':
+          description: Too Many Requests
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova lettura di eventi.
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '403':
+          description: Not allowed to consume details
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
                   
     ############################################################################################
     ###                INVIO DI EVENTI DA PARTE DELLA PUBBLICA AMMNISTRAZIONE                ###
