@@ -1,1 +1,1 @@
-Hai ricevuto una notifica - IUN: ${notification.iun}
+SEND - Nuova notifica da ${notification.sender.paDenomination}
