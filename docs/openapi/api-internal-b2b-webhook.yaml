@@ -957,7 +957,7 @@ components:
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
         element:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV23'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
         # proprietà necessarie per retro compatibilità nel transitorio, ma che non saranno esposte nella V23 # NO EXTERNAL
         # potranno essere eliminate (assieme al RefusedReason) quando non saranno più presenti eventi della v1 # NO EXTERNAL
         timestamp:                                                                                         # NO EXTERNAL
