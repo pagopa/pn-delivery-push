@@ -348,6 +348,9 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             ERROR         C010 = ERROR_INVIO_PEC - con retry da parte di PN: indica un errore generico di invio pec (senza busta)
             ERROR         C011 = ERRORE INDIRIZZO PEC - senza retry (senza busta)
             OK            C003 = StatusPec.AVVENUTA_CONSEGNA (con busta)
+            OK            Q003 = SERCQ - SENT
+            ERROR         Q010 = SERCQ - ERRORE_INVIO_SERCQ
+            ERROR         Q011 = SERCQ - ADDRESS_ERROR
 
             BONUS:
             PROGRESS      DP10 = Generato da timeout di invio a ext-channel, in caso di mancata risposta.

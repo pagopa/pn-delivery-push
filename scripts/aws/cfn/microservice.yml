@@ -82,6 +82,10 @@ Parameters:
     Type: String
     Description: 'The DNS name used for B2B rest API.'
 
+  DestApiDnsName:
+    Type: String
+    Description: 'The DNS name used for B2B PG rest API.'
+    
   WebApiDnsName:
     Type: String
     Description: 'The DNS name used for WEB rest API.'
@@ -1117,6 +1121,34 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.APIGatewayARN
         Limit: 600000
 
+  # Expose PN-Delivery-push microservice public API with API-GW for B2B PG usage
+  DeliveryProgressMicroserviceB2BPGAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
+        IntendedUsage: B2BPG
+        DnsName: !Ref DestApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery-push'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-push-B2BPG-aws.yaml
+
+  DeliveryProgressMicroserviceB2BPGApiWaf:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
+      Parameters:
+        WAFName: !Sub '${ProjectName}-delivery-push-b2b-pg'
+        IntendedUsage: B2BPG
+        APIGatewayARNs: !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.APIGatewayARN
+        Limit: 600000
+
   # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
   DeliveryPushMicroservicePublicWebAPI:
     Type: AWS::CloudFormation::Stack
@@ -1981,12 +2013,14 @@ Resources:
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiStageArn
+            - !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiStageArn
         RestApiNames: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiName
+            - !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.RestApiName
             - !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.RestApiName
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
