@@ -82,6 +82,11 @@ Parameters:
     Type: String
     Description: 'The DNS name used for B2B rest API.'
 
+  DestApiDnsName:
+    Type: String
+    Description: 'The DNS name used for B2B PG rest API.'
+    Default: "destapi.dev.pn.pagopa.it"
+    
   WebApiDnsName:
     Type: String
     Description: 'The DNS name used for WEB rest API.'
@@ -1125,7 +1130,7 @@ Resources:
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
         IntendedUsage: B2BPG
-        DnsName: !Ref ApiDnsName
+        DnsName: !Ref DestApiDnsName
         ProjectName: !Ref ProjectName
         ServiceApiPath: 'delivery-push'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
