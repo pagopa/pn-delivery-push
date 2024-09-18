@@ -85,7 +85,6 @@ Parameters:
   DestApiDnsName:
     Type: String
     Description: 'The DNS name used for B2B PG rest API.'
-    Default: "destapi.dev.pn.pagopa.it"
     
   WebApiDnsName:
     Type: String
