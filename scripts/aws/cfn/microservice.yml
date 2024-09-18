@@ -90,10 +90,6 @@ Parameters:
     Type: String
     Description: 'The DNS name used for IO rest API.'
 
-  ApiB2BPgDnsName:
-    Type: String
-    Description: 'The DNS name used for B2B PG rest API.'
-
   CorsAllowedDomains:
     Type: String
     Description: 'Comma separated list of domains allowed to make cross origin request'
@@ -1129,7 +1125,7 @@ Resources:
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
         IntendedUsage: B2BPG
-        DnsName: !Ref ApiB2BPgDnsName
+        DnsName: !Ref ApiDnsName
         ProjectName: !Ref ProjectName
         ServiceApiPath: 'delivery-push'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
