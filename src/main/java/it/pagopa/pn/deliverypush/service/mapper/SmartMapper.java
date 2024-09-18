@@ -118,7 +118,10 @@ public class SmartMapper {
      */
     public static TimelineElementInternal mapTimelineInternal(TimelineElementInternal source, Set<TimelineElementInternal> timelineElementInternalSet) {
         TimelineElementInternal result = mapTimelineInternal(source);
+
         if(result != null) {
+            result.setIngestionTimestamp(source.getTimestamp());
+
             switch (result.getCategory()) {
                 case SEND_ANALOG_PROGRESS -> {
                     SendAnalogProgressDetailsInt details = (SendAnalogProgressDetailsInt) result.getDetails();
@@ -160,6 +163,8 @@ public class SmartMapper {
                     //nothing to do
                 }
             }
+
+            result.setEventTimestamp(result.getTimestamp());
         }
 
         return result;
