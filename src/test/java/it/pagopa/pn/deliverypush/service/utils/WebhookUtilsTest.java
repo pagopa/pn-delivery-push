@@ -9,9 +9,9 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.DtoToEntityTimelineMapper;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.EntityToDtoTimelineMapper;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.TimelineElementJsonConverter;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.webhook.DtoToEntityWebhookTimelineMapper;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.webhook.EntityToDtoWebhookTimelineMapper;
+import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper.webhook.WebhookTimelineElementJsonConverter;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -41,10 +41,10 @@ class WebhookUtilsTest {
     private StatusService statusService;
     private NotificationService notificationService;
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
-    private DtoToEntityTimelineMapper timelineMapper;
-    private TimelineElementJsonConverter timelineElementJsonConverter;
+    private DtoToEntityWebhookTimelineMapper timelineMapper;
+    private WebhookTimelineElementJsonConverter timelineElementJsonConverter;
     private ObjectMapper objectMapper;
-    private EntityToDtoTimelineMapper entityToDtoTimelineMapper;
+    private EntityToDtoWebhookTimelineMapper entityToDtoTimelineMapper;
 
     private WebhookUtils webhookUtils;
 
@@ -55,9 +55,9 @@ class WebhookUtilsTest {
         notificationService = Mockito.mock(NotificationService.class);
         statusService = Mockito.mock(StatusService.class);
         pnDeliveryPushConfigs = Mockito.mock( PnDeliveryPushConfigs.class );
-        timelineMapper = new DtoToEntityTimelineMapper();
+        timelineMapper = new DtoToEntityWebhookTimelineMapper();
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        timelineElementJsonConverter = new TimelineElementJsonConverter(objectMapper);
+        timelineElementJsonConverter = new WebhookTimelineElementJsonConverter(objectMapper);
 
         PnDeliveryPushConfigs.Webhook webhook = new PnDeliveryPushConfigs.Webhook();
         webhook.setScheduleInterval(1000L);
