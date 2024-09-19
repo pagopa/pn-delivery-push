@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 0r9Daw+BfSsOKpaQ9Ap4ONqPRxn+Q2bUtJddE7kq9Gw=
+  version: wBtSFylPU2jay/zB67UWEki30Z7dEYyNALr+2UucJuw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2513,7 +2513,7 @@ components:
         timestamp:
           type: string
           description: >-
-            Momento in cui avviene l'evento descritto in questo elemento di
+            Istante in cui avviene l'evento descritto in questo elemento di
             timeline
           format: date-time
         ingestionTimestamp:
@@ -2521,12 +2521,6 @@ components:
           description: >-
             Istante in cui l'evento descritto in questo elemento di timeline è
             gestito da SEND
-          format: date-time
-        eventTimestamp:
-          type: string
-          description: >-
-            Istante in cui l'evento descritto in questo elemento di timeline è
-            effettivamente avvenuto
           format: date-time
         notificationSentAt:
           type: string

@@ -2447,15 +2447,11 @@ components:
           description: 'Identificativo dell''elemento di timeline: insieme allo IUN della notifica definisce in maniera univoca l''elemento di timeline'
         timestamp:
           type: string
-          description: Momento in cui avviene l'evento descritto in questo elemento di timeline
+          description: Istante in cui avviene l'evento descritto in questo elemento di timeline
           format: date-time
         ingestionTimestamp:
           type: string
           description: Istante in cui l'evento descritto in questo elemento di timeline è gestito da SEND
-          format: date-time
-        eventTimestamp:
-          type: string
-          description: Istante in cui l'evento descritto in questo elemento di timeline è effettivamente avvenuto
           format: date-time
         notificationSentAt:
           type: string
