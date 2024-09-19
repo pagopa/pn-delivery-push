@@ -25,6 +25,7 @@ public class WebhookTimelineElementEntity {
 
     private String iun;
     private String timelineElementId;
+    private Instant timestamp;
     private String paId;
     private TimelineElementCategoryEntity category;
     private List<LegalFactsIdEntity> legalFactIds;
@@ -32,7 +33,6 @@ public class WebhookTimelineElementEntity {
     private StatusInfoEntity statusInfo;
     private Instant notificationSentAt;
     private Instant ingestionTimestamp;
-    private Instant eventTimestamp;
     
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN )
@@ -51,7 +51,14 @@ public class WebhookTimelineElementEntity {
     public void setTimelineElementId(String timelineElementId) {
         this.timelineElementId = timelineElementId;
     }
-    
+
+    @DynamoDbAttribute(value = "timestamp")
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+    public void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
+    }
     @DynamoDbAttribute(value = "paId")
     public String getPaId() {return paId;}
     public void setPaId(String paId) {this.paId = paId;}
@@ -106,14 +113,6 @@ public class WebhookTimelineElementEntity {
     
     public void setIngestionTimestamp(Instant ingestionTimestamp) {
         this.ingestionTimestamp = ingestionTimestamp;
-    }
-    @DynamoDbAttribute(value = "eventTimestamp") @DynamoDbIgnoreNulls
-    public Instant getEventTimestamp() {
-        return eventTimestamp;
-    }
-
-    public void setEventTimestamp(Instant eventTimestamp) {
-        this.eventTimestamp = eventTimestamp;
     }
 }
 

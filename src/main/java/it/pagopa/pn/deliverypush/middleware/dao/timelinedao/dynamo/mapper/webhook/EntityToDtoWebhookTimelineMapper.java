@@ -31,7 +31,7 @@ public class EntityToDtoWebhookTimelineMapper {
                 .statusInfo(entityToStatusInfoInternal(entity.getStatusInfo()))
                 .notificationSentAt(entity.getNotificationSentAt())
                 .paId(entity.getPaId())
-                .eventTimestamp(entity.getEventTimestamp())
+                .timestamp(entity.getTimestamp())
                 .ingestionTimestamp(entity.getIngestionTimestamp())
                 .build();
     }

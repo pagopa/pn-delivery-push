@@ -23,7 +23,7 @@ class DtoToEntityWebhookTimelineMapperTest {
                 .paId("paTestMv")
                 .timestamp(Instant.now())
                 .ingestionTimestamp(Instant.now().plusMillis(1000))
-                .eventTimestamp(Instant.now())
+                .timestamp(Instant.now())
                 .details(BaseAnalogDetailsInt.builder()
                         .recIndex(0)
                         .physicalAddress(null)
@@ -40,7 +40,7 @@ class DtoToEntityWebhookTimelineMapperTest {
         assertThat(actual.getPaId()).isEqualTo(timelineElementInternal.getPaId());
         assertThat(actual.getNotificationSentAt()).isEqualTo(timelineElementInternal.getNotificationSentAt());
         assertThat(actual.getCategory().name()).isEqualTo(timelineElementInternal.getCategory().name());
-        assertThat(actual.getEventTimestamp()).isEqualTo(timelineElementInternal.getEventTimestamp());
+        assertThat(actual.getTimestamp()).isEqualTo(timelineElementInternal.getTimestamp());
         assertThat(actual.getIngestionTimestamp()).isEqualTo(timelineElementInternal.getIngestionTimestamp());
 
         // verifica details
