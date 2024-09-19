@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV24;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.time.Instant;
@@ -24,20 +24,20 @@ class TimelineElementWebhookMapperTest {
         LegalFactsIdInt legalFactsIdInt = getLegalFactsIdInt(LegalFactCategoryInt.DIGITAL_DELIVERY);
         TimelineElementInternal timelineElementDetailsInt = getTimelineElementInternal(category, elementId, instant, legalFactsIdInt);
 
-        TimelineElementV23 timelineElementV23 = TimelineElementWebhookMapper.internalToExternal(timelineElementDetailsInt);
-        Assertions.assertNotNull(timelineElementV23);
-        Assertions.assertEquals(category.getValue(), timelineElementV23.getCategory().getValue());
-        Assertions.assertEquals(elementId, timelineElementV23.getElementId());
-        Assertions.assertEquals(instant, timelineElementV23.getTimestamp());
-        Assertions.assertEquals(legalFactsIdInt.getCategory().getValue(), timelineElementV23.getLegalFactsIds().get(0).getCategory().getValue());
-        Assertions.assertEquals(legalFactsIdInt.getKey(), timelineElementV23.getLegalFactsIds().get(0).getKey());
+        TimelineElementV24 timelineElement = TimelineElementWebhookMapper.internalToExternal(timelineElementDetailsInt);
+        Assertions.assertNotNull(timelineElement);
+        Assertions.assertEquals(category.getValue(), timelineElement.getCategory().getValue());
+        Assertions.assertEquals(elementId, timelineElement.getElementId());
+        Assertions.assertEquals(instant, timelineElement.getTimestamp());
+        Assertions.assertEquals(legalFactsIdInt.getCategory().getValue(), timelineElement.getLegalFactsIds().get(0).getCategory().getValue());
+        Assertions.assertEquals(legalFactsIdInt.getKey(), timelineElement.getLegalFactsIds().get(0).getKey());
 
         legalFactsIdInt = getLegalFactsIdInt(null);
         timelineElementDetailsInt = getTimelineElementInternal(category, elementId, instant, legalFactsIdInt);
         timelineElementDetailsInt.setLegalFactsIds(null);
-        timelineElementV23 = TimelineElementWebhookMapper.internalToExternal(timelineElementDetailsInt);
-        Assertions.assertNotNull(timelineElementV23);
-        Assertions.assertNull(timelineElementV23.getLegalFactsIds());
+        timelineElement = TimelineElementWebhookMapper.internalToExternal(timelineElementDetailsInt);
+        Assertions.assertNotNull(timelineElement);
+        Assertions.assertNull(timelineElement.getLegalFactsIds());
     }
 
     private LegalFactsIdInt getLegalFactsIdInt(LegalFactCategoryInt categoryInt) {
