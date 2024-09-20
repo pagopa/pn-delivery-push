@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.NotificationChannelType;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
@@ -26,8 +27,11 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import java.time.Instant;
 import java.util.*;
 
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT;
 
 @Slf4j
 @Service
@@ -40,13 +44,14 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final AuditLogService auditLogService;
     private final TimelineUtils timelineUtils;
     private final AttachmentUtils attachmentUtils;
+    private final TimelineService timelineService;
 
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
                                       NotificationService notificationService, AuditLogService auditLogService,
-                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils) {
+                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
@@ -55,6 +60,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         this.auditLogService = auditLogService;
         this.timelineUtils = timelineUtils;
         this.attachmentUtils = attachmentUtils;
+        this.timelineService = timelineService;
     }
 
     /**
@@ -83,6 +89,9 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
 
         try {
             DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, false);
+
+            if (sendInformation.getDigitalAddress().getType().equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
+                addInformationToAddress(notification.getIun(), recIndex, sendInformation.getDigitalAddress());
 
             String eventId;
             if (!sendAlreadyInProgress)
@@ -201,11 +210,20 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         return new DigitalParameters(fileKeys, recipientFromIndex, recipientsQuickAccessLinkTokens.get(recipientFromIndex.getInternalId()));
     }
 
-
+    private void addInformationToAddress(String iun, int recIndex, LegalDigitalAddressInt legalDigitalAddressInt) {
+        String eventId = TimelineEventId.AAR_GENERATION.buildEventId(EventId.builder().iun(iun).recIndex(recIndex).build());
+        Optional<TimelineElementInternal> timeline = timelineService.getTimelineElement(iun, eventId);
+        if (timeline.isPresent()) {
+            Instant timestamp = timeline.get().getTimestamp();
+            legalDigitalAddressInt.setAddress(legalDigitalAddressInt.getAddress() + "?timestamp=" + timestamp);
+        } else throw new PnInternalException(String.format("Timeline element with eventId '%s' not found for iun=%s", eventId, iun), ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
+    }
 
     private PnAuditLogEvent buildAuditLogEvent(String iun, LegalDigitalAddressInt legalDigitalAddressInt, int recIndex) {
         if (legalDigitalAddressInt.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) {
             return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DD_SEND, "sendPECMessage");
+        } else if (legalDigitalAddressInt.getType() == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
+            return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DD_SEND, "sendSERCQMessage");
         }
 
         throw new PnInternalException("Unsupported LEGAL_DIGITAL_ADDRESS_TYPE " + legalDigitalAddressInt.getType().getValue(), PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDRESSTYPENOTSUPPORTED);

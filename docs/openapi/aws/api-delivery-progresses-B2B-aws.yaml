@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: pyZrlSB9SbgIOCLeS470ab/kzodhIEq8SANasaP8sX4=
+  version: 0ddujGcg4ubmPmS4eyV8G4FeqjyLDqtl2H97qJfWP8A=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -75,10 +75,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -122,10 +122,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -196,10 +196,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -264,10 +264,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -322,10 +322,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -412,10 +412,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -514,10 +514,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -588,10 +588,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
         passthroughBehavior: when_no_match
         contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
@@ -637,10 +637,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
         passthroughBehavior: when_no_match
         contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
@@ -689,10 +689,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         contentHandling: CONVERT_TO_TEXT
@@ -747,10 +747,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         contentHandling: CONVERT_TO_TEXT
@@ -795,10 +795,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         contentHandling: CONVERT_TO_TEXT
@@ -885,10 +885,10 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
         contentHandling: CONVERT_TO_TEXT

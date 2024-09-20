@@ -11,11 +11,13 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
@@ -25,22 +27,29 @@ import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static it.pagopa.pn.deliverypush.action.it.utils.TestUtils.getNotificationV2WithDocument;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 
 class ExternalChannelServiceImplAttachmentTest {
 
@@ -69,6 +78,8 @@ class ExternalChannelServiceImplAttachmentTest {
     @Mock
     private AuditLogService auditLogService;
     private ExternalChannelService externalChannelService;
+    private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:SEND-self:notification-already-delivered";
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
 
 
     @BeforeEach
@@ -93,19 +104,21 @@ class ExternalChannelServiceImplAttachmentTest {
                 notificationService,
                 auditLogService,
                 timelineUtils,
-                attachmentUtils);
+                attachmentUtils,
+                timelineService);
     }
 
 
 
     @ExtendWith(MockitoExtension.class)
-    @Test
-    void sendLegalNotificationAAR_DOCUMENTS_PAYMENTS() {
+    @ParameterizedTest
+    @MethodSource("sendDigitalNotificationParams")
+    void sendLegalNotificationAAR_DOCUMENTS_PAYMENTS(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType, String address) {
         //GIVEN
         String quickAccessToken = "test";
         String aarKey = "testKey";
 
-        NotificationInt notification = getNotificationV2WithDocument();
+        NotificationInt notification = getNotificationV2WithDocument(channelType, address);
         NotificationRecipientInt notificationRecipientInt = notification.getRecipients().get(0);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
@@ -133,6 +146,10 @@ class ExternalChannelServiceImplAttachmentTest {
         Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
         Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notificationRecipientInt);
 
+        Instant now = Instant.now();
+        if (channelType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
+            mockGetTimelineElement(notification.getIun(), recIndex, now);
+        }
 
         //WHEN
         final boolean isFirstSendRetry = false;
@@ -164,18 +181,23 @@ class ExternalChannelServiceImplAttachmentTest {
                 "safestorage://"+notification.getDocuments().get(0).getRef().getKey(),
                 "safestorage://"+notificationRecipientInt.getPayments().get(0).getPagoPA().getAttachment().getRef().getKey());
 
-        Mockito.verify(externalChannel).sendLegalNotification(notification, notificationRecipientInt,  notificationRecipientInt.getDigitalDomicile(), eventIdExpected, attachmentsList, quickAccessToken);
+        ArgumentCaptor<LegalDigitalAddressInt> captor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannel).sendLegalNotification(eq(notification), eq(notificationRecipientInt), captor.capture(), eq(eventIdExpected), eq(attachmentsList), eq(quickAccessToken));
+        if (channelType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
+            Assertions.assertEquals(SERCQ_ADDRESS + "?timestamp=" + dateTimeFormatter.format(now), captor.getValue().getAddress());
+        } else Assertions.assertEquals(address, captor.getValue().getAddress());
     }
 
 
     @ExtendWith(MockitoExtension.class)
-    @Test
-    void sendLegalNotificationAAR_DOCUMENTS() {
+    @ParameterizedTest
+    @MethodSource("sendDigitalNotificationParams")
+    void sendLegalNotificationAAR_DOCUMENTS(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType, String address) {
         //GIVEN
         String quickAccessToken = "test";
         String aarKey = "testKey";
 
-        NotificationInt notification = getNotificationV2WithDocument();
+        NotificationInt notification = getNotificationV2WithDocument(channelType, address);
         NotificationRecipientInt notificationRecipientInt = notification.getRecipients().get(0);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
@@ -203,6 +225,10 @@ class ExternalChannelServiceImplAttachmentTest {
         Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
         Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notificationRecipientInt);
 
+        Instant now = Instant.now();
+        if (channelType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
+            mockGetTimelineElement(notification.getIun(), recIndex, now);
+        }
 
         //WHEN
         final boolean isFirstSendRetry = false;
@@ -233,17 +259,22 @@ class ExternalChannelServiceImplAttachmentTest {
                 aarKey,
                 "safestorage://"+notification.getDocuments().get(0).getRef().getKey());
 
-        Mockito.verify(externalChannel).sendLegalNotification(notification, notificationRecipientInt,  notificationRecipientInt.getDigitalDomicile(), eventIdExpected, attachmentsList, quickAccessToken);
+        ArgumentCaptor<LegalDigitalAddressInt> captor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannel).sendLegalNotification(eq(notification), eq(notificationRecipientInt), captor.capture(), eq(eventIdExpected), eq(attachmentsList), eq(quickAccessToken));
+        if (channelType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
+            Assertions.assertEquals(SERCQ_ADDRESS + "?timestamp=" + dateTimeFormatter.format(now), captor.getValue().getAddress());
+        } else Assertions.assertEquals(address, captor.getValue().getAddress());
     }
 
     @ExtendWith(MockitoExtension.class)
-    @Test
-    void sendLegalNotificationAAR() {
+    @ParameterizedTest
+    @MethodSource("sendDigitalNotificationParams")
+    void sendLegalNotificationAAR(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType, String address) {
         //GIVEN
         String quickAccessToken = "test";
         String aarKey = "testKey";
 
-        NotificationInt notification = getNotificationV2WithDocument();
+        NotificationInt notification = getNotificationV2WithDocument(channelType, address);
         NotificationRecipientInt notificationRecipientInt = notification.getRecipients().get(0);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
@@ -271,6 +302,10 @@ class ExternalChannelServiceImplAttachmentTest {
         Mockito.when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
         Mockito.when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notificationRecipientInt);
 
+        Instant now = Instant.now();
+        if (channelType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
+            mockGetTimelineElement(notification.getIun(), recIndex, now);
+        }
 
         //WHEN
         final boolean isFirstSendRetry = false;
@@ -298,7 +333,11 @@ class ExternalChannelServiceImplAttachmentTest {
 
         //attachments result list
         List<String> attachmentsList = List.of(aarKey);
-        Mockito.verify(externalChannel).sendLegalNotification(notification, notificationRecipientInt,  notificationRecipientInt.getDigitalDomicile(), eventIdExpected, attachmentsList, quickAccessToken);
+        ArgumentCaptor<LegalDigitalAddressInt> captor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannel).sendLegalNotification(eq(notification), eq(notificationRecipientInt), captor.capture(), eq(eventIdExpected), eq(attachmentsList), eq(quickAccessToken));
+        if (channelType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
+            Assertions.assertEquals(SERCQ_ADDRESS + "?timestamp=" + dateTimeFormatter.format(now), captor.getValue().getAddress());
+        } else Assertions.assertEquals(address, captor.getValue().getAddress());
     }
 
 
@@ -344,6 +383,22 @@ class ExternalChannelServiceImplAttachmentTest {
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(any());
 
+    }
+
+    private void mockGetTimelineElement(String iun, int recIndex, Instant timestamp) {
+        String aarGenEventIdExpected = TimelineEventId.AAR_GENERATION.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build()
+        );
+        Mockito.when(timelineService.getTimelineElement(iun, aarGenEventIdExpected)).thenReturn(Optional.of(TimelineElementInternal.builder().timestamp(timestamp).build()));
+    }
+
+    private static Stream<Arguments> sendDigitalNotificationParams() {
+        return Stream.of(
+                Arguments.of(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC, "digitalDomicile@test.it"),
+                Arguments.of(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ, SERCQ_ADDRESS));
     }
 
 }
