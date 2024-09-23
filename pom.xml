@@ -485,7 +485,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-user-attributes/3ced9dc307a7945df9dcd1ef8b53add929cb8250/docs/openapi/pn-address-book-api-internal.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-user-attributes/cc69d31e3be31b7b95275537ce672a041c0316c0/docs/openapi/pn-address-book-api-internal.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
@@ -835,7 +835,6 @@
 					</execution>
 
 				</executions>
-
 
 
 			</plugin>

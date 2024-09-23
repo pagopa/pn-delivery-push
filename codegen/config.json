@@ -26,6 +26,14 @@
             "generateBundle": true
         },
         {
+            "intendedUsage": "B2BPG",
+            "openapiFiles": [
+                "api-internal-pn-delivery-push-b2b-pg.yaml"
+            ],
+            "servicePath": "delivery-push",
+            "generateBundle": true
+        },
+        {
             "intendedUsage": "WEB",
             "openapiFiles": [
                 "api-internal-pn-delivery-push.yaml"
@@ -35,7 +43,8 @@
     ],
     "openapiBundlePresenceCheck": [
         "api-external-b2b-webhook-bundle.yaml",
-        "api-external-pn-delivery-push-bundle.yaml"
+        "api-external-pn-delivery-push-bundle.yaml",
+        "api-external-pn-delivery-push-b2b-pg-bundle.yaml"
     ]
 }
     
