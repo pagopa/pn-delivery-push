@@ -13,9 +13,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.webhook.EventTimelineInternalDto;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV24;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV24;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
@@ -90,9 +90,9 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                                     return Flux.fromStream(items.stream());
                                 return addConfidentialInformationAtEventTimelineList(removeDuplicatedItems(items));
                             })
-                            // converto l'eventTimelineInternalDTO in ProgressResponseElementV23
+                            // converto l'eventTimelineInternalDTO in ProgressResponseElementV24
                             .map(this::getProgressResponseFromEventTimeline)
-                            .sort(Comparator.comparing(ProgressResponseElementV23::getEventId))
+                            .sort(Comparator.comparing(ProgressResponseElementV24::getEventId))
                             .collectList()
                             .map(eventList -> {
                                 var retryAfter = pnDeliveryPushConfigs.getWebhook().getScheduleInterval().intValue();
@@ -112,11 +112,11 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                 );
     }
 
-    private ProgressResponseElementV23 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline) {
+    private ProgressResponseElementV24 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline) {
         var response = ProgressResponseElementMapper.internalToExternalv23(eventTimeline.getEventEntity());
         if (StringUtils.hasText(eventTimeline.getEventEntity().getElement())) {
-            TimelineElementV23 timelineElementV23 = TimelineElementWebhookMapper.internalToExternal(eventTimeline.getTimelineElementInternal());
-            response.setElement(timelineElementV23);
+            TimelineElementV24 timelineElementV24 = TimelineElementWebhookMapper.internalToExternal(eventTimeline.getTimelineElementInternal());
+            response.setElement(timelineElementV24);
         }
         return response;
     }

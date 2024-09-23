@@ -1,6 +1,7 @@
 const SAFE_STORAGE_URL_PREFIX = "safestorage://";
 
 exports.createProgressResponseV10 = (responseBody) => {
+    console.debug("createProgressResponseV10")
 
     const element = responseBody.element;
 
