@@ -17,7 +17,22 @@ class ConsumeEventStreamHandler extends EventHandler {
     async handlerEvent(event, context) {
         console.log("Versioning_V1-V2.x_ConsumeEventStream_Lambda function started");
         // HEADERS
-        const headers = this.prepareHeaders(event);
+        // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
+        let version = 10;
+
+        if (event["path"].includes("v2.3")) {
+            version = 23;
+        }
+
+        // NB: sebbene (a oggi) la 2.4 non passa di qua, in futuro potrebbe e quindi si è già implementata
+        // la logica di traduzione (che probabilmente andrà aggiornata nel futuro)
+        if (event["path"].includes("v2.4")) {
+            version = 24;
+        }
+
+        console.log('version is ', version);
+
+        const headers = this.prepareHeaders(event, version);
 
         const streamId = event["pathParameters"]["streamId"];
         const lastEventId = event["queryStringParameters"]==null?null:event["queryStringParameters"]["lastEventId"];
@@ -42,20 +57,6 @@ class ConsumeEventStreamHandler extends EventHandler {
         console.log('calling ', url);
         let response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
-        // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
-        let version = 10;
-        
-        if (event["path"].includes("v2.3")) {
-            version = 23;
-        }
-
-        // NB: sebbene (a oggi) la 2.4 non passa di qua, in futuro potrebbe e quindi si è già implementata
-        // la logica di traduzione (che probabilmente andrà aggiornata nel futuro)
-        if (event["path"].includes("v2.4")) {
-            version = 24;
-        }
-
-        console.log('version is ', version);
 
         // RESPONSE BODY
         // Il controllo della presenza di element avviene solo nel transitorio

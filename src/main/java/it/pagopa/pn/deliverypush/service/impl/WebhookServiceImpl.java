@@ -1,7 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STREAMNOTFOUND;
-
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -11,9 +9,6 @@ import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.service.utils.WebhookUtils;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -21,6 +16,12 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STREAMNOTFOUND;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,10 +32,7 @@ public abstract class WebhookServiceImpl {
 
 
     protected enum StreamEntityAccessMode {READ, WRITE}
-
-    protected Mono<StreamEntity> getStreamEntityToRead(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
-        return filterEntity(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, StreamEntityAccessMode.READ, false);
-    }
+    
     protected Mono<StreamEntity> getStreamEntityToWrite(String xPagopaPnApiVersion, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, UUID streamId) {
         return getStreamEntityToWrite(xPagopaPnApiVersion, xPagopaPnCxId, xPagopaPnCxGroups, streamId, false)
             ;

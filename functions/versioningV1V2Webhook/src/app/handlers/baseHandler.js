@@ -13,7 +13,7 @@ class EventHandler {
 
     handlerEvent(event, context){}
 
-    prepareHeaders(event){
+    prepareHeaders(event, version){
 
         const headers = event["headers"];
         headers["x-pagopa-pn-src-ch"] = "B2B";
@@ -41,7 +41,9 @@ class EventHandler {
         if (event.requestContext.authorizer["uid"]) {
             headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
         }
-        headers["x-pagopa-pn-api-version"] = "v10";
+        
+        let xPagopaPnApiVersion = "v" + version;
+        headers["x-pagopa-pn-api-version"] = xPagopaPnApiVersion;
 
         return headers;
     }
