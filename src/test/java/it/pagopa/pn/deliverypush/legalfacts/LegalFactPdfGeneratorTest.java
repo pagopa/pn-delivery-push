@@ -561,7 +561,7 @@ class LegalFactPdfGeneratorTest {
                         .recIndex(0)
                         .digitalAddress(LegalDigitalAddressInt.builder()
                                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ)
-                                .address("x-pagopa-pn-sercq:SEND-self:notification-already-delivered")
+                                .address("x-pagopa-pn-sercq:send-self:notification-already-delivered")
                                 .build())
                         .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
                         .responseStatus(status)
