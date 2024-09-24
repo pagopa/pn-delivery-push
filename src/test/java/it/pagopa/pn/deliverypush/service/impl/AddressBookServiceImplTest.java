@@ -26,7 +26,7 @@ class AddressBookServiceImplTest {
     private AddressBookService addressBookService;
 
     private static final String LEGAL_ADDRESS = "indirizzo@prova.com";
-    private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:SEND-self:notification-already-delivered";
+    private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:send-self:notification-already-delivered";
     
     @BeforeEach
     void setup() {
