@@ -42,7 +42,7 @@ class EventHandler {
             headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
         }
         
-        let xPagopaPnApiVersion = "v" + version;
+        let xPagopaPnApiVersion = 'v' + version;
         headers["x-pagopa-pn-api-version"] = xPagopaPnApiVersion;
 
         return headers;

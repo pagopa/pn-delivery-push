@@ -38,8 +38,8 @@ describe('EventHandler', () => {
             httpMethod: "GET",
         };
 
-        const context = {};
-        const headers = eventHandler.prepareHeaders(event, context);
+        const version = 10;
+        const headers = eventHandler.prepareHeaders(event, version);
 
         const headersToCompare = {
             "x-pagopa-pn-src-ch": "B2B",
