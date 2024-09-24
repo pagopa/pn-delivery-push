@@ -13,6 +13,8 @@ public class TimelineElementMapper {
                 .category(internalDto.getCategory() != null ? TimelineElementCategoryV23.fromValue( internalDto.getCategory().getValue() ) : null)
                 .elementId(internalDto.getElementId())
                 .timestamp(internalDto.getTimestamp())
+                .notificationSentAt(internalDto.getNotificationSentAt())
+                .ingestionTimestamp(internalDto.getIngestionTimestamp())
                 .details( SmartMapper.mapToClass(internalDto.getDetails(), TimelineElementDetailsV23.class) );
         
         if(internalDto.getLegalFactsIds() != null){
