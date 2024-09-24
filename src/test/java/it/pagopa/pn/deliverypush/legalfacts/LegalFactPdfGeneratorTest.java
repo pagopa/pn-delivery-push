@@ -184,6 +184,21 @@ class LegalFactPdfGeneratorTest {
                                                 notification, recipient, endWorkflowStatus, sentDate)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTest_DOMD() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_DOMD.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList_DOMD(
+                        ResponseStatusInt.OK);
+                NotificationInt notification = buildNotification();
+                NotificationRecipientInt recipient = buildRecipientWithDOMD().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+                Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
+                                notification, recipient, endWorkflowStatus, sentDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
 
         @Test
         void generatePecDeliveryWorkflowLegalFactTestWithSpecialChar_OK() {
@@ -532,10 +547,30 @@ class LegalFactPdfGeneratorTest {
                                 .notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
                                 .build();
 
+
                 List<SendDigitalFeedbackDetailsInt> result = new ArrayList<>();
                 result.add(sdf);
                 result.add(sdf2);
                 result.add(sdf3);
+                return result;
+        }
+
+        private List<SendDigitalFeedbackDetailsInt> buildFeedbackFromECList_DOMD(ResponseStatusInt status) {
+
+                SendDigitalFeedbackDetailsInt sdf = SendDigitalFeedbackDetailsInt.builder()
+                        .recIndex(0)
+                        .digitalAddress(LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ)
+                                .address("x-pagopa-pn-sercq:SEND-self:notification-already-delivered")
+                                .build())
+                        .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
+                        .responseStatus(status)
+                        .notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
+                        .build();
+
+
+                List<SendDigitalFeedbackDetailsInt> result = new ArrayList<>();
+                result.add(sdf);
                 return result;
         }
 
@@ -714,6 +749,29 @@ class LegalFactPdfGeneratorTest {
                                                 "RM",
                                                 "IT"))
                                 .build();
+
+                return Collections.singletonList(rec1);
+        }
+
+        private List<NotificationRecipientInt> buildRecipientWithDOMD() {
+                NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
+                        .taxId("CDCFSC11R99X001Z")
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Galileo Bruno")
+                        .digitalDomicile(LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ)
+                                .build())
+                        .physicalAddress(new PhysicalAddressInt(
+                                "Galileo Bruno",
+                                "Palazzo dell'Inquisizione",
+                                "corso Italia 666",
+                                "Piano Terra (piatta)",
+                                "00100",
+                                "Roma",
+                                null,
+                                "RM",
+                                "IT"))
+                        .build();
 
                 return Collections.singletonList(rec1);
         }
