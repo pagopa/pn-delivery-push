@@ -204,7 +204,11 @@
           <div class="left-col col-5-10">
             <p>
               <#if delivery.address??>
+                <#if delivery.type == "SERCQ">
+                <strong>Domicilio Digitale SEND</strong>
+                <#else>
                 <strong>${delivery.address}</strong>
+                </#if>
               <#else>
                 non presente
               </#if>

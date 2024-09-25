@@ -69,7 +69,7 @@ class ExternalChannelSendClientImplTest {
 
 
     @ParameterizedTest
-    @CsvSource({"test@dominioPec.it, PEC", "x-pagopa-pn-sercq:SEND-self:notification-already-delivered, SERCQ"})
+    @CsvSource({"test@dominioPec.it, PEC", "x-pagopa-pn-sercq:send-self:notification-already-delivered, SERCQ"})
     @ExtendWith(SpringExtension.class)
     void sendLegalNotification(String address, LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType) {
         NotificationInt notificationInt = buildNotification();
@@ -125,7 +125,7 @@ class ExternalChannelSendClientImplTest {
 
     @ParameterizedTest
     @ExtendWith(SpringExtension.class)
-    @CsvSource({"test@dominioPec.it, PEC", "x-pagopa-pn-sercq:SEND-self:notification-already-delivered, SERCQ"})
+    @CsvSource({"test@dominioPec.it, PEC", "x-pagopa-pn-sercq:send-self:notification-already-delivered, SERCQ"})
     void sendLegalNotificationPEC(String address, LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType) {
 
         //Given

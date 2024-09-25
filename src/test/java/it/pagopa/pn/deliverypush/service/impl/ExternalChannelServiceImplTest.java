@@ -78,7 +78,7 @@ class ExternalChannelServiceImplTest {
     @Mock
     private TimelineService timelineService;
 
-    private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:SEND-self:notification-already-delivered";
+    private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:send-self:notification-already-delivered";
 
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
 
