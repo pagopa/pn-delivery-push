@@ -4,9 +4,9 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV24;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV24;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
@@ -40,16 +40,16 @@ class PnWebhookStreamsControllerTest {
     @Test
     void createEventStreamOk() {
         Mockito.when(service.createEventStream(Mockito.anyString(),Mockito.anyString(), Mockito.any(),Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(new StreamMetadataResponseV23()));
-        StreamCreationRequestV23 request = StreamCreationRequestV23.builder()
-                .eventType(StreamCreationRequestV23.EventTypeEnum.STATUS)
+                .thenReturn(Mono.just(new StreamMetadataResponseV24()));
+        StreamCreationRequestV24 request = StreamCreationRequestV24.builder()
+                .eventType(StreamCreationRequestV24.EventTypeEnum.STATUS)
                 .build();
 
         webTestClient.post()
                 .uri( "/delivery-progresses/v2.3/streams" )
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ACCEPT, "application/json")
-                .body(Mono.just(request), StreamCreationRequestV23.class)
+                .body(Mono.just(request), StreamCreationRequestV24.class)
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
                     httpHeaders.set("x-pagopa-pn-cx-type", CxTypeAuthFleet.PA.getValue());
@@ -58,7 +58,7 @@ class PnWebhookStreamsControllerTest {
                 })
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(StreamMetadataResponseV23.class);
+                .expectBody(StreamMetadataResponseV24.class);
 
         Mockito.verify(service).createEventStream(Mockito.anyString(),Mockito.anyString(), Mockito.any(),Mockito.any(), Mockito.any());
     }
@@ -190,7 +190,7 @@ class PnWebhookStreamsControllerTest {
     void getEventStream() {
         String streamId = UUID.randomUUID().toString();
         Mockito.when(service.getEventStream(Mockito.anyString(),Mockito.anyString(), Mockito.any(),Mockito.any(), Mockito.any(UUID.class)))
-                .thenReturn(Mono.just(new StreamMetadataResponseV23()));
+                .thenReturn(Mono.just(new StreamMetadataResponseV24()));
 
         webTestClient.get()
                 .uri( "/delivery-progresses/v2.3/streams/{streamId}".replace("{streamId}", streamId) )
@@ -203,7 +203,7 @@ class PnWebhookStreamsControllerTest {
                 })
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(StreamMetadataResponseV23.class);
+                .expectBody(StreamMetadataResponseV24.class);
 
         Mockito.verify(service).getEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.any(), Mockito.any(UUID.class));
 
@@ -258,7 +258,7 @@ class PnWebhookStreamsControllerTest {
     void updateEventStream() {
         String streamId = UUID.randomUUID().toString();
         Mockito.when(service.updateEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.any(), Mockito.any(UUID.class), Mockito.any()))
-                .thenReturn(Mono.just(new StreamMetadataResponseV23()));
+                .thenReturn(Mono.just(new StreamMetadataResponseV24()));
 
         webTestClient.put()
                 .uri( "/delivery-progresses/v2.3/streams/{streamId}".replace("{streamId}", streamId) )
@@ -272,7 +272,7 @@ class PnWebhookStreamsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(StreamMetadataResponseV23.class);
+                .expectBody(StreamMetadataResponseV24.class);
 
         Mockito.verify(service).updateEventStream(Mockito.anyString(),Mockito.anyString(),Mockito.any(), Mockito.any(), Mockito.any(UUID.class), Mockito.any());
     }
