@@ -15,7 +15,8 @@ class DeleteEventStreamHandler extends EventHandler {
         console.log("Versioning_V1-V2.x_DeleteEventStream_Lambda function started");
 
         // HEADERS
-        const headers = this.prepareHeaders(event);
+        let version = this.getVersion(event);
+        const headers = this.prepareHeaders(event, version);
         headers["Accept"] = "*/*";
 
         const streamId = event["pathParameters"]["streamId"];
@@ -41,7 +42,7 @@ class DeleteEventStreamHandler extends EventHandler {
 
         const ret = {
             statusCode: response.status,
-            body: response.data
+            body: JSON.stringify(response.data)
         }
         return ret;
     }
