@@ -10,8 +10,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamM
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.service.WebhookStreamsService;
-import java.util.Collections;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,10 +22,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+import java.util.UUID;
+
 
 @WebFluxTest(PnWebhookStreamsController.class)
 class PnWebhookStreamsControllerTest {
 
+    public static final String API_VERSION = "v2.4";
     @Autowired
     WebTestClient webTestClient;
 
@@ -46,7 +48,7 @@ class PnWebhookStreamsControllerTest {
                 .build();
 
         webTestClient.post()
-                .uri( "/delivery-progresses/v2.3/streams" )
+                .uri("/delivery-progresses/" + API_VERSION + "/streams")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .body(Mono.just(request), StreamCreationRequestV24.class)
@@ -69,7 +71,7 @@ class PnWebhookStreamsControllerTest {
                 .thenThrow(new RuntimeException());
 
         webTestClient.post()
-                .uri( "/delivery-progresses/v2.3/streams" )
+                .uri("/delivery-progresses/" + API_VERSION + "/streams")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
@@ -98,7 +100,7 @@ class PnWebhookStreamsControllerTest {
             .thenReturn(Mono.error(new PnNotFoundException("","","")));
 
         webTestClient.delete()
-            .uri( "/delivery-progresses/v2.3/streams/{streamId}".replace("{streamId}", streamId) )
+            .uri( ("/delivery-progresses/" + API_VERSION + "/streams/{streamId}").replace("{streamId}", streamId) )
             .header(HttpHeaders.ACCEPT, "application/problem+json")
             .headers(httpHeaders -> {
                 httpHeaders.set("x-pagopa-pn-uid","test");
@@ -121,7 +123,7 @@ class PnWebhookStreamsControllerTest {
                 .thenReturn(Mono.empty());
 
         webTestClient.delete()
-                .uri( "/delivery-progresses/v2.3/streams/{streamId}".replace("{streamId}", streamId) )
+                .uri( ("/delivery-progresses/" + API_VERSION + "/streams/{streamId}").replace("{streamId}", streamId) )
                 .header(HttpHeaders.ACCEPT, "application/problem+json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
@@ -146,7 +148,7 @@ class PnWebhookStreamsControllerTest {
             .thenReturn(Mono.empty());
 
         webTestClient.post()
-            .uri( "/delivery-progresses/v2.3/streams/{streamId}/action/disable".replace("{streamId}", streamId) )
+            .uri( ("/delivery-progresses/" + API_VERSION + "/streams/{streamId}/action/disable").replace("{streamId}", streamId) )
             .header(HttpHeaders.ACCEPT, "application/problem+json")
             .headers(httpHeaders -> {
                 httpHeaders.set("x-pagopa-pn-uid","test");
@@ -167,7 +169,7 @@ class PnWebhookStreamsControllerTest {
                 .thenThrow(new NullPointerException());
 
         webTestClient.delete()
-                .uri( "/delivery-progresses/v2.3/streams/{streamId}".replace("{streamId}", streamId) )
+                .uri( ("/delivery-progresses/" + API_VERSION + "/streams/{streamId}").replace("{streamId}", streamId) )
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
@@ -193,7 +195,7 @@ class PnWebhookStreamsControllerTest {
                 .thenReturn(Mono.just(new StreamMetadataResponseV24()));
 
         webTestClient.get()
-                .uri( "/delivery-progresses/v2.3/streams/{streamId}".replace("{streamId}", streamId) )
+                .uri( ("/delivery-progresses/" + API_VERSION + "/streams/{streamId}").replace("{streamId}", streamId) )
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
@@ -216,7 +218,7 @@ class PnWebhookStreamsControllerTest {
                 .thenThrow(new NullPointerException());
 
         webTestClient.get()
-                .uri( "/delivery-progresses/v2.3/streams/{streamId}".replace("{streamId}", streamId) )
+                .uri( ("/delivery-progresses/" + API_VERSION + "/streams/{streamId}").replace("{streamId}", streamId) )
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
@@ -238,7 +240,7 @@ class PnWebhookStreamsControllerTest {
     @Test
     void listEventStreams() {
         webTestClient.get()
-                .uri( "/delivery-progresses/v2.3/streams")
+                .uri("/delivery-progresses/" + API_VERSION + "/streams")
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
@@ -261,7 +263,7 @@ class PnWebhookStreamsControllerTest {
                 .thenReturn(Mono.just(new StreamMetadataResponseV24()));
 
         webTestClient.put()
-                .uri( "/delivery-progresses/v2.3/streams/{streamId}".replace("{streamId}", streamId) )
+                .uri( ("/delivery-progresses/" + API_VERSION + "/streams/{streamId}").replace("{streamId}", streamId) )
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
@@ -284,7 +286,7 @@ class PnWebhookStreamsControllerTest {
                 .thenThrow(new NullPointerException());
 
         webTestClient.put()
-                .uri( "/delivery-progresses/v2.3/streams/{streamId}".replace("{streamId}", streamId) )
+                .uri( ("/delivery-progresses/" + API_VERSION + "/streams/{streamId}").replace("{streamId}", streamId) )
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .headers(httpHeaders -> {
                     httpHeaders.set("x-pagopa-pn-uid","test");
