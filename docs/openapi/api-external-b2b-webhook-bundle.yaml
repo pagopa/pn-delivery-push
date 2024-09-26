@@ -148,7 +148,7 @@ info:
 
     Se non esistono ulteriori eventi nello stream, allora la response del servizio restituisce il valore di `retryAfter > 0` ed è quindi necessario attendere il tempo indicato dalla retryAfter per consumare eventualmente nuovi eventi nello stream.
 
-    __NOTA__: gli eventi sono mantenuti per un massimo di __<span id="webhookTtl">7</span> giorni__ dopo i quali sono automaticamente cancellati anche se non sono stati consumati. Sarà comunque possibile ottenere lo stato della notifica attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/8e2dc3447abc5a338b9e7bc809fa2381d3dacada/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV24 )
+    __NOTA__: gli eventi sono mantenuti per un massimo di __<span id="webhookTtl">7</span> giorni__ dopo i quali sono automaticamente cancellati anche se non sono stati consumati. Sarà comunque possibile ottenere lo stato della notifica attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/8e2dc3447abc5a338b9e7bc809fa2381d3dacada/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV24)
 
 
     <details>
