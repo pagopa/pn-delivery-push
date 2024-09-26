@@ -1,8 +1,6 @@
 const axios = require("axios");
 const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
-const { createStreamMetadataResponseV10 } = require("./mapper/transformStreamMetadataResponseFromV23ToV10.js");
-const { createStreamRequestV22 } = require("./mapper/transformStreamRequestFromV10ToV23")
 class DisableEventStreamHandler extends EventHandler {
     constructor() {
         super();
