@@ -206,8 +206,7 @@ info:
 
     __NOTA__: gli eventi sono mantenuti per un massimo di __<span id="webhookTtl">7</span> giorni__ dopo i quali sono
     automaticamente cancellati anche se non sono stati consumati. Sarà comunque possibile ottenere lo stato della
-    notifica attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/8e2dc3447abc5a338b9e7bc809fa2381d3dacada/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV24
-    )
+    notifica attraverso il servizio [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/8e2dc3447abc5a338b9e7bc809fa2381d3dacada/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV24)
 
 
 
