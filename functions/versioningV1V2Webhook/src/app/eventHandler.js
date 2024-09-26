@@ -5,6 +5,7 @@ const InformOnExternalEventHandler = require("./handlers/informOnExternalEventHa
 const ListEventStreamsHandler = require("./handlers/listEventStreamsHandler.js");
 const DeleteEventStreamHandler = require("./handlers/deleteEventStreamHandler.js");
 const ConsumeEventStreamHandler  = require("./handlers/consumeEventStreamHandler.js");
+const DisableEventStreamHandler = require("./handlers/disableEventStreamHandler.js");
 
 const AWSXRay = require("aws-xray-sdk-core");
 
@@ -25,7 +26,9 @@ exports.eventHandler = async (event, context) => {
         handlers.push(new GetEventStreamHandler());
         handlers.push(new ListEventStreamsHandler());
         handlers.push(new DeleteEventStreamHandler());
+        handlers.push(new DisableEventStreamHandler());
         handlers.push(new InformOnExternalEventHandler());
+        
         for( let i = 0; i<handlers.length; i++){
             if (handlers[i].checkOwnership(event, context)) {
                     let result = await handlers[i].handlerEvent(event, context);
