@@ -15,8 +15,10 @@ class UpdateEventStreamHandler extends EventHandler {
 
     async handlerEvent(event, context) {
         console.log("Versioning_V1-V2.x_UpdateEventStream_Lambda function started");
+
         // HEADERS
-        const headers = this.prepareHeaders(event);
+        let version = this.getVersion(event);
+        const headers = this.prepareHeaders(event, version);
 
         // REQUEST BODY
         const requestBodyV1 = JSON.parse(event.body);
@@ -43,7 +45,19 @@ class UpdateEventStreamHandler extends EventHandler {
         let response = await axios.put(url, requestBodyV22, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
-        const transformedObject = createStreamMetadataResponseV10(response.data);
+        let transformedObject;
+        
+        switch(version) {
+            case 10:
+                transformedObject = createStreamMetadataResponseV10(response.data);
+            break;
+            case 23:
+                transformedObject = response.data;
+            break;
+            default:
+                console.error('Invalid version ', version)
+            break;
+        }
 
         const ret = {
             statusCode: response.status,

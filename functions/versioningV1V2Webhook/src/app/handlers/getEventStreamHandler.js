@@ -17,7 +17,8 @@ class GetEventStreamHandler extends EventHandler {
         console.log("Versioning_V1-V2.x_GetEventStream_Lambda function started");
 
         // HEADERS
-        const headers = this.prepareHeaders(event);
+        let version = this.getVersion(event);
+        const headers = this.prepareHeaders(event, version);
 
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}`;
@@ -39,8 +40,20 @@ class GetEventStreamHandler extends EventHandler {
         let response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
-        const transformedObject = createStreamMetadataResponseV10(response.data);
+        let transformedObject;
 
+        switch(version) {
+            case 10:
+                transformedObject = createStreamMetadataResponseV10(response.data);
+            break;
+            case 23:
+                transformedObject = response.data;
+            break;
+            default:
+                console.error('Invalid version ', version)
+            break;
+        }
+        
         const ret = {
             statusCode: response.status,
             body: JSON.stringify(transformedObject),
