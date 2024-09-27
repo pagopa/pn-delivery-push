@@ -111,7 +111,8 @@ components:
             maniera univoca l'elemento di timeline
         timestamp:
           type: string
-          description: Istante in cui avviene l'evento descritto in questo elemento di timeline
+          deprecated: true
+          description: Istante in cui avviene l'evento descritto in questo elemento di timeline (deprecato, fare riferimento al campo eventTimestamp)
           format: date-time
         ingestionTimestamp:
           type: string
@@ -119,7 +120,7 @@ components:
           format: date-time
         eventTimestamp:
           type: string
-          description: Istante in cui l'evento descritto in questo elemento di timeline è effettivamente avvenuto
+          description: Istante in cui avviene l'evento descritto in questo elemento di timeline
           format: date-time
         notificationSentAt:
           type: string

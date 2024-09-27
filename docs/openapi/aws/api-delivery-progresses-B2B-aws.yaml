@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Bm3N3oIrkiAP6NTzKO9cg9i+J4pgaj8fyE79doAcBUI=
+  version: NgitIgA+f+4zrN2YfUXmv9/kKefNiUdr9icW1YRIRt8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2923,15 +2923,22 @@ components:
             notifica definisce in maniera univoca l'elemento di timeline
         timestamp:
           type: string
+          deprecated: true
           description: >-
             Istante in cui avviene l'evento descritto in questo elemento di
-            timeline
+            timeline (deprecato, fare riferimento al campo eventTimestamp)
           format: date-time
         ingestionTimestamp:
           type: string
           description: >-
             Istante in cui l'evento descritto in questo elemento di timeline è
             gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline
           format: date-time
         notificationSentAt:
           type: string

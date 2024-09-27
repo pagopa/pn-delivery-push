@@ -4,10 +4,11 @@ exports.createProgressResponseV23 = (responseBody) => {
 
     const element = responseBody.element;
     
-    if( element.ingestionTimestamp || element.notificationSentAt ) {
-        console.log("transformTimeline - rm ingestionTimestamp e notificationSentAt")
+    if( element.ingestionTimestamp ||  element.eventTimestamp || element.notificationSentAt ) {
+        console.log("transformTimeline - rm ingestionTimestamp, eventTimestamp, notificationSentAt")
         delete element.notificationSentAt;
         delete element.ingestionTimestamp;
+        delete element.eventTimestamp;
     }
 
     return responseBody;
