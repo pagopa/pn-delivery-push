@@ -26,6 +26,7 @@ public class DtoToEntityWebhookTimelineMapper {
                 .notificationSentAt(dto.getNotificationSentAt())
                 .timestamp(dto.getTimestamp())
                 .ingestionTimestamp(dto.getIngestionTimestamp())
+                .eventTimestamp(dto.getEventTimestamp())
                 .build();
     }
 

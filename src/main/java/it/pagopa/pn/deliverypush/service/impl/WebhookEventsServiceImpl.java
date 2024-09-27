@@ -113,7 +113,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
     }
 
     private ProgressResponseElementV24 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline) {
-        var response = ProgressResponseElementMapper.internalToExternalv23(eventTimeline.getEventEntity());
+        var response = ProgressResponseElementMapper.internalToExternal(eventTimeline.getEventEntity());
         if (StringUtils.hasText(eventTimeline.getEventEntity().getElement())) {
             TimelineElementV24 timelineElementV24 = TimelineElementWebhookMapper.internalToExternal(eventTimeline.getTimelineElementInternal());
             response.setElement(timelineElementV24);
