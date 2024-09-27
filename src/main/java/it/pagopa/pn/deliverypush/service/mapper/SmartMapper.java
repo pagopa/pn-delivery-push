@@ -164,6 +164,7 @@ public class SmartMapper {
                 }
             }
 
+            result.setEventTimestamp(result.getTimestamp());
         }
 
         return result;

@@ -117,6 +117,10 @@ components:
           type: string
           description: Istante in cui l'evento descritto in questo elemento di timeline è gestito da SEND
           format: date-time
+        eventTimestamp:
+          type: string
+          description: Istante in cui l'evento descritto in questo elemento di timeline è effettivamente avvenuto
+          format: date-time
         notificationSentAt:
           type: string
           description: Momento di ricezione della richiesta di notifica da parte di SEND
