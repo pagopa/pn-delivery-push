@@ -21,6 +21,7 @@ class EntityToDtoWebhookTimelineMapperTest {
                 .category(TimelineElementCategoryEntity.SEND_ANALOG_DOMICILE)
                 .notificationSentAt(Instant.now())
                 .ingestionTimestamp(Instant.now())
+                .eventTimestamp(Instant.EPOCH)
                 .timestamp(Instant.EPOCH)
                 .details(
                         TimelineElementDetailsEntity.builder()
@@ -48,6 +49,7 @@ class EntityToDtoWebhookTimelineMapperTest {
         Assertions.assertEquals(entity.getNotificationSentAt(), actual.getNotificationSentAt());
         Assertions.assertEquals(entity.getTimestamp(), actual.getTimestamp());
         Assertions.assertEquals(entity.getIngestionTimestamp(), actual.getIngestionTimestamp());
+        Assertions.assertEquals(entity.getEventTimestamp(), actual.getEventTimestamp());
 
         Assertions.assertEquals(entity.getPaId(), actual.getPaId());
         Assertions.assertEquals(entity.getCategory().name(), actual.getCategory().name());
