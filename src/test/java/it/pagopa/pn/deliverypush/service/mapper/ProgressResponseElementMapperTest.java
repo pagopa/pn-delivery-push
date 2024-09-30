@@ -27,7 +27,7 @@ class ProgressResponseElementMapperTest {
         eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.REQUEST_REFUSED.getValue());
 
         eventEntity.setValidationErrors( List.of(refusedReasonEntity) );
-        ProgressResponseElementV24 progressResponseElement = ProgressResponseElementMapper.internalToExternalv23(eventEntity);
+        ProgressResponseElementV24 progressResponseElement = ProgressResponseElementMapper.internalToExternal(eventEntity);
 
         Assertions.assertEquals( ERROR_CODE, progressResponseElement.getValidationErrors().get( 0 ).getErrorCode() );
         Assertions.assertEquals( DETAIL, progressResponseElement.getValidationErrors().get( 0 ).getDetail() );

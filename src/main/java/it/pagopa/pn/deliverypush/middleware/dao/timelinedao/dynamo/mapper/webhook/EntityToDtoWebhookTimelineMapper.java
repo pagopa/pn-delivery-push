@@ -33,6 +33,7 @@ public class EntityToDtoWebhookTimelineMapper {
                 .paId(entity.getPaId())
                 .timestamp(entity.getTimestamp())
                 .ingestionTimestamp(entity.getIngestionTimestamp())
+                .eventTimestamp(entity.getEventTimestamp())
                 .build();
     }
 

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: wBtSFylPU2jay/zB67UWEki30Z7dEYyNALr+2UucJuw=
+  version: NgitIgA+f+4zrN2YfUXmv9/kKefNiUdr9icW1YRIRt8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -11,7 +11,7 @@ servers:
     x-amazon-apigateway-endpoint-configuration:
       disableExecuteApiEndpoint: true
 paths:
-  /v2.3/streams:
+  /v2.4/streams:
     post:
       summary: Crea nuovo stream di eventi
       description: >-
@@ -24,20 +24,20 @@ paths:
         pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStreamV23
+      operationId: createEventStreamV24
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamCreationRequestV23'
+              $ref: '#/components/schemas/StreamCreationRequestV24'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV23'
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
         '400':
           description: Invalid input
           content:
@@ -67,7 +67,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -89,7 +89,7 @@ paths:
       description: Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreamsV23
+      operationId: listEventStreamsV24
       responses:
         '200':
           description: OK
@@ -114,7 +114,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -132,10 +132,10 @@ paths:
         type: http_proxy
       parameters: []
     options:
-      operationId: Options for /v2.3/streams API CORS
+      operationId: Options for /v2.4/streams API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters: {}
@@ -143,7 +143,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.3/streams/{streamId}:
+  /v2.4/streams/{streamId}:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
@@ -151,14 +151,14 @@ paths:
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV23
+      operationId: retrieveEventStreamV24
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV23'
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
         '400':
           description: Invalid input
           content:
@@ -188,7 +188,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams/{streamId}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams/{streamId}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -213,20 +213,20 @@ paths:
         eventi
       tags:
         - Streams
-      operationId: updateEventStreamV23
+      operationId: updateEventStreamV24
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamRequestV23'
+              $ref: '#/components/schemas/StreamRequestV24'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV23'
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
         '400':
           description: Invalid input
           content:
@@ -256,7 +256,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams/{streamId}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams/{streamId}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -281,7 +281,7 @@ paths:
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV23
+      operationId: removeEventStreamV24
       responses:
         '204':
           description: OK
@@ -314,7 +314,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams/{streamId}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams/{streamId}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -333,10 +333,10 @@ paths:
         type: http_proxy
       parameters: []
     options:
-      operationId: Options for /v2.3/streams/{streamId} API CORS
+      operationId: Options for /v2.4/streams/{streamId} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams/{streamId}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams/{streamId}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -345,7 +345,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.3/streams/{streamId}/action/disable:
+  /v2.4/streams/{streamId}/action/disable:
     post:
       summary: Disabilita uno stream
       description: >-
@@ -365,7 +365,7 @@ paths:
         id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
-      operationId: disableEventStreamV23
+      operationId: disableEventStreamV24
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -374,7 +374,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV23'
+                $ref: '#/components/schemas/StreamMetadataResponseV24'
         '400':
           description: Invalid input
           content:
@@ -404,7 +404,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams/{streamId}/action/disable
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams/{streamId}/action/disable
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -422,10 +422,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.3/streams/{streamId}/action/disable API CORS
+      operationId: Options for /v2.4/streams/{streamId}/action/disable API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams/{streamId}/action/disable
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams/{streamId}/action/disable
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -894,8 +894,419 @@ paths:
         contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
         type: aws_proxy
+  /v2.3/streams:
+    post:
+      deprecated: true
+      summary: Crea nuovo stream di eventi
+      description: >-
+        Creazione di un flusso di eventi specificando se gli eventi saranno
+        relativi ai cambi di stato o agli eventi di timeline.
+
+
+        In risposta, Piattaforma Notifiche, comunicherà un identificativo dello
+        stream e il  timestamp di effettiva attivazione del flusso, tipicamente
+        pochi secondi dopo che è stata  invocata l'operazione.
+      tags:
+        - Streams
+      operationId: createEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamCreationRequestV23'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: ReplacedId Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
+      parameters: []
+    get:
+      deprecated: true
+      summary: Elenca stream di eventi
+      description: Elenca gli stream di eventi
+      tags:
+        - Streams
+      operationId: listEventStreamsV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamListResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
+      parameters: []
+  /v2.3/streams/{streamId}:
+    parameters:
+      - $ref: '#/components/parameters/pathStreamId'
+    get:
+      deprecated: true
+      summary: Leggi metadata dello stream
+      description: Lettura delle configurazioni di uno stream di eventi.
+      tags:
+        - Streams
+      operationId: retrieveEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.path.streamId: method.request.path.streamId
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
+      parameters: []
+    put:
+      deprecated: true
+      summary: Update Stream metadata
+      description: >-
+        Modifica delle configurazioni dei filtri associati a uno stream di
+        eventi
+      tags:
+        - Streams
+      operationId: updateEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamRequestV23'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.path.streamId: method.request.path.streamId
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
+      parameters: []
+    delete:
+      deprecated: true
+      summary: Remove Event Stream
+      description: >-
+        Cancellazione dello steam di eventi: elimina sia le configurazioni sia
+        tutti gli eventi associati allo stream e non ancora consumati.
+      tags:
+        - Streams
+      operationId: removeEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.path.streamId: method.request.path.streamId
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
+      parameters: []
+    options:
+      operationId: Options for /v2.3/streams/{streamId} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/streams/{streamId}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.streamId: method.request.path.streamId
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /v2.3/streams/{streamId}/action/disable:
+    post:
+      deprecated: true
+      summary: Disabilita uno stream
+      description: >-
+        Disabilita uno stream.
+
+
+        Da uno stream disabilitato è possibile leggere gli eventi presenti nello
+        stream salvati prima della disabilitazione, ma non ne saranno aggiunti
+        di nuovi.
+
+
+        Non è possibile modificare o riabilitare uno stream disabilitato.
+
+
+        Uno stream disabilitato non rientra nel conteggio degli stream massimi,
+        non può essere riabilitato e verrà eliminato automaticamente dopo <span
+        id="webhookTtlDisabled">14</span> giorni.
+      tags:
+        - Streams
+      operationId: disableEventStreamV23
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Stream not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.path.streamId: method.request.path.streamId
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
   /v2.3/streams/{streamId}/events:
     get:
+      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Lettura degli eventi presenti nello stream di aggiornamenti con
@@ -1008,13 +1419,13 @@ components:
         type: string
         format: uuid
   schemas:
-    StreamCreationRequestV23:
+    StreamCreationRequestV24:
       description: >-
         Richiesta di creazione di uno stream di eventi di avanzamento delle
         notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV23'
+        - $ref: '#/components/schemas/StreamRequestV24'
         - type: object
           properties:
             replacedStreamId:
@@ -1031,7 +1442,7 @@ components:
                 autorizzazione dell'apiKey sui gruppi del precedente stream.
               type: string
               format: uuid
-    StreamRequestV23:
+    StreamRequestV24:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di
         eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
@@ -1093,10 +1504,10 @@ components:
     StreamGroup:
       type: string
       description: Identificativo del gruppo.
-    StreamMetadataResponseV23:
+    StreamMetadataResponseV24:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV23'
+        - $ref: '#/components/schemas/StreamRequestV24'
         - type: object
           required:
             - streamId
@@ -2512,15 +2923,22 @@ components:
             notifica definisce in maniera univoca l'elemento di timeline
         timestamp:
           type: string
+          deprecated: true
           description: >-
             Istante in cui avviene l'evento descritto in questo elemento di
-            timeline
+            timeline (deprecato, fare riferimento al campo eventTimestamp)
           format: date-time
         ingestionTimestamp:
           type: string
           description: >-
             Istante in cui l'evento descritto in questo elemento di timeline è
             gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: >-
+            Istante in cui avviene l'evento descritto in questo elemento di
+            timeline
           format: date-time
         notificationSentAt:
           type: string
@@ -2592,10 +3010,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/ProgressResponseElement'
-    ProgressResponseV23:
-      type: array
-      items:
-        $ref: '#/components/schemas/ProgressResponseElementV23'
     ProgressResponseElement:
       type: object
       required:
@@ -2653,6 +3067,124 @@ components:
           description: eventuali errori di validazione associati all'evento
           items:
             $ref: '#/components/schemas/RefusedReason'
+    RefusedReason:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
+    StreamCreationRequestV23:
+      description: >-
+        Richiesta di creazione di uno stream di eventi di avanzamento delle
+        notifiche. Lo stream verrà creato nello stato abilitato
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV23'
+        - type: object
+          properties:
+            replacedStreamId:
+              description: >-
+                opzionale, eventuale streamId che viene sostituito da questo. Se
+                specificato, lo stream indicato sarà disabilitato
+                contestualmente alla creazione del nuovo stream, permettendo di
+                consumare tutti gli eventi del vecchio stream senza che ne
+                vengano aggiunti di nuovi. Inoltre, il nuovo stream partirà da
+                un eventId successivo rispetto al vecchio stream (anche se non
+                "esattamente" successivo per evitare sovrapposizioni con
+                eventuali eventi salvati durante il cambio di configurazione).
+                La creazione del nuovo stream è soggetta al controllo di
+                autorizzazione dell'apiKey sui gruppi del precedente stream.
+              type: string
+              format: uuid
+    StreamRequestV23:
+      description: >-
+        Struttura comune per eventi di creazione/aggiornamento di uno stream di
+        eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
+        dello stream è soggetta al controllo di autorizzazione dell'apiKey sui
+        gruppi.
+      type: object
+      required:
+        - title
+        - eventType
+        - groups
+      properties:
+        title:
+          description: Nome sintetico dello stream
+          type: string
+          maxLength: 256
+          pattern: ^.*$
+        eventType:
+          description: |-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        groups:
+          description: >-
+            rappresenta l'elenco degli id gruppi abilitati a richiedere i
+            dettagli. Una apiKey può consumare o modificare uno stream solo se
+            non ha gruppi o se tutti i gruppi dello stream sono presenti nella
+            apiKey. Se viene specificato array vuoto, si noti che solo apiKey
+            senza gruppi potranno consumare o modificare lo stream. Inoltre, nel
+            caso di updateEventStream, la lista dei gruppi presente nello stream
+            deve essere un sottoinsieme dei gruppi passati nella richiesta (in
+            pratica si possono solo aggiungere gruppi a quelli esistenti) oppure
+            entrambi array vuoti.
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/StreamGroup'
+            minLength: 0
+        filterValues:
+          description: >-
+            rappresenta l'elenco degli stati o elementi di timeline che si
+            vogliono filtrare; inserendo un array vuoto [] si riceveranno solo
+            gli elementi relativi alla versione con cui è stato creato lo
+            stream. Se specificati invece, avranno priorità rispetto agli eventi
+            della versione (quindi se sono un sottoinsieme, si riceveranno solo
+            quelli. Se si specificano eventi introdotti in versioni più recenti,
+            questi saranno inviati) Infine, è possibile utilizzare il
+            placeholder "DEFAULT" per specificare l'insieme di eventi più
+            rilevanti di una notifica.
+          type: array
+          items:
+            type: string
+            minLength: 4
+            maxLength: 256
+            pattern: ^[A-Z_]+$
+    StreamMetadataResponseV23:
+      description: Configurazioni di un flusso di eventi
+      allOf:
+        - $ref: '#/components/schemas/StreamRequestV23'
+        - type: object
+          required:
+            - streamId
+            - activationDate
+          properties:
+            streamId:
+              description: Identificativo del flusso di eventi
+              type: string
+              format: uuid
+            activationDate:
+              description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
+            disabledDate:
+              description: Timestamp in cui il flusso di eventi è stato disabilitato
+              type: string
+              format: date-time
+            version:
+              description: versione di base dello stream.
+              type: string
+              pattern: ^v\d\d\d?$
+    ProgressResponseV23:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProgressResponseElementV23'
     ProgressResponseElementV23:
       type: object
       required:
@@ -2678,13 +3210,6 @@ components:
           $ref: '#/components/schemas/NotificationStatus'
         element:
           $ref: '#/components/schemas/TimelineElementV23'
-    RefusedReason:
-      type: object
-      properties:
-        errorCode:
-          type: string
-        detail:
-          type: string
     TimelineElementV23:
       type: object
       additionalProperties: false

@@ -8,15 +8,13 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV23;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 class SmartMapperTest {
     @Test
@@ -124,6 +122,57 @@ class SmartMapperTest {
         Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
     }
 
+    @Test
+    void testMapSendAnalogProgress(){
+        Instant sourceEventTimestamp = Instant.EPOCH;
+        Instant sourceIngestionTimestamp = Instant.now();
+        
+        TimelineElementInternal sendAnalogProgress = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(sourceIngestionTimestamp)
+                .details( SendAnalogProgressDetailsInt.builder()
+                        .recIndex(0)
+                        .notificationDate(sourceEventTimestamp)
+                        .build())
+                .build();
+
+
+        TimelineElementInternal ret = SmartMapper.mapTimelineInternal(sendAnalogProgress, Set.of(sendAnalogProgress));
+
+        Assertions.assertNotSame(ret , sendAnalogProgress);
+        Assertions.assertNotEquals(ret.getTimestamp(),sendAnalogProgress.getTimestamp());
+        Assertions.assertEquals(sourceIngestionTimestamp, ret.getIngestionTimestamp());
+        Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
+        Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
+    }
+
+    @Test
+    void testMapSendAnalogFeedback(){
+        Instant sourceEventTimestamp = Instant.EPOCH;
+        Instant sourceIngestionTimestamp = Instant.now();
+
+        TimelineElementInternal sendAnalogFeedback = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(sourceIngestionTimestamp)
+                .details( SendAnalogFeedbackDetailsInt.builder()
+                        .recIndex(0)
+                        .notificationDate(sourceEventTimestamp)
+                        .build())
+                .build();
+        
+        TimelineElementInternal ret = SmartMapper.mapTimelineInternal(sendAnalogFeedback, Set.of(sendAnalogFeedback));
+
+        Assertions.assertNotSame(ret , sendAnalogFeedback);
+        Assertions.assertNotEquals(ret.getTimestamp(),sendAnalogFeedback.getTimestamp());
+        Assertions.assertEquals(sourceIngestionTimestamp, ret.getIngestionTimestamp());
+        Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
+        Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
+    }
+    
     @Test
     void testMapTimelineInternalTransformer(){
         Instant refinementTimestamp = Instant.EPOCH.plusMillis(100);

@@ -7,14 +7,15 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.Timelin
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.RefusedReasonEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoRefusedReasonMapper;
-import java.util.List;
 import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 public class ProgressResponseElementMapper {
     private ProgressResponseElementMapper() {
     }
 
-    public static ProgressResponseElementV24 internalToExternalv23(EventEntity ev) {
+    public static ProgressResponseElementV24 internalToExternal(EventEntity ev) {
         ProgressResponseElementV24 progressResponseElement = new ProgressResponseElementV24();
         progressResponseElement.setEventId(ev.getEventId());
         progressResponseElement.setTimestamp(ev.getTimestamp());

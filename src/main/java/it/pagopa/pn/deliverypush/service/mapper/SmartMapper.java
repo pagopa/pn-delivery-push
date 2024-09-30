@@ -44,8 +44,7 @@ public class SmartMapper {
             skip(destination.getPhysicalAddress());
         }
     };
-    static Converter<TimelineElementInternal, TimelineElementInternal>
-            timelineElementInternalTimestampConverter =
+    static Converter<TimelineElementInternal, TimelineElementInternal> timelineElementInternalTimestampConverter =
             ctx -> {
                 // se il detail estende l'interfaccia e l'elementTimestamp non è nullo, lo sovrascrivo nel source originale
                 if (ctx.getSource().getDetails() instanceof ElementTimestampTimelineElementDetails elementTimestampTimelineElementDetails
@@ -117,22 +116,19 @@ public class SmartMapper {
         I restanti remapping vengono gestiti tramite il typeMap e l'interfaccia ElementTimestampTimelineElementDetails
      */
     public static TimelineElementInternal mapTimelineInternal(TimelineElementInternal source, Set<TimelineElementInternal> timelineElementInternalSet) {
+        //Viene recuperato il timestamp originale, prima di effettuare un qualsiasi remapping
+        Instant ingestionTimestamp = source.getTimestamp();
+
+        //Viene effettuato un primo remapping degli elementi di timeline e dei relativi timestamp in particolare viene effettuato il remapping di tutti 
+        // i timestamp che non dipendono da ulteriori elementi di timeline, cioè hanno l'eventTimestamp già storicizzato nei details
         TimelineElementInternal result = mapTimelineInternal(source);
 
         if(result != null) {
-            result.setIngestionTimestamp(source.getTimestamp());
+            //L'ingestion timestamp viene settato con il timestamp originale dell'evento (dunque timestamp evento per SEND)
+            result.setIngestionTimestamp(ingestionTimestamp);
 
+            //Nello switch case invece vengono effettuati ulteriori remapping dei timestamp, questi non dipendono dal singolo elemento, ma necessitano di tutta la timeline
             switch (result.getCategory()) {
-                case SEND_ANALOG_PROGRESS -> {
-                    SendAnalogProgressDetailsInt details = (SendAnalogProgressDetailsInt) result.getDetails();
-                    log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {}", result.getCategory(), result.getTimestamp(), details.getNotificationDate());
-                    result.setTimestamp(details.getNotificationDate());
-                }
-                case SEND_ANALOG_FEEDBACK -> {
-                    SendAnalogFeedbackDetailsInt details = (SendAnalogFeedbackDetailsInt) result.getDetails();
-                    log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {}  ", result.getCategory(), result.getTimestamp(), details.getNotificationDate());
-                    result.setTimestamp(details.getNotificationDate());
-                }
                 case SCHEDULE_REFINEMENT -> {
                     Instant endAnalogWorkflowBusinessDate =  computeEndAnalogWorkflowBusinessData((RecipientRelatedTimelineElementDetails)result.getDetails(), timelineElementInternalSet, result.getIun());
                     if(endAnalogWorkflowBusinessDate != null){
@@ -163,7 +159,9 @@ public class SmartMapper {
                     //nothing to do
                 }
             }
-
+            
+            //In ultima istanza viene settato l'eventTimestamp con il timestamp rimappato (avranno dunque in uscita sempre lo stesso valore)
+            result.setEventTimestamp(result.getTimestamp());
         }
 
         return result;

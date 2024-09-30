@@ -1,31 +1,34 @@
 const axios = require("axios");
 const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
-const { createStreamMetadataResponseV10 } = require("./mapper/transformStreamMetadataResponseFromV23ToV10.js");
-const { createStreamRequestV22 } = require("./mapper/transformStreamRequestFromV10ToV23")
-class UpdateEventStreamHandler extends EventHandler {
+class DisableEventStreamHandler extends EventHandler {
     constructor() {
         super();
     }
 
     checkOwnership(event, context){
         const {path, httpMethod} = event;
-        return path.includes('/streams') && event["pathParameters"] !== undefined && event["pathParameters"] != null && httpMethod.toUpperCase() === 'PUT';
+        return path.includes('/streams') && path.includes('/action/disable') && event["pathParameters"] !== undefined && event["pathParameters"] != null && httpMethod.toUpperCase() === 'POST';
     }
 
     async handlerEvent(event, context) {
-        console.log("Versioning_V1-V2.x_UpdateEventStream_Lambda function started");
+        console.log("Versioning_V1-V2.x_DisableEventStream_Lambda function started");
 
         // HEADERS
         let version = this.getVersion(event);
+        
+        if(version == 10){
+            console.log("Disable operation not implemented for version ", version);
+            throw new Error("NOT IMPLEMENTED")
+        }
+
         const headers = this.prepareHeaders(event, version);
 
         // REQUEST BODY
-        const requestBodyV1 = JSON.parse(event.body);
-        const requestBodyV22= createStreamRequestV22(requestBodyV1);
+        const requestBodyV24 = {};
 
         const streamId = event["pathParameters"]["streamId"];
-        const url = `${this.baseUrl}/streams/${streamId}`;
+        const url = `${this.baseUrl}/streams/${streamId}/action/disable`;
         axiosRetry(axios, {
             retries: this.numRetry,
             shouldResetTimeout: true ,
@@ -41,16 +44,12 @@ class UpdateEventStreamHandler extends EventHandler {
         });
 
         console.log('calling ', url);
-        console.log(requestBodyV22);
-        let response = await axios.put(url, requestBodyV22, {headers: headers, timeout: this.attemptTimeout});
+        let response = await axios.post(url, requestBodyV24, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
         let transformedObject;
         
         switch(version) {
-            case 10:
-                transformedObject = createStreamMetadataResponseV10(response.data);
-            break;
             case 23:
                 transformedObject = response.data;
             break;
@@ -67,4 +66,4 @@ class UpdateEventStreamHandler extends EventHandler {
     }
 }
 
-module.exports = UpdateEventStreamHandler;
+module.exports = DisableEventStreamHandler;

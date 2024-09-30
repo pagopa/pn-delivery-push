@@ -15,6 +15,7 @@ public class TimelineElementMapper {
                 .timestamp(internalDto.getTimestamp())
                 .notificationSentAt(internalDto.getNotificationSentAt())
                 .ingestionTimestamp(internalDto.getIngestionTimestamp())
+                .eventTimestamp(internalDto.getEventTimestamp())
                 .details( SmartMapper.mapToClass(internalDto.getDetails(), TimelineElementDetailsV23.class) );
         
         if(internalDto.getLegalFactsIds() != null){

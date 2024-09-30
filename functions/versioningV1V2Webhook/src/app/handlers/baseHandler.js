@@ -13,7 +13,7 @@ class EventHandler {
 
     handlerEvent(event, context){}
 
-    prepareHeaders(event){
+    prepareHeaders(event, version){
 
         const headers = event["headers"];
         headers["x-pagopa-pn-src-ch"] = "B2B";
@@ -41,9 +41,30 @@ class EventHandler {
         if (event.requestContext.authorizer["uid"]) {
             headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
         }
-        headers["x-pagopa-pn-api-version"] = "v10";
+        
+        let xPagopaPnApiVersion = 'v' + version;
+        headers["x-pagopa-pn-api-version"] = xPagopaPnApiVersion;
 
         return headers;
+    }
+
+    getVersion(event){
+        // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
+        let version = 10;
+
+        if (event["path"].includes("v2.3")) {
+            version = 23;
+        }
+
+        // NB: sebbene (a oggi) la 2.4 non passa di qua, in futuro potrebbe e quindi si è già implementata
+        // la logica di traduzione (che probabilmente andrà aggiornata nel futuro)
+        if (event["path"].includes("v2.4")) {
+            version = 24;
+        }
+
+        console.log('version is ', version);
+
+        return version;
     }
 }
 

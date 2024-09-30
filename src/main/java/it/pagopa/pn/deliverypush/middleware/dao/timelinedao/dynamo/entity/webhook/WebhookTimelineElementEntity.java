@@ -33,6 +33,7 @@ public class WebhookTimelineElementEntity {
     private StatusInfoEntity statusInfo;
     private Instant notificationSentAt;
     private Instant ingestionTimestamp;
+    private Instant eventTimestamp;
     
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN )
@@ -113,6 +114,15 @@ public class WebhookTimelineElementEntity {
     
     public void setIngestionTimestamp(Instant ingestionTimestamp) {
         this.ingestionTimestamp = ingestionTimestamp;
+    }
+
+    @DynamoDbAttribute(value = "eventTimestamp") @DynamoDbIgnoreNulls
+    public Instant getEventTimestamp() {
+        return eventTimestamp;
+    }
+
+    public void setEventTimestamp(Instant eventTimestamp) {
+        this.eventTimestamp = eventTimestamp;
     }
 }
 
