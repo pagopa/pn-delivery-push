@@ -203,7 +203,7 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
     }
 
     private Instant getRefinementDate(int recIndex, Instant refinementDate, TimelineElementInternal timelineElement) {
-        if(timelineElement.getDetails() instanceof RefinementDetailsInt refinementDetailsInt){ // forse piú corretto restituire scheduleRefinementDetails.getSchedulingDate()
+        if(timelineElement.getDetails() instanceof RefinementDetailsInt refinementDetailsInt){
             refinementDate = refinementDetailsInt.getEventTimestamp();
             log.debug("Set refinementDate={} from timelineCategory={} - iun={} id={}", refinementDate, timelineElement.getCategory(), timelineElement.getIun(), recIndex);
         } else {
