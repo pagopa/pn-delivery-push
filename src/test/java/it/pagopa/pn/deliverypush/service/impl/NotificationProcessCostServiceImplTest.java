@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.cost.NotificationProcessCost;
 import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
@@ -568,11 +567,14 @@ class NotificationProcessCostServiceImplTest {
                         .build())
                 .build();
 
+        Instant refinementInstant = Instant.now();
+
         TimelineElementInternal refinement = TimelineElementInternal.builder()
                 .category(TimelineElementCategoryInt.REFINEMENT)
-                .timestamp(Instant.now())
+                .timestamp(refinementInstant)
                 .details(RefinementDetailsInt.builder()
                         .recIndex(recIndex)
+                        .eventTimestamp(refinementInstant)
                         .build())
                 .build();
 
