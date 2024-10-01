@@ -19,7 +19,8 @@ public class DigitalAddressEntity {
         PEC("PEC"),
         EMAIL("EMAIL"),
         SMS("SMS"),
-        APPIO("APPIO");
+        APPIO("APPIO"),
+        SERCQ("SERCQ");
 
         private final String value;
 
