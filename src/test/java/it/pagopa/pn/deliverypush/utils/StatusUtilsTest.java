@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
@@ -21,13 +22,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-
 @DirtiesContext
 class StatusUtilsTest {
     @Mock
     private TimelineService timelineService;
     
     private StatusUtils statusUtils;
+
+    private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:send-self:notification-already-delivered";
+    private static final String PEC_ADDRESS = "test@pec.it";
+
 
     @BeforeEach
     public void setup() {
@@ -36,6 +40,8 @@ class StatusUtilsTest {
 
     @Test
     void getTimelineHistoryTest() {
+
+        SendDigitalDetailsInt sendDigtalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
 
         // GIVEN a timeline
         TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
@@ -47,6 +53,7 @@ class StatusUtilsTest {
                 .elementId("el3")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigtalDetailsIntPec)
                 .build();
         TimelineElementInternal timelineElement4 = TimelineElementInternal.builder()
                 .elementId("el4")
@@ -137,6 +144,9 @@ class StatusUtilsTest {
     @Test
     void checkStatusNotDeliveredWithDigitalFailure() {
 
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+
+
         // GIVEN a timeline
         TimelineElementInternal requestAccepted = TimelineElementInternal.builder()
                 .elementId("el1")
@@ -147,6 +157,7 @@ class StatusUtilsTest {
                 .elementId("el3")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal sendDigitalFeedback = TimelineElementInternal.builder()
                 .elementId("el4")
@@ -227,6 +238,8 @@ class StatusUtilsTest {
     @Test
     void checkStatusDeliveredWithRegisteredLetter() {
 
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+
         // GIVEN a timeline
         TimelineElementInternal requestAccepted = TimelineElementInternal.builder()
                 .elementId("el1")
@@ -237,6 +250,7 @@ class StatusUtilsTest {
                 .elementId("el3")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal sendDigitalFeedback = TimelineElementInternal.builder()
                 .elementId("el4")
@@ -332,6 +346,9 @@ class StatusUtilsTest {
     void getTimelineHistoryMultiRecipientWithOneSendDigitalDomicileTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
         // GIVEN a timeline
+
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
                 .elementId("requestAcceptedTimelineElement")
                 .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
@@ -341,6 +358,7 @@ class StatusUtilsTest {
                 .elementId("sendPecFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendPecFirstRecipientTimelineElement);
@@ -403,20 +421,27 @@ class StatusUtilsTest {
                 .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .build();
+
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+
         TimelineElementInternal sendPecFirstRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal sendPecSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .details(sendDigitalDetailsIntSercq)
                 .build();
         TimelineElementInternal sendPecThirdRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecThirdRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:40.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal feedbackOKFirstRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("feedbackOKFirstRecipientTimelineElement")
@@ -535,6 +560,10 @@ class StatusUtilsTest {
     void getTimelineHistoryMultiRecipientWithOnePayedBeforeAllWorkflowsCompletedTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+
+
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
                 .elementId("requestAcceptedTimelineElement")
@@ -545,16 +574,19 @@ class StatusUtilsTest {
                 .elementId("sendPecFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal sendPecSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .details(sendDigitalDetailsIntSercq)
                 .build();
         TimelineElementInternal sendPecThirdRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecThirdRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:40.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal feedbackOKFirstRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("feedbackOKFirstRecipientTimelineElement")
@@ -685,6 +717,10 @@ class StatusUtilsTest {
     void getTimelineHistoryMultiRecipientWithOneViewViaPecWithOneCompleteWorkflowTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+
+
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
                 .elementId("requestAcceptedTimelineElement")
@@ -695,16 +731,19 @@ class StatusUtilsTest {
                 .elementId("sendPecFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal sendPecSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .details(sendDigitalDetailsIntSercq)
                 .build();
         TimelineElementInternal sendPecThirdRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecThirdRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:40.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         //PN riceve feedback positivo da External Channels per uno dei destinatari
         TimelineElementInternal feedbackOKFirstRecipientTimelineElement = TimelineElementInternal.builder()
@@ -818,26 +857,33 @@ class StatusUtilsTest {
     void getTimelineHistoryMultiRecipientWithOneViewViaPecWithAllCompleteWorkflowTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
                 .elementId("requestAcceptedTimelineElement")
                 .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .build();
+
         TimelineElementInternal sendPecFirstRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal sendPecSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .details(sendDigitalDetailsIntSercq)
                 .build();
         TimelineElementInternal sendPecThirdRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecThirdRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:40.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         //PN riceve feedback positivo da External Channels per tutti e 3 destinatari
         TimelineElementInternal feedbackOKFirstRecipientTimelineElement = TimelineElementInternal.builder()
@@ -962,6 +1008,9 @@ class StatusUtilsTest {
     void getTimelineHistoryMultiRecipientWithOneViewViaPecWithOneCompleteWorkflowWithAllFeedbacksTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        SendDigitalDetailsInt  sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
                 .elementId("requestAcceptedTimelineElement")
@@ -972,16 +1021,19 @@ class StatusUtilsTest {
                 .elementId("sendPecFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal sendPecSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .details(sendDigitalDetailsIntSercq)
                 .build();
         TimelineElementInternal sendPecThirdRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecThirdRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:40.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         //PN riceve feedback positivo da External Channels per tutti e 3 destinatari
         TimelineElementInternal feedbackOKFirstRecipientTimelineElement = TimelineElementInternal.builder()
@@ -1767,6 +1819,9 @@ class StatusUtilsTest {
     void getTimelineHistoryMultiRecipientAARGenerationTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
                 .elementId("requestAcceptedTimelineElement")
@@ -1797,16 +1852,19 @@ class StatusUtilsTest {
                 .elementId("sendPecFirstRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:10.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal sendPecSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:30.00Z")))
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .details(sendDigitalDetailsIntSercq)
                 .build();
         TimelineElementInternal sendPecThirdRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("sendPecThirdRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:26:40.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal secondAARTimelineElement = TimelineElementInternal.builder()
                 .elementId("secondAARTimelineElement")
@@ -2299,16 +2357,27 @@ class StatusUtilsTest {
 
     @Test
     void getTimelineHistoryMoreRecipientTest() {
+
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+        SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+
         // GIVEN a timeline
         TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
                 .elementId("el1")
                 .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .build();
+        TimelineElementInternal timelineElement3_1 = TimelineElementInternal.builder()
+                .elementId("el2")
+                .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
+                .details(sendDigitalDetailsIntSercq)
+                .build();
         TimelineElementInternal timelineElement3 = TimelineElementInternal.builder()
                 .elementId("el3")
-                .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
+                .timestamp((Instant.parse("2021-09-16T15:26:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
                 .build();
         TimelineElementInternal timelineElement4 = TimelineElementInternal.builder()
                 .elementId("el4")
@@ -2320,13 +2389,8 @@ class StatusUtilsTest {
                 .timestamp((Instant.parse("2021-09-16T15:28:00.00Z")))
                 .category(TimelineElementCategoryInt.GET_ADDRESS)
                 .build();
-        TimelineElementInternal timelineElement3_1 = TimelineElementInternal.builder()
-                .elementId("el6")
-                .timestamp((Instant.parse("2021-09-16T15:29:00.00Z")))
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
-                .build();
         TimelineElementInternal timelineElement4_1 = TimelineElementInternal.builder()
-                .elementId("el7")
+                .elementId("el6")
                 .timestamp((Instant.parse("2021-09-16T15:30:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
                 .build();
@@ -2358,13 +2422,13 @@ class StatusUtilsTest {
         NotificationStatusHistoryElementInt historyElement1 = NotificationStatusHistoryElementInt.builder()
                 .status(NotificationStatusInt.ACCEPTED)
                 .activeFrom((Instant.parse("2021-09-16T15:24:00.00Z")))
-                .relatedTimelineElements(List.of("el1"))
+                .relatedTimelineElements(List.of("el1","el2"))
                 .build();
 
         NotificationStatusHistoryElementInt historyElement2 = NotificationStatusHistoryElementInt.builder()
                 .status(NotificationStatusInt.DELIVERING)
-                .activeFrom((Instant.parse("2021-09-16T15:25:00.00Z")))
-                .relatedTimelineElements(Arrays.asList("el3", "el4", "el5", "el6", "el7"))
+                .activeFrom((Instant.parse("2021-09-16T15:26:00.00Z")))
+                .relatedTimelineElements(Arrays.asList("el3", "el4", "el5", "el6"))
                 .build();
         NotificationStatusHistoryElementInt historyElement4_1 = NotificationStatusHistoryElementInt.builder()
                 .status(NotificationStatusInt.DELIVERED)
@@ -2505,5 +2569,16 @@ class StatusUtilsTest {
                 .forEach(notificationStatusInt -> System.out.print(notificationStatusInt + " "));
         System.out.println();
     }
+
+    private SendDigitalDetailsInt getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE addressType) {
+
+        String address = addressType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC ? PEC_ADDRESS : SERCQ_ADDRESS;
+        LegalDigitalAddressInt legalDigitalAddressIntPec = LegalDigitalAddressInt.builder()
+                .type(addressType).address(address).build();
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = new SendDigitalDetailsInt();
+        sendDigitalDetailsIntPec.setDigitalAddress(legalDigitalAddressIntPec);
+        return sendDigitalDetailsIntPec;
+    }
+
 
 }
