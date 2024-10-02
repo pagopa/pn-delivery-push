@@ -29,6 +29,8 @@ public class SmartMapper {
 
     private SmartMapper (){}
 
+    private static String SERCQ_SEND = "send-self";
+
 
     static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV23> addressDetailPropertyMap = new PropertyMap<>() {
         @Override
@@ -167,7 +169,7 @@ public class SmartMapper {
                     //
                     SendDigitalDetailsInt details = (SendDigitalDetailsInt) result.getDetails();
                     if (LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType()) &&
-                            details.getDigitalAddress().getAddress().contains("INSERIRE...")) {
+                            details.getDigitalAddress().getAddress().contains(SERCQ_SEND)) {
                             Instant aarRgenTimestamp = findAARgenTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
                             result.setTimestamp(aarRgenTimestamp);
                     }
