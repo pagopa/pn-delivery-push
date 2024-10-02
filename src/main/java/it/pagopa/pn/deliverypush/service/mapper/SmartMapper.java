@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.commons.exceptions.PnExceptionsCodes;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
@@ -155,6 +156,22 @@ public class SmartMapper {
                         throw new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
                     }
                 }
+                case SEND_DIGITAL_DOMICILE -> {
+                    // allo scopo di ottenere il timestamp di AAR_GEN per impostare il timestamp di SEND_DIGITAL_DOMICILE, per far si
+                    // che il timestamp di SEND_DIGITAL_DOMICILE non sia successivo a quello di SEND_DIGITAL_FEEDBACK per serc SEND
+                    //
+                    // ottenere channelType e verificare che è sercq
+                    // se sercq, ottenere l'address, e se è sercq-send:
+                    //  - ottieniamo timestamp di AAR_GEN
+                    // - lo usiamo per impostare il timestamp di SEND_DIGITAL_DOMICILE (setTimeStamp)
+                    //
+                    SendDigitalDetailsInt details = (SendDigitalDetailsInt) result.getDetails();
+                    if (LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType()) &&
+                            details.getDigitalAddress().getAddress().contains("INSERIRE...")) {
+                            Instant aarRgenTimestamp = findAARgenTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
+                            result.setTimestamp(aarRgenTimestamp);
+                    }
+                }
                 default -> {
                     //nothing to do
                 }
@@ -165,6 +182,21 @@ public class SmartMapper {
         }
 
         return result;
+    }
+
+    private static Instant findAARgenTimestamp(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
+        if(elementDetails == null){
+            throw new PnInternalException("ELEMENT DETAILS NULL", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
+        }
+        int recIndex = elementDetails.getRecIndex();
+
+        TimelineElementInternal aarGenerationTimelineElement = timelineElementInternalSet.stream().filter(e ->
+                e.getCategory() == TimelineElementCategoryInt.AAR_GENERATION &&
+                        e.getDetails() instanceof RecipientRelatedTimelineElementDetails aarGenerationTimelineElementDetails &&
+                        aarGenerationTimelineElementDetails.getRecIndex() == recIndex
+        ).findFirst().orElseThrow(() -> new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT));
+
+        return aarGenerationTimelineElement.getTimestamp();
     }
 
 
