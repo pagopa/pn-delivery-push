@@ -1265,7 +1265,7 @@ components:
           description: >-
             Errori di rifiuto della notifica:
               - FILE_NOTFOUND - I riferimenti dei documenti nella notifica non sono corretti o i documenti non sono stati caricati con successo.
-              - FILE_GONE - Allegato non disponibile: superati i termini di .
+              - FILE_GONE - Allegato non disponibile: superati i termini di conservazione.
               - FILE_SHA_ERROR - Il digest calcolato con algoritmi sha256 dei documenti inseriti non è corrispondete a quello del file referenziato.
               - FILE_PDF_INVALID_ERROR - Il file inserito non è in formato pdf.
               - FILE_PDF_TOOBIG_ERROR - Il file pdf ha una dimensione eccedente il limite di 200MB.
