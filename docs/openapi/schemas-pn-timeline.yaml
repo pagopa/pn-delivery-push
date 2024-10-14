@@ -793,6 +793,7 @@ components:
           maxLength: 20
           description: >
             Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] - statusDescription
+              - __CON020__- [ALL] - [PROGRESS] - Originale dell’AAR (documento nativo digitale) reso disponibile dal Consolidatore e firmato digitalmente da PagoPA
               - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
               - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
               - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
