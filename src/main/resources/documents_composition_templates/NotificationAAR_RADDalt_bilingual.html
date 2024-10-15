@@ -1,0 +1,668 @@
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="author" content="SEND - Servizio Notifiche Digitali">
+  <title>Avviso di Avvenuta Ricezione</title>
+  <style type="text/css" media="all">
+    @font-face {
+      font-family: "Titillium Pro";
+      font-style: normal;
+      font-weight: normal;
+      src: url(fonts/Titillium_Pro/TitilliumSansPro-Regular.ttf) format('truetype');
+    }
+
+    @font-face {
+      font-family: "Titillium Pro";
+      font-style: normal;
+      font-weight: bold;
+      src: url(fonts/Titillium_Pro/TitilliumSansPro-Bold.ttf) format('truetype');
+    }
+
+    @page {
+      size: A4;
+      margin: 0mm;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      text-indent: 0 !important;
+    }
+
+    body {
+      font-family: "Titillium Pro", sans-serif;
+      font-weight: 400;
+      font-size: 13.3px;
+      line-height: 18.6px;
+    }
+
+    /* font equivalence */
+    .seven-px { font-size: 9.333px; } /* 7pt on Figma */
+    .eight-px { font-size: 10.667px; } /* 8pt on Figma */
+    .nine-px { font-size: 12px; } /* 9pt on Figma */
+    .ten-px { font-size: 13.333px; } /* 10pt on Figma */
+    .eleven-px { font-size: 14.3px; } /* 11pt on Figma */
+    .twelve-px { font-size: 16px; } /* 12pt on Figma */
+
+    /* line-height equivalence */
+    .sixteen-lh { line-height: 21.333px; } /* 16pt on Figma */
+    .eleven-lh { line-height: 14.667px; } /* 11pt on Figma */
+
+
+    /* logo-box style */
+    #logo-box, #logo-box-right {
+      position: relative;
+      width: 65mm;
+      height: 23mm;
+    }
+
+    #logo-box { top: 14mm; left: 8mm; }
+
+    #logo-box__logo {
+      position: absolute;
+      width: 23mm;
+    }
+
+    #logo-box__subtitle {
+      position: absolute;
+      left: 24.7mm;
+      top: -.1mm;
+      width: 40mm;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #616161;
+    }
+
+    #iun-code {
+      position: absolute;
+      top: 19mm;
+      left: 140mm;
+      width: 50mm;
+      height: 15mm;
+      line-height: 8px;
+      z-index: 1000;
+    }
+
+    /* QR */
+    #qr-code {
+      height: 42mm;
+      width: 42mm;
+      /* qr has a 4mm white frame around its visible area */
+    }
+
+    #recipient-addr-box {
+      text-transform: uppercase;
+      position: absolute;
+      top: 63mm;
+      left: 100mm;
+      width: 100mm;
+      height: 24mm;
+      padding: .3mm 5.6mm;
+      line-height: 14.6px;
+    }
+
+    #center-section, #lower-section {
+      margin: 0mm 10mm 0mm 10mm;
+      width: 190mm;
+    }
+    #main-page2 {
+      margin: 10mm;
+      width: 190mm;
+      height: 274mm;
+      position: relative;
+    }
+
+    #main__subject {
+      padding-top: 0mm;
+      word-wrap: break-word;
+      margin-bottom: 1.5mm;
+    }
+
+    #main__disclaimer {
+      margin: 1.5mm 0;
+    }
+
+    .heading {
+      width: 100%;
+      height: 7mm;
+      background-color: #ececec;
+      text-transform: uppercase;
+      font-weight: bold;
+      padding: .9mm 2.5mm;
+    }
+
+    .relative-box {
+      position: relative;
+    }
+
+    .absolute-box {
+      position: absolute;
+      bottom: 0;
+    }
+    .rounded-box {
+      border: 1px solid black;
+      border-radius: 5px;
+      font-size: 11.93px;
+      line-height: normal;
+    }
+
+    .section-list {
+      padding-left: 5.3px;
+    }
+
+    .section-list ol {
+      padding-left: 5mm;
+      margin: 2mm 0;
+    }
+
+    .section-list ol li {
+      margin-top: 4mm;
+    }
+
+    .section-list li {
+      margin-top: 1.5mm;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .row {
+      margin-top: 3mm;
+    }
+
+    #view-online-box {
+      float: right;
+    }
+    #view-online-box-description {
+      float: left;
+      width: 147mm;
+    }
+    #payment-box {
+      float: right;
+      width: 93mm;
+    }
+
+    #io-notifications {
+      position: absolute;
+      width: 92mm;
+      right: 0;
+    }
+
+    #io-notifications .rounded-box {
+      height: 18mm;
+      margin: 2mm 0;
+    }
+
+    #io-notifications__image {
+      position: absolute;
+      top: 4mm;
+      left: 3mm;
+      height: 10mm;
+    }
+
+    #io-notifications__content {
+      position: absolute;
+      top: 2mm;
+      left: 12.8mm;
+      width: 75mm;
+    }
+
+    #io-notifications__description {
+      padding-left: 5.3px;
+    }
+
+    #send-info {
+      width: 92mm;
+    }
+
+    #send-info .rounded-box {
+      height: 17mm;
+      margin: 2mm 0;
+    }
+
+    #send-info__content {
+      position: absolute;
+      width: 100%;
+      padding: 1.75mm;
+    }
+
+    .border-bottom {
+      border-bottom: solid 1.3px #ECECEC;
+      margin-top: 4.2mm;
+      color: #7D7D7D;
+    }
+    .mb-form {
+      margin-bottom: 4.2mm;
+    }
+
+    #radd-termini-condizioni {
+      padding-left: 2.5mm;
+      padding-bottom: 2mm;
+      line-height: normal;
+    }
+    #send-perfezionamento {
+      top: 10mm;
+      margin-top: 3.88mm;
+    }
+
+    #mandate-box {
+      margin-top: 5.6mm;
+    }
+    #mandate-box__form {
+      padding-left: 5.3px;
+      float: left;
+      margin: 2.8mm 0 0 3mm;
+      width: 90mm;
+    }
+
+    #mandate-box__list {
+      float: right;
+      width: 93mm;
+      margin: 2.8mm 0 0 auto;
+    }
+
+    ul#square-list-mandate {
+      margin-top: 1mm;
+    }
+    ul#square-list li, ul#square-list-mandate li {
+      list-style-type: square;
+      margin-left: 5mm;
+      margin-top: 0.4mm;
+    }
+
+
+    /* SECOND PAGE */
+    #send-explanation {
+      width: 94mm;
+      border-radius: 5px;
+      padding: 3mm 4mm 3mm 3mm;
+      height: 90mm;
+    }
+
+    #print-explanation {
+      width: 190mm;
+      border-radius: 5px;
+      padding: 3mm;
+      height: 19mm;
+      border: solid #ECECEC 0.66px;
+      position: absolute;
+      bottom: 0;
+    }
+
+    #send-explanation p, #print-explanation p, #io-box_explanation p, #howto-explanation p, #io-explanation .explanation-title {
+      margin-bottom: 2mm;
+      text-align: left;
+    }
+
+    #print-explanation .explanation-title {
+      margin-bottom: 0.5mm;
+    }
+
+    #howto-explanation {
+      border: solid #ECECEC 0.66px;
+      width: 94mm;
+      border-radius: 5px;
+      padding: 4.23mm 2.7mm;
+      float: left;
+      background-color: #ECECEC;
+      height: 76mm;
+    }
+
+    #howto-explanation #square-list li, #howto-explanation li{
+      margin-top: 1.4mm;
+    }
+
+    #io-box_explanation {
+      float: right;
+      width: 94mm;
+      border: solid #ECECEC 0.66px;
+      border-radius: 5px;
+      padding: 5.6mm 5.8mm 0 4.2mm;
+      text-align: center;
+      height: 76mm;
+      position: relative;
+    }
+
+    #advantages {
+      width: 100%;
+    }
+
+    #advantages-explanation {
+      text-align: center;
+      margin: 5.6mm 0 5.6mm 0;
+      width: 100%;
+      border: solid #ECECEC 0.66px;
+      border-radius: 8px;
+    }
+
+    #app-io__explanation {
+      margin-top: 5mm;
+      width: 100%;
+      height: 50mm;
+      background-color: #ECECEC;
+      border-radius: 5px;
+    }
+
+    #advantages-explanation h3 {
+      margin: 5mm;
+    }
+
+    #read-more {
+      position: absolute;
+      right: 5mm;
+      bottom: 1.7cm;
+      width: 100%;
+    }
+
+    #read-more p {
+      position: absolute;
+      right: 8mm;
+    }
+
+    #read-more img {
+      position: absolute;
+      right: 0;
+      width: 5mm;
+      bottom: -4mm;
+    }
+
+    .advantages-row {
+      height: 35mm;
+      position: relative;
+    }
+
+    .advantage-col {
+      position: absolute;
+      width: 25%;
+      margin-bottom: 5.6mm;
+    }
+
+    .advantages-explanation__content {
+      width: 90%;
+      text-align: center;
+      margin: auto;
+      font-size: 12px;
+      line-height: 14.667px;
+    }
+
+    #io-icon-bgdark {
+      width: 13mm;
+      position: absolute;
+      top: 5mm;
+      left: 5mm;
+    }
+
+    #phone-io {
+      width: 59mm;
+      bottom: 0mm;
+      left: 15mm;
+      position: absolute;
+    }
+
+    #app-io__description {
+      position: absolute;
+      left: 71mm;
+      margin: 5mm;
+    }
+
+    #howto-explanation .explanation-title {
+      position: relative;
+      display: table;
+      width: 100%;
+      height: 9mm;
+    }
+
+    #send-explanation .explanation-title {
+      position: relative;
+      display: table;
+      width: 100%;
+      height: 14mm;
+      margin-bottom: 2mm;
+    }
+
+    #howto-explanation .explanation-title h4, #send-explanation .explanation-title h4 {
+      width: 65mm;
+      display: table-cell;
+      vertical-align: middle;
+    }
+
+    #howto-explanation .explanation-title img, #send-explanation .explanation-title img {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 7mm;
+    }
+
+    #howto-explanation ul {
+      margin-bottom: 1mm;
+    }
+
+    #icon-io_explanation {
+      width: 32mm;
+      padding: 0 2mm;
+      position: absolute;
+      bottom: 0;
+      left: 40%;
+    }
+
+    #icon-io_logo {
+      width: 10mm;
+      position: absolute;
+      left: 4mm;
+    }
+
+    img.message-advantages_explanation {
+      height: 34px;
+      margin: 3mm;
+      margin-bottom: 1mm;
+    }
+
+    .language-margin {
+      margin-top: 2mm;
+    }
+    .language-less-margin {
+      margin-top: 1.4mm;
+    }
+    #footer-iun {
+      position: absolute;
+      right: 10mm;
+      bottom: 1.7cm;
+    }
+  </style>
+</head>
+
+<body>
+  <!--------------------------- PAGE 1 (297mm x 192mm) --------------------------->
+  <div style="height: 297mm; width: 192mm;">
+    <div id="upper-section" style="height: 99mm;">
+      <div id="logo-box">
+        <img id="logo-box__logo" src="./images/aar-logo.gif" />
+        <div id="logo-box__subtitle" class="seven-px">
+          Avviso di avvenuta ricezione
+        </div>
+      </div>
+  
+      <div id="iun-code" class="eight-px">
+        <div>
+          <div><b>Codice univoco:</b></div>
+          <br />${notification.iun}
+        </div>
+        <div style="margin-top: 4mm;">
+          <div><b>Codice fiscale - Persona <#if recipient.recipientType=="PF">
+            fisica:
+            <#else>
+              giuridica:
+          </#if></b></div>
+          <br />${recipient.taxId}
+        </div>
+      </div>
+      <div id="recipient-addr-box">
+        <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+      </div>
+  
+    </div>
+
+    <div id="center-section" class="relative-box" style="height: 99mm;">
+      <div class="absolute-box">
+        <div id="main__subject" class="twelve-px sixteen-lh">
+          <p><b>Empfangsbescheid (AAR): ${notification.subject}</b></p>
+          <p class="language-margin"><b>Avviso di Avvenuta Ricezione (AAR): ${notification.subject}</b></p>
+        </div>
+        <div id="main__disclaimer" class="eleven-px sixteen-lh">
+          <p>Sie haben eine rechtliche Mitteilung von ${notification.sender.paDenomination} erhalten: <b>Lesen Sie die übermittelten Dokumente</b>. Wenn sie nicht in dieser Mitteilung enthalten sind, <b>greifen Sie online auf SEND auf die Dokumente zu oder fordern Sie eine Kopie bei den SEND-Sammelstellen an</b>, die gerade aktiviert werden. Wenn eine Zahlung erwartet wird, finden Sie in den Unterlagen das Ablaufdatum und das Datum für etwaige Einsprüche. </p>
+          <p class="language-margin">Hai ricevuto una comunicazione a valore legale da ${notification.sender.paDenomination}: <b>prendi visione dei documenti notificati</b>. Se non sono inclusi in questo avviso, <b>accedi ai documenti online su SEND o richiedine una copia presso i Punti di ritiro SEND</b>, in corso di attivazione. Se è previsto un pagamento, nei documenti troverai la data di scadenza e quella per eventuali ricorsi.</p>
+        </div>
+        
+      </div>
+    </div>
+
+
+    <div id="lower-section" style="height: 99mm; position: relative;">
+      <div class="row" style="height: 48mm;">
+        <div class="heading ten-px">ZUGRIFF AUF DOKUMENTE ONLINE - KOSTENLOS &middot; Accedi ai documenti online - gratis</div>
+        <div id="view-online-box-description">
+          <div class="section-list nine-px eleven-lh">
+            <ol>
+              <li>
+                <p>Scannen Sie den QR-Code oder gehen Sie zu <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>;</p>
+                <p class="language-less-margin">Inquadra il codice QR o vai su <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b></p>
+              </li>
+              <li>
+                <p>Geben Sie mit SPID oder CIE (elektronischer Personalausweis) ein;</p>
+                <p class="language-less-margin">Entra con SPID o CIE (Carta d'Identità Elettronica);</p>
+              </li>
+              <li>
+                <p>Greifen Sie auf die benachrichtigten Dokumente zu.</p>
+                <p class="language-less-margin">Accedi ai documenti notificati.</p>
+              </li>
+            </ol>
+          </div>
+        </div>
+        <div id="view-online-box">
+          <img alt="qr-code" id="qr-code" src="${qrCodeQuickAccessLink}" />
+        </div>
+      </div>
+      <div class="row">
+        <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
+          <p>Die Dokumente sind auf SEND 120 Tage lang ab dem Datum der Fertigstellung der Benachrichtigung auf der Empfängerseite (dem Datum, an dem sie für alle verschiedenen Zwecke Rechtskraft erlangt) verfügbar. Weitere Informationen finden Sie unter <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
+          <p class="language-margin">I documenti sono disponibili online e presso i Punti di ritiro SEND per 120 giorni dalla data di perfezionamento della notifica (data in cui assume valore di legge per tutte le diverse finalità). Scopri di più su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
+        </div>
+        <div id="read-more">
+          <p><b>geht weiter &middot; Continua</b></p>
+          <img id="arrow_image" src="images/arrow.jpg" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <#if recipient.recipientType=="PF">
+  <!--------------------------- PAGE 2 --------------------------->
+
+    <div id="main-page2">
+      <div class="row">
+          <div class="heading ten-px" style="padding-right: 0;">
+            SAMMELN SIE EIN Exemplar IM GEBIET - ZUR BEZAHLUNGRITIRA &middot; RITIRA una copia SUL TERRITORIO - A PAGAMENTO
+          </div>
+          <div class="section-list nine-px eleven-lh">
+            <ol>
+              <li>
+                <p>Fordern Sie die avisierten Dokumente auch ohne SPID oder CIE bei den SEND-Abholstellen (CAF und andere angeschlossene Händler) an. Suchen Sie auf ordinidigitali.pagopa.it/punti-di-ritiro nach den nächstgelegenen Sammelstellen oder rufen Sie die Nummer 06.4520.2323 an</p>
+                <p class="language-less-margin">Richiedi i documenti notificati anche senza SPID o CIE presso i Punti di ritiro SEND (CAF e altri esercenti convenzionati). Cerca i punti di ritiro più vicini a te su <b><a href="${sendURL}punti-di-ritiro">${sendURLLAbel}/punti-di-ritiro</a></b> oppure <b>chiama il numero ${raddPhoneNumber}</b></p>
+              </li>
+              <li>
+                <p>Bringen Sie Folgendes mit:
+                  <ul id="square-list">
+                    <li>diesen Hinweis;</li>
+                    <li>Ihr Ausweisdokument;</li>
+                    <li>Ihre Steuernummer.</li>
+                  </ul>
+                </p>
+                <p class="language-less-margin">Porta con te:
+                  <ul id="square-list">
+                    <li>questo avviso;</li>
+                    <li>un tuo documento di riconoscimento;</li>
+                    <li>il tuo codice fiscale.</li>
+                  </ul>
+                </p>
+              </li>
+              <li>
+                <p>Bezahlen Sie die Kosten für die Dienstleistung und holen Sie die avisierten Dokumente ab.</p>
+                <p class="language-less-margin">Paga il costo del servizio e ritira i documenti notificati.</p>
+              </li>
+            </ol>
+          </div>
+          <div id="mandate-box">
+            <div class="heading ten-px">
+              Möchten Sie jemanden delegieren? &middot; VUOI DELEGARE QUALCUNO?
+            </div>
+            <div id="mandate-box__form" class="nine-px">
+              Ich &middot; Io, ${recipient.denomination} ${recipient.taxId}, delegiere &middot; delego
+              <div class="nine-px eleven-lh border-bottom mb-form">
+                <p>Name und Nachname</p>
+                <p>Nome e Cognome</p>
+              </div>
+              <div class="nine-px eleven-lh border-bottom mb-form">
+                <p>Steuer-ID-Code</p>
+                <p>Codice Fiscale</p>
+              </div>
+              <p>die avisierten Unterlagen abzuholen.</p>
+              <p>a ritirare i documenti notificati.</p>
+              <div class="nine-px eleven-lh border-bottom mb-form">
+                <p>Unterschrift</p>
+                <p>Firma</p>
+              </div>
+            </div>
+            <div id="mandate-box__list" class="section-list nine-px eleven-lh">
+              <div>
+                Bringen Sie als delegierte Person Folgendes mit:
+              <ul id="square-list-mandate">
+                <li>diese Mitteilung mit der ausgefüllten und unterschriebenen Delegation;</li>
+                <li>Ihr Ausweisdokument;</li>
+                <li>Ihre Steuernummer;</li>
+                <li>eine Kopie oder ein Original der Abgabenordnung und ein Ausweisdokument der delegierenden Partei.<#if recipient.recipientType=="PF">.</li>
+                    <#else>;</li>
+                      <li>un documento che attesti il tuo ruolo
+                        di
+                        legale rappresentante.</li>
+                  </#if>
+              </ul>
+              </div>
+
+              <div class="language-margin">
+                La persona delegata dovrà portare con sé:
+              <ul id="square-list-mandate">
+                <li>questo avviso con la delega compilata e firmata;</li>
+                <li>un suo documento di riconoscimento;</li>
+                <li>il suo codice fiscale;</li>
+                <li>una copia o l’originale del tuo codice fiscale e di un tuo documento di riconoscimento del delegante<#if recipient.recipientType=="PF">.</li>
+                    <#else>;</li>
+                      <li>un documento che attesti il tuo ruolo
+                        di
+                        legale rappresentante.</li>
+                  </#if>
+              </ul>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="footer-iun" class="eight-px">
+          <b>Codice univoco:</b>
+          <br />${notification.iun}
+      </div>
+    </div>
+  </div>
+  </#if>
+
+</body>
+</html>
