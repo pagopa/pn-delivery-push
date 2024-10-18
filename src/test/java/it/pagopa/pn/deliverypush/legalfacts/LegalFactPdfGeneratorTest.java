@@ -129,11 +129,12 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
+                NotificationInt notification = buildNotification();
                 NotificationRecipientInt recipient = buildRecipients().get(0);
                 Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
 
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils
-                                .generateNotificationViewedLegalFact(iun, recipient, null, notificationViewedDate)));
+                                .generateNotificationViewedLegalFact(iun, recipient, null, notificationViewedDate, notification)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -141,6 +142,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationDelegateViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_DelegateViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
+                NotificationInt notification = buildNotification();
                 NotificationRecipientInt recipient = buildRecipients().get(0);
                 DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
                                 .denomination("Mario Rossi")
@@ -151,7 +153,7 @@ class LegalFactPdfGeneratorTest {
 
                 Assertions.assertDoesNotThrow(
                                 () -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient,
-                                                delegateInfo, notificationViewedDate)));
+                                                delegateInfo, notificationViewedDate, notification)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 

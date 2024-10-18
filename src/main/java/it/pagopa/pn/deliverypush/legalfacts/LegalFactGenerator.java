@@ -127,7 +127,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_SUBJECT, notification.getSubject());
 
         return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.REQUEST_ACCEPTED,
+                generateTemplateFromLang(DocumentComposition.TemplateType.REQUEST_ACCEPTED, notification.getAdditionlLang()),
                 templateModel
             );
 
@@ -166,7 +166,7 @@ public class LegalFactGenerator {
         }
     }
 
-    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp) throws IOException {
+    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp, NotificationInt notification) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
         
@@ -180,9 +180,17 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_DISCLAIMER, this.getlegalFactDisclaimer());
 
         return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.NOTIFICATION_VIEWED,
+                generateTemplateFromLang(DocumentComposition.TemplateType.NOTIFICATION_VIEWED, notification.getAdditionlLang()),
                 templateModel
         );
+    }
+
+    private DocumentComposition.TemplateType generateTemplateFromLang(DocumentComposition.TemplateType templateType, List<String> lang) {
+        if(CollectionUtils.isEmpty(lang)){
+            return templateType;
+        }
+
+        return DocumentComposition.TemplateType.valueOf(templateType.name() + "_" + lang.get(0));
     }
 
     @Value
@@ -239,7 +247,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
 
         return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW,
+                generateTemplateFromLang(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW, notification.getAdditionlLang()),
                 templateModel
         );
     }
@@ -263,7 +271,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
 
         return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE,
+                generateTemplateFromLang(DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE, notification.getAdditionlLang()),
                 templateModel
         );
     }
@@ -279,7 +287,7 @@ public class LegalFactGenerator {
             final AarTemplateType aarTemplateType = aarTemplateTypeChooseStrategy.choose(recipient.getPhysicalAddress());
             log.debug("aarTemplateType generated is ={} - iun={}", aarTemplateType, notification.getIun());
             byte[] bytesArrayGeneratedAar = documentComposition.executePdfTemplate(
-                    aarTemplateType.getTemplateType(),
+                    generateTemplateFromLang(aarTemplateType.getTemplateType(), notification.getAdditionlLang()),
                     templateModel
             );
 
@@ -301,7 +309,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_LOGO, SEND_LOGO_BASE64);
 
         return documentComposition.executeTextTemplate(
-                DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL,
+                generateTemplateFromLang(DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL, notification.getAdditionlLang()),
                 templateModel
             );
 
@@ -313,7 +321,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_LOGO, SEND_LOGO_BASE64);
 
         return documentComposition.executeTextTemplate(
-                DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC,
+                generateTemplateFromLang(DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC, notification.getAdditionlLang()),
                 templateModel
         );
 
