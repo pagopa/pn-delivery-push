@@ -126,6 +126,15 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
+        void generateNotificationCancelledLegalFactTest() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact.pdf");
+                Instant notificationCancelledDate = Instant.now();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                                pdfUtils.generateNotificationCancelledLegalFact(buildNotification(), notificationCancelledDate)));
+                System.out.print("*** CancelledLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
         void generateNotificationViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
