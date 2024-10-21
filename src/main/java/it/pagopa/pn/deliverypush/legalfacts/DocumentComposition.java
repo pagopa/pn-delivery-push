@@ -34,7 +34,7 @@ public class DocumentComposition {
 
     public enum TemplateType {
 
-        REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact_Lang.html"),
+        REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
         REQUEST_ACCEPTED_DE("documents_composition_templates/NotificationReceivedLegalFact.html"), //TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
         REQUEST_ACCEPTED_SL("documents_composition_templates/NotificationReceivedLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
         REQUEST_ACCEPTED_FR("documents_composition_templates/NotificationReceivedLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE

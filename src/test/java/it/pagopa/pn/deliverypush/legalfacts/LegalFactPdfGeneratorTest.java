@@ -991,7 +991,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationAAREmailTestDE() throws IOException {
+        void generateNotificationAAREmailTestDE() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
@@ -1009,14 +1009,14 @@ class LegalFactPdfGeneratorTest {
                         System.out.println("element " + element);
                 });
 
-                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
                 Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL_DE, captor.getValue());
 
                 System.out.print("*** AAR EMAIL BODY successfully created");
         }
 
         @Test
-        void generateNotificationAAREmailTestSL() throws IOException {
+        void generateNotificationAAREmailTestSL() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
@@ -1034,14 +1034,14 @@ class LegalFactPdfGeneratorTest {
                         System.out.println("element " + element);
                 });
 
-                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
                 Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL_SL, captor.getValue());
 
                 System.out.print("*** AAR EMAIL BODY successfully created");
         }
 
         @Test
-        void generateNotificationAAREmailTestFR() throws IOException {
+        void generateNotificationAAREmailTestFR() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
@@ -1059,7 +1059,7 @@ class LegalFactPdfGeneratorTest {
                         System.out.println("element " + element);
                 });
 
-                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
                 Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL_FR, captor.getValue());
 
                 System.out.print("*** AAR EMAIL BODY successfully created");
@@ -1103,7 +1103,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationAARPECTestDE() throws IOException {
+        void generateNotificationAARPECTestDE() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
@@ -1116,7 +1116,7 @@ class LegalFactPdfGeneratorTest {
                 Assertions.assertDoesNotThrow(() -> {
                         String element = pdfUtils.generateNotificationAARPECBody(notificationInt,
                                 notificationRecipientInt, quickAccessToken);
-                        verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                        verify(documentComposition).executeTextTemplate(captor.capture(), any());
                         Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC_DE, captor.getValue());
                         PrintWriter out = new PrintWriter(filePath.toString());
                         out.println(element);
@@ -1129,7 +1129,7 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
-        void generateNotificationAARPECTestSL() throws IOException {
+        void generateNotificationAARPECTestSL() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
@@ -1148,13 +1148,13 @@ class LegalFactPdfGeneratorTest {
 
                         System.out.println("element " + element);
                 });
-                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
                 Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC_SL, captor.getValue());
 
         }
 
         @Test
-        void generateNotificationAARPECTestFR() throws IOException {
+        void generateNotificationAARPECTestFR() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
@@ -1173,7 +1173,7 @@ class LegalFactPdfGeneratorTest {
 
                         System.out.println("element " + element);
                 });
-                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
                 Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC_FR, captor.getValue());
 
         }
