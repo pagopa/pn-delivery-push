@@ -1,13 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import static it.pagopa.pn.deliverypush.action.it.utils.TestUtils.verifyPaymentInfo;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
-import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
@@ -19,31 +11,17 @@ import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResultInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaIntMode;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDocumentCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnPaymentUpdateRetryException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
-import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +33,17 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static it.pagopa.pn.deliverypush.action.it.utils.TestUtils.verifyPaymentInfo;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
+import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.*;
+import static org.mockito.ArgumentMatchers.*;
 
 class NotificationCancellationServiceImplTest {
 
@@ -72,12 +61,16 @@ class NotificationCancellationServiceImplTest {
     private AuditLogService auditLogService;
     @Mock
     private NotificationProcessCostService notificationProcessCostService;
+    @Mock
+    private SaveLegalFactsService saveLegalFactsService;
+    @Mock
+    private DocumentCreationRequestService documentCreationRequestService;
 
     private NotificationCancellationService notificationCancellationService;
     
     @BeforeEach
     public void init(){
-        notificationCancellationService = new NotificationCancellationServiceImpl(notificationService, paperNotificationFailedService, authUtils, timelineService, timelineUtils, auditLogService, notificationProcessCostService);
+        notificationCancellationService = new NotificationCancellationServiceImpl(notificationService, paperNotificationFailedService, authUtils, timelineService, timelineUtils, auditLogService, notificationProcessCostService, saveLegalFactsService, documentCreationRequestService);
     }
     
     @Test
@@ -248,6 +241,7 @@ class NotificationCancellationServiceImplTest {
         //Given
         final String creditorTaxId = "cred";
         final String noticeCode = "notice";
+        final String legalFactId = "legalFactId";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withPayments(Collections.singletonList(
                         NotificationPaymentInfoInt.builder()
@@ -269,12 +263,14 @@ class NotificationCancellationServiceImplTest {
                 .build();
 
         final TimelineElementInternal timelineElement = TimelineElementInternal.builder()
-                .details(NotificationCancelledDetailsInt.builder()
+                .details(NotificationCancelledDocumentCreationRequestDetailsInt.builder()
+                        .legalFactId(legalFactId)
                         .build())
                 .timestamp(Instant.now())
                 .build();
-        Mockito.when(timelineUtils.buildCancelledTimelineElement(notification)).thenReturn(timelineElement);
+        Mockito.when(timelineUtils.buildNotificationCancelledLegalFactCreationRequest(notification, legalFactId)).thenReturn(timelineElement);
         Mockito.when(timelineService.addTimelineElement(Mockito.any(), Mockito.any())).thenReturn(false);
+        Mockito.when(timelineService.getTimelineElement(any(), any())).thenReturn(Optional.of(timelineElement));
         Mockito.when(notificationService.removeAllNotificationCostsByIun(notification.getIun())).thenReturn(Mono.empty());
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         Mockito.when(notificationService.updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, timelineElement.getTimestamp())).thenReturn(Mono.empty());
@@ -282,6 +278,8 @@ class NotificationCancellationServiceImplTest {
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(2)))
                 .thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+        Mockito.when(saveLegalFactsService.sendCreationRequestForNotificationCancelledLegalFact(notification, timelineElement.getTimestamp())).thenReturn(legalFactId);
+        Mockito.doNothing().when(documentCreationRequestService).addDocumentCreationRequest(legalFactId, notification.getIun(), DocumentCreationTypeInt.NOTIFICATION_CANCELLED, timelineElement.getElementId());
 
         final int recIndex = 0;
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
@@ -412,6 +410,7 @@ class NotificationCancellationServiceImplTest {
         //Given
         final String creditorTaxId = "cred";
         final String noticeCode = "notice";
+        final String legalFactId = "legalFactId";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withPayments(Collections.singletonList(
                         NotificationPaymentInfoInt.builder()
@@ -433,12 +432,14 @@ class NotificationCancellationServiceImplTest {
                 .build();
 
         final TimelineElementInternal timelineElement = TimelineElementInternal.builder()
-                .details(NotificationCancelledDetailsInt.builder()
+                .details(NotificationCancelledDocumentCreationRequestDetailsInt.builder()
+                        .legalFactId(legalFactId)
                         .build())
                 .timestamp(Instant.now())
                 .build();
-        Mockito.when(timelineUtils.buildCancelledTimelineElement(notification)).thenReturn(timelineElement);
+        Mockito.when(timelineUtils.buildNotificationCancelledLegalFactCreationRequest(notification, legalFactId)).thenReturn(timelineElement);
         Mockito.when(timelineService.addTimelineElement(Mockito.any(), Mockito.any())).thenReturn(false);
+        Mockito.when(timelineService.getTimelineElement(any(), any())).thenReturn(Optional.of(timelineElement));
         Mockito.when(notificationService.removeAllNotificationCostsByIun(notification.getIun())).thenReturn(Mono.empty());
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         Mockito.when(notificationService.updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, timelineElement.getTimestamp())).thenReturn(Mono.empty());
@@ -446,6 +447,8 @@ class NotificationCancellationServiceImplTest {
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(2)))
                 .thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+        Mockito.when(saveLegalFactsService.sendCreationRequestForNotificationCancelledLegalFact(notification, timelineElement.getTimestamp())).thenReturn(legalFactId);
+        Mockito.doNothing().when(documentCreationRequestService).addDocumentCreationRequest(legalFactId, notification.getIun(), DocumentCreationTypeInt.NOTIFICATION_CANCELLED, timelineElement.getElementId());
 
         //WHEN
         notificationCancellationService.continueCancellationProcess(notification.getIun());
@@ -471,6 +474,7 @@ class NotificationCancellationServiceImplTest {
     @ExtendWith(SpringExtension.class)
     void cancelNotificationAlreadyInserted() {
         //Given
+        final String legalFactId = "legalFactId";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder().build();
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun("iun")
@@ -478,18 +482,20 @@ class NotificationCancellationServiceImplTest {
                 .build();
 
         final TimelineElementInternal timelineElementOLD = TimelineElementInternal.builder()
-                .details(NotificationCancelledDetailsInt.builder()
+                .details(NotificationCancelledDocumentCreationRequestDetailsInt.builder()
+                        .legalFactId(legalFactId)
                         .build())
                 .timestamp(Instant.now().minusMillis(1000))
                 .build();
         final TimelineElementInternal timelineElement = TimelineElementInternal.builder()
-                .details(NotificationCancelledDetailsInt.builder()
+                .details(NotificationCancelledDocumentCreationRequestDetailsInt.builder()
+                        .legalFactId(legalFactId)
                         .build())
                 .timestamp(Instant.now())
                 .build();
-        Mockito.when(timelineUtils.buildCancelledTimelineElement(notification)).thenReturn(timelineElement);
+        Mockito.when(timelineUtils.buildNotificationCancelledLegalFactCreationRequest(any(), any())).thenReturn(timelineElement);
         Mockito.when(timelineService.addTimelineElement(Mockito.any(), Mockito.any())).thenReturn(true);
-        Mockito.when(timelineService.getTimelineElement(notification.getIun(), timelineElement.getElementId())).thenReturn(Optional.ofNullable(timelineElementOLD));
+        Mockito.when(timelineService.getTimelineElement(any(), any())).thenReturn(Optional.of(timelineElementOLD));
         Mockito.when(notificationService.removeAllNotificationCostsByIun(notification.getIun())).thenReturn(Mono.empty());
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         Mockito.when(notificationService.updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, timelineElementOLD.getTimestamp())).thenReturn(Mono.empty());
@@ -497,6 +503,8 @@ class NotificationCancellationServiceImplTest {
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(2)))
                 .thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+        Mockito.when(saveLegalFactsService.sendCreationRequestForNotificationCancelledLegalFact(notification, timelineElement.getTimestamp())).thenReturn(legalFactId);
+        Mockito.doNothing().when(documentCreationRequestService).addDocumentCreationRequest(legalFactId, notification.getIun(), DocumentCreationTypeInt.NOTIFICATION_CANCELLED, timelineElement.getElementId());
 
         //WHEN
         notificationCancellationService.continueCancellationProcess(notification.getIun());

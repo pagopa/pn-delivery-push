@@ -8,8 +8,10 @@ import it.pagopa.pn.deliverypush.dto.cancellation.StatusDetailInt;
 import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaIntMode;
+import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
@@ -25,6 +27,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static it.pagopa.pn.deliverypush.action.utils.PaymentUtils.handleResponse;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
 
 @Service
 @AllArgsConstructor
@@ -47,6 +50,8 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
     private final TimelineUtils timelineUtils;
     private AuditLogService auditLogService;
     private NotificationProcessCostService notificationProcessCostService;
+    private final SaveLegalFactsService saveLegalFactsService;
+    private final DocumentCreationRequestService documentCreationRequestService;
 
     @Override
     public Mono<StatusDetailInt> startCancellationProcess(String iun, String paId, CxTypeAuthFleet cxType, List<String> xPagopaPnCxGroups) {
@@ -82,14 +87,31 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
             notification.getRecipients().forEach(recipient ->
                     paperNotificationFailedService.deleteNotificationFailed(recipient.getInternalId(), iun));
 
+            // genero e faccio upload del documento di annullamento
+            String legalFactId = saveLegalFactsService.sendCreationRequestForNotificationCancelledLegalFact(notification, getNotificationCancellationRequestDate(iun));
+
             // salvo l'evento in timeline
-            addCanceledTimelineElement(notification);
+            TimelineElementInternal timelineElementInternal = addNotificationCancelledLegalFactTimelineElement(notification, legalFactId);
+
+            // vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
+            documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), DocumentCreationTypeInt.NOTIFICATION_CANCELLED, timelineElementInternal.getElementId());
 
             logEvent.generateSuccess().log();
         } catch (Exception e) {
             logEvent.generateFailure("Error in continueCancellationProcess iun={}", iun, e).log();
             throw e;
         }
+    }
+
+    private Instant getNotificationCancellationRequestDate(String iun) {
+        String elementId = NOTIFICATION_CANCELLATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        return timelineService.getTimelineElement(iun, elementId)
+                .orElseThrow(() -> new IllegalStateException("Timeline element not found"))
+                .getTimestamp();
     }
 
     private void handleUpdateNotificationCost(NotificationInt notification) {
@@ -126,9 +148,15 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
         timelineService.addTimelineElement(timelineElementInternal , notification);
     }
 
+    private TimelineElementInternal addNotificationCancelledLegalFactTimelineElement(NotificationInt notification, String legalFactId) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildNotificationCancelledLegalFactCreationRequest(notification, legalFactId);
+        timelineService.addTimelineElement(timelineElementInternal, notification);
+        return timelineElementInternal;
+    }
+
     @NotNull
     private PnAuditLogEvent generateAuditLog(String iun, int validationStep) {
-        String message = "Notification cancellation step {} of 2.";
+        String message = "Notification cancellation step {} of 3.";
         
         return auditLogService.buildAuditLogEvent(
                 iun,
