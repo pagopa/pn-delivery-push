@@ -135,6 +135,15 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
+        void generateNotificationCancelledLegalFactTestWithMoreRecipients() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact.pdf");
+                Instant notificationCancelledDate = Instant.now();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                                pdfUtils.generateNotificationCancelledLegalFact(buildNotificationMoreRecipients(), notificationCancelledDate)));
+                System.out.print("*** CancelledLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
         void generateNotificationViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
@@ -604,6 +613,27 @@ class LegalFactPdfGeneratorTest {
                                 .build();
         }
 
+        private NotificationInt buildNotificationMoreRecipients() {
+                return NotificationInt.builder()
+                        .sender(createSender())
+                        .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                        .iun("Example_IUN_1234_Test")
+                        .subject("notification Titolo di 134 caratteri massimi spazi compresi. Aid olotielit, sed eiusmod tempora incidunt ue et et dolore magna aliqua aliqua aliqua")
+                        .documents(Collections.singletonList(
+                                NotificationDocumentInt.builder()
+                                        .ref(NotificationDocumentInt.Ref.builder()
+                                                .key("doc00")
+                                                .versionToken("v01_doc00")
+                                                .build())
+                                        .digests(NotificationDocumentInt.Digests.builder()
+                                                .sha256((Base64Utils.encodeToString(
+                                                        "sha256_doc01".getBytes())))
+                                                .build())
+                                        .build()))
+                        .recipients(buildMoreRecipients())
+                        .build();
+        }
+
         private NotificationInt buildNotificationWithSinglePayment() {
                 return NotificationInt.builder()
                                 .sender(createSender())
@@ -760,6 +790,67 @@ class LegalFactPdfGeneratorTest {
                                 .build();
 
                 return Collections.singletonList(rec1);
+        }
+
+        private List<NotificationRecipientInt> buildMoreRecipients() {
+                NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
+                        .taxId("CDCFSC11R99X001Z")
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Galileo Bruno")
+                        .digitalDomicile(LegalDigitalAddressInt.builder()
+                                .address("test@dominioPec.it")
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .build())
+                        .physicalAddress(new PhysicalAddressInt(
+                                "Galileo Bruno",
+                                "Palazzo dell'Inquisizione",
+                                "corso Italia 666",
+                                "Piano Terra (piatta)",
+                                "00100",
+                                "Roma",
+                                null,
+                                "RM",
+                                "IT"))
+                        .build();
+                NotificationRecipientInt rec2 = NotificationRecipientInt.builder()
+                        .taxId("AAAAAA11R99X001Z")
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Marco Polo")
+                        .digitalDomicile(LegalDigitalAddressInt.builder()
+                                .address("test@dominioPec.it")
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .build())
+                        .physicalAddress(new PhysicalAddressInt(
+                                "Marco Polo",
+                                "Palazzo dell'Inquisizione",
+                                "corso Italia 666",
+                                "Piano Terra (piatta)",
+                                "00100",
+                                "Napoli",
+                                null,
+                                "NA",
+                                "IT"))
+                        .build();
+                NotificationRecipientInt rec3 = NotificationRecipientInt.builder()
+                        .taxId("BBBBBB11R99X001Z")
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Cristoforo Colombo")
+                        .digitalDomicile(LegalDigitalAddressInt.builder()
+                                .address("test@dominioPec.it")
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                                .build())
+                        .physicalAddress(new PhysicalAddressInt(
+                                "Cristoforo Colombo",
+                                "Palazzo dell'Inquisizione",
+                                "corso Italia 666",
+                                "Piano Terra (piatta)",
+                                "00100",
+                                "Como",
+                                null,
+                                "CO",
+                                "IT"))
+                        .build();
+                return List.of(rec1, rec2, rec3);
         }
 
         private List<NotificationRecipientInt> buildRecipientWithDOMD() {
