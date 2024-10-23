@@ -61,8 +61,8 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
                 .doOnError(err -> logEvent.generateFailure("Error in cancellation process iun={} paId={}", iun, paId, err).log());
     }
 
-    public void completeCancellationProcess(String iun){
-        log.debug("Start cancelNotification - iun={}", iun);
+    public void continueCancellationProcess(String iun){
+        log.debug("Start continueCancellationProcess - iun={}", iun);
         PnAuditLogEvent logEvent = generateAuditLog(iun, SECOND_CANCELLATION_STEP);
 
         try {
@@ -87,7 +87,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
             logEvent.generateSuccess().log();
         } catch (Exception e) {
-            logEvent.generateFailure("Error in cancellation process iun={}", iun, e).log();
+            logEvent.generateFailure("Error in continueCancellationProcess iun={}", iun, e).log();
             throw e;
         }
     }
