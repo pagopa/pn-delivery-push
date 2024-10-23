@@ -111,6 +111,26 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
 
     }
 
+    public String sendCreationRequestForNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) {
+        try {
+            log.debug("Start sendCreationRequestForNotificationCancelledLegalFact - iun={}", notification.getIun());
+
+            return MDCUtils.addMDCToContextAndExecute(
+                    this.saveLegalFact(legalFactBuilder.generateNotificationCancelledLegalFact(notification, notificationCancellationRequestDate))
+                            .map( responseUrl -> {
+                                log.debug("sendCreationRequestForNotificationCancelledLegalFact completed with fileKey={} - iun={}", responseUrl, notification.getIun());
+                                return responseUrl;
+                            })
+            ).block();
+
+        } catch (Exception exc) {
+            String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_CANCELLED", notification.getIun(), "N/A");
+            log.error("Exception in sendCreationRequestForNotificationCancelledLegalFact ex=", exc);
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
+        }
+
+    }
+
     public String sendCreationRequestForPecDeliveryWorkflowLegalFact(
             List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel,
             NotificationInt notification,
