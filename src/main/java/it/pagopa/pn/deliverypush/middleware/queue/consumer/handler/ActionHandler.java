@@ -343,7 +343,7 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
 
                 log.logStartingProcess(processName);
-                notificationCancellationActionHandler.cancelNotification(action.getIun());
+                notificationCancellationActionHandler.continueCancellationProcess(action.getIun());
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
