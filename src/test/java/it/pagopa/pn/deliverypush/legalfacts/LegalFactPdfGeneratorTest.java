@@ -81,7 +81,6 @@ class LegalFactPdfGeneratorTest {
                 additional.put("raddoperatormooney", "false");
                 additional.put("raddoperatorsailpost", "false");
                 pnDeliveryPushConfigs.getWebapp().setAdditional(additional);
-                pnDeliveryPushConfigs.getWebapp().setLegalFactDisclaimer("L’attestazione riporta la data in cui il destinatario (o il suo delegato) per la prima volta ha avuto accesso tramite la piattaforma al documento oggetto di notificazione. Tale data non necessariamente corrisponde alla data di perfezionamento della notifica, che può anche essere antecedente per decorrenza termini.");
                 pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
                 pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");

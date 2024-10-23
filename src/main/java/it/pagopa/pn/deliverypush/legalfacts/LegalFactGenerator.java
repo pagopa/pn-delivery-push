@@ -177,7 +177,6 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( timeStamp, true));
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
-        templateModel.put(FIELD_DISCLAIMER, this.getlegalFactDisclaimer());
 
         return documentComposition.executePdfTemplate(
                 DocumentComposition.TemplateType.NOTIFICATION_VIEWED,
@@ -481,8 +480,5 @@ public class LegalFactGenerator {
 
     }
 
-    private String getlegalFactDisclaimer(){
-        return pnDeliveryPushConfigs.getWebapp().getLegalFactDisclaimer();
-    }
 }
 
