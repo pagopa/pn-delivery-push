@@ -137,8 +137,8 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
     }
 
-    private void addCanceledTimelineElement(NotificationInt notification) {
-        TimelineElementInternal cancelledTimelineElement = timelineUtils.buildCancelledTimelineElement(notification);
+    private void addCanceledTimelineElement(NotificationInt notification, String legalFactId) {
+        TimelineElementInternal cancelledTimelineElement = timelineUtils.buildCancelledTimelineElement(notification, legalFactId);
         // salvo l'evento in timeline
         timelineService.addTimelineElement(cancelledTimelineElement, notification);
     }
