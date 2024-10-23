@@ -46,13 +46,13 @@ class NotificationCancellationActionHandlerTest {
                         .build())
                 .timestamp(Instant.now())
                 .build();
-        Mockito.doNothing().when(notificationCancellationService).completeCancellationProcess(notification.getIun());
+        Mockito.doNothing().when(notificationCancellationService).continueCancellationProcess(notification.getIun());
 
         //WHEN
-        handler.cancelNotification(notification.getIun());
+        handler.continueCancellationProcess(notification.getIun());
 
         //THEN
-        Mockito.verify(notificationCancellationService).completeCancellationProcess(notification.getIun());
+        Mockito.verify(notificationCancellationService).continueCancellationProcess(notification.getIun());
     }
 
 }

@@ -92,7 +92,7 @@ public class TimelineDaoMock implements TimelineDao {
 
                 ThreadPool.start(new Thread(() -> {
                     await().atLeast(Duration.ofSeconds(1));
-                    notificationCancellationActionHandler.cancelNotification(dto.getIun());
+                    notificationCancellationActionHandler.continueCancellationProcess(dto.getIun());
                 }));
 
             }
@@ -121,7 +121,7 @@ public class TimelineDaoMock implements TimelineDao {
 
                 ThreadPool.start(new Thread(() -> {
                     await().atLeast(Duration.ofSeconds(1));
-                    notificationCancellationActionHandler.cancelNotification(dto.getIun());
+                    notificationCancellationActionHandler.continueCancellationProcess(dto.getIun());
                 }));
             }
         }

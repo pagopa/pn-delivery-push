@@ -305,7 +305,7 @@ class NotificationCancellationServiceImplTest {
         )).thenReturn(Mono.just(response));
 
         //WHEN
-        notificationCancellationService.completeCancellationProcess(notification.getIun());
+        notificationCancellationService.continueCancellationProcess(notification.getIun());
 
         //THEN
         Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
@@ -384,7 +384,7 @@ class NotificationCancellationServiceImplTest {
 
         //WHEN
         Assertions.assertThrows(PnPaymentUpdateRetryException.class,
-                () -> notificationCancellationService.completeCancellationProcess(iun));
+                () -> notificationCancellationService.continueCancellationProcess(iun));
 
         //THEN
         Mockito.verify(notificationService).removeAllNotificationCostsByIun(iun);
@@ -448,7 +448,7 @@ class NotificationCancellationServiceImplTest {
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
 
         //WHEN
-        notificationCancellationService.completeCancellationProcess(notification.getIun());
+        notificationCancellationService.continueCancellationProcess(notification.getIun());
 
         //THEN
         Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), "iun");
@@ -499,7 +499,7 @@ class NotificationCancellationServiceImplTest {
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
 
         //WHEN
-        notificationCancellationService.completeCancellationProcess(notification.getIun());
+        notificationCancellationService.continueCancellationProcess(notification.getIun());
 
         //THEN
         Mockito.verify(paperNotificationFailedService).deleteNotificationFailed(recipient.getInternalId(), "iun");
@@ -527,7 +527,7 @@ class NotificationCancellationServiceImplTest {
 
         //WHEN
         String iun = notification.getIun();
-        Assert.assertThrows(NullPointerException.class, ()-> notificationCancellationService.completeCancellationProcess(iun));
+        Assert.assertThrows(NullPointerException.class, ()-> notificationCancellationService.continueCancellationProcess(iun));
 
         //THEN
         Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipient.getInternalId(), "iun");
