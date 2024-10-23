@@ -355,7 +355,8 @@
 						</goals>
 						<configuration>
 							<!--modificare quando lo swagger di delivery aggiornato sarà su dev-->
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/19f7bd16eec3b1951fbe453a028269ea0a041ace/docs/openapi/api-private.yaml</inputSpec>
+							<!--<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/19f7bd16eec3b1951fbe453a028269ea0a041ace/docs/openapi/api-private.yaml</inputSpec>-->
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/ecf7efd2b648caf736caadd294301f19439e14a0/docs/openapi/api-private.yaml</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
@@ -387,7 +388,8 @@
 						</goals>
 						<configuration>
 							<!--modificare quando lo swagger di delivery aggiornato sarà su dev-->
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/19f7bd16eec3b1951fbe453a028269ea0a041ace/docs/openapi/api-private.yaml</inputSpec>
+							<!--<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/19f7bd16eec3b1951fbe453a028269ea0a041ace/docs/openapi/api-private.yaml</inputSpec>-->
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/ecf7efd2b648caf736caadd294301f19439e14a0/docs/openapi/api-private.yaml</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
 							<library>webclient</library>
