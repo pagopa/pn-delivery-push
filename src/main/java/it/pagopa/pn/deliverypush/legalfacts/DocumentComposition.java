@@ -34,7 +34,7 @@ public class DocumentComposition {
 
     public enum TemplateType {
         REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
-        NOTIFICATION_CANCELLED("documents_composition_templates/NotificationCancelledLegalFact.html"),
+        NOTIFICATION_CANCELLED("documents_composition_templates/NotificationReceivedLegalFact.html"), //TODO: REPLACE WITH CORRECT TEMPLATE PN-12928
         DIGITAL_NOTIFICATION_WORKFLOW("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),
         ANALOG_NOTIFICATION_WORKFLOW_FAILURE("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
