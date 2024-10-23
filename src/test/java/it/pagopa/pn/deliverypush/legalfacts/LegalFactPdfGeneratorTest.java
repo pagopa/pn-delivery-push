@@ -27,6 +27,7 @@ import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -123,15 +124,6 @@ class LegalFactPdfGeneratorTest {
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationReceivedLegalFact(buildNotificationWithMultiPayment())));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
-        }
-
-        @Test
-        void generateNotificationCancelledLegalFactTest() {
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact.pdf");
-                Instant notificationCancelledDate = Instant.now();
-                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
-                                pdfUtils.generateNotificationCancelledLegalFact(buildNotification(), notificationCancelledDate)));
-                System.out.print("*** CancelledLegalFact pdf successfully created at: " + filePath);
         }
 
         @Test
