@@ -1224,4 +1224,24 @@ class TimelineUtilsTest {
         () -> Assertions.assertEquals(timelineEventIdExpected,actual.getElementId())
         );
     }
+
+    @Test
+    void buildNotificationCancelledLegalFactCreationRequest() {
+        NotificationInt notification = buildNotification();
+        String legalFactId = "001";
+
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.IUN_Example_IUN_1234_Test";
+
+        TimelineElementInternal actual = timelineUtils.buildNotificationCancelledLegalFactCreationRequest(
+                notification,
+                legalFactId
+        );
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("legalFactId=" + legalFactId, actual.getDetails().toLog())
+        );
+    }
 }
