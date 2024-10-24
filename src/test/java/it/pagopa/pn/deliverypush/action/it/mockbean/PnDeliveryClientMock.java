@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class PnDeliveryClientMock implements PnDeliveryClient {
-    private CopyOnWriteArrayList<SentNotificationV23> notifications;
+    private CopyOnWriteArrayList<SentNotificationV24> notifications;
 
     private final PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
@@ -30,7 +30,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     }
 
     public void addNotification(NotificationInt notification) {
-        SentNotificationV23 sentNotification = NotificationMapper.internalToExternal(notification);
+        SentNotificationV24 sentNotification = NotificationMapper.internalToExternal(notification);
         this.notifications.add(sentNotification);
         log.info("ADDED_IUN:" + notification.getIun());
     }
@@ -41,10 +41,10 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     }
 
     @Override
-    public SentNotificationV23 getSentNotification(String iun) {
-        Optional<SentNotificationV23> sentNotificationOpt = notifications.stream().filter(notification -> iun.equals(notification.getIun())).findFirst();
+    public SentNotificationV24 getSentNotification(String iun) {
+        Optional<SentNotificationV24> sentNotificationOpt = notifications.stream().filter(notification -> iun.equals(notification.getIun())).findFirst();
         if(sentNotificationOpt.isPresent()){
-            SentNotificationV23 sentNotification = sentNotificationOpt.get();
+            SentNotificationV24 sentNotification = sentNotificationOpt.get();
             List<NotificationRecipientV23> listRecipient = sentNotification.getRecipients();
             
             int recIndex = 0;
@@ -82,7 +82,7 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     public Map<String, String> getQuickAccessLinkTokensPrivate(String iun) {
       Map<String, String> body = this.notifications.stream()
       .filter(n->n.getIun().equals(iun))
-      .map(SentNotificationV23::getRecipients)
+      .map(SentNotificationV24::getRecipients)
       .flatMap(List::stream)
       .collect(Collectors.toMap(NotificationRecipientV23::getInternalId, (n) -> "test"));
       return body;
