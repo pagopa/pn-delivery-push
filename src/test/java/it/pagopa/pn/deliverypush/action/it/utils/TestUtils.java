@@ -684,7 +684,8 @@ public class TestUtils {
                 recipient,
                 legalFactGenerator,
                 delegateInfo,
-                generatedLegalFactsInfo.isNotificationViewedLegalFactGenerated()
+                generatedLegalFactsInfo.isNotificationViewedLegalFactGenerated(),
+                notification
         );
 
         TestUtils.checkPecDeliveryWorkflowLegalFactsGeneration(
@@ -723,11 +724,12 @@ public class TestUtils {
                                                          NotificationRecipientInt recipient,
                                                          LegalFactGenerator legalFactGenerator,
                                                          DelegateInfoInt delegateInfo,
-                                                         boolean itWasGenerated) {
+                                                         boolean itWasGenerated,
+                                                         NotificationInt notification) {
         int times = getTimes(itWasGenerated);
 
         try {
-            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationViewedLegalFact(Mockito.eq(iun), Mockito.eq(recipient), Mockito.eq(delegateInfo), Mockito.any(Instant.class));
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationViewedLegalFact(Mockito.eq(iun), Mockito.eq(recipient), Mockito.eq(delegateInfo), Mockito.any(Instant.class), notification);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
