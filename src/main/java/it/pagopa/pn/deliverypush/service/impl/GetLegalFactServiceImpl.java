@@ -149,7 +149,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
 
     @Override
     @NotNull
-    public List<LegalFactListElement> getLegalFacts(String iun, String senderReceiverId, String mandateId, CxTypeAuthFleet cxType, List<String> cxGroups) {
+    public List<LegalFactListElementV20> getLegalFacts(String iun, String senderReceiverId, String mandateId, CxTypeAuthFleet cxType, List<String> cxGroups) {
         log.debug("Retrieve timeline elements for iun={}", iun);
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun, true);
 
@@ -166,13 +166,13 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         logEvent.log();
 
         try {
-            List<LegalFactListElement> legalFacts = timelineElements
+            List<LegalFactListElementV20> legalFacts = timelineElements
                     .stream()
                     .filter(timeEl -> timeEl.getLegalFactsIds() != null)
                     .filter(timeEl -> checkIfLegalFactCanBeViewed(notification, recipientId, cxType, timeEl))
                     .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
                     .flatMap(timeEl -> timeEl.getLegalFactsIds().stream().map(
-                            lfId -> LegalFactListElement.builder()
+                            lfId -> LegalFactListElementV20.builder()
                                     .taxId(readRecipientId(timeEl, notification))
                                     .iun(iun)
                                     .legalFactsId(LegalFactIdMapper.internalToExternal(lfId))
