@@ -34,9 +34,9 @@ public class DocumentComposition {
 
     public enum TemplateType {
         REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
-        REQUEST_ACCEPTED_DE("documents_composition_templates/NotificationReceivedLegalFact_sl.html"), //TODO: change to de
-        REQUEST_ACCEPTED_SL("documents_composition_templates/NotificationReceivedLegalFact_sl.html"),
-        REQUEST_ACCEPTED_FR("documents_composition_templates/NotificationReceivedLegalFact_fr.html"),
+        REQUEST_ACCEPTED_DE("documents_composition_templates/NotificationReceivedLegalFact.html"), //TODO: ADD _de
+        REQUEST_ACCEPTED_SL("documents_composition_templates/NotificationReceivedLegalFact.html"),//TODO: ADD _sl
+        REQUEST_ACCEPTED_FR("documents_composition_templates/NotificationReceivedLegalFact.html"),//TODO: ADD _fr
 
 
         DIGITAL_NOTIFICATION_WORKFLOW("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),
