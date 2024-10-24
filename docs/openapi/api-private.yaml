@@ -274,7 +274,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactList"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20"
         '400':
           description: Invalid input
           content:
@@ -296,6 +296,7 @@ paths:
 
   '/delivery-push-private/{iun}/legal-facts/{legalFactType}/{legalFactId}':
     get:
+      deprecated: true
       summary: Singolo atto opponibile a terzi
       description: >-
         Permette di scaricare un atto opponibile a terzi
@@ -307,7 +308,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/recipientInternalId'
         - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathLegalFactType'
+        - $ref: '#/components/parameters/pathLegalFactTypeV20'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
         - $ref: '#/components/parameters/xPagoPaPnCxType'
@@ -489,14 +490,14 @@ components:
     ############################################################################################
     ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
     ############################################################################################
-    pathLegalFactType:
+    pathLegalFactTypeV20:
       description: >-
         Categoria dell'atto opponbile a terzi
       name: legalFactType
       in: path
       required: true
       schema:
-        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategory'
+        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategoryV20'
 
     pathLegalFactId:
       description: >-
@@ -649,7 +650,7 @@ components:
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV25'
 
 
     ############################################################################################
