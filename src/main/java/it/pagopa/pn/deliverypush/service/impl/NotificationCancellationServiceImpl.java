@@ -37,6 +37,7 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
 
     private static final int FIRST_CANCELLATION_STEP = 1;
     private static final int SECOND_CANCELLATION_STEP = 2; //Da utilizzare per lo step async
+    private static final int THIRD_CANCELLATION_STEP = 3;
 
     public static final String NOTIFICATION_ALREADY_CANCELLED = "NOTIFICATION_ALREADY_CANCELLED";
     public static final String NOTIFICATION_CANCELLATION_ACCEPTED = "NOTIFICATION_CANCELLATION_ACCEPTED";
@@ -99,6 +100,24 @@ public class NotificationCancellationServiceImpl implements NotificationCancella
             logEvent.generateSuccess().log();
         } catch (Exception e) {
             logEvent.generateFailure("Error in continueCancellationProcess iun={}", iun, e).log();
+            throw e;
+        }
+    }
+
+    @Override
+    public void completeCancellationProcess(String iun, String legalFactId) {
+        log.debug("Start completeCancellationProcess - iun={}, legalFactId={}", iun, legalFactId);
+        PnAuditLogEvent logEvent = generateAuditLog(iun, THIRD_CANCELLATION_STEP);
+
+        try {
+            NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+            // salvo l'evento in timeline
+            addCanceledTimelineElement(notification, legalFactId);
+
+            logEvent.generateSuccess().log();
+        } catch (Exception e) {
+            logEvent.generateFailure("Error in completeCancellationProcess iun={}, legalFactId={}", iun, legalFactId, e).log();
             throw e;
         }
     }
