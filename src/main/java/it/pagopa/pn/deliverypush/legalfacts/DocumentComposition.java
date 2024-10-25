@@ -33,59 +33,58 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class DocumentComposition {
 
     public enum TemplateType {
-
         REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
-        REQUEST_ACCEPTED_DE("documents_composition_templates/NotificationReceivedLegalFact.html"), //TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        REQUEST_ACCEPTED_SL("documents_composition_templates/NotificationReceivedLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        REQUEST_ACCEPTED_FR("documents_composition_templates/NotificationReceivedLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
+        REQUEST_ACCEPTED_DE("documents_composition_templates/NotificationReceivedLegalFact.html"), //TODO: ADD _de
+        REQUEST_ACCEPTED_SL("documents_composition_templates/NotificationReceivedLegalFact.html"),//TODO: ADD _sl
+        REQUEST_ACCEPTED_FR("documents_composition_templates/NotificationReceivedLegalFact.html"),//TODO: ADD _fr
 
 
         DIGITAL_NOTIFICATION_WORKFLOW("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),
-        DIGITAL_NOTIFICATION_WORKFLOW_DE("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        DIGITAL_NOTIFICATION_WORKFLOW_SL("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        DIGITAL_NOTIFICATION_WORKFLOW_FR("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
+        DIGITAL_NOTIFICATION_WORKFLOW_DE("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),//TODO: ADD _de
+        DIGITAL_NOTIFICATION_WORKFLOW_SL("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),//TODO: ADD _sl
+        DIGITAL_NOTIFICATION_WORKFLOW_FR("documents_composition_templates/PecDeliveryWorkflowLegalFact.html"),//TODO: ADD _fr
 
 
         ANALOG_NOTIFICATION_WORKFLOW_FAILURE("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),
-        ANALOG_NOTIFICATION_WORKFLOW_FAILURE_DE("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        ANALOG_NOTIFICATION_WORKFLOW_FAILURE_SL("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        ANALOG_NOTIFICATION_WORKFLOW_FAILURE_FR("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
+        ANALOG_NOTIFICATION_WORKFLOW_FAILURE_DE("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),//TODO: ADD _de
+        ANALOG_NOTIFICATION_WORKFLOW_FAILURE_SL("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),//TODO: ADD _sl
+        ANALOG_NOTIFICATION_WORKFLOW_FAILURE_FR("documents_composition_templates/AnalogDeliveryWorkflowFailureLegalFact.html"),//TODO: ADD _fr
 
 
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
-        NOTIFICATION_VIEWED_DE("documents_composition_templates/NotificationViewedLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        NOTIFICATION_VIEWED_SL("documents_composition_templates/NotificationViewedLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        NOTIFICATION_VIEWED_FR("documents_composition_templates/NotificationViewedLegalFact.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
+        NOTIFICATION_VIEWED_DE("documents_composition_templates/NotificationViewedLegalFact.html"),//TODO: ADD _de
+        NOTIFICATION_VIEWED_SL("documents_composition_templates/NotificationViewedLegalFact.html"),//TODO: ADD _sl
+        NOTIFICATION_VIEWED_FR("documents_composition_templates/NotificationViewedLegalFact.html"),//TODO: ADD _fr
 
 
         AAR_NOTIFICATION("documents_composition_templates/NotificationAAR.html"),
-        AAR_NOTIFICATION_DE("documents_composition_templates/NotificationAAR.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_SL("documents_composition_templates/NotificationAAR.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_FR("documents_composition_templates/NotificationAAR.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
+        AAR_NOTIFICATION_DE("documents_composition_templates/NotificationAAR.html"),//TODO: ADD _de
+        AAR_NOTIFICATION_SL("documents_composition_templates/NotificationAAR.html"),//TODO: ADD _sl
+        AAR_NOTIFICATION_FR("documents_composition_templates/NotificationAAR.html"),//TODO: ADD _fr
 
 
         AAR_NOTIFICATION_RADD("documents_composition_templates/NotificationAAR_RADD.html"),
-        AAR_NOTIFICATION_RADD_DE("documents_composition_templates/NotificationAAR_RADD.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_RADD_SL("documents_composition_templates/NotificationAAR_RADD.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_RADD_FR("documents_composition_templates/NotificationAAR_RADD.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
+        AAR_NOTIFICATION_RADD_DE("documents_composition_templates/NotificationAAR_RADD.html"),//TODO: ADD _de
+        AAR_NOTIFICATION_RADD_SL("documents_composition_templates/NotificationAAR_RADD.html"),//TODO: ADD _sl
+        AAR_NOTIFICATION_RADD_FR("documents_composition_templates/NotificationAAR_RADD.html"),//TODO: ADD _fr
 
 
         AAR_NOTIFICATION_RADD_ALT("documents_composition_templates/NotificationAAR_RADDalt.html"),
-        AAR_NOTIFICATION_RADD_ALT_DE("documents_composition_templates/NotificationAAR_RADDalt.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_RADD_ALT_SL("documents_composition_templates/NotificationAAR_RADDalt.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_RADD_ALT_FR("documents_composition_templates/NotificationAAR_RADDalt.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
+        AAR_NOTIFICATION_RADD_ALT_DE("documents_composition_templates/NotificationAAR_RADDalt.html"),//TODO: ADD _de
+        AAR_NOTIFICATION_RADD_ALT_SL("documents_composition_templates/NotificationAAR_RADDalt.html"),//TODO: ADD _sl
+        AAR_NOTIFICATION_RADD_ALT_FR("documents_composition_templates/NotificationAAR_RADDalt.html"),//TODO: ADD _fr
 
 
         AAR_NOTIFICATION_EMAIL("documents_composition_templates/NotificationAARForEMAIL.html"),
-        AAR_NOTIFICATION_EMAIL_DE("documents_composition_templates/NotificationAARForEMAIL.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_EMAIL_SL("documents_composition_templates/NotificationAARForEMAIL.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_EMAIL_FR("documents_composition_templates/NotificationAARForEMAIL.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
+        AAR_NOTIFICATION_EMAIL_DE("documents_composition_templates/NotificationAARForEMAIL.html"),//TODO: ADD _de
+        AAR_NOTIFICATION_EMAIL_SL("documents_composition_templates/NotificationAARForEMAIL.html"),//TODO: ADD _sl
+        AAR_NOTIFICATION_EMAIL_FR("documents_composition_templates/NotificationAARForEMAIL.html"),//TODO: ADD _fr
 
 
         AAR_NOTIFICATION_PEC("documents_composition_templates/NotificationAARForPEC.html"),
-        AAR_NOTIFICATION_PEC_DE("documents_composition_templates/NotificationAARForPEC.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_PEC_SL("documents_composition_templates/NotificationAARForPEC.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
-        AAR_NOTIFICATION_PEC_FR("documents_composition_templates/NotificationAARForPEC.html"),//TODO: SOSTITUIRE CON IL NUOVO TEMPLATE
+        AAR_NOTIFICATION_PEC_DE("documents_composition_templates/NotificationAARForPEC.html"),//TODO: ADD _de
+        AAR_NOTIFICATION_PEC_SL("documents_composition_templates/NotificationAARForPEC.html"),//TODO: ADD _sl
+        AAR_NOTIFICATION_PEC_FR("documents_composition_templates/NotificationAARForPEC.html"),//TODO: ADD _fr
 
 
         AAR_NOTIFICATION_SUBJECT("documents_composition_templates/NotificationAARSubject.txt"),
