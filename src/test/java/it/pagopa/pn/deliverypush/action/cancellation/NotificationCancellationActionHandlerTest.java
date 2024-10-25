@@ -55,4 +55,18 @@ class NotificationCancellationActionHandlerTest {
         Mockito.verify(notificationCancellationService).continueCancellationProcess(notification.getIun());
     }
 
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void completeCancellationProcess() {
+        //Given
+        String iun = "iun";
+        String legalFactId = "legalFactId";
+
+        //WHEN
+        handler.completeCancellationProcess(iun, legalFactId);
+
+        //THEN
+        Mockito.verify(notificationCancellationService).completeCancellationProcess(iun, legalFactId);
+    }
+
 }

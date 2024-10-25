@@ -18,4 +18,10 @@ public class NotificationCancellationActionHandler {
         notificationCancellationService.continueCancellationProcess(iun);
     }
 
+    public void completeCancellationProcess(String iun, String legalFactId) {
+        log.debug("Start completeCancellationProcess - iun={}, legalFactId={}", iun, legalFactId);
+
+        notificationCancellationService.completeCancellationProcess(iun, legalFactId);
+    }
+
 }
