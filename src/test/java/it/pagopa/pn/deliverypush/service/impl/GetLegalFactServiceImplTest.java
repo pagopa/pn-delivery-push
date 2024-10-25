@@ -426,7 +426,7 @@ class GetLegalFactServiceImplTest {
         Mockito.when(notificationService.getNotificationByIun(anyString()))
                 .thenReturn(notificationInt);
 
-        Mono<LegalFactDownloadMetadataWithContentTypeResponse> resultMono = getLegalFactService.getLegalFactMetadataWithContentType(IUN, LegalFactCategory.RECIPIENT_ACCESS, LEGAL_FACT_ID, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+        Mono<LegalFactDownloadMetadataWithContentTypeResponse> resultMono = getLegalFactService.getLegalFactMetadataWithContentType(IUN, LEGAL_FACT_ID, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
 
         //Then
         assertNotNull( resultMono );
