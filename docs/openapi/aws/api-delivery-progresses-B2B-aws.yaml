@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Y7uX3M/OogOgXay6JZ9+IN60UkUvNPFDqfrVUepHT8s=
+  version: qRsKrEy9CubQn/BwxKgNaaCwJLeIfOKEusINK7ifsH8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1747,6 +1747,8 @@ paths:
       tags:
         - Streams
       operationId: disableEventStreamV24
+      x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -1785,9 +1787,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams/{streamId}/action/disable
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningV1V2WebhookLambda:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -1799,22 +1800,9 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.path.streamId: method.request.path.streamId
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /v2.4/streams/{streamId}/action/disable API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.4/streams/{streamId}/action/disable
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.streamId: method.request.path.streamId
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
   /v2.4/streams/{streamId}/events:
     get:
       deprecated: true

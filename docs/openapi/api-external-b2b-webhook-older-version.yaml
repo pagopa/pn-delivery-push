@@ -882,6 +882,8 @@ paths:
       tags:
         - Streams
       operationId: disableEventStreamV24
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
