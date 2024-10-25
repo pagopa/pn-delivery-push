@@ -45,6 +45,8 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.mockito.ArgumentMatchers.eq;
+
 @Slf4j
 public class TestUtils {
     public static final String PN_NOTIFICATION_ATTACHMENT = "PN_NOTIFICATION_ATTACHMENT";
@@ -515,7 +517,7 @@ public class TestUtils {
                                               PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         ArgumentCaptor<Instant> instantArgumentCaptor = ArgumentCaptor.forClass(Instant.class);
 
-        Mockito.verify(scheduler, Mockito.times(refinementNumberOfInvocation)).scheduleEvent(Mockito.eq(iun), Mockito.eq(recIndex), instantArgumentCaptor.capture(), Mockito.any(ActionType.class));
+        Mockito.verify(scheduler, Mockito.times(refinementNumberOfInvocation)).scheduleEvent(eq(iun), eq(recIndex), instantArgumentCaptor.capture(), Mockito.any(ActionType.class));
         List<Instant> instantArgumentCaptorList = instantArgumentCaptor.getAllValues();
         //Viene ottenuta la data di perfezionamento (Valutare se inserire la data di scheduling come campo del timeline element details)
         Instant refinementDate = instantArgumentCaptorList.get(instantArgumentCaptorList.size() - 1);
@@ -729,7 +731,7 @@ public class TestUtils {
         int times = getTimes(itWasGenerated);
 
         try {
-            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationViewedLegalFact(Mockito.eq(iun), Mockito.eq(recipient), Mockito.eq(delegateInfo), Mockito.any(Instant.class), notification);
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationViewedLegalFact(eq(iun), eq(recipient), eq(delegateInfo), Mockito.any(Instant.class), eq(notification));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -761,8 +763,8 @@ public class TestUtils {
         ArgumentCaptor<List<SendDigitalFeedbackDetailsInt>> sendDigitalFeedbackCaptor = ArgumentCaptor.forClass(List.class);
 
         try {
-            Mockito.verify(legalFactGenerator, Mockito.times(times)).generatePecDeliveryWorkflowLegalFact(sendDigitalFeedbackCaptor.capture(), Mockito.eq(notification),
-                    Mockito.eq(recipient), Mockito.eq(endWorkflowStatus), Mockito.any(Instant.class));
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generatePecDeliveryWorkflowLegalFact(sendDigitalFeedbackCaptor.capture(), eq(notification),
+                    eq(recipient), eq(endWorkflowStatus), Mockito.any(Instant.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -785,8 +787,8 @@ public class TestUtils {
 
 
         try {
-            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateAnalogDeliveryFailureWorkflowLegalFact(Mockito.eq(notification),
-                    Mockito.eq(recipient), Mockito.eq(endWorkflowStatus), Mockito.any(Instant.class));
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateAnalogDeliveryFailureWorkflowLegalFact(eq(notification),
+                    eq(recipient), eq(endWorkflowStatus), Mockito.any(Instant.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
