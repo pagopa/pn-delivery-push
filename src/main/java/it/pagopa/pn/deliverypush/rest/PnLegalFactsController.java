@@ -33,6 +33,7 @@ public class PnLegalFactsController implements LegalFactsApi {
     }
 
     @Override
+    @Deprecated
     public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFact(
             String xPagopaPnUid,
             CxTypeAuthFleet xPagopaPnCxType, 

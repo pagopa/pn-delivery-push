@@ -294,6 +294,49 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  '/delivery-push-private/{iun}/download/legal-facts/{legalFactId}':
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi
+        <br/>
+        Il parametro recipientInternalId deve essere l'internalId del destinatario
+      tags:
+        - LegalFactsPrivate
+      operationId: getLegalFactByIdPrivate
+      parameters:
+        - $ref: '#/components/parameters/recipientInternalId'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
+        - $ref: '#/components/parameters/xPagoPaPnCxGroups'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalFactDownloadMetadataWithContentTypeResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
   '/delivery-push-private/{iun}/document/{documentType}':
     get:
       summary: Restituisce il singolo documento identificato dalla documentKey
@@ -445,14 +488,6 @@ components:
     ############################################################################################
     ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
     ############################################################################################
-    pathLegalFactTypeV20:
-      description: >-
-        Categoria dell'atto opponbile a terzi
-      name: legalFactType
-      in: path
-      required: true
-      schema:
-        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategoryV20'
     
     pathLegalFactId:
       description: >-

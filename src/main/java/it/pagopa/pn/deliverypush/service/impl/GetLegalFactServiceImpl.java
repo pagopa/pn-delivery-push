@@ -66,15 +66,13 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     }
     @Override
     public Mono<LegalFactDownloadMetadataWithContentTypeResponse> getLegalFactMetadataWithContentType(String iun,
-                                                                                                      LegalFactCategory legalFactType,
                                                                                                       String legalfactId,
                                                                                                       String senderReceiverId,
                                                                                                       String mandateId,
                                                                                                       CxTypeAuthFleet cxType,
                                                                                                       List<String> cxGroups) {
-        return downloadLegalFact(iun, legalFactType, legalfactId, senderReceiverId, mandateId, cxType, cxGroups)
-                .map(fileDownloadResponse -> generateResponseWithContentType(iun, legalFactType, legalfactId, fileDownloadResponse));
-
+        return downloadLegalFact(iun, null, legalfactId, senderReceiverId, mandateId, cxType, cxGroups)
+                .map(fileDownloadResponse -> generateResponseWithContentType(iun, null, legalfactId, fileDownloadResponse));
     }
 
     private Mono<FileDownloadResponseInt> downloadLegalFact(String iun,
