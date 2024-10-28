@@ -80,12 +80,12 @@ class GetLegalFactServiceImplTest {
 
     @Test
     void getLegalFactsSuccess() {
-        List<LegalFactListElement> legalFactsExpectedResult = Collections.singletonList(LegalFactListElement.builder()
+        List<LegalFactListElementV20> legalFactsExpectedResult = Collections.singletonList(LegalFactListElementV20.builder()
                 .iun(IUN)
                 .taxId(TAX_ID)
-                .legalFactsId(LegalFactsId.builder()
+                .legalFactsId(LegalFactsIdV20.builder()
                         .key(KEY)
-                        .category(LegalFactCategory.SENDER_ACK)
+                        .category(LegalFactCategoryV20.SENDER_ACK)
                         .build()
                 ).build()
         );
@@ -126,27 +126,27 @@ class GetLegalFactServiceImplTest {
         Mockito.when(authUtils.checkUserPaAndMandateAuthorizationAndRetrieveRealRecipientId(Mockito.any(NotificationInt.class), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(TAX_ID + "ANON");
 
-        List<LegalFactListElement> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+        List<LegalFactListElementV20> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
 
         assertEquals(legalFactsExpectedResult, result);
     }
 
     @Test
     void getLegalFactsSuccessFilteredPF() {
-        List<LegalFactListElement> legalFactsExpectedResult = List.of(
-                LegalFactListElement.builder()
+        List<LegalFactListElementV20> legalFactsExpectedResult = List.of(
+                LegalFactListElementV20.builder()
                         .iun(IUN)
-                        .legalFactsId(LegalFactsId.builder()
+                        .legalFactsId(LegalFactsIdV20.builder()
                                 .key(KEY+"all")
-                                .category(LegalFactCategory.SENDER_ACK)
+                                .category(LegalFactCategoryV20.SENDER_ACK)
                                 .build()
                         ).build(),
-                LegalFactListElement.builder()
+                LegalFactListElementV20.builder()
                         .iun(IUN)
                         .taxId(TAX_ID)
-                        .legalFactsId(LegalFactsId.builder()
+                        .legalFactsId(LegalFactsIdV20.builder()
                                 .key(KEY)
-                                .category(LegalFactCategory.RECIPIENT_ACCESS)
+                                .category(LegalFactCategoryV20.RECIPIENT_ACCESS)
                                 .build()
                         ).build()
         );
@@ -218,35 +218,35 @@ class GetLegalFactServiceImplTest {
                 .thenReturn(TAX_ID + "ANON");
 
 
-        List<LegalFactListElement> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+        List<LegalFactListElementV20> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
 
         assertEquals(legalFactsExpectedResult, result);
     }
 
     @Test
     void getLegalFactsSuccessFilteredPA() {
-        List<LegalFactListElement> legalFactsExpectedResult = List.of(
-                LegalFactListElement.builder()
+        List<LegalFactListElementV20> legalFactsExpectedResult = List.of(
+                LegalFactListElementV20.builder()
                         .iun(IUN)
-                        .legalFactsId(LegalFactsId.builder()
+                        .legalFactsId(LegalFactsIdV20.builder()
                                 .key(KEY+"all")
-                                .category(LegalFactCategory.SENDER_ACK)
+                                .category(LegalFactCategoryV20.SENDER_ACK)
                                 .build()
                         ).build(),
-                LegalFactListElement.builder()
+                LegalFactListElementV20.builder()
                         .iun(IUN)
                         .taxId(TAX_ID)
-                        .legalFactsId(LegalFactsId.builder()
+                        .legalFactsId(LegalFactsIdV20.builder()
                                 .key(KEY+"1")
-                                .category(LegalFactCategory.RECIPIENT_ACCESS)
+                                .category(LegalFactCategoryV20.RECIPIENT_ACCESS)
                                 .build()
                         ).build(),
-                LegalFactListElement.builder()
+                LegalFactListElementV20.builder()
                         .iun(IUN)
                         .taxId(TAX_ID)
-                        .legalFactsId(LegalFactsId.builder()
+                        .legalFactsId(LegalFactsIdV20.builder()
                                 .key(KEY)
-                                .category(LegalFactCategory.RECIPIENT_ACCESS)
+                                .category(LegalFactCategoryV20.RECIPIENT_ACCESS)
                                 .build()
                         ).build()
         );
@@ -317,7 +317,7 @@ class GetLegalFactServiceImplTest {
         Mockito.when(authUtils.checkUserPaAndMandateAuthorizationAndRetrieveRealRecipientId(Mockito.any(NotificationInt.class), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn("PARECIPIENTID");
 
-        List<LegalFactListElement> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PA, null);
+        List<LegalFactListElementV20> result = getLegalFactService.getLegalFacts(IUN, recipientInt.getInternalId(), null, CxTypeAuthFleet.PA, null);
 
         assertEquals(legalFactsExpectedResult, result);
     }

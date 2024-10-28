@@ -274,51 +274,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactList"
-        '400':
-          description: Invalid input
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-
-  '/delivery-push-private/{iun}/legal-facts/{legalFactType}/{legalFactId}':
-    get:
-      summary: Singolo atto opponibile a terzi
-      description: >-
-        Permette di scaricare un atto opponibile a terzi
-        <br/>
-        Il parametro recipientInternalId deve essere l'internalId del destinatario
-      tags:
-        - LegalFactsPrivate
-      operationId: getLegalFactPrivate
-      parameters:
-        - $ref: '#/components/parameters/recipientInternalId'
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathLegalFactType'
-        - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
-        - $ref: '#/components/parameters/xPagoPaPnCxType'
-        - $ref: '#/components/parameters/xPagoPaPnCxGroups'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LegalFactDownloadMetadataWithContentTypeResponse"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20"
         '400':
           description: Invalid input
           content:
@@ -489,15 +445,15 @@ components:
     ############################################################################################
     ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
     ############################################################################################
-    pathLegalFactType:
+    pathLegalFactTypeV20:
       description: >-
         Categoria dell'atto opponbile a terzi
       name: legalFactType
       in: path
       required: true
       schema:
-        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategory'
-
+        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategoryV20'
+    
     pathLegalFactId:
       description: >-
         Identificativo dell'atto opponbile a terzi
@@ -649,7 +605,7 @@ components:
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV25'
 
 
     ############################################################################################

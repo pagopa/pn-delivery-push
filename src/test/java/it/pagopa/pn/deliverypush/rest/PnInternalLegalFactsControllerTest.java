@@ -1,16 +1,9 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -22,6 +15,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
+
+import java.util.Collections;
+import java.util.List;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @WebFluxTest(PnPrivateLegalFactsController.class)
 class PnInternalLegalFactsControllerTest {
@@ -37,11 +38,11 @@ class PnInternalLegalFactsControllerTest {
     private TimelineUtils timelineUtils;
     @Test
     void getNotificationLegalFactsSuccess() {
-        List<LegalFactListElement> legalFactsList = Collections.singletonList(LegalFactListElement.builder()
+        List<LegalFactListElementV20> legalFactsList = Collections.singletonList(LegalFactListElementV20.builder()
                 .iun(IUN)
                 .taxId("taxId")
-                .legalFactsId(LegalFactsId.builder()
-                        .category(LegalFactCategory.SENDER_ACK)
+                .legalFactsId(LegalFactsIdV20.builder()
+                        .category(LegalFactCategoryV20.SENDER_ACK)
                         .key("key")
                         .build()
                 ).build()
@@ -92,11 +93,11 @@ class PnInternalLegalFactsControllerTest {
     void getNotificationLegalFactsCancelledPA() {
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(true);
 
-        List<LegalFactListElement> legalFactsList = Collections.singletonList(LegalFactListElement.builder()
+        List<LegalFactListElementV20> legalFactsList = Collections.singletonList(LegalFactListElementV20.builder()
             .iun(IUN)
             .taxId("taxId")
-            .legalFactsId(LegalFactsId.builder()
-                .category(LegalFactCategory.SENDER_ACK)
+            .legalFactsId(LegalFactsIdV20.builder()
+                .category(LegalFactCategoryV20.SENDER_ACK)
                 .key("key")
                 .build()
             ).build()

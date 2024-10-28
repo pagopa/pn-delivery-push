@@ -4,9 +4,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.exceptions.PnNotificationCancelledException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsPrivateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataWithContentTypeResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElementV20;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.utils.LegalFactUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +28,7 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
         this.timelineUtils = timelineUtils;
     }
 
+/*
     @Override
     public Mono<ResponseEntity<LegalFactDownloadMetadataWithContentTypeResponse>> getLegalFactPrivate(
             String recipientInternalId,
@@ -51,9 +50,10 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
                 .map(response -> ResponseEntity.ok().body(response));
         }
     }
+*/
 
     @Override
-    public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFactsPrivate(
+    public Mono<ResponseEntity<Flux<LegalFactListElementV20>>> getNotificationLegalFactsPrivate(
             String recipientInternalId,
             String iun,
             String mandateId,
@@ -68,8 +68,8 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
         }else {
             return Mono.fromSupplier(() -> {
                 log.debug("Start getNotificationLegalFactsPrivate - iun={} recipientInternalId={}", iun, recipientInternalId);
-                List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun, recipientInternalId, mandateId, cxType, cxGroups);
-                Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
+                List<LegalFactListElementV20> legalFacts = getLegalFactService.getLegalFacts(iun, recipientInternalId, mandateId, cxType, cxGroups);
+                Flux<LegalFactListElementV20> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
                 return ResponseEntity.ok(fluxFacts);
             });
         }
