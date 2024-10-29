@@ -72,6 +72,8 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERYPUSH_STREAMNOTFOUND = "PN_DELIVERYPUSH_STREAMNOTFOUND";
     public static final String ERROR_CODE_DELIVERYPUSH_FILE_GONE = "PN_DELIVERYPUSH_FILE_GONE";
 
+    public static final String ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE = "PN_DELIVERYPUSH_INVALID_TEMPLATE";
+
     @Getter
     public enum NotificationRefusedErrorCodeInt {
         FILE_NOTFOUND("FILE_NOTFOUND"),
