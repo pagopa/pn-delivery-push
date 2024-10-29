@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.utils;
 
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -20,6 +21,8 @@ import java.util.Set;
 class StatusUtilsMultiRecipientTest {
 
     private StatusUtils statusUtils;
+    private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:send-self:notification-already-delivered";
+    private static final String PEC_ADDRESS = "test@pec.it";
 
     @BeforeEach
     public void setup() {
@@ -47,6 +50,7 @@ class StatusUtilsMultiRecipientTest {
                 .elementId("sendDigitalDomicileRec1")
                 .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC))
                 .build();
 
         TimelineElementInternal digitalDeliveryCreationRequest = TimelineElementInternal.builder()
@@ -175,6 +179,7 @@ class StatusUtilsMultiRecipientTest {
                 .timestamp((Instant.parse("2021-09-16T17:30:10.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
                 .details(SendDigitalDetailsInt.builder().recIndex(0).build())
+                .details(getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC))
                 .build();
 
         TimelineElementInternal sendDigitalFeedbackRec1 = TimelineElementInternal.builder()
@@ -312,6 +317,7 @@ class StatusUtilsMultiRecipientTest {
                 .elementId("sendDigitalDomicileRec1")
                 .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC))
                 .build();
 
         TimelineElementInternal digitalSuccessWorkflowRec1 = TimelineElementInternal.builder()
@@ -413,5 +419,15 @@ class StatusUtilsMultiRecipientTest {
 
         // THEN
         Assertions.assertEquals(historyElementList, resHistoryElementList);
+    }
+
+    private SendDigitalDetailsInt getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE addressType) {
+
+        String address = addressType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC ? PEC_ADDRESS : SERCQ_ADDRESS;
+        LegalDigitalAddressInt legalDigitalAddressIntPec = LegalDigitalAddressInt.builder()
+                .type(addressType).address(address).build();
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = new SendDigitalDetailsInt();
+        sendDigitalDetailsIntPec.setDigitalAddress(legalDigitalAddressIntPec);
+        return sendDigitalDetailsIntPec;
     }
 }

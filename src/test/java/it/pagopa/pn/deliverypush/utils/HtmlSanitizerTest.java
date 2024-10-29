@@ -503,6 +503,7 @@ class HtmlSanitizerTest {
                 recipientType,
                 "digital address",
                 "digital address source",
+                "PEC",
                 Instant.now(),
                 Instant.now().toString(),
                 true

@@ -7,9 +7,9 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.*;
 public class TimelineElementWebhookMapper {
     private TimelineElementWebhookMapper(){}
 
-    public static TimelineElementV23 internalToExternal(TimelineElementInternal internalDto) {
+    public static TimelineElementV24 internalToExternal(TimelineElementInternal internalDto) {
         // passo da TimelineElementMapper.internalToExternal(internalDto) in modo da replicare gli stessi controlli già presenti per il mapper di delivery push
-        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV23 timelineElementV23 = TimelineElementMapper.internalToExternal(internalDto);
-        return SmartMapper.mapToClass(timelineElementV23, TimelineElementV23.class);
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV24 timelineElement = TimelineElementMapper.internalToExternal(internalDto);
+        return SmartMapper.mapToClass(timelineElement, TimelineElementV24.class);
     }
 }

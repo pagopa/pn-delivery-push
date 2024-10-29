@@ -5,6 +5,8 @@ const InformOnExternalEventHandler = require("./handlers/informOnExternalEventHa
 const ListEventStreamsHandler = require("./handlers/listEventStreamsHandler.js");
 const DeleteEventStreamHandler = require("./handlers/deleteEventStreamHandler.js");
 const ConsumeEventStreamHandler  = require("./handlers/consumeEventStreamHandler.js");
+const DisableEventStreamHandler = require("./handlers/disableEventStreamHandler.js");
+const BaseHandler = require("./handlers/baseHandler.js");
 
 const AWSXRay = require("aws-xray-sdk-core");
 
@@ -25,7 +27,9 @@ exports.eventHandler = async (event, context) => {
         handlers.push(new GetEventStreamHandler());
         handlers.push(new ListEventStreamsHandler());
         handlers.push(new DeleteEventStreamHandler());
+        handlers.push(new DisableEventStreamHandler());
         handlers.push(new InformOnExternalEventHandler());
+        
         for( let i = 0; i<handlers.length; i++){
             if (handlers[i].checkOwnership(event, context)) {
                     let result = await handlers[i].handlerEvent(event, context);
@@ -42,10 +46,16 @@ exports.eventHandler = async (event, context) => {
 
     } catch (e) {
         console.log("PN_GENERIC_ERROR", e)
+
         if (e.response) {
-            // Nella V10 gli statusCode 403 e 404 non sono accettati
-            if (e.response.status === 403 || e.response.status === 404)
-                e.response.status = 400;
+            let baseHandler = new BaseHandler();
+            let version = baseHandler.getVersion(event);
+            
+            if(version === 10){
+                // Nella V10 gli statusCode 403 e 404 non sono accettati
+                if (e.response.status === 403 || e.response.status === 404)
+                    e.response.status = 400;
+            }
 
             const ret = {
                 statusCode: e.response.status,

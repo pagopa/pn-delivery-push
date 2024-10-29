@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV23;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamRequestV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV24;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamRequestV24;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import java.util.Set;
 import org.springframework.beans.BeanUtils;
@@ -17,7 +17,7 @@ public class DtoToEntityStreamMapper {
         currentVersion = pnDeliveryPushConfigs.getWebhook().getCurrentVersion();
     }
 
-    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamCreationRequestV23 dto) {
+    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamCreationRequestV24 dto) {
         StreamEntity streamEntity = new StreamEntity(paId, streamId);
         streamEntity.setEventType(dto.getEventType().getValue());
         streamEntity.setTitle(dto.getTitle());
@@ -30,10 +30,10 @@ public class DtoToEntityStreamMapper {
         return streamEntity;
     }
 
-    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamRequestV23 dto) {
-        StreamCreationRequestV23 creationRequestv23 = new StreamCreationRequestV23();
+    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamRequestV24 dto) {
+        StreamCreationRequestV24 creationRequestv23 = new StreamCreationRequestV24();
         BeanUtils.copyProperties(dto, creationRequestv23);
-        creationRequestv23.setEventType(StreamCreationRequestV23.EventTypeEnum.fromValue(dto.getEventType().getValue()));
+        creationRequestv23.setEventType(StreamCreationRequestV24.EventTypeEnum.fromValue(dto.getEventType().getValue()));
         return dtoToEntity(paId, streamId, version, creationRequestv23);
     }
 }

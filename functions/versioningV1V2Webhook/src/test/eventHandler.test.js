@@ -2,6 +2,7 @@ const { expect } = require('chai');
 const { eventHandler } = require("../app/eventHandler.js")
 const EventHandler = require("../app/handlers/baseHandler");
 const proxyquire = require("proxyquire").noPreserveCache();
+const streamId = 18;
 
 describe('handleEvent', function () {
 
@@ -26,7 +27,18 @@ describe('handleEvent', function () {
                 }
         });
 
-        const result = await lambda.eventHandler({}, {});
+        const event = {
+            path: "/delivery-progresses/v2.3/streams/"+ streamId +"/events",
+            pathParameters : { streamId: streamId },
+            queryStringParameters: null,
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+        }
+
+        const result = await lambda.eventHandler(event, {});
 
         expect(result.statusCode).to.equal(200);
         expect(result.body).to.equal('A');
@@ -53,8 +65,19 @@ describe('handleEvent', function () {
                     });
                 }
         });
+        
+        const event = {
+            path: "/delivery-progresses/v2.3/streams/"+ streamId +"/events",
+            pathParameters : { streamId: streamId },
+            queryStringParameters: null,
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+        }
 
-        const result = await lambda.eventHandler({}, {});
+        const result = await lambda.eventHandler(event, {});
 
         expect(result.statusCode).to.equal(200);
         expect(result.body).to.equal('B');
@@ -73,14 +96,14 @@ describe('handleEvent', function () {
 
                 }
         });
-
+        
         const result = await lambda.eventHandler({}, {});
 
         expect(result.statusCode).to.equal(500);
         expect(result.body).to.match(/(?:PN_GENERIC_ERROR)/);
     });
 
-    it("statusCode 403", async () => {
+    it("statusCode 403 to 403", async () => {
 
         const lambda = proxyquire("../app/eventHandler.js", {
             "../app/handlers/consumeEventStreamHandler":
@@ -96,12 +119,23 @@ describe('handleEvent', function () {
                 }
         });
 
-        const result = await lambda.eventHandler({}, {});
+        const event = {
+            path: "/delivery-progresses/v2.3/streams/"+ streamId +"/events",
+            pathParameters : { streamId: streamId },
+            queryStringParameters: null,
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+        }
 
-        expect(result.statusCode).to.equal(400);
+        const result = await lambda.eventHandler(event, {});
+
+        expect(result.statusCode).to.equal(403);
     });
 
-    it("statusCode 404", async () => {
+    it("statusCode 404 to 404", async () => {
 
         const lambda = proxyquire("../app/eventHandler.js", {
             "../app/handlers/consumeEventStreamHandler":
@@ -116,8 +150,84 @@ describe('handleEvent', function () {
                     };
                 }
         });
+        
+        const event = {
+            path: "/delivery-progresses/v2.3/streams/"+ streamId +"/events",
+            pathParameters : { streamId: streamId },
+            queryStringParameters: null,
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+        }
 
-        const result = await lambda.eventHandler({}, {});
+        const result = await lambda.eventHandler(event, {});
+
+        expect(result.statusCode).to.equal(404);
+    });
+
+
+    it("statusCode 403 to 400", async () => {
+
+        const lambda = proxyquire("../app/eventHandler.js", {
+            "../app/handlers/consumeEventStreamHandler":
+                class MockConsumeEventStreamHandler {
+                    checkOwnership = () => true;
+                    handlerEvent = () => {
+                        let error = new Error();
+                        error.response = {
+                            status: 403,
+                        };
+                        throw error;
+                    };
+                }
+        });
+
+        const event = {
+            path: "/delivery-progresses/streams/"+ streamId +"/events",
+            pathParameters : { streamId: streamId },
+            queryStringParameters: null,
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+        }
+
+        const result = await lambda.eventHandler(event, {});
+
+        expect(result.statusCode).to.equal(400);
+    });
+
+    it("statusCode 404 to 400", async () => {
+
+        const lambda = proxyquire("../app/eventHandler.js", {
+            "../app/handlers/consumeEventStreamHandler":
+                class MockConsumeEventStreamHandler {
+                    checkOwnership = () => true;
+                    handlerEvent = () => {
+                        let error = new Error();
+                        error.response = {
+                            status: 404
+                        };
+                        throw error;
+                    };
+                }
+        });
+        
+        const event = {
+            path: "/delivery-progresses/streams/"+ streamId +"/events",
+            pathParameters : { streamId: streamId },
+            queryStringParameters: null,
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+        }
+
+        const result = await lambda.eventHandler(event, {});
 
         expect(result.statusCode).to.equal(400);
     });

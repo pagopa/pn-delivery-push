@@ -1,21 +1,22 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV24;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.RefusedReason;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategoryV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.RefusedReasonEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper.EntityToDtoRefusedReasonMapper;
-import java.util.List;
 import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 public class ProgressResponseElementMapper {
     private ProgressResponseElementMapper() {
     }
 
-    public static ProgressResponseElementV23 internalToExternalv23(EventEntity ev) {
-        ProgressResponseElementV23 progressResponseElement = new ProgressResponseElementV23();
+    public static ProgressResponseElementV24 internalToExternal(EventEntity ev) {
+        ProgressResponseElementV24 progressResponseElement = new ProgressResponseElementV24();
         progressResponseElement.setEventId(ev.getEventId());
         progressResponseElement.setTimestamp(ev.getTimestamp());
         progressResponseElement.setIun(ev.getIun());

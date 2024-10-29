@@ -32,7 +32,7 @@ class PnTimelineControllerTest {
 
     @Test
     void getTimelineSuccess() {
-        var timelineElements = Collections.singletonList(TimelineElementV23.builder()
+        var timelineElements = Collections.singletonList(TimelineElementV24.builder()
                 .timestamp( Instant.now() )
                 .elementId( "element_id" )
                 .category( TimelineElementCategoryV23.REQUEST_ACCEPTED )

@@ -81,7 +81,7 @@ class LegalFactPdfGeneratorTest {
                 additional.put("raddoperatormooney", "false");
                 additional.put("raddoperatorsailpost", "false");
                 pnDeliveryPushConfigs.getWebapp().setAdditional(additional);
-                pnDeliveryPushConfigs.getWebapp().setLegalFactDisclaimer("L'attestazione riporta la data in cui il destinatario (o il suo delegato) per la prima volta ha avuto accesso tramite la piattaforma al documento oggetto di notificazione. Ai fini di individuare la giusta data di perfezionamento della notifica, si invita il destinatario (o il suo delegato) a verificare se prima della data di accesso riportata nella presente attestazione, sia scaduto il termine di legge correlato all'invio della notifica al domicilio digitale o in via cartacea, poiché la data di accesso non necessariamente corrisponde alla data di perfezionamento della notifica, che può anche essere antecedente per decorrenza termini.");
+                pnDeliveryPushConfigs.getWebapp().setLegalFactDisclaimer("L’attestazione riporta la data in cui il destinatario (o il suo delegato) per la prima volta ha avuto accesso tramite la piattaforma al documento oggetto di notificazione. Tale data non necessariamente corrisponde alla data di perfezionamento della notifica, che può anche essere antecedente per decorrenza termini.");
                 pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
                 pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");
@@ -182,6 +182,21 @@ class LegalFactPdfGeneratorTest {
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
                                                 notification, recipient, endWorkflowStatus, sentDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTest_DOMD() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_DOMD.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList_DOMD(
+                        ResponseStatusInt.OK);
+                NotificationInt notification = buildNotification();
+                NotificationRecipientInt recipient = buildRecipientWithDOMD().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+                Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
+                                notification, recipient, endWorkflowStatus, sentDate)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -604,10 +619,30 @@ class LegalFactPdfGeneratorTest {
                                 .notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
                                 .build();
 
+
                 List<SendDigitalFeedbackDetailsInt> result = new ArrayList<>();
                 result.add(sdf);
                 result.add(sdf2);
                 result.add(sdf3);
+                return result;
+        }
+
+        private List<SendDigitalFeedbackDetailsInt> buildFeedbackFromECList_DOMD(ResponseStatusInt status) {
+
+                SendDigitalFeedbackDetailsInt sdf = SendDigitalFeedbackDetailsInt.builder()
+                        .recIndex(0)
+                        .digitalAddress(LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ)
+                                .address("x-pagopa-pn-sercq:send-self:notification-already-delivered")
+                                .build())
+                        .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
+                        .responseStatus(status)
+                        .notificationDate(Instant.now().minus(5, ChronoUnit.MINUTES))
+                        .build();
+
+
+                List<SendDigitalFeedbackDetailsInt> result = new ArrayList<>();
+                result.add(sdf);
                 return result;
         }
 
@@ -786,6 +821,29 @@ class LegalFactPdfGeneratorTest {
                                                 "RM",
                                                 "IT"))
                                 .build();
+
+                return Collections.singletonList(rec1);
+        }
+
+        private List<NotificationRecipientInt> buildRecipientWithDOMD() {
+                NotificationRecipientInt rec1 = NotificationRecipientInt.builder()
+                        .taxId("CDCFSC11R99X001Z")
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Galileo Bruno")
+                        .digitalDomicile(LegalDigitalAddressInt.builder()
+                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ)
+                                .build())
+                        .physicalAddress(new PhysicalAddressInt(
+                                "Galileo Bruno",
+                                "Palazzo dell'Inquisizione",
+                                "corso Italia 666",
+                                "Piano Terra (piatta)",
+                                "00100",
+                                "Roma",
+                                null,
+                                "RM",
+                                "IT"))
+                        .build();
 
                 return Collections.singletonList(rec1);
         }

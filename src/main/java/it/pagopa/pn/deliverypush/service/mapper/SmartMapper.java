@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.commons.exceptions.PnExceptionsCodes;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
@@ -28,6 +29,8 @@ public class SmartMapper {
 
     private SmartMapper (){}
 
+    private static String SERCQ_SEND = "send-self";
+
 
     static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV23> addressDetailPropertyMap = new PropertyMap<>() {
         @Override
@@ -44,8 +47,7 @@ public class SmartMapper {
             skip(destination.getPhysicalAddress());
         }
     };
-    static Converter<TimelineElementInternal, TimelineElementInternal>
-            timelineElementInternalTimestampConverter =
+    static Converter<TimelineElementInternal, TimelineElementInternal> timelineElementInternalTimestampConverter =
             ctx -> {
                 // se il detail estende l'interfaccia e l'elementTimestamp non è nullo, lo sovrascrivo nel source originale
                 if (ctx.getSource().getDetails() instanceof ElementTimestampTimelineElementDetails elementTimestampTimelineElementDetails
@@ -117,19 +119,19 @@ public class SmartMapper {
         I restanti remapping vengono gestiti tramite il typeMap e l'interfaccia ElementTimestampTimelineElementDetails
      */
     public static TimelineElementInternal mapTimelineInternal(TimelineElementInternal source, Set<TimelineElementInternal> timelineElementInternalSet) {
+        //Viene recuperato il timestamp originale, prima di effettuare un qualsiasi remapping
+        Instant ingestionTimestamp = source.getTimestamp();
+
+        //Viene effettuato un primo remapping degli elementi di timeline e dei relativi timestamp in particolare viene effettuato il remapping di tutti 
+        // i timestamp che non dipendono da ulteriori elementi di timeline, cioè hanno l'eventTimestamp già storicizzato nei details
         TimelineElementInternal result = mapTimelineInternal(source);
+
         if(result != null) {
+            //L'ingestion timestamp viene settato con il timestamp originale dell'evento (dunque timestamp evento per SEND)
+            result.setIngestionTimestamp(ingestionTimestamp);
+
+            //Nello switch case invece vengono effettuati ulteriori remapping dei timestamp, questi non dipendono dal singolo elemento, ma necessitano di tutta la timeline
             switch (result.getCategory()) {
-                case SEND_ANALOG_PROGRESS -> {
-                    SendAnalogProgressDetailsInt details = (SendAnalogProgressDetailsInt) result.getDetails();
-                    log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {}", result.getCategory(), result.getTimestamp(), details.getNotificationDate());
-                    result.setTimestamp(details.getNotificationDate());
-                }
-                case SEND_ANALOG_FEEDBACK -> {
-                    SendAnalogFeedbackDetailsInt details = (SendAnalogFeedbackDetailsInt) result.getDetails();
-                    log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {}  ", result.getCategory(), result.getTimestamp(), details.getNotificationDate());
-                    result.setTimestamp(details.getNotificationDate());
-                }
                 case SCHEDULE_REFINEMENT -> {
                     Instant endAnalogWorkflowBusinessDate =  computeEndAnalogWorkflowBusinessData((RecipientRelatedTimelineElementDetails)result.getDetails(), timelineElementInternalSet, result.getIun());
                     if(endAnalogWorkflowBusinessDate != null){
@@ -156,13 +158,47 @@ public class SmartMapper {
                         throw new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
                     }
                 }
+                case SEND_DIGITAL_DOMICILE -> {
+                    // allo scopo di ottenere il timestamp di AAR_GEN per impostare il timestamp di SEND_DIGITAL_DOMICILE, per far si
+                    // che il timestamp di SEND_DIGITAL_DOMICILE non sia successivo a quello di SEND_DIGITAL_FEEDBACK per serc SEND
+                    //
+                    // ottenere channelType e verificare che è sercq
+                    // se sercq, ottenere l'address, e se è sercq-send:
+                    //  - ottieniamo timestamp di AAR_GEN
+                    // - lo usiamo per impostare il timestamp di SEND_DIGITAL_DOMICILE (setTimeStamp)
+                    //
+                    SendDigitalDetailsInt details = (SendDigitalDetailsInt) result.getDetails();
+                    if (LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType()) &&
+                            details.getDigitalAddress().getAddress().contains(SERCQ_SEND)) {
+                            Instant aarRgenTimestamp = findAARgenTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
+                            result.setTimestamp(aarRgenTimestamp);
+                    }
+                }
                 default -> {
                     //nothing to do
                 }
             }
+            
+            //In ultima istanza viene settato l'eventTimestamp con il timestamp rimappato (avranno dunque in uscita sempre lo stesso valore)
+            result.setEventTimestamp(result.getTimestamp());
         }
 
         return result;
+    }
+
+    private static Instant findAARgenTimestamp(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
+        if(elementDetails == null){
+            throw new PnInternalException("ELEMENT DETAILS NULL", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
+        }
+        int recIndex = elementDetails.getRecIndex();
+
+        TimelineElementInternal aarGenerationTimelineElement = timelineElementInternalSet.stream().filter(e ->
+                e.getCategory() == TimelineElementCategoryInt.AAR_GENERATION &&
+                        e.getDetails() instanceof RecipientRelatedTimelineElementDetails aarGenerationTimelineElementDetails &&
+                        aarGenerationTimelineElementDetails.getRecIndex() == recIndex
+        ).findFirst().orElseThrow(() -> new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT));
+
+        return aarGenerationTimelineElement.getTimestamp();
     }
 
 

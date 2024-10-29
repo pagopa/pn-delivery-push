@@ -2,6 +2,8 @@ const axios = require("axios");
 const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
 const {createProgressResponseV10} = require("./mapper/transformProgressResponseFromV23ToV10");
+const {createProgressResponseV23} = require("./mapper/transformProgressResponseFromV24ToV23");
+
 class ConsumeEventStreamHandler extends EventHandler {
     constructor() {
         super();
@@ -15,7 +17,8 @@ class ConsumeEventStreamHandler extends EventHandler {
     async handlerEvent(event, context) {
         console.log("Versioning_V1-V2.x_ConsumeEventStream_Lambda function started");
         // HEADERS
-        const headers = this.prepareHeaders(event);
+        let version = this.getVersion(event);
+        const headers = this.prepareHeaders(event, version);
 
         const streamId = event["pathParameters"]["streamId"];
         const lastEventId = event["queryStringParameters"]==null?null:event["queryStringParameters"]["lastEventId"];
@@ -40,13 +43,27 @@ class ConsumeEventStreamHandler extends EventHandler {
         console.log('calling ', url);
         let response = await axios.get(url, {headers: headers, timeout: this.attemptTimeout});
 
+
+
         // RESPONSE BODY
         // Il controllo della presenza di element avviene solo nel transitorio
         let responseBody = [];
         for(const data of response.data) {
-            if (data.element)
-                responseBody.push(createProgressResponseV10(data));
-            else{
+            if (data.element){
+                switch(version) {
+                    case 10:
+                        console.debug('Mapping to v10')
+                        responseBody.push(createProgressResponseV10(createProgressResponseV23(data)));
+                    break;
+                    case 23:
+                        console.debug('Mapping to v23')
+                        responseBody.push(createProgressResponseV23(data));
+                    break;
+                    default:
+                        console.error('Invalid version ', version)
+                    break;
+                  }
+            }else{
                 delete data.element;
                 responseBody.push(data);
             }

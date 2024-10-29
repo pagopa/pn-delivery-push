@@ -37,37 +37,40 @@ components:
             - BATCH
           description: >-
             Interactive/Batch (quality of service, "entro quanto tempo" devo rispondere, con che livello di servizio)
-        # TODO: visto che da problemi con openapi generator 5.4.0, essendo opzionale, per ora lo commentiamo
-        #       provare a decommentarlo al passaggio a openapi generator 6.0.0
-        #tags:
-        #  type: object
-        #  properties:
-        #    iun:
-        #      type: string
-        #      description: >-
-        #        Identificativo Unico della Notifica.
-        #        Non è obbligatorio (ad es in una richiesta di verifica indirizzi non abbiamo un identificativo di notifica).
-        #  additionalProperties: true
+        tags:
+          type: object
+          properties:
+          # Durante la generazione delle classi Java, non riesce a gestire la presenza di valori di default all'interno di una mappa
+          #            iun:
+          #              type: string
+          #              description: >-
+          #                Identificativo Unico della Notifica.
+          #                Non è obbligatorio (ad es in una richiesta di verifica indirizzi non abbiamo un identificativo di notifica).
+          #          required:
+          #            - iun
+          additionalProperties:
+            type: string
         clientRequestTimeStamp:
           type: string
           format: date-time
           description: >-
-            Timestamp della richiesta in UTC
+            Timestamp della richiesta in UTC con timezone
         receiverDigitalAddress:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" #NO EXTERNAL
           type: string
-          x-field-extra-annotation: "@lombok.ToString.Exclude"
           description: >-
             Indirizzo PEC del destinatario (o in genere recapito digitale certificato a valore legale). 
             L’indirizzo si assume valido ed attivo: i servizi erogatori non eseguono ulteriori validazioni sullo stesso.
             Non sono previste mail con più destinatari. 
             In caso di comunicazioni a più destinatari saranno richieste più comunicazioni (in questo modo avremo un requestId univoco per ogni comunicazione/evento/pec).
         messageText:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" #NO EXTERNAL
           type: string
-          x-field-extra-annotation: "@lombok.ToString.Exclude"
           description: >-
             Testo del corpo della comunicazione digitale.  
             Può essere a discrezione del chiamante in plain text od html (un campo ad hoc che discrimini il formato è opportuno?).
         senderDigitalAddress:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" #NO EXTERNAL
           type: string
           description: >-
             Indirizzo PEC (o analoga comunicazione digitale a valore legale) del mittente della comunicazione.
@@ -91,10 +94,12 @@ components:
               enum:
                 - PEC
                 - REM
+                - SERCQ
               description: >-
                 Canale di recapito con cui il Sender chiede l’erogazione del servizio. In un primo momento sarà PEC, 
                 ma il dominio dovrà prevedere a breve SERQ, PEC_REM, ed in futuro ogni forma di recapito digitale a valore legale.
             subjectText:
+              x-field-extra-annotation: "@lombok.ToString.Exclude" #NO EXTERNAL
               type: string
               description: >-
                 Oggetto del corpo della comunicazione digitale.
@@ -174,7 +179,8 @@ components:
           type: string
         location:
           type: string
-          
+
+
     BaseMessageProgressEvent:
       title: Schema base per gli eventi di avanzamento messaggi digitali
       type: object
@@ -186,6 +192,9 @@ components:
         requestId:
           type: string
         eventTimestamp:
+          description: >
+            timestamp della creazione dell'evento, in UTC con definizione della timezione 
+            secondo rfc 3339
           type: string
           format: date-time
         status:
@@ -248,6 +257,10 @@ components:
                 - C008
                 - C009
                 - C010
+                - C011
+                - Q003
+                - Q010
+                - Q011
               description: >-
                 * STATUS     EVENTCODE
                 * PROGRESS   C000 = PEC - PREACCETTAZIONE (Conferma avvenuta comunicazione con Wrapper Pec)
@@ -260,4 +273,8 @@ components:
                 * ERROR      C008 = PEC - ERRORE_COMUNICAZIONE_SERVER_PEC
                 * ERROR      C009 = PEC - ERRORE_DOMINIO_PEC_NON_VALIDO
                 * ERROR      C010 = PEC - ERROR_INVIO_PEC
+                * ERROR      C011 = PEC - ADDRESS_ERROR
                 * OK         C003 = PEC - StatusPec.AVVENUTA_CONSEGNA
+                * OK         Q003 = SERCQ - SENT
+                * ERROR      Q010 = SERCQ - ERRORE_INVIO_SERCQ
+                * ERROR      Q011 = SERCQ - ADDRESS_ERROR

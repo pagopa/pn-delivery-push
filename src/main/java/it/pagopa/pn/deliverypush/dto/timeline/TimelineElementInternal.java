@@ -26,6 +26,8 @@ public class TimelineElementInternal implements Comparable<TimelineElementIntern
     private TimelineElementDetailsInt details;
     private StatusInfoInternal statusInfo;
     private Instant notificationSentAt;
+    private Instant ingestionTimestamp; //Questo campo viene valorizzato solo ed esclusivamente in uscita per api e webhook dal mapper
+    private Instant eventTimestamp; //Questo campo viene valorizzato solo ed esclusivamente in uscita per api e webhook dal mapper
 
     @Override
     public int compareTo(@NotNull TimelineElementInternal o) {
