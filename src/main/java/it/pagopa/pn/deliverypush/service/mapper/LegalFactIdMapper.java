@@ -1,16 +1,16 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategoryV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsIdV20;
 
 public class LegalFactIdMapper {
     private LegalFactIdMapper(){}
     
-    public static LegalFactsId internalToExternal(LegalFactsIdInt dtoInt){
-        return LegalFactsId.builder()
+    public static LegalFactsIdV20 internalToExternal(LegalFactsIdInt dtoInt){
+        return LegalFactsIdV20.builder()
                 .key(dtoInt.getKey())
-                .category( dtoInt.getCategory() != null ? LegalFactCategory.fromValue(dtoInt.getCategory().getValue()): null)
+                .category( dtoInt.getCategory() != null ? LegalFactCategoryV20.fromValue(dtoInt.getCategory().getValue()): null)
                 .build();
     }
         

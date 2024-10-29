@@ -7,21 +7,21 @@ import org.junit.jupiter.api.Test;
 
 class StreamCreationRequestTest {
 
-    private StreamCreationRequestV24 request;
+    private StreamCreationRequestV25 request;
 
     @BeforeEach
     void setUp() {
-        request = new StreamCreationRequestV24();
-        request.setEventType(StreamCreationRequestV24.EventTypeEnum.STATUS);
+        request = new StreamCreationRequestV25();
+        request.setEventType(StreamCreationRequestV25.EventTypeEnum.STATUS);
         request.setFilterValues(Collections.singletonList("001"));
         request.setTitle("001");
     }
 
     @Test
     void title() {
-        StreamCreationRequestV24 expected = StreamCreationRequestV24.builder()
+        StreamCreationRequestV25 expected = StreamCreationRequestV25.builder()
                 .title("001")
-                .eventType(StreamCreationRequestV24.EventTypeEnum.STATUS)
+                .eventType(StreamCreationRequestV25.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
                 .groups(Collections.emptyList())
                 .build();
@@ -35,25 +35,25 @@ class StreamCreationRequestTest {
 
     @Test
     void eventType() {
-        StreamCreationRequestV24 expected = StreamCreationRequestV24.builder()
+        StreamCreationRequestV25 expected = StreamCreationRequestV25.builder()
                 .title("001")
-                .eventType(StreamCreationRequestV24.EventTypeEnum.STATUS)
+                .eventType(StreamCreationRequestV25.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
                 .groups(Collections.emptyList())
                 .build();
-        Assertions.assertEquals(expected, request.eventType(StreamCreationRequestV24.EventTypeEnum.STATUS));
+        Assertions.assertEquals(expected, request.eventType(StreamCreationRequestV25.EventTypeEnum.STATUS));
     }
 
     @Test
     void getEventType() {
-        Assertions.assertEquals(StreamCreationRequestV24.EventTypeEnum.STATUS, request.getEventType());
+        Assertions.assertEquals(StreamCreationRequestV25.EventTypeEnum.STATUS, request.getEventType());
     }
 
     @Test
     void filterValues() {
-        StreamCreationRequestV24 expected = StreamCreationRequestV24.builder()
+        StreamCreationRequestV25 expected = StreamCreationRequestV25.builder()
                 .title("001")
-                .eventType(StreamCreationRequestV24.EventTypeEnum.STATUS)
+                .eventType(StreamCreationRequestV25.EventTypeEnum.STATUS)
                 .filterValues(Collections.singletonList("001"))
                 .groups(Collections.emptyList())
                 .build();
