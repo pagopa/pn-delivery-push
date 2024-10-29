@@ -32,6 +32,11 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Slf4j
 public class DocumentComposition {
 
+    public static TemplateType retrieveTemplateFromLang(TemplateType templateType, String additionalLang) {
+        String finalTemplateName = templateType.name() + "_" + additionalLang;
+        return DocumentComposition.TemplateType.valueOf(finalTemplateName);
+    }
+
     public enum TemplateType {
         REQUEST_ACCEPTED("documents_composition_templates/NotificationReceivedLegalFact.html"),
         REQUEST_ACCEPTED_DE("documents_composition_templates/NotificationReceivedLegalFact_de.html"),
@@ -64,9 +69,6 @@ public class DocumentComposition {
 
 
         AAR_NOTIFICATION_RADD("documents_composition_templates/NotificationAAR_RADD.html"),
-        AAR_NOTIFICATION_RADD_DE("documents_composition_templates/NotificationAAR_RADD_de.html"),
-        AAR_NOTIFICATION_RADD_SL("documents_composition_templates/NotificationAAR_RADD_sl.html"),
-        AAR_NOTIFICATION_RADD_FR("documents_composition_templates/NotificationAAR_RADD_fr.html"),
 
 
         AAR_NOTIFICATION_RADD_ALT("documents_composition_templates/NotificationAAR_RADDalt.html"),
