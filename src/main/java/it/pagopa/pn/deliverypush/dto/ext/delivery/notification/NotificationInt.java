@@ -29,5 +29,5 @@ public class NotificationInt {
     private PagoPaIntMode pagoPaIntMode;
     private String group;
     private String version;
-    private List<String> additionalLang;
+    private List<String> additionalLanguages;
 }
