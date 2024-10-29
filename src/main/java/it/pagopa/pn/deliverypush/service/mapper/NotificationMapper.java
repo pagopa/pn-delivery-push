@@ -52,7 +52,7 @@ public class NotificationMapper {
                 .paymentExpirationDate(paymentExpirationDate)
                 .pagoPaIntMode(sentNotification.getPagoPaIntMode() != null ? PagoPaIntMode.valueOf(sentNotification.getPagoPaIntMode().getValue()) : null)
                 .version(sentNotification.getVersion())
-                .additionalLang(sentNotification.getAdditionalLanguages())
+                .additionalLanguages(sentNotification.getAdditionalLanguages())
                 .build();
     }
 
@@ -102,7 +102,7 @@ public class NotificationMapper {
         sentNotification.setAmount(notification.getAmount());
         sentNotification.setPaFee(notification.getPaFee());
         sentNotification.setVat(notification.getVat());
-        sentNotification.setAdditionalLanguages(notification.getAdditionalLang());
+        sentNotification.setAdditionalLanguages(notification.getAdditionalLanguages());
 
         ZonedDateTime time = DateFormatUtils.parseInstantToZonedDateTime(notification.getPaymentExpirationDate());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
