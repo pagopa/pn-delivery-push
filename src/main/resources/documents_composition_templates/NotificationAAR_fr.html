@@ -1,0 +1,326 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="SEND - Servizio Notifiche Digitali">
+    <title>Avviso di Avvenuta Ricezione</title>
+    <style type="text/css" media="all">
+      @font-face {
+        font-family: "Titillium Web";
+        src: url(fonts/Titillium_Web/TitilliumWeb-Regular.ttf) format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Titillium Web";
+        src: url(fonts/Titillium_Web/TitilliumWeb-Bold.ttf) format('truetype');
+        font-weight: bold;
+        font-style: normal;
+      }
+
+      @page {
+        size: A4;
+        background-color: white;
+        margin: 0mm;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        text-indent: 0 !important;
+      }
+
+      body {
+        font-family: "Titillium Web", sans-serif;
+        font-weight: 400;
+        font-size: 13.26px;
+        line-height: 18.6px;
+      }
+
+      .strong {
+        font-weight: bold;
+      }
+
+      /* font equivalence */
+      .seven-px {
+        font-size: 9.3px;
+      }
+      .eight-px {
+        font-size: 10.7px;
+      }
+      .nine-px {
+        font-size: 12px;
+      }
+      .ten-px {
+        font-size: 13.3px;
+      }
+
+      /* logo-box style */
+      #logo-box {
+        position: relative;
+        top: 14mm;
+        left: 8mm;
+        width: 65mm;
+        height: 23mm;
+      }
+
+      #logo-box__logo {
+        position: absolute;
+        width: 23mm;
+      }
+
+      #logo-box__subtitle {
+        position: absolute;
+        left: 24.7mm;
+        top: -.1mm;
+        width: 40mm;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #616161;
+      }
+
+      /* QR */
+      #qr-iun-code {
+        position: absolute;
+        top: 22.9mm;
+        left: 114.7mm;
+        width: 50mm;
+        height: 15mm;
+        line-height: 8px;
+        z-index: 1000;
+      }
+
+      #qr-code {
+        position: absolute;
+        height: 42mm;
+        width: 42mm;
+        right: 6mm; /* qr has a 4mm white frame around its visible area */
+        top: 6mm;
+      }
+
+      #recipient-addr-box {
+        text-transform: uppercase;
+        position: absolute;
+        top: 63mm;
+        left: 100mm;
+        width: 100mm;
+        height: 24mm;
+        padding: .3mm 5.6mm;
+        line-height: 14.6px;
+      }
+
+      #main {
+        margin: 72.8mm 10mm 0mm 10mm;
+        width: 190mm;
+        padding: 0 2.5mm;
+      }
+
+      #main__subject {
+        line-height: 26.5px;
+        padding-top: 0mm;
+        font-size: 22.54px;
+        word-wrap: break-word;
+      }
+
+      #main__disclaimer {
+        margin-top: 1.8mm;
+        line-height: 18.6px;
+        font-size: 13.26px;
+      }
+
+      .heading {
+        width: 100%;
+        height: 7mm;
+        background-color: #ececec;
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: .9mm 2.5mm;
+      }
+
+      .row {
+        margin: 30px 37.13px 0mm 37.13px;
+      }
+
+      .relative-box {
+        position: relative;
+      }
+
+      .rounded-box {
+        border: 1px solid black;
+        border-radius: 5px;
+        font-size: 11.93px;
+        line-height: 17.2px;
+      }
+
+      .section-list {
+        padding-left: 5.3px;
+      }
+
+      .section-list ol {
+        padding-left: 7mm;
+        margin: 2mm 0;
+      }
+
+      .section-list li {
+        margin-top: 2.3mm;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* VIEW ONLINE BOX */
+      #view-online-box {
+        position: absolute;
+        margin-top: 2mm;
+        width: 140mm;
+      }
+      /* END VIEW ONLINE BOX */
+
+      /* DESCRIPTION BOX */
+      #description-box {
+        margin-top: 2mm;
+        position: absolute;
+        width: 44mm;
+        padding: 1.75mm 2.5mm;
+        right: 0mm;
+      }
+      /* END DESCRIPTION BOX */
+
+      /* IO NOTIFICATIONS BOX */
+      #io-notifications {
+        position: absolute;
+        width: 92mm;
+      }
+
+      #io-notifications .rounded-box {
+        height: 24mm;
+        margin: 2mm 0;
+      }
+
+      #io-notifications__image {
+        position: absolute;
+        top: 6mm;
+        left: 3mm;
+        height: 10mm;
+      }
+
+      #io-notifications__content {
+        position: absolute;
+        top: 2mm;
+        left: 12.8mm;
+        width: 75mm;
+      }
+
+      #io-notifications__description {
+        padding-left: 5.3px;
+      }
+      /* END NOTIFICATIONS BOX */
+
+      /* MANDATE BOX */
+      #mandate-box {
+        position: absolute;
+        right: 0;
+        width: 92mm;
+      }
+      /* END MANDATE BOX */
+    </style>
+  </head>
+  <body>
+    <div id="logo-box">
+      <img id="logo-box__logo" src="./images/aar-logo.png" />
+      <div id="logo-box__subtitle" class="seven-px">
+        Avviso di avvenuta ricezione
+      </div>
+    </div>
+
+    <div id="qr-iun-code" class="eight-px">
+      <div class="strong">Codice univoco:</div>
+      <br />${notification.iun}
+    </div>
+
+    <img id="qr-code" src="${qrCodeQuickAccessLink}" />
+
+    <div id="recipient-addr-box">
+      <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+    </div>
+
+    <div id="main">
+      <div id="main__subject" class="strong">
+        ${notification.subject}
+      </div>
+      <div id="main__disclaimer">
+        Ricevi questa notifica da parte di ${notification.sender.paDenomination} in qualità di
+        <#if recipient.recipientType == "PF">
+        privato cittadino con Codice Fiscale
+        <#else>
+        persona giuridica con Codice Fiscale
+        </#if>
+        ${recipient.taxId}. Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti.
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="heading ten-px">Come visualizzare i documenti online</div>
+      <div class="relative-box" style="height: 55mm;">
+        <div id="view-online-box">
+          <div class="section-list">
+            Se non hai ricevuto i documenti notificati insieme a questo avviso di avvenuta ricezione, <br>puoi visualizzarli online. Per farlo:
+            <ol>
+              <li>Inquadra il codice QR o vai su SEND all'indirizzo <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong></li>
+              <li>Accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
+              <li>Visualizza i documenti della notifica</li>
+            </ol>
+            I documenti notificati sono consultabili online per 120 giorni dalla data di perfezionamento della notifica.
+            Per conoscerla, vai su <strong><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}.</a></strong>
+          </div>
+          <br>
+          <p >Il termine per il pagamento, se previsto, e per eventuali impugnazioni è indicato nei documenti.</p>
+        </div>
+        
+        <div id="description-box" class="rounded-box">
+          <strong>Cos’è SEND?</strong><br/> SEND è uno strumento che rende l’invio di notifiche da parte della Pubblica Amministrazione sicuro, efficiente ed economico. Per saperne di più e per ricevere assistenza, visita il sito <strong><a href="${sendURL}">${sendURLLAbel}</a></strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="relative-box" style="height: 65mm;">
+        <div id="io-notifications">
+          <div class="heading ten-px">
+            Ricevi le prossime notifiche in digitale
+          </div>
+          <div class="rounded-box relative-box">
+            <img id="io-notifications__image" src="images/io-on-light.png" />
+            <div id="io-notifications__content">
+              Scarica l’app IO e attiva il servizio SEND - Notifiche digitali di IO - L’app dei servizi pubblici.
+              Se riceverai nuove notifiche, potrai visualizzare i documenti e pagare eventuali spese direttamente dal tuo dispositivo.
+            </div>
+          </div>
+          <div id="io-notifications__description">
+            In alternativa, vai su SEND all’indirizzo <br> <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e indica i recapiti digitali con cui vuoi ricevere le prossime notifiche e comunicazioni.
+          </div>
+        </div>
+        <div id="mandate-box">
+          <div class="heading ten-px">
+            Delega qualcuno a ricevere le tue notifiche
+          </div>
+          <div class="section-list">
+            <ol>
+              <li>Vai su <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
+              <li>Seleziona “Deleghe”</li>
+              <li>Premi “Aggiungi una delega” e inserisci i dati della persona che vuoi delegare</li>
+              <li>Questa dovrà accedere a SEND con SPID o CIE e accettare la richiesta di delega. A partire da quel momento, riceverà su SEND le notifiche destinate a te</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
