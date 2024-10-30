@@ -11,7 +11,9 @@ public enum LegalFactCategoryEntity {
 
     RECIPIENT_ACCESS("RECIPIENT_ACCESS"),
 
-    PEC_RECEIPT("PEC_RECEIPT");
+    PEC_RECEIPT("PEC_RECEIPT"),
+
+    NOTIFICATION_CANCELLED("NOTIFICATION_CANCELLED");
 
     private final String value;
 

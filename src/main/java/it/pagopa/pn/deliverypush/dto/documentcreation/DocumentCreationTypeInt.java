@@ -12,7 +12,9 @@ public enum DocumentCreationTypeInt {
 
     DIGITAL_DELIVERY(LegalFactCategoryInt.DIGITAL_DELIVERY.getValue()),
 
-    RECIPIENT_ACCESS(LegalFactCategoryInt.RECIPIENT_ACCESS.getValue());
+    RECIPIENT_ACCESS(LegalFactCategoryInt.RECIPIENT_ACCESS.getValue()),
+
+    NOTIFICATION_CANCELLED(LegalFactCategoryInt.NOTIFICATION_CANCELLED.getValue());
 
     private final String value;
 
