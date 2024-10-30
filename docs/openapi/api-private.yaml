@@ -274,7 +274,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactList"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20"
         '400':
           description: Invalid input
           content:
@@ -294,7 +294,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
-  '/delivery-push-private/{iun}/legal-facts/{legalFactType}/{legalFactId}':
+  '/delivery-push-private/{iun}/download/legal-facts/{legalFactId}':
     get:
       summary: Singolo atto opponibile a terzi
       description: >-
@@ -303,11 +303,10 @@ paths:
         Il parametro recipientInternalId deve essere l'internalId del destinatario
       tags:
         - LegalFactsPrivate
-      operationId: getLegalFactPrivate
+      operationId: getLegalFactByIdPrivate
       parameters:
         - $ref: '#/components/parameters/recipientInternalId'
         - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
         - $ref: '#/components/parameters/xPagoPaPnCxType'
@@ -489,15 +488,7 @@ components:
     ############################################################################################
     ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
     ############################################################################################
-    pathLegalFactType:
-      description: >-
-        Categoria dell'atto opponbile a terzi
-      name: legalFactType
-      in: path
-      required: true
-      schema:
-        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategory'
-
+    
     pathLegalFactId:
       description: >-
         Identificativo dell'atto opponbile a terzi
@@ -649,7 +640,7 @@ components:
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV24'
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV25'
 
 
     ############################################################################################

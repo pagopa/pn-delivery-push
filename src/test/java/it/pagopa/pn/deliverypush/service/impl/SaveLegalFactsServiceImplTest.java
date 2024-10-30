@@ -237,7 +237,7 @@ class SaveLegalFactsServiceImplTest {
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(
-                notification.getIun(), recipient, null, timeStamp)).thenReturn(denomination.getBytes());
+                notification.getIun(), recipient, null, timeStamp, notification)).thenReturn(denomination.getBytes());
         Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
         Mono<String> actualMono = saveLegalFactsService.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, null, timeStamp);
@@ -259,7 +259,7 @@ class SaveLegalFactsServiceImplTest {
         FileCreationResponseInt file = buildFileCreationResponseInt();
 
         Mockito.when(legalFactBuilder.generateNotificationViewedLegalFact(
-                notification.getIun(), recipient, delegateInfo, timeStamp)).thenReturn(denomination.getBytes());
+                notification.getIun(), recipient, delegateInfo, timeStamp, notification)).thenReturn(denomination.getBytes());
         Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
         Mono<String> actualMono = saveLegalFactsService.sendCreationRequestForNotificationViewedLegalFact(notification, recipient, delegateInfo, timeStamp);
