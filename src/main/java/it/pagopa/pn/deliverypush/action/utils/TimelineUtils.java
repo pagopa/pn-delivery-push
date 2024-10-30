@@ -1002,6 +1002,30 @@ public class TimelineUtils {
         );
     }
 
+    public TimelineElementInternal buildNotificationCancelledLegalFactCreationRequest(NotificationInt notification, String legalFactId) {
+        log.debug("buildNotificationCancelledLegalFactCreationRequest- iun={}", notification.getIun());
+
+        String elementId = TimelineEventId.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        NotificationCancelledDocumentCreationRequestDetailsInt details = NotificationCancelledDocumentCreationRequestDetailsInt.builder()
+                .legalFactId(legalFactId)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(
+                notification,
+                TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST,
+                elementId,
+                details,
+                timelineBuilder
+        );
+    }
+
     public TimelineElementInternal buildAarCreationRequest(NotificationInt notification, int recIndex, PdfInfo pdfInfo) {
         log.debug("buildAarCreationRequest- iun={}", notification.getIun());
 
