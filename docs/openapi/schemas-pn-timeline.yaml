@@ -184,7 +184,7 @@ components:
         - "$ref": "#/components/schemas/NotificationCancellationRequestDetails"
         - "$ref": "#/components/schemas/NotificationCancelledDetails"
         - "$ref": "#/components/schemas/PrepareAnalogDomicileFailureDetails"
-        - "$ref": "#/components/schemas/AnalogWorkflowRecipientDeceasedDetails"
+        - "$ref": "#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -1294,7 +1294,7 @@ components:
           type: string
           maxLength: 2048
 
-    AnalogWorkflowRecipientDeceasedDetails:
+    AnalogWorkflowRecipientDeceasedDetailsV26:
       type: object
       required:
         - recIndex
