@@ -11,12 +11,11 @@ public interface GetLegalFactService {
                                                                  CxTypeAuthFleet cxType, List<String> cxGroups);
 
     Mono<LegalFactDownloadMetadataWithContentTypeResponse> getLegalFactMetadataWithContentType(String iun,
-                                                                                               LegalFactCategory legalFactType,
                                                                                                String legalfactId,
                                                                                                String senderReceiverId,
                                                                                                String mandateId,
                                                                                                CxTypeAuthFleet cxType,
                                                                                                List<String> cxGroups);
 
-    List<LegalFactListElement> getLegalFacts(String iun, String senderReceiverId, String mandateId, CxTypeAuthFleet cxType, List<String> cxGroups);
+    List<LegalFactListElementV20> getLegalFacts(String iun, String senderReceiverId, String mandateId, CxTypeAuthFleet cxType, List<String> cxGroups);
 }

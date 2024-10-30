@@ -1,35 +1,29 @@
 openapi: 3.0.3
 info:
   termsOfService: https://termofservice.it
-  title: 'API di pn-delivery-push esposte ad altri microservizi'
-  x-summary: 'API di pn-delivery-push esposte ad altri microservizi'
+  title: API di pn-delivery-push esposte ad altri microservizi
+  x-summary: API di pn-delivery-push esposte ad altri microservizi
   x-api-id: api-internal-pn-delivery-push
-  version: '1.0.0'
-  description: >- 
-    Da fare
-
+  version: 1.0.0
+  description: Da fare
   contact:
     email: pn@pagopa.it
 servers:
-- url: https://api.pn.pagopa.it
-  description: Ambiente di produzione
-- url: https://api.uat.pn.pagopa.it
-  description: Ambiente di test
-- url: https://api.dev.pn.pagopa.it
-  description: Ambiente di sviluppo
+  - url: https://api.pn.pagopa.it
+    description: Ambiente di produzione
+  - url: https://api.uat.pn.pagopa.it
+    description: Ambiente di test
+  - url: https://api.dev.pn.pagopa.it
+    description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
-    description: >-
-      Invocazioni per sapere lo stato del microservizio
+    description: Invocazioni per sapere lo stato del microservizio
   - name: LegalFacts
-    description: >-
-      Recupero degli atti opponibili a terzi generati per una notifica
+    description: Recupero degli atti opponibili a terzi generati per una notifica
   - name: NotificationCancellation
-    description: >-
-      Annullamento di una notifica
-
+    description: Annullamento di una notifica
 paths:
-  '/status':
+  /status:
     get:
       summary: healthCheck path
       description: healtCheck path per verificare lo stato del microservizio
@@ -41,12 +35,12 @@ paths:
           description: Ok
         '500':
           description: Internal Server Error
-          
-  '/delivery-push/v2.0/notifications/cancel/{iun}':
+  /delivery-push/v2.0/notifications/cancel/{iun}:
     put:
       summary: Annullamento notifica
       description: >-
-        Permette l'annullamento di una notifica restituendo una presa in carico, il processo di annullamento si completa poi in maniera asincrona
+        Permette l'annullamento di una notifica restituendo una presa in carico,
+        il processo di annullamento si completa poi in maniera asincrona
       tags:
         - NotificationCancellation
       operationId: notificationCancellation
@@ -58,36 +52,34 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RequestStatus"
+                $ref: '#/components/schemas/RequestStatus'
         '400':
           description: Bad request
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                $ref: remote-refs.yaml#/components/schemas/Problem
         '404':
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                $ref: remote-refs.yaml#/components/schemas/Problem
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-                                  
-  '/delivery-push/v2.0/{iun}/legal-facts':
+                $ref: remote-refs.yaml#/components/schemas/Problem
+  /delivery-push/v2.0/{iun}/legal-facts:
     get:
       summary: Elenco atti opponibili a terzi
       description: >-
-        Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi 
-        registrati durante il processo di notifica.
-        <br/>
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili
+        a terzi  registrati durante il processo di notifica. <br/>
       tags:
         - LegalFacts
-      operationId: retrieveNotificationLegalFactsV20                                # ONLY EXTERNAL
+      operationId: retrieveNotificationLegalFactsV20
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
@@ -97,36 +89,34 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20"
+                $ref: >-
+                  ./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20
         '400':
           description: Invalid input
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                $ref: remote-refs.yaml#/components/schemas/Problem
         '404':
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                $ref: remote-refs.yaml#/components/schemas/Problem
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-
-  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':
+                $ref: remote-refs.yaml#/components/schemas/Problem
+  /delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}:
     get:
       deprecated: true
       summary: Singolo atto opponibile a terzi
-      description: >-
-        Permette di scaricare un atto opponibile a terzi
-        <br/>
+      description: Permette di scaricare un atto opponibile a terzi <br/>
       tags:
         - LegalFacts
-      operationId: retrieveLegalFact                                # ONLY EXTERNAL
+      operationId: retrieveLegalFact
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
@@ -135,38 +125,36 @@ paths:
       responses:
         '200':
           description: OK
-          content:  
+          content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts-older-version.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: >-
+                  ./schemas-pn-legal-facts-older-version.yaml#/components/schemas/LegalFactDownloadMetadataResponse
         '400':
-          description: Invalid input                                               
-          content: 
-            application/problem+json: 
-              schema: 
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: remote-refs.yaml#/components/schemas/Problem
         '404':
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-        '500': 
-          description: Internal Server Error                                        
-          content: 
-            application/problem+json: 
-              schema: 
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-
-  '/delivery-push/{iun}/download/legal-facts/{legalFactId}':
+                $ref: remote-refs.yaml#/components/schemas/Problem
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: remote-refs.yaml#/components/schemas/Problem
+  /delivery-push/{iun}/download/legal-facts/{legalFactId}:
     get:
       summary: Singolo atto opponibile a terzi
-      description: >-
-        Permette di scaricare un atto opponibile a terzi
-        <br/>
+      description: Permette di scaricare un atto opponibile a terzi <br/>
       tags:
         - LegalFacts
-      operationId: downloadLegalFactById                                # ONLY EXTERNAL
+      operationId: downloadLegalFactById
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
@@ -177,97 +165,119 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: >-
+                  ./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse
         '400':
           description: Invalid input
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                $ref: remote-refs.yaml#/components/schemas/Problem
         '404':
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                $ref: remote-refs.yaml#/components/schemas/Problem
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-
-  '/delivery-push/{iun}/document/{documentType}':
+                $ref: remote-refs.yaml#/components/schemas/Problem
+  /delivery-push/{iun}/document/{documentType}:
     get:
       summary: Restituisce il singolo documento identificato dalla documentKey
-      description: >-
-        Permette di scaricare un documento correlato alla notificazione
+      description: Permette di scaricare un documento correlato alla notificazione
       tags:
         - DocumentsWeb
       operationId: getDocumentsWeb
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
-        - $ref: 'api-private.yaml#/components/parameters/pathDocumentType'
-        - $ref: 'api-private.yaml#/components/parameters/queryDocumentId'
+        - $ref: api-private.yaml#/components/parameters/pathDocumentType
+        - $ref: api-private.yaml#/components/parameters/queryDocumentId
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse"
+                $ref: >-
+                  api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse
         '400':
           description: Invalid input
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                $ref: remote-refs.yaml#/components/schemas/Problem
         '404':
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+                $ref: remote-refs.yaml#/components/schemas/Problem
         '500':
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'
-
-
-
+                $ref: remote-refs.yaml#/components/schemas/Problem
+  /delivery-push/{iun}/legal-facts:
+    get:
+      deprecated: true
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili
+        a terzi  registrati durante il processo di notifica. <br/>
+      tags:
+        - LegalFacts
+      operationId: retrieveNotificationLegalFacts
+      x-pagopa-lambda-name: pn-versioningGetNotificationLegalFactsLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  ./schemas-pn-legal-facts-older-version.yaml#/components/schemas/LegalFactList
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: remote-refs.yaml#/components/schemas/Problem
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: remote-refs.yaml#/components/schemas/Problem
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: remote-refs.yaml#/components/schemas/Problem
 components:
   parameters:
-    ############################################################################################
-    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
-    ############################################################################################
-
-
-
-
-    ############################################################################################
-    ###                        PARAMETRI RICERCA LEGAL FACTS                                 ###
-    ############################################################################################
     legalFactsSearchMandateId:
       name: mandateId
       in: query
       required: false
       description: identificativo della delega, non utilizzato nelle API B2B
-      x-pn-intended-usage: ["WEB"]
+      x-pn-intended-usage:
+        - WEB
       schema:
         type: string
         format: uuid
-        #minLength: 36
-        #maxLength: 36
-
-    ############################################################################################
-    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
-    ############################################################################################
     pathIun:
-      description: >-
-        Identificativo Univoco Notifica
+      description: Identificativo Univoco Notifica
       name: iun
       in: path
       required: true
@@ -276,38 +286,30 @@ components:
         minLength: 25
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
-        
-    ############################################################################################
-    ###                      PARAMETRI RICERCA ATTI OPPONIBILI A TERZI                       ###
-    ############################################################################################
     pathLegalFactType:
-      description: >-
-        Categoria dell'atto opponibile a terzi
+      description: Categoria dell'atto opponibile a terzi
       name: legalFactType
       in: path
       required: true
       schema:
-        $ref: './schemas-pn-legal-facts-older-version.yaml#/components/schemas/LegalFactCategory'
-    
+        $ref: >-
+          ./schemas-pn-legal-facts-older-version.yaml#/components/schemas/LegalFactCategory
     pathLegalFactId:
-      description: >-
-        Identificativo dell'atto opponibile a terzi
+      description: Identificativo dell'atto opponibile a terzi
       name: legalFactId
       in: path
       required: true
       schema:
         type: string
-        # ASCII printable characters
         pattern: ^[ -~]*$
         maxLength: 1024
-        
   schemas:
     RequestStatus:
       description: Response to cancellation async call
-      type: object 
+      type: object
       properties:
         status:
-          description: >
+          description: |
             Cancellation request status:
               - OK
           type: string
@@ -318,10 +320,9 @@ components:
             $ref: '#/components/schemas/StatusDetail'
       required:
         - status
-    
     StatusDetail:
       description: Detail of response to cancellation async call
-      type: object 
+      type: object
       required:
         - code
       properties:
@@ -336,7 +337,8 @@ components:
           example: INFO
           type: string
         detail:
-          description: A human readable explanation specific to this occurrence of the problem.
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
           example: Parameter not valid
           type: string
-      

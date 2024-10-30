@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatus;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV24;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV25;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.RefusedReason;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategoryV23;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
@@ -15,8 +15,8 @@ public class ProgressResponseElementMapper {
     private ProgressResponseElementMapper() {
     }
 
-    public static ProgressResponseElementV24 internalToExternal(EventEntity ev) {
-        ProgressResponseElementV24 progressResponseElement = new ProgressResponseElementV24();
+    public static ProgressResponseElementV25 internalToExternal(EventEntity ev) {
+        ProgressResponseElementV25 progressResponseElement = new ProgressResponseElementV25();
         progressResponseElement.setEventId(ev.getEventId());
         progressResponseElement.setTimestamp(ev.getTimestamp());
         progressResponseElement.setIun(ev.getIun());
