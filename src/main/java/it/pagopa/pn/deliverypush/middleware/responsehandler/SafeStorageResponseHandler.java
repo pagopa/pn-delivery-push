@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationRequest;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
@@ -44,7 +45,7 @@ public class SafeStorageResponseHandler {
             if(documentCreationRequestOpt.isPresent()){
                 DocumentCreationRequest creationRequest = documentCreationRequestOpt.get();
                 String iun = creationRequest.getIun();
-                if (timelineUtils.checkIsNotificationCancellationRequested(iun)){
+                if (timelineUtils.checkIsNotificationCancellationRequested(iun) && creationRequest.getDocumentCreationType() != DocumentCreationTypeInt.NOTIFICATION_CANCELLED){
                     log.warn("Process {} blocked: cancellation requested for iun {}", processName, iun);
                 } else {
                     log.debug("DocumentCreationTypeInt is {} and Key to search {}", creationRequest.getDocumentCreationType(), keyWithPrefix);
