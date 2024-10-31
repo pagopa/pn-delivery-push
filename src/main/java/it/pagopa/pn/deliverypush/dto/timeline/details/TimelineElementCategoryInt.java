@@ -51,7 +51,7 @@ public enum TimelineElementCategoryInt {
     NOTIFICATION_CANCELLATION_REQUEST(NotificationCancellationRequestDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_CANCELLATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_20),
     NOTIFICATION_CANCELLED(NotificationCancelledDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_CANCELLED.getValue(), TimelineElementCategoryInt.VERSION_20),
     NOTIFICATION_RADD_RETRIEVED(NotificationRADDRetrievedDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_RADD_RETRIEVED.getValue(), TimelineElementCategoryInt.VERSION_23),
-    NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST(NotificationCancelledDocumentCreationRequestDetailsInt.class, DiagnosticTimelineElementCategory.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.value, TimelineElementCategoryInt.VERSION_24);
+    NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST(NotificationCancelledDocumentCreationRequestDetailsInt.class, DiagnosticTimelineElementCategory.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.value, TimelineElementCategoryInt.VERSION_25);
 
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
     private final String value;
@@ -71,7 +71,7 @@ public enum TimelineElementCategoryInt {
     public static final int VERSION_10 = 10;
     public static final int VERSION_20 = 20;
     public static final int VERSION_23 = 23;
-    public static final int VERSION_24 = 24;
+    public static final int VERSION_25 = 25;
 
     TimelineElementCategoryInt(Class<? extends TimelineElementDetailsInt> detailsJavaClass, String value, int version) {
         this(detailsJavaClass, value, PRIORITY_BEFORE, version);

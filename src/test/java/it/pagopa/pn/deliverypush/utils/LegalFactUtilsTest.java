@@ -1,8 +1,8 @@
 package it.pagopa.pn.deliverypush.utils;
 
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategoryV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElementV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsIdV20;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,16 +11,16 @@ class LegalFactUtilsTest {
     @Test
     void checkLegalFactConversion() {
         //GIVEN
-        LegalFactListElement legalFact = new LegalFactListElement();
+        LegalFactListElementV20 legalFact = new LegalFactListElementV20();
         legalFact.setIun("iun");
-        LegalFactsId id = new LegalFactsId();
+        LegalFactsIdV20 id = new LegalFactsIdV20();
         id.setKey("key");
-        id.setCategory(LegalFactCategory.SENDER_ACK);
+        id.setCategory(LegalFactCategoryV20.SENDER_ACK);
         legalFact.setLegalFactsId(id);
         legalFact.setTaxId("taxId");
 
         // WHEN
-        LegalFactListElement convertedLegalFact = LegalFactUtils.convert(legalFact);
+        LegalFactListElementV20 convertedLegalFact = LegalFactUtils.convert(legalFact);
 
         // THEN
         Assertions.assertEquals(legalFact, convertedLegalFact);

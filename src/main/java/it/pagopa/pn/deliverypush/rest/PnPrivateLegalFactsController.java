@@ -4,9 +4,8 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.exceptions.PnNotificationCancelledException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsPrivateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataWithContentTypeResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElementV20;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.utils.LegalFactUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -29,31 +28,30 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
         this.getLegalFactService = getLegalFactService;
         this.timelineUtils = timelineUtils;
     }
-
+    
     @Override
-    public Mono<ResponseEntity<LegalFactDownloadMetadataWithContentTypeResponse>> getLegalFactPrivate(
+    public  Mono<ResponseEntity<LegalFactDownloadMetadataWithContentTypeResponse>> getLegalFactByIdPrivate(
             String recipientInternalId,
             String iun,
-            LegalFactCategory legalFactType,
             String legalFactId,
             String mandateId,
             CxTypeAuthFleet xPagopaPnCxType,
-            List<String> xPagopaPnCxGroups,
-            ServerWebExchange exchange) {
-        log.info("Starting getLegalFact (private) Process");
-
+            List<String> xPagopaPnCxGroups, 
+            final ServerWebExchange exchange
+    ) {
         if (! CxTypeAuthFleet.PA.equals(xPagopaPnCxType) && timelineUtils.checkIsNotificationCancellationRequested(iun)){
             log.warn("Notification already cancelled, returning 404 iun={} ", iun);
             throw new PnNotificationCancelledException();
         }else {
-            return getLegalFactService.getLegalFactMetadataWithContentType(iun, legalFactType, legalFactId, recipientInternalId, mandateId, xPagopaPnCxType, xPagopaPnCxGroups)
-                .doOnSuccess(res -> log.info("Starting getLegalFact (private) Process"))
-                .map(response -> ResponseEntity.ok().body(response));
+            return getLegalFactService.getLegalFactMetadataWithContentType(iun, legalFactId, recipientInternalId, mandateId, xPagopaPnCxType, xPagopaPnCxGroups)
+                    .doOnSuccess(res -> log.info("Starting getLegalFact (private) Process"))
+                    .map(response -> ResponseEntity.ok().body(response));
         }
+
     }
 
     @Override
-    public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFactsPrivate(
+    public Mono<ResponseEntity<Flux<LegalFactListElementV20>>> getNotificationLegalFactsPrivate(
             String recipientInternalId,
             String iun,
             String mandateId,
@@ -68,8 +66,8 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
         }else {
             return Mono.fromSupplier(() -> {
                 log.debug("Start getNotificationLegalFactsPrivate - iun={} recipientInternalId={}", iun, recipientInternalId);
-                List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun, recipientInternalId, mandateId, cxType, cxGroups);
-                Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
+                List<LegalFactListElementV20> legalFacts = getLegalFactService.getLegalFacts(iun, recipientInternalId, mandateId, cxType, cxGroups);
+                Flux<LegalFactListElementV20> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
                 return ResponseEntity.ok(fluxFacts);
             });
         }

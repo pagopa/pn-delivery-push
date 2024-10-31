@@ -188,7 +188,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     ) {
         log.info("sendCreationRequestForNotificationViewedLegalFact - iun={}", notification.getIun());
 
-        return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(notification.getIun(), recipient, delegateInfo, timeStamp))
+        return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(notification.getIun(), recipient, delegateInfo, timeStamp, notification))
                 .flatMap( res -> {
                         log.info("sendCreationRequestForNotificationViewedLegalFact completed - iun={} are not nulls={}", notification.getIun(), res != null);
                         return this.saveLegalFact(res)
