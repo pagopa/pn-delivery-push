@@ -71,7 +71,7 @@ public class DocumentComposition {
         AAR_NOTIFICATION_RADD("documents_composition_templates/NotificationAAR_RADD.html"),
 
 
-        AAR_NOTIFICATION_RADD_ALT("documents_composition_templates/NotificationAAR_RADDalt.html"),
+        AAR_NOTIFICATION_RADD_ALT("documents_composition_templates/NotificationAAR_RADDalt_old.html"),
         AAR_NOTIFICATION_RADD_ALT_DE("documents_composition_templates/NotificationAAR_RADDalt_de.html"),
         AAR_NOTIFICATION_RADD_ALT_SL("documents_composition_templates/NotificationAAR_RADDalt_sl.html"),
         AAR_NOTIFICATION_RADD_ALT_FR("documents_composition_templates/NotificationAAR_RADDalt_fr.html"),
