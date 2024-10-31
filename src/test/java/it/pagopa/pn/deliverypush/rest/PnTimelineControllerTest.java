@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.List;
 
 @WebFluxTest(PnTimelineController.class)
 class PnTimelineControllerTest {
@@ -32,11 +31,11 @@ class PnTimelineControllerTest {
 
     @Test
     void getTimelineSuccess() {
-        var timelineElements = Collections.singletonList(TimelineElementV25.builder()
+        var timelineElements = Collections.singletonList(TimelineElementV26.builder()
                 .timestamp( Instant.now() )
                 .elementId( "element_id" )
-                .category( TimelineElementCategoryV23.REQUEST_ACCEPTED )
-                .details(TimelineElementDetailsV23.builder().build())
+                .category( TimelineElementCategoryV26.REQUEST_ACCEPTED )
+                .details(TimelineElementDetailsV26.builder().build())
                 .build()
         );
         NotificationHistoryResponse dto = NotificationHistoryResponse.builder()
