@@ -1,0 +1,458 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="SEND - Servizio Notifiche Digitali">
+    <title>Avviso di Avvenuta Ricezione</title>
+    <style type="text/css" media="all">
+        @font-face {
+          font-family: "Titillium Web";
+          src: url(fonts/Titillium_Web/TitilliumWeb-Regular.ttf) format('truetype');
+          font-weight: normal;
+          font-style: normal;
+        }
+
+        @font-face {
+          font-family: "Titillium Web";
+          src: url(fonts/Titillium_Web/TitilliumWeb-Bold.ttf) format('truetype');
+          font-weight: bold;
+          font-style: normal;
+        }
+
+        @page {
+          size: A4;
+          background-color: white;
+          margin: 0mm;
+        }
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          text-indent: 0 !important;
+        }
+
+        body {
+          font-family: "Titillium Web", sans-serif;
+          font-weight: 400;
+          font-size: 13.3px;
+          line-height: 18.6px;
+        }
+
+        .strong {
+          font-weight: bold;
+        }
+
+        /* font equivalence */
+        .seven-px {
+          font-size: 9.3px;
+        }
+
+        .eight-px {
+          font-size: 10.7px;
+        }
+
+        .nine-px {
+          font-size: 12px;
+        }
+
+        .ten-px {
+          font-size: 13.3px;
+        }
+
+        /* logo-box style */
+        #logo-box {
+          position: relative;
+          top: 14mm;
+          left: 8mm;
+          width: 65mm;
+          height: 23mm;
+        }
+
+        #logo-box__logo {
+          position: absolute;
+          width: 23mm;
+        }
+
+        #logo-box__subtitle {
+          position: absolute;
+          left: 24.7mm;
+          top: -.1mm;
+          width: 40mm;
+          text-transform: uppercase;
+          font-weight: 700;
+          color: #616161;
+        }
+
+        /* QR */
+        #qr-iun-code {
+          position: absolute;
+          top: 22.9mm;
+          left: 114.7mm;
+          width: 50mm;
+          height: 15mm;
+          line-height: 8px;
+          z-index: 1000;
+        }
+
+        #qr-code {
+          position: absolute;
+          height: 42mm;
+          width: 42mm;
+          right: 6mm;
+          /* qr has a 4mm white frame around its visible area */
+          top: 6mm;
+        }
+
+        #recipient-addr-box {
+          text-transform: uppercase;
+          position: absolute;
+          top: 63mm;
+          left: 100mm;
+          width: 100mm;
+          height: 24mm;
+          padding: .3mm 5.6mm;
+          line-height: 14.6px;
+        }
+
+        #main {
+          margin: 72.8mm 10mm 0mm 10mm;
+          width: 190mm;
+        }
+
+        #main__subject {
+          line-height: 26.5px;
+          padding-top: 0mm;
+          font-size: 22.54px;
+          word-wrap: break-word;
+          margin-bottom: 1.5mm;
+        }
+
+        #main__disclaimer {
+          margin: 1.5mm 0;
+          line-height: 18.6px;
+        }
+
+        .heading {
+          width: 100%;
+          height: 7mm;
+          background-color: #ececec;
+          text-transform: uppercase;
+          font-weight: bold;
+          padding: .9mm 2.5mm;
+        }
+
+        .row {
+          margin: 8px 37.13px 0mm 37.13px;
+        }
+
+        .relative-box {
+          position: relative;
+        }
+
+        .rounded-box {
+          border: 1px solid black;
+          border-radius: 5px;
+          font-size: 11.93px;
+          /* line-height: 17.2px; */
+          line-height: normal;
+        }
+
+        .section-list {
+          padding-left: 5.3px;
+        }
+
+        .section-list ol {
+          padding-left: 5mm;
+          margin: 2mm 0;
+        }
+
+        .section-list li {
+          margin-top: 1.5mm;
+        }
+
+        a {
+          text-decoration: none;
+          color: inherit;
+        }
+
+        /* VIEW ONLINE BOX */
+        #view-online-box {
+          position: absolute;
+          width: 92mm;
+        }
+
+        /* END VIEW ONLINE BOX */
+
+        /* DESCRIPTION BOX */
+        #description-box {
+          margin-top: 2mm;
+          position: absolute;
+          width: 168.41px;
+          padding: 1.75mm 2.5mm;
+          right: 0mm;
+        }
+
+        /* END DESCRIPTION BOX */
+
+        /* IO NOTIFICATIONS BOX */
+        #io-notifications {
+          position: absolute;
+          width: 92mm;
+          right: 0;
+        }
+
+        #io-notifications .rounded-box {
+          height: 18mm;
+          margin: 2mm 0;
+        }
+
+        #io-notifications__image {
+          position: absolute;
+          top: 4mm;
+          left: 3mm;
+          height: 10mm;
+        }
+
+        #io-notifications__content {
+          position: absolute;
+          top: 2mm;
+          left: 12.8mm;
+          width: 75mm;
+        }
+
+        #io-notifications__description {
+          padding-left: 5.3px;
+        }
+
+        /* END NOTIFICATIONS BOX */
+
+        /* SEND INFO BOX*/
+        #send-info {
+          position: absolute;
+          width: 92mm;
+        }
+
+        #send-info .rounded-box {
+          height: 17mm;
+          margin: 2mm 0;
+        }
+
+        #send-info__content {
+          position: absolute;
+          width: 100%;
+          padding: 1.75mm;
+        }
+
+        .border-bottom {
+          border-bottom: solid 1px #000;
+          margin-top: 2.5mm;
+          color: #666;
+        }
+
+        /* END SEND INFO BOX*/
+
+        /* MANDATE BOX */
+        #mandate-box {
+          position: absolute;
+          right: 0;
+          width: 92mm;
+        }
+
+        #mandate-box__content {
+          padding-left: 5.3px;
+          margin: 2mm 0;
+        }
+
+        /* END MANDATE BOX */
+        /* POSTE BOX */
+        #poste-box {
+          position: absolute;
+          left: 0;
+          width: 92mm;
+        }
+
+        ul#square-list li {
+          list-style-type: square;
+          margin-left: 5mm;
+          margin-top: 0.7mm;
+        }
+
+        /* END POSTE BOX */
+    </style>
+</head>
+
+<body>
+<div id="logo-box">
+    <img id="logo-box__logo" src="./images/aar-logo.png" />
+    <div id="logo-box__subtitle" class="seven-px">
+        Avviso di avvenuta ricezione
+    </div>
+</div>
+
+<div id="qr-iun-code" class="eight-px">
+    <div class="strong">Codice univoco:</div>
+    <br />${notification.iun}
+</div>
+
+<img id="qr-code" src="${qrCodeQuickAccessLink}" />
+
+<div id="recipient-addr-box">
+    <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+</div>
+
+<div id="main">
+    <div id="main__subject" class="strong">
+        ${notification.subject}
+    </div>
+    <div class="eight-px">Ricevi questo avviso di avvenuta ricezione in qualità di
+        <#if recipient.recipientType=="PF">
+        <b>persona fisica</b> con Codice Fiscale
+        <#else>
+        <b>persona giuridica</b> con Codice Fiscale
+    </#if>
+    ${recipient.taxId}.
+</div>
+<div id="main__disclaimer" class="ten-px">
+    Hai ricevuto su SEND - Servizio Notifiche Digitali una notifica da parte di ${notification.sender.paDenomination}.
+    Una notifica è una comunicazione a valore legale. È composta da questo avviso di avvenuta ricezione e da uno o più
+    documenti: visualizzali online o ritirali in Ufficio Postale il prima possibile. Il termine per il pagamento, se
+    previsto, e per eventuali impugnazioni è indicato nei documenti.
+</div>
+</div>
+
+<div class="row">
+    <div class="heading ten-px">Visualizza i documenti online - gratis</div>
+    <div class="relative-box" style="height: 20mm;">
+        <div id="view-online-box">
+            <div class="section-list">
+                <ol>
+                    <li>Inquadra il codice QR o vai su <strong><a
+                            href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong></li>
+                    <li>Accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
+                    <li>Visualizza i documenti notificati</li>
+                </ol>
+            </div>
+        </div>
+        <div id="io-notifications">
+            <#if recipient.recipientType=="PF">
+            <div class="rounded-box relative-box">
+                <img id="io-notifications__image" src="images/io-on-light.png" />
+                <div id="io-notifications__content" class="eight-px">
+                    Scarica l’app IO e attiva il servizio SEND - Notifiche digitali. Se riceverai nuove notifiche, potrai
+                    visualizzare i documenti e pagare eventuali spese direttamente in app.
+                </div>
+            </div>
+            <#else>
+
+        </#if>
+
+    </div>
+</div>
+</div>
+
+<div class="row">
+    <#if recipient.recipientType=="PF">
+    <div class="relative-box" style="height: 96mm;">
+        <#else>
+        <div class="relative-box" style="height: 102mm;">
+        </#if>
+        <div id="poste-box">
+            <div class="heading ten-px">
+                Ritirali in Ufficio Postale - A Pagamento
+            </div>
+            <div class="section-list">
+                <ol>
+                    <li>Vai in qualsiasi Ufficio Postale e richiedi il servizio “Stampa notifica” (disponibile anche senza SPID
+                        o CIE)</li>
+                    <li>Allo sportello, mostra:
+                        <ul id="square-list">
+                            <li>questo avviso di avvenuta ricezione</li>
+                            <li>un tuo documento di riconoscimento</li>
+                            <li>il tuo Codice Fiscale</li>
+                            <#if recipient.recipientType=="PF">
+                            <#else>
+                            <li>un documento che attesti il tuo
+                                ruolo
+                                di legale rappresentante</li>
+                        </#if>
+                        </ul>
+                    </li>
+                    <li>Paga il corrispettivo e ritira i documenti notificati</li>
+                </ol>
+            </div>
+            <div class="eight-px" style="padding-left: 2.5mm; line-height: normal;">Un volta usufruito del servizio “Stampa
+                Notifica”, non potrai
+                richiedere una nuova stampa degli stessi documenti. Puoi consultare i termini e le condizioni del servizio
+                “Stampa Notifica” su <b>poste.it</b> e in Ufficio Postale.</div>
+            <div id="send-info">
+                <div class="rounded-box relative-box">
+                    <div id="send-info__content" class="eight-px">
+                        SEND è uno strumento che rende l’invio di notifiche da parte della Pubblica Amministrazione sicuro,
+                        efficiente ed economico. Per saperne di più, visita il sito <b><a href="${sendURL}">${sendURLLAbel}</a></b>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div id="mandate-box">
+            <div class="heading ten-px">
+                Vuoi delegare qualcuno al ritiro?
+            </div>
+            <div id="mandate-box__content">
+                <#if recipient.recipientType=="PF">
+                Io, ${recipient.denomination} ${recipient.taxId}, delego
+                <#else>
+                <div>
+                    Io,
+                    <span style="width: 86mm; display: inline-block; margin-top: 0;" class="eight-px border-bottom">
+                Nome e Cognome
+              </span>
+                    in qualità di rappresentante legale di ${recipient.denomination} ${recipient.taxId}, delego
+                </div>
+            </#if>
+
+            <div class="eight-px border-bottom">
+                Nome e Cognome
+            </div>
+            <div class="eight-px border-bottom">
+                Codice Fiscale
+            </div>
+            a ritirare in Ufficio Postale i documenti notificati.
+            <div class="eight-px border-bottom">
+                Firma
+            </div>
+        </div>
+        <div class="section-list">
+            Allo sportello, la persona delegata dovrà mostrare:
+            <ul id="square-list">
+                <li>questo avviso con la delega compilata e firmata</li>
+                <li>un suo documento di riconoscimento</li>
+                <li>il suo Codice Fiscale</li>
+                <li>una copia o l’originale del tuo Codice Fiscale e di un tuo documento di riconoscimento</li>
+                <#if recipient.recipientType=="PF">
+                <#else>
+                <li>un documento che attesti il tuo ruolo
+                    di
+                    legale rappresentante</li>
+            </#if>
+
+            </ul>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<div class="row">
+    <div class="eight-px">Hai 120 giorni dalla data di perfezionamento della notifica per ottenere i documenti. Per
+        conoscerla, vai su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></div>
+</div>
+</body>
+
+</html>

@@ -132,7 +132,7 @@ class LegalFactPdfGeneratorTest {
         @Test
         void generateNotificationReceivedLegalFactTestDE() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact_de.pdf");
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("DE");
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
@@ -145,7 +145,7 @@ class LegalFactPdfGeneratorTest {
         @Test
         void generateNotificationReceivedLegalFactTestSL() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact_sl.pdf");
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("SL");
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
@@ -158,7 +158,7 @@ class LegalFactPdfGeneratorTest {
         @Test
         void generateNotificationReceivedLegalFactTestFR() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact_fr.pdf");
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("FR");
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
@@ -269,6 +269,25 @@ class LegalFactPdfGeneratorTest {
                                                 delegateInfo, notificationViewedDate, notification)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
+        @Test
+        void generateNotificationDelegateViewedLegalFactTestDE() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_DelegateViewedLegalFact_de.pdf");
+                String iun = "iun1234Test_Viewed";
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
+                        .denomination("Mario Rossi")
+                        .taxId("RSSMRA80A01H501U")
+                        .delegateType(RecipientTypeInt.PF)
+                        .build();
+                Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
+
+                Assertions.assertDoesNotThrow(
+                        () -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient,
+                                delegateInfo, notificationViewedDate, notification)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
 
         @Test
         void generateAnalogDeliveryFailureWorkflowLegalFact() {
@@ -364,7 +383,7 @@ class LegalFactPdfGeneratorTest {
         void generatePecDeliveryWorkflowLegalFactTestDE_OK() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK_de.pdf");
                 List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
                         ResponseStatusInt.OK);
                 NotificationInt notification = buildNotification();
@@ -386,7 +405,7 @@ class LegalFactPdfGeneratorTest {
         void generatePecDeliveryWorkflowLegalFactTestSL_OK() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK_sl.pdf");
                 List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
                         ResponseStatusInt.OK);
                 NotificationInt notification = buildNotification();
@@ -408,7 +427,7 @@ class LegalFactPdfGeneratorTest {
         void generatePecDeliveryWorkflowLegalFactTestFR_OK() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK_fr.pdf");
                 List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
                         ResponseStatusInt.OK);
                 NotificationInt notification = buildNotification();
@@ -469,6 +488,21 @@ class LegalFactPdfGeneratorTest {
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
                                                 recipient, endWorkflowStatus, Instant.now())));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTestDE_KO() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO_de.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
+                        ResponseStatusInt.KO);
+                NotificationInt notification = buildNotification();
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
+                                recipient, endWorkflowStatus, Instant.now())));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
