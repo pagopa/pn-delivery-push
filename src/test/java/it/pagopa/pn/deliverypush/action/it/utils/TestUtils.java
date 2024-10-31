@@ -642,7 +642,11 @@ public class TestUtils {
     }
 
     public static void writeAllGeneratedLegalFacts(String iun, String className, TimelineService timelineService, SafeStorageClientMock safeStorageClientMock) {
-        String testName = className + "-" + getMethodName(3);
+        writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock, 3);
+    }
+
+    public static void writeAllGeneratedLegalFacts(String iun, String className, TimelineService timelineService, SafeStorageClientMock safeStorageClientMock, int depth) {
+        String testName = className + "-" + getMethodName(depth);
 
         timelineService.getTimeline(iun, true).forEach(
                 elem -> {
@@ -704,6 +708,10 @@ public class TestUtils {
                 endWorkflowStatus,
                 legalFactGenerator,
                 generatedLegalFactsInfo.isNotificationCompletelyUnreachableLegalFactGenerated());
+
+        TestUtils.checkGenerateNotificationCancelledLegalFact(notification,
+                legalFactGenerator,
+                generatedLegalFactsInfo.notificationCancelled);
     }
 
     private static int getTimes(boolean itWasGenerated) {
@@ -795,6 +803,19 @@ public class TestUtils {
 
     }
 
+
+    private static void checkGenerateNotificationCancelledLegalFact(NotificationInt notification,
+                                                                       LegalFactGenerator legalFactGenerator,
+                                                                       boolean itWasGenerated
+    ) {
+        int times = getTimes(itWasGenerated);
+        try {
+            Mockito.verify(legalFactGenerator, Mockito.times(times)).generateNotificationCancelledLegalFact(eq(notification), Mockito.any(Instant.class));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     public static NotificationInt getNotification() {
         return NotificationInt.builder()
                 .iun("IUN_01")
@@ -1158,6 +1179,7 @@ public class TestUtils {
         boolean notificationViewedLegalFactGenerated;
         boolean pecDeliveryWorkflowLegalFactsGenerated;
         boolean notificationCompletelyUnreachableLegalFactGenerated;
+        boolean notificationCancelled;
     }
 
     @Builder
