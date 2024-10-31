@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
@@ -15,6 +16,7 @@ import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDocumentCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnPaymentUpdateRetryException;
@@ -540,6 +542,50 @@ class NotificationCancellationServiceImplTest {
         //THEN
         Mockito.verify(paperNotificationFailedService, Mockito.never()).deleteNotificationFailed(recipient.getInternalId(), "iun");
         Mockito.verify(auditLogEvent).generateFailure(Mockito.anyString(), Mockito.anyString(), Mockito.any());
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void completeCancellationProcessSuccess() {
+        // Given
+        String iun = "testIun";
+        String legalFactId = "testLegalFactId";
+        NotificationInt notification = getNotification();
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        final TimelineElementInternal timelineElement = TimelineElementInternal.builder().build();
+
+        Mockito.when(auditLogService.buildAuditLogEvent(eq(iun), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(3)))
+                .thenReturn(auditLogEvent);
+        Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
+        Mockito.when(timelineUtils.buildCancelledTimelineElement(any(), any())).thenReturn(timelineElement);
+        Mockito.when(timelineService.addTimelineElement(Mockito.any(), Mockito.any())).thenReturn(false);
+        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+
+        // When
+        notificationCancellationService.completeCancellationProcess(iun, legalFactId);
+
+        // Then
+        Mockito.verify(timelineService).addTimelineElement(timelineElement, notification);
+        Mockito.verify(auditLogService).buildAuditLogEvent(eq(iun), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(3));
+        Mockito.verify(auditLogEvent).generateSuccess();
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void completeCancellationProcessFailure() {
+        // Given
+        String iun = "testIun";
+        String legalFactId = "testLegalFactId";
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+
+        Mockito.when(auditLogService.buildAuditLogEvent(eq(iun), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(3)))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(notificationService.getNotificationByIun(iun)).thenThrow(new PnInternalException("Test Exception", "TestCode"));
+
+        // When & Then
+        Assertions.assertThrows(PnInternalException.class, () -> notificationCancellationService.completeCancellationProcess(iun, legalFactId));
+        Mockito.verify(auditLogEvent).generateFailure(Mockito.anyString(), Mockito.any());
     }
 
     private NotificationInt getNotification(){
