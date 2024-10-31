@@ -57,7 +57,7 @@ public class DocumentComposition {
 
 
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
-        NOTIFICATION_VIEWED_DE("documents_composition_templates/NotificationViewedLegalFact.html"),
+        NOTIFICATION_VIEWED_DE("documents_composition_templates/NotificationViewedLegalFact_de.html"),
         NOTIFICATION_VIEWED_SL("documents_composition_templates/NotificationViewedLegalFact_sl.html"),
         NOTIFICATION_VIEWED_FR("documents_composition_templates/NotificationViewedLegalFact_fr.html"),
 

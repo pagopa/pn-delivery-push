@@ -201,7 +201,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationViewedLegalFactTestDE() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact_de.pdf");
                 String iun = "iun1234Test_Viewed";
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("DE");
@@ -219,7 +219,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationViewedLegalFactTestSL() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact_sl.pdf");
                 String iun = "iun1234Test_Viewed";
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("SL");
@@ -237,7 +237,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationViewedLegalFactTestFR() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact_fr.pdf");
                 String iun = "iun1234Test_Viewed";
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("FR");
