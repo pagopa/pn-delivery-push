@@ -62,6 +62,10 @@ class EventHandler {
             version = 24;
         }
 
+        if (event["path"].includes("v2.5")) {
+            version = 25;
+        }
+
         console.log('version is ', version);
 
         return version;
