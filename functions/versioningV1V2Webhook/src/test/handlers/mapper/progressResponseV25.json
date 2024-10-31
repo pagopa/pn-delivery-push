@@ -1,0 +1,31 @@
+{
+  "eventId": "01234567890123456789012345678901234567",
+  "notificationRequestId": "abcd1234",
+  "iun": "ABCD-EFGH-IJKL-123456-M-7",
+  "newStatus": {
+    "status": "IN_PROGRESS",
+    "timestamp": "2024-02-06T12:34:56Z"
+  },
+  "element": {
+    "elementId": "abcdef1234567890",
+    "timestamp": "2024-02-06T12:34:56Z",
+    "ingestionTimestamp": "2025-02-06T12:34:56Z",
+    "notificationSentAt": "2026-02-06T12:34:56Z",
+    "legalFactsIds": [
+      {
+        "key": "safestorage://example_document1.pdf",
+        "category": "NOTIFICATION_CANCELLED"
+      },
+      {
+        "key": "safestorage://example_document2.pdf",
+        "category": "NOTIFICATION_CANCELLED"
+      }
+    ],
+    "category": "NOTIFICATION_CANCELLED",
+    "details": {
+      "recIndex": 0,
+      "analogCost": 500,
+      "serviceLevel": "AR_REGISTERED_LETTER"
+    }
+  }
+}
