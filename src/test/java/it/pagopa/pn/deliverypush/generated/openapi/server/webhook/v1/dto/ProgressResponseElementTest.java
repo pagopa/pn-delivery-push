@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 
 class ProgressResponseElementTest {
 
-    private ProgressResponseElementV24 responseElement;
+    private ProgressResponseElementV25 responseElement;
 
     @BeforeEach
     void setUp() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        responseElement = new ProgressResponseElementV24();
+        responseElement = new ProgressResponseElementV25();
         responseElement.setEventId("001");
         responseElement.setIun("002");
         responseElement.setNotificationRequestId("003");
@@ -28,7 +28,7 @@ class ProgressResponseElementTest {
     @Test
     void eventId() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV24 expected = ProgressResponseElementV24.builder()
+        ProgressResponseElementV25 expected = ProgressResponseElementV25.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
@@ -50,7 +50,7 @@ class ProgressResponseElementTest {
     @Test
     void timestamp() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV24 expected = ProgressResponseElementV24.builder()
+        ProgressResponseElementV25 expected = ProgressResponseElementV25.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
@@ -72,7 +72,7 @@ class ProgressResponseElementTest {
     @Test
     void notificationRequestId() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV24 expected = ProgressResponseElementV24.builder()
+        ProgressResponseElementV25 expected = ProgressResponseElementV25.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
@@ -94,7 +94,7 @@ class ProgressResponseElementTest {
     @Test
     void iun() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV24 expected = ProgressResponseElementV24.builder()
+        ProgressResponseElementV25 expected = ProgressResponseElementV25.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
@@ -116,7 +116,7 @@ class ProgressResponseElementTest {
     @Test
     void newStatus() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV24 expected = ProgressResponseElementV24.builder()
+        ProgressResponseElementV25 expected = ProgressResponseElementV25.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
@@ -138,7 +138,7 @@ class ProgressResponseElementTest {
     @Test
     void timelineEventCategory() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV24 expected = ProgressResponseElementV24.builder()
+        ProgressResponseElementV25 expected = ProgressResponseElementV25.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
@@ -160,7 +160,7 @@ class ProgressResponseElementTest {
     @Test
     void testEquals() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV24 expected = ProgressResponseElementV24.builder()
+        ProgressResponseElementV25 expected = ProgressResponseElementV25.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
