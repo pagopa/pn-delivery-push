@@ -26,7 +26,7 @@ public class DocumentCreationResponseHandler {
     private final NotificationCancellationActionHandler notificationCancellationActionHandler;
 
     public void handleResponseReceived( String iun, Integer recIndex, DocumentCreationResponseActionDetails details) {
-        if (timelineUtils.checkIsNotificationCancellationRequested(iun)){
+        if (timelineUtils.checkIsNotificationCancellationRequested(iun) && ! DocumentCreationTypeInt.NOTIFICATION_CANCELLED.equals(details.getDocumentCreationType())){
             log.warn("DocumentCreation blocked: cancellation requested for iun {}", iun);
             return;
         }
