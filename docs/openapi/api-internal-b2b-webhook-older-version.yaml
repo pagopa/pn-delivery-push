@@ -826,7 +826,7 @@ paths:
       tags:
         - Streams
       operationId: getEventStreamV24                             # NO EXTERNAL
-      #      operationId: retrieveEventStreamV24                       # ONLY EXTERNAL
+#      operationId: retrieveEventStreamV24                       # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
       x-pagopa-lambda-account: core
       responses:
@@ -916,7 +916,7 @@ paths:
       tags:
         - Streams
       operationId: deleteEventStreamV24                          # NO EXTERNAL
-      #      operationId: removeEventStreamV24                         # ONLY EXTERNAL
+#      operationId: removeEventStreamV24                         # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
       x-pagopa-lambda-account: core
       responses:
