@@ -268,7 +268,6 @@ public class CommonTestConfiguration {
         webapp.setFaqUrlTemplateSuffix("faq.html");
         webapp.setQuickAccessUrlAarDetailSuffix("notifica?aar");
         webapp.setLandingUrl("https://www.dev.pn.pagopa.it");
-        webapp.setLegalFactDisclaimer("prova disclaimer");
         Map<String, String> additionalSetting = new HashMap<>();
         additionalSetting.put("raddoperatorcaf", "true");
         additionalSetting.put("raddoperatormooney", "true");

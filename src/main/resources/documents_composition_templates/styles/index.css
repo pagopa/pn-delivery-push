@@ -33,7 +33,7 @@
 }
 
 body {
-    font-size: 16px; /* 12pt on Figma */
+    font-size: 12px; /* 12pt on Figma */
     font-family: "Montserrat", sans-serif;
     font-weight: 400;
 }
@@ -65,7 +65,7 @@ a.faq-link-perfezionamento {
 
 #footer {
     position: running(footer);
-    font-size: 10.667px;
+    font-size: 9px; /* 8pt on Figma */
     color: #475A6D;
     border-top: 1px solid #E3E7EB;
     padding-top: 3mm;
@@ -84,7 +84,7 @@ a.faq-link-perfezionamento {
 }
 
 #disclaimer {
-    font-size: 13.333px;
+    font-size: 10px; /* 10pt on Figma */
 }
 
 .row {
@@ -105,41 +105,15 @@ a.faq-link-perfezionamento {
     float: right;
 }
 
-.col-1-10 {
-    width: 10%;
-}
-
-.col-2-10 {
-    width: 20%;
-}
-
-.col-3-10 {
-    width: 30%;
-}
-
-.col-4-10 {
-    width: 40%;
-}
-
-.col-5-10 {
-    width: 50%;
-}
-
-.col-6-10 {
-    width: 60%;
-}
-
-.col-7-10 {
-    width: 70%;
-}
-
-.col-8-10 {
-    width: 80%;
-}
-
-.col-9-10 {
-    width: 90%;
-}
+.col-1-10 { width: 10%; }
+.col-2-10 { width: 20%; }
+.col-3-10 { width: 30%; }
+.col-4-10 { width: 40%; }
+.col-5-10 { width: 50%; }
+.col-6-10 { width: 60%; }
+.col-7-10 { width: 70%; }
+.col-8-10 { width: 80%; }
+.col-9-10 { width: 90%; }
 
 .margin-top-medium {
     margin-top: 10mm;
@@ -167,7 +141,7 @@ a.faq-link-perfezionamento {
 
 .document-type {
     margin: 0 0 7mm 0;
-    font-size: 18.667px;
+    font-size: 14px; /* 14pt on Figma */
 }
 
 .hash-list li {
