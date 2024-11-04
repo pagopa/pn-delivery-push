@@ -1,5 +1,9 @@
-<html>
+<!DOCTYPE html>
+
+<html lang="it">
+
 <head>
+    <title>Attestazione opponibile a terzi</title>
     <meta name="author" content="SEND - Servizio Notifiche Digitali" />
     <link rel="stylesheet" href="styles/index.css">
 </head>
@@ -35,17 +39,17 @@
         </div>
     </div>
 
-    <h3 class="document-type mb-0" data-hide-on-it="true">Déclaration d&#39;annulation de la notification sur la plateforme SEND</h3>
-    <h3 class="document-type">Dichiarazione annullamento notifica sulla piattaforma SEND</h3>
 
-    <p class="paragraph mb-0" data-hide-on-it="true">Par le présent document, mis à disposition du destinataire exclusivement sur la plateforme SEND, il est déclaré que la notification ayant IUN <b>${notification.getIun()}</b>, effectuée à l'encontre de:</p>
+    <h3 class="document-type">Dichiarazione annullamento notifica sulla piattaforma SEND - FR</h3>
+
+
     <p class="paragraph">Con il presente documento, reso disponibile al destinatario esclusivamente sulla Piattaforma SEND, si dichiara che la notifica avente IUN <b>${notification.getIun()}</b>, eseguita nei confronti di:</p>
 
     <#list notification.recipients as recipient>
     <div class="margin-y-small">
         <div class="row">
             <div class="left-col col-5-10">
-                <p><span data-hide-on-it="true">Nom et Prénom / Dénomination sociale &bull; </span>Nome e Cognome / Ragione Sociale</p>
+                <p>Nome e Cognome / Ragione Sociale</p>
             </div>
             <div class="left-col col-5-10">
                 <p><strong>${recipient.denomination}</strong></p>
@@ -54,7 +58,7 @@
 
         <div class="row">
             <div class="left-col col-5-10">
-                <p><span data-hide-on-it="true">Numéro fiscal &bull; </span>Codice fiscale</p>
+                <p>Codice fiscale</p>
             </div>
             <div class="left-col col-5-10">
                 <p><strong>${recipient.taxId}</strong></p>
@@ -63,15 +67,10 @@
     </div>
 </#list>
 
-<p class="paragraph my-8" data-hide-on-it="true">a été annulée à la demande spécifique de l'expéditeur <b>${notification.sender.paDenomination}</b> à la date du <b>${notificationCancelledDate}</b>.</p>
+
 <p class="paragraph my-8">è stata annullata su specifica istanza del Mittente <b>${notification.sender.paDenomination}</b> in data <b>${notificationCancelledDate}</b>.</p>
 
-<p class="paragraph mb-0" data-hide-on-it="true">
-    L'annulation sur SEND objet de la présente déclaration n'implique pas nécessairement que le fondement de la notification ait disparu, ni que les notifications concernant les mêmes actes effectuées via d'autres canaux que la plateforme SEND soient également annulées.
-    <span data-hide-on-it="true">
-          <br />
-          Pour toute information concernant les raisons de l'annulation mentionnée dans cette déclaration, et la gestion du paiement éventuel déjà effectué avant l'annulation, le destinataire doit s'adresser exclusivement à l'expéditeur.
-        </span>
+
 </p>
 
 <p class="paragraph">
@@ -84,7 +83,7 @@
 
 
 <div class="py-16">
-    <p class="right"><span data-hide-on-it="true">Signé numériquement par PagoPA S.p.A. &bull; </span>Firmato digitalmente da PagoPA S.p.A.</p>
+    <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>
 </div>
 
 <div class="row">
@@ -92,8 +91,8 @@
         <p>&nbsp;</p>
     </div>
     <div class="right-col col-6-10">
-        <p class="py-16" data-hide-on-it="true">Le texte original de ces documents est en italien. En cas de différences entre la version italienne et ses traductions, le sens et les conditions de la langue italienne feront foi.</p>
-        <p data-hide-on-it="true">Il testo originario di questi documenti è in lingua italiana. In caso di contrasto tra la versione italiana e le traduzioni in altre lingue, prevarranno il significato e le condizioni della lingua italiana.</p>
+
+
     </div>
 </div>
 </div>
