@@ -1,5 +1,5 @@
 {
-    "name": "versioning-v1v2-lambda",
+    "name": "versioning-legalfacts-lambda",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",

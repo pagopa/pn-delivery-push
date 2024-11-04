@@ -8,24 +8,9 @@ exports.versioning = async (event, context) => {
   const IUN = event.pathParameters["iun"];
   const path = `/${IUN}/legal-facts`;
 
-  if (
-    event["resource"].indexOf(`${path}`) < 0 ||
-    !event["path"].startsWith("/delivery-push/") ||
-    event["httpMethod"].toUpperCase() !== "GET"
-  ) {
-    console.log(
-      "ERROR ENDPOINT ERRATO: {resource, path, httpMethod} ",
-      event["resource"],
-      event["path"],
-      event["httpMethod"]
-    );
-    const err = {
-      statusCode: 502,
-      body: JSON.stringify(generateProblem(502, "ENDPOINT ERRATO"))
-    };
-
-    return err;
-  }
+  const error = validateEndpoint(event, path);
+  if (error)
+    return error;
 
   console.log("pn-versioningGetNotificationLegalFactsLambda function started");
 
@@ -48,40 +33,9 @@ exports.versioning = async (event, context) => {
   });
 
   // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
-  let version = 10;
+  let version = getVersion(event);
 
-  if (event["path"].startsWith("/delivery-push/v2.0/")) {
-    version = 20;
-  }
-
-  console.log("version: ", version);
-
-  const headers = JSON.parse(JSON.stringify(event["headers"]));
-  headers["x-pagopa-pn-src-ch"] = "B2B";
-
-  if (event.requestContext.authorizer["cx_groups"]) {
-    headers["x-pagopa-pn-cx-groups"] =
-      event.requestContext.authorizer["cx_groups"];
-  }
-  if (event.requestContext.authorizer["cx_id"]) {
-    headers["x-pagopa-pn-cx-id"] = event.requestContext.authorizer["cx_id"];
-  }
-  if (event.requestContext.authorizer["cx_role"]) {
-    headers["x-pagopa-pn-cx-role"] = event.requestContext.authorizer["cx_role"];
-  }
-  if (event.requestContext.authorizer["cx_type"]) {
-    headers["x-pagopa-pn-cx-type"] = event.requestContext.authorizer["cx_type"];
-  }
-  if (event.requestContext.authorizer["cx_jti"]) {
-    headers["x-pagopa-pn-jti"] = event.requestContext.authorizer["cx_jti"];
-  }
-  if (event.requestContext.authorizer["sourceChannelDetails"]) {
-    headers["x-pagopa-pn-src-ch-details"] =
-      event.requestContext.authorizer["sourceChannelDetails"];
-  }
-  if (event.requestContext.authorizer["uid"]) {
-    headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
-  }
+  const headers = getHeaders(event);
 
   console.log("calling ", url);
   let response;
@@ -120,17 +74,6 @@ exports.versioning = async (event, context) => {
     }
   }
 
-  function generateProblem(status, message) {
-    return {
-      status: status,
-      errors: [
-        {
-          code: message
-        }
-      ]
-    }
-  }
-
   function retryCallback(retryCount, error, requestConfig) {
     console.warn(`Retry num ${retryCount} - error:${error.message}`);
   }
@@ -139,3 +82,76 @@ exports.versioning = async (event, context) => {
     console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
   }
 };
+
+function validateEndpoint(event, path) {
+  if (
+    event["resource"].indexOf(`${path}`) < 0 ||
+    !event["path"].startsWith("/delivery-push/") ||
+    event["httpMethod"].toUpperCase() !== "GET"
+  ) {
+    console.log(
+      "ERROR ENDPOINT ERRATO: {resource, path, httpMethod} ",
+      event["resource"],
+      event["path"],
+      event["httpMethod"]
+    );
+    const err = {
+      statusCode: 502,
+      body: JSON.stringify(generateProblem(502, "ENDPOINT ERRATO"))
+    };
+
+    return err;
+  }
+}
+
+function getHeaders(event) {
+  const headers = JSON.parse(JSON.stringify(event["headers"]));
+  headers["x-pagopa-pn-src-ch"] = "B2B";
+
+  if (event.requestContext.authorizer["cx_groups"]) {
+    headers["x-pagopa-pn-cx-groups"] =
+      event.requestContext.authorizer["cx_groups"];
+  }
+  if (event.requestContext.authorizer["cx_id"]) {
+    headers["x-pagopa-pn-cx-id"] = event.requestContext.authorizer["cx_id"];
+  }
+  if (event.requestContext.authorizer["cx_role"]) {
+    headers["x-pagopa-pn-cx-role"] = event.requestContext.authorizer["cx_role"];
+  }
+  if (event.requestContext.authorizer["cx_type"]) {
+    headers["x-pagopa-pn-cx-type"] = event.requestContext.authorizer["cx_type"];
+  }
+  if (event.requestContext.authorizer["cx_jti"]) {
+    headers["x-pagopa-pn-jti"] = event.requestContext.authorizer["cx_jti"];
+  }
+  if (event.requestContext.authorizer["sourceChannelDetails"]) {
+    headers["x-pagopa-pn-src-ch-details"] =
+      event.requestContext.authorizer["sourceChannelDetails"];
+  }
+  if (event.requestContext.authorizer["uid"]) {
+    headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
+  }
+  return headers;
+}
+
+function getVersion(event) {
+  let version = 10;
+
+  if (event["path"].startsWith("/delivery-push/v2.0/")) {
+    version = 20;
+  }
+
+  console.log("version: ", version);
+  return version;
+}
+
+function generateProblem(status, message) {
+  return {
+    status: status,
+    errors: [
+      {
+        code: message
+      }
+    ]
+  }
+}

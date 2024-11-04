@@ -2022,7 +2022,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-push/v2.0"
+          PN_DELIVERYPUSH_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-push/v2.0"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
