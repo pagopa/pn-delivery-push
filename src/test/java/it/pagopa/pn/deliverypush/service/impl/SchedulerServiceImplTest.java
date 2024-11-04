@@ -1,8 +1,10 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
@@ -19,6 +21,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Clock;
 import java.time.Instant;
+
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 class SchedulerServiceImplTest {
@@ -63,7 +67,7 @@ class SchedulerServiceImplTest {
                 )
                 .build());
 
-        Mockito.verify(actionsPool, Mockito.times(1)).scheduleFutureAction(Mockito.any(Action.class));
+        Mockito.verify(actionsPool, Mockito.times(1)).scheduleFutureAction(any(Action.class));
     }
     
     @Test
@@ -126,6 +130,27 @@ class SchedulerServiceImplTest {
         schedulerService.scheduleWebhookEvent("01", "02", 4, WebhookEventType.REGISTER_EVENT);
 
         Mockito.verify(webhooksPool, Mockito.times(1)).scheduleFutureAction(action);
+    }
+
+    @Test
+    void testScheduleEventNotificationCancelled(){
+        //GIVEN
+        Action action = buildAction(ActionType.NOTIFICATION_CANCELLATION);
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+        DocumentCreationResponseActionDetails details = DocumentCreationResponseActionDetails.builder()
+                .documentCreationType(DocumentCreationTypeInt.NOTIFICATION_CANCELLED)
+                .key("key")
+                .timelineId("timelineId")
+                .build();
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(action.getIun()))
+                .thenReturn(true);
+
+        //WHEN
+        schedulerService.scheduleEvent("01", 3, instant, ActionType.NOTIFICATION_CANCELLATION, "timelineId", details);
+
+        //THEN
+        Mockito.verify(actionsPool, Mockito.times(1)).startActionOrScheduleFutureAction(any());
     }
 
     private Action buildAction(ActionType type) {
