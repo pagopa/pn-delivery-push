@@ -1,20 +1,14 @@
 package it.pagopa.pn.deliverypush.rest.it;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
-
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.rest.PnLegalFactsController;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.impl.GetLegalFactServiceImpl;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -28,6 +22,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
+
 @ContextConfiguration(classes = {
         GetLegalFactServiceImpl.class,
         PnLegalFactsController.class,
@@ -35,6 +33,7 @@ import reactor.core.publisher.Mono;
 })
 @WebFluxTest
 class PnLegalFactsControllerTestIT {
+    public static final String GET_NOTIFICATION_LEGALFACT_VERSION = "v2.0";
 
     @org.springframework.boot.test.context.TestConfiguration
     static class SpringTestConfiguration extends it.pagopa.pn.deliverypush.rest.it.TestConfiguration {
@@ -94,20 +93,10 @@ class PnLegalFactsControllerTestIT {
     
     @Test
     void getNotificationLegalFactsSuccess() {
-        List<LegalFactListElement> legalFactsList = Collections.singletonList( LegalFactListElement.builder()
-                .iun( IUN )
-                .taxId( "taxId" )
-                .legalFactsId( LegalFactsId.builder()
-                        .category( LegalFactCategory.SENDER_ACK )
-                        .key( "key" )
-                        .build()
-                ).build()
-        );
-
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + IUN + "/legal-facts" )
+                                .path("/delivery-push/" + GET_NOTIFICATION_LEGALFACT_VERSION + "/"  + IUN + "/legal-facts" )
                                 .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)

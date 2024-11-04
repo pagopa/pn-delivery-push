@@ -7,5 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface NotificationCancellationService {
     Mono<StatusDetailInt>  startCancellationProcess(String iun, String paId, CxTypeAuthFleet cxType, List<String> xPagopaPnCxGroups);
-    void completeCancellationProcess(String iun);
+    void continueCancellationProcess(String iun);
+    void completeCancellationProcess(String iun, String legalFactId);
 }

@@ -9,18 +9,15 @@ import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.RecipientType;
@@ -50,8 +47,6 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
     @Autowired
     StartWorkflowHandler startWorkflowHandler;
     @Autowired
-    NotificationUtils notificationUtils;
-    @Autowired
     NotificationViewedRequestHandler notificationViewedRequestHandler;
     @Autowired
     StatusUtils statusUtils;
@@ -76,6 +71,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCancelled(true)
                 .build());
     }
 
@@ -97,6 +93,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(true)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCancelled(true)
                 .build());
     }
 
@@ -130,47 +127,9 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCancelled(true)
                 .build());
-
-
     }
-
-
-    private void checkIsNotificationViewed(String iun, Integer recIndex, Instant notificationViewDate) {
-        Optional<TimelineElementInternal> notificationViewTimelineElementOpt = timelineService.getTimelineElement(iun, TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex)
-                        .build()
-        ));
-
-        Assertions.assertTrue(notificationViewTimelineElementOpt.isPresent());
-        TimelineElementInternal notificationViewTimelineElement = notificationViewTimelineElementOpt.get();
-        Assertions.assertEquals(notificationViewDate, notificationViewTimelineElement.getTimestamp());
-    }
-
-    private void checkNotificationViewTimelineElement(String iun,
-                                                      Integer recIndex,
-                                                      Instant notificationViewDate,
-                                                      DelegateInfoInt delegateInfo) {
-        String timelineId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(recIndex)
-                        .build());
-
-        Optional<TimelineElementInternal> timelineElementInternalOpt = timelineService.getTimelineElement(iun, timelineId );
-
-        Assertions.assertTrue(timelineElementInternalOpt.isPresent());
-        TimelineElementInternal timelineElement = timelineElementInternalOpt.get();
-        Assertions.assertEquals(iun, timelineElement.getIun());
-        Assertions.assertEquals(notificationViewDate, timelineElement.getTimestamp());
-
-        NotificationViewedDetailsInt details = (NotificationViewedDetailsInt) timelineElement.getDetails();
-        Assertions.assertEquals(recIndex, details.getRecIndex());
-        Assertions.assertEquals(delegateInfo, details.getDelegateInfo());
-    }
-
 
     private void checkNotificationCancelledTimelineElement(String iun, int notrefined) {
         String timelineId = TimelineEventId.NOTIFICATION_CANCELLED.buildEventId(
@@ -295,7 +254,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
 
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
-        TestUtils.writeAllGeneratedLegalFacts(notification.getIun(), className, timelineService, safeStorageClientMock);
+        TestUtils.writeAllGeneratedLegalFacts(notification.getIun(), className, timelineService, safeStorageClientMock, 4);
 
         ConsoleAppenderCustom.checkLogs();
     }
@@ -382,6 +341,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCancelled(true)
                 .build());
 
         commonChecks(notification, 1, TestUtils.GeneratedLegalFactsInfo.builder()
@@ -389,6 +349,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
                 .notificationAARGenerated(true)
                 .notificationViewedLegalFactGenerated(false)
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCancelled(true)
                 .build());
     }
 }
