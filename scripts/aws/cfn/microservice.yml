@@ -656,6 +656,15 @@ Parameters:
     Type: Number
     Description: 'VersioningV1V2WebhookLambdaProvisionedConcurrency'
     Default: 1
+
+  VersioningGetNotificationLegalFactsLambdaName:
+    Type: String
+    Description: 'VersioningGetNotificationLegalFactsLambda'
+
+  VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency:
+    Type: Number
+    Description: 'VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency'
+    Default: 1
       
   ActionRouterKinesisBatchSize:
     Type: Number
@@ -1999,6 +2008,99 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
 
+  VersioningGetNotificationLegalFactsSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${VersioningGetNotificationLegalFactsLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  VersioningGetNotificationLegalFactsLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref VersioningGetNotificationLegalFactsLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningGetNotificationLegalFactsLambda.zip"
+      Role: !GetAtt VersioningGetNotificationLegalFactsLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt VersioningGetNotificationLegalFactsSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          PN_DELIVERYPUSH_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-push/v2.0"
+          NUM_RETRY: !Ref NumRetry
+          ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 30
+      MemorySize: 512
+      Tags:
+        - Key: "pn-eni-related"
+          Value: "true"
+        - Key: "pn-eni-related-groupName-regexp"
+          Value: !Base64 "^pn-delivery-microsvc-prod-VersioningGetNotificationLegalFactsSecGroup*$"
+
+  # a new version at each deploy, with provisioned concurrency set
+  # remember to set transform -> UpdateDeploymentTransform at beginning of the file
+  VersioningGetNotificationLegalFactsLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref VersioningGetNotificationLegalFactsLambda
+
+  VersioningGetNotificationLegalFactsLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: !Ref VersioningGetNotificationLegalFactsLambda
+      FunctionVersion: !GetAtt VersioningGetNotificationLegalFactsLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: !Ref VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency
+
+  # Lambda function role
+  VersioningGetNotificationLegalFactsLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-VersioningGetNotificationLegalFactsLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        # - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
+
+  VersioningGetNotificationLegalFactsLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref VersioningGetNotificationLegalFactsLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+
+  # Lambda access right
+  VersioningGetNotificationLegalFactsLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VersioningGetNotificationLegalFactsLambdaVersionAlias
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
+
 
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
@@ -2064,12 +2166,14 @@ Resources:
             - !Ref ActionTimeoutErrorDLQAlarmARN
             - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V2WebhookLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt VersioningGetNotificationLegalFactsLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
             - !GetAtt WebhookEventManagerLambda.Arn
             - !GetAtt PaperEventsCostUpdateLambda.Arn
             - !GetAtt VersioningV1V2WebhookLambda.Arn
+            - !GetAtt VersioningGetNotificationLegalFactsLambda.Arn
         QueueArns: !Join
           - ','
           - - !Ref DeliveryPushInputsQueueARN
@@ -2089,6 +2193,7 @@ Resources:
             - !Sub '/aws/lambda/${WebhookEventManagerLambdaName}'
             - !Sub '/aws/lambda/${PaperEventsCostUpdateLambdaName}'
             - !Sub '/aws/lambda/${VersioningV1V2WebhookLambdaName}'
+            - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscaling:
