@@ -136,6 +136,18 @@ public class LegalFactGenerator {
 
     }
 
+    public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) throws IOException {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_NOTIFICATION, notification);
+        templateModel.put(FIELD_NOTIFICATION_CANCELLED_DATE, instantWriter.instantToDate(notificationCancellationRequestDate));
+
+        return documentComposition.executePdfTemplate(
+                retrieveTemplateFromLang(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED, notification.getAdditionalLanguages()),
+                templateModel
+        );
+    }
+
     private List<String> extractNotificationAttachmentDigests(NotificationInt notification) {
         List<String> digests = new ArrayList<>();
 
