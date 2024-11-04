@@ -16,12 +16,6 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
-import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -548,6 +542,38 @@ public class TimelineUtils {
                 details, timelineBuilder);
     }
 
+    public TimelineElementInternal buildAnalogWorkflowRecipientDeceasedTimelineElement(
+            NotificationInt notification,
+            Integer recIndex,
+            Instant notificationDate,
+            PhysicalAddressInt address,
+            Integer notificationCost,
+            Boolean addNotificationCost
+    ) {
+
+        log.debug("buildAnalogWorkflowRecipientDeceasedTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        AnalogWorfklowRecipientDeceasedDetailsInt details = AnalogWorfklowRecipientDeceasedDetailsInt.builder()
+                .recIndex(recIndex)
+                .physicalAddress(address)
+                .notificationDate(notificationDate)
+                .build();
+
+        if (Boolean.TRUE.equals(addNotificationCost)) {
+            details.setNotificationCost(Long.valueOf(notificationCost));
+        }
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, elementId, details, timelineBuilder);
+    }
 
     public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, String generatedAarUrl) {
         log.debug("buildFailureAnalogWorkflowTimelineElement - iun={} and id={}", notification.getIun(), recIndex);

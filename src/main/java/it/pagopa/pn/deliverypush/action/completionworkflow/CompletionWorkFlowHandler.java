@@ -2,8 +2,10 @@ package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
@@ -13,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalDeliveryCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
@@ -28,12 +31,15 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @CustomLog
 public class CompletionWorkFlowHandler {
     private final TimelineUtils timelineUtils;
+    private final AttachmentUtils attachmentUtils;
     private final TimelineService timelineService;
     private final RefinementScheduler refinementScheduler;
     private final PecDeliveryWorkflowLegalFactsGenerator pecDeliveryWorkflowLegalFactsGenerator;
     private final AnalogDeliveryFailureWorkflowLegalFactsGenerator analogDeliveryFailureWorkflowLegalFactsGenerator;
     private final DocumentCreationRequestService documentCreationRequestService;
     private final FailureWorkflowHandler failureWorkflowHandler;
+    private final NotificationProcessCostService notificationProcessCostService;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfig;
 
     public String completionFailureDigitalWorkflow(NotificationInt notification, Integer recIndex) {
         log.info("Digital workflow completed with status {} IUN {} id {}", EndWorkflowStatus.FAILURE, notification.getIun(), recIndex);
@@ -58,7 +64,7 @@ public class CompletionWorkFlowHandler {
         return timelineElementInternal.getElementId();
     }
 
-    
+
     private Instant getCompletionWorkflowDate(NotificationInt notification, Instant completionWorkflowDate, TimelineElementInternal timelineElementInternal) {
         Optional<DigitalDeliveryCreationRequestDetailsInt> alreadyInsertedTimelineElementOpt = timelineService.getTimelineElementDetails(notification.getIun(), timelineElementInternal.getElementId(), DigitalDeliveryCreationRequestDetailsInt.class);
         if(alreadyInsertedTimelineElementOpt.isPresent()){
@@ -114,6 +120,16 @@ public class CompletionWorkFlowHandler {
                     //Vengono inserite le informazioni della richiesta di creazione del legalFacts a safeStorage
                     documentCreationRequestService.addDocumentCreationRequest(legalFactId, notification.getIun(), recIndex, DocumentCreationTypeInt.ANALOG_FAILURE_DELIVERY, timelineElementInternal.getElementId());
                 }
+                case DECEASED -> {
+                    Integer retentionAttachmentDaysAfterRefinement = null;
+                    boolean addNotificationCost = false;
+                    // Se la notifica non è stata precedentemente visualizzata, si aggiunge il costo della notifica e si aggiorna la retention dei documenti
+                    if(!timelineUtils.checkIsNotificationViewed(notification.getIun(), recIndex)){
+                        retentionAttachmentDaysAfterRefinement = pnDeliveryPushConfig.getRetentionAttachmentDaysAfterRefinement();
+                        addNotificationCost = true;
+                    }
+                    addRecipientDeceasedElement(notification, recIndex, completionWorkflowDate, usedAddress, retentionAttachmentDaysAfterRefinement, addNotificationCost);
+                }
                 default -> handleError(iun, recIndex, status);
             }
         } else {
@@ -132,6 +148,29 @@ public class CompletionWorkFlowHandler {
         {
             log.fatal("Cannot retrieve AAR generation for iun={} recIndex={}", iun, recIndex);
             throw new PnInternalException("Cannot retrieve AAR generation for Iun " + iun + " id" + recIndex, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+        }
+    }
+
+    public void addRecipientDeceasedElement(NotificationInt notification, Integer recIndex, Instant notificationDate, PhysicalAddressInt usedAddress, Integer attachmentRetention, Boolean addNotificationCost) {
+        if (attachmentRetention != null) {
+            attachmentUtils.changeAttachmentsRetention(notification, attachmentRetention);
+        }
+
+        try {
+            Integer notificationCost = notificationProcessCostService.getSendFeeAsync().block();
+
+            TimelineElementInternal timelineElement = timelineUtils.buildAnalogWorkflowRecipientDeceasedTimelineElement(
+                    notification,
+                    recIndex,
+                    notificationDate,
+                    usedAddress,
+                    notificationCost,
+                    addNotificationCost
+            );
+
+            timelineService.addTimelineElement(timelineElement, notification);
+        } catch (Exception ex) {
+            log.error("Failed to retrieve notification cost for iun={} recIndex={}", notification.getIun(), recIndex, ex);
         }
     }
 

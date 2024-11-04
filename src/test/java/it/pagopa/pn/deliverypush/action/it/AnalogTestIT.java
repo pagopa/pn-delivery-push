@@ -34,6 +34,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -529,6 +530,104 @@ class AnalogTestIT extends CommonTestConfiguration{
 
         //Viene verificato che sia avvenuto il perfezionamento
         TestUtils.checkRefinement(iun, recIndex, timelineService);
+
+        //Viene effettuato il check dei legalFacts generati
+        TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
+                .notificationReceivedLegalFactGenerated(true)
+                .notificationAARGenerated(true)
+                .notificationViewedLegalFactGenerated(false)
+                .pecDeliveryWorkflowLegalFactsGenerated(false)
+                .notificationCompletelyUnreachableLegalFactGenerated(false)
+                .build();
+
+        TestUtils.checkGeneratedLegalFacts(
+                notification,
+                recipient,
+                recIndex,
+                0,
+                generatedLegalFactsInfo,
+                EndWorkflowStatus.SUCCESS,
+                legalFactGenerator,
+                timelineService,
+                null
+        );
+
+        //Vengono stampati tutti i legalFacts generati
+        String className = this.getClass().getSimpleName();
+        TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
+
+        ConsoleAppenderCustom.checkLogs();
+    }
+
+    @Test
+    @Disabled("Riattivare quando sarà gestita la statemap e delivery avrà i nuovi puntamenti")
+    void recipientDeceased() {
+  /*
+       - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
+       - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
+       - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
+
+       - Pa physical address presente (Ottenuto valorizzando physicalAddress del recipient della notifica)
+       - Public Registry indirizzo trovato ma restituisce un feedback per una consegna fallita a causa di destinatario deceduto (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_DECEASED)
+    */
+
+        PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
+                .withAddress(PaperChannelMock.EXTCHANNEL_SEND_DECEASED)
+                .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withInternalId("internalIdTest")
+                .withTaxId("TAXID01")
+                .withPhysicalAddress(paPhysicalAddress1)
+                .build();
+
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
+                .withPaId("paId01")
+                .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
+                .withNotificationRecipient(recipient)
+                .build();
+
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+
+        pnDeliveryClientMock.addNotification(notification);
+        addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
+
+        String iun = notification.getIun();
+        Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        //Start del workflow
+        startWorkflowHandler.startWorkflow(notification.getIun());
+
+        await().untilAsserted(() ->
+                Assertions.assertTrue(
+                        TestUtils.checkIsPresentAnalogWorkflowRecipientDeceased(iun, recIndex, timelineService)
+                )
+        );
+
+        //Viene verificato che non sia stato inviato alcun messaggio di cortesia
+        TestUtils.checkSendCourtesyAddresses(iun, recIndex, Collections.emptyList(), timelineService, externalChannelMock);
+
+        //Viene verificato che gli indirizzi PLATFORM SPECIAL E GENERAL non siano presenti
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+
+        //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito da pa
+        TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress1, 0, timelineService);
+
+        //Vengono verificati il numero di send verso external channel
+        Mockito.verify(paperChannelMock, Mockito.times(1)).prepare(Mockito.any(PaperChannelPrepareRequest.class));
+        Mockito.verify(paperChannelMock, Mockito.times(1)).send(Mockito.any(PaperChannelSendRequest.class));
+
+        TestUtils.checkAnalogWorkflowRecipientDeceased(iun, recIndex, timelineService, completionWorkflow);
+
+        //Viene verificato che NON sia avvenuto il perfezionamento
+        TestUtils.checkIsNotPresentRefinement(iun, recIndex, timelineService);
 
         //Viene effettuato il check dei legalFacts generati
         TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()

@@ -228,6 +228,28 @@ public class TestUtils {
         Assertions.assertNotNull(failDigitalWorkflow.getLegalFactsIds().get(0));
     }
 
+    public static void checkAnalogWorkflowRecipientDeceased(String iun, Integer recIndex, TimelineService timelineService, CompletionWorkFlowHandler completionWorkflow) {
+        //Viene verificato che il workflow del destinatario deceduto sia stato eseguito
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build())).isPresent());
+
+        ArgumentCaptor<EndWorkflowStatus> endWorkflowStatusArgumentCaptor = ArgumentCaptor.forClass(EndWorkflowStatus.class);
+        ArgumentCaptor<Integer> recIndexCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<NotificationInt> notificationCaptor = ArgumentCaptor.forClass(NotificationInt.class);
+
+        Mockito.verify(completionWorkflow, Mockito.times(1)).completionAnalogWorkflow(
+                notificationCaptor.capture(), recIndexCaptor.capture(), Mockito.any(Instant.class), Mockito.any(PhysicalAddressInt.class), endWorkflowStatusArgumentCaptor.capture()
+        );
+        Assertions.assertEquals(recIndex, recIndexCaptor.getValue());
+        Assertions.assertEquals(iun, notificationCaptor.getValue().getIun());
+        Assertions.assertEquals(EndWorkflowStatus.DECEASED, endWorkflowStatusArgumentCaptor.getValue());
+    }
+
     public static void checkRefinement(String iun, Integer recIndex, TimelineService timelineService) {
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
@@ -483,6 +505,20 @@ public class TestUtils {
         }
 
         return false;
+    }
+
+    public static boolean checkIsPresentAnalogWorkflowRecipientDeceased(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> analogRecipientDeceased = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        return analogRecipientDeceased.isPresent();
     }
     
     public static boolean checkIsPresentDigitalFailure(String iun, Integer recIndex, TimelineService timelineService) {

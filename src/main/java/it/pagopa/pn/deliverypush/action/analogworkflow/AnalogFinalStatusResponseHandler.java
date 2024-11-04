@@ -20,6 +20,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @AllArgsConstructor
 @Component
 public class AnalogFinalStatusResponseHandler {
+    public static final String DECEASED_FAILURE_CAUSE = "M02";
     private TimelineService timelineService;
     private CompletionWorkFlowHandler completionWorkFlow;
     private final AnalogWorkflowHandler analogWorkflowHandler;
@@ -50,15 +51,24 @@ public class AnalogFinalStatusResponseHandler {
     }
 
     private void handleSuccessfulSending(NotificationInt notification, int recIndex, SendAnalogFeedbackDetailsInt sendAnalogFeedbackDetails) {
+        EndWorkflowStatus endWorkflowStatus;
+        if (DECEASED_FAILURE_CAUSE.equals(sendAnalogFeedbackDetails.getDeliveryFailureCause())
+                //TODO: && notification.getSentAt().isAfter(featureFlagActivationDate)
+        ) {
+            endWorkflowStatus = EndWorkflowStatus.DECEASED;
+        } else {
+            endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+        }
+
         completionWorkFlow.completionAnalogWorkflow(
                 notification,
                 recIndex,
                 sendAnalogFeedbackDetails.getNotificationDate(),
                 sendAnalogFeedbackDetails.getPhysicalAddress(),
-                EndWorkflowStatus.SUCCESS
+                endWorkflowStatus
         );
     }
-    
+
     private void handleNotSuccessfulSending(NotificationInt notification, int recIndex, SendAnalogFeedbackDetailsInt sendAnalogFeedbackDetails) {
         int sentAttemptMade = sendAnalogFeedbackDetails.getSentAttemptMade() + 1;
         analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, sendAnalogFeedbackDetails.getNotificationDate());
