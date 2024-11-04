@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -45,6 +46,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
 class LegalFactPdfGeneratorTest {
         private static final String TEST_DIR_NAME = "target" + File.separator + "generated-test-PDF";
         private static final Path TEST_DIR_PATH = Paths.get(TEST_DIR_NAME);
@@ -54,12 +59,14 @@ class LegalFactPdfGeneratorTest {
 
         private LegalFactGenerator pdfUtils;
 
+        private DocumentComposition documentComposition;
+
         @BeforeEach
         public void setup() throws IOException {
                 Configuration freemarker = new Configuration(new Version(2, 3, 0)); // Version is a final class
                 HtmlSanitizer htmlSanitizer = new HtmlSanitizer(buildObjectMapper(),
                                 HtmlSanitizer.SanitizeMode.ESCAPING);
-                DocumentComposition documentComposition = new DocumentComposition(freemarker, htmlSanitizer);
+                documentComposition = spy(new DocumentComposition(freemarker, htmlSanitizer));
 
                 CustomInstantWriter instantWriter = new CustomInstantWriter();
                 PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
@@ -81,7 +88,6 @@ class LegalFactPdfGeneratorTest {
                 additional.put("raddoperatormooney", "false");
                 additional.put("raddoperatorsailpost", "false");
                 pnDeliveryPushConfigs.getWebapp().setAdditional(additional);
-                pnDeliveryPushConfigs.getWebapp().setLegalFactDisclaimer("L’attestazione riporta la data in cui il destinatario (o il suo delegato) per la prima volta ha avuto accesso tramite la piattaforma al documento oggetto di notificazione. Tale data non necessariamente corrisponde alla data di perfezionamento della notifica, che può anche essere antecedente per decorrenza termini.");
                 pnDeliveryPushConfigs.setPaperChannel(new PnDeliveryPushConfigs.PaperChannel());
                 pnDeliveryPushConfigs.getPaperChannel().setSenderAddress(new PnDeliveryPushConfigs.SenderAddress());
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setFullname("PagoPA S.p.A.");
@@ -91,6 +97,7 @@ class LegalFactPdfGeneratorTest {
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setPr("Roma");
                 pnDeliveryPushConfigs.getPaperChannel().getSenderAddress().setCountry("Italia");
                 pnDeliveryPushConfigs.setErrorCorrectionLevelQrCode(ErrorCorrectionLevel.H);
+                pnDeliveryPushConfigs.setAdditionalLangsEnabled(true);
 
                 pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter,
                                 pnDeliveryPushConfigs, instantNowSupplier, pnSendModeUtils);
@@ -107,6 +114,58 @@ class LegalFactPdfGeneratorTest {
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationReceivedLegalFact(buildNotification())));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generateNotificationReceivedLegalFactTestIfAdditionalLangIsDisable() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact.pdf");
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationReceivedLegalFact(notification)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.REQUEST_ACCEPTED_DE, captor.getValue());
+        }
+
+        @Test
+        void generateNotificationReceivedLegalFactTestDE() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact_de.pdf");
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationReceivedLegalFact(notification)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.REQUEST_ACCEPTED_DE, captor.getValue());
+        }
+
+        @Test
+        void generateNotificationReceivedLegalFactTestSL() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact_sl.pdf");
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("SL");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationReceivedLegalFact(notification)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.REQUEST_ACCEPTED_SL, captor.getValue());
+        }
+
+        @Test
+        void generateNotificationReceivedLegalFactTestFR() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ReceivedLegalFact_fr.pdf");
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("FR");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationReceivedLegalFact(notification)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.REQUEST_ACCEPTED_FR, captor.getValue());
         }
 
         @Test
@@ -129,11 +188,66 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
+                NotificationInt notification = buildNotification();
                 NotificationRecipientInt recipient = buildRecipients().get(0);
                 Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
 
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils
-                                .generateNotificationViewedLegalFact(iun, recipient, null, notificationViewedDate)));
+                                .generateNotificationViewedLegalFact(iun, recipient, null, notificationViewedDate, notification)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generateNotificationViewedLegalFactTestDE() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact_de.pdf");
+                String iun = "iun1234Test_Viewed";
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils
+                        .generateNotificationViewedLegalFact(iun, recipient, null, notificationViewedDate, notification)));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_VIEWED_DE, captor.getValue());
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generateNotificationViewedLegalFactTestSL() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact_sl.pdf");
+                String iun = "iun1234Test_Viewed";
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("SL");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils
+                        .generateNotificationViewedLegalFact(iun, recipient, null, notificationViewedDate, notification)));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_VIEWED_SL, captor.getValue());
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generateNotificationViewedLegalFactTestFR() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact_fr.pdf");
+                String iun = "iun1234Test_Viewed";
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("FR");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils
+                        .generateNotificationViewedLegalFact(iun, recipient, null, notificationViewedDate, notification)));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_VIEWED_FR, captor.getValue());
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -141,6 +255,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationDelegateViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_DelegateViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
+                NotificationInt notification = buildNotification();
                 NotificationRecipientInt recipient = buildRecipients().get(0);
                 DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
                                 .denomination("Mario Rossi")
@@ -151,7 +266,26 @@ class LegalFactPdfGeneratorTest {
 
                 Assertions.assertDoesNotThrow(
                                 () -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient,
-                                                delegateInfo, notificationViewedDate)));
+                                                delegateInfo, notificationViewedDate, notification)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+        @Test
+        void generateNotificationDelegateViewedLegalFactTestDE() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_DelegateViewedLegalFact_de.pdf");
+                String iun = "iun1234Test_Viewed";
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                DelegateInfoInt delegateInfo = DelegateInfoInt.builder()
+                        .denomination("Mario Rossi")
+                        .taxId("RSSMRA80A01H501U")
+                        .delegateType(RecipientTypeInt.PF)
+                        .build();
+                Instant notificationViewedDate = Instant.now().minus(Duration.ofMinutes(3));
+
+                Assertions.assertDoesNotThrow(
+                        () -> Files.write(filePath, pdfUtils.generateNotificationViewedLegalFact(iun, recipient,
+                                delegateInfo, notificationViewedDate, notification)));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
@@ -170,6 +304,66 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
+        void generateAnalogDeliveryFailureWorkflowLegalFactDE() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(
+                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+                Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateAnalogDeliveryFailureWorkflowLegalFact(
+                        notification, recipient, endWorkflowStatus, sentDate)));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE_DE, captor.getValue());
+
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generateAnalogDeliveryFailureWorkflowLegalFactSL() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(
+                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("SL");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+                Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateAnalogDeliveryFailureWorkflowLegalFact(
+                        notification, recipient, endWorkflowStatus, sentDate)));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE_SL, captor.getValue());
+
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generateAnalogDeliveryFailureWorkflowLegalFactFR() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(
+                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("FR");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+                Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath, pdfUtils.generateAnalogDeliveryFailureWorkflowLegalFact(
+                        notification, recipient, endWorkflowStatus, sentDate)));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE_FR, captor.getValue());
+
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
         void generatePecDeliveryWorkflowLegalFactTest_OK() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK.pdf");
                 List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
@@ -182,6 +376,72 @@ class LegalFactPdfGeneratorTest {
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
                                                 notification, recipient, endWorkflowStatus, sentDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTestDE_OK() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK_de.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
+                        ResponseStatusInt.OK);
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+                Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
+                                notification, recipient, endWorkflowStatus, sentDate)));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW_DE, captor.getValue());
+
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTestSL_OK() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK_sl.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
+                        ResponseStatusInt.OK);
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("SL");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+                Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
+                                notification, recipient, endWorkflowStatus, sentDate)));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW_SL, captor.getValue());
+
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTestFR_OK() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_OK_fr.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
+                        ResponseStatusInt.OK);
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("FR");
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+                Instant sentDate = Instant.now().minus(Duration.ofDays(1));
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
+                                notification, recipient, endWorkflowStatus, sentDate)));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW_FR, captor.getValue());
+
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
         @Test
@@ -232,6 +492,21 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
+        void generatePecDeliveryWorkflowLegalFactTestDE_KO() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO_de.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
+                        ResponseStatusInt.KO);
+                NotificationInt notification = buildNotification();
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
+                                recipient, endWorkflowStatus, Instant.now())));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
@@ -245,6 +520,75 @@ class LegalFactPdfGeneratorTest {
                                 .recipientType(RecipientTypeInt.PF).build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
+                System.out.print("*** AAR pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAARTestFR() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(PnSendMode.builder()
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
+                        .build());
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                NotificationInt notificationInt = buildNotification();
+                notificationInt.getAdditionalLanguages().add("FR");
+                String quickAccessToken = "test";
+                NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder()
+                        .recipientType(RecipientTypeInt.PF).build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_FR, captor.getValue());
+
+                System.out.print("*** AAR pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAARTestDE() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(PnSendMode.builder()
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
+                        .build());
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                NotificationInt notificationInt = buildNotification();
+                notificationInt.getAdditionalLanguages().add("DE");
+                String quickAccessToken = "test";
+                NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder()
+                        .recipientType(RecipientTypeInt.PF).build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_DE, captor.getValue());
+
+                System.out.print("*** AAR pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAARTestSL() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(PnSendMode.builder()
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
+                        .build());
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                NotificationInt notificationInt = buildNotification();
+                notificationInt.getAdditionalLanguages().add("SL");
+                String quickAccessToken = "test";
+                NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder()
+                        .recipientType(RecipientTypeInt.PF).build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_SL, captor.getValue());
+
                 System.out.print("*** AAR pdf successfully created at: " + filePath);
         }
 
@@ -294,6 +638,49 @@ class LegalFactPdfGeneratorTest {
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
 
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAAR_RADDPF_FR_Test() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(PnSendMode.builder()
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
+                        .build());
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADD_PF.pdf");
+                NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                        .paId("TEST_PA_ID")
+                        .paTaxId("TEST_TAX_ID")
+                        .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
+                        .build();
+
+                NotificationInt notificationInt = NotificationInt.builder()
+                        .sender(notificationSenderInt)
+                        .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                        .iun("Example_IUN_1234_Test")
+                        .additionalLanguages(List.of("FR"))
+                        .subject("Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo: RPE2E0121020003 E2E_01 WEB run003 del 09/11/2023 14: 50Titolo:III")
+                        .build();
+                String quickAccessToken = "test";
+                PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                        .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                        .withZip("80078")
+                        .build();
+                NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Antonio Griffo Focas Flavio Angelo Ducas Comeno Porfirogenito Gagliardi De Curti")
+                        .taxId("RSSMRA80A01H501U")
+                        .physicalAddress(paPhysicalAddress)
+                        .build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD, captor.getValue());
+
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+
         @Test
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADD_ALT_Test() {
@@ -329,6 +716,135 @@ class LegalFactPdfGeneratorTest {
                         pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAAR_RADD_ALT_DE_Test() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(PnSendMode.builder()
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
+                        .build());
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt_de.pdf");
+                NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                        .paId("TEST_PA_ID")
+                        .paTaxId("TEST_TAX_ID")
+                        .paDenomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
+                        .build();
+
+                NotificationInt notificationInt = NotificationInt.builder()
+                        .sender(notificationSenderInt)
+                        .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                        .iun("Example_IUN_1234_Test")
+                        .additionalLanguages(List.of("DE"))
+                        .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et libero velit. Cras dignissim consequat ornare. Etiam sed justo sit.")
+                        .build();
+                String quickAccessToken = "test";
+                PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                        .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                        .withZip("80078")
+                        .build();
+                NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
+                        .taxId("LRMPSM80A01H501U")
+                        .physicalAddress(paPhysicalAddress)
+                        .build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD_ALT_DE, captor.getValue());
+
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAAR_RADD_ALT_SL_Test() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(PnSendMode.builder()
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
+                        .build());
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
+                NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                        .paId("TEST_PA_ID")
+                        .paTaxId("TEST_TAX_ID")
+                        .paDenomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
+                        .build();
+
+                NotificationInt notificationInt = NotificationInt.builder()
+                        .sender(notificationSenderInt)
+                        .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                        .iun("Example_IUN_1234_Test")
+                        .additionalLanguages(List.of("SL"))
+                        .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et libero velit. Cras dignissim consequat ornare. Etiam sed justo sit.")
+                        .build();
+                String quickAccessToken = "test";
+                PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                        .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                        .withZip("80078")
+                        .build();
+                NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
+                        .taxId("LRMPSM80A01H501U")
+                        .physicalAddress(paPhysicalAddress)
+                        .build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD_ALT_SL, captor.getValue());
+
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+
+        @Test
+        @ExtendWith(SpringExtension.class)
+        void generateNotificationAAR_RADD_ALT_FR_Test() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(PnSendMode.builder()
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
+                        .build());
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
+                NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
+                        .paId("TEST_PA_ID")
+                        .paTaxId("TEST_TAX_ID")
+                        .paDenomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
+                        .build();
+
+                NotificationInt notificationInt = NotificationInt.builder()
+                        .sender(notificationSenderInt)
+                        .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
+                        .iun("Example_IUN_1234_Test")
+                        .additionalLanguages(List.of("FR"))
+                        .subject("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et libero velit. Cras dignissim consequat ornare. Etiam sed justo sit.")
+                        .build();
+                String quickAccessToken = "test";
+                PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
+                        .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
+                        .withZip("80078")
+                        .build();
+                NotificationRecipientInt recipient = NotificationRecipientInt.builder()
+                        .recipientType(RecipientTypeInt.PF)
+                        .denomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
+                        .taxId("LRMPSM80A01H501U")
+                        .physicalAddress(paPhysicalAddress)
+                        .build();
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD_ALT_FR, captor.getValue());
+
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
 
         @Test
         @ExtendWith(SpringExtension.class)
@@ -439,6 +955,80 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
+        void generateNotificationAAREmailTestDE() {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+                NotificationInt notificationInt = buildNotification();
+                notificationInt.getAdditionalLanguages().add("DE");
+                NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+                String quickAccesstoken = "quickaccesstoken123";
+
+                Assertions.assertDoesNotThrow(() -> {
+                        String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt,
+                                quickAccesstoken);
+                        PrintWriter out = new PrintWriter(filePath.toString());
+                        out.println(element);
+                        out.close();
+                        System.out.println("element " + element);
+                });
+
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL_DE, captor.getValue());
+
+                System.out.print("*** AAR EMAIL BODY successfully created");
+        }
+
+        @Test
+        void generateNotificationAAREmailTestSL() {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+                NotificationInt notificationInt = buildNotification();
+                notificationInt.getAdditionalLanguages().add("SL");
+                NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+                String quickAccesstoken = "quickaccesstoken123";
+
+                Assertions.assertDoesNotThrow(() -> {
+                        String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt,
+                                quickAccesstoken);
+                        PrintWriter out = new PrintWriter(filePath.toString());
+                        out.println(element);
+                        out.close();
+                        System.out.println("element " + element);
+                });
+
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL_SL, captor.getValue());
+
+                System.out.print("*** AAR EMAIL BODY successfully created");
+        }
+
+        @Test
+        void generateNotificationAAREmailTestFR() {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+                NotificationInt notificationInt = buildNotification();
+                notificationInt.getAdditionalLanguages().add("FR");
+                NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+                String quickAccesstoken = "quickaccesstoken123";
+
+                Assertions.assertDoesNotThrow(() -> {
+                        String element = pdfUtils.generateNotificationAARBody(notificationInt, notificationRecipientInt,
+                                quickAccesstoken);
+                        PrintWriter out = new PrintWriter(filePath.toString());
+                        out.println(element);
+                        out.close();
+                        System.out.println("element " + element);
+                });
+
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL_FR, captor.getValue());
+
+                System.out.print("*** AAR EMAIL BODY successfully created");
+        }
+        @Test
         void generateNotificationAAREmailTest_Legal() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
                 NotificationInt notificationInt = buildNotification();
@@ -474,6 +1064,82 @@ class LegalFactPdfGeneratorTest {
 
                         System.out.println("element " + element);
                 });
+        }
+
+        @Test
+        void generateNotificationAARPECTestDE() {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+
+                NotificationInt notificationInt = buildNotification();
+                notificationInt.getAdditionalLanguages().add("DE");
+                NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+                String quickAccessToken = "test";
+
+                Assertions.assertDoesNotThrow(() -> {
+                        String element = pdfUtils.generateNotificationAARPECBody(notificationInt,
+                                notificationRecipientInt, quickAccessToken);
+                        verify(documentComposition).executeTextTemplate(captor.capture(), any());
+                        Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC_DE, captor.getValue());
+                        PrintWriter out = new PrintWriter(filePath.toString());
+                        out.println(element);
+                        out.close();
+
+                        System.out.println("element " + element);
+                });
+
+
+        }
+
+        @Test
+        void generateNotificationAARPECTestSL() {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+
+                NotificationInt notificationInt = buildNotification();
+                notificationInt.getAdditionalLanguages().add("SL");
+                NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+                String quickAccessToken = "test";
+
+                Assertions.assertDoesNotThrow(() -> {
+                        String element = pdfUtils.generateNotificationAARPECBody(notificationInt,
+                                notificationRecipientInt, quickAccessToken);
+                        PrintWriter out = new PrintWriter(filePath.toString());
+                        out.println(element);
+                        out.close();
+
+                        System.out.println("element " + element);
+                });
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC_SL, captor.getValue());
+
+        }
+
+        @Test
+        void generateNotificationAARPECTestFR() {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+
+                NotificationInt notificationInt = buildNotification();
+                notificationInt.getAdditionalLanguages().add("FR");
+                NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
+                String quickAccessToken = "test";
+
+                Assertions.assertDoesNotThrow(() -> {
+                        String element = pdfUtils.generateNotificationAARPECBody(notificationInt,
+                                notificationRecipientInt, quickAccessToken);
+                        PrintWriter out = new PrintWriter(filePath.toString());
+                        out.println(element);
+                        out.close();
+
+                        System.out.println("element " + element);
+                });
+                verify(documentComposition).executeTextTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC_FR, captor.getValue());
+
         }
 
         @Test
@@ -591,6 +1257,7 @@ class LegalFactPdfGeneratorTest {
                                                                 "sha256_doc01".getBytes())))
                                                         .build())
                                                 .build()))
+                                .additionalLanguages(new ArrayList<>())
                                 .recipients(buildRecipients())
                                 .build();
         }

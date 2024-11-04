@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.exceptions.PnInvalidTemplateException;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
@@ -39,6 +40,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE;
+import static it.pagopa.pn.deliverypush.legalfacts.DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD;
 
 @Component
 @Slf4j
@@ -127,7 +130,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_SUBJECT, notification.getSubject());
 
         return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.REQUEST_ACCEPTED,
+                retrieveTemplateFromLang(DocumentComposition.TemplateType.REQUEST_ACCEPTED, notification.getAdditionalLanguages()),
                 templateModel
             );
 
@@ -166,7 +169,7 @@ public class LegalFactGenerator {
         }
     }
 
-    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp) throws IOException {
+    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp, NotificationInt notification) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
         
@@ -177,12 +180,27 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( timeStamp, true));
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
-        templateModel.put(FIELD_DISCLAIMER, this.getlegalFactDisclaimer());
 
         return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.NOTIFICATION_VIEWED,
+                retrieveTemplateFromLang(DocumentComposition.TemplateType.NOTIFICATION_VIEWED, notification.getAdditionalLanguages()),
                 templateModel
         );
+    }
+
+    private DocumentComposition.TemplateType retrieveTemplateFromLang(DocumentComposition.TemplateType italianTemplateType, List<String> additionalLanguages) {
+        if(!pnDeliveryPushConfigs.isAdditionalLangsEnabled()
+                || checkIfRequiredItalianTemplate(additionalLanguages)
+                || AAR_NOTIFICATION_RADD.equals(italianTemplateType)){
+            return italianTemplateType;
+        }
+        return additionalLanguages.stream()
+                .map(lang -> DocumentComposition.retrieveTemplateFromLang(italianTemplateType, lang))
+                .findFirst() /* è possibile avere solo una lingua aggiuntiva */
+                .orElseThrow(() -> new PnInvalidTemplateException("Error During retrieve template","TemplateType enum not found for given additional lang",ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE));
+    }
+
+    private boolean checkIfRequiredItalianTemplate(List<String> additionalLanguages) {
+        return CollectionUtils.isEmpty(additionalLanguages);
     }
 
     @Value
@@ -239,7 +257,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
 
         return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW,
+                retrieveTemplateFromLang(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW, notification.getAdditionalLanguages()),
                 templateModel
         );
     }
@@ -263,7 +281,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
 
         return documentComposition.executePdfTemplate(
-                DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE,
+                retrieveTemplateFromLang(DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE, notification.getAdditionalLanguages()),
                 templateModel
         );
     }
@@ -279,7 +297,7 @@ public class LegalFactGenerator {
             final AarTemplateType aarTemplateType = aarTemplateTypeChooseStrategy.choose(recipient.getPhysicalAddress());
             log.debug("aarTemplateType generated is ={} - iun={}", aarTemplateType, notification.getIun());
             byte[] bytesArrayGeneratedAar = documentComposition.executePdfTemplate(
-                    aarTemplateType.getTemplateType(),
+                    retrieveTemplateFromLang(aarTemplateType.getTemplateType(), notification.getAdditionalLanguages()),
                     templateModel
             );
 
@@ -301,7 +319,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_LOGO, SEND_LOGO_BASE64);
 
         return documentComposition.executeTextTemplate(
-                DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL,
+                retrieveTemplateFromLang(DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL, notification.getAdditionalLanguages()),
                 templateModel
             );
 
@@ -313,7 +331,7 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_LOGO, SEND_LOGO_BASE64);
 
         return documentComposition.executeTextTemplate(
-                DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC,
+                retrieveTemplateFromLang(DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC, notification.getAdditionalLanguages()),
                 templateModel
         );
 
@@ -481,8 +499,5 @@ public class LegalFactGenerator {
 
     }
 
-    private String getlegalFactDisclaimer(){
-        return pnDeliveryPushConfigs.getWebapp().getLegalFactDisclaimer();
-    }
 }
 

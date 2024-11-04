@@ -131,6 +131,8 @@ public class PnDeliveryPushConfigs {
 
     private String performanceImprovementEndDate;
 
+    public boolean isAdditionalLangsEnabled;
+
     @Data
     public static class Topics {
 
@@ -227,7 +229,6 @@ public class PnDeliveryPushConfigs {
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
         private Map<String, String> additional;
-        private String legalFactDisclaimer;
         private String raddPhoneNumber;
    }
 
