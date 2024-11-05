@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
+import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.AnalogFailureDeliveryCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.DigitalDeliveryCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
@@ -22,9 +23,10 @@ public class DocumentCreationResponseHandler {
     private final DigitalDeliveryCreationResponseHandler digitalDeliveryCreationResponseHandler;
     private final AnalogFailureDeliveryCreationResponseHandler analogFailureDeliveryCreationResponseHandler;
     private final TimelineUtils timelineUtils;
+    private final NotificationCancellationActionHandler notificationCancellationActionHandler;
 
     public void handleResponseReceived( String iun, Integer recIndex, DocumentCreationResponseActionDetails details) {
-        if (timelineUtils.checkIsNotificationCancellationRequested(iun)){
+        if (timelineUtils.checkIsNotificationCancellationRequested(iun) && ! DocumentCreationTypeInt.NOTIFICATION_CANCELLED.equals(details.getDocumentCreationType())){
             log.warn("DocumentCreation blocked: cancellation requested for iun {}", iun);
             return;
         }
@@ -42,6 +44,8 @@ public class DocumentCreationResponseHandler {
                     digitalDeliveryCreationResponseHandler.handleDigitalDeliveryCreationResponse(iun, recIndex, details);
             case RECIPIENT_ACCESS ->
                     notificationViewLegalFactCreationResponseHandler.handleLegalFactCreationResponse(iun, recIndex, details);
+            case NOTIFICATION_CANCELLED ->
+                    notificationCancellationActionHandler.completeCancellationProcess(iun, fileKey);
         }
     }
 }

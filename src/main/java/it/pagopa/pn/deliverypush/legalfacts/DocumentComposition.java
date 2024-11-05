@@ -34,6 +34,7 @@ public class DocumentComposition {
 
     public static TemplateType retrieveTemplateFromLang(TemplateType templateType, String additionalLang) {
         String finalTemplateName = templateType.name() + "_" + additionalLang;
+        log.info("Retrieve template [{}] from lang: [{}]", finalTemplateName, additionalLang);
         return DocumentComposition.TemplateType.valueOf(finalTemplateName);
     }
 
@@ -58,6 +59,7 @@ public class DocumentComposition {
 
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
         NOTIFICATION_VIEWED_DE("documents_composition_templates/NotificationViewedLegalFact_de.html"),
+        NOTIFICATION_VIEWED_DE("documents_composition_templates/NotificationViewedLegalFact_de.html"),
         NOTIFICATION_VIEWED_SL("documents_composition_templates/NotificationViewedLegalFact_sl.html"),
         NOTIFICATION_VIEWED_FR("documents_composition_templates/NotificationViewedLegalFact_fr.html"),
 
@@ -72,9 +74,9 @@ public class DocumentComposition {
 
 
         AAR_NOTIFICATION_RADD_ALT("documents_composition_templates/NotificationAAR_RADDalt_old.html"),
-        AAR_NOTIFICATION_RADD_ALT_DE("documents_composition_templates/NotificationAAR_RADDalt_de.html"),
-        AAR_NOTIFICATION_RADD_ALT_SL("documents_composition_templates/NotificationAAR_RADDalt_sl.html"),
-        AAR_NOTIFICATION_RADD_ALT_FR("documents_composition_templates/NotificationAAR_RADDalt_fr.html"),
+        AAR_NOTIFICATION_RADD_ALT_DE("documents_composition_templates/NotificationAAR_RADDalt_old_de.html"),
+        AAR_NOTIFICATION_RADD_ALT_SL("documents_composition_templates/NotificationAAR_RADDalt_old_sl.html"),
+        AAR_NOTIFICATION_RADD_ALT_FR("documents_composition_templates/NotificationAAR_RADDalt_old_fr.html"),
 
 
         AAR_NOTIFICATION_EMAIL("documents_composition_templates/NotificationAARForEMAIL.html"),
@@ -88,8 +90,13 @@ public class DocumentComposition {
         AAR_NOTIFICATION_PEC_SL("documents_composition_templates/NotificationAARForPEC_sl.html"),
         AAR_NOTIFICATION_PEC_FR("documents_composition_templates/NotificationAARForPEC_fr.html"),
 
+        NOTIFICATION_CANCELLED("documents_composition_templates/NotificationCancelledLegalFact.html"),
+        NOTIFICATION_CANCELLED_DE("documents_composition_templates/NotificationCancelledLegalFact_de.html"),
+        NOTIFICATION_CANCELLED_SL("documents_composition_templates/NotificationCancelledLegalFact_sl.html"),
+        NOTIFICATION_CANCELLED_FR("documents_composition_templates/NotificationCancelledLegalFact_fr.html"),
 
         AAR_NOTIFICATION_SUBJECT("documents_composition_templates/NotificationAARSubject.txt"),
+        AAR_NOTIFICATION_SMS("documents_composition_templates/NotificationAARForSMS.txt");
         AAR_NOTIFICATION_SMS("documents_composition_templates/NotificationAARForSMS.txt");
 
         private final String htmlTemplate;

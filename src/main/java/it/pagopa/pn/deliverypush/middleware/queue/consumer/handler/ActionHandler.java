@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.ScheduleRecipientWorkflow;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
@@ -290,12 +291,19 @@ public class ActionHandler {
                 MDC.put(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY, details.getKey());
 
                 HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
-                
                 log.logStartingProcess(processName);
-                checkNotificationCancelledAndExecute(
-                        action,
-                        a -> documentCreationResponseHandler.handleResponseReceived(a.getIun(), a.getRecipientIndex(), (DocumentCreationResponseActionDetails) a.getDetails() )
-                );
+
+                DocumentCreationResponseActionDetails documentCreationResponseActionDetails = (DocumentCreationResponseActionDetails) action.getDetails();
+                if(DocumentCreationTypeInt.NOTIFICATION_CANCELLED.equals(documentCreationResponseActionDetails.getDocumentCreationType())){
+                    //Solo se la si tratta della risposta alla generazione del documento di annullamento notifica viene bypassato il check di notifica annullata
+                    documentCreationResponseHandler.handleResponseReceived(action.getIun(), action.getRecipientIndex(), documentCreationResponseActionDetails );
+                }else {
+                    checkNotificationCancelledAndExecute(
+                            action,
+                            a -> documentCreationResponseHandler.handleResponseReceived(a.getIun(), a.getRecipientIndex(), (DocumentCreationResponseActionDetails) a.getDetails() )
+                    );
+                }
+
                 log.logEndingProcess(processName);
 
                 MDC.remove(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY);
@@ -343,7 +351,7 @@ public class ActionHandler {
                 HandleEventUtils.addIunAndCorrIdToMdc(action.getIun(), action.getActionId());
 
                 log.logStartingProcess(processName);
-                notificationCancellationActionHandler.cancelNotification(action.getIun());
+                notificationCancellationActionHandler.continueCancellationProcess(action.getIun());
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());

@@ -966,4 +966,22 @@ class TimelineEventIdBuilderTest {
 
         assertEquals(expectedEventId, actualEventId);
     }
+
+    @Test
+    void buildNOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUESTTest() {
+        String timeLineEventIdExpected = String.format("NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.IUN_%s", IUN);
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.getValue())
+                .withIun(IUN)
+                .build();
+
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .build());
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+    }
 }

@@ -1,0 +1,26 @@
+[
+    {
+        "taxId": "ABCDEF12G34H567I",
+        "iun": "ABCD-EFGH-IJKL-123456-M-1",
+        "legalFactsId": {
+            "key": "safestorage://exampleKey",
+            "category": "SENDER_ACK"
+        }
+    },
+    {
+        "taxId": "12345678901",
+        "iun": "WXYZ-QRST-UVWX-654321-Z-2",
+        "legalFactsId": {
+            "key": "safestorage://anotherExampleKey",
+            "category": "DIGITAL_DELIVERY"
+        }
+    },
+    {
+        "taxId": "SOMEOTHE123RAF15",
+        "iun": "ABCD-EFGH-IJKL-123456-M-1",
+        "legalFactsId": {
+            "key": "safestorage://example",
+            "category": "NOTIFICATION_CANCELLED"
+        }
+    }
+]
