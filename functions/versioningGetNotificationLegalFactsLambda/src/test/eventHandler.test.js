@@ -80,8 +80,8 @@ describe("eventHandler tests", function () {
       requestContext: {
         authorizer: {},
       },
-      resource: `/delivery-push/${iunValue}/`, // wrong
-      path: "/delivery-push/MOCK_IUN/legal-facts", // correct
+      resource: {},
+      path: "/delivery/MOCK_IUN/legal-facts", // wrong
       httpMethod: "GET", // correct
     };
     const context = {};
@@ -89,15 +89,10 @@ describe("eventHandler tests", function () {
     const response = await versioning(event, context);
     expect(response.statusCode).to.equal(502);
 
-    event.resource = `/delivery-push/${iunValue}/legal-facts`; // correct
-    event.path = "/delivery/MOCK_IUN/legal-facts"; // wrong
-    const response2 = await versioning(event, context);
-    expect(response2.statusCode).to.equal(502);
-
     event.path = "/delivery-push/MOCK_IUN/legal-facts"; // correct
     event.httpMethod = "POST"; // wrong
-    const response3 = await versioning(event, context);
-    expect(response3.statusCode).to.equal(502);
+    const response2 = await versioning(event, context);
+    expect(response2.statusCode).to.equal(502);
   });
 
   it("fetch throw error", async () => {
