@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+
+<html lang="it">
+
+<head>
+    <title>Attestazione opponibile a terzi</title>
+    <meta name="author" content="SEND - Servizio Notifiche Digitali" />
+    <link rel="stylesheet" href="styles/index.css">
+</head>
+
+<body>
+    <div class="container">
+        <div id="header" class="row">
+            <div class="left-col">
+                <img src="images/pn-logo-header.png" style="width:126px; height:35px;" />
+            </div>
+            <div class="right-col">
+                <img src="images/send-logo.png" style="width:81px; height:26.24px;" />
+            </div>
+        </div>
+        <!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
+        <div id="footer" class="row">
+            <div class="left-col">
+                <p>PagoPA S.p.A.</p>
+                <p>società per azioni con socio unico</p>
+                <p>capitale sociale di euro 1,000,000 interamente versato</p>
+                <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
+                <p>n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009</p>
+            </div>
+            <div class="right-col">
+                <img src="images/pn-logo-footer.png" />
+            </div>
+        </div>
+
+        <#if endWorkflowStatus=="SUCCESS">
+        <h3 class="document-type mb-0" data-hide-on-it="true">
+            Die Bescheinigung kann von Dritten beanstandet werden: digitale Zustellung
+        </h3>
+        <h3 class="document-type">
+            Attestazione opponibile a terzi: notifica digitale
+        </h3>
+            <#else>
+            <h3 class="document-type mb-0" data-hide-on-it="true">
+                Die Bescheinigung kann von Dritten beanstandet werden: digitale Unzustellbarkeit
+            </h3>
+            <h3 class="document-type">
+                Attestazione opponibile a terzi: mancato recapito digitale
+            </h3>
+        </#if>
+
+        <p class="paragraph my-8" data-hide-on-it="true">
+            Gemäß Artikel 26, Absatz 11 des Gesetzesdekrets 76/2020 in seiner geänderten und ergänzten Fassung BESCHEINIGT PagoPA S.p.A. als rechtmäßiger Verwalter der im selben Artikel 26 genannten Plattform für digitale Zustellungen (auch bekannt als SEND - Servizio Notifiche Digitali), mit aller rechtlichen Befugnis, diese Dritten gegenüber zu vertreten, HIERMIT, dass:
+        </p>
+        <p class="paragraph my-8" data-hide-on-it="true">
+            die in der durch IUN <b>${iun}</b> identifizierten Zustellung genannten Akte wie folgt verwaltet wurden:
+        </p>
+
+        <p class="paragraph mb-0">
+            Ai sensi dell’art. 26, comma 11, del decreto-legge 76/2020 s.m.i., la PagoPA S.p.A. nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26 (anche nota come SEND - Servizio Notifiche Digitali), con ogni valore legale per l&#39;opponibilità a terzi, ATTESTA CHE:
+        </p>
+        <p class="paragraph my-8">
+            gli atti di cui alla notifica identificata con IUN <b>${iun}</b> sono stati gestiti come segue:
+        </p>
+
+        <#list deliveries as delivery>
+            <div class="margin-y-small">
+                <div class="row">
+                    <div class="left-col col-5-10">
+                        <p><span data-hide-on-it="true">Vor- und Nachname / Firmenbezeichnung &bull; </span>Nome e Cognome / Ragione Sociale</p>
+                    </div>
+                    <div class="left-col col-5-10">
+                        <p><strong>${delivery.denomination}</strong></p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="left-col col-5-10">
+                        <p><span data-hide-on-it="true">Steuernummer &bull; </span>Codice Fiscale</p>
+                    </div>
+                    <div class="left-col col-5-10">
+                        <p><strong>${delivery.taxId}</strong></p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="left-col col-5-10">
+                        <p><span data-hide-on-it="true">Digitales Domizil &bull; </span>Domicilio digitale</p>
+                    </div>
+                    <div class="left-col col-5-10">
+                        <p>
+                            <#if delivery.address??>
+                                <#if delivery.type=="SERCQ">
+                                    <strong>Domicilio Digitale SEND</strong>
+                                    <#else>
+                                        <strong>${delivery.address}</strong>
+                                </#if>
+                                <#else>
+                                    non presente
+                            </#if>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="left-col col-5-10">
+                        <p><span data-hide-on-it="true">Art des digitalen Domizils &bull; </span>Tipologia di domicilio digitale</p>
+                    </div>
+                    <div class="left-col col-5-10">
+                        <p>
+                            <#if delivery.addressSource??>
+                                <#if delivery.addressSource=="PLATFORM">
+                                    <strong>Domicilio di Piattaforma ex art.26, comma 5 lettera c del D.L.
+                                        76/2020</strong>
+                                    <#elseif delivery.addressSource=="SPECIAL">
+                                        <strong>Domicilio eletto presso la Pubblica Amministrazione mittente ex art.26,
+                                            comma 5 lettera b del D.L. 76/2020</strong>
+                                        <#elseif delivery.addressSource=="GENERAL">
+                                            <strong>Domicilio generale inserito nei registri pubblici ex art.26, comma 5
+                                                lettera a del D.L. 76/2020</strong>
+                                </#if>
+                                <#else>
+                                    non presente
+                            </#if>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+            <#if delivery.ok>
+                <p class="paragraph my-8" data-hide-on-it="true">
+                    die entsprechende Empfangsbestätigung in elektronischem Format wurde am <strong>${delivery.responseDate}</strong> an das unmittelbar über diesem Datum angegebene digitale Domizil übermittelt.
+                </p>
+                <p class="paragraph my-8">
+                    il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data <strong>${delivery.responseDate}</strong> al domicilio digitale indicato immediatamente sopra la presente data.
+                </p>
+                <#else>
+                    <p class="paragraph my-8" data-hide-on-it="true">
+                        Am <strong>${delivery.responseDate}</strong>, ging die entsprechende Benachrichtigung über die Unzustellbarkeit an das angegebene digitale Domizil ein.
+                    </p>
+                    <p class="paragraph my-8">
+                        in data <strong>${delivery.responseDate}</strong> è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale indicato immediatamente sopra la presente data.
+                    </p>
+            </#if>
+
+        </#list>
+
+        <#if endWorkflowStatus !="SUCCESS">
+            <p class="paragraph my-8" data-hide-on-it="true">
+                Am <strong>${endWorkflowDate}</strong>, hat der Betreiber der Plattform die Benachrichtigung über die Unzustellbarkeit der Nachricht gemäß Art. 26, Absatz 6 des Gesetzesdekrets 76 vom 16. Juli 2020 bereitgestellt.
+            </p>
+            <p class="paragraph my-8">
+                In data <strong>${endWorkflowDate}</strong> il gestore della piattaforma ha reso disponibile l’avviso di mancato recapito del messaggio ai sensi dell’art. 26, comma 6 del D.L. 76 del 16 luglio 2020.
+            </p>
+        </#if>
+
+        <div class="py-16">
+            <p class="right"><span data-hide-on-it="true">Von PagoPA S.p.A. digital signiert &bull; </span>Firmato digitalmente da PagoPA S.p.A.</p>
+        </div>
+        <div class="row margin-top-small">
+            <div class="left-col col-4-10">
+                <p>&nbsp;</p>
+            </div>
+            <div class="left-col col-6-10">
+                <p class="py-16" data-hide-on-it="true">Der Originaltext dieser Dokumente ist auf Italienisch. Bei Abweichungen zwischen der italienischen Fassung und den Übersetzungen in andere Sprachen sind die Bedeutung und die Bestimmungen der italienischen Sprache maßgebend.</p>
+                <p data-hide-on-it="true">Il testo originario di questi documenti è in lingua italiana. In caso di contrasto tra la versione italiana e le traduzioni in altre lingue, prevarranno il significato e le condizioni della lingua italiana.</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

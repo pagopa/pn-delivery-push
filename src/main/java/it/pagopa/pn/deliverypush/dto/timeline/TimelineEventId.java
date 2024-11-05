@@ -567,6 +567,16 @@ public enum TimelineEventId {
                     .withRecIndex(eventId.getRecIndex())
                     .build();
         }
+    },
+
+    NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST("NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .build();
+        }
     };
 
     public String buildEventId(EventId eventId) {

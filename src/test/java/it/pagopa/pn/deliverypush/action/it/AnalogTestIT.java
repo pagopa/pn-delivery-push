@@ -659,7 +659,8 @@ class AnalogTestIT extends CommonTestConfiguration{
 
     @Test
     void completelyUnreachableTwoRecipient() {
- /*     PRIMO RECIPIENT
+ /*
+  PRIMO RECIPIENT
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
        - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)

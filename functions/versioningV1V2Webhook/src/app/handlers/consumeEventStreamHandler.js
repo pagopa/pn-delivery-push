@@ -3,6 +3,7 @@ const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
 const {createProgressResponseV10} = require("./mapper/transformProgressResponseFromV23ToV10");
 const {createProgressResponseV23} = require("./mapper/transformProgressResponseFromV24ToV23");
+const {createProgressResponseV24} = require("./mapper/transformProgressResponseFromV25ToV24");
 
 class ConsumeEventStreamHandler extends EventHandler {
     constructor() {
@@ -53,11 +54,15 @@ class ConsumeEventStreamHandler extends EventHandler {
                 switch(version) {
                     case 10:
                         console.debug('Mapping to v10')
-                        responseBody.push(createProgressResponseV10(createProgressResponseV23(data)));
+                        responseBody.push(createProgressResponseV10(createProgressResponseV23(createProgressResponseV24(data))));
                     break;
                     case 23:
                         console.debug('Mapping to v23')
-                        responseBody.push(createProgressResponseV23(data));
+                        responseBody.push(createProgressResponseV23(createProgressResponseV24(data)));
+                    break;
+                    case 24:
+                        console.debug('Mapping to v24')
+                        responseBody.push(createProgressResponseV24(data));
                     break;
                     default:
                         console.error('Invalid version ', version)

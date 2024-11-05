@@ -1175,17 +1175,18 @@ class TimelineUtilsTest {
     @Test
     void buildCancelledTimelineElement() {
         NotificationInt notification = buildNotification();
-
+        String legalFactId = "001";
         String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
-                notification
+                notification, legalFactId
         );
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
-                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
+                () -> Assertions.assertEquals(legalFactId, actual.getLegalFactsIds().get(0).getKey())
         );
 
         NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
@@ -1196,6 +1197,7 @@ class TimelineUtilsTest {
     @Test
     void buildCancelledTimelineElementPerfectionated() {
         NotificationInt notification = buildNotification();
+        String legalFactId = "001";
         NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(1).build();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().
                 elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue()).
@@ -1206,13 +1208,14 @@ class TimelineUtilsTest {
         String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
 
         TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
-                notification
+                notification, legalFactId
         );
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
-                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
+                () -> Assertions.assertEquals(legalFactId, actual.getLegalFactsIds().get(0).getKey())
         );
 
         NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
@@ -1242,6 +1245,26 @@ class TimelineUtilsTest {
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
         () -> Assertions.assertEquals(timelineEventIdExpected,actual.getElementId())
+        );
+    }
+
+    @Test
+    void buildNotificationCancelledLegalFactCreationRequest() {
+        NotificationInt notification = buildNotification();
+        String legalFactId = "001";
+
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.IUN_Example_IUN_1234_Test";
+
+        TimelineElementInternal actual = timelineUtils.buildNotificationCancelledLegalFactCreationRequest(
+                notification,
+                legalFactId
+        );
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("legalFactId=" + legalFactId, actual.getDetails().toLog())
         );
     }
 }
