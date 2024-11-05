@@ -39,17 +39,17 @@
         </div>
       </div>
 
-      <h3 class="document-type mb-0" data-hide-on-it="true">Izjava o preklicu obvestila na platformi SEND</h3>
+      <h3 class="document-type mb-0" data-hide-on-it="true">OBVESTILO O PREKLICU OBVESTILA NA PLATFORMI SEND</h3>
       <h3 class="document-type">Dichiarazione annullamento notifica sulla piattaforma SEND</h3>
 
-      <p class="paragraph mb-0" data-hide-on-it="true">S tem dokumentom, ki je prejemniku na voljo izključno na platformi SEND, se izjavlja, da je bilo obvestilo z IUN <b>${notification.getIun()}</b>, izvedeno v zvezi z:</p>
+      <p class="paragraph mb-0" data-hide-on-it="true">S tem dokumentom, ki je prejemniku na voljo izključno na platformi SEND, se izjavlja, da je obvestilo z IUN <b>${notification.getIun()}</b>za prejemnik:</p>
       <p class="paragraph">Con il presente documento, reso disponibile al destinatario esclusivamente sulla Piattaforma SEND, si dichiara che la notifica avente IUN <b>${notification.getIun()}</b>, eseguita nei confronti di:</p>
 
       <#list notification.recipients as recipient>
         <div class="margin-y-small">
           <div class="row">
               <div class="left-col col-5-10">
-                <p><span data-hide-on-it="true">Ime in Priimek / Poslovno ime &bull; </span>Nome e Cognome / Ragione Sociale</p>
+                <p><span data-hide-on-it="true">Ime in priimek / Pravna oseba &bull; </span>Nome e Cognome / Ragione Sociale</p>
               </div>
               <div class="left-col col-5-10">
                   <p><strong>${recipient.denomination}</strong></p>
@@ -67,14 +67,14 @@
         </div>
       </#list>
 
-      <p class="paragraph my-8" data-hide-on-it="true">preklicano na zahtevo pošiljatelja <b>${notification.sender.paDenomination}</b> dne <b>${notificationCancelledDate}</b>.</p>
+      <p class="paragraph my-8" data-hide-on-it="true">, in je bilo preklicano na posebno zahtevo Pošiljatelj <b>${notification.sender.paDenomination}</b> na dan <b>${notificationCancelledDate}</b>.</p>
       <p class="paragraph my-8">è stata annullata su specifica istanza del Mittente <b>${notification.sender.paDenomination}</b> in data <b>${notificationCancelledDate}</b>.</p>
 
       <p class="paragraph mb-0" data-hide-on-it="true">
-        Preklic na SEND, ki je predmet te izjave, ne pomeni nujno, da je prenehal razlog za obvestilo ali da so bila enako preklicana obvestila, ki se nanašajo na iste postopke, izvedene prek drugih kanalov kot platforme SEND.
+        Preklic v storitvi SEND iz te izjave, ne pomeni nujno, da je zahteva po obveščanju prenehala obstajati ali da je preklicano tudi obveščanje glede dotičnih dokumentov, ki je bilo izvedena prek kanalov, ki niso platforma SEND.
         <span data-hide-on-it="true">
           <br />
-          Za vse informacije v zvezi z razlogi za preklic iz te izjave in za upravljanje morebitnega povračila, če je bilo to izvedeno pred preklicem, se mora prejemnik obrniti izključno na pošiljatelja.
+          Za kakršne koli informacije o razlogih za odpoved, navedene v tej izjavi, in o upravljanju katerega koli povezanega plačila, če je že bilo izvedeno pred preklicem, se mora prejemnik obrniti izključno na pošiljatelja.
         </span>
       </p>
 

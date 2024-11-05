@@ -39,17 +39,17 @@
         </div>
       </div>
 
-      <h3 class="document-type mb-0" data-hide-on-it="true">Izjava o preklicu obvestila na platformi SEND</h3>
+      <h3 class="document-type mb-0" data-hide-on-it="true">ERKLÄRUNG ZUR STORNIERUNG DER ZUSTELLUNG AUF DER PLATTFORM SEND</h3>
       <h3 class="document-type">Dichiarazione annullamento notifica sulla piattaforma SEND</h3>
 
-      <p class="paragraph mb-0" data-hide-on-it="true">S tem dokumentom, ki je prejemniku na voljo izključno na platformi SEND, se izjavlja, da je bilo obvestilo z IUN <b>${notification.getIun()}</b>, izvedeno v zvezi z:</p>
+      <p class="paragraph mb-0" data-hide-on-it="true">Mit diesem Dokument, das dem Empfänger ausschließlich auf der Plattform SEND zur Verfügung steht, wird erklärt, dass die Zustellung mit IUN <b>${notification.getIun()}</b>an den Empfänger:</p>
       <p class="paragraph">Con il presente documento, reso disponibile al destinatario esclusivamente sulla Piattaforma SEND, si dichiara che la notifica avente IUN <b>${notification.getIun()}</b>, eseguita nei confronti di:</p>
 
       <#list notification.recipients as recipient>
         <div class="margin-y-small">
           <div class="row">
               <div class="left-col col-5-10">
-                <p><span data-hide-on-it="true">Ime in Priimek / Poslovno ime &bull; </span>Nome e Cognome / Ragione Sociale</p>
+                <p><span data-hide-on-it="true">Vor- und Nachname / Firmenbezeichnung &bull; </span>Nome e Cognome / Ragione Sociale</p>
               </div>
               <div class="left-col col-5-10">
                   <p><strong>${recipient.denomination}</strong></p>
@@ -58,7 +58,7 @@
 
           <div class="row">
               <div class="left-col col-5-10">
-                <p><span data-hide-on-it="true">Davčna številka &bull; </span>Codice fiscale</p>
+                <p><span data-hide-on-it="true">Steuernummer &bull; </span>Codice fiscale</p>
               </div>
               <div class="left-col col-5-10">
                   <p><strong>${recipient.taxId}</strong></p>
@@ -67,14 +67,14 @@
         </div>
       </#list>
 
-      <p class="paragraph my-8" data-hide-on-it="true">preklicano na zahtevo pošiljatelja <b>${notification.sender.paDenomination}</b> dne <b>${notificationCancelledDate}</b>.</p>
+      <p class="paragraph my-8" data-hide-on-it="true">, auf ausdrückliches Ersuchen des Absenders <b>${notification.sender.paDenomination}</b> am <b>${notificationCancelledDate}</b>.</p>
       <p class="paragraph my-8">è stata annullata su specifica istanza del Mittente <b>${notification.sender.paDenomination}</b> in data <b>${notificationCancelledDate}</b>.</p>
 
       <p class="paragraph mb-0" data-hide-on-it="true">
-        Preklic na SEND, ki je predmet te izjave, ne pomeni nujno, da je prenehal razlog za obvestilo ali da so bila enako preklicana obvestila, ki se nanašajo na iste postopke, izvedene prek drugih kanalov kot platforme SEND.
+        Die Stornierung auf SEND, die Gegenstand dieser Erklärung ist, bedeutet nicht notwendigerweise, dass die Voraussetzung für die Zustellung nicht eingetreten ist oder dass Zustellungen hinsichtlich der gleichen Dokumenten, die auf anderen Kanälen als der Plattform SEND ausgeführt werden, ebenfalls storniert werden.
         <span data-hide-on-it="true">
           <br />
-          Za vse informacije v zvezi z razlogi za preklic iz te izjave in za upravljanje morebitnega povračila, če je bilo to izvedeno pred preklicem, se mora prejemnik obrniti izključno na pošiljatelja.
+          Für Informationen über die Gründe für die Stornierung, auf die in dieser Erklärung Bezug genommen wird, und über die Abwicklung von Zahlungen, die bereits vor der Stornierung erfolgt sind, hat sich der Empfänger ausschließlich an den Absender zu wenden.
         </span>
       </p>
 
@@ -88,7 +88,7 @@
 
 
       <div class="py-16">
-          <p class="right"><span data-hide-on-it="true">Digitalno podpisano s strani PagoPA S.p.A. &bull; </span>Firmato digitalmente da PagoPA S.p.A.</p>
+          <p class="right"><span data-hide-on-it="true">Von PagoPA S.p.A. digital signiert &bull; </span>Firmato digitalmente da PagoPA S.p.A.</p>
       </div>
 
       <div class="row">
@@ -96,7 +96,7 @@
             <p>&nbsp;</p>
         </div>
         <div class="right-col col-6-10">
-            <p class="py-16" data-hide-on-it="true">Izvirno besedilo dokumentov je v italijanskem jeziku. V primeru neskladja med italijansko različico in prevodi v druge jezike bodo prevladali pomen in pogoji v italijanskem jeziku.</p>
+            <p class="py-16" data-hide-on-it="true">Der Originaltext dieser Dokumente ist auf Italienisch. Bei Abweichungen zwischen der italienischen Fassung und den Übersetzungen in andere Sprachen sind die Bedeutung und die Bestimmungen der italienischen Sprache maßgebend.</p>
             <p data-hide-on-it="true">Il testo originario di questi documenti è in lingua italiana. In caso di contrasto tra la versione italiana e le traduzioni in altre lingue, prevarranno il significato e le condizioni della lingua italiana.</p>
         </div>
       </div>

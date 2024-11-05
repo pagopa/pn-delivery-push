@@ -308,7 +308,7 @@ class LegalFactPdfGeneratorTest {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(
-                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact_de.pdf");
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("DE");
                 NotificationRecipientInt recipient = buildRecipients().get(0);
@@ -328,7 +328,7 @@ class LegalFactPdfGeneratorTest {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(
-                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact_sl.pdf");
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("SL");
                 NotificationRecipientInt recipient = buildRecipients().get(0);
@@ -348,7 +348,7 @@ class LegalFactPdfGeneratorTest {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(
-                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact_fr.pdf");
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("FR");
                 NotificationRecipientInt recipient = buildRecipients().get(0);

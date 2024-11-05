@@ -39,17 +39,17 @@
         </div>
       </div>
 
-      <h3 class="document-type mb-0" data-hide-on-it="true">Déclaration d&#39;annulation de la notification sur la plateforme SEND</h3>
+      <h3 class="document-type mb-0" data-hide-on-it="true">Déclaration d&#39;annulation de la notification sur la plate-forme SEND</h3>
       <h3 class="document-type">Dichiarazione annullamento notifica sulla piattaforma SEND</h3>
 
-      <p class="paragraph mb-0" data-hide-on-it="true">Par le présent document, mis à disposition du destinataire exclusivement sur la plateforme SEND, il est déclaré que la notification ayant IUN <b>${notification.getIun()}</b>, effectuée à l'encontre de:</p>
+      <p class="paragraph mb-0" data-hide-on-it="true">Il est déclaré par la présente, mise à la disposition du destinataire exclusivement sur la plate-forme SEND, que la notification comportant IUN <b>${notification.getIun()}</b>, exécutée à l'encontre de:</p>
       <p class="paragraph">Con il presente documento, reso disponibile al destinatario esclusivamente sulla Piattaforma SEND, si dichiara che la notifica avente IUN <b>${notification.getIun()}</b>, eseguita nei confronti di:</p>
 
       <#list notification.recipients as recipient>
         <div class="margin-y-small">
           <div class="row">
               <div class="left-col col-5-10">
-                <p><span data-hide-on-it="true">Nom et Prénom / Dénomination sociale &bull; </span>Nome e Cognome / Ragione Sociale</p>
+                <p><span data-hide-on-it="true">Prénom et Nom / Raison Sociale &bull; </span>Nome e Cognome / Ragione Sociale</p>
               </div>
               <div class="left-col col-5-10">
                   <p><strong>${recipient.denomination}</strong></p>
@@ -58,7 +58,7 @@
 
           <div class="row">
               <div class="left-col col-5-10">
-                <p><span data-hide-on-it="true">Numéro fiscal &bull; </span>Codice fiscale</p>
+                <p><span data-hide-on-it="true">Code fiscale &bull; </span>Codice fiscale</p>
               </div>
               <div class="left-col col-5-10">
                   <p><strong>${recipient.taxId}</strong></p>
@@ -67,14 +67,14 @@
         </div>
       </#list>
 
-      <p class="paragraph my-8" data-hide-on-it="true">a été annulée à la demande spécifique de l'expéditeur <b>${notification.sender.paDenomination}</b> à la date du <b>${notificationCancelledDate}</b>.</p>
+      <p class="paragraph my-8" data-hide-on-it="true">a été annulée à la demande expresse de l'expéditeur <b>${notification.sender.paDenomination}</b> à <b>${notificationCancelledDate}</b>.</p>
       <p class="paragraph my-8">è stata annullata su specifica istanza del Mittente <b>${notification.sender.paDenomination}</b> in data <b>${notificationCancelledDate}</b>.</p>
 
       <p class="paragraph mb-0" data-hide-on-it="true">
-        L'annulation sur SEND objet de la présente déclaration n'implique pas nécessairement que le fondement de la notification ait disparu, ni que les notifications concernant les mêmes actes effectuées via d'autres canaux que la plateforme SEND soient également annulées.
+        L'annulation sur SEND qui fait l'objet de la présente déclaration n'implique pas nécessairement que la condition préalable au service ait cessé d'exister ou que les notifications concernant les mêmes documents exécutées sur d'autres canaux que la plate-forme SEND soient également annulées.
         <span data-hide-on-it="true">
           <br />
-          Pour toute information concernant les raisons de l'annulation mentionnée dans cette déclaration, et la gestion du paiement éventuel déjà effectué avant l'annulation, le destinataire doit s'adresser exclusivement à l'expéditeur.
+          Pour toute information sur les raisons de l'annulation mentionnée dans la présente déclaration, et sur le traitement de tout paiement y afférent s'il a déjà été effectué avant l'annulation, le destinataire doit s'adresser exclusivement à l'expéditeur.
         </span>
       </p>
 
