@@ -16,7 +16,7 @@ import java.time.Instant;
 public class AnalogWorfklowRecipientDeceasedDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private PhysicalAddressInt physicalAddress;
-    private Long notificationCost;
+    private Integer notificationCost;
     private Instant notificationDate;
 
     @Override

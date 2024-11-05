@@ -1195,15 +1195,18 @@ class TimelineUtilsTest {
     }
 
     @Test
-    void buildCancelledTimelineElementPerfectionated() {
+    void buildCancelledTimelineElementPerfectionatedForView() {
         NotificationInt notification = buildNotification();
         String legalFactId = "001";
         NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(1).build();
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().
-                elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue()).
-                details(notificationViewedDetailsInt).
-                build();
-        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any())).thenReturn(Optional.of(timelineElementInternal));
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue())
+                .details(notificationViewedDetailsInt)
+                .build();
+
+        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any()))
+                .thenReturn(Optional.of(timelineElementInternal));
 
         String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
 
@@ -1216,6 +1219,88 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
                 () -> Assertions.assertEquals(legalFactId, actual.getLegalFactsIds().get(0).getKey())
+        );
+
+        NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
+        Assertions.assertEquals(0, detailsInt.getNotificationCost());
+        Assertions.assertEquals(0, detailsInt.getNotRefinedRecipientIndexes().size());
+    }
+
+    @Test
+    void buildCancelledTimelineElementPerfectionatedForRefinement() {
+        NotificationInt notification = buildNotification();
+        String legalFactId = "001";
+
+        NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(0).build();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue())
+                .details(notificationViewedDetailsInt)
+                .build();
+
+        RefinementDetailsInt refinementDetailsInt = RefinementDetailsInt.builder().notificationCost(1).build();
+        TimelineElementInternal refinementTimelineElementInternal = TimelineElementInternal.builder()
+                .elementId(TimelineEventId.REFINEMENT.getValue())
+                .details(refinementDetailsInt)
+                .build();
+
+        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any()))
+                .thenReturn(Optional.of(timelineElementInternal))
+                .thenReturn(Optional.of(refinementTimelineElementInternal));
+
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
+
+        TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(
+                notification, legalFactId
+        );
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
+                () -> Assertions.assertEquals(legalFactId, actual.getLegalFactsIds().get(0).getKey())
+        );
+
+        NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
+        Assertions.assertEquals(0, detailsInt.getNotificationCost());
+        Assertions.assertEquals(0, detailsInt.getNotRefinedRecipientIndexes().size());
+    }
+
+    @Test
+    void buildCancelledTimelineElementDeceased() {
+        NotificationInt notification = buildNotification();
+        String legalFactId = "001";
+
+        NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(0).build();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue())
+                .details(notificationViewedDetailsInt)
+                .build();
+
+        RefinementDetailsInt refinementDetailsInt = RefinementDetailsInt.builder().notificationCost(0).build();
+        TimelineElementInternal refinementTimelineElementInternal = TimelineElementInternal.builder()
+                .elementId(TimelineEventId.REFINEMENT.getValue())
+                .details(refinementDetailsInt)
+                .build();
+
+        AnalogWorfklowRecipientDeceasedDetailsInt deceasedDetailsInt = AnalogWorfklowRecipientDeceasedDetailsInt.builder().notificationCost(1).build();
+        TimelineElementInternal deceasedTimelineElementInternal = TimelineElementInternal.builder()
+                .elementId(TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.getValue())
+                .details(deceasedDetailsInt)
+                .build();
+
+        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any()))
+                .thenReturn(Optional.of(timelineElementInternal))
+                .thenReturn(Optional.of(refinementTimelineElementInternal))
+                .thenReturn(Optional.of(deceasedTimelineElementInternal));
+
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
+
+        TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(notification, legalFactId);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
         );
 
         NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
