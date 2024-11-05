@@ -5,6 +5,8 @@ const axios = require("axios");
 const axiosRetry = require("axios-retry").default;
 
 exports.versioning = async (event, context) => {
+  console.log("event: ", JSON.stringify(event));
+
   const IUN = event.pathParameters["iun"];
   const path = `/${IUN}/legal-facts`;
 
@@ -85,13 +87,11 @@ exports.versioning = async (event, context) => {
 
 function validateEndpoint(event, path) {
   if (
-    event["resource"].indexOf(`${path}`) < 0 ||
     !event["path"].startsWith("/delivery-push/") ||
     event["httpMethod"].toUpperCase() !== "GET"
   ) {
     console.log(
-      "ERROR ENDPOINT ERRATO: {resource, path, httpMethod} ",
-      event["resource"],
+      "ERROR ENDPOINT ERRATO: {path, httpMethod} ",
       event["path"],
       event["httpMethod"]
     );
