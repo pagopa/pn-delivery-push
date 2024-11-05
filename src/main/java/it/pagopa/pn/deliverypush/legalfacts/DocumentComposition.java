@@ -59,7 +59,6 @@ public class DocumentComposition {
 
         NOTIFICATION_VIEWED("documents_composition_templates/NotificationViewedLegalFact.html"),
         NOTIFICATION_VIEWED_DE("documents_composition_templates/NotificationViewedLegalFact_de.html"),
-        NOTIFICATION_VIEWED_DE("documents_composition_templates/NotificationViewedLegalFact_de.html"),
         NOTIFICATION_VIEWED_SL("documents_composition_templates/NotificationViewedLegalFact_sl.html"),
         NOTIFICATION_VIEWED_FR("documents_composition_templates/NotificationViewedLegalFact_fr.html"),
 
@@ -96,7 +95,6 @@ public class DocumentComposition {
         NOTIFICATION_CANCELLED_FR("documents_composition_templates/NotificationCancelledLegalFact_fr.html"),
 
         AAR_NOTIFICATION_SUBJECT("documents_composition_templates/NotificationAARSubject.txt"),
-        AAR_NOTIFICATION_SMS("documents_composition_templates/NotificationAARForSMS.txt");
         AAR_NOTIFICATION_SMS("documents_composition_templates/NotificationAARForSMS.txt");
 
         private final String htmlTemplate;
