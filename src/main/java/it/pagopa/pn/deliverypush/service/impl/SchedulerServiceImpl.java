@@ -77,13 +77,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     ) {
         log.info("Schedule {} in schedulingDate={} - iun={}", actionType, dateToSchedule, iun);
 
-        DocumentCreationResponseActionDetails documentCreationDetails = null;
-
-        if(actionDetails instanceof DocumentCreationResponseActionDetails)
-            documentCreationDetails = (DocumentCreationResponseActionDetails) actionDetails;
-
-        if(! timelineUtils.checkIsNotificationCancellationRequested(iun) ||
-                (documentCreationDetails != null && documentCreationDetails.getDocumentCreationType() == DocumentCreationTypeInt.NOTIFICATION_CANCELLED)) {
+        if(! timelineUtils.checkIsNotificationCancellationRequested(iun) || checkIsDocumentForNotificationCancelled(actionDetails)) {
             Action action = Action.builder()
                     .iun(iun)
                     .recipientIndex(recIndex)
@@ -116,7 +110,20 @@ public class SchedulerServiceImpl implements SchedulerService {
             log.info("Notification is cancelled, the action {} will not be scheduled - iun={}", actionType, iun);
         }
     }
-    
+
+    private boolean checkIsDocumentForNotificationCancelled(ActionDetails actionDetails) {
+        DocumentCreationResponseActionDetails documentCreationDetails = getDocumentCreationResponseActionDetails(actionDetails);
+        return documentCreationDetails != null && documentCreationDetails.getDocumentCreationType() == DocumentCreationTypeInt.NOTIFICATION_CANCELLED;
+    }
+
+    private DocumentCreationResponseActionDetails getDocumentCreationResponseActionDetails(ActionDetails actionDetails) {
+        DocumentCreationResponseActionDetails documentCreationDetails = null;
+
+        if(actionDetails instanceof DocumentCreationResponseActionDetails)
+            documentCreationDetails = (DocumentCreationResponseActionDetails) actionDetails;
+        return documentCreationDetails;
+    }
+
     @Override
     public void unscheduleEvent(String iun, Integer recIndex, ActionType actionType, String timelineEventId) {
         Action action = Action.builder()
