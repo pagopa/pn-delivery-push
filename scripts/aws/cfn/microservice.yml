@@ -866,13 +866,13 @@ Parameters:
     Description: 'Number of retries for each idempotent versioning lambda'
     Default: 3
 
-  isAdditionalLangsEnabled:
+  AdditionalLangsEnabled:
     Type: String
     Description: 'Enable additional languages feature'
-    Default: 'false'
+    Default: false
     AllowedValues:
-      - "true"
-      - "false"
+      - true
+      - false
 
 
 Conditions:
@@ -990,7 +990,7 @@ Resources:
         ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
         ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
-        ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ISADDITIONALLANGSENABLED=${isAdditionalLangsEnabled}'
+        ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'

@@ -131,7 +131,7 @@ public class PnDeliveryPushConfigs {
 
     private String performanceImprovementEndDate;
 
-    public boolean isAdditionalLangsEnabled;
+    public boolean additionalLangsEnabled;
 
     @Data
     public static class Topics {

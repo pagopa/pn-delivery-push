@@ -34,6 +34,7 @@ public class DocumentComposition {
 
     public static TemplateType retrieveTemplateFromLang(TemplateType templateType, String additionalLang) {
         String finalTemplateName = templateType.name() + "_" + additionalLang;
+        log.info("Retrieve template [{}] from lang: [{}]", finalTemplateName, additionalLang);
         return DocumentComposition.TemplateType.valueOf(finalTemplateName);
     }
 
