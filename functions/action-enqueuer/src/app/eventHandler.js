@@ -23,6 +23,10 @@ function mapMessageFromKinesisToAction(record) {
   return unmarshall(action);
 }
 
+function isActionLogicalDeleted(action){
+  return action.logicalDeleted == true;
+}
+
 const sendMessages = async (destinationEndpoint, actions, timeoutFn) => {
   const notSendedResult = {
     batchItemFailures: [],
@@ -103,7 +107,8 @@ async function handleEvent(event, context) {
       const action = mapMessageFromKinesisToAction(decodedRecord);
 
       // feature flag check
-      if (!insideWorkingWindow(action, workingTime.start, workingTime.end))
+      if (!insideWorkingWindow(action, workingTime.start, workingTime.end) || 
+          isActionLogicalDeleted(action))
         continue;
 
       action.seqNo = record.kinesis.sequenceNumber;

@@ -306,7 +306,7 @@ class ActionHandlerTest {
         //THEN
         Action action = message.getPayload();
 
-        verify(checkAttachmentRetentionHandler).handleCheckAttachmentRetentionBeforeExpiration(action.getIun());
+        verify(checkAttachmentRetentionHandler).handleCheckAttachmentRetentionBeforeExpiration(action.getIun(), action.getNotBefore());
     }
 
     @NotNull
@@ -390,6 +390,7 @@ class ActionHandlerTest {
                         .iun("test_IUN")
                         .recipientIndex(0)
                         .timelineId("testTimelineId")
+                        .notBefore(Instant.EPOCH)
                         .build();
             }
 

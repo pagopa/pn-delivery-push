@@ -411,7 +411,7 @@ public class ActionHandler {
 
                 log.logStartingProcess(processName);
 
-                checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(action.getIun());
+                checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(action.getIun(), action.getNotBefore());
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());

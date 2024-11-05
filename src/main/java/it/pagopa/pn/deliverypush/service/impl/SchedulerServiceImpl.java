@@ -75,7 +75,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     ) {
         log.info("Schedule {} in schedulingDate={} - iun={}", actionType, dateToSchedule, iun);
         
-        if(! timelineUtils.checkIsNotificationCancellationRequested(iun)){
+        if(! timelineUtils.checkIsNotificationCancellationRequested(iun) ){
             Action action = Action.builder()
                     .iun(iun)
                     .recipientIndex(recIndex)
