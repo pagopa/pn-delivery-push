@@ -362,6 +362,26 @@ class TimelineUtilsTest {
     }
 
     @Test
+    void buildAnalogWorkflowRecipientDeceasedTimelineElement() {
+        NotificationInt notification = buildNotification();
+        Integer recIndex = 1;
+        PhysicalAddressInt address = buildPhysicalAddressInt();
+        String timelineEventIdExpected = "ANALOG_WORKFLOW_RECIPIENT_DECEASED#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
+        Integer notificationCost = 100;
+        Instant notificationDate = Instant.now();
+
+        TimelineElementInternal actual = timelineUtils.buildAnalogWorkflowRecipientDeceasedTimelineElement(
+                notification, recIndex, notificationDate, address, notificationCost, true
+        );
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals(notificationDate, ((AnalogWorfklowRecipientDeceasedDetailsInt) actual.getDetails()).getNotificationDate())
+        );
+    }
+
+    @Test
     void buildFailureAnalogWorkflowTimelineElement() {
         NotificationInt notification = buildNotification();
         Integer recIndex = 1;

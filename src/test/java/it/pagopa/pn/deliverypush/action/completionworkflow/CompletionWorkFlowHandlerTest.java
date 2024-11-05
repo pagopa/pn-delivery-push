@@ -3,9 +3,11 @@ package it.pagopa.pn.deliverypush.action.completionworkflow;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogDeliveryFailureWorkflowLegalFactsGenerator;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -15,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.DocumentCreationRequestService;
+import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -43,6 +47,12 @@ class CompletionWorkFlowHandlerTest {
     private DocumentCreationRequestService documentCreationRequestService;
     @Mock
     private FailureWorkflowHandler failureWorkflowHandler;
+    @Mock
+    private NotificationProcessCostService notificationProcessCostService;
+    @Mock
+    private AttachmentUtils attachmentUtils;
+    @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     
     private CompletionWorkFlowHandler handler;
 
@@ -53,12 +63,15 @@ class CompletionWorkFlowHandlerTest {
         notificationUtils = new NotificationUtils();
         handler = new CompletionWorkFlowHandler(
                 timelineUtils,
+                attachmentUtils,
                 timelineService,
                 refinementScheduler,
                 pecDeliveryWorkflowLegalFactsGenerator,
                 analogDeliveryFailureWorkflowLegalFactsGenerator,
                 documentCreationRequestService,
-                failureWorkflowHandler);
+                failureWorkflowHandler,
+                notificationProcessCostService,
+                pnDeliveryPushConfigs);
     }
     
     @ExtendWith(MockitoExtension.class)
@@ -186,6 +199,85 @@ class CompletionWorkFlowHandlerTest {
     
         //THEN
         Mockito.verify(documentCreationRequestService).addDocumentCreationRequest(legalFactId, notification.getIun(), recIndex, DocumentCreationTypeInt.ANALOG_FAILURE_DELIVERY, timelineElementInternal.getElementId());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void completionAnalogWorkflowDeceasedWithViewedNotification() {
+        //GIVEN
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withPhysicalAddress(PhysicalAddressInt.builder()
+                        .address("test")
+                        .build())
+                .build();
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationRecipient(recipient)
+                .build();
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        Instant notificationDate = Instant.now();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.DECEASED;
+        //WHEN
+        Mockito.when(timelineUtils.checkIsNotificationViewed(notification.getIun(), recIndex)).thenReturn(true);
+        Mockito.when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
+        Mockito.when(timelineUtils.buildAnalogWorkflowRecipientDeceasedTimelineElement(
+                notification,
+                recIndex,
+                notificationDate,
+                recipient.getPhysicalAddress(),
+                100,
+                false)
+        ).thenReturn(TimelineElementInternal.builder().build());
+
+        handler.completionAnalogWorkflow(notification, recIndex, notificationDate, recipient.getPhysicalAddress(), endWorkflowStatus);
+
+        //THEN
+        Mockito.verify(timelineUtils).checkIsNotificationViewed(notification.getIun(), recIndex);
+        Mockito.verify(notificationProcessCostService).getSendFeeAsync();
+        Mockito.verifyNoInteractions(attachmentUtils);
+        Mockito.verify(timelineUtils).buildAnalogWorkflowRecipientDeceasedTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(Instant.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyInt(), Mockito.anyBoolean());
+        Mockito.verify(timelineService).addTimelineElement(Mockito.any(TimelineElementInternal.class), Mockito.any(NotificationInt.class));
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void completionAnalogWorkflowDeceasedWithNotViewedNotification() {
+        //GIVEN
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withPhysicalAddress(PhysicalAddressInt.builder()
+                        .address("test")
+                        .build())
+                .build();
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationRecipient(recipient)
+                .build();
+        Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        Instant notificationDate = Instant.now();
+
+        EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.DECEASED;
+        //WHEN
+        Mockito.when(timelineUtils.checkIsNotificationViewed(notification.getIun(), recIndex)).thenReturn(false);
+        Mockito.when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
+        Mockito.when(timelineUtils.buildAnalogWorkflowRecipientDeceasedTimelineElement(
+                notification,
+                recIndex,
+                notificationDate,
+                recipient.getPhysicalAddress(),
+                100,
+                true)
+        ).thenReturn(TimelineElementInternal.builder().build());
+
+        handler.completionAnalogWorkflow(notification, recIndex, notificationDate, recipient.getPhysicalAddress(), endWorkflowStatus);
+
+        //THEN
+        Mockito.verify(timelineUtils).checkIsNotificationViewed(notification.getIun(), recIndex);
+        Mockito.verify(notificationProcessCostService).getSendFeeAsync();
+        Mockito.verify(attachmentUtils).changeAttachmentsRetention(Mockito.any(NotificationInt.class), Mockito.eq(recIndex));
+        Mockito.verify(timelineUtils).buildAnalogWorkflowRecipientDeceasedTimelineElement(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any(Instant.class), Mockito.any(PhysicalAddressInt.class), Mockito.anyInt(), Mockito.anyBoolean());
+        Mockito.verify(timelineService).addTimelineElement(Mockito.any(TimelineElementInternal.class), Mockito.any(NotificationInt.class));
+
     }
     
 }
