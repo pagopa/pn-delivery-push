@@ -6,17 +6,18 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElementV20;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.utils.LegalFactUtils;
-import java.util.List;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -32,6 +33,7 @@ public class PnLegalFactsController implements LegalFactsApi {
     }
 
     @Override
+    @Deprecated
     public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFact(
             String xPagopaPnUid,
             CxTypeAuthFleet xPagopaPnCxType, 
@@ -72,7 +74,7 @@ public class PnLegalFactsController implements LegalFactsApi {
     }
     
     @Override
-    public Mono<ResponseEntity<Flux<LegalFactListElement>>> getNotificationLegalFacts(
+    public Mono<ResponseEntity<Flux<LegalFactListElementV20>>> getNotificationLegalFactsV20(
             String xPagopaPnUid,
             CxTypeAuthFleet xPagopaPnCxType,
             String xPagopaPnCxId,
@@ -81,8 +83,8 @@ public class PnLegalFactsController implements LegalFactsApi {
             UUID mandateId,
             ServerWebExchange exchange) {
         return Mono.fromSupplier(() -> {
-            List<LegalFactListElement> legalFacts = getLegalFactService.getLegalFacts(iun, xPagopaPnCxId, (mandateId != null ? mandateId.toString() : null), xPagopaPnCxType, xPagopaPnCxGroups);
-            Flux<LegalFactListElement> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
+            List<LegalFactListElementV20> legalFacts = getLegalFactService.getLegalFacts(iun, xPagopaPnCxId, (mandateId != null ? mandateId.toString() : null), xPagopaPnCxType, xPagopaPnCxGroups);
+            Flux<LegalFactListElementV20> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
             return ResponseEntity.ok(fluxFacts);
         });
     }

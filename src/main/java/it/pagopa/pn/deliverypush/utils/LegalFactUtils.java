@@ -1,7 +1,8 @@
 package it.pagopa.pn.deliverypush.utils;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
+
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategoryV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElementV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsIdV20;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -10,10 +11,10 @@ public class LegalFactUtils {
     private LegalFactUtils() {
     }
 
-    public static LegalFactListElement convert(LegalFactListElement element) {
-        LegalFactListElement legalFactListElement = new LegalFactListElement();
+    public static LegalFactListElementV20 convert(LegalFactListElementV20 element) {
+        LegalFactListElementV20 legalFactListElement = new LegalFactListElementV20();
 
-        LegalFactsId legalFactsId = getLegalFactsId(element);
+        LegalFactsIdV20 legalFactsId = getLegalFactsId(element);
         legalFactListElement.setLegalFactsId(legalFactsId);
         legalFactListElement.setIun(element.getIun());
         legalFactListElement.setTaxId(element.getTaxId());
@@ -21,10 +22,10 @@ public class LegalFactUtils {
         return legalFactListElement;
     }
 
-    private static LegalFactsId getLegalFactsId(LegalFactListElement element) {
-        LegalFactsId legalFactsId = new LegalFactsId();
+    private static LegalFactsIdV20 getLegalFactsId(LegalFactListElementV20 element) {
+        LegalFactsIdV20 legalFactsId = new LegalFactsIdV20();
         legalFactsId.setKey(element.getLegalFactsId().getKey());
-        LegalFactCategory category = element.getLegalFactsId().getCategory();
+        LegalFactCategoryV20 category = element.getLegalFactsId().getCategory();
 
         legalFactsId.setCategory(category);
 

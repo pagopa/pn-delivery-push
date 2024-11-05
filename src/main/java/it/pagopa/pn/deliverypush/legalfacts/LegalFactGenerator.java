@@ -84,7 +84,7 @@ public class LegalFactGenerator {
     private static final String FIELD_DISCLAIMER = "disclaimer";
     public static final String FIELD_SUBJECT = "subject";
     private static final String FIELD_RADDPHONENUMBER = "raddPhoneNumber";
-
+    public static final String FIELD_NOTIFICATION_CANCELLED_DATE = "notificationCancelledDate";
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
     private final PhysicalAddressWriter physicalAddressWriter;
@@ -134,6 +134,18 @@ public class LegalFactGenerator {
                 templateModel
             );
 
+    }
+
+    public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) throws IOException {
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put(FIELD_NOTIFICATION, notification);
+        templateModel.put(FIELD_NOTIFICATION_CANCELLED_DATE, instantWriter.instantToDate(notificationCancellationRequestDate));
+
+        return documentComposition.executePdfTemplate(
+                retrieveTemplateFromLang(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED, notification.getAdditionalLanguages()),
+                templateModel
+        );
     }
 
     private List<String> extractNotificationAttachmentDigests(NotificationInt notification) {

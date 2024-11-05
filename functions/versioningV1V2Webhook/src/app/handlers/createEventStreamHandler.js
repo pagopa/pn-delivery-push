@@ -21,15 +21,29 @@ class CreateEventStreamHandler extends EventHandler {
         const headers = this.prepareHeaders(event, version);
 
         // REQUEST BODY
-        const requestBodyV1 = JSON.parse(event.body);
-        const requestBodyV22 = createStreamCreationRequestV22(requestBodyV1);
+        let requestBody = JSON.parse(event.body);
+        switch(version) {
+            case 10:
+                requestBody = createStreamCreationRequestV22(requestBody);
+            break;
+            case 23:
+                requestBody = requestBody;
+            break;
+            case 24:
+                requestBody = requestBody;
+            break;
+            default:
+                console.error('Invalid version ', version)
+            break;
+        }
+        
         const url = `${this.baseUrl}/streams`;
 
         console.log('calling ', url);
-        console.log(requestBodyV22);
+        console.log(requestBody);
 
         let postTimeout = this.attemptTimeout * this.numRetry;
-        let response = await axios.post(url, requestBodyV22, {headers: headers, timeout: postTimeout});
+        let response = await axios.post(url, requestBody, {headers: headers, timeout: postTimeout});
 
         let transformedObject;
 
@@ -39,6 +53,9 @@ class CreateEventStreamHandler extends EventHandler {
                 transformedObject = createStreamMetadataResponseV10(response.data);
             break;
             case 23:
+                transformedObject = response.data;
+            break;
+            case 24:
                 transformedObject = response.data;
             break;
             default:

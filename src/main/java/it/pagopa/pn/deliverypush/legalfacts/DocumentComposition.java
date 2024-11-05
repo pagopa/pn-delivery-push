@@ -89,6 +89,10 @@ public class DocumentComposition {
         AAR_NOTIFICATION_PEC_SL("documents_composition_templates/NotificationAARForPEC_sl.html"),
         AAR_NOTIFICATION_PEC_FR("documents_composition_templates/NotificationAARForPEC_fr.html"),
 
+        NOTIFICATION_CANCELLED("documents_composition_templates/NotificationCancelledLegalFact.html"),
+        NOTIFICATION_CANCELLED_DE("documents_composition_templates/NotificationCancelledLegalFact_de.html"),
+        NOTIFICATION_CANCELLED_SL("documents_composition_templates/NotificationCancelledLegalFact_sl.html"),
+        NOTIFICATION_CANCELLED_FR("documents_composition_templates/NotificationCancelledLegalFact_fr.html"),
 
         AAR_NOTIFICATION_SUBJECT("documents_composition_templates/NotificationAARSubject.txt"),
         AAR_NOTIFICATION_SMS("documents_composition_templates/NotificationAARForSMS.txt");

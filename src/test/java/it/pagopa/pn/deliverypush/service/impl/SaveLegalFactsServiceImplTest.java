@@ -131,6 +131,35 @@ class SaveLegalFactsServiceImplTest {
         Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
     }
 
+    @Test
+    void saveNotificationCancelledLegalFact() throws IOException {
+        String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+        NotificationInt notification = buildNotification(denomination);
+        FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_LEGAL_FACTS);
+        FileCreationResponseInt file = buildFileCreationResponseInt();
+        Instant notificationCancellationRequestDate = Instant.now();
+
+        Mockito.when(legalFactBuilder.generateNotificationCancelledLegalFact(notification, notificationCancellationRequestDate)).thenReturn(denomination.getBytes());
+        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
+
+        String actual = saveLegalFactsService.sendCreationRequestForNotificationCancelledLegalFact(notification, notificationCancellationRequestDate);
+
+        Assertions.assertEquals("safestorage://001", actual);
+    }
+
+    @Test
+    void saveNotificationCancelledLegalFactFailed() {
+        String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+        NotificationInt notification = buildNotification(denomination);
+
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
+            saveLegalFactsService.sendCreationRequestForNotificationCancelledLegalFact(notification, Instant.now());
+        });
+
+        String expectErrorMsg = "PN_DELIVERYPUSH_SAVELEGALFACTSFAILED";
+
+        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
+    }
 
     @Test
     void sendCreationRequestForAnalogDeliveryFailureWorkflowLegalFactFailed() {
