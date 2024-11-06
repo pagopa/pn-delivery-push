@@ -36,5 +36,7 @@ public interface SaveLegalFactsService {
             NotificationRecipientInt recipient,
             DelegateInfoInt delegateInfo,
             Instant timeStamp
-    );    
+    );
+
+    String sendCreationRequestForNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate);
 }

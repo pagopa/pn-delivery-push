@@ -99,7 +99,7 @@ components:
         - PREPARE_ANALOG_DOMICILE_FAILURE
         - NOTIFICATION_RADD_RETRIEVED
 
-    TimelineElementV24:
+    TimelineElementV25:
       type: object
       additionalProperties: false
       properties:
@@ -129,7 +129,7 @@ components:
         legalFactsIds:
           type: array
           items:
-            $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsId"
+            $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsIdV20"
           description: >-
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento

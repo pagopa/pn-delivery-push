@@ -2,8 +2,8 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategoryV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsIdV20;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,16 +12,16 @@ class LegalFactIdMapperTest {
     @Test
     void internalToExternal() {
 
-        LegalFactsId actual = LegalFactIdMapper.internalToExternal(buildLegalFactsIdInt());
+        LegalFactsIdV20 actual = LegalFactIdMapper.internalToExternal(buildLegalFactsIdInt());
 
         Assertions.assertEquals(buildLegalFactsId(), actual);
 
     }
 
-    private LegalFactsId buildLegalFactsId() {
-        return LegalFactsId.builder()
+    private LegalFactsIdV20 buildLegalFactsId() {
+        return LegalFactsIdV20.builder()
                 .key("001")
-                .category(LegalFactCategory.ANALOG_DELIVERY)
+                .category(LegalFactCategoryV20.ANALOG_DELIVERY)
                 .build();
     }
 

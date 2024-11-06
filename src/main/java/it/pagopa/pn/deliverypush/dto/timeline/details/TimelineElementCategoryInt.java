@@ -50,7 +50,8 @@ public enum TimelineElementCategoryInt {
     PROBABLE_SCHEDULING_ANALOG_DATE(ProbableDateAnalogWorkflowDetailsInt.class, TimelineElementCategoryV23.PROBABLE_SCHEDULING_ANALOG_DATE.getValue(), TimelineElementCategoryInt.VERSION_20),
     NOTIFICATION_CANCELLATION_REQUEST(NotificationCancellationRequestDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_CANCELLATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_20),
     NOTIFICATION_CANCELLED(NotificationCancelledDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_CANCELLED.getValue(), TimelineElementCategoryInt.VERSION_20),
-    NOTIFICATION_RADD_RETRIEVED(NotificationRADDRetrievedDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_RADD_RETRIEVED.getValue(), TimelineElementCategoryInt.VERSION_23);
+    NOTIFICATION_RADD_RETRIEVED(NotificationRADDRetrievedDetailsInt.class, TimelineElementCategoryV23.NOTIFICATION_RADD_RETRIEVED.getValue(), TimelineElementCategoryInt.VERSION_23),
+    NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST(NotificationCancelledDocumentCreationRequestDetailsInt.class, DiagnosticTimelineElementCategory.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.value, TimelineElementCategoryInt.VERSION_25);
 
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
     private final String value;
@@ -70,6 +71,7 @@ public enum TimelineElementCategoryInt {
     public static final int VERSION_10 = 10;
     public static final int VERSION_20 = 20;
     public static final int VERSION_23 = 23;
+    public static final int VERSION_25 = 25;
 
     TimelineElementCategoryInt(Class<? extends TimelineElementDetailsInt> detailsJavaClass, String value, int version) {
         this(detailsJavaClass, value, PRIORITY_BEFORE, version);
@@ -94,7 +96,8 @@ public enum TimelineElementCategoryInt {
         VALIDATED_F24("VALIDATED_F24"),
         VALIDATE_F24_REQUEST("VALIDATE_F24_REQUEST"),
         GENERATED_F24("GENERATED_F24"),
-        GENERATE_F24_REQUEST("GENERATE_F24_REQUEST");
+        GENERATE_F24_REQUEST("GENERATE_F24_REQUEST"),
+        NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST("NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST");
 
         private final String value;
         DiagnosticTimelineElementCategory(String value) {

@@ -111,6 +111,26 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
 
     }
 
+    public String sendCreationRequestForNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) {
+        try {
+            log.debug("Start sendCreationRequestForNotificationCancelledLegalFact - iun={}", notification.getIun());
+
+            return MDCUtils.addMDCToContextAndExecute(
+                    this.saveLegalFact(legalFactBuilder.generateNotificationCancelledLegalFact(notification, notificationCancellationRequestDate))
+                            .map( responseUrl -> {
+                                log.debug("sendCreationRequestForNotificationCancelledLegalFact completed with fileKey={} - iun={}", responseUrl, notification.getIun());
+                                return responseUrl;
+                            })
+            ).block();
+
+        } catch (Exception exc) {
+            String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "NOTIFICATION_CANCELLED", notification.getIun(), "N/A");
+            log.error("Exception in sendCreationRequestForNotificationCancelledLegalFact ex=", exc);
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
+        }
+
+    }
+
     public String sendCreationRequestForPecDeliveryWorkflowLegalFact(
             List<SendDigitalFeedbackDetailsInt> listFeedbackFromExtChannel,
             NotificationInt notification,
@@ -168,7 +188,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
     ) {
         log.info("sendCreationRequestForNotificationViewedLegalFact - iun={}", notification.getIun());
 
-        return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(notification.getIun(), recipient, delegateInfo, timeStamp))
+        return Mono.fromCallable(() -> legalFactBuilder.generateNotificationViewedLegalFact(notification.getIun(), recipient, delegateInfo, timeStamp, notification))
                 .flatMap( res -> {
                         log.info("sendCreationRequestForNotificationViewedLegalFact completed - iun={} are not nulls={}", notification.getIun(), res != null);
                         return this.saveLegalFact(res)

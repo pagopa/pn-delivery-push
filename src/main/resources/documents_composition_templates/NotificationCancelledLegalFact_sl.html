@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html lang="it">
+
+<head>
+    <title>Attestazione opponibile a terzi</title>
+    <meta name="author" content="SEND - Servizio Notifiche Digitali" />
+    <link rel="stylesheet" href="styles/index.css">
+</head>
+<body>
+<div class="container">
+    <div id="header" class="row">
+        <div class="left-col">
+            <img
+                    src="images/pn-logo-header.png"
+                    style="width: 126px; height: 35px"
+            />
+        </div>
+        <div class="right-col">
+            <img
+                    src="images/send-logo.png"
+                    style="width: 81px; height: 26.24px"
+            />
+        </div>
+    </div>
+    <!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
+    <div id="footer" class="row">
+        <div class="left-col">
+            <p>PagoPA S.p.A.</p>
+            <p>società per azioni con socio unico</p>
+            <p>capitale sociale di euro 1,000,000 interamente versato</p>
+            <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
+            <p>
+                n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009
+            </p>
+        </div>
+        <div class="right-col">
+            <img src="images/pn-logo-footer.png" />
+        </div>
+    </div>
+
+
+    <h3 class="document-type">Dichiarazione annullamento notifica sulla piattaforma SEND - SL</h3>
+
+
+    <p class="paragraph">Con il presente documento, reso disponibile al destinatario esclusivamente sulla Piattaforma SEND, si dichiara che la notifica avente IUN <b>${notification.getIun()}</b>, eseguita nei confronti di:</p>
+
+    <#list notification.recipients as recipient>
+    <div class="margin-y-small">
+        <div class="row">
+            <div class="left-col col-5-10">
+                <p>Nome e Cognome / Ragione Sociale</p>
+            </div>
+            <div class="left-col col-5-10">
+                <p><strong>${recipient.denomination}</strong></p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="left-col col-5-10">
+                <p>Codice fiscale</p>
+            </div>
+            <div class="left-col col-5-10">
+                <p><strong>${recipient.taxId}</strong></p>
+            </div>
+        </div>
+    </div>
+</#list>
+
+
+<p class="paragraph my-8">è stata annullata su specifica istanza del Mittente <b>${notification.sender.paDenomination}</b> in data <b>${notificationCancelledDate}</b>.</p>
+
+
+</p>
+
+<p class="paragraph">
+    L’annullamento su SEND oggetto della presente dichiarazione non implica necessariamente che il presupposto della notifica sia venuto meno ovvero che siano annullate parimenti notifiche aventi ad oggetto i medesimi atti eseguite su canali diversi dalla Piattaforma SEND.
+    <span>
+          <br />
+          Per ogni informazione sulle ragioni dell’annullamento di cui alla presente dichiarazione, e sulla gestione dell’eventuale relativo pagamento ove già effettuato precedentemente all’annullamento, il destinatario deve rivolgersi esclusivamente al Mittente.
+        </span>
+</p>
+
+
+<div class="py-16">
+    <p class="right">Firmato digitalmente da PagoPA S.p.A.</p>
+</div>
+
+<div class="row">
+    <div class="left-col col-4-10">
+        <p>&nbsp;</p>
+    </div>
+    <div class="right-col col-6-10">
+
+
+    </div>
+</div>
+</div>
+</body>
+</html>

@@ -77,8 +77,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-                                
-  '/delivery-push/{iun}/legal-facts':
+                                  
+  '/delivery-push/v2.0/{iun}/legal-facts':
     get:
       summary: Elenco atti opponibili a terzi
       description: >-
@@ -87,7 +87,7 @@ paths:
         <br/>
       tags:
         - LegalFacts
-      operationId: retrieveNotificationLegalFacts                                # ONLY EXTERNAL
+      operationId: retrieveNotificationLegalFactsV20                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
@@ -97,7 +97,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactList"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20"
         '400':
           description: Invalid input
           content:
@@ -119,6 +119,7 @@ paths:
 
   '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':
     get:
+      deprecated: true
       summary: Singolo atto opponibile a terzi
       description: >-
         Permette di scaricare un atto opponibile a terzi
@@ -137,7 +138,7 @@ paths:
           content:  
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: "./schemas-pn-legal-facts-older-version.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
         '400':
           description: Invalid input                                               
           content: 
@@ -156,6 +157,7 @@ paths:
             application/problem+json: 
               schema: 
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
   '/delivery-push/{iun}/download/legal-facts/{legalFactId}':
     get:
       summary: Singolo atto opponibile a terzi
@@ -285,7 +287,7 @@ components:
       in: path
       required: true
       schema:
-        $ref: './schemas-pn-legal-facts.yaml#/components/schemas/LegalFactCategory'
+        $ref: './schemas-pn-legal-facts-older-version.yaml#/components/schemas/LegalFactCategory'
     
     pathLegalFactId:
       description: >-

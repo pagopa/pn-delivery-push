@@ -1,21 +1,9 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElement;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactsId;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
-import java.util.Collections;
-import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,12 +16,21 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+import java.util.List;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+
 @WebFluxTest(PnLegalFactsController.class)
 class PnLegalFactsControllerTest {
 
     private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
     private static final String MANDATE_ID = "4fd712cd-8751-48ba-9f8c-471815146896";
     private static final String LEGAL_FACT_ID = "legal_fact_id";
+    public static final String GET_NOTIFICATION_LEGALFACT_VERSION = "v2.0";
 
     @Autowired
     WebTestClient webTestClient;
@@ -44,11 +41,11 @@ class PnLegalFactsControllerTest {
 
     @Test
     void getNotificationLegalFactsSuccess() {
-        List<LegalFactListElement> legalFactsList = Collections.singletonList(LegalFactListElement.builder()
+        List<LegalFactListElementV20> legalFactsList = Collections.singletonList(LegalFactListElementV20.builder()
                 .iun(IUN)
                 .taxId("taxId")
-                .legalFactsId(LegalFactsId.builder()
-                        .category(LegalFactCategory.SENDER_ACK)
+                .legalFactsId(LegalFactsIdV20.builder()
+                        .category(LegalFactCategoryV20.SENDER_ACK)
                         .key("key")
                         .build()
                 ).build()
@@ -59,7 +56,7 @@ class PnLegalFactsControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + IUN + "/legal-facts")
+                                .path("/delivery-push/" + GET_NOTIFICATION_LEGALFACT_VERSION + "/"  + IUN + "/legal-facts")
                                 .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
@@ -85,7 +82,7 @@ class PnLegalFactsControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push/" + IUN + "/legal-facts")
+                                .path("/delivery-push/" + GET_NOTIFICATION_LEGALFACT_VERSION + "/" + IUN + "/legal-facts")
                                 .queryParam("mandateId", MANDATE_ID)
                                 .build())
                 .accept(MediaType.ALL)
@@ -332,6 +329,7 @@ class PnLegalFactsControllerTest {
 
     private void getLegalFactsCancelled(CxTypeAuthFleet cxTypeAuthFleet) {
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancelledLegalFactId(Mockito.any(), Mockito.any())).thenReturn(false);
 
         Mockito.when(getLegalFactService.getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
             .thenThrow(new PnNotFoundException("Authorization Failed", "No auth", ERROR_CODE_DELIVERYPUSH_NOTFOUND));
@@ -371,6 +369,7 @@ class PnLegalFactsControllerTest {
     @Test
     void getLegalFactsCancelledPA() {
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancelledLegalFactId(Mockito.any(), Mockito.any())).thenReturn(false);
 
         LegalFactDownloadMetadataResponse legalFactDownloadMetadataResponse =
             new LegalFactDownloadMetadataResponse()
