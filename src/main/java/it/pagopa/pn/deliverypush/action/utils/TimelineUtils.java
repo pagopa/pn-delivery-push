@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -1289,6 +1290,8 @@ public class TimelineUtils {
     }
 
     public boolean checkIsNotificationCancelledLegalFactId(String iun, String legalFactId) {
+        log.debug("Start checkIsNotificationCancelledLegalFactId - iun={} legalFactId={}", iun, legalFactId);
+        
         String elementId = NOTIFICATION_CANCELLED.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -1298,7 +1301,10 @@ public class TimelineUtils {
         
         if(notificationCancelledOpt.isPresent()){
             TimelineElementInternal notificationCancelled = notificationCancelledOpt.get();
-            return notificationCancelled.getLegalFactsIds().stream().anyMatch(legalFactsIdInt -> legalFactsIdInt.getKey().equals(legalFactId));
+            return notificationCancelled.getLegalFactsIds().stream().anyMatch(legalFactsIdInt -> {
+                String legalFactKeyReplaced = legalFactsIdInt.getKey().replace(PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX, "");
+                return legalFactKeyReplaced.equals(legalFactId);
+            });
         }
         
         return false;
