@@ -64,8 +64,6 @@ class AnalogTestIT extends CommonTestConfiguration{
     @Autowired
     TimelineService timelineService;
     @Autowired
-    NotificationUtils notificationUtils;
-    @Autowired
     StatusUtils statusUtils;
     
     @Test
@@ -560,7 +558,7 @@ class AnalogTestIT extends CommonTestConfiguration{
     }
 
     @Test
-    @Disabled("Riattivare quando sarà gestita la statemap e delivery avrà i nuovi puntamenti")
+    @Disabled("TODO: Riattivare quando sarà gestita la statemap e delivery avrà i nuovi puntamenti")
     void recipientDeceased() {
   /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
