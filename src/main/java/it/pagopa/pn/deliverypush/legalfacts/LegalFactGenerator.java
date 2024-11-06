@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.exceptions.PnInvalidTemplateException;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
@@ -39,6 +40,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE;
+import static it.pagopa.pn.deliverypush.legalfacts.DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD;
 
 @Component
 @Slf4j
@@ -189,7 +192,6 @@ public class LegalFactGenerator {
         templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
         templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( timeStamp, true));
         templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
-        templateModel.put(FIELD_DISCLAIMER, this.getlegalFactDisclaimer());
 
         return documentComposition.executePdfTemplate(
                 retrieveTemplateFromLang(DocumentComposition.TemplateType.NOTIFICATION_VIEWED, notification.getAdditionalLanguages()),
@@ -197,12 +199,21 @@ public class LegalFactGenerator {
         );
     }
 
-    private DocumentComposition.TemplateType retrieveTemplateFromLang(DocumentComposition.TemplateType templateType, List<String> lang) {
-        if(CollectionUtils.isEmpty(lang)){
-            return templateType;
+    private DocumentComposition.TemplateType retrieveTemplateFromLang(DocumentComposition.TemplateType italianTemplateType, List<String> additionalLanguages) {
+        if(!pnDeliveryPushConfigs.isAdditionalLangsEnabled()
+                || checkIfRequiredItalianTemplate(additionalLanguages)
+                || AAR_NOTIFICATION_RADD.equals(italianTemplateType)){
+            log.info("retrieve italian template for {}", italianTemplateType);
+            return italianTemplateType;
         }
-        String finalTemplateName = templateType.name() + "_" + lang.get(0);
-        return DocumentComposition.TemplateType.valueOf(finalTemplateName);
+        return additionalLanguages.stream()
+                .map(lang -> DocumentComposition.retrieveTemplateFromLang(italianTemplateType, lang))
+                .findFirst() /* è possibile avere solo una lingua aggiuntiva */
+                .orElseThrow(() -> new PnInvalidTemplateException("Error During retrieve template","TemplateType enum not found for given additional lang",ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE));
+    }
+
+    private boolean checkIfRequiredItalianTemplate(List<String> additionalLanguages) {
+        return CollectionUtils.isEmpty(additionalLanguages);
     }
 
     @Value
@@ -501,8 +512,5 @@ public class LegalFactGenerator {
 
     }
 
-    private String getlegalFactDisclaimer(){
-        return pnDeliveryPushConfigs.getWebapp().getLegalFactDisclaimer();
-    }
 }
 

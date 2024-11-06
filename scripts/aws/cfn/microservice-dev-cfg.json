@@ -33,6 +33,7 @@
     "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
     "NotificationCancellationActionInsertLambdaBatchSize": "20",
     "VersioningV1V2WebhookLambdaProvisionedConcurrency": "1",
+    "VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency": "1",
     "EnhancedWebSecurityEnabled": "true",
     "PagoPaNotificationBaseCost": "100",
     "CpuValue": "2048",
@@ -69,6 +70,7 @@
     "PerformanceImprovementEndDate": "2099-07-14T20:00:00Z",
     "FutureActionTtlExtraDays": "10",
     "AttemptTimeoutSec": "7",
-    "NumRetry": "3"
+    "NumRetry": "3",
+    "AdditionalLangsEnabled": "true"
     }
 }

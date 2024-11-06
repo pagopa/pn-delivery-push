@@ -33,7 +33,7 @@
 }
 
 body {
-    font-size: 16px; /* 12pt on Figma */
+    font-size: 12px; /* 12pt on Figma */
     font-family: "Montserrat", sans-serif;
     font-weight: 400;
 }
@@ -65,7 +65,7 @@ a.faq-link-perfezionamento {
 
 #footer {
     position: running(footer);
-    font-size: 10.667px;
+    font-size: 9px; /* 8pt on Figma */
     color: #475A6D;
     border-top: 1px solid #E3E7EB;
     padding-top: 3mm;
@@ -84,7 +84,7 @@ a.faq-link-perfezionamento {
 }
 
 #disclaimer {
-    font-size: 13.333px;
+    font-size: 10px; /* 10pt on Figma */
 }
 
 .row {
@@ -141,7 +141,7 @@ a.faq-link-perfezionamento {
 
 .document-type {
     margin: 0 0 7mm 0;
-    font-size: 18.667px;
+    font-size: 14px; /* 14pt on Figma */
 }
 
 .hash-list li {
