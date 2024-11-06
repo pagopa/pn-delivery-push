@@ -23,6 +23,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
@@ -1113,6 +1114,48 @@ class TimelineUtilsTest {
 
         boolean isNotificationCancellationRequested = timelineUtils.checkIsNotificationCancellationRequested(iun);
         Assertions.assertTrue(isNotificationCancellationRequested);
+    }
+
+    @Test
+    void checkIsNotificationCancelledLegalFactId_Found() {
+        String iun = "testIun";
+        String legalFactId = "legalFactId";
+
+        String elementId = TimelineEventId.NOTIFICATION_CANCELLED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder().key(PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX + legalFactId).build()))
+                .build();
+
+        Mockito.when(timelineService.getTimelineElement(iun, elementId)).thenReturn(Optional.of(timelineElementInternal));
+
+        boolean isCancelled = timelineUtils.checkIsNotificationCancelledLegalFactId(iun, legalFactId);
+
+        Assertions.assertTrue(isCancelled);
+    }
+
+    @Test
+    void checkIsNotificationCancelledLegalFactId_NotFound() {
+        String iun = "testIun";
+        String legalFactId = "legalFactId";
+
+        String elementId = TimelineEventId.NOTIFICATION_CANCELLED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder().key(PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX + "differentLegalFactId").build()))
+                .build();
+
+        Mockito.when(timelineService.getTimelineElement(iun, elementId)).thenReturn(Optional.of(timelineElementInternal));
+
+        boolean isCancelled = timelineUtils.checkIsNotificationCancelledLegalFactId(iun, legalFactId);
+
+        Assertions.assertFalse(isCancelled);
     }
 
     @Test
