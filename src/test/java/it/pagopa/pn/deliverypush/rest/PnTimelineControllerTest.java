@@ -36,7 +36,7 @@ class PnTimelineControllerTest {
                 .timestamp( Instant.now() )
                 .elementId( "element_id" )
                 .category( TimelineElementCategoryV23.REQUEST_ACCEPTED )
-                .details(TimelineElementDetailsV23.builder().build())
+                .details(TimelineElementDetailsV25.builder().build())
                 .build()
         );
         NotificationHistoryResponse dto = NotificationHistoryResponse.builder()

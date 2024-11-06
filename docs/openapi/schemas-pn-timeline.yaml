@@ -136,9 +136,9 @@ components:
         category:
           $ref: '#/components/schemas/TimelineElementCategoryV23'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV23'
+          $ref: '#/components/schemas/TimelineElementDetailsV25'
 
-    TimelineElementDetailsV23:
+    TimelineElementDetailsV25:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
@@ -169,7 +169,7 @@ components:
         - "$ref": "#/components/schemas/SendDigitalProgressDetailsV23"
         - "$ref": "#/components/schemas/BaseAnalogDetails"
         - "$ref": "#/components/schemas/SendAnalogDetails"
-        - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
+        - "$ref": "#/components/schemas/SendAnalogFeedbackDetailsV25"
         - "$ref": "#/components/schemas/BaseRegisteredLetterDetails"
         - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
         - "$ref": "#/components/schemas/AarCreationRequestDetails"
@@ -744,7 +744,7 @@ components:
           description: request id della relativa richiesta di prepare
           maxLength: 512
 
-    SendAnalogFeedbackDetails:
+    SendAnalogFeedbackDetailsV25:
       type: object
       required:
         - recIndex
