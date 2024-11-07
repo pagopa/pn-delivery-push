@@ -354,7 +354,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/8bdbcd11c9f4f30fecf4dbad216d8c50caaeb764/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/78d5e316a3e184ddb55003da6543d488cf7db911/docs/openapi/api-private.yaml</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
@@ -385,7 +385,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/8bdbcd11c9f4f30fecf4dbad216d8c50caaeb764/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/78d5e316a3e184ddb55003da6543d488cf7db911/docs/openapi/api-private.yaml</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
 							<library>webclient</library>
