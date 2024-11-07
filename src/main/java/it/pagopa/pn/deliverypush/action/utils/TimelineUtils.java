@@ -566,7 +566,7 @@ public class TimelineUtils {
                 .build();
 
         if (Boolean.TRUE.equals(addNotificationCost)) {
-            details.setNotificationCost(Long.valueOf(notificationCost));
+            details.setNotificationCost(notificationCost);
         }
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -1379,6 +1379,14 @@ public class TimelineUtils {
                     notificationCost = Optional.ofNullable(refinementDetailsInt.getNotificationCost()).orElse(0);
                 }
             }
+            //If there is no notificationCost on Refinement we check the Deceased
+            if (notificationCost == 0) {
+                notificationOpt = getNotificationRecipientDeceased(notification.getIun(), recIndex);
+                if (notificationOpt.isPresent()) {
+                    AnalogWorfklowRecipientDeceasedDetailsInt recipientDeceasedDetailsInt = ((AnalogWorfklowRecipientDeceasedDetailsInt) notificationOpt.get().getDetails());
+                    notificationCost = Optional.ofNullable(recipientDeceasedDetailsInt.getNotificationCost()).orElse(0);
+                }
+            }
 
             if (notificationCost == 0) {
                 notRefinedRecipientList.add(recIndex);
@@ -1420,6 +1428,16 @@ public class TimelineUtils {
 
     private Optional<TimelineElementInternal> getNotificationRefinement(String iun, Integer recIndex) {
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        return timelineService.getTimelineElement(iun, elementId);
+    }
+
+    private Optional<TimelineElementInternal> getNotificationRecipientDeceased(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)
