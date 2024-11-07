@@ -34,14 +34,14 @@
 
         <#if endWorkflowStatus=="SUCCESS">
         <h3 class="document-type mb-0" data-hide-on-it="true">
-            
+            Zavezujoče potrdilo za tretje osebe: digitalno obvestilo
         </h3>
         <h3 class="document-type">
             Attestazione opponibile a terzi: notifica digitale
         </h3>
             <#else>
             <h3 class="document-type mb-0" data-hide-on-it="true">
-                
+                Zavezujoče potrdilo za tretje osebe: neuspešna digitalna dostava
             </h3>
             <h3 class="document-type">
                 Attestazione opponibile a terzi: mancato recapito digitale
@@ -49,10 +49,10 @@
         </#if>
 
         <p class="paragraph my-8" data-hide-on-it="true">
-            Ai sensi dell’art. 26, comma 11, del decreto-legge 76/2020 s.m.i., la PagoPA S.p.A. nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26 (anche nota come SEND - Servizio Notifiche Digitali), con ogni valore legale per l&#39;opponibilità a terzi, ATTESTA CHE:
+            V skladu z 11. odstavkom 26. člena zakonskega odloka 76/2020 s spremembami, družba PagoPA S.p.A. kot zakoniti upravljavec Platforme za digitalno obveščanje, opredeljene v istem 26. členu (znana tudi kot SEND - Servizio Notifiche Digitali), z vsemi pravnimi učinki za veljavnost do tretjih oseb, POTRJUJE, DA:
         </p>
         <p class="paragraph my-8" data-hide-on-it="true">
-            gli atti di cui alla notifica identificata con IUN <b>${iun}</b> sono stati gestiti come segue:
+            so bili akti, opredeljeni v obvestilu IUN <b>${iun}</b>, obravnavani, kot sledi:
         </p>
 
         <p class="paragraph mb-0">
@@ -128,14 +128,14 @@
             </div>
             <#if delivery.ok>
                 <p class="paragraph my-8" data-hide-on-it="true">
-                    il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data <strong>${delivery.responseDate}</strong> al domicilio digitale indicato immediatamente sopra la presente data.
+                    Ustrezno obvestilo o prejemu v elektronski obliki je bilo dostavljeno dne <strong>${delivery.responseDate}</strong> na zgornji digitalni naslov.
                 </p>
                 <p class="paragraph my-8">
                     il relativo avviso di avvenuta ricezione in formato elettronico è stato consegnato in data <strong>${delivery.responseDate}</strong> al domicilio digitale indicato immediatamente sopra la presente data.
                 </p>
                 <#else>
                     <p class="paragraph my-8" data-hide-on-it="true">
-                        in data <strong>${delivery.responseDate}</strong> è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale indicato immediatamente sopra la presente data.
+                        Dne <strong>${delivery.responseDate}</strong> e bilo prejeto sporočilo o neuspešni dostavi na navedeni digitalni naslov.
                     </p>
                     <p class="paragraph my-8">
                         in data <strong>${delivery.responseDate}</strong> è stato ricevuto il relativo messaggio di mancato recapito al domicilio digitale indicato immediatamente sopra la presente data.
@@ -146,7 +146,7 @@
 
         <#if endWorkflowStatus !="SUCCESS">
             <p class="paragraph my-8" data-hide-on-it="true">
-                In data <strong>${endWorkflowDate}</strong> il gestore della piattaforma ha reso disponibile l’avviso di mancato recapito del messaggio ai sensi dell’art. 26, comma 6 del D.L. 76 del 16 luglio 2020.
+                Dne <strong>${endWorkflowDate}</strong> je upravljavec platforme dal na voljo obvestilo o neuspešni dostavi sporočila v skladu s 6. odstavkom 26. člena zakona št. 76 z dne 16. julija 2020.
             </p>
             <p class="paragraph my-8">
                 In data <strong>${endWorkflowDate}</strong> il gestore della piattaforma ha reso disponibile l’avviso di mancato recapito del messaggio ai sensi dell’art. 26, comma 6 del D.L. 76 del 16 luglio 2020.

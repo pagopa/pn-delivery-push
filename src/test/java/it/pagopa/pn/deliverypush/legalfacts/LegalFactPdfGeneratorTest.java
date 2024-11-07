@@ -958,7 +958,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAAREmailTestDE() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL_de.html");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("DE");
                 NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
@@ -983,7 +983,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAAREmailTestSL() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL_sl.html");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("SL");
                 NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
@@ -1008,7 +1008,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAAREmailTestFR() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL_fr.html");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("FR");
                 NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
@@ -1070,7 +1070,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAARPECTestDE() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC_de.html");
 
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("DE");
@@ -1096,7 +1096,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAARPECTestSL() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC_sl.html");
 
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("SL");
@@ -1121,7 +1121,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAARPECTestFR() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC_fr.html");
 
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("FR");
