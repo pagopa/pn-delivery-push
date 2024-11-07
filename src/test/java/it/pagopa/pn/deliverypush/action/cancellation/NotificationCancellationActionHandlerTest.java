@@ -46,13 +46,27 @@ class NotificationCancellationActionHandlerTest {
                         .build())
                 .timestamp(Instant.now())
                 .build();
-        Mockito.doNothing().when(notificationCancellationService).completeCancellationProcess(notification.getIun());
+        Mockito.doNothing().when(notificationCancellationService).continueCancellationProcess(notification.getIun());
 
         //WHEN
-        handler.cancelNotification(notification.getIun());
+        handler.continueCancellationProcess(notification.getIun());
 
         //THEN
-        Mockito.verify(notificationCancellationService).completeCancellationProcess(notification.getIun());
+        Mockito.verify(notificationCancellationService).continueCancellationProcess(notification.getIun());
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void completeCancellationProcess() {
+        //Given
+        String iun = "iun";
+        String legalFactId = "legalFactId";
+
+        //WHEN
+        handler.completeCancellationProcess(iun, legalFactId);
+
+        //THEN
+        Mockito.verify(notificationCancellationService).completeCancellationProcess(iun, legalFactId);
     }
 
 }

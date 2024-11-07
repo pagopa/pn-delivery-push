@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html lang="it">
+
+<head>
+    <title>Attestazione opponibile a terzi</title>
+  <meta name="author" content="SEND - Servizio Notifiche Digitali" />
+  <link rel="stylesheet" href="styles/index.css">
+</head>
+
+<body>
+  <div class="container">
+    <div id="header" class="row">
+      <div class="left-col">
+        <img src="images/pn-logo-header.png" style="width:126px; height:35px" />
+      </div>
+      <div class="right-col">
+        <img src="images/send-logo.png" style="width:81px; height:26.24px;" />
+      </div>
+    </div>
+    <!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
+    <div id="footer" class="row">
+      <div class="left-col">
+        <p>PagoPA S.p.A.</p>
+        <p>società per azioni con socio unico</p>
+        <p>capitale sociale di euro 1,000,000 interamente versato</p>
+        <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
+        <p>n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009</p>
+      </div>
+      <div class="right-col">
+        <img src="images/pn-logo-footer.png" />
+      </div>
+    </div>
+
+    <h3 class="document-type subject mb-0" data-hide-on-it="true">
+      Die Bescheinigung kann von Dritten beanstandet werden: Übernahme der Zustellung
+    </h3>
+    <h3 class="document-type subject">
+      Attestazione opponibile a terzi: notifica presa in carico
+    </h3>
+
+    <p class="paragraph" data-hide-on-it="true">
+      Gemäß Artikel 26, Absatz 11 des Gesetzesdekrets 76/2020 in seiner geänderten und ergänzten Fassung BESCHEINIGT PagoPA S.p.A. als rechtmäßiger Verwalter der im selben Artikel 26 genannten Plattform für digitale Zustellungen (auch bekannt als SEND - Servizio Notifiche Digitali), mit aller rechtlichen Befugnis, diese Dritten gegenüber zu vertreten, HIERMIT, dass:
+    </p>
+    <p class="paragraph" data-hide-on-it="true">
+      am <b>${sendDate}</b> die sendende Person <b>${notification.getSender().getPaDenomination()}</b>, Steuernummer <b>${notification.getSender().getPaTaxId()}</b> dem Betreiber die in IUN <b>${notification.getIun()}</b> genannten und mit den folgenden Hashes eindeutig identifizierten IT-Dokumente zur Verfügung gestellt hat:
+    </p>
+    <p class="paragraph" data-hide-on-it="true">
+    <ul class="hash-list" data-hide-on-it="true">
+      <#list digests as digest>
+        <li data-hide-on-it="true">
+          <strong data-hide-on-it="true">${digest}</strong>
+        </li>
+      </#list>
+    </ul>
+    </p>
+    <p class="paragraph" data-hide-on-it="true">
+      die sendende Person beantragt hat, dass die Zustellung dieser Dokumente mit dem Betreff ${subject} an die nachstehend aufgeführten Empfänger mit ihrem etwaigen speziellen digitalen Domizil und ihrer von der sendenden Person angegebenen physischen Adresse erfolgt.
+    </p>
+    <p data-hide-on-it="true">
+      Es wird auch bescheinigt, dass für die Zwecke der Identifizierung des digitalen Domizils, das vorrangig für die Zustellung zu verwenden ist, die Ergebnisse der Überprüfungen laut Art. 7 Abs. 1 und 2 des Dekrets des Ministers für die Digitalisierung digitale Transformation 58/2022 gelten.
+    </p>
+
+    <p class="paragraph">
+      Ai sensi dell’art. 26, comma 11, del decreto-legge 76/2020 s.m.i., la PagoPA S.p.A. nella sua qualità di gestore ex lege della Piattaforma Notifiche Digitali di cui allo stesso art. 26 (anche nota come SEND - Servizio Notifiche Digitali), con ogni valore legale per l&#39;opponibilità a terzi, ATTESTA CHE:
+    </p>
+    <p class="paragraph">
+      in data <b>${sendDate}</b> il soggetto mittente <b>${notification.getSender().getPaDenomination()}</b>, C.F. <b>${notification.getSender().getPaTaxId()}</b> ha messo a disposizione del gestore i documenti informatici di cui allo IUN <b>${notification.getIun()}</b> e identificati in modo univoco con i seguenti hash:
+    </p>
+
+    <p class="paragraph">
+    <ul class="hash-list">
+      <#list digests as digest>
+        <li><strong>${digest}</strong></li>
+      </#list>
+    </ul>
+    </p>
+
+    <p class="paragraph">
+      il soggetto mittente ha richiesto che la notificazione di tali documenti riporti come oggetto ${subject} e che venga eseguita nei confronti dei destinatari che si riportano di seguito unitamente all'eventuale domicilio digitale speciale e al loro indirizzo fisico, come forniti dal soggetto mittente stesso.
+    </p>
+    <p>
+      Si attesta, altresì, che ai fini dell'individuazione del domicilio digitale da utilizzare in via prioritaria per la notificazione, restano ferme le risultanze delle verifiche di cui all'art. 7, commi 1 e 2, del Decreto del Ministro per la Trasformazione Digitale 58/2022.
+    </p>
+
+    <#list notification.recipients as recipient>
+      <div class="margin-y-medium">
+
+        <div class="row">
+          <div class="left-col col-5-10">
+            <p><span data-hide-on-it="true">Vor- und Nachname / Firmenbezeichnung &bull; </span>Nome e Cognome / Ragione Sociale</p>
+          </div>
+          <div class="left-col col-5-10">
+            <p><strong>${recipient.denomination}</strong></p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="left-col col-5-10">
+            <p><span data-hide-on-it="true">Steuernummer &bull; </span>Codice Fiscale</p>
+          </div>
+          <div class="left-col col-5-10">
+            <p><strong>${recipient.taxId}</strong></p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="left-col col-5-10">
+            <p><span data-hide-on-it="true">Digitales Domizil &bull; </span>Domicilio digitale</p>
+          </div>
+          <div class="left-col col-5-10">
+            <p>
+              <strong>
+                <#if (recipient.getDigitalDomicile().getAddress())??>
+                  ${recipient.getDigitalDomicile().getAddress()}
+                  <#else>
+                    non fornito dalla PA
+                </#if>
+              </strong>
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="left-col col-5-10">
+            <p><span data-hide-on-it="true">Art des digitalen Domizils &bull; </span>Tipologia di domicilio digitale</p>
+          </div>
+          <div class="left-col col-5-10">
+            <p>
+              <strong>
+                <#if (recipient.getDigitalDomicile().getAddress())??>
+                  Domicilio eletto presso la Pubblica Amministrazione mittente ex art.26, comma 5 lettera b del D.L.
+                  76/2020
+                  <#else>
+                    non fornito dalla PA
+                </#if>
+              </strong>
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="left-col col-5-10">
+            <p><span data-hide-on-it="true">Physische Adresse &bull; </span>Indirizzo fisico</p>
+          </div>
+          <div class="left-col col-5-10">
+            <p>
+              <strong>
+                <#if addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress,
+                  recipient.denomination, '<br/>' )??>
+                  ${addressWriter.nullSafePhysicalAddressToString( recipient.physicalAddress,
+                  recipient.denomination, '<br />')}
+                  <#else>
+                    non presente
+                </#if>
+              </strong>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </#list>
+
+    <div class="row margin-top-large">
+      <div class="left-col col-1-10">
+        <p>&nbsp;</p>
+      </div>
+      <div class="left-col col-9-10">
+        <p class="right py-16"><span data-hide-on-it="true">Von PagoPA S.p.A. digital signiert &bull; </span>Firmato digitalmente da PagoPA S.p.A.</p>
+      </div>
+    </div>
+    <div class="row margin-top-large">
+      <div class="left-col col-4-10">
+        <p>&nbsp;</p>
+      </div>
+      <div class="left-col col-6-10">
+        <p class="py-16" data-hide-on-it="true">Der Originaltext dieser Dokumente ist auf Italienisch. Bei Abweichungen zwischen der italienischen Fassung und den Übersetzungen in andere Sprachen sind die Bedeutung und die Bestimmungen der italienischen Sprache maßgebend.</p>
+        <p data-hide-on-it="true">Il testo originario di questi documenti è in lingua italiana. In caso di contrasto tra la versione italiana e le traduzioni in altre lingue, prevarranno il significato e le condizioni della lingua italiana.</p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

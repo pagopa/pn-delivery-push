@@ -12,10 +12,16 @@ public class NotificationCancellationActionHandler {
 
     private final NotificationCancellationService notificationCancellationService;
 
-    public void cancelNotification(String iun){
+    public void continueCancellationProcess(String iun){
         log.debug("Start cancelNotification - iun={}", iun);
 
-        notificationCancellationService.completeCancellationProcess(iun);
+        notificationCancellationService.continueCancellationProcess(iun);
+    }
+
+    public void completeCancellationProcess(String iun, String legalFactId) {
+        log.debug("Start completeCancellationProcess - iun={}, legalFactId={}", iun, legalFactId);
+
+        notificationCancellationService.completeCancellationProcess(iun, legalFactId);
     }
 
 }

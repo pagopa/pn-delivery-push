@@ -16,7 +16,7 @@ import java.util.List;
 public class NotificationMapper {
     private NotificationMapper(){}
 
-    public static NotificationInt externalToInternal(SentNotificationV23 sentNotification) {
+    public static NotificationInt externalToInternal(SentNotificationV24 sentNotification) {
 
         List<NotificationRecipientInt> listNotificationRecipientInt = mapNotificationRecipient(sentNotification.getRecipients());
         List<NotificationDocumentInt> listNotificationDocumentIntInt = mapNotificationDocument(sentNotification.getDocuments());
@@ -52,6 +52,7 @@ public class NotificationMapper {
                 .paymentExpirationDate(paymentExpirationDate)
                 .pagoPaIntMode(sentNotification.getPagoPaIntMode() != null ? PagoPaIntMode.valueOf(sentNotification.getPagoPaIntMode().getValue()) : null)
                 .version(sentNotification.getVersion())
+                .additionalLanguages(sentNotification.getAdditionalLanguages())
                 .build();
     }
 
@@ -91,8 +92,8 @@ public class NotificationMapper {
     }
     
     //Utilizzata a livello di test
-    public static SentNotificationV23 internalToExternal(NotificationInt notification) {
-        SentNotificationV23 sentNotification = new SentNotificationV23();
+    public static SentNotificationV24 internalToExternal(NotificationInt notification) {
+        SentNotificationV24 sentNotification = new SentNotificationV24();
 
         sentNotification.setIun(notification.getIun());
         sentNotification.setPaProtocolNumber(notification.getPaProtocolNumber());
@@ -101,6 +102,7 @@ public class NotificationMapper {
         sentNotification.setAmount(notification.getAmount());
         sentNotification.setPaFee(notification.getPaFee());
         sentNotification.setVat(notification.getVat());
+        sentNotification.setAdditionalLanguages(notification.getAdditionalLanguages());
 
         ZonedDateTime time = DateFormatUtils.parseInstantToZonedDateTime(notification.getPaymentExpirationDate());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -108,11 +110,11 @@ public class NotificationMapper {
         sentNotification.setPaymentExpirationDate(formattedString);
         
         if(notification.getPagoPaIntMode() != null){
-            sentNotification.setPagoPaIntMode(SentNotificationV23.PagoPaIntModeEnum.valueOf(notification.getPagoPaIntMode().getValue()));
+            sentNotification.setPagoPaIntMode(SentNotificationV24.PagoPaIntModeEnum.valueOf(notification.getPagoPaIntMode().getValue()));
         }
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(
-                    SentNotificationV23.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
+                    SentNotificationV24.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
             );
         }
 
@@ -134,7 +136,7 @@ public class NotificationMapper {
         sentNotification.setDocuments(documents);
 
         if(notification.getPhysicalCommunicationType() != null){
-            sentNotification.setPhysicalCommunicationType(SentNotificationV23.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
+            sentNotification.setPhysicalCommunicationType(SentNotificationV24.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
         }
         
         if(notification.getSender() != null){

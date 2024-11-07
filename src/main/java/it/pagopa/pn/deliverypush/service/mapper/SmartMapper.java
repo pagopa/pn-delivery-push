@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV25;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -32,7 +32,7 @@ public class SmartMapper {
     private static String SERCQ_SEND = "send-self";
 
 
-    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV23> addressDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV25> addressDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getNewAddress());
@@ -41,7 +41,7 @@ public class SmartMapper {
     };
 
 
-    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV23> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
+    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV25> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getPhysicalAddress());
@@ -71,8 +71,8 @@ public class SmartMapper {
 
         List<BiFunction> postMappingTransformers = new ArrayList<>();
         postMappingTransformers.add( (source, result)-> {
-            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV23){
-                ((TimelineElementDetailsV23) result).setNotRefinedRecipientIndexes(null);
+            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV25){
+                ((TimelineElementDetailsV25) result).setNotRefinedRecipientIndexes(null);
             }
             return result;
         });
@@ -168,8 +168,7 @@ public class SmartMapper {
                     // - lo usiamo per impostare il timestamp di SEND_DIGITAL_DOMICILE (setTimeStamp)
                     //
                     SendDigitalDetailsInt details = (SendDigitalDetailsInt) result.getDetails();
-                    if (LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType()) &&
-                            details.getDigitalAddress().getAddress().contains(SERCQ_SEND)) {
+                    if (LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType())) {
                             Instant aarRgenTimestamp = findAARgenTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
                             result.setTimestamp(aarRgenTimestamp);
                     }

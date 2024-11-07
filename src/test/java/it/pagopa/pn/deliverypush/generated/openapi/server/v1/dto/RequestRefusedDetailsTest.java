@@ -8,41 +8,41 @@ import java.util.List;
 
 class RequestRefusedDetailsTest {
 
-    private RequestRefusedDetailsV23 details;
+    private RequestRefusedDetailsV25 details;
 
     @BeforeEach
     void setUp() {
-        details = new RequestRefusedDetailsV23();
-        details.setRefusalReasons(List.of(NotificationRefusedErrorV23.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()));
+        details = new RequestRefusedDetailsV25();
+        details.setRefusalReasons(List.of(NotificationRefusedErrorV25.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()));
     }
 
     @Test
     void errors() {
-        RequestRefusedDetailsV23 tmp = RequestRefusedDetailsV23.builder()
-                .refusalReasons(List.of(NotificationRefusedErrorV23.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()))
+        RequestRefusedDetailsV25 tmp = RequestRefusedDetailsV25.builder()
+                .refusalReasons(List.of(NotificationRefusedErrorV25.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()))
                 .build();
-        Assertions.assertEquals(tmp, details.refusalReasons(List.of(NotificationRefusedErrorV23.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build())
+        Assertions.assertEquals(tmp, details.refusalReasons(List.of(NotificationRefusedErrorV25.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build())
         ));
     }
 
     @Test
     void addErrorsItem() {
-        RequestRefusedDetailsV23 tmp = new RequestRefusedDetailsV23();
+        RequestRefusedDetailsV25 tmp = new RequestRefusedDetailsV25();
         tmp.addRefusalReasonsItem(
-                NotificationRefusedErrorV23.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()
+                NotificationRefusedErrorV25.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()
         );
         Assertions.assertEquals(details, tmp);
     }
 
     @Test
     void getErrors() {
-        Assertions.assertEquals(List.of(NotificationRefusedErrorV23.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()), details.getRefusalReasons());
+        Assertions.assertEquals(List.of(NotificationRefusedErrorV25.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()), details.getRefusalReasons());
     }
 
     @Test
     void testEquals() {
-        RequestRefusedDetailsV23 tmp = RequestRefusedDetailsV23.builder()
-                .refusalReasons(List.of(NotificationRefusedErrorV23.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()))
+        RequestRefusedDetailsV25 tmp = RequestRefusedDetailsV25.builder()
+                .refusalReasons(List.of(NotificationRefusedErrorV25.builder().errorCode("FILE_NOTFOUND").detail("Allegati non trovati").build()))
                 .build();
         Assertions.assertEquals(Boolean.TRUE, tmp.equals(details));
     }

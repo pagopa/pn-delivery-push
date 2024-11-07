@@ -16,13 +16,8 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
-import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +27,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.*;
 
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.REQUEST_REFUSED;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.*;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
 
 
@@ -1002,6 +996,30 @@ public class TimelineUtils {
         );
     }
 
+    public TimelineElementInternal buildNotificationCancelledLegalFactCreationRequest(NotificationInt notification, String legalFactId) {
+        log.debug("buildNotificationCancelledLegalFactCreationRequest- iun={}", notification.getIun());
+
+        String elementId = TimelineEventId.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .build());
+
+        NotificationCancelledDocumentCreationRequestDetailsInt details = NotificationCancelledDocumentCreationRequestDetailsInt.builder()
+                .legalFactId(legalFactId)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(
+                notification,
+                TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST,
+                elementId,
+                details,
+                timelineBuilder
+        );
+    }
+
     public TimelineElementInternal buildAarCreationRequest(NotificationInt notification, int recIndex, PdfInfo pdfInfo) {
         log.debug("buildAarCreationRequest- iun={}", notification.getIun());
 
@@ -1125,7 +1143,7 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, elementId, details);
     }
 
-    public TimelineElementInternal buildCancelledTimelineElement(NotificationInt notification) {
+    public TimelineElementInternal buildCancelledTimelineElement(NotificationInt notification, String legalFactId) {
         log.debug("buildCancelRequestTimelineElement - IUN={}", notification.getIun());
 
         List<Integer> notRefined = notRefinedRecipientIndexes(notification);
@@ -1133,11 +1151,16 @@ public class TimelineUtils {
                 EventId.builder()
                         .iun(notification.getIun())
                         .build());
+
         NotificationCancelledDetailsInt details = NotificationCancelledDetailsInt.builder().
                 notificationCost(notificationProcessCostService.getSendFee() * notRefined.size()).
                 notRefinedRecipientIndexes(notRefined).
                 build();
-        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLED, elementId, details);
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(singleLegalFactId(legalFactId, LegalFactCategoryInt.NOTIFICATION_CANCELLED));
+
+        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_CANCELLED, elementId, details, timelineBuilder);
     }
 
     public TimelineElementInternal buildGeneratedF24TimelineElement(NotificationInt notification, int recipientIndex, List<String> f24Attachments) {
@@ -1264,6 +1287,27 @@ public class TimelineUtils {
         log.debug("NotificationCancelled value is={}", isNotificationCancelled);
 
         return isNotificationCancelled;
+    }
+
+    public boolean checkIsNotificationCancelledLegalFactId(String iun, String legalFactId) {
+        log.debug("Start checkIsNotificationCancelledLegalFactId - iun={} legalFactId={}", iun, legalFactId);
+        
+        String elementId = NOTIFICATION_CANCELLED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        Optional<TimelineElementInternal> notificationCancelledOpt = timelineService.getTimelineElement(iun, elementId);
+        
+        if(notificationCancelledOpt.isPresent()){
+            TimelineElementInternal notificationCancelled = notificationCancelledOpt.get();
+            return notificationCancelled.getLegalFactsIds().stream().anyMatch(legalFactsIdInt -> {
+                String legalFactKeyReplaced = legalFactsIdInt.getKey().replace(PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX, "");
+                return legalFactKeyReplaced.equals(legalFactId);
+            });
+        }
+        
+        return false;
     }
 
     public boolean checkIsNotificationRefused(String iun) {
