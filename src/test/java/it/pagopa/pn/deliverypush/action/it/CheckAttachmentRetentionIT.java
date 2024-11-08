@@ -110,7 +110,7 @@ class CheckAttachmentRetentionIT extends CommonTestConfiguration {
                 .untilAsserted(() -> Assertions.assertTrue(Instant.now().isAfter(dateToWait)));
         
         //Viene quindi verificato che il metodo di check attachment sia stato effettivamente richiamato ...
-        Mockito.verify(checkAttachmentRetentionHandler).handleCheckAttachmentRetentionBeforeExpiration(iun);
+        Mockito.verify(checkAttachmentRetentionHandler).handleCheckAttachmentRetentionBeforeExpiration(Mockito.eq(iun), Mockito.any(Instant.class));
         //... ma che non abbia effettuato l'update della retention perchè la notifica è già perfezionata (per presa visione)
         Mockito.verify(attachmentUtils, Mockito.times(1)).changeAttachmentsRetention(Mockito.eq(notification), Mockito.anyInt());
         // ... e che lo scheduling del check sia dunque avvenuto una sola volta
@@ -186,7 +186,7 @@ class CheckAttachmentRetentionIT extends CommonTestConfiguration {
                 .untilAsserted(() -> Assertions.assertTrue(Instant.now().isAfter(dateToWait)));
 
         //Viene quindi verificato che il metodo di check attacment sia stato effettivamente richiamato ...
-        Mockito.verify(checkAttachmentRetentionHandler).handleCheckAttachmentRetentionBeforeExpiration(iun);
+        Mockito.verify(checkAttachmentRetentionHandler).handleCheckAttachmentRetentionBeforeExpiration(Mockito.eq(iun), Mockito.any(Instant.class));
         //... ma che non abbia effettuato l'update della retention perchè la notifica è già perfezionata (per presa visione)
         Mockito.verify(attachmentUtils, Mockito.times(2)).changeAttachmentsRetention(Mockito.eq(notification), Mockito.anyInt());
         //... e che lo scheduling del check retention sia avvenuto una seconda volta
