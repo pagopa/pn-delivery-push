@@ -24,7 +24,7 @@ function mapMessageFromKinesisToAction(record) {
 }
 
 function isActionLogicalDeleted(action){
-  return action.logicalDeleted == true;
+  return action.logicalDeleted === true;
 }
 
 const sendMessages = async (destinationEndpoint, actions, timeoutFn) => {
