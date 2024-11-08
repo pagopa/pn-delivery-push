@@ -1,326 +1,626 @@
-<html>
+<!DOCTYPE html>
+
+<html lang="it">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="author" content="SEND - Servizio Notifiche Digitali">
-  <title>Avviso di Avvenuta Ricezione</title>
-  <style type="text/css" media="all">
-    @font-face {
-      font-family: "Titillium Web";
-      src: url(fonts/Titillium_Web/TitilliumWeb-Regular.ttf) format('truetype');
-      font-weight: normal;
-      font-style: normal;
-    }
-    @font-face {
-      font-family: "Titillium Web";
-      src: url(fonts/Titillium_Web/TitilliumWeb-Bold.ttf) format('truetype');
-      font-weight: bold;
-      font-style: normal;
-    }
+    <meta charset="UTF-8" />
+    <meta name="author" content="SEND - Servizio Notifiche Digitali">
+    <title><span data-hide-on-it="true">EMPFANGSBESTÄTIGUNG &bull; </span>Avviso di avvenuta ricezione</title>
+    <style type="text/css" media="all">
+        @font-face {
+            font-family: "Titillium Pro";
+            font-style: normal;
+            font-weight: normal;
+            src: url(fonts/Titillium_Pro/TitilliumSansPro-Regular.ttf) format('truetype');
+        }
 
-    @page {
-      size: A4;
-      background-color: white;
-      margin: 0mm;
-    }
+        @font-face {
+            font-family: "Titillium Pro";
+            font-style: normal;
+            font-weight: bold;
+            src: url(fonts/Titillium_Pro/TitilliumSansPro-Bold.ttf) format('truetype');
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      text-indent: 0 !important;
-    }
+        @page {
+            size: A4;
+            margin: 0mm;
+        }
 
-    body {
-      font-family: "Titillium Web", sans-serif;
-      font-weight: 400;
-      font-size: 13.26px;
-      line-height: 18.6px;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-indent: 0 !important;
+        }
 
-    .strong {
-      font-weight: bold;
-    }
+        body {
+            font-family: "Titillium Pro", sans-serif;
+            font-weight: 400;
+            font-size: 13.3px;
+            line-height: 18.6px;
+        }
 
-    /* font equivalence */
-    .seven-px {
-      font-size: 9.3px;
-    }
-    .eight-px {
-      font-size: 10.7px;
-    }
-    .nine-px {
-      font-size: 12px;
-    }
-    .ten-px {
-      font-size: 13.3px;
-    }
+        /* font equivalence */
+        .seven-px {
+            font-size: 9.333px;
+        }
 
-    /* logo-box style */
-    #logo-box {
-      position: relative;
-      top: 14mm;
-      left: 8mm;
-      width: 65mm;
-      height: 23mm;
-    }
+        /* 7pt on Figma */
+        .eight-px {
+            font-size: 10.667px;
+        }
 
-    #logo-box__logo {
-      position: absolute;
-      width: 23mm;
-    }
+        /* 8pt on Figma */
+        .nine-px {
+            font-size: 12px;
+        }
 
-    #logo-box__subtitle {
-      position: absolute;
-      left: 24.7mm;
-      top: -.1mm;
-      width: 40mm;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: #616161;
-    }
+        /* 9pt on Figma */
+        .ten-px {
+            font-size: 13.333px;
+        }
 
-    /* QR */
-    #qr-iun-code {
-      position: absolute;
-      top: 22.9mm;
-      left: 114.7mm;
-      width: 50mm;
-      height: 15mm;
-      line-height: 8px;
-      z-index: 1000;
-    }
+        /* 10pt on Figma */
+        .eleven-px {
+            font-size: 14.3px;
+        }
 
-    #qr-code {
-      position: absolute;
-      height: 42mm;
-      width: 42mm;
-      right: 6mm; /* qr has a 4mm white frame around its visible area */
-      top: 6mm;
-    }
+        /* 11pt on Figma */
+        .twelve-px {
+            font-size: 16px;
+        }
 
-    #recipient-addr-box {
-      text-transform: uppercase;
-      position: absolute;
-      top: 63mm;
-      left: 100mm;
-      width: 100mm;
-      height: 24mm;
-      padding: .3mm 5.6mm;
-      line-height: 14.6px;
-    }
+        /* 12pt on Figma */
 
-    #main {
-      margin: 72.8mm 10mm 0mm 10mm;
-      width: 190mm;
-      padding: 0 2.5mm;
-    }
+        /* line-height equivalence */
+        .sixteen-lh {
+            line-height: 21.333px;
+        }
 
-    #main__subject {
-      line-height: 26.5px;
-      padding-top: 0mm;
-      font-size: 22.54px;
-      word-wrap: break-word;
-    }
+        /* 16pt on Figma */
+        .eleven-lh {
+            line-height: 14.667px;
+        }
 
-    #main__disclaimer {
-      margin-top: 1.8mm;
-      line-height: 18.6px;
-      font-size: 13.26px;
-    }
+        /* 11pt on Figma */
 
-    .heading {
-      width: 100%;
-      height: 7mm;
-      background-color: #ececec;
-      text-transform: uppercase;
-      font-weight: bold;
-      padding: .9mm 2.5mm;
-    }
 
-    .row {
-      margin: 30px 37.13px 0mm 37.13px;
-    }
+        /* logo-box style */
+        #logo-box,
+        #logo-box-right {
+            position: relative;
+            width: 65mm;
+            height: 23mm;
+        }
 
-    .relative-box {
-      position: relative;
-    }
+        #logo-box {
+            top: 14mm;
+            left: 8mm;
+        }
 
-    .rounded-box {
-      border: 1px solid black;
-      border-radius: 5px;
-      font-size: 11.93px;
-      line-height: 17.2px;
-    }
+        #logo-box__logo {
+            position: absolute;
+            width: 23mm;
+        }
 
-    .section-list {
-      padding-left: 5.3px;
-    }
+        #logo-box__subtitle {
+            position: absolute;
+            left: 24.7mm;
+            top: -.1mm;
+            width: 40mm;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #616161;
+        }
 
-    .section-list ol {
-      padding-left: 7mm;
-      margin: 2mm 0;
-    }
+        #iun-code {
+            position: absolute;
+            top: 19mm;
+            left: 140mm;
+            width: 50mm;
+            height: 15mm;
+            line-height: 8px;
+            z-index: 1000;
+        }
 
-    .section-list li {
-      margin-top: 2.3mm;
-    }
+        /* QR */
+        #qr-code {
+            height: 42mm;
+            width: 42mm;
+            /* qr has a 4mm white frame around its visible area */
+        }
 
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+        #recipient-addr-box {
+            text-transform: uppercase;
+            position: absolute;
+            top: 63mm;
+            left: 100mm;
+            width: 100mm;
+            height: 24mm;
+            padding: .3mm 5.6mm;
+            line-height: 14.6px;
+        }
 
-    /* VIEW ONLINE BOX */
-    #view-online-box {
-      position: absolute;
-      margin-top: 2mm;
-      width: 140mm;
-    }
-    /* END VIEW ONLINE BOX */
+        #center-section,
+        #lower-section {
+            margin: 0mm 10mm 0mm 10mm;
+            width: 190mm;
+        }
 
-    /* DESCRIPTION BOX */
-    #description-box {
-      margin-top: 2mm;
-      position: absolute;
-      width: 44mm;
-      padding: 1.75mm 2.5mm;
-      right: 0mm;
-    }
-    /* END DESCRIPTION BOX */
+        #main-page2 {
+            margin: 10mm;
+            width: 190mm;
+            height: 274mm;
+            position: relative;
+        }
 
-    /* IO NOTIFICATIONS BOX */
-    #io-notifications {
-      position: absolute;
-      width: 92mm;
-    }
+        #main__subject {
+            padding-top: 0mm;
+            word-wrap: break-word;
+            margin-bottom: 1.5mm;
+        }
 
-    #io-notifications .rounded-box {
-      height: 24mm;
-      margin: 2mm 0;
-    }
+        #main__disclaimer {
+            margin: 1.5mm 0;
+        }
 
-    #io-notifications__image {
-      position: absolute;
-      top: 6mm;
-      left: 3mm;
-      height: 10mm;
-    }
+        .heading {
+            width: 100%;
+            height: 7mm;
+            background-color: #ececec;
+            text-transform: uppercase;
+            font-weight: bold;
+            padding: .9mm 2.5mm;
+        }
 
-    #io-notifications__content {
-      position: absolute;
-      top: 2mm;
-      left: 12.8mm;
-      width: 75mm;
-    }
+        .relative-box {
+            position: relative;
+        }
 
-    #io-notifications__description {
-      padding-left: 5.3px;
-    }
-    /* END NOTIFICATIONS BOX */
+        .absolute-box {
+            position: absolute;
+            bottom: 0;
+        }
 
-    /* MANDATE BOX */
-    #mandate-box {
-      position: absolute;
-      right: 0;
-      width: 92mm;
-    }
-    /* END MANDATE BOX */
-  </style>
+        .rounded-box {
+            border: 1px solid black;
+            border-radius: 5px;
+            font-size: 11.93px;
+            line-height: normal;
+        }
+
+        .section-list {
+            padding-left: 5.3px;
+        }
+
+        .section-list ol {
+            padding-left: 5mm;
+            margin: 2mm 0;
+        }
+
+        .section-list ol li {
+            margin-top: 4mm;
+        }
+
+        .section-list li {
+            margin-top: 1.5mm;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .row {
+            margin-top: 3mm;
+        }
+
+        #view-online-box {
+            float: right;
+        }
+
+        #view-online-box-description {
+            float: left;
+            width: 147mm;
+        }
+
+        #payment-box {
+            float: right;
+            width: 93mm;
+        }
+
+        #io-notifications {
+            position: absolute;
+            width: 92mm;
+            right: 0;
+        }
+
+        #io-notifications .rounded-box {
+            height: 18mm;
+            margin: 2mm 0;
+        }
+
+        #io-notifications__image {
+            position: absolute;
+            top: 4mm;
+            left: 3mm;
+            height: 10mm;
+        }
+
+        #io-notifications__content {
+            position: absolute;
+            top: 2mm;
+            left: 12.8mm;
+            width: 75mm;
+        }
+
+        #io-notifications__description {
+            padding-left: 5.3px;
+        }
+
+        #send-info {
+            width: 92mm;
+        }
+
+        #send-info .rounded-box {
+            height: 17mm;
+            margin: 2mm 0;
+        }
+
+        #send-info__content {
+            position: absolute;
+            width: 100%;
+            padding: 1.75mm;
+        }
+
+        .border-bottom {
+            border-bottom: solid 1.3px #ECECEC;
+            margin-top: 4.2mm;
+            color: #7D7D7D;
+        }
+
+        .mb-form {
+            margin-bottom: 4.2mm;
+        }
+
+        #radd-termini-condizioni {
+            padding-left: 2.5mm;
+            padding-bottom: 2mm;
+            line-height: normal;
+        }
+
+        #send-perfezionamento {
+            top: 10mm;
+            margin-top: 3.88mm;
+        }
+
+        #mandate-box {
+            margin-top: 5.6mm;
+        }
+
+        #mandate-box__form {
+            padding-left: 5.3px;
+            float: left;
+            margin: 2.8mm 0 0 3mm;
+            width: 90mm;
+        }
+
+        #mandate-box__list {
+            float: right;
+            width: 93mm;
+            margin: 2.8mm 0 0 auto;
+        }
+
+        ul#square-list-mandate {
+            margin-top: 1mm;
+        }
+
+        ul#square-list li,
+        ul#square-list-mandate li {
+            list-style-type: square;
+            margin-left: 5mm;
+            margin-top: 0.4mm;
+        }
+
+
+        /* SECOND PAGE */
+        #send-explanation {
+            width: 94mm;
+            border-radius: 5px;
+            padding: 3mm 4mm 3mm 3mm;
+            height: 90mm;
+        }
+
+        #print-explanation {
+            width: 190mm;
+            border-radius: 5px;
+            padding: 3mm;
+            height: 19mm;
+            border: solid #ECECEC 0.66px;
+            position: absolute;
+            bottom: 0;
+        }
+
+        #send-explanation p,
+        #print-explanation p,
+        #io-box_explanation p,
+        #howto-explanation p,
+        #io-explanation .explanation-title {
+            margin-bottom: 2mm;
+            text-align: left;
+        }
+
+        #print-explanation .explanation-title {
+            margin-bottom: 0.5mm;
+        }
+
+        #howto-explanation {
+            border: solid #ECECEC 0.66px;
+            width: 94mm;
+            border-radius: 5px;
+            padding: 4.23mm 2.7mm;
+            float: left;
+            background-color: #ECECEC;
+            height: 76mm;
+        }
+
+        #howto-explanation #square-list li,
+        #howto-explanation li {
+            margin-top: 1.4mm;
+        }
+
+        #io-box_explanation {
+            float: right;
+            width: 94mm;
+            border: solid #ECECEC 0.66px;
+            border-radius: 5px;
+            padding: 5.6mm 5.8mm 0 4.2mm;
+            text-align: center;
+            height: 76mm;
+            position: relative;
+        }
+
+        #advantages {
+            width: 100%;
+        }
+
+        #advantages-explanation {
+            text-align: center;
+            margin: 5.6mm 0 5.6mm 0;
+            width: 100%;
+            border: solid #ECECEC 0.66px;
+            border-radius: 8px;
+        }
+
+        #app-io__explanation {
+            margin-top: 5mm;
+            width: 100%;
+            height: 50mm;
+            background-color: #ECECEC;
+            border-radius: 5px;
+        }
+
+        #advantages-explanation h3 {
+            margin: 5mm;
+        }
+
+        #read-more {
+            position: absolute;
+            right: 5mm;
+            bottom: 1.7cm;
+            width: 100%;
+        }
+
+        #read-more p {
+            position: absolute;
+            right: 8mm;
+        }
+
+        #read-more img {
+            position: absolute;
+            right: 0;
+            width: 5mm;
+            bottom: -4mm;
+        }
+
+        .advantages-row {
+            height: 35mm;
+            position: relative;
+        }
+
+        .advantage-col {
+            position: absolute;
+            width: 25%;
+            margin-bottom: 5.6mm;
+        }
+
+        .advantages-explanation__content {
+            width: 90%;
+            text-align: center;
+            margin: auto;
+            font-size: 12px;
+            line-height: 14.667px;
+        }
+
+        #io-icon-bgdark {
+            width: 13mm;
+            position: absolute;
+            top: 5mm;
+            left: 5mm;
+        }
+
+        #phone-io {
+            width: 59mm;
+            bottom: 0mm;
+            left: 15mm;
+            position: absolute;
+        }
+
+        #app-io__description {
+            position: absolute;
+            left: 71mm;
+            margin: 5mm;
+        }
+
+        #howto-explanation .explanation-title {
+            position: relative;
+            display: table;
+            width: 100%;
+            height: 9mm;
+        }
+
+        #send-explanation .explanation-title {
+            position: relative;
+            display: table;
+            width: 100%;
+            height: 14mm;
+            margin-bottom: 2mm;
+        }
+
+        #howto-explanation .explanation-title h4,
+        #send-explanation .explanation-title h4 {
+            width: 65mm;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        #howto-explanation .explanation-title img,
+        #send-explanation .explanation-title img {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 7mm;
+        }
+
+        #howto-explanation ul {
+            margin-bottom: 1mm;
+        }
+
+        #icon-io_explanation {
+            width: 32mm;
+            padding: 0 2mm;
+            position: absolute;
+            bottom: 0;
+            left: 40%;
+        }
+
+        #icon-io_logo {
+            width: 10mm;
+            position: absolute;
+            left: 4mm;
+        }
+
+        img.message-advantages_explanation {
+            height: 34px;
+            margin: 3mm;
+            margin-bottom: 1mm;
+        }
+
+        .language-margin {
+            margin-top: 2mm;
+        }
+
+        .language-less-margin {
+            margin-top: 1.4mm;
+        }
+
+        #footer-iun {
+            position: absolute;
+            right: 10mm;
+            bottom: 1.7cm;
+        }
+    </style>
 </head>
+
 <body>
-<div id="logo-box">
-  <img id="logo-box__logo" src="./images/aar-logo.png" />
-  <div id="logo-box__subtitle" class="seven-px">
-    Avviso di avvenuta ricezione - DE
-  </div>
-</div>
+    <!--------------------------- PAGE 1 (297mm x 192mm) --------------------------->
+    <div style="height: 297mm; width: 192mm;">
+        <div id="upper-section" style="height: 99mm;">
+            <div id="logo-box">
+                <img id="logo-box__logo" src="./images/aar-logo.gif" />
+                <div id="logo-box__subtitle" class="seven-px">
+                    Avviso di avvenuta ricezione
+                </div>
+            </div>
 
-<div id="qr-iun-code" class="eight-px">
-  <div class="strong">Codice univoco:</div>
-  <br />${notification.iun}
-</div>
+            <div id="iun-code" class="eight-px">
+                <div>
+                    <div><b>Codice univoco:</b></div>
+                    <br />${notification.iun}
+                </div>
+                <div style="margin-top: 4mm;">
+                    <div><b>Codice fiscale - Persona <#if recipient.recipientType=="PF">
+                                fisica:
+                                <#else>
+                                    giuridica:
+                            </#if></b></div>
+                    <br />${recipient.taxId}
+                </div>
+            </div>
+            <div id="recipient-addr-box">
+                <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+            </div>
 
-<img id="qr-code" src="${qrCodeQuickAccessLink}" />
-
-<div id="recipient-addr-box">
-  <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
-  <br/>
-  <br/>
-  <br/>
-  <br/>
-  <br/>
-</div>
-
-<div id="main">
-  <div id="main__subject" class="strong">
-    ${notification.subject}
-  </div>
-  <div id="main__disclaimer">
-    Ricevi questa notifica da parte di ${notification.sender.paDenomination} in qualità di
-    <#if recipient.recipientType == "PF">
-    privato cittadino con Codice Fiscale
-    <#else>
-    persona giuridica con Codice Fiscale
-  </#if>
-  ${recipient.taxId}. Una notifica è una comunicazione a valore legale composta da un avviso di avvenuta ricezione e da uno o più documenti.
-</div>
-</div>
-
-<div class="row">
-  <div class="heading ten-px">Come visualizzare i documenti online</div>
-  <div class="relative-box" style="height: 55mm;">
-    <div id="view-online-box">
-      <div class="section-list">
-        Se non hai ricevuto i documenti notificati insieme a questo avviso di avvenuta ricezione, <br>puoi visualizzarli online. Per farlo:
-        <ol>
-          <li>Inquadra il codice QR o vai su SEND all'indirizzo <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong></li>
-          <li>Accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
-          <li>Visualizza i documenti della notifica</li>
-        </ol>
-        I documenti notificati sono consultabili online per 120 giorni dalla data di perfezionamento della notifica.
-        Per conoscerla, vai su <strong><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}.</a></strong>
-      </div>
-      <br>
-      <p >Il termine per il pagamento, se previsto, e per eventuali impugnazioni è indicato nei documenti.</p>
-    </div>
-
-    <div id="description-box" class="rounded-box">
-      <strong>Cos’è SEND?</strong><br/> SEND è uno strumento che rende l’invio di notifiche da parte della Pubblica Amministrazione sicuro, efficiente ed economico. Per saperne di più e per ricevere assistenza, visita il sito <strong><a href="${sendURL}">${sendURLLAbel}</a></strong>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="relative-box" style="height: 65mm;">
-    <div id="io-notifications">
-      <div class="heading ten-px">
-        Ricevi le prossime notifiche in digitale
-      </div>
-      <div class="rounded-box relative-box">
-        <img id="io-notifications__image" src="images/io-on-light.png" />
-        <div id="io-notifications__content">
-          Scarica l’app IO e attiva il servizio SEND - Notifiche digitali di IO - L’app dei servizi pubblici.
-          Se riceverai nuove notifiche, potrai visualizzare i documenti e pagare eventuali spese direttamente dal tuo dispositivo.
         </div>
-      </div>
-      <div id="io-notifications__description">
-        In alternativa, vai su SEND all’indirizzo <br> <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e indica i recapiti digitali con cui vuoi ricevere le prossime notifiche e comunicazioni.
-      </div>
+
+        <div id="center-section" class="relative-box" style="height: 99mm;">
+            <div class="absolute-box">
+                <div id="main__subject" class="twelve-px sixteen-lh">
+                    <p><b><span data-hide-on-it="true">EMPFANGSBESTÄTIGUNG &bull; </span>Avviso di avvenuta ricezione (AAR): ${notification.subject}</b></p>
+                </div>
+                <div id="main__disclaimer" class="eleven-px sixteen-lh">
+                    <p><span data-hide-on-it="true">Du hast eine rechtsgültige Mitteilung von ${notification.sender.paDenomination}: <b>siehe die zugestellten Dokumente</b>. Wenn sie nicht in diesem Bescheid enthalten sind, <b>kannst du die Dokumente online auf SEND</b>. Ist eine Zahlung vorgesehen, so findest du das Fälligkeitsdatum und den Termin für etwaige Einsprüche in den Dokumenten.</span></p>
+                    <p class="language-margin">Hai ricevuto una comunicazione a valore legale da ${notification.sender.paDenomination}: <b>prendi visione dei documenti notificati</b>. Se non sono inclusi in questo avviso, <b>accedi ai documenti online su SEND</b>. Se è previsto un pagamento, nei documenti troverai la data di scadenza e quella per eventuali ricorsi.</p>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div id="lower-section" style="height: 99mm; position: relative;">
+            <div class="row" style="height: 48mm;">
+                <div class="heading ten-px"><span data-hide-on-it="true">GREIFE AUF DIE ONLINE-DOKUMENTE ZU - KOSTENLOS &bull; </span>Accedi ai documenti online - gratis</div>
+                <div id="view-online-box-description">
+                    <div class="section-list nine-px eleven-lh">
+                        <ol>
+                            <li>
+                                <p data-hide-on-it="true">Scanne den QR-Code oder öffne <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
+                                </p>
+                                <p class="language-less-margin">Inquadra il codice QR o vai su
+                                        <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
+                                </p>
+                            </li>
+                            <li>
+                                <p data-hide-on-it="true">Melde dich mit SPID oder CIE an (elektronischer Personalausweis)</p>
+                                <p class="language-less-margin">Entra con SPID o CIE (Carta d'Identità Elettronica);</p>
+                            </li>
+                            <li>
+                                <p data-hide-on-it="true">Ruf die zugestellten Dokumente ab</p>
+                                <p class="language-less-margin">Accedi ai documenti notificati.</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <div id="view-online-box">
+                    <img alt="qr-code" id="qr-code" src="${qrCodeQuickAccessLink}" />
+                </div>
+            </div>
+            <div class="row">
+                <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
+                    <p data-hide-on-it="true">Die Dokumente sind online und an den Abholstellen SEND für 120 Tage ab dem Vervollständigungsdatum der Zustellung (dem Datum, an dem sie für alle Zwecke rechtsgültig wird) verfügbar. Mehr hierzu auf <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
+                    <p class="language-margin">I documenti sono disponibili online e presso i Punti di ritiro SEND per 120 giorni dalla data di perfezionamento della notifica (data in cui assume valore di legge per tutte le diverse finalità). Scopri di più su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
+                </div>
+
+            </div>
+        </div>
     </div>
-    <div id="mandate-box">
-      <div class="heading ten-px">
-        Delega qualcuno a ricevere le tue notifiche
-      </div>
-      <div class="section-list">
-        <ol>
-          <li>Vai su <strong><a href="${piattaformaNotificheURL}">${piattaformaNotificheURLLabel}</a></strong> e accedi con SPID o CIE (Carta d'Identità Elettronica)</li>
-          <li>Seleziona “Deleghe”</li>
-          <li>Premi “Aggiungi una delega” e inserisci i dati della persona che vuoi delegare</li>
-          <li>Questa dovrà accedere a SEND con SPID o CIE e accettare la richiesta di delega. A partire da quel momento, riceverà su SEND le notifiche destinate a te</li>
-        </ol>
-      </div>
-    </div>
-  </div>
-</div>
+
+
 </body>
+
 </html>

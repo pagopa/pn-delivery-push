@@ -185,6 +185,72 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
+        void generateNotificationCancelledLegalFactTest() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(buildNotification(), notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generateNotificationCancelledLegalFactTestIfAdditionalLangIsDisable() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(notification, notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED_DE, captor.getValue());
+        }
+
+        @Test
+        void generateNotificationCancelledLegalFactTestDE() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact_de.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(notification, notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED_DE, captor.getValue());
+        }
+
+        @Test
+        void generateNotificationCancelledLegalFactTestSL() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact_sl.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("SL");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(notification, notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED_SL, captor.getValue());
+        }
+
+        @Test
+        void generateNotificationCancelledLegalFactTestFR() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact_fr.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("FR");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(notification, notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED_FR, captor.getValue());
+        }
+
+
+        @Test
         void generateNotificationViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
@@ -484,7 +550,6 @@ class LegalFactPdfGeneratorTest {
                 NotificationInt notification = buildNotification();
                 NotificationRecipientInt recipient = buildRecipients().get(0);
                 EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
-
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
                                                 recipient, endWorkflowStatus, Instant.now())));
@@ -497,6 +562,8 @@ class LegalFactPdfGeneratorTest {
                 List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
                         ResponseStatusInt.KO);
                 NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+
                 NotificationRecipientInt recipient = buildRecipients().get(0);
                 EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
 
@@ -505,6 +572,41 @@ class LegalFactPdfGeneratorTest {
                                 recipient, endWorkflowStatus, Instant.now())));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
+
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTestFR_KO() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO_fr.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
+                        ResponseStatusInt.KO);
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("FR");
+
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
+                                recipient, endWorkflowStatus, Instant.now())));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTestSL_KO() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO_sl.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
+                        ResponseStatusInt.KO);
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("SL");
+
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
+                                recipient, endWorkflowStatus, Instant.now())));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
 
         @Test
         @ExtendWith(SpringExtension.class)
