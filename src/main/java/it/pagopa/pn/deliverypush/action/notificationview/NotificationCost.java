@@ -27,25 +27,56 @@ public class NotificationCost {
     @Nullable
     public Mono<Optional<Integer>> getNotificationCostForViewed(NotificationInt notification, Integer recIndex) {
         //Trasformato in MONO anche per sviluppi futuri, in modo da adeguare correttamente i client
-        Optional<Integer> notificationCostOpt = Optional.empty();
 
-        String elementId = TimelineEventId.REFINEMENT.buildEventId(
+        // Ottiene l'elemento di refinement dalla timeline
+        String refinementId = getRefinementId(notification.getIun(), recIndex);
+        return Mono.fromCallable(() -> timelineService.getTimelineElementStrongly(notification.getIun(), refinementId))
+                .flatMap(timelineElementOpt -> {
+                    if(timelineElementOpt.isPresent()) {
+                        log.debug("Refinement element found for notification {} recIndex {}", notification.getIun(), recIndex);
+                        // Se c'è il refinement viene settato empty
+                        return Mono.just(Optional.empty());
+                    } else {
+                        log.debug("Refinement element not found for notification {} recIndex {}", notification.getIun(), recIndex);
+                        return handleDeceasedElement(notification.getIun(), recIndex);
+                    }
+                });
+    }
+
+    private Mono<Optional<Integer>> handleDeceasedElement(String iun, Integer recIndex) {
+        String deceasedId = getDeceasedId(iun, recIndex);
+        return Mono.fromCallable(() -> timelineService.getTimelineElementStrongly(iun, deceasedId))
+                .flatMap(timelineElementOpt -> {
+                    if(timelineElementOpt.isPresent()) {
+                        log.debug("Deceased element found for notification {} recIndex {}", iun, recIndex);
+                        // Se c'è il deceased viene settato empty
+                        return Mono.just(Optional.empty());
+                    } else {
+                        log.debug("Deceased element not found for notification {} recIndex {}", iun, recIndex);
+                        return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
+                    }
+                });
+    }
+
+
+    private String getRefinementId(String iun, Integer recIndex) {
+        // Costruisce l'ID dell'evento di refinement
+        return TimelineEventId.REFINEMENT.buildEventId(
                 EventId.builder()
-                        .iun(notification.getIun())
+                        .iun(iun)
                         .recIndex(recIndex)
                         .build()
         );
+    }
 
-        return Mono.fromCallable( () -> timelineService.getTimelineElementStrongly(notification.getIun(), elementId))
-                .flatMap( timelineElementOpt -> {
-                    if(timelineElementOpt.isEmpty()){
-                        //Se non c'è il refinement viene messo il costo base di send
-                        return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
-                    }else {
-                        //Se c'è il refinement viene settato empty
-                        return Mono.just(notificationCostOpt);
-                    }
-                });
+    private String getDeceasedId(String iun, Integer recIndex) {
+        // Costruisce l'ID dell'evento di deceased
+        return TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build()
+        );
     }
 
 }
