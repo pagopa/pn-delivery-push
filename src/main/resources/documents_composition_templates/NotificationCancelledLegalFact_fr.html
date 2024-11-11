@@ -6,100 +6,100 @@
     <title>Attestazione opponibile a terzi</title>
     <meta name="author" content="SEND - Servizio Notifiche Digitali" />
     <link rel="stylesheet" href="styles/index.css">
-  </head>
-  <body>
-    <div class="container">
-      <div id="header" class="row">
+</head>
+<body>
+<div class="container">
+    <div id="header" class="row">
         <div class="left-col">
-          <img
-            src="images/pn-logo-header.png"
-            style="width: 126px; height: 35px"
-          />
+            <img
+                    src="images/pn-logo-header.png"
+                    style="width: 126px; height: 35px"
+            />
         </div>
         <div class="right-col">
-          <img
-            src="images/send-logo.png"
-            style="width: 81px; height: 26.24px"
-          />
+            <img
+                    src="images/send-logo.png"
+                    style="width: 81px; height: 26.24px"
+            />
         </div>
-      </div>
-      <!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
-      <div id="footer" class="row">
+    </div>
+    <!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
+    <div id="footer" class="row">
         <div class="left-col">
-          <p>PagoPA S.p.A.</p>
-          <p>società per azioni con socio unico</p>
-          <p>capitale sociale di euro 1,000,000 interamente versato</p>
-          <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
-          <p>
-            n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009
-          </p>
+            <p>PagoPA S.p.A.</p>
+            <p>società per azioni con socio unico</p>
+            <p>capitale sociale di euro 1,000,000 interamente versato</p>
+            <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
+            <p>
+                n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009
+            </p>
         </div>
         <div class="right-col">
-          <img src="images/pn-logo-footer.png" />
+            <img src="images/pn-logo-footer.png" />
         </div>
-      </div>
+    </div>
 
-      <h3 class="document-type mb-0" data-hide-on-it="true">Déclaration d&#39;annulation de la notification sur la plate-forme SEND</h3>
-      <h3 class="document-type">Dichiarazione annullamento notifica sulla piattaforma SEND</h3>
+    <h3 class="document-type mb-0" data-hide-on-it="true">Déclaration d&#39;annulation de la notification sur la plate-forme SEND</h3>
+    <h3 class="document-type">Dichiarazione annullamento notifica sulla piattaforma SEND</h3>
 
-      <p class="paragraph mb-0" data-hide-on-it="true">Il est déclaré par la présente, mise à la disposition du destinataire exclusivement sur la plate-forme SEND, que la notification comportant IUN <b>${notification.getIun()}</b>, exécutée à l'encontre de:</p>
-      <p class="paragraph">Con il presente documento, reso disponibile al destinatario esclusivamente sulla Piattaforma SEND, si dichiara che la notifica avente IUN <b>${notification.getIun()}</b>, eseguita nei confronti di:</p>
+    <p class="paragraph mb-0" data-hide-on-it="true">Il est déclaré par la présente, mise à la disposition du destinataire exclusivement sur la plate-forme SEND, que la notification comportant IUN <b>${notification.getIun()}</b>, exécutée à l'encontre de:</p>
+    <p class="paragraph">Con il presente documento, reso disponibile al destinatario esclusivamente sulla Piattaforma SEND, si dichiara che la notifica avente IUN <b>${notification.getIun()}</b>, eseguita nei confronti di:</p>
 
-      <#list notification.recipients as recipient>
-        <div class="margin-y-small">
-          <div class="row">
-              <div class="left-col col-5-10">
+    <#list notification.recipients as recipient>
+    <div class="margin-y-small">
+        <div class="row">
+            <div class="left-col col-5-10">
                 <p><span data-hide-on-it="true">Prénom et Nom / Raison Sociale &bull; </span>Nome e Cognome / Ragione Sociale</p>
-              </div>
-              <div class="left-col col-5-10">
-                  <p><strong>${recipient.denomination}</strong></p>
-              </div>
-          </div>
-
-          <div class="row">
-              <div class="left-col col-5-10">
-                <p><span data-hide-on-it="true">Code fiscale &bull; </span>Codice fiscale</p>
-              </div>
-              <div class="left-col col-5-10">
-                  <p><strong>${recipient.taxId}</strong></p>
-              </div>
-          </div>
+            </div>
+            <div class="left-col col-5-10">
+                <p><strong>${recipient.denomination}</strong></p>
+            </div>
         </div>
-      </#list>
 
-      <p class="paragraph my-8" data-hide-on-it="true">a été annulée à la demande expresse de l'expéditeur <b>${notification.sender.paDenomination}</b> à <b>${notificationCancelledDate}</b>.</p>
-      <p class="paragraph my-8">è stata annullata su specifica istanza del Mittente <b>${notification.sender.paDenomination}</b> in data <b>${notificationCancelledDate}</b>.</p>
+        <div class="row">
+            <div class="left-col col-5-10">
+                <p><span data-hide-on-it="true">Code fiscale &bull; </span>Codice fiscale</p>
+            </div>
+            <div class="left-col col-5-10">
+                <p><strong>${recipient.taxId}</strong></p>
+            </div>
+        </div>
+    </div>
+</#list>
 
-      <p class="paragraph mb-0" data-hide-on-it="true">
-        L'annulation sur SEND qui fait l'objet de la présente déclaration n'implique pas nécessairement que la condition préalable au service ait cessé d'exister ou que les notifications concernant les mêmes documents exécutées sur d'autres canaux que la plate-forme SEND soient également annulées.
-        <span data-hide-on-it="true">
+<p class="paragraph my-8" data-hide-on-it="true">a été annulée à la demande expresse de l'expéditeur <b>${notification.sender.paDenomination}</b> à <b>${notificationCancelledDate}</b>.</p>
+<p class="paragraph my-8">è stata annullata su specifica istanza del Mittente <b>${notification.sender.paDenomination}</b> in data <b>${notificationCancelledDate}</b>.</p>
+
+<p class="paragraph mb-0" data-hide-on-it="true">
+    L'annulation sur SEND qui fait l'objet de la présente déclaration n'implique pas nécessairement que la condition préalable au service ait cessé d'exister ou que les notifications concernant les mêmes documents exécutées sur d'autres canaux que la plate-forme SEND soient également annulées.
+    <span data-hide-on-it="true">
           <br />
           Pour toute information sur les raisons de l'annulation mentionnée dans la présente déclaration, et sur le traitement de tout paiement y afférent s'il a déjà été effectué avant l'annulation, le destinataire doit s'adresser exclusivement à l'expéditeur.
         </span>
-      </p>
+</p>
 
-      <p class="paragraph">
-        L’annullamento su SEND oggetto della presente dichiarazione non implica necessariamente che il presupposto della notifica sia venuto meno ovvero che siano annullate parimenti notifiche aventi ad oggetto i medesimi atti eseguite su canali diversi dalla Piattaforma SEND.
-        <span>
+<p class="paragraph">
+    L’annullamento su SEND oggetto della presente dichiarazione non implica necessariamente che il presupposto della notifica sia venuto meno ovvero che siano annullate parimenti notifiche aventi ad oggetto i medesimi atti eseguite su canali diversi dalla Piattaforma SEND.
+    <span>
           <br />
           Per ogni informazione sulle ragioni dell’annullamento di cui alla presente dichiarazione, e sulla gestione dell’eventuale relativo pagamento ove già effettuato precedentemente all’annullamento, il destinatario deve rivolgersi esclusivamente al Mittente.
         </span>
-      </p>
+</p>
 
 
-      <div class="py-16">
-          <p class="right"><span data-hide-on-it="true">Signé numériquement par PagoPA S.p.A. &bull; </span>Firmato digitalmente da PagoPA S.p.A.</p>
-      </div>
+<div class="py-16">
+    <p class="right"><span data-hide-on-it="true">Signé numériquement par PagoPA S.p.A. &bull; </span>Firmato digitalmente da PagoPA S.p.A.</p>
+</div>
 
-      <div class="row">
-        <div class="left-col col-4-10">
-            <p>&nbsp;</p>
-        </div>
-        <div class="right-col col-6-10">
-            <p class="py-16" data-hide-on-it="true">Le texte original de ces documents est en italien. En cas de différences entre la version italienne et ses traductions, le sens et les conditions de la langue italienne feront foi.</p>
-            <p data-hide-on-it="true">Il testo originario di questi documenti è in lingua italiana. In caso di contrasto tra la versione italiana e le traduzioni in altre lingue, prevarranno il significato e le condizioni della lingua italiana.</p>
-        </div>
-      </div>
+<div class="row">
+    <div class="left-col col-4-10">
+        <p>&nbsp;</p>
     </div>
-  </body>
+    <div class="right-col col-6-10">
+        <p class="py-16" data-hide-on-it="true">Le texte original de ces documents est en italien. En cas de différences entre la version italienne et ses traductions, le sens et les conditions de la langue italienne feront foi.</p>
+        <p data-hide-on-it="true">Il testo originario di questi documenti è in lingua italiana. In caso di contrasto tra la versione italiana e le traduzioni in altre lingue, prevarranno il significato e le condizioni della lingua italiana.</p>
+    </div>
+</div>
+</div>
+</body>
 </html>

@@ -3,70 +3,70 @@
 <html lang="it">
 
 <head>
-    <title>Attestazione opponibile a terzi</title>
+  <title>Attestazione opponibile a terzi</title>
   <meta name="author" content="SEND - Servizio Notifiche Digitali" />
   <link rel="stylesheet" href="styles/index.css">
 </head>
 
 <body>
+<div class="container">
   <div class="container">
-    <div class="container">
-      <div id="header" class="row">
-        <div class="left-col">
-          <img src="images/pn-logo-header.png" style="width:126px; height:35px;" />
-        </div>
-        <div class="right-col">
-          <img src="images/send-logo.png" style="width:81px; height:26.24px;" />
-        </div>
+    <div id="header" class="row">
+      <div class="left-col">
+        <img src="images/pn-logo-header.png" style="width:126px; height:35px;" />
       </div>
-      <!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
-      <div id="footer" class="row">
-        <div class="left-col">
-          <p>PagoPA S.p.A.</p>
-          <p>società per azioni con socio unico</p>
-          <p>capitale sociale di euro 1,000,000 interamente versato</p>
-          <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
-          <p>n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009</p>
-        </div>
-        <div class="right-col">
-          <img src="images/pn-logo-footer.png" />
-        </div>
-      </div>
-
-      <h3 class="document-type mb-0" data-hide-on-it="true">
-        Dépôt de l&#39;accusé de réception
-      </h3>
-      <h3 class="document-type">
-        Deposito di avvenuta ricezione
-      </h3>
-
-      <p class="paragraph my-8" data-hide-on-it="true">
-        En ce qui concerne la notification comportant IUN ${iun}, conformément à l'article 26, alinéa 7, du décret législatif 76/2020, le destinataire étant ${recipient.denomination} <br>Code fiscale: ${recipient.taxId}, introuvable pour des raisons autres que sa propre absence temporaire ou son refus ou celui des autres personnes auxquelles l'enveloppe contenant l'accusé de réception de la notification concernée peut être remise, le ${endWorkflowDate} à ${endWorkflowTime} <br> l'accusé de réception a été déposé par le Gestionnaire sur la Plateforme et mis à la disposition du destinataire.
-      </p>
-      <p class="paragraph my-8">
-        Con riferimento alla notifica avente IUN ${iun}, ai sensi dell’art. 26, comma 7, del D.L. 76/2020, essendo risultato il destinatario ${recipient.denomination} <br>CF: ${recipient.taxId}, irreperibile per cause diverse dalla temporanea assenza o dal rifiuto proprio o delle altre persone alle quali può essere consegnato il plico contenente <br>l’avviso di avvenuta ricezione della relativa notifica, in data ${endWorkflowDate} alle ore ${endWorkflowTime} <br> l’avviso di avvenuta ricezione è stato depositato dal Gestore sulla Piattaforma e reso disponibile al destinatario.
-      </p>
-
-      <p class="paragraph mb-0" data-hide-on-it="true">
-        En vertu de l'article 26, alinéa 7, du décret législatif 76/2020, la notification est achevée le dixième jour suivant la date de dépôt sur la plate-forme comme indiqué ci-dessus, à moins que le destinataire ou la personne désignée pour la procuration n'ait accédé à la notification via la plate-forme à une date et une heure antérieures à l'expiration de ce délai.
-      </p>
-      <p class="paragraph my-8">
-        Ai sensi dell’art. 26, comma 7, del D.L. 76/2020 la notifica si perfeziona nel decimo giorno successivo alla data del deposito sulla piattaforma come sopra riportata, salvo che il destinatario o suo delegato abbia acceduto alla notifica tramite la piattaforma in data e ora antecedente rispetto alla scadenza di tale termine.
-      </p>
-
-      <div class="py-16">
-        <p class="right"><span data-hide-on-it="true">Signé numériquement par PagoPA S.p.A. &bull; </span>Firmato digitalmente da PagoPA S.p.A.</p>
-      </div>
-      <div class="row margin-top-small">
-          <div class="left-col col-4-10">
-              <p>&nbsp;</p>
-          </div>
-          <div class="left-col col-6-10">
-              <p class="py-16" data-hide-on-it="true">Le texte original de ces documents est en italien. En cas de différences entre la version italienne et ses traductions, le sens et les conditions de la langue italienne feront foi.</p>
-              <p data-hide-on-it="true">Il testo originario di questi documenti è in lingua italiana. In caso di contrasto tra la versione italiana e le traduzioni in altre lingue, prevarranno il significato e le condizioni della lingua italiana.</p>
-          </div>
+      <div class="right-col">
+        <img src="images/send-logo.png" style="width:81px; height:26.24px;" />
       </div>
     </div>
+    <!-- Se il footer viene messo in fondo al documento compare solo nell'ultima pagina -->
+    <div id="footer" class="row">
+      <div class="left-col">
+        <p>PagoPA S.p.A.</p>
+        <p>società per azioni con socio unico</p>
+        <p>capitale sociale di euro 1,000,000 interamente versato</p>
+        <p>sede legale in Roma, Piazza Colonna 370, CAP 00187</p>
+        <p>n. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009</p>
+      </div>
+      <div class="right-col">
+        <img src="images/pn-logo-footer.png" />
+      </div>
+    </div>
+
+    <h3 class="document-type mb-0" data-hide-on-it="true">
+      Dépôt de l&#39;accusé de réception
+    </h3>
+    <h3 class="document-type">
+      Deposito di avvenuta ricezione
+    </h3>
+
+    <p class="paragraph my-8" data-hide-on-it="true">
+      En ce qui concerne la notification comportant IUN ${iun}, conformément à l'article 26, alinéa 7, du décret législatif 76/2020, le destinataire étant ${recipient.denomination} <br>Code fiscale: ${recipient.taxId}, introuvable pour des raisons autres que sa propre absence temporaire ou son refus ou celui des autres personnes auxquelles l'enveloppe contenant l'accusé de réception de la notification concernée peut être remise, le ${endWorkflowDate} à ${endWorkflowTime} <br> l'accusé de réception a été déposé par le Gestionnaire sur la Plateforme et mis à la disposition du destinataire.
+    </p>
+    <p class="paragraph my-8">
+      Con riferimento alla notifica avente IUN ${iun}, ai sensi dell’art. 26, comma 7, del D.L. 76/2020, essendo risultato il destinatario ${recipient.denomination} <br>CF: ${recipient.taxId}, irreperibile per cause diverse dalla temporanea assenza o dal rifiuto proprio o delle altre persone alle quali può essere consegnato il plico contenente <br>l’avviso di avvenuta ricezione della relativa notifica, in data ${endWorkflowDate} alle ore ${endWorkflowTime} <br> l’avviso di avvenuta ricezione è stato depositato dal Gestore sulla Piattaforma e reso disponibile al destinatario.
+    </p>
+
+    <p class="paragraph mb-0" data-hide-on-it="true">
+      En vertu de l'article 26, alinéa 7, du décret législatif 76/2020, la notification est achevée le dixième jour suivant la date de dépôt sur la plate-forme comme indiqué ci-dessus, à moins que le destinataire ou la personne désignée pour la procuration n'ait accédé à la notification via la plate-forme à une date et une heure antérieures à l'expiration de ce délai.
+    </p>
+    <p class="paragraph my-8">
+      Ai sensi dell’art. 26, comma 7, del D.L. 76/2020 la notifica si perfeziona nel decimo giorno successivo alla data del deposito sulla piattaforma come sopra riportata, salvo che il destinatario o suo delegato abbia acceduto alla notifica tramite la piattaforma in data e ora antecedente rispetto alla scadenza di tale termine.
+    </p>
+
+    <div class="py-16">
+      <p class="right"><span data-hide-on-it="true">Signé numériquement par PagoPA S.p.A. &bull; </span>Firmato digitalmente da PagoPA S.p.A.</p>
+    </div>
+    <div class="row margin-top-small">
+      <div class="left-col col-4-10">
+        <p>&nbsp;</p>
+      </div>
+      <div class="left-col col-6-10">
+        <p class="py-16" data-hide-on-it="true">Le texte original de ces documents est en italien. En cas de différences entre la version italienne et ses traductions, le sens et les conditions de la langue italienne feront foi.</p>
+        <p data-hide-on-it="true">Il testo originario di questi documenti è in lingua italiana. In caso di contrasto tra la versione italiana e le traduzioni in altre lingue, prevarranno il significato e le condizioni della lingua italiana.</p>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>

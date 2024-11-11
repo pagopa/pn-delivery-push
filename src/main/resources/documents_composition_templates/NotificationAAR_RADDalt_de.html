@@ -533,201 +533,201 @@
 </head>
 
 <body>
-    <!--------------------------- PAGE 1 (297mm x 192mm) --------------------------->
-    <div style="height: 297mm; width: 192mm;">
-        <div id="upper-section" style="height: 99mm;">
-            <div id="logo-box">
-                <img id="logo-box__logo" src="./images/aar-logo.gif" />
-                <div id="logo-box__subtitle" class="seven-px">
-                    Avviso di avvenuta ricezione
-                </div>
-            </div>
-
-            <div id="iun-code" class="eight-px">
-                <div>
-                    <div><b>Codice univoco:</b></div>
-                    <br />${notification.iun}
-                </div>
-                <div style="margin-top: 4mm;">
-                    <div><b>Codice fiscale - Persona <#if recipient.recipientType=="PF">
-                                fisica:
-                                <#else>
-                                    giuridica:
-                            </#if></b></div>
-                    <br />${recipient.taxId}
-                </div>
-            </div>
-            <div id="recipient-addr-box">
-                <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
-                <br />
-                <br />
-                <br />
-                <br />
-                <br />
-            </div>
-
-        </div>
-
-        <div id="center-section" class="relative-box" style="height: 99mm;">
-            <div class="absolute-box">
-                <div id="main__subject" class="twelve-px sixteen-lh">
-                    <p><b><span data-hide-on-it="true">EMPFANGSBESTÄTIGUNG &bull; </span>Avviso di avvenuta ricezione (AAR):
-                                ${notification.subject}</b></p>
-                </div>
-                <div id="main__disclaimer" class="eleven-px sixteen-lh">
-                    <p><span data-hide-on-it="true">Du hast eine rechtsgültige Mitteilung von ${notification.sender.paDenomination}: <b>siehe die zugestellten Dokumente</b>. Wenn sie nicht in diesem Bescheid enthalten sind, <b>kannst du die Dokumente online auf SEND</b>. Ist eine Zahlung vorgesehen, so findest du das Fälligkeitsdatum und den Termin für etwaige Einsprüche in den Dokumenten.</span></p>
-                    <p class="language-margin">Hai ricevuto una comunicazione a valore legale da ${notification.sender.paDenomination}: <b>prendi visione dei documenti notificati</b>. Se non sono inclusi in questo avviso, <b>accedi ai documenti online su SEND</b>. Se è previsto un pagamento, nei documenti troverai la data di scadenza e quella per eventuali ricorsi.</p>
-                </div>
-
+<!--------------------------- PAGE 1 (297mm x 192mm) --------------------------->
+<div style="height: 297mm; width: 192mm;">
+    <div id="upper-section" style="height: 99mm;">
+        <div id="logo-box">
+            <img id="logo-box__logo" src="./images/aar-logo.gif" />
+            <div id="logo-box__subtitle" class="seven-px">
+                Avviso di avvenuta ricezione
             </div>
         </div>
 
+        <div id="iun-code" class="eight-px">
+            <div>
+                <div><b>Codice univoco:</b></div>
+                <br />${notification.iun}
+            </div>
+            <div style="margin-top: 4mm;">
+                <div><b>Codice fiscale - Persona <#if recipient.recipientType=="PF">
+                    fisica:
+                    <#else>
+                    giuridica:
+                </#if></b></div>
+                <br />${recipient.taxId}
+            </div>
+        </div>
+        <div id="recipient-addr-box">
+            <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+        </div>
 
-        <div id="lower-section" style="height: 99mm; position: relative;">
-            <div class="row" style="height: 48mm;">
-                <div class="heading ten-px"><span data-hide-on-it="true">GREIFE AUF DIE ONLINE-DOKUMENTE ZU - KOSTENLOS &bull;
-                    </span>Accedi ai documenti online - gratis</div>
-                <div id="view-online-box-description">
-                    <div class="section-list nine-px eleven-lh">
-                        <ol>
-                            <li>
-                                <p data-hide-on-it="true">Scanne den QR-Code oder öffne
-                                        <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
-                                </p>
-                                <p class="language-less-margin">Inquadra il codice QR o vai su
-                                        <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
-                                </p>
-                            </li>
-                            <li>
-                                <p data-hide-on-it="true">Melde dich mit SPID oder CIE an (elektronischer Personalausweis)</p>
-                                <p class="language-less-margin">Entra con SPID o CIE (Carta d'Identità Elettronica);</p>
-                            </li>
-                            <li>
-                                <p data-hide-on-it="true">Ruf die zugestellten Dokumente ab</p>
-                                <p class="language-less-margin">Accedi ai documenti notificati.</p>
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-                <div id="view-online-box">
-                    <img alt="qr-code" id="qr-code" src="${qrCodeQuickAccessLink}" />
-                </div>
+    </div>
+
+    <div id="center-section" class="relative-box" style="height: 99mm;">
+        <div class="absolute-box">
+            <div id="main__subject" class="twelve-px sixteen-lh">
+                <p><b><span data-hide-on-it="true">Empfangsbestätigung Feststellungs &bull; </span>Avviso di avvenuta ricezione (AAR):
+                    ${notification.subject}</b></p>
             </div>
-            <div class="row">
-                <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
-                    <p data-hide-on-it="true">Die Dokumente sind online und an den Abholstellen SEND für 120 Tage ab dem Vervollständigungsdatum der Zustellung (dem Datum, an dem sie für alle Zwecke rechtsgültig wird) verfügbar. Mehr hierzu auf <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
-                    <p class="language-margin">I documenti sono disponibili online e presso i Punti di ritiro SEND per 120 giorni dalla data di perfezionamento della notifica (data in cui assume valore di legge per tutte le diverse finalità). Scopri di più su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
-                </div>
-                <div id="read-more">
-                    <p><b><span data-hide-on-it="true">Mehr hierzu &bull; </span>Continua</b></p>
-                    <img id="arrow_image" src="images/arrow.jpg" />
-                </div>
+            <div id="main__disclaimer" class="eleven-px sixteen-lh">
+                <p><span data-hide-on-it="true">Du hast eine rechtsgültige Mitteilung von ${notification.sender.paDenomination}: <b>siehe die zugestellten Dokumente</b>. Wenn sie nicht in diesem Bescheid enthalten sind, <b>kannst du die Dokumente online auf SEND</b>. Ist eine Zahlung vorgesehen, so findest du das Fälligkeitsdatum und den Termin für etwaige Einsprüche in den Dokumenten.</span></p>
+                <p class="language-margin">Hai ricevuto una comunicazione a valore legale da ${notification.sender.paDenomination}: <b>prendi visione dei documenti notificati</b>. Se non sono inclusi in questo avviso, <b>accedi ai documenti online su SEND</b>. Se è previsto un pagamento, nei documenti troverai la data di scadenza e quella per eventuali ricorsi.</p>
             </div>
+
         </div>
     </div>
 
-    <#if recipient.recipientType=="PF">
-        <!--------------------------- PAGE 2 --------------------------->
 
-        <div id="main-page2">
-            <div class="row">
-                <div class="heading ten-px" style="padding-right: 0;">
-                    <span data-hide-on-it="true">HOL EINE KOPIE VOR ORT AB - GEGEN BEZAHLUNG &bull; </span>RITIRA una copia SUL TERRITORIO - A PAGAMENTO</b>
-                </div>
+    <div id="lower-section" style="height: 99mm; position: relative;">
+        <div class="row" style="height: 48mm;">
+            <div class="heading ten-px"><span data-hide-on-it="true">GREIFE AUF DIE ONLINE-DOKUMENTE ZU - KOSTENLOS &bull;
+                    </span>Accedi ai documenti online - gratis</div>
+            <div id="view-online-box-description">
                 <div class="section-list nine-px eleven-lh">
                     <ol>
                         <li>
-                            <p data-hide-on-it="true">Fordere die zugestellten Dokumente auch ohne SPID oder CIE bei den Abholstellen SEND (Steuerbeistandsstellen und andere vertragsgebundene Händler) an. Suche nach Abholstellen in deiner Nähe unter <b><a href="${sendURL}punti-di-ritiro">${sendURLLAbel}/punti-di-ritiro</a></b>
-                                    <span data-hide-on-it="true">oder <b>oder ${raddPhoneNumber} an</b></span></p>
-                            <p class="language-less-margin">Richiedi i documenti notificati anche senza SPID o CIE presso i Punti di ritiro SEND (CAF e altri esercenti convenzionati). Cerca i punti di ritiro più vicini a te su <b><a href="${sendURL}punti-di-ritiro">${sendURLLAbel}/punti-di-ritiro</a></b>
-                                    oppure <b>chiama il numero ${raddPhoneNumber}</b></p>
-                        </li>
-                        <li>
-                            <p data-hide-on-it="true">Nimm mit:
-                                    <ul id="square-list" data-hide-on-it="true">
-                                        <li data-hide-on-it="true">diesen Bescheid;</li>
-                                        <li data-hide-on-it="true">dein Ausweisdokument;</li>
-                                        <li data-hide-on-it="true">deine Steuernummer.</li>
-                                    </ul>
+                            <p data-hide-on-it="true">Scanne den QR-Code oder öffne
+                                <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
                             </p>
-                            <p class="language-less-margin">Porta con te:
-                                    <ul id="square-list">
-                                        <li>questo avviso;</li>
-                                        <li>un tuo documento di riconoscimento;</li>
-                                        <li>il tuo codice fiscale.</li>
-                                    </ul>
+                            <p class="language-less-margin">Inquadra il codice QR o vai su
+                                <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
                             </p>
                         </li>
                         <li>
-                            <p data-hide-on-it="true">Bezahle die Kosten des Dienstes und hol die zugestellten Dokumente ab.
-                            </p>
-                            <p class="language-less-margin">Paga il costo del servizio e ritira i documenti notificati.
-                            </p>
+                            <p data-hide-on-it="true">Melde dich mit SPID oder CIE an (elektronischer Personalausweis)</p>
+                            <p class="language-less-margin">Entra con SPID o CIE (Carta d'Identità Elettronica);</p>
+                        </li>
+                        <li>
+                            <p data-hide-on-it="true">Ruf die zugestellten Dokumente ab</p>
+                            <p class="language-less-margin">Accedi ai documenti notificati.</p>
                         </li>
                     </ol>
                 </div>
-                <div id="mandate-box">
-                    <div class="heading ten-px">
-                        <span data-hide-on-it="true">MÖCHTEST DU JEMANDEN ZUR ABHOLUNG BEVOLLMÄCHTIGEN? &bull; </span>VUOI DELEGARE QUALCUNO?
-                    </div>
-                    <div id="mandate-box__form" class="nine-px">
-                        <span data-hide-on-it="true">Ich &bull; </span>Io, ${recipient.denomination}
-                            ${recipient.taxId}, <span data-hide-on-it="true">bevollmächtige &bull; </span>delego
-                                <div class="nine-px eleven-lh border-bottom mb-form">
-                                    <p data-hide-on-it="true">Vor- und Nachname</p>
-                                    <p>Nome e Cognome</p>
-                                </div>
-                                <div class="nine-px eleven-lh border-bottom mb-form">
-                                    <p data-hide-on-it="true">Steuernummer</p>
-                                    <p>Codice Fiscale</p>
-                                </div>
-                                <p data-hide-on-it="true">die zugestellten Dokumente abzuholen.</p>
-                                <p>a ritirare i documenti notificati.</p>
-                                <div class="nine-px eleven-lh border-bottom mb-form">
-                                    <p data-hide-on-it="true">Unterschrift</p>
-                                    <p>Firma</p>
-                                </div>
-                    </div>
-                    <div id="mandate-box__list" class="section-list nine-px eleven-lh">
-                        <div data-hide-on-it="true">
-                            Die bevollmächtigte Person muss Folgendes mitnehmen:
-                            <ul id="square-list-mandate">
-                                <li data-hide-on-it="true">diese Empfangsbestätigung mit der ausgefüllten und unterzeichneten Vollmacht;</li>
-                                <li data-hide-on-it="true">ihr Ausweisdokument;</li>
-                                <li data-hide-on-it="true">ihre Steuernummer;</li>
-                                <li data-hide-on-it="true">eine Kopie oder das Original der Steuernummer und des Ausweisdokuments des Bevollmächtigenden
-                                        <#if recipient.recipientType=="PF">.</li>
-                                <#else>;</li>
-                                <li data-hide-on-it="true">un documento che attesti il tuo ruolo di legale rappresentante.</li>
-                                    </#if>
-                            </ul>
-                        </div>
+            </div>
+            <div id="view-online-box">
+                <img alt="qr-code" id="qr-code" src="${qrCodeQuickAccessLink}" />
+            </div>
+        </div>
+        <div class="row">
+            <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
+                <p data-hide-on-it="true">Die Dokumente sind online und an den Abholstellen SEND für 120 Tage ab dem Vervollständigungsdatum der Zustellung (dem Datum, an dem sie für alle Zwecke rechtsgültig wird) verfügbar. Mehr hierzu auf <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
+                <p class="language-margin">I documenti sono disponibili online e presso i Punti di ritiro SEND per 120 giorni dalla data di perfezionamento della notifica (data in cui assume valore di legge per tutte le diverse finalità). Scopri di più su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
+            </div>
+            <div id="read-more">
+                <p><b><span data-hide-on-it="true">Mehr hierzu &bull; </span>Continua</b></p>
+                <img id="arrow_image" src="images/arrow.jpg" />
+            </div>
+        </div>
+    </div>
+</div>
 
-                    <div class="language-margin">
-                        La persona delegata dovrà portare con sé:
-                            <ul id="square-list-mandate">
-                                <li>questo avviso con la delega compilata e firmata;</li>
-                                <li>un suo documento di riconoscimento;</li>
-                                <li>il suo codice fiscale;</li>
-                                <li>una copia o l’originale del tuo codice fiscale e di un tuo documento di riconoscimento del delegante
-                                        <#if recipient.recipientType=="PF">.</li>
-                                <#else>;</li>
-                                    <li>un documento che attesti il tuo ruolo di legale rappresentante.</li>
-                                    </#if>
-                            </ul>
-                    </div>
+<#if recipient.recipientType=="PF">
+<!--------------------------- PAGE 2 --------------------------->
 
+<div id="main-page2">
+    <div class="row">
+        <div class="heading ten-px" style="padding-right: 0;">
+            <span data-hide-on-it="true">HOL EINE KOPIE VOR ORT AB - GEGEN BEZAHLUNG &bull; </span>RITIRA una copia SUL TERRITORIO - A PAGAMENTO</b>
+        </div>
+        <div class="section-list nine-px eleven-lh">
+            <ol>
+                <li>
+                    <p data-hide-on-it="true">Fordere die zugestellten Dokumente auch ohne SPID oder CIE bei den Abholstellen SEND (Steuerbeistandsstellen und andere vertragsgebundene Händler) an. Suche nach Abholstellen in deiner Nähe unter <b><a href="${sendURL}punti-di-ritiro">${sendURLLAbel}/punti-di-ritiro</a></b>
+                        <span data-hide-on-it="true">oder <b>oder ${raddPhoneNumber} an</b></span></p>
+                    <p class="language-less-margin">Richiedi i documenti notificati anche senza SPID o CIE presso i Punti di ritiro SEND (CAF e altri esercenti convenzionati). Cerca i punti di ritiro più vicini a te su <b><a href="${sendURL}punti-di-ritiro">${sendURLLAbel}/punti-di-ritiro</a></b>
+                        oppure <b>chiama il numero ${raddPhoneNumber}</b></p>
+                </li>
+                <li>
+                    <p data-hide-on-it="true">Nimm mit:
+                    <ul id="square-list" data-hide-on-it="true">
+                        <li data-hide-on-it="true">diesen Bescheid;</li>
+                        <li data-hide-on-it="true">dein Ausweisdokument;</li>
+                        <li data-hide-on-it="true">deine Steuernummer.</li>
+                    </ul>
+                    </p>
+                    <p class="language-less-margin">Porta con te:
+                    <ul id="square-list">
+                        <li>questo avviso;</li>
+                        <li>un tuo documento di riconoscimento;</li>
+                        <li>il tuo codice fiscale.</li>
+                    </ul>
+                    </p>
+                </li>
+                <li>
+                    <p data-hide-on-it="true">Bezahle die Kosten des Dienstes und hol die zugestellten Dokumente ab.
+                    </p>
+                    <p class="language-less-margin">Paga il costo del servizio e ritira i documenti notificati.
+                    </p>
+                </li>
+            </ol>
+        </div>
+        <div id="mandate-box">
+            <div class="heading ten-px">
+                <span data-hide-on-it="true">MÖCHTEST DU JEMANDEN ZUR ABHOLUNG BEVOLLMÄCHTIGEN? &bull; </span>VUOI DELEGARE QUALCUNO?
+            </div>
+            <div id="mandate-box__form" class="nine-px">
+                <span data-hide-on-it="true">Ich &bull; </span>Io, ${recipient.denomination}
+                ${recipient.taxId}, <span data-hide-on-it="true">bevollmächtige &bull; </span>delego
+                <div class="nine-px eleven-lh border-bottom mb-form">
+                    <p data-hide-on-it="true">Vor- und Nachname</p>
+                    <p>Nome e Cognome</p>
+                </div>
+                <div class="nine-px eleven-lh border-bottom mb-form">
+                    <p data-hide-on-it="true">Steuernummer</p>
+                    <p>Codice Fiscale</p>
+                </div>
+                <p data-hide-on-it="true">die zugestellten Dokumente abzuholen.</p>
+                <p>a ritirare i documenti notificati.</p>
+                <div class="nine-px eleven-lh border-bottom mb-form">
+                    <p data-hide-on-it="true">Unterschrift</p>
+                    <p>Firma</p>
+                </div>
+            </div>
+            <div id="mandate-box__list" class="section-list nine-px eleven-lh">
+                <div data-hide-on-it="true">
+                    Die bevollmächtigte Person muss Folgendes mitnehmen:
+                    <ul id="square-list-mandate">
+                        <li data-hide-on-it="true">diese Empfangsbestätigung mit der ausgefüllten und unterzeichneten Vollmacht;</li>
+                        <li data-hide-on-it="true">ihr Ausweisdokument;</li>
+                        <li data-hide-on-it="true">ihre Steuernummer;</li>
+                        <li data-hide-on-it="true">eine Kopie oder das Original der Steuernummer und des Ausweisdokuments des Bevollmächtigenden
+                            <#if recipient.recipientType=="PF">.</li>
+                        <#else>;</li>
+                        <li data-hide-on-it="true">un documento che attesti il tuo ruolo di legale rappresentante.</li>
+                    </#if>
+                    </ul>
+                </div>
+
+                <div class="language-margin">
+                    La persona delegata dovrà portare con sé:
+                    <ul id="square-list-mandate">
+                        <li>questo avviso con la delega compilata e firmata;</li>
+                        <li>un suo documento di riconoscimento;</li>
+                        <li>il suo codice fiscale;</li>
+                        <li>una copia o l’originale del tuo codice fiscale e di un tuo documento di riconoscimento del delegante
+                            <#if recipient.recipientType=="PF">.</li>
+                        <#else>;</li>
+                        <li>un documento che attesti il tuo ruolo di legale rappresentante.</li>
+                    </#if>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
     </div>
-    </div>
-    </div>
-    </div>
-    <div id="footer-iun" class="eight-px">
-        <b>Codice univoco:</b>
-        <br />${notification.iun}
-    </div>
-    </div>
-    </div>
-    </#if>
+</div>
+<div id="footer-iun" class="eight-px">
+    <b>Codice univoco:</b>
+    <br />${notification.iun}
+</div>
+</div>
+</div>
+</#if>
 
 </body>
 
