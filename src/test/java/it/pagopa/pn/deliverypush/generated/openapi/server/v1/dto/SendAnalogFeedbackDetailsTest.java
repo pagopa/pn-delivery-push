@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 class SendAnalogFeedbackDetailsTest {
 
-    private SendAnalogFeedbackDetails details;
+    private SendAnalogFeedbackDetailsV25 details;
 
     @BeforeEach
     void setUp() {
-        details = new SendAnalogFeedbackDetails();
+        details = new SendAnalogFeedbackDetailsV25();
         details.sentAttemptMade(1);
         details.setDeliveryFailureCause("error");
         details.setNewAddress(PhysicalAddress.builder().address("add").build());
@@ -22,9 +22,9 @@ class SendAnalogFeedbackDetailsTest {
 
     @Test
     void recIndex() {
-        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
+        SendAnalogFeedbackDetailsV25 expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.recIndex(1);
+        SendAnalogFeedbackDetailsV25 actual = details.recIndex(1);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -36,9 +36,9 @@ class SendAnalogFeedbackDetailsTest {
 
     @Test
     void physicalAddress() {
-        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
+        SendAnalogFeedbackDetailsV25 expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.physicalAddress(PhysicalAddress.builder().address("add").build());
+        SendAnalogFeedbackDetailsV25 actual = details.physicalAddress(PhysicalAddress.builder().address("add").build());
 
         Assertions.assertEquals(expected, actual);
     }
@@ -50,9 +50,9 @@ class SendAnalogFeedbackDetailsTest {
 
     @Test
     void serviceLevel() {
-        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
+        SendAnalogFeedbackDetailsV25 expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.serviceLevel(ServiceLevel.REGISTERED_LETTER_890);
+        SendAnalogFeedbackDetailsV25 actual = details.serviceLevel(ServiceLevel.REGISTERED_LETTER_890);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -64,9 +64,9 @@ class SendAnalogFeedbackDetailsTest {
 
     @Test
     void sentAttemptMade() {
-        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
+        SendAnalogFeedbackDetailsV25 expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.sentAttemptMade(1);
+        SendAnalogFeedbackDetailsV25 actual = details.sentAttemptMade(1);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -78,9 +78,9 @@ class SendAnalogFeedbackDetailsTest {
 
     @Test
     void newAddress() {
-        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
+        SendAnalogFeedbackDetailsV25 expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.newAddress(PhysicalAddress.builder().address("add").build());
+        SendAnalogFeedbackDetailsV25 actual = details.newAddress(PhysicalAddress.builder().address("add").build());
 
         Assertions.assertEquals(expected, actual);
     }
@@ -92,9 +92,9 @@ class SendAnalogFeedbackDetailsTest {
 
     @Test
     void errors() {
-        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
+        SendAnalogFeedbackDetailsV25 expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.deliveryFailureCause("error");
+        SendAnalogFeedbackDetailsV25 actual = details.deliveryFailureCause("error");
 
         Assertions.assertEquals(expected, actual);
     }
@@ -107,9 +107,9 @@ class SendAnalogFeedbackDetailsTest {
 
     @Test
     void responseStatus() {
-        SendAnalogFeedbackDetails expected = buildSendAnalogFeedbackDetails();
+        SendAnalogFeedbackDetailsV25 expected = buildSendAnalogFeedbackDetails();
 
-        SendAnalogFeedbackDetails actual = details.responseStatus(ResponseStatus.KO);
+        SendAnalogFeedbackDetailsV25 actual = details.responseStatus(ResponseStatus.KO);
 
         Assertions.assertEquals(expected, actual);
     }
@@ -122,12 +122,12 @@ class SendAnalogFeedbackDetailsTest {
 
     @Test
     void testEquals() {
-        SendAnalogFeedbackDetails data = buildSendAnalogFeedbackDetails();
+        SendAnalogFeedbackDetailsV25 data = buildSendAnalogFeedbackDetails();
         Assertions.assertEquals(Boolean.TRUE, details.equals(data));
     }
     
-    private SendAnalogFeedbackDetails buildSendAnalogFeedbackDetails() {
-        return SendAnalogFeedbackDetails.builder()
+    private SendAnalogFeedbackDetailsV25 buildSendAnalogFeedbackDetails() {
+        return SendAnalogFeedbackDetailsV25.builder()
                 .recIndex(1)
                 .deliveryFailureCause("error")
                 .newAddress(PhysicalAddress.builder().address("add").build())

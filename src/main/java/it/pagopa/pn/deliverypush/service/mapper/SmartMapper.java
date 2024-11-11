@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV25;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -32,7 +32,7 @@ public class SmartMapper {
     private static String SERCQ_SEND = "send-self";
 
 
-    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV23> addressDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV25> addressDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getNewAddress());
@@ -41,7 +41,7 @@ public class SmartMapper {
     };
 
 
-    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV23> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
+    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV25> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getPhysicalAddress());
@@ -71,8 +71,8 @@ public class SmartMapper {
 
         List<BiFunction> postMappingTransformers = new ArrayList<>();
         postMappingTransformers.add( (source, result)-> {
-            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV23){
-                ((TimelineElementDetailsV23) result).setNotRefinedRecipientIndexes(null);
+            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV25){
+                ((TimelineElementDetailsV25) result).setNotRefinedRecipientIndexes(null);
             }
             return result;
         });

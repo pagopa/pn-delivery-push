@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV25;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV23;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV25;
 
 public class TimelineElementMapper {
     private TimelineElementMapper(){}
@@ -16,7 +16,7 @@ public class TimelineElementMapper {
                 .notificationSentAt(internalDto.getNotificationSentAt())
                 .ingestionTimestamp(internalDto.getIngestionTimestamp())
                 .eventTimestamp(internalDto.getEventTimestamp())
-                .details( SmartMapper.mapToClass(internalDto.getDetails(), TimelineElementDetailsV23.class) );
+                .details( SmartMapper.mapToClass(internalDto.getDetails(), TimelineElementDetailsV25.class) );
         
         if(internalDto.getLegalFactsIds() != null){
             builder.legalFactsIds(
