@@ -634,7 +634,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_fr.pdf");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("FR");
                 String quickAccessToken = "test";
@@ -657,7 +657,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_de.pdf");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("DE");
                 String quickAccessToken = "test";
@@ -680,7 +680,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_sl.pdf");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("SL");
                 String quickAccessToken = "test";
@@ -717,7 +717,7 @@ class LegalFactPdfGeneratorTest {
                                 .paTaxId("TEST_TAX_ID")
                                 .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
                                 .build();
-                
+
                 NotificationInt notificationInt = NotificationInt.builder()
                                 .sender(notificationSenderInt)
                                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
@@ -871,7 +871,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt_sl.pdf");
                 NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                         .paId("TEST_PA_ID")
                         .paTaxId("TEST_TAX_ID")
@@ -914,7 +914,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt_fr.pdf");
                 NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                         .paId("TEST_PA_ID")
                         .paTaxId("TEST_TAX_ID")
@@ -1024,7 +1024,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARPGTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                                 .build());
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PG.pdf");
 
