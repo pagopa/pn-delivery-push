@@ -25,7 +25,7 @@ public class CheckAttachmentRetentionHandler {
     private final SchedulerService schedulerService;
     private final TimelineUtils timelineUtils;
 
-    public void handleCheckAttachmentRetentionBeforeExpiration(String iun){
+    public void handleCheckAttachmentRetentionBeforeExpiration(String iun, Instant lastActionNotBefore){
         log.debug("Start handleCheckAttachmentRetentionBeforeExpiration - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
@@ -39,7 +39,7 @@ public class CheckAttachmentRetentionHandler {
             log.info("Notification isn't refined, need to update retention - iun={} ", iun);
             
             //Viene aggiornata la retention degli attachment e inserita una nuova action che, nuovamente, agisca in caso di retention in scadenza
-            scheduleCheckAttachmentRetentionBeforeExpiration(iun);
+            scheduleCheckAttachmentRetentionBeforeExpiration(iun, lastActionNotBefore);
             
             int attachmentTimeToAddAfterExpiration = (int) configs.getTimeParams().getAttachmentTimeToAddAfterExpiration().toDays();
             attachmentUtils.changeAttachmentsRetention(notification, attachmentTimeToAddAfterExpiration).blockLast();
@@ -48,14 +48,14 @@ public class CheckAttachmentRetentionHandler {
         }
     }
 
-    private void scheduleCheckAttachmentRetentionBeforeExpiration(String iun) {
+    private void scheduleCheckAttachmentRetentionBeforeExpiration(String iun, Instant lastActionNotBefore) {
         Duration attachmentTimeToAddAfterExpiration = configs.getTimeParams().getAttachmentTimeToAddAfterExpiration();
         Duration checkAttachmentTimeBeforeExpiration = configs.getTimeParams().getCheckAttachmentTimeBeforeExpiration();
         log.debug("Start scheduleCheckAttachmentRetentionBeforeExpiration - attachmentDaysToAddAfterExpiration={} checkAttachmentDaysBeforeExpiration={} iun={}",
                 attachmentTimeToAddAfterExpiration, checkAttachmentTimeBeforeExpiration, iun);
         
         Duration checkAttachmentTimeToWait = attachmentTimeToAddAfterExpiration.minus(checkAttachmentTimeBeforeExpiration);
-        Instant checkAttachmentDate = Instant.now().plus(checkAttachmentTimeToWait);
+        Instant checkAttachmentDate = lastActionNotBefore.plus(checkAttachmentTimeToWait);
 
         log.info("Scheduling checkAttachmentRetention schedulingDate={} - iun={}", checkAttachmentDate, iun);
         schedulerService.scheduleEvent(iun, checkAttachmentDate, ActionType.CHECK_ATTACHMENT_RETENTION);
