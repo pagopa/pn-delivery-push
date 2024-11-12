@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="author" content="SEND - Servizio Notifiche Digitali">
-    <title><span data-hide-on-it="true">ACCUSÉ DE RÉCEPTION &bull; </span>Avviso di avvenuta ricezione</title>
+    <title><span data-hide-on-it="true">ACCUSÉ DE RÉCEPTION &bull; </span>Avviso di Avvenuta Ricezione</title>
     <style type="text/css" media="all">
         @font-face {
             font-family: "Titillium Pro";
@@ -539,7 +539,7 @@
         <div id="logo-box">
             <img id="logo-box__logo" src="./images/aar-logo.gif" />
             <div id="logo-box__subtitle" class="seven-px">
-                Avviso di avvenuta ricezione
+                Avviso di Avvenuta Ricezione
             </div>
         </div>
 
@@ -571,12 +571,12 @@
     <div id="center-section" class="relative-box" style="height: 99mm;">
         <div class="absolute-box">
             <div id="main__subject" class="twelve-px sixteen-lh">
-                <p><b><span data-hide-on-it="true">Accusé de réception &bull; </span>Avviso di avvenuta ricezione (AAR):
+                <p><b><span data-hide-on-it="true">Accusé de réception &bull; </span>Avviso di Avvenuta Ricezione (AAR):
                     ${notification.subject}</b></p>
             </div>
             <div id="main__disclaimer" class="eleven-px sixteen-lh">
                 <p><span data-hide-on-it="true">Vous avez reçu une communication ayant une valeur juridique de ${notification.sender.paDenomination}: <b>voir les documents notifiés.</b>. S'ils ne figurent pas dans le présent avis, <b>vous pouvez consulter les documents en ligne sur le site SEND</b>. Si un paiement est dû, vous trouverez la date d'échéance et la date d'éventuelles contestations dans les documents.</span></p>
-                <p class="language-margin">Hai ricevuto una comunicazione a valore legale da ${notification.sender.paDenomination}: <b>prendi visione dei documenti notificati</b>. Se non sono inclusi in questo avviso, <b>accedi ai documenti online su SEND</b>. Se è previsto un pagamento, nei documenti troverai la data di scadenza e quella per eventuali ricorsi.</p>
+                <p class="language-margin">Hai ricevuto una comunicazione a valore legale da ${notification.sender.paDenomination}: <b>prendi visione dei documenti notificati</b>. Se non sono inclusi in questo avviso, <b>accedi ai documenti online su SEND o richiedine una copia presso i Punti di ritiro SEND</b>, in corso di attivazione. Se è previsto un pagamento, nei documenti troverai la data di scadenza e quella per eventuali ricorsi.</p>
             </div>
 
         </div>
@@ -709,10 +709,10 @@
                         <li>questo avviso con la delega compilata e firmata;</li>
                         <li>un suo documento di riconoscimento;</li>
                         <li>il suo codice fiscale;</li>
-                        <li>una copia o l’originale del tuo codice fiscale e di un tuo documento di riconoscimento del delegante
+                        <li>una copia o l’originale del codice fiscale e di un tuo documento di riconoscimento del delegante
                             <#if recipient.recipientType=="PF">.</li>
                         <#else>;</li>
-                        <li>un documento che attesti il tuo ruolo di legale rappresentante.</li>
+                        <li>un documento che attesti il tuo ruolo di legale rappresentante</li>
                     </#if>
                     </ul>
                 </div>
