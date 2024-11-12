@@ -1806,7 +1806,7 @@ components:
           maxLength: 25
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         newStatus:
-          $ref: '#/components/schemas/NotificationStatus'
+          $ref: '#/components/schemas/NotificationStatusV26'
         element:
           $ref: '#/components/schemas/TimelineElementV26'
     StreamCreationRequest:
@@ -2269,7 +2269,7 @@ components:
       required:
         - status
         - errors
-    NotificationStatus:
+    NotificationStatusV26:
       type: string
       description: |
         stato di avanzamento del processo di notifica:
@@ -3626,6 +3626,31 @@ components:
           $ref: '#/components/schemas/TimelineElementCategoryV26'
         details:
           $ref: '#/components/schemas/TimelineElementDetailsV26'
+    NotificationStatus:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica:
+          * `IN_VALIDATION` - notifica depositata in attesa di validazione
+          * `ACCEPTED` - L'ente ha depositato la notifica con successo
+          * `REFUSED` - Notifica rifiutata a seguito della validazione
+          * `DELIVERING` - L'invio della notifica è in corso
+          * `DELIVERED` - La notifica è stata consegnata a tutti i destinatari
+          * `VIEWED` - Il destinatario ha letto la notifica entro il termine stabilito
+          * `EFFECTIVE_DATE` - Il destinatario non ha letto la notifica entro il termine stabilito
+          * `UNREACHABLE` - Il destinatario non è reperibile
+          * `CANCELLED` - L'ente ha annullato l'invio della notifica
+          * `PAID` - [DEPRECATO] Uno dei destinatari ha pagato la notifica
+      enum:
+        - IN_VALIDATION
+        - ACCEPTED
+        - REFUSED
+        - DELIVERING
+        - DELIVERED
+        - VIEWED
+        - EFFECTIVE_DATE
+        - PAID
+        - UNREACHABLE
+        - CANCELLED
     TimelineElementCategoryV23:
       type: string
       description: |
