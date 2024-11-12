@@ -185,6 +185,72 @@ class LegalFactPdfGeneratorTest {
         }
 
         @Test
+        void generateNotificationCancelledLegalFactTest() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(buildNotification(), notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generateNotificationCancelledLegalFactTestIfAdditionalLangIsDisable() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(notification, notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED_DE, captor.getValue());
+        }
+
+        @Test
+        void generateNotificationCancelledLegalFactTestDE() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact_de.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(notification, notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED_DE, captor.getValue());
+        }
+
+        @Test
+        void generateNotificationCancelledLegalFactTestSL() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact_sl.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("SL");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(notification, notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED_SL, captor.getValue());
+        }
+
+        @Test
+        void generateNotificationCancelledLegalFactTestFR() throws IOException {
+                ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_CancelledLegalFact_fr.pdf");
+                Instant notificationCancelledDate = Instant.now().minus(Duration.ofMinutes(3));
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("FR");
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generateNotificationCancelledLegalFact(notification, notificationCancelledDate)));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+                verify(documentComposition).executePdfTemplate(captor.capture(), any());
+                Assertions.assertEquals(DocumentComposition.TemplateType.NOTIFICATION_CANCELLED_FR, captor.getValue());
+        }
+
+
+        @Test
         void generateNotificationViewedLegalFactTest() {
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_ViewedLegalFact.pdf");
                 String iun = "iun1234Test_Viewed";
@@ -308,7 +374,7 @@ class LegalFactPdfGeneratorTest {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(
-                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact_de.pdf");
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("DE");
                 NotificationRecipientInt recipient = buildRecipients().get(0);
@@ -328,7 +394,7 @@ class LegalFactPdfGeneratorTest {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(
-                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact_sl.pdf");
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("SL");
                 NotificationRecipientInt recipient = buildRecipients().get(0);
@@ -348,7 +414,7 @@ class LegalFactPdfGeneratorTest {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
                 Path filePath = Paths.get(
-                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact.pdf");
+                        TEST_DIR_NAME + File.separator + "test_AnalogDeliveryFailureWorkflowLegalFact_fr.pdf");
                 NotificationInt notification = buildNotification();
                 notification.getAdditionalLanguages().add("FR");
                 NotificationRecipientInt recipient = buildRecipients().get(0);
@@ -484,7 +550,6 @@ class LegalFactPdfGeneratorTest {
                 NotificationInt notification = buildNotification();
                 NotificationRecipientInt recipient = buildRecipients().get(0);
                 EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
-
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                                 pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
                                                 recipient, endWorkflowStatus, Instant.now())));
@@ -497,6 +562,8 @@ class LegalFactPdfGeneratorTest {
                 List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
                         ResponseStatusInt.KO);
                 NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("DE");
+
                 NotificationRecipientInt recipient = buildRecipients().get(0);
                 EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
 
@@ -505,6 +572,41 @@ class LegalFactPdfGeneratorTest {
                                 recipient, endWorkflowStatus, Instant.now())));
                 System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
         }
+
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTestFR_KO() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO_fr.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
+                        ResponseStatusInt.KO);
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("FR");
+
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
+                                recipient, endWorkflowStatus, Instant.now())));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
+        @Test
+        void generatePecDeliveryWorkflowLegalFactTestSL_KO() {
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_PecDeliveryWorkflowLegalFact_KO_sl.pdf");
+                List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList = buildFeedbackFromECList(
+                        ResponseStatusInt.KO);
+                NotificationInt notification = buildNotification();
+                notification.getAdditionalLanguages().add("SL");
+
+                NotificationRecipientInt recipient = buildRecipients().get(0);
+                EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.FAILURE;
+
+                Assertions.assertDoesNotThrow(() -> Files.write(filePath,
+                        pdfUtils.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
+                                recipient, endWorkflowStatus, Instant.now())));
+                System.out.print("*** ReceivedLegalFact pdf successfully created at: " + filePath);
+        }
+
 
         @Test
         @ExtendWith(SpringExtension.class)
@@ -532,7 +634,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_fr.pdf");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("FR");
                 String quickAccessToken = "test";
@@ -555,7 +657,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_de.pdf");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("DE");
                 String quickAccessToken = "test";
@@ -578,7 +680,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_sl.pdf");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("SL");
                 String quickAccessToken = "test";
@@ -615,7 +717,7 @@ class LegalFactPdfGeneratorTest {
                                 .paTaxId("TEST_TAX_ID")
                                 .paDenomination("Ente per la Gestione de Parco Regionale di Montevecchia e della Valle del Curone")
                                 .build();
-                
+
                 NotificationInt notificationInt = NotificationInt.builder()
                                 .sender(notificationSenderInt)
                                 .sentAt(Instant.now().minus(Duration.ofDays(1).minus(Duration.ofMinutes(10))))
@@ -769,7 +871,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt_sl.pdf");
                 NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                         .paId("TEST_PA_ID")
                         .paTaxId("TEST_TAX_ID")
@@ -812,7 +914,7 @@ class LegalFactPdfGeneratorTest {
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
                         .build());
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt.pdf");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_RADDalt_fr.pdf");
                 NotificationSenderInt notificationSenderInt = NotificationSenderInt.builder()
                         .paId("TEST_PA_ID")
                         .paTaxId("TEST_TAX_ID")
@@ -922,7 +1024,7 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAARPGTest() {
                 Mockito.when(pnSendModeUtils.getPnSendMode(Mockito.any())).thenReturn(PnSendMode.builder()
-                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD))
+                        .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION))
                                 .build());
                 Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PG.pdf");
 
@@ -958,7 +1060,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAAREmailTestDE() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL_de.html");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("DE");
                 NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
@@ -983,7 +1085,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAAREmailTestSL() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL_sl.html");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("SL");
                 NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
@@ -1008,7 +1110,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAAREmailTestFR() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_EMAIL_fr.html");
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("FR");
                 NotificationRecipientInt notificationRecipientInt = notificationInt.getRecipients().get(0);
@@ -1070,7 +1172,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAARPECTestDE() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC_de.html");
 
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("DE");
@@ -1096,7 +1198,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAARPECTestSL() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC_sl.html");
 
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("SL");
@@ -1121,7 +1223,7 @@ class LegalFactPdfGeneratorTest {
         void generateNotificationAARPECTestFR() {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
 
-                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC.html");
+                Path filePath = Paths.get(TEST_DIR_NAME + File.separator + "test_NotificationAAR_PEC_fr.html");
 
                 NotificationInt notificationInt = buildNotification();
                 notificationInt.getAdditionalLanguages().add("FR");
