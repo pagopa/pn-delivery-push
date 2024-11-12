@@ -18,7 +18,7 @@ class ProgressResponseElementTest {
         responseElement.setIun("002");
         responseElement.setNotificationRequestId("003");
         responseElement.setTimestamp(instant);
-        responseElement.setNewStatus(NotificationStatus.ACCEPTED);
+        responseElement.setNewStatus(NotificationStatusV26.ACCEPTED);
         responseElement.setTimelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED);
         responseElement.setRecipientIndex(1);
         responseElement.setChannel("channel");
@@ -32,7 +32,7 @@ class ProgressResponseElementTest {
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
-                .newStatus(NotificationStatus.ACCEPTED)
+                .newStatus(NotificationStatusV26.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
@@ -54,7 +54,7 @@ class ProgressResponseElementTest {
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
-                .newStatus(NotificationStatus.ACCEPTED)
+                .newStatus(NotificationStatusV26.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
@@ -76,7 +76,7 @@ class ProgressResponseElementTest {
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
-                .newStatus(NotificationStatus.ACCEPTED)
+                .newStatus(NotificationStatusV26.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
@@ -98,7 +98,7 @@ class ProgressResponseElementTest {
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
-                .newStatus(NotificationStatus.ACCEPTED)
+                .newStatus(NotificationStatusV26.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
@@ -120,19 +120,19 @@ class ProgressResponseElementTest {
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
-                .newStatus(NotificationStatus.ACCEPTED)
+                .newStatus(NotificationStatusV26.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
                 .channel("channel")
                 .legalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"))
                 .build();
-        Assertions.assertEquals(expected, responseElement.newStatus(NotificationStatus.ACCEPTED));
+        Assertions.assertEquals(expected, responseElement.newStatus(NotificationStatusV26.ACCEPTED));
     }
 
     @Test
     void getNewStatus() {
-        Assertions.assertEquals(NotificationStatus.ACCEPTED, responseElement.getNewStatus());
+        Assertions.assertEquals(NotificationStatusV26.ACCEPTED, responseElement.getNewStatus());
     }
 
     @Test
@@ -142,7 +142,7 @@ class ProgressResponseElementTest {
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
-                .newStatus(NotificationStatus.ACCEPTED)
+                .newStatus(NotificationStatusV26.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
@@ -164,7 +164,7 @@ class ProgressResponseElementTest {
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
-                .newStatus(NotificationStatus.ACCEPTED)
+                .newStatus(NotificationStatusV26.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)

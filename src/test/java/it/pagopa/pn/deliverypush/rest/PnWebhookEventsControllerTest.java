@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.rest;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV26;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategoryV26;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
@@ -41,7 +41,7 @@ class PnWebhookEventsControllerTest {
                 .timestamp( Instant.now() )
                 .eventId( "event_id" )
                 .iun("")
-                .newStatus(NotificationStatus.ACCEPTED)
+                .newStatus(NotificationStatusV26.ACCEPTED)
                 .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
                 .build()
         );
