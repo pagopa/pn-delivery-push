@@ -632,9 +632,9 @@ components:
       type: object
       properties:
         notificationStatus:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
         notificationStatusHistory:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
         timeline:
           description: >-
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica

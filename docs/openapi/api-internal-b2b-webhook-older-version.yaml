@@ -1630,7 +1630,7 @@ components:
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
         newStatus:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status-older-version.yaml#/components/schemas/NotificationStatus'
         timelineEventCategory:
 #          apparentemente non retrocompatibile ma gli stream continueranno a mandare category della versione 1 fino ad esplicita modifica delle config da parte della PA
           $ref: './schemas-pn-timeline-older-version.yaml#/components/schemas/TimelineElementCategoryV23'
@@ -1873,7 +1873,7 @@ components:
           maxLength: 25
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         newStatus:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status-older-version.yaml#/components/schemas/NotificationStatus'
         element:
           $ref: './schemas-pn-timeline-older-version.yaml#/components/schemas/TimelineElementV23'
         # proprietà necessarie per retro compatibilità nel transitorio, ma che non saranno esposte nella V23 # NO EXTERNAL
@@ -2037,7 +2037,7 @@ components:
           maxLength: 25
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         newStatus:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status-older-version.yaml#/components/schemas/NotificationStatus'
         element:
           $ref: './schemas-pn-timeline-older-version.yaml#/components/schemas/TimelineElementV24'
         # proprietà necessarie per retro compatibilità nel transitorio, ma che non saranno esposte nella V24 # NO EXTERNAL
@@ -2201,7 +2201,7 @@ components:
           maxLength: 25
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         newStatus:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status-older-version.yaml#/components/schemas/NotificationStatus'
         element:
           $ref: './schemas-pn-timeline-older-version.yaml#/components/schemas/TimelineElementV25'
         # proprietà necessarie per retro compatibilità nel transitorio, ma che non saranno esposte nella V24 # NO EXTERNAL

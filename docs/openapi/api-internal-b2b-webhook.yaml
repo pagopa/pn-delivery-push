@@ -961,7 +961,7 @@ components:
           maxLength: 25
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         newStatus:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
         element:
           $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV26'
         # proprietà necessarie per retro compatibilità nel transitorio, ma che non saranno esposte nella V24 # NO EXTERNAL
