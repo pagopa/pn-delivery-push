@@ -52,9 +52,8 @@ class UpdateEventStreamHandler extends EventHandler {
                 transformedObject = createStreamMetadataResponseV10(response.data);
             break;
             case 23:
-                transformedObject = response.data;
-            break;
             case 24:
+            case 25:
                 transformedObject = response.data;
             break;
             default:
