@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="author" content="SEND - Servizio Notifiche Digitali">
-    <title><span data-hide-on-it="true">ACCUSÉ DE RÉCEPTION &bull; </span>Avviso di avvenuta ricezione</title>
+    <title><span data-hide-on-it="true">Accusé de réception &bull; </span>Avviso di Avvenuta Ricezione</title>
     <style type="text/css" media="all">
         @font-face {
             font-family: "Titillium Pro";
@@ -534,92 +534,92 @@
 </head>
 
 <body>
-<!--------------------------- PAGE 1 (297mm x 192mm) --------------------------->
-<div style="height: 297mm; width: 192mm;">
-    <div id="upper-section" style="height: 99mm;">
-        <div id="logo-box">
-            <img id="logo-box__logo" src="./images/aar-logo.gif" />
-            <div id="logo-box__subtitle" class="seven-px">
-                Avviso di avvenuta ricezione
-            </div>
-        </div>
-
-        <div id="iun-code" class="eight-px">
-            <div>
-                <div><b>Codice univoco:</b></div>
-                <br />${notification.iun}
-            </div>
-            <div style="margin-top: 4mm;">
-                <div><b>Codice fiscale - Persona <#if recipient.recipientType=="PF">
-                    fisica:
-                    <#else>
-                    giuridica:
-                </#if></b></div>
-                <br />${recipient.taxId}
-            </div>
-        </div>
-        <div id="recipient-addr-box">
-            <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-        </div>
-
-    </div>
-
-    <div id="center-section" class="relative-box" style="height: 99mm;">
-        <div class="absolute-box">
-            <div id="main__subject" class="twelve-px sixteen-lh">
-                <p><b><span data-hide-on-it="true">Accusé de réception &bull; </span>Avviso di avvenuta ricezione (AAR): ${notification.subject}</b></p>
-            </div>
-            <div id="main__disclaimer" class="eleven-px sixteen-lh">
-                <p><span data-hide-on-it="true">Vous avez reçu une communication ayant une valeur juridique de ${notification.sender.paDenomination}: <b>voir les documents notifiés.</b>. S'ils ne figurent pas dans le présent avis, <b>vous pouvez consulter les documents en ligne sur le site SEND</b>. Si un paiement est dû, vous trouverez la date d'échéance et la date d'éventuelles contestations dans les documents.</span></p>
-                <p class="language-margin">Hai ricevuto una comunicazione a valore legale da ${notification.sender.paDenomination}: <b>prendi visione dei documenti notificati</b>. Se non sono inclusi in questo avviso, <b>accedi ai documenti online su SEND</b>. Se è previsto un pagamento, nei documenti troverai la data di scadenza e quella per eventuali ricorsi.</p>
-            </div>
-
-        </div>
-    </div>
-
-
-    <div id="lower-section" style="height: 99mm; position: relative;">
-        <div class="row" style="height: 48mm;">
-            <div class="heading ten-px"><span data-hide-on-it="true">ACCÉDER AUX DOCUMENTS EN LIGNE - GRATUIT &bull; </span>Accedi ai documenti online - gratis</div>
-            <div id="view-online-box-description">
-                <div class="section-list nine-px eleven-lh">
-                    <ol>
-                        <li>
-                            <p data-hide-on-it="true">Scannez le code QR ou rendez-vous sur <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
-                            </p>
-                            <p class="language-less-margin">Inquadra il codice QR o vai su
-                                <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
-                            </p>
-                        </li>
-                        <li>
-                            <p data-hide-on-it="true">Accédez avec SPID ou CIE (carte d'identité électronique)</p>
-                            <p class="language-less-margin">Entra con SPID o CIE (Carta d'Identità Elettronica);</p>
-                        </li>
-                        <li>
-                            <p data-hide-on-it="true">Accédez aux documents notifiés</p>
-                            <p class="language-less-margin">Accedi ai documenti notificati.</p>
-                        </li>
-                    </ol>
+    <!--------------------------- PAGE 1 (297mm x 192mm) --------------------------->
+    <div style="height: 297mm; width: 192mm;">
+        <div id="upper-section" style="height: 99mm;">
+            <div id="logo-box">
+                <img id="logo-box__logo" src="./images/aar-logo.gif" />
+                <div id="logo-box__subtitle" class="seven-px">
+                    Avviso di Avvenuta Ricezione
                 </div>
             </div>
-            <div id="view-online-box">
-                <img alt="qr-code" id="qr-code" src="${qrCodeQuickAccessLink}" />
+
+            <div id="iun-code" class="eight-px">
+                <div>
+                    <div><b>Codice univoco:</b></div>
+                    <br />${notification.iun}
+                </div>
+                <div style="margin-top: 4mm;">
+                    <div><b>Codice fiscale - Persona <#if recipient.recipientType=="PF">
+                                fisica:
+                                <#else>
+                                    giuridica:
+                            </#if></b></div>
+                    <br />${recipient.taxId}
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
-                <p data-hide-on-it="true">Les documents sont disponibles en ligne et dans les Points de retrait SEND pendant 120 jours à compter de la date de prise d’effet de la notification (date à laquelle elle devient légalement valide à toutes fins). Pour en savoir plus, consultez le site <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
-                <p class="language-margin">I documenti sono disponibili online e presso i Punti di ritiro SEND per 120 giorni dalla data di perfezionamento della notifica (data in cui assume valore di legge per tutte le diverse finalità). Scopri di più su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
+            <div id="recipient-addr-box">
+                <!-- Si lascia lo spazio per l'indirizzo che verra' inserito dal consolidatore -->
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
             </div>
 
         </div>
+
+        <div id="center-section" class="relative-box" style="height: 99mm;">
+            <div class="absolute-box">
+                <div id="main__subject" class="twelve-px sixteen-lh">
+                    <p><b><span data-hide-on-it="true">Accusé de réception &bull; </span>Avviso di Avvenuta Ricezione (AAR): ${notification.subject}</b></p>
+                </div>
+                <div id="main__disclaimer" class="eleven-px sixteen-lh">
+                    <p><span data-hide-on-it="true">Vous avez reçu une communication ayant une valeur juridique de ${notification.sender.paDenomination}: <b>voir les documents notifiés.</b>. S'ils ne figurent pas dans le présent avis, <b>vous pouvez consulter les documents en ligne sur le site SEND</b>. Si un paiement est dû, vous trouverez la date d'échéance et la date d'éventuelles contestations dans les documents.</span></p>
+                    <p class="language-margin">Hai ricevuto una comunicazione a valore legale da ${notification.sender.paDenomination}: <b>prendi visione dei documenti notificati</b>. Se non sono inclusi in questo avviso, <b>accedi ai documenti online su SEND</b>. Se è previsto un pagamento, nei documenti troverai la data di scadenza e quella per eventuali ricorsi.</p>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div id="lower-section" style="height: 99mm; position: relative;">
+            <div class="row" style="height: 48mm;">
+                <div class="heading ten-px"><span data-hide-on-it="true">ACCÉDER AUX DOCUMENTS EN LIGNE - GRATUIT &bull; </span>Accedi ai documenti online - gratis</div>
+                <div id="view-online-box-description">
+                    <div class="section-list nine-px eleven-lh">
+                        <ol>
+                            <li>
+                                <p data-hide-on-it="true">Scannez le code QR ou rendez-vous sur <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
+                                </p>
+                                <p class="language-less-margin">Inquadra il codice QR o vai su
+                                        <b><a href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b>
+                                </p>
+                            </li>
+                            <li>
+                                <p data-hide-on-it="true">Accédez avec SPID ou CIE (carte d'identité électronique)</p>
+                                <p class="language-less-margin">Entra con SPID o CIE (Carta d'Identità Elettronica);</p>
+                            </li>
+                            <li>
+                                <p data-hide-on-it="true">Accédez aux documents notifiés</p>
+                                <p class="language-less-margin">Accedi ai documenti notificati.</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <div id="view-online-box">
+                    <img alt="qr-code" id="qr-code" src="${qrCodeQuickAccessLink}" />
+                </div>
+            </div>
+            <div class="row">
+                <div id="send-perfezionamento" class="eight-px" style="padding-left: 2.5mm; line-height: normal;">
+                    <p data-hide-on-it="true">Les documents notifiés peuvent être consultés en ligne pendant 120 jours à compter de la date de prise d’effet de la notification (date à laquelle elle devient légalement valide à toutes fins). Pour en savoir plus, consultez le site <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
+                    <p class="language-margin">I documenti sono disponibili su SEND per 120 giorni dalla data di perfezionamento della notifica (data in cui assume valore di legge per tutte le diverse finalità). Scopri di più su <b><a href="${perfezionamentoURL}">${perfezionamentoURLLabel}</a></b></p>
+                </div>
+
+            </div>
+        </div>
     </div>
-</div>
 
 
 </body>
