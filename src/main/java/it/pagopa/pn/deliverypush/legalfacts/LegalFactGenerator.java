@@ -203,6 +203,7 @@ public class LegalFactGenerator {
         if(!pnDeliveryPushConfigs.isAdditionalLangsEnabled()
                 || checkIfRequiredItalianTemplate(additionalLanguages)
                 || AAR_NOTIFICATION_RADD.equals(italianTemplateType)){
+            log.info("retrieve italian template for {}", italianTemplateType);
             return italianTemplateType;
         }
         return additionalLanguages.stream()

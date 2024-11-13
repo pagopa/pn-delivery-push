@@ -44,7 +44,8 @@ public class PnLegalFactsController implements LegalFactsApi {
             List<String> xPagopaPnCxGroups,
             UUID mandateId,
             ServerWebExchange exchange) {
-        if (! CxTypeAuthFleet.PA.equals(xPagopaPnCxType) && timelineUtils.checkIsNotificationCancellationRequested(iun)){
+        if (! CxTypeAuthFleet.PA.equals(xPagopaPnCxType) && timelineUtils.checkIsNotificationCancellationRequested(iun)
+            && !timelineUtils.checkIsNotificationCancelledLegalFactId(iun, legalFactId)){
             log.warn("Notification already cancelled, returning 404 iun={} ", iun);
             throw new PnNotificationCancelledException();
         }else {
@@ -52,7 +53,6 @@ public class PnLegalFactsController implements LegalFactsApi {
                 .map(response -> ResponseEntity.ok().body(response));
         }
     }
-
 
     @Override
     public Mono<ResponseEntity<LegalFactDownloadMetadataResponse>> getLegalFactById(
@@ -64,7 +64,8 @@ public class PnLegalFactsController implements LegalFactsApi {
             List<String> xPagopaPnCxGroups,
             UUID mandateId,
             ServerWebExchange exchange) {
-        if (! CxTypeAuthFleet.PA.equals(xPagopaPnCxType) && timelineUtils.checkIsNotificationCancellationRequested(iun)){
+        if (! CxTypeAuthFleet.PA.equals(xPagopaPnCxType) && timelineUtils.checkIsNotificationCancellationRequested(iun)
+                && !timelineUtils.checkIsNotificationCancelledLegalFactId(iun, legalFactId) ){
             log.warn("Notification already cancelled, returning 404 iun={} ", iun);
             throw new PnNotificationCancelledException();
         }else {

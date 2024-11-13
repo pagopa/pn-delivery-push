@@ -329,6 +329,7 @@ class PnLegalFactsControllerTest {
 
     private void getLegalFactsCancelled(CxTypeAuthFleet cxTypeAuthFleet) {
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancelledLegalFactId(Mockito.any(), Mockito.any())).thenReturn(false);
 
         Mockito.when(getLegalFactService.getLegalFactMetadata(anyString(), Mockito.any(LegalFactCategory.class), anyString(), anyString(), anyString(), any(), any()))
             .thenThrow(new PnNotFoundException("Authorization Failed", "No auth", ERROR_CODE_DELIVERYPUSH_NOTFOUND));
@@ -368,6 +369,7 @@ class PnLegalFactsControllerTest {
     @Test
     void getLegalFactsCancelledPA() {
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancelledLegalFactId(Mockito.any(), Mockito.any())).thenReturn(false);
 
         LegalFactDownloadMetadataResponse legalFactDownloadMetadataResponse =
             new LegalFactDownloadMetadataResponse()
