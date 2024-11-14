@@ -168,8 +168,7 @@ public class SmartMapper {
                     // - lo usiamo per impostare il timestamp di SEND_DIGITAL_DOMICILE (setTimeStamp)
                     //
                     SendDigitalDetailsInt details = (SendDigitalDetailsInt) result.getDetails();
-                    if (LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType()) &&
-                            details.getDigitalAddress().getAddress().contains(SERCQ_SEND)) {
+                    if (LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType())) {
                             Instant aarRgenTimestamp = findAARgenTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
                             result.setTimestamp(aarRgenTimestamp);
                     }

@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.*;
 
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
-import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.REQUEST_REFUSED;
+import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.*;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PAYMENT;
 
 
@@ -1319,6 +1319,27 @@ public class TimelineUtils {
         log.debug("NotificationCancelled value is={}", isNotificationCancelled);
 
         return isNotificationCancelled;
+    }
+
+    public boolean checkIsNotificationCancelledLegalFactId(String iun, String legalFactId) {
+        log.debug("Start checkIsNotificationCancelledLegalFactId - iun={} legalFactId={}", iun, legalFactId);
+        
+        String elementId = NOTIFICATION_CANCELLED.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .build());
+
+        Optional<TimelineElementInternal> notificationCancelledOpt = timelineService.getTimelineElement(iun, elementId);
+        
+        if(notificationCancelledOpt.isPresent()){
+            TimelineElementInternal notificationCancelled = notificationCancelledOpt.get();
+            return notificationCancelled.getLegalFactsIds().stream().anyMatch(legalFactsIdInt -> {
+                String legalFactKeyReplaced = legalFactsIdInt.getKey().replace(PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX, "");
+                return legalFactKeyReplaced.equals(legalFactId);
+            });
+        }
+        
+        return false;
     }
 
     public boolean checkIsNotificationRefused(String iun) {

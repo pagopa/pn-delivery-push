@@ -55,7 +55,7 @@ class CheckAttachmentRetentionHandlerTest {
         Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, 0)).thenReturn(true);
         
         //WHEN
-        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun);
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun, Instant.now());
         
         //THEN
         Mockito.verify(attachmentUtils, Mockito.never()).changeAttachmentsRetention(Mockito.any(), Mockito.anyInt());
@@ -80,7 +80,7 @@ class CheckAttachmentRetentionHandlerTest {
         Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, 1)).thenReturn(true);
 
         //WHEN
-        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun);
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun, Instant.now());
 
         //THEN
         Mockito.verify(attachmentUtils, Mockito.never()).changeAttachmentsRetention(Mockito.any(), Mockito.anyInt());
@@ -113,7 +113,7 @@ class CheckAttachmentRetentionHandlerTest {
         Mockito.when(attachmentUtils.changeAttachmentsRetention(Mockito.any(), Mockito.anyInt())).thenReturn(Flux.empty());
         
         //WHEN
-        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(notification.getIun());
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(notification.getIun(), Instant.now());
         
         //THEN
         verifySchedulingNextCheckAttachment(notification, retentionAfterExpiration, checkAttachmentDaysBeforeExpiration);
@@ -139,7 +139,7 @@ class CheckAttachmentRetentionHandlerTest {
         Mockito.when(attachmentUtils.changeAttachmentsRetention(Mockito.any(), Mockito.anyInt())).thenReturn(Flux.empty());
 
         //WHEN
-        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(notification.getIun());
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(notification.getIun(), Instant.now());
 
         //THEN
         verifySchedulingNextCheckAttachment(notification, retentionAfterExpiration, checkAttachmentDaysBeforeExpiration);

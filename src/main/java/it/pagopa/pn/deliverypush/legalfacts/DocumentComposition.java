@@ -34,6 +34,7 @@ public class DocumentComposition {
 
     public static TemplateType retrieveTemplateFromLang(TemplateType templateType, String additionalLang) {
         String finalTemplateName = templateType.name() + "_" + additionalLang;
+        log.info("Retrieve template [{}] from lang: [{}]", finalTemplateName, additionalLang);
         return DocumentComposition.TemplateType.valueOf(finalTemplateName);
     }
 
@@ -71,10 +72,10 @@ public class DocumentComposition {
         AAR_NOTIFICATION_RADD("documents_composition_templates/NotificationAAR_RADD.html"),
 
 
-        AAR_NOTIFICATION_RADD_ALT("documents_composition_templates/NotificationAAR_RADDalt_old.html"),
-        AAR_NOTIFICATION_RADD_ALT_DE("documents_composition_templates/NotificationAAR_RADDalt_old_de.html"),
-        AAR_NOTIFICATION_RADD_ALT_SL("documents_composition_templates/NotificationAAR_RADDalt_old_sl.html"),
-        AAR_NOTIFICATION_RADD_ALT_FR("documents_composition_templates/NotificationAAR_RADDalt_old_fr.html"),
+        AAR_NOTIFICATION_RADD_ALT("documents_composition_templates/NotificationAAR_RADDalt.html"),
+        AAR_NOTIFICATION_RADD_ALT_DE("documents_composition_templates/NotificationAAR_RADDalt_de.html"),
+        AAR_NOTIFICATION_RADD_ALT_SL("documents_composition_templates/NotificationAAR_RADDalt_sl.html"),
+        AAR_NOTIFICATION_RADD_ALT_FR("documents_composition_templates/NotificationAAR_RADDalt_fr.html"),
 
 
         AAR_NOTIFICATION_EMAIL("documents_composition_templates/NotificationAARForEMAIL.html"),

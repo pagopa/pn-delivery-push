@@ -181,9 +181,8 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
 
         String timelineEventCategory = timelineElementInternal.getCategory().getValue();
 
-
-        if (Arrays.toString(TimelineElementCategoryInt.DiagnosticTimelineElementCategory.values()).contains(timelineEventCategory)) {
-            log.info("skipping saving webhook event for stream={} because category={} is contains in timeline", stream.getStreamId(), timelineEventCategory);
+        if (isDiagnosticElement(timelineEventCategory)){
+            log.info("skipping saving webhook event for stream={} because category={} is only diagnostic", stream.getStreamId(), timelineEventCategory);
             return Mono.empty();
         }
 
@@ -208,6 +207,17 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         }
 
         return Mono.empty();
+    }
+
+    private boolean isDiagnosticElement(String timelineEventCategory) {
+        try {
+            TimelineElementCategoryInt.DiagnosticTimelineElementCategory.valueOf(timelineEventCategory);
+            //Is diagnostic element
+            return true;
+        }catch (IllegalArgumentException ex){
+            //is not diagnostic element
+            return false;
+        }
     }
 
     private Mono<Void> saveEventWithAtomicIncrement(StreamEntity streamEntity, String newStatus,
