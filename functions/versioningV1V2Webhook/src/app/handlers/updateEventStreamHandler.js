@@ -24,6 +24,7 @@ class UpdateEventStreamHandler extends EventHandler {
         const requestBodyV1 = JSON.parse(event.body);
         const requestBodyV22= createStreamRequestV22(requestBodyV1);
 
+
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}`;
         axiosRetry(axios, {
@@ -52,9 +53,8 @@ class UpdateEventStreamHandler extends EventHandler {
                 transformedObject = createStreamMetadataResponseV10(response.data);
             break;
             case 23:
-                transformedObject = response.data;
-            break;
             case 24:
+            case 25:
                 transformedObject = response.data;
             break;
             default:
