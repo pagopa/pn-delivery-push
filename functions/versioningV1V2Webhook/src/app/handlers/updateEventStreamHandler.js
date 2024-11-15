@@ -21,8 +21,21 @@ class UpdateEventStreamHandler extends EventHandler {
         const headers = this.prepareHeaders(event, version);
 
         // REQUEST BODY
-        const requestBodyV1 = JSON.parse(event.body);
-        const requestBodyV22= createStreamRequestV22(requestBodyV1);
+        let requestBody = JSON.parse(event.body);
+        switch(version) {
+            case 10:
+                requestBody = createStreamRequestV22(requestBody);
+            break;
+            case 23:
+                requestBody = requestBody;
+            break;
+            case 24:
+                requestBody = requestBody;
+            break;
+            default:
+                console.error('Invalid version ', version)
+            break;
+        }
 
         const streamId = event["pathParameters"]["streamId"];
         const url = `${this.baseUrl}/streams/${streamId}`;
@@ -41,8 +54,8 @@ class UpdateEventStreamHandler extends EventHandler {
         });
 
         console.log('calling ', url);
-        console.log(requestBodyV22);
-        let response = await axios.put(url, requestBodyV22, {headers: headers, timeout: this.attemptTimeout});
+        console.log(requestBody);
+        let response = await axios.put(url, requestBody, {headers: headers, timeout: this.attemptTimeout});
 
         // RESPONSE BODY
         let transformedObject;
