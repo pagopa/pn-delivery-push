@@ -2,7 +2,9 @@ package it.pagopa.pn.deliverypush.action.notificationview;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogWorfklowRecipientDeceasedDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,7 @@ public class NotificationCost {
                 .flatMap(timelineElementOpt -> {
                     if(timelineElementOpt.isPresent()) {
                         log.debug("Refinement element found for notification {} recIndex {}", notification.getIun(), recIndex);
-                        // Se c'è il refinement viene settato empty
+                        // Se c'è il refinement restitutiamo un costo empty
                         return Mono.just(Optional.empty());
                     } else {
                         log.debug("Refinement element not found for notification {} recIndex {}", notification.getIun(), recIndex);
@@ -42,22 +44,6 @@ public class NotificationCost {
                     }
                 });
     }
-
-    private Mono<Optional<Integer>> handleDeceasedElement(String iun, Integer recIndex) {
-        String deceasedId = getDeceasedId(iun, recIndex);
-        return Mono.fromCallable(() -> timelineService.getTimelineElementStrongly(iun, deceasedId))
-                .flatMap(timelineElementOpt -> {
-                    if(timelineElementOpt.isPresent()) {
-                        log.debug("Deceased element found for notification {} recIndex {}", iun, recIndex);
-                        // Se c'è il deceased viene settato empty
-                        return Mono.just(Optional.empty());
-                    } else {
-                        log.debug("Deceased element not found for notification {} recIndex {}", iun, recIndex);
-                        return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
-                    }
-                });
-    }
-
 
     private String getRefinementId(String iun, Integer recIndex) {
         // Costruisce l'ID dell'evento di refinement
@@ -67,6 +53,26 @@ public class NotificationCost {
                         .recIndex(recIndex)
                         .build()
         );
+    }
+
+    private Mono<Optional<Integer>> handleDeceasedElement(String iun, Integer recIndex) {
+        String deceasedId = getDeceasedId(iun, recIndex);
+        return Mono.fromCallable(() -> timelineService.getTimelineElementStrongly(iun, deceasedId))
+                .flatMap(timelineElementOpt -> {
+                    if (timelineElementOpt.isPresent() && deceasedEventHasCost(timelineElementOpt.get())) {
+                        log.debug("Deceased element with cost found for notification {} recIndex {}", iun, recIndex);
+                        // Se c'è il deceased con un costo applicato restitutiamo un costo empty
+                        return Mono.just(Optional.empty());
+                    } else {
+                        log.debug("Deceased element with cost not found for notification {} recIndex {}", iun, recIndex);
+                        return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
+                    }
+                });
+    }
+
+    private static boolean deceasedEventHasCost(TimelineElementInternal timelineElement) {
+        return ((AnalogWorfklowRecipientDeceasedDetailsInt) timelineElement.getDetails()).getNotificationCost() != null
+                && ((AnalogWorfklowRecipientDeceasedDetailsInt) timelineElement.getDetails()).getNotificationCost() != 0;
     }
 
     private String getDeceasedId(String iun, Integer recIndex) {

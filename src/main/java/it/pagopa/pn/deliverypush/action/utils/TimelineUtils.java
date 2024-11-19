@@ -1230,22 +1230,25 @@ public class TimelineUtils {
                 .build());
     }
 
-    public boolean checkNotificationIsViewedOrRefinedOrCancelled(String iun, Integer recIndex) {
-        log.debug("checkNotificationIsViewedOrPaidOrRefinedOrCancelled - iun={} recIndex={}", iun, recIndex);
+    public boolean checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(String iun, Integer recIndex) {
+        log.debug("checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled - iun={} recIndex={}", iun, recIndex);
 
-        boolean isNotificationViewed = checkIsNotificationViewed(iun, recIndex);
-
-        if (!isNotificationViewed) {
-            log.debug("Notification is not viewed need to check if it is refined - iun={} recIndex={}", iun, recIndex);
-            boolean isNotificationRefined = checkIsNotificationRefined(iun, recIndex);
-
-            if (!isNotificationRefined) {
-                log.debug("Notification is not refined need to check if it is cancelled - iun={} recIndex={}", iun, recIndex);
-                return checkIsNotificationCancellationRequested(iun);
-            }
+        if (checkIsNotificationViewed(iun, recIndex)) {
+            return true;
         }
+        log.debug("Notification is not viewed need to check if it is refined - iun={} recIndex={}", iun, recIndex);
 
-        return true;
+        if (checkIsNotificationRefined(iun, recIndex)) {
+            return true;
+        }
+        log.debug("Notification is not refined need to check if it is deceased - iun={} recIndex={}", iun, recIndex);
+
+        if (checkIsRecipientDeceased(iun, recIndex)) {
+            return true;
+        }
+        log.debug("Notification is not deceased need to check if it is cancelled - iun={} recIndex={}", iun, recIndex);
+
+        return checkIsNotificationCancellationRequested(iun);
     }
 
     public boolean checkIsNotificationPaid(String iun, Integer recIndex) {
@@ -1305,6 +1308,14 @@ public class TimelineUtils {
 
         log.debug("check notification refined is {} - iun={} recIndex={}", notificationRefinedRequestOpt.isPresent(), iun, recIndex);
         return notificationRefinedRequestOpt.isPresent();
+    }
+
+    public boolean checkIsRecipientDeceased(String iun, Integer recIndex) {
+        log.debug("checkIsRecipientDeceased - iun={} recIndex={}", iun, recIndex);
+        Optional<TimelineElementInternal> elementInternalOptional = getNotificationRecipientDeceased(iun, recIndex);
+
+        log.debug("check recipient deceased is {} - iun={} recIndex={}", elementInternalOptional.isPresent(), iun, recIndex);
+        return elementInternalOptional.isPresent();
     }
 
     public boolean checkIsNotificationCancellationRequested(String iun) {
