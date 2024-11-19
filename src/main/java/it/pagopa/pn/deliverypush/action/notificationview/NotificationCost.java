@@ -71,7 +71,8 @@ public class NotificationCost {
     }
 
     private static boolean deceasedEventHasCost(TimelineElementInternal timelineElement) {
-        return ((AnalogWorfklowRecipientDeceasedDetailsInt) timelineElement.getDetails()).getNotificationCost() != null;
+        return ((AnalogWorfklowRecipientDeceasedDetailsInt) timelineElement.getDetails()).getNotificationCost() != null
+                && ((AnalogWorfklowRecipientDeceasedDetailsInt) timelineElement.getDetails()).getNotificationCost() != 0;
     }
 
     private String getDeceasedId(String iun, Integer recIndex) {
