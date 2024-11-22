@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -259,6 +260,7 @@ class CompletionWorkFlowHandlerTest {
         EndWorkflowStatus endWorkflowStatus = EndWorkflowStatus.DECEASED;
         //WHEN
         Mockito.when(timelineUtils.checkIsNotificationViewed(notification.getIun(), recIndex)).thenReturn(false);
+        Mockito.when(attachmentUtils.changeAttachmentsRetention(notification, recIndex)).thenReturn(Flux.empty());
         Mockito.when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
         Mockito.when(timelineUtils.buildAnalogWorkflowRecipientDeceasedTimelineElement(
                 notification,
