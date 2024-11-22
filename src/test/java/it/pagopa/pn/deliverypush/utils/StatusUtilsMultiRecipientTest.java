@@ -7,11 +7,10 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import software.amazon.awssdk.services.dynamodb.model.Get;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -822,6 +821,155 @@ class StatusUtilsMultiRecipientTest {
                         .build(),
                 actualStatusHistory.get(3),
                 "4th status wrong"
+        );
+    }
+
+    /*
+        IN_VALIDATION - ACCEPTED - DELIVERING - RETURNED_TO_SENDER - CANCELLED
+        per entrambi i destinatari viene ricevuta una comunicazione di decesso e successivamente viene richiesta la cancellazione
+        Stato finale: CANCELLED
+     */
+    @Test
+    void getTimelineHistoryMultiRecipientWithTwoDeceasedWorkflowTestAndCancellation() {
+        final int NUMBER_OF_RECIPIENTS = 2;
+
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+
+        // GIVEN a timeline
+        TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
+                .elementId("requestAcceptedTimelineElement")
+                .timestamp(Instant.parse("2021-09-10T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendAnalogFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendAnalogFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-12T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
+                .build();
+        Instant feedbackFirstRecipientBusinessDate = Instant.parse("2021-09-13T06:30:00.00Z");
+        TimelineElementInternal feedbackFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-13T15:30:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .details(SendAnalogFeedbackDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+        TimelineElementInternal deceasedWorkflowFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("deceasedWorkflowFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-14T15:41:00.00Z")))
+                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
+                .details(AnalogWorfklowRecipientDeceasedDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+        TimelineElementInternal prepareAnalogDomicileSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("prepareAnalogDomicileSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-15T15:40:00.00Z")))
+                .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
+                .build();
+        TimelineElementInternal sendAnalogSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendAnalogSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T15:40:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
+                .build();
+        Instant feedbackAnalogSecondRecipientBusinessDate = Instant.parse("2021-09-18T09:30:00.00Z");
+        TimelineElementInternal feedbackAnalogSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackAnalogSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-17T15:40:00.00Z")))
+                .iun("iun2")
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .details(SendAnalogFeedbackDetailsInt.builder().recIndex(1).notificationDate(feedbackAnalogSecondRecipientBusinessDate).deliveryFailureCause("M02").build())
+                .build();
+        TimelineElementInternal deceasedWorkflowSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("deceasedWorkflowSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-18T15:41:00.00Z")))
+                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
+                .details(AnalogWorfklowRecipientDeceasedDetailsInt.builder().recIndex(1).notificationDate(feedbackAnalogSecondRecipientBusinessDate).build())
+                .build();
+        TimelineElementInternal cancelRequestTimelineElement = TimelineElementInternal.builder()
+                .elementId("cancelRequestTimelineElement")
+                .timestamp((Instant.parse("2021-09-19T10:00:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST)
+                .build();
+        TimelineElementInternal cancelledTimelineElement = TimelineElementInternal.builder()
+                .elementId("cancelledTimelineElement")
+                .timestamp((Instant.parse("2021-09-19T10:01:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_CANCELLED)
+                .build();
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendAnalogFirstRecipientTimelineElement,
+                feedbackFirstRecipientTimelineElement, deceasedWorkflowFirstRecipientTimelineElement,
+                prepareAnalogDomicileSecondRecipientTimelineElement, sendAnalogSecondRecipientTimelineElement,
+                feedbackAnalogSecondRecipientTimelineElement, deceasedWorkflowSecondRecipientTimelineElement,
+                cancelRequestTimelineElement, cancelledTimelineElement);
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                NUMBER_OF_RECIPIENTS,
+                notificationCreatedAt
+        );
+
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
+
+        // THEN status histories have 4 elements
+        Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
+
+        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+
+        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAcceptedTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("requestAcceptedTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+
+        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendAnalogFirstRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("sendAnalogFirstRecipientTimelineElement",
+                                "feedbackFirstRecipientTimelineElement", "deceasedWorkflowFirstRecipientTimelineElement",
+                                "prepareAnalogDomicileSecondRecipientTimelineElement", "sendAnalogSecondRecipientTimelineElement",
+                                "feedbackAnalogSecondRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+
+        //  ... 4th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.RETURNED_TO_SENDER)
+                        .activeFrom(feedbackAnalogSecondRecipientBusinessDate)
+                        .relatedTimelineElements(List.of(
+                                "deceasedWorkflowSecondRecipientTimelineElement", "cancelRequestTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(3),
+                "4th status wrong"
+        );
+
+        //  ... 5th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.CANCELLED)
+                        .activeFrom(cancelledTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of(
+                                "cancelledTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(4),
+                "5th status wrong"
         );
     }
 

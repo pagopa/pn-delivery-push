@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedReque
 import it.pagopa.pn.deliverypush.action.startworkflow.StartWorkflowHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -25,9 +24,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -39,7 +36,7 @@ import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 
-class NotificationCostTestIT extends CommonTestConfiguration {
+class NotificationCostDeceasedTestIT extends CommonTestConfiguration {
     @Autowired
     StartWorkflowHandler startWorkflowHandler;
     @SpyBean
@@ -48,15 +45,16 @@ class NotificationCostTestIT extends CommonTestConfiguration {
     StatusUtils statusUtils;
     @Autowired
     NotificationViewedRequestHandler notificationViewedRequestHandler;
-    @Mock
+    @SpyBean
     private AttachmentUtils attachmentUtils;
 
     @Test
-    @Disabled("TODO: Riattivare quando sarà gestita la statemap e delivery avrà i nuovi puntamenti")
     void notificationViewedAfterRecipientDeceasedWorkflow() {
         // Scenario: Notifica riceve evento DECEDUTO (ANALOG_WORKFLOW_RECIPIENT_DECEASED)
         // Se in seguito arriva l'evento di visualizzazione (NOTIFICATION_VIEW)
         // accertarsi che non sia aggiornata 2 volte la retention e non sia aggiunto il costo nella timeline di visualizzazione (NOTIFICATION_VIEW).
+
+        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-10-10T00:00:00Z");
 
         // GIVEN
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
@@ -98,28 +96,38 @@ class NotificationCostTestIT extends CommonTestConfiguration {
                 )
         );
 
+        // Attesa fino a che lo stato della notifica non diventi RETURNED_TO_SENDER
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.RETURNED_TO_SENDER, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+        );
+
         // Simulazione della visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
         notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, notificationViewDate);
 
-        // Attesa fino a che lo stato della notifica non diventi VIEWED
+        // Attesa fino a che in timeline ci sia l'evento di visualizzazione
         await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
+                Assertions.assertTrue(
+                        TestUtils.checkIsPresentViewed(iun, recIndex, timelineService)
+                )
+        );
+
+        // Verifica che lo stato della notifica resti RETURNED_TO_SENDER
+        await().untilAsserted(() ->
+                Assertions.assertEquals(NotificationStatusInt.RETURNED_TO_SENDER, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
         // Verifica che il costo non sia stato aggiunto nella timeline di visualizzazione
         checkCostForDeceasedEvent(iun, recIndex, true);
         checkCostForViewEvent(iun, recIndex, false);
-
-        Mockito.verify(attachmentUtils, Mockito.times(1)).changeAttachmentsRetention(Mockito.any(NotificationInt.class), Mockito.anyInt());
     }
 
     @Test
-    @Disabled("TODO: Riattivare quando sarà gestita la statemap e delivery avrà i nuovi puntamenti")
     void notificationViewedBeforeRecipientDeceasedWorkflow() {
         // Scenario: Notifica viene creata e VISUALIZZATA prima di ricevere un evento di DECEDUTO (ANALOG_WORKFLOW_RECIPIENT_DECEASED)
         // Accertarsi che l'evento di deceduto non comporti un aggiornamento della retention dei documenti
         // e nel dettaglio dell'elemento di timeline (ANALOG_WORKFLOW_RECIPIENT_DECEASED) non venga aggiunto il costo.
+        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-10-10T00:00:00Z");
 
         // GIVEN
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
@@ -128,11 +136,11 @@ class NotificationCostTestIT extends CommonTestConfiguration {
         String iun = TestUtils.getRandomIun();
 
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +
-                TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(
                         EventId.builder()
                                 .iun(iun)
                                 .recIndex(0)
-                                .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
+                                .sentAttemptMade(0)
                                 .build()
                 );
 
@@ -148,6 +156,7 @@ class NotificationCostTestIT extends CommonTestConfiguration {
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
 
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
@@ -163,11 +172,6 @@ class NotificationCostTestIT extends CommonTestConfiguration {
         // Start del workflow della notifica
         startWorkflowHandler.startWorkflow(iun);
 
-        // Attesa fino a che lo stato della notifica non diventi VIEWED
-        await().untilAsserted(() ->
-                Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
-        );
-
         // Verifica che l'evento di decesso sia stato registrato correttamente
         await().untilAsserted(() ->
                 Assertions.assertTrue(
@@ -175,10 +179,15 @@ class NotificationCostTestIT extends CommonTestConfiguration {
                 )
         );
 
-        // Verifica che il costo non sia stato aggiunto nella timeline di visualizzazione
+        await().untilAsserted(() ->
+                Assertions.assertTrue(
+                        TestUtils.checkIsPresentViewed(iun, recIndex, timelineService)
+                )
+        );
+
+        // Verifica che il costo sia stato aggiunto nella timeline di visualizzazione e non in quella di decesso
         checkCostForViewEvent(iun, recIndex, true);
         checkCostForDeceasedEvent(iun, recIndex, false);
-        Mockito.verify(attachmentUtils, Mockito.times(1)).changeAttachmentsRetention(Mockito.any(NotificationInt.class), Mockito.anyInt());
     }
 
     private void checkCostForViewEvent(String iun, Integer recIndex, boolean isCostExpected) {
