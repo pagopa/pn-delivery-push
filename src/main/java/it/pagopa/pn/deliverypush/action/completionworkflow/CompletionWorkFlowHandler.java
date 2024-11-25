@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.Optional;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
 @Component
@@ -152,11 +153,11 @@ public class CompletionWorkFlowHandler {
     }
 
     public void addRecipientDeceasedElement(NotificationInt notification, Integer recIndex, Instant notificationDate, PhysicalAddressInt usedAddress, Integer attachmentRetention, Boolean addNotificationCost) {
-        if (attachmentRetention != null) {
-            attachmentUtils.changeAttachmentsRetention(notification, attachmentRetention);
-        }
-
         try {
+            if (attachmentRetention != null) {
+                attachmentUtils.changeAttachmentsRetention(notification, attachmentRetention).blockLast();
+            }
+
             Integer notificationCost = notificationProcessCostService.getSendFeeAsync().block();
 
             TimelineElementInternal timelineElement = timelineUtils.buildAnalogWorkflowRecipientDeceasedTimelineElement(
@@ -171,6 +172,7 @@ public class CompletionWorkFlowHandler {
             timelineService.addTimelineElement(timelineElement, notification);
         } catch (Exception ex) {
             log.error("Failed to retrieve notification cost for iun={} recIndex={}", notification.getIun(), recIndex, ex);
+            throw new PnInternalException("Exception adding recipient deceased timeline element for notification with iun=" + notification.getIun() + " and recIndex=" + recIndex, ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
         }
     }
 
