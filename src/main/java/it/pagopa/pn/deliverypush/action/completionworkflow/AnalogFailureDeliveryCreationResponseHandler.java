@@ -36,15 +36,15 @@ public class AnalogFailureDeliveryCreationResponseHandler {
         PnAuditLogEvent logEvent = createAuditLog(notification, recIndex, actionDetails.getKey());
         logEvent.log();
         
-        Optional<CompletelyUnreachableCreationRequestDetails> analogFailureWorkflowCreationRequestDetailsIntOpt = timelineService.getTimelineElementDetails(iun, actionDetails.getTimelineId(), CompletelyUnreachableCreationRequestDetails.class);
+        Optional<CompletelyUnreachableCreationRequestDetails> completelyUnreachableCreationRequestDetailsOpt = timelineService.getTimelineElementDetails(iun, actionDetails.getTimelineId(), CompletelyUnreachableCreationRequestDetails.class);
 
-        if (analogFailureWorkflowCreationRequestDetailsIntOpt.isPresent()) {
-            CompletelyUnreachableCreationRequestDetails timelineDetails = analogFailureWorkflowCreationRequestDetailsIntOpt.get();
+        if (completelyUnreachableCreationRequestDetailsOpt.isPresent()) {
+            CompletelyUnreachableCreationRequestDetails completelyUnreachableCreationRequestDetails = completelyUnreachableCreationRequestDetailsOpt.get();
             // recupero la data di generazione del DEPOSITO AAR, per poterla inserire nell'atto opponibile
             TimelineElementInternal analogFailureWorkflowTimelineElement = retrieveAnalogFailureWorkflowTimelineElement(notification.getIun(), recIndex);
 
-            completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex, timelineDetails.getLegalFactId(), analogFailureWorkflowTimelineElement.getTimestamp());
-            refinementScheduler.scheduleAnalogRefinement(notification, recIndex, timelineDetails.getCompletionWorkflowDate(), timelineDetails.getEndWorkflowStatus());
+            completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex, completelyUnreachableCreationRequestDetails.getLegalFactId(), analogFailureWorkflowTimelineElement.getTimestamp());
+            refinementScheduler.scheduleAnalogRefinement(notification, recIndex, analogFailureWorkflowTimelineElement.getTimestamp(), completelyUnreachableCreationRequestDetails.getEndWorkflowStatus());
 
         } else {
             logEvent.generateFailure("Error in handleAnalogFailureDeliveryCreationResponse for timelineId={} and key={} - iun={} recIndex={}", actionDetails.getTimelineId(), actionDetails.getKey(), notification.getIun(), recIndex).log();
