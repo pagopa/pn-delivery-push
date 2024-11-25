@@ -262,6 +262,7 @@ class CompletionWorkFlowHandlerTest {
         Mockito.when(timelineUtils.checkIsNotificationViewed(notification.getIun(), recIndex)).thenReturn(false);
         Mockito.when(attachmentUtils.changeAttachmentsRetention(notification, recIndex)).thenReturn(Flux.empty());
         Mockito.when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
+        Mockito.when(attachmentUtils.changeAttachmentsRetention(notification, recIndex)).thenReturn(Flux.empty());
         Mockito.when(timelineUtils.buildAnalogWorkflowRecipientDeceasedTimelineElement(
                 notification,
                 recIndex,

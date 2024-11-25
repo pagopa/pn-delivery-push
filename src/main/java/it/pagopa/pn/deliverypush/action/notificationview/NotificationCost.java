@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogWorfklowRecipientDeceasedDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class NotificationCost {
         String refinementId = getRefinementId(notification.getIun(), recIndex);
         return Mono.fromCallable(() -> timelineService.getTimelineElementStrongly(notification.getIun(), refinementId))
                 .flatMap(timelineElementOpt -> {
-                    if(timelineElementOpt.isPresent()) {
+                    if(timelineElementOpt.isPresent() && refinementHasCost(timelineElementOpt.get())) {
                         log.debug("Refinement element found for notification {} recIndex {}", notification.getIun(), recIndex);
                         // Se c'è il refinement restitutiamo un costo empty
                         return Mono.just(Optional.empty());
@@ -53,6 +54,11 @@ public class NotificationCost {
                         .recIndex(recIndex)
                         .build()
         );
+    }
+
+    private static boolean refinementHasCost(TimelineElementInternal timelineElement) {
+        return ((RefinementDetailsInt)timelineElement.getDetails()).getNotificationCost() != null
+                && ((RefinementDetailsInt)timelineElement.getDetails()).getNotificationCost() != 0;
     }
 
     private Mono<Optional<Integer>> handleDeceasedElement(String iun, Integer recIndex) {

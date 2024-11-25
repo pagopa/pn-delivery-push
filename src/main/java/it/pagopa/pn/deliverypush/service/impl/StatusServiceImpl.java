@@ -69,7 +69,7 @@ public class StatusServiceImpl implements StatusService {
 
     private RequestUpdateStatusDto getRequestUpdateStatusDto(String iun, NotificationStatusInt nextState, Instant timeStamp) {
         return new RequestUpdateStatusDto()
-                .nextStatus(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationStatus.valueOf(nextState.name()))
+                .nextStatus(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationStatusV26.valueOf(nextState.name()))
                 .iun(iun)
                 .timestamp(timeStamp);
     }

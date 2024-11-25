@@ -348,7 +348,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET) // Non più usato
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET) // Molto improbabile
-
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
                 // STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET);
     }
