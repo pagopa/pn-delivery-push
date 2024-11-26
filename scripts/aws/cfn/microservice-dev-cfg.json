@@ -72,6 +72,6 @@
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
     "AdditionalLangsEnabled": "true",
-    "ActivationDeceasedWorkflowDate": ""
+    "ActivationDeceasedWorkflowDate": "2024-11-25T00:00:00Z"
     }
 }
