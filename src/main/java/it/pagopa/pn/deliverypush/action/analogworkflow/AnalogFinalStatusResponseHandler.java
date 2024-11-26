@@ -78,7 +78,7 @@ public class AnalogFinalStatusResponseHandler {
     }
 
     private boolean shouldFollowDeceasedWorkflow(Instant notificationDate) {
-        String activationDate = pnDeliveryPushConfigs.getActivationDeceasedWorfklowDate();
+        String activationDate = pnDeliveryPushConfigs.getActivationDeceasedWorkflowDate();
         return activationDate != null && notificationDate.isAfter(Instant.parse(activationDate));
     }
 

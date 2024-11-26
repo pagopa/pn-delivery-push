@@ -70,7 +70,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
        - Public Registry indirizzo trovato ma restituisce un feedback per una consegna fallita a causa di destinatario deceduto (Ottenuto inserendo nell'indirizzo ExternalChannelMock.EXTCHANNEL_SEND_DECEASED)
         Con l'attivazione del workflow di deceduto, ci aspettiamo che la notifica non sia mai perfezionata.
     */
-        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-09-01T00:00:00Z");
+        Mockito.when(cfg.getActivationDeceasedWorkflowDate()).thenReturn("2021-09-01T00:00:00Z");
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(PaperChannelMock.EXTCHANNEL_SEND_DECEASED)
                 .build();
@@ -173,7 +173,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         Arriva un evento di cancellazione dopo l'evento di deceduto, ci aspettiamo che lo stato della notifica
         passi in CANCELLED.
     */
-        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-09-01T00:00:00Z");
+        Mockito.when(cfg.getActivationDeceasedWorkflowDate()).thenReturn("2021-09-01T00:00:00Z");
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(PaperChannelMock.EXTCHANNEL_SEND_DECEASED)
                 .build();
@@ -292,7 +292,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
        Ci aspettiamo che la notifica sia perfezionata in quanto il workflow di deceduto non è attivo.
     */
-        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn(null);
+        Mockito.when(cfg.getActivationDeceasedWorkflowDate()).thenReturn(null);
 
         PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
                 .withAddress(PaperChannelMock.EXTCHANNEL_SEND_DECEASED)
@@ -408,7 +408,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
        Ci aspettiamo che la notifica sia comunque perfezionata a causa della riuscita del workflow per il primo recipient.
     */
-        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-09-01T00:00:00Z");
+        Mockito.when(cfg.getActivationDeceasedWorkflowDate()).thenReturn("2021-09-01T00:00:00Z");
 
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
@@ -571,7 +571,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
        Ci aspettiamo che la notifica sia comunque perfezionata a causa della riuscita del workflow per il primo recipient.
     */
-        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-09-01T00:00:00Z");
+        Mockito.when(cfg.getActivationDeceasedWorkflowDate()).thenReturn("2021-09-01T00:00:00Z");
 
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
@@ -785,7 +785,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
        Ci aspettiamo che la notifica non sia perfezionata e finisca in stato RETURNED_TO_SENDER.
     */
-        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-09-01T00:00:00Z");
+        Mockito.when(cfg.getActivationDeceasedWorkflowDate()).thenReturn("2021-09-01T00:00:00Z");
 
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(PaperChannelMock.EXTCHANNEL_SEND_DECEASED)
@@ -944,7 +944,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         Triggheriamo la visualizzazione della notifica per il secondo recipient che però non dovrebbe avere effetti sullo stato della notifica.
         Infatti ci aspettiamo che la notifica sia comunque perfezionata per decorrenza termini a causa della riuscita del workflow per il primo recipient.
     */
-        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-09-01T00:00:00Z");
+        Mockito.when(cfg.getActivationDeceasedWorkflowDate()).thenReturn("2021-09-01T00:00:00Z");
 
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")

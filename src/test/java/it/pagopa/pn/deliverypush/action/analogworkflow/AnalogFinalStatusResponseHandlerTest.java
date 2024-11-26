@@ -54,7 +54,7 @@ class AnalogFinalStatusResponseHandlerTest {
         when(sendAnalogFeedbackDetails.getDeliveryFailureCause()).thenReturn("M02");
         when(sendAnalogFeedbackDetails.getResponseStatus()).thenReturn(ResponseStatusInt.OK);
         when(notification.getSentAt()).thenReturn(Instant.parse("2023-01-02T00:00:00Z"));
-        when(pnDeliveryPushConfigs.getActivationDeceasedWorfklowDate()).thenReturn("2023-01-01T00:00:00Z");
+        when(pnDeliveryPushConfigs.getActivationDeceasedWorkflowDate()).thenReturn("2023-01-01T00:00:00Z");
         when(timelineService.getTimelineElementDetails(anyString(), anyString(), eq(SendAnalogFeedbackDetailsInt.class))).thenReturn(Optional.of(sendAnalogFeedbackDetails));
 
         handler.handleFinalResponse("iun", 1, "analogFeedbackTimelineId");
@@ -70,7 +70,7 @@ class AnalogFinalStatusResponseHandlerTest {
         when(sendAnalogFeedbackDetails.getDeliveryFailureCause()).thenReturn("M01");
         when(sendAnalogFeedbackDetails.getResponseStatus()).thenReturn(ResponseStatusInt.OK);
         when(notification.getSentAt()).thenReturn(Instant.parse("2023-01-02T00:00:00Z"));
-        when(pnDeliveryPushConfigs.getActivationDeceasedWorfklowDate()).thenReturn("2023-01-01T00:00:00Z");
+        when(pnDeliveryPushConfigs.getActivationDeceasedWorkflowDate()).thenReturn("2023-01-01T00:00:00Z");
         when(timelineService.getTimelineElementDetails(anyString(), anyString(), eq(SendAnalogFeedbackDetailsInt.class))).thenReturn(Optional.of(sendAnalogFeedbackDetails));
 
         handler.handleFinalResponse("iun", 1, "analogFeedbackTimelineId");
@@ -86,7 +86,7 @@ class AnalogFinalStatusResponseHandlerTest {
         when(sendAnalogFeedbackDetails.getDeliveryFailureCause()).thenReturn("M02");
         when(sendAnalogFeedbackDetails.getResponseStatus()).thenReturn(ResponseStatusInt.OK);
         when(notification.getSentAt()).thenReturn(Instant.parse("2022-12-02T00:00:00Z"));
-        when(pnDeliveryPushConfigs.getActivationDeceasedWorfklowDate()).thenReturn("2023-01-01T00:00:00Z");
+        when(pnDeliveryPushConfigs.getActivationDeceasedWorkflowDate()).thenReturn("2023-01-01T00:00:00Z");
         when(timelineService.getTimelineElementDetails(anyString(), anyString(), eq(SendAnalogFeedbackDetailsInt.class))).thenReturn(Optional.of(sendAnalogFeedbackDetails));
 
         handler.handleFinalResponse("iun", 1, "analogFeedbackTimelineId");
@@ -102,7 +102,7 @@ class AnalogFinalStatusResponseHandlerTest {
         when(sendAnalogFeedbackDetails.getDeliveryFailureCause()).thenReturn("M01");
         when(sendAnalogFeedbackDetails.getResponseStatus()).thenReturn(ResponseStatusInt.KO);
         when(notification.getSentAt()).thenReturn(Instant.parse("2023-01-02T00:00:00Z"));
-        when(pnDeliveryPushConfigs.getActivationDeceasedWorfklowDate()).thenReturn("2023-01-01T00:00:00Z");
+        when(pnDeliveryPushConfigs.getActivationDeceasedWorkflowDate()).thenReturn("2023-01-01T00:00:00Z");
         when(timelineService.getTimelineElementDetails(anyString(), anyString(), eq(SendAnalogFeedbackDetailsInt.class))).thenReturn(Optional.of(sendAnalogFeedbackDetails));
 
         handler.handleFinalResponse("iun", 1, "analogFeedbackTimelineId");

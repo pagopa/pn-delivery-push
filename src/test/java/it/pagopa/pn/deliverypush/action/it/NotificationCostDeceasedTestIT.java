@@ -54,7 +54,7 @@ class NotificationCostDeceasedTestIT extends CommonTestConfiguration {
         // Se in seguito arriva l'evento di visualizzazione (NOTIFICATION_VIEW)
         // accertarsi che non sia aggiornata 2 volte la retention e non sia aggiunto il costo nella timeline di visualizzazione (NOTIFICATION_VIEW).
 
-        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-10-10T00:00:00Z");
+        Mockito.when(cfg.getActivationDeceasedWorkflowDate()).thenReturn("2021-10-10T00:00:00Z");
 
         // GIVEN
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
@@ -127,7 +127,7 @@ class NotificationCostDeceasedTestIT extends CommonTestConfiguration {
         // Scenario: Notifica viene creata e VISUALIZZATA prima di ricevere un evento di DECEDUTO (ANALOG_WORKFLOW_RECIPIENT_DECEASED)
         // Accertarsi che l'evento di deceduto non comporti un aggiornamento della retention dei documenti
         // e nel dettaglio dell'elemento di timeline (ANALOG_WORKFLOW_RECIPIENT_DECEASED) non venga aggiunto il costo.
-        Mockito.when(cfg.getActivationDeceasedWorfklowDate()).thenReturn("2021-10-10T00:00:00Z");
+        Mockito.when(cfg.getActivationDeceasedWorkflowDate()).thenReturn("2021-10-10T00:00:00Z");
 
         // GIVEN
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()

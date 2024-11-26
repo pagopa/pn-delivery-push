@@ -883,6 +883,10 @@ Parameters:
       - true
       - false
 
+  ActivationDeceasedWorkflowDate:
+    Type: String
+    Description: 'start date enable feature flag deceased new workflow'
+
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
