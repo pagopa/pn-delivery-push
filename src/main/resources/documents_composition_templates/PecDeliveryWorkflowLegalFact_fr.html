@@ -3,7 +3,11 @@
 <html lang="it">
 
 <head>
-    <title>Attestazione opponibile a terzi</title>
+    <#if endWorkflowStatus=="SUCCESS">
+    <title>Attestation opposable aux tiers: notification numérique &bull; Attestazione opponibile a terzi: notifica digitale</title>
+        <#else>
+        <title>Attestation opposable aux tiers : échec de remise numérique &bull; Attestazione opponibile a terzi: mancato recapito digitale</title>
+    </#if>
     <meta name="author" content="SEND - Servizio Notifiche Digitali" />
     <link rel="stylesheet" href="styles/index.css">
 </head>
