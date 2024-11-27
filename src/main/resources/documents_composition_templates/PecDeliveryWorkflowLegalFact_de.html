@@ -3,7 +3,11 @@
 <html lang="it">
 
 <head>
-    <title>Attestazione opponibile a terzi</title>
+    <#if endWorkflowStatus=="SUCCESS">
+    <title>Die Bescheinigung kann von Dritten beanstandet werden: digitale Zustellung &bull; Attestazione opponibile a terzi: notifica digitale</title>
+        <#else>
+        <title>Die Bescheinigung kann von Dritten beanstandet werden: digitale Unzustellbarkeit &bull; Attestazione opponibile a terzi: mancato recapito digitale</title>
+    </#if>
     <meta name="author" content="SEND - Servizio Notifiche Digitali" />
     <link rel="stylesheet" href="styles/index.css">
 </head>

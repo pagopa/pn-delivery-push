@@ -3,7 +3,11 @@
 <html lang="it">
 
 <head>
-    <title>Attestazione opponibile a terzi</title>
+    <#if endWorkflowStatus=="SUCCESS">
+    <title>Zavezujoče potrdilo za tretje osebe: digitalno obvestilo &bull; Attestazione opponibile a terzi: notifica digitale</title>
+        <#else>
+        <title>Zavezujoče potrdilo za tretje osebe: neuspešna digitalna dostava &bull; Attestazione opponibile a terzi: mancato recapito digitale</title>
+    </#if>
     <meta name="author" content="SEND - Servizio Notifiche Digitali" />
     <link rel="stylesheet" href="styles/index.css">
 </head>
