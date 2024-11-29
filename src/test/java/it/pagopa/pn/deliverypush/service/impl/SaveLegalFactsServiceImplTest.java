@@ -70,7 +70,7 @@ class SaveLegalFactsServiceImplTest {
                 .bytesArrayGeneratedAar(denomination.getBytes())
                 .build();
         Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken)).thenReturn(aarInfo);
-        Mockito.when(legalFactBuilder.getNumberOfPages(denomination.getBytes())).thenReturn(1);
+        //Mockito.when(legalFactBuilder.getNumberOfPages(denomination.getBytes())).thenReturn(1);
         Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
 
         PdfInfo actual = saveLegalFactsService.sendCreationRequestForAAR(notification, recipient, quickAccessToken);

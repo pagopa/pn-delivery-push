@@ -39,8 +39,8 @@ import java.util.Optional;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE;
 
-@Component
 @Slf4j
+@Component("templatesClient")
 public class LegalFactGeneratorTemplatesClient {
 
     private final CustomInstantWriter instantWriter;

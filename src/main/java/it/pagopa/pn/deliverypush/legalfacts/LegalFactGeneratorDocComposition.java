@@ -52,9 +52,6 @@ public class LegalFactGeneratorDocComposition {
     public static final String FIELD_NOTIFICATION = "notification";
     public static final String FIELD_DIGESTS = "digests";
     public static final String FIELD_ADDRESS_WRITER = "addressWriter";
-    public static final String FIELD_SIGNATURE = "signature";
-    public static final String FIELD_TIME_REFERENCE = "timeReference";
-    public static final String FIELD_PDF_FILE_NAME = "pdfFileName";
     public static final String FIELD_IUN = "iun";
     public static final String FIELD_DELIVERIES = "deliveries";
     public static final String FIELD_RECIPIENT = "recipient";
@@ -81,7 +78,6 @@ public class LegalFactGeneratorDocComposition {
     public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
     public static final String FIELD_LOGO = "logoBase64";
     private static final String FIELD_ADDITIONAL = "additional_";
-    private static final String FIELD_DISCLAIMER = "disclaimer";
     public static final String FIELD_SUBJECT = "subject";
     private static final String FIELD_RADDPHONENUMBER = "raddPhoneNumber";
     public static final String FIELD_NOTIFICATION_CANCELLED_DATE = "notificationCancelledDate";
@@ -220,15 +216,15 @@ public class LegalFactGeneratorDocComposition {
     @AllArgsConstructor
     @Jacksonized
     public static class PecDeliveryInfo {
-        private String denomination;
-        private String taxId;
-        private RecipientTypeInt recipientType;
-        private String address;
-        private String addressSource;
-        private String type;
-        private Instant orderBy;
-        private String responseDate;
-        private boolean ok;
+        String denomination;
+        String taxId;
+        RecipientTypeInt recipientType;
+        String address;
+        String addressSource;
+        String type;
+        Instant orderBy;
+        String responseDate;
+        boolean ok;
     }
 
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
@@ -237,13 +233,13 @@ public class LegalFactGeneratorDocComposition {
                                                        EndWorkflowStatus status,
                                                        Instant completionWorkflowDate) throws IOException {
 
-        List<LegalFactGenerator.PecDeliveryInfo> pecDeliveries = feedbackFromExtChannelList.stream()
+        List<PecDeliveryInfo> pecDeliveries = feedbackFromExtChannelList.stream()
                 .map( feedbackFromExtChannel -> {
 
                     ResponseStatusInt sentPecStatus = feedbackFromExtChannel.getResponseStatus();
                     Instant notificationDate = feedbackFromExtChannel.getNotificationDate();
 
-                    return new LegalFactGenerator.PecDeliveryInfo(
+                    return new PecDeliveryInfo(
                             recipient.getDenomination(),
                             recipient.getTaxId(),
                             recipient.getRecipientType(),
@@ -255,7 +251,7 @@ public class LegalFactGeneratorDocComposition {
                             ResponseStatusInt.OK.equals( sentPecStatus )
                     );
                 })
-                .sorted( Comparator.comparing( LegalFactGenerator.PecDeliveryInfo::getOrderBy ))
+                .sorted( Comparator.comparing( PecDeliveryInfo::getOrderBy))
                 .collect(Collectors.toList());
 
         Map<String, Object> templateModel = new HashMap<>();
