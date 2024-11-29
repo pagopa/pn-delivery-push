@@ -1944,7 +1944,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.5"
+          PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.6"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
