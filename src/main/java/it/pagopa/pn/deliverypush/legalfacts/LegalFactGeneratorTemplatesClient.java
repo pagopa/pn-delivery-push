@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.utils;
+package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.FileUtils;
@@ -15,10 +15,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetails
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.api.TemplateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
-import it.pagopa.pn.deliverypush.legalfacts.AarTemplateChooseStrategy;
-import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
-import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
-import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
 import it.pagopa.pn.deliverypush.utils.LegalFactUtils;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
