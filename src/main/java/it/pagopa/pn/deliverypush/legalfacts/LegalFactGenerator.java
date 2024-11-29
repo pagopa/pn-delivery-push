@@ -31,26 +31,25 @@ public class LegalFactGenerator {
     public static final String FIELD_RECIPIENT = "recipient";
     public static final String FIELD_WHEN = "when";
 
-    private final LegalFactGeneratorTemplatesClient templatesClient;
-    private final LegalFactGeneratorDocComposition legalFactGeneratorDocComposition;
+    private final LegalFactGeneratorFactoryImpl legalFactGeneratorFactory;
 
-    public LegalFactGenerator(LegalFactGeneratorFactory factory) {
-        this.templatesClient = factory.createTemplatesClient();
-        this.legalFactGeneratorDocComposition = factory.createLegalFactGeneratorDocComposition();
+    public LegalFactGenerator(LegalFactGeneratorFactoryImpl legalFactGeneratorFactory) {
+        this.legalFactGeneratorFactory = legalFactGeneratorFactory;
     }
 
+
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) throws IOException {
-        return templatesClient.generateNotificationReceivedLegalFact(notification);
+        return null;
     }
 
     public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) throws IOException {
-        return templatesClient.generateNotificationCancelledLegalFact(notification, notificationCancellationRequestDate);
+        return null;
     }
 
     public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient,
                                                       DelegateInfoInt delegateInfo, Instant timeStamp,
                                                       NotificationInt notification) throws IOException {
-        return templatesClient.generateNotificationViewedLegalFact(iun, recipient, delegateInfo, timeStamp, notification);
+        return null;
     }
 
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
@@ -58,8 +57,7 @@ public class LegalFactGenerator {
                                                        NotificationRecipientInt recipient,
                                                        EndWorkflowStatus status,
                                                        Instant completionWorkflowDate) throws IOException {
-        return templatesClient.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification, recipient,
-                status, completionWorkflowDate);
+        return null;
     }
 
 
@@ -67,27 +65,27 @@ public class LegalFactGenerator {
                                                                  NotificationRecipientInt recipient,
                                                                  EndWorkflowStatus status,
                                                                  Instant failureWorkflowDate) throws IOException {
-        return templatesClient.generateAnalogDeliveryFailureWorkflowLegalFact(notification, recipient, failureWorkflowDate);
+        return null;
     }
 
     public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
-        return templatesClient.generateNotificationAAR(notification, recipient, quickAccessToken);
+        return null;
     }
 
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) throws IOException {
-        return templatesClient.generateNotificationAARBody(notification, recipient, quickAccesstoken);
+        return null;
     }
 
     public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
-        return templatesClient.generateNotificationAARPECBody(notification, recipient, quickAccesstoken);
+        return null;
     }
 
     public String generateNotificationAARSubject(NotificationInt notification) {
-        return templatesClient.generateNotificationAARSubject(notification);
+        return null;
     }
 
     public String generateNotificationAARForSMS(NotificationInt notification) {
-        return templatesClient.generateNotificationAARSubject(notification);
+        return null;
     }
 }
 
