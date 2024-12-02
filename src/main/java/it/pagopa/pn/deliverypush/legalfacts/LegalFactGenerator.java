@@ -6,17 +6,12 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.legalfacts.generatorfactory.LegalFactGeneratorFactory;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
-@Component
-@Slf4j
-public class LegalFactGenerator {
+public interface LegalFactGenerator {
 
     public static final String FIELD_SEND_DATE = "sendDate";
     public static final String FIELD_SEND_DATE_NO_TIME = "sendDateNoTime";
@@ -31,62 +26,33 @@ public class LegalFactGenerator {
     public static final String FIELD_RECIPIENT = "recipient";
     public static final String FIELD_WHEN = "when";
 
-    private final LegalFactGeneratorFactory legalFactGeneratorFactory;
+    byte[] generateNotificationReceivedLegalFact(NotificationInt notification) throws IOException;
 
-    public LegalFactGenerator(LegalFactGeneratorFactory legalFactGeneratorFactory) {
-        this.legalFactGeneratorFactory = legalFactGeneratorFactory;
-    }
+    byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) throws IOException;
 
-    public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) throws IOException {
-        return legalFactGeneratorFactory.generateNotificationReceivedLegalFact(notification);
-    }
-
-    public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) throws IOException {
-        return legalFactGeneratorFactory.generateNotificationCancelledLegalFact(notification, notificationCancellationRequestDate);
-    }
-
-    public byte[] generateNotificationViewedLegalFact(String iun,
-                                                      NotificationRecipientInt recipient,
+    byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient,
                                                       DelegateInfoInt delegateInfo,
                                                       Instant timeStamp,
-                                                      NotificationInt notification) throws IOException {
-        return legalFactGeneratorFactory.generateNotificationViewedLegalFact(iun, recipient, delegateInfo, timeStamp, notification);
-    }
+                                                      NotificationInt notification) throws IOException;
 
-    public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
+    byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
                                                        NotificationInt notification,
                                                        NotificationRecipientInt recipient,
                                                        EndWorkflowStatus status,
-                                                       Instant completionWorkflowDate) throws IOException {
-        return legalFactGeneratorFactory.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
-                recipient, status, completionWorkflowDate);
-    }
+                                                       Instant completionWorkflowDate) throws IOException;
 
-    public byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
+    byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
                                                                  NotificationRecipientInt recipient,
                                                                  EndWorkflowStatus status,
-                                                                 Instant failureWorkflowDate) throws IOException {
-        return legalFactGeneratorFactory.generateAnalogDeliveryFailureWorkflowLegalFact(notification, recipient, status, failureWorkflowDate);
-    }
+                                                                 Instant failureWorkflowDate) throws IOException;
 
-    public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
-        return legalFactGeneratorFactory.generateNotificationAAR(notification, recipient, quickAccessToken);
-    }
+    AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException;
 
-    public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
-        return legalFactGeneratorFactory.generateNotificationAARBody(notification, recipient, quickAccessToken);
-    }
+    String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken);
 
-    public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
-        return legalFactGeneratorFactory.generateNotificationAARPECBody(notification, recipient, quickAccessToken);
-    }
+    String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken);
 
-    public String generateNotificationAARSubject(NotificationInt notification) {
-        return legalFactGeneratorFactory.generateNotificationAARSubject(notification);
-    }
+    String generateNotificationAARSubject(NotificationInt notification);
 
-    public String generateNotificationAARForSMS(NotificationInt notification) {
-        return legalFactGeneratorFactory.generateNotificationAARForSMS(notification);
-    }
+    String generateNotificationAARForSMS(NotificationInt notification);
 }
-

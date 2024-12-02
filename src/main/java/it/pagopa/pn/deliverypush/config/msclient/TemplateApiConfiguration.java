@@ -1,17 +1,21 @@
 package it.pagopa.pn.deliverypush.config.msclient;
 
-import it.pagopa.pn.commons.pnclients.CommonBaseClient;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.ApiClient;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.api.TemplateApi;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
-public class TemplateApiConfiguration extends CommonBaseClient {
+public class TemplateApiConfiguration {
 
     @Bean
-    public TemplateApi templateApi() {
-        ApiClient apiClient = new ApiClient(initWebClient(ApiClient.buildWebClientBuilder()));
+    public TemplateApi templateApiConfig(@Qualifier("withTracing") RestTemplate restTemplate,
+                                         PnDeliveryPushConfigs cfg) {
+        ApiClient apiClient = new ApiClient(restTemplate);
+        apiClient.setBasePath("http://localhost:8099");
         return new TemplateApi(apiClient);
     }
 

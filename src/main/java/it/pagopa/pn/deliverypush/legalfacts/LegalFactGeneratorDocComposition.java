@@ -17,7 +17,6 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnInvalidTemplateException;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
-import it.pagopa.pn.deliverypush.legalfacts.generatorfactory.LegalFactGeneratorFactory;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
@@ -45,7 +44,7 @@ import static it.pagopa.pn.deliverypush.legalfacts.DocumentComposition.TemplateT
 
 @Slf4j
 @AllArgsConstructor
-public class LegalFactGeneratorDocComposition implements LegalFactGeneratorFactory {
+public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     public static final String FIELD_SEND_DATE = "sendDate";
     public static final String FIELD_SEND_DATE_NO_TIME = "sendDateNoTime";

@@ -14,7 +14,6 @@ import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
-import it.pagopa.pn.deliverypush.legalfacts.generatorfactory.LegalFactGeneratorFactory;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
@@ -95,11 +94,6 @@ public class AbstractWorkflowTestConfiguration {
     @Bean
     public InstantNowSupplier instantNowSupplierTest() {
         return Mockito.mock(InstantNowSupplier.class);
-    }
-    
-    @Bean
-    public LegalFactGenerator legalFactPdfGeneratorTest(LegalFactGeneratorFactory factory) {
-        return new LegalFactGenerator(factory);
     }
     
     @Bean

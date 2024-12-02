@@ -832,10 +832,43 @@
 						</configuration>
 					</execution>
 
-					<!-- OPEN API CLIENT TEMPLATE-ENGINE REACTIVE-->
+					<!-- OPEN API CLIENT TEMPLATE-ENGINE -->
 					<execution>
 						<phase>generate-resources</phase>
 						<id>generate-client-templates-engine</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>
+								https://raw.githubusercontent.com/pagopa/pn-templates-engine/85738dee5423cd4b3655fdc3b1c189cdcf90db65/docs/openapi/pn-internal-templates-v1.yaml
+							</inputSpec>
+							<skipValidateSpec>true</skipValidateSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+							</typeMappings>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+							<configOptions>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.templatesengine.api</apiPackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.templatesengine.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
+							</configOptions>
+						</configuration>
+					</execution>
+
+					<!-- OPEN API CLIENT TEMPLATE-ENGINE REACTIVE-->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-templates-engine-reactive</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
@@ -851,7 +884,7 @@
 							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
 							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/6.0.0/client</templateDirectory>
 							<configOptions>
-								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.templatesengine.api</apiPackage>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.templatesengine-reactive.api</apiPackage>
 								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.templatesengine.model</modelPackage>
 								<delegatePattern>true</delegatePattern>
 								<interfaceOnly>true</interfaceOnly>
@@ -864,6 +897,7 @@
 							</configOptions>
 						</configuration>
 					</execution>
+
 				</executions>
 			</plugin>
 		</plugins>

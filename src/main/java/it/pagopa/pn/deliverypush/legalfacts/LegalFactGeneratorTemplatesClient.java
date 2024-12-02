@@ -15,7 +15,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetails
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.api.TemplateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
-import it.pagopa.pn.deliverypush.legalfacts.generatorfactory.LegalFactGeneratorFactory;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
@@ -23,7 +22,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +39,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 
 @Slf4j
 @AllArgsConstructor
-public class LegalFactGeneratorTemplatesClient implements LegalFactGeneratorFactory {
+public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
 
     private final CustomInstantWriter instantWriter;
     private final PhysicalAddressWriter physicalAddressWriter;
@@ -147,10 +145,10 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGeneratorFact
 
     @Override
     public String generateNotificationAARSubject(NotificationInt notification) {
-        NotificationAARForSubject notificationAARSubject = new NotificationAARForSubject()
+        NotificationAARSubject notificationAARSubject = new NotificationAARSubject()
                 .notification(notificationTemplate(notification));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationAARForSubject(language, notificationAARSubject).block();
+        return templateEngineClient.notificationAARSubject(language, notificationAARSubject);
     }
 
     private List<String> extractNotificationAttachmentDigests(NotificationInt notification) {
@@ -222,7 +220,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGeneratorFact
                 .piattaformaNotificheURL(this.getAccessUrl(recipient))
                 .notification(notificationTemplate(notification));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationAARForEMAIL(language, notificationAAR).block();
+        return templateEngineClient.notificationAARForEMAIL(language, notificationAAR);
     }
 
     @Override
@@ -237,7 +235,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGeneratorFact
                 .recipient(recipientTemplate(recipient))
                 .recipientType(this.getRecipientTypeForHTMLTemplate(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationAARForPEC(language, notificationAAR).block();
+        return templateEngineClient.notificationAARForPEC(language, notificationAAR);
     }
 
     @Override
@@ -245,7 +243,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGeneratorFact
         NotificationAARForSMS notificationAARForSMS = new NotificationAARForSMS()
                 .notification(notificationTemplate(notification));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationAARForSMS(language, notificationAARForSMS).block();
+        return templateEngineClient.notificationAARForSMS(language, notificationAARForSMS);
     }
 
     private String getAccessUrlLabel(NotificationRecipientInt recipient) {
@@ -380,14 +378,12 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGeneratorFact
                 .taxId(delegateInfo.getTaxId());
     }
 
-    public byte[] convertFileMonoToBytes(Mono<File> fileMono) {
-        return fileMono.map(file -> {
-            try {
-                return Files.readAllBytes(file.toPath());
-            } catch (IOException e) {
-                throw new PnReadFileException("Failed to convert to byte[]", e);
-            }
-        }).block();
+    public byte[] convertFileMonoToBytes(File fileResponse) {
+        try {
+            return Files.readAllBytes(fileResponse.toPath());
+        } catch (IOException e) {
+            throw new PnReadFileException("Failed to convert to byte[]", e);
+        }
     }
 
     private LanguageEnum getLanguage(List<String> additionalLanguages) {

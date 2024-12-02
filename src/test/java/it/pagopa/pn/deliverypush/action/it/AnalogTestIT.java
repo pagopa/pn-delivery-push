@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.TestPropertySource;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -49,6 +50,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.with;
 
+@TestPropertySource(properties="pn.delivery-push.enableTemplatesEngine=true")
 class AnalogTestIT extends CommonTestConfiguration{
     @SpyBean
     LegalFactGenerator legalFactGenerator;
@@ -66,7 +68,7 @@ class AnalogTestIT extends CommonTestConfiguration{
     NotificationUtils notificationUtils;
     @Autowired
     StatusUtils statusUtils;
-    
+
     @Test
     void notificationViewedPaPhysicalAddressSend() {
  /*
@@ -84,7 +86,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String iun = TestUtils.getRandomIun();;
+        String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(EventId.builder()
