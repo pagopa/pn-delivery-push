@@ -28,7 +28,6 @@ import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 

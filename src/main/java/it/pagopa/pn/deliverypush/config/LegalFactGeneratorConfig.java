@@ -24,7 +24,7 @@ public class LegalFactGeneratorConfig {
     private final InstantNowSupplier instantNowSupplier;
 
     @Bean
-    @ConditionalOnProperty(name = "features.templates.client")
+    @ConditionalOnProperty(name = "features.templates.legalFact", havingValue = "false")
     public LegalFactGeneratorFactory legalFactGeneratorTemplatesClient() {
         return new LegalFactGeneratorTemplatesClient(
                 instantWriter,
@@ -36,7 +36,7 @@ public class LegalFactGeneratorConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "features.templates.docComposition", havingValue = "default", matchIfMissing = true)
+    @ConditionalOnProperty(name = "features.templates.legalFact", havingValue = "true", matchIfMissing = true)
     public LegalFactGeneratorFactory legalFactGeneratorDocComposition() {
         return new LegalFactGeneratorDocComposition(
                 documentComposition,
