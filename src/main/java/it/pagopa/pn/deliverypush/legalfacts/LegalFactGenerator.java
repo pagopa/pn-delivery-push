@@ -31,25 +31,26 @@ public class LegalFactGenerator {
     public static final String FIELD_RECIPIENT = "recipient";
     public static final String FIELD_WHEN = "when";
 
-    private final LegalFactGeneratorFactoryImpl legalFactGeneratorFactory;
+    private final LegalFactGeneratorFactory legalFactGeneratorFactory;
 
-    public LegalFactGenerator(LegalFactGeneratorFactoryImpl legalFactGeneratorFactory) {
+    public LegalFactGenerator(LegalFactGeneratorFactory legalFactGeneratorFactory) {
         this.legalFactGeneratorFactory = legalFactGeneratorFactory;
     }
 
-
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) throws IOException {
-        return null;
+        return legalFactGeneratorFactory.generateNotificationReceivedLegalFact(notification);
     }
 
     public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) throws IOException {
-        return null;
+        return legalFactGeneratorFactory.generateNotificationCancelledLegalFact(notification, notificationCancellationRequestDate);
     }
 
-    public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient,
-                                                      DelegateInfoInt delegateInfo, Instant timeStamp,
+    public byte[] generateNotificationViewedLegalFact(String iun,
+                                                      NotificationRecipientInt recipient,
+                                                      DelegateInfoInt delegateInfo,
+                                                      Instant timeStamp,
                                                       NotificationInt notification) throws IOException {
-        return null;
+        return legalFactGeneratorFactory.generateNotificationViewedLegalFact(iun, recipient, delegateInfo, timeStamp, notification);
     }
 
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
@@ -57,7 +58,8 @@ public class LegalFactGenerator {
                                                        NotificationRecipientInt recipient,
                                                        EndWorkflowStatus status,
                                                        Instant completionWorkflowDate) throws IOException {
-        return null;
+        return legalFactGeneratorFactory.generatePecDeliveryWorkflowLegalFact(feedbackFromExtChannelList, notification,
+                recipient, status, completionWorkflowDate);
     }
 
 
@@ -65,27 +67,27 @@ public class LegalFactGenerator {
                                                                  NotificationRecipientInt recipient,
                                                                  EndWorkflowStatus status,
                                                                  Instant failureWorkflowDate) throws IOException {
-        return null;
+        return legalFactGeneratorFactory.generateAnalogDeliveryFailureWorkflowLegalFact(notification, recipient, status, failureWorkflowDate);
     }
 
     public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
-        return null;
+        return legalFactGeneratorFactory.generateNotificationAAR(notification, recipient, quickAccessToken);
     }
 
-    public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) throws IOException {
-        return null;
+    public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
+        return legalFactGeneratorFactory.generateNotificationAARBody(notification, recipient, quickAccessToken);
     }
 
-    public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
-        return null;
+    public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
+        return legalFactGeneratorFactory.generateNotificationAARPECBody(notification, recipient, quickAccessToken);
     }
 
     public String generateNotificationAARSubject(NotificationInt notification) {
-        return null;
+        return legalFactGeneratorFactory.generateNotificationAARSubject(notification);
     }
 
     public String generateNotificationAARForSMS(NotificationInt notification) {
-        return null;
+        return legalFactGeneratorFactory.generateNotificationAARForSMS(notification);
     }
 }
 

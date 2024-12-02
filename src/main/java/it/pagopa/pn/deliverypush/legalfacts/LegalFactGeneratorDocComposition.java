@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnInvalidTemplateException;
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
+import it.pagopa.pn.deliverypush.legalfacts.generatorfactory.LegalFactGeneratorFactory;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
@@ -43,9 +44,9 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE;
 import static it.pagopa.pn.deliverypush.legalfacts.DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD;
 
-@Component
 @Slf4j
-public class LegalFactGeneratorDocComposition {
+@AllArgsConstructor
+public class LegalFactGeneratorDocComposition implements LegalFactGeneratorFactory {
 
     public static final String FIELD_SEND_DATE = "sendDate";
     public static final String FIELD_SEND_DATE_NO_TIME = "sendDateNoTime";
@@ -73,7 +74,6 @@ public class LegalFactGeneratorDocComposition {
     public static final String FIELD_PERFEZIONAMENTO = "perfezionamentoURL";
     public static final String FIELD_PERFEZIONAMENTO_LABEL = "perfezionamentoURLLabel";
     public static final String FIELD_LOGO_LINK = "sendLogoLink";
-
     public static final String FIELD_SENDURL = "sendURL";
     public static final String FIELD_SENDURL_LABEL = "sendURLLAbel";
     public static final String FIELD_LOGO = "logoBase64";
@@ -81,47 +81,32 @@ public class LegalFactGeneratorDocComposition {
     public static final String FIELD_SUBJECT = "subject";
     private static final String FIELD_RADDPHONENUMBER = "raddPhoneNumber";
     public static final String FIELD_NOTIFICATION_CANCELLED_DATE = "notificationCancelledDate";
+    private static final String TEMPLATES_DIR_NAME = "documents_composition_templates";
+    private static final String SEND_LOGO_BASE64 = readLocalImagesInBase64(TEMPLATES_DIR_NAME + "/images/aar-logo-short-small.png");
+
     private final DocumentComposition documentComposition;
     private final CustomInstantWriter instantWriter;
     private final PhysicalAddressWriter physicalAddressWriter;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final InstantNowSupplier instantNowSupplier;
     private final PnSendModeUtils pnSendModeUtils;
-    private static final String TEMPLATES_DIR_NAME = "documents_composition_templates";
 
-    private static final String SEND_LOGO_BASE64 =  readLocalImagesInBase64(TEMPLATES_DIR_NAME + "/images/aar-logo-short-small.png");
-
-    public LegalFactGeneratorDocComposition(
-            DocumentComposition documentComposition,
-            CustomInstantWriter instantWriter,
-            PhysicalAddressWriter physicalAddressWriter,
-            PnDeliveryPushConfigs pnDeliveryPushConfigs,
-            InstantNowSupplier instantNowSupplier,
-            PnSendModeUtils pnSendModeUtils) {
-        this.documentComposition = documentComposition;
-        this.instantWriter = instantWriter;
-        this.physicalAddressWriter = physicalAddressWriter;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-        this.instantNowSupplier = instantNowSupplier;
-        this.pnSendModeUtils = pnSendModeUtils;
-    }
-
-
+    @Override
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) throws IOException {
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate(notification.getSentAt()));
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate(notification.getSentAt(), true));
         templateModel.put(FIELD_NOTIFICATION, notification.toBuilder()
-                .sender( notification.getSender().toBuilder()
-                        .paDenomination( notification.getSender().getPaDenomination() )
-                        .paTaxId( notification.getSender().getPaTaxId())
+                .sender(notification.getSender().toBuilder()
+                        .paDenomination(notification.getSender().getPaDenomination())
+                        .paTaxId(notification.getSender().getPaTaxId())
                         .build()
                 )
                 .build()
         );
-        templateModel.put(FIELD_DIGESTS, extractNotificationAttachmentDigests( notification ) );
-        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
+        templateModel.put(FIELD_DIGESTS, extractNotificationAttachmentDigests(notification));
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter);
+        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate(instantNowSupplier.get()));
         templateModel.put(FIELD_SUBJECT, notification.getSubject());
 
         return documentComposition.executePdfTemplate(
@@ -131,6 +116,7 @@ public class LegalFactGeneratorDocComposition {
 
     }
 
+    @Override
     public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
@@ -147,12 +133,12 @@ public class LegalFactGeneratorDocComposition {
         List<String> digests = new ArrayList<>();
 
         // - Documents digests
-        for(NotificationDocumentInt attachment: notification.getDocuments() ) {
-            digests.add( FileUtils.convertBase64toHexUppercase(attachment.getDigests().getSha256()) );
+        for (NotificationDocumentInt attachment : notification.getDocuments()) {
+            digests.add(FileUtils.convertBase64toHexUppercase(attachment.getDigests().getSha256()));
         }
 
         // F24 digests
-        for(NotificationRecipientInt recipient : notification.getRecipients()) {
+        for (NotificationRecipientInt recipient : notification.getRecipients()) {
 
             //add digests for v21
             addDigestsForMultiPayments(recipient.getPayments(), digests);
@@ -164,18 +150,19 @@ public class LegalFactGeneratorDocComposition {
     }
 
     private void addDigestsForMultiPayments(List<NotificationPaymentInfoInt> payments, List<String> digests) {
-        if(!CollectionUtils.isEmpty(payments)){
+        if (!CollectionUtils.isEmpty(payments)) {
             payments.forEach(payment -> {
-                if(payment.getPagoPA() != null && payment.getPagoPA().getAttachment() != null){
+                if (payment.getPagoPA() != null && payment.getPagoPA().getAttachment() != null) {
                     digests.add(FileUtils.convertBase64toHexUppercase(payment.getPagoPA().getAttachment().getDigests().getSha256()));
                 }
-                if(payment.getF24() != null && payment.getF24().getMetadataAttachment() != null){
+                if (payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
                     digests.add(FileUtils.convertBase64toHexUppercase(payment.getF24().getMetadataAttachment().getDigests().getSha256()));
                 }
             });
         }
     }
 
+    @Override
     public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp, NotificationInt notification) throws IOException {
 
         Map<String, Object> templateModel = new HashMap<>();
@@ -183,10 +170,10 @@ public class LegalFactGeneratorDocComposition {
         templateModel.put(FIELD_IUN, iun);
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_DELEGATE, delegateInfo);
-        templateModel.put(FIELD_WHEN, instantWriter.instantToDate( timeStamp) );
-        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( timeStamp, true));
-        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
+        templateModel.put(FIELD_WHEN, instantWriter.instantToDate(timeStamp));
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter);
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate(timeStamp, true));
+        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate(instantNowSupplier.get()));
 
         return documentComposition.executePdfTemplate(
                 retrieveTemplateFromLang(DocumentComposition.TemplateType.NOTIFICATION_VIEWED, notification.getAdditionalLanguages()),
@@ -195,16 +182,16 @@ public class LegalFactGeneratorDocComposition {
     }
 
     private DocumentComposition.TemplateType retrieveTemplateFromLang(DocumentComposition.TemplateType italianTemplateType, List<String> additionalLanguages) {
-        if(!pnDeliveryPushConfigs.isAdditionalLangsEnabled()
+        if (!pnDeliveryPushConfigs.isAdditionalLangsEnabled()
                 || checkIfRequiredItalianTemplate(additionalLanguages)
-                || AAR_NOTIFICATION_RADD.equals(italianTemplateType)){
+                || AAR_NOTIFICATION_RADD.equals(italianTemplateType)) {
             log.info("retrieve italian template for {}", italianTemplateType);
             return italianTemplateType;
         }
         return additionalLanguages.stream()
                 .map(lang -> DocumentComposition.retrieveTemplateFromLang(italianTemplateType, lang))
                 .findFirst() /* è possibile avere solo una lingua aggiuntiva */
-                .orElseThrow(() -> new PnInvalidTemplateException("Error During retrieve template","TemplateType enum not found for given additional lang",ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE));
+                .orElseThrow(() -> new PnInvalidTemplateException("Error During retrieve template", "TemplateType enum not found for given additional lang", ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE));
     }
 
     private boolean checkIfRequiredItalianTemplate(List<String> additionalLanguages) {
@@ -227,6 +214,7 @@ public class LegalFactGeneratorDocComposition {
         boolean ok;
     }
 
+    @Override
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
                                                        NotificationInt notification,
                                                        NotificationRecipientInt recipient,
@@ -234,7 +222,7 @@ public class LegalFactGeneratorDocComposition {
                                                        Instant completionWorkflowDate) throws IOException {
 
         List<PecDeliveryInfo> pecDeliveries = feedbackFromExtChannelList.stream()
-                .map( feedbackFromExtChannel -> {
+                .map(feedbackFromExtChannel -> {
 
                     ResponseStatusInt sentPecStatus = feedbackFromExtChannel.getResponseStatus();
                     Instant notificationDate = feedbackFromExtChannel.getNotificationDate();
@@ -248,21 +236,21 @@ public class LegalFactGeneratorDocComposition {
                             feedbackFromExtChannel.getDigitalAddress().getType().getValue(),
                             notificationDate,
                             instantWriter.instantToDate(notificationDate),
-                            ResponseStatusInt.OK.equals( sentPecStatus )
+                            ResponseStatusInt.OK.equals(sentPecStatus)
                     );
                 })
-                .sorted( Comparator.comparing( PecDeliveryInfo::getOrderBy))
+                .sorted(Comparator.comparing(PecDeliveryInfo::getOrderBy))
                 .collect(Collectors.toList());
 
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
-        templateModel.put(FIELD_IUN, notification.getIun() );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate(notification.getSentAt(), true));
+        templateModel.put(FIELD_IUN, notification.getIun());
         templateModel.put(FIELD_DELIVERIES, pecDeliveries);
-        templateModel.put(FIELD_END_WORKFLOW_STATUS, status.toString() );
-        templateModel.put(FIELD_END_WORKFLOW_DATE, instantWriter.instantToDate( completionWorkflowDate ) );
+        templateModel.put(FIELD_END_WORKFLOW_STATUS, status.toString());
+        templateModel.put(FIELD_END_WORKFLOW_DATE, instantWriter.instantToDate(completionWorkflowDate));
         templateModel.put(FIELD_RECIPIENT, recipient);
-        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter);
+        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate(instantNowSupplier.get()));
 
         return documentComposition.executePdfTemplate(
                 retrieveTemplateFromLang(DocumentComposition.TemplateType.DIGITAL_NOTIFICATION_WORKFLOW, notification.getAdditionalLanguages()),
@@ -271,36 +259,31 @@ public class LegalFactGeneratorDocComposition {
     }
 
 
-
+    @Override
     public byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
                                                                  NotificationRecipientInt recipient,
                                                                  EndWorkflowStatus status,
                                                                  Instant failureWorkflowDate) throws IOException {
-
-
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
-        templateModel.put(FIELD_IUN, notification.getIun() );
-        templateModel.put(FIELD_END_WORKFLOW_STATUS, status.toString() );
-        templateModel.put(FIELD_END_WORKFLOW_DATE, instantWriter.instantToDate( failureWorkflowDate, true ) );
-        templateModel.put(FIELD_END_WORKFLOW_TIME, instantWriter.instantToTime( failureWorkflowDate ) );
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate(notification.getSentAt(), true));
+        templateModel.put(FIELD_IUN, notification.getIun());
+        templateModel.put(FIELD_END_WORKFLOW_STATUS, status.toString());
+        templateModel.put(FIELD_END_WORKFLOW_DATE, instantWriter.instantToDate(failureWorkflowDate, true));
+        templateModel.put(FIELD_END_WORKFLOW_TIME, instantWriter.instantToTime(failureWorkflowDate));
         templateModel.put(FIELD_RECIPIENT, recipient);
-        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate( instantNowSupplier.get() ) );
-
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter);
+        templateModel.put(FIELD_LEGALFACT_CREATION_DATE, instantWriter.instantToDate(instantNowSupplier.get()));
         return documentComposition.executePdfTemplate(
                 retrieveTemplateFromLang(DocumentComposition.TemplateType.ANALOG_NOTIFICATION_WORKFLOW_FAILURE, notification.getAdditionalLanguages()),
                 templateModel
         );
     }
 
+    @Override
     public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
-
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
-
         PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
-
-        if(pnSendMode != null){
+        if (pnSendMode != null) {
             final AarTemplateChooseStrategy aarTemplateTypeChooseStrategy = pnSendMode.getAarTemplateTypeChooseStrategy();
             final AarTemplateType aarTemplateType = aarTemplateTypeChooseStrategy.choose(recipient.getPhysicalAddress());
             log.debug("aarTemplateType generated is ={} - iun={}", aarTemplateType, notification.getIun());
@@ -308,7 +291,6 @@ public class LegalFactGeneratorDocComposition {
                     retrieveTemplateFromLang(aarTemplateType.getTemplateType(), notification.getAdditionalLanguages()),
                     templateModel
             );
-
             return AARInfo.builder()
                     .bytesArrayGeneratedAar(bytesArrayGeneratedAar)
                     .templateType(aarTemplateType)
@@ -321,11 +303,10 @@ public class LegalFactGeneratorDocComposition {
 
     }
 
+    @Override
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
-
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
         templateModel.put(FIELD_LOGO, SEND_LOGO_BASE64);
-
         return documentComposition.executeTextTemplate(
                 retrieveTemplateFromLang(DocumentComposition.TemplateType.AAR_NOTIFICATION_EMAIL, notification.getAdditionalLanguages()),
                 templateModel
@@ -334,10 +315,8 @@ public class LegalFactGeneratorDocComposition {
     }
 
     public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
-
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
         templateModel.put(FIELD_LOGO, SEND_LOGO_BASE64);
-
         return documentComposition.executeTextTemplate(
                 retrieveTemplateFromLang(DocumentComposition.TemplateType.AAR_NOTIFICATION_PEC, notification.getAdditionalLanguages()),
                 templateModel
@@ -345,12 +324,10 @@ public class LegalFactGeneratorDocComposition {
 
     }
 
-
+    @Override
     public String generateNotificationAARSubject(NotificationInt notification) {
-
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_NOTIFICATION, notification);
-
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_SUBJECT,
                 templateModel
@@ -358,38 +335,36 @@ public class LegalFactGeneratorDocComposition {
 
     }
 
-
+    @Override
     public String generateNotificationAARForSMS(NotificationInt notification) {
-
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put(FIELD_NOTIFICATION, notification);
-
         return documentComposition.executeTextTemplate(
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_SMS,
                 templateModel
         );
     }
 
-    public int getNumberOfPages( byte[] pdfBytes ) {
-        return documentComposition.getNumberOfPageFromPdfBytes( pdfBytes );
+    public int getNumberOfPages(byte[] pdfBytes) {
+        return documentComposition.getNumberOfPageFromPdfBytes(pdfBytes);
     }
 
 
     @NotNull
     private Map<String, Object> prepareTemplateModelParams(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate( notification.getSentAt() ) );
-        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate( notification.getSentAt(), true ) );
+        templateModel.put(FIELD_SEND_DATE, instantWriter.instantToDate(notification.getSentAt()));
+        templateModel.put(FIELD_SEND_DATE_NO_TIME, instantWriter.instantToDate(notification.getSentAt(), true));
         templateModel.put(FIELD_NOTIFICATION, notification);
         templateModel.put(FIELD_RECIPIENT, recipient);
         templateModel.put(FIELD_SENDER_ADDRESS, pnDeliveryPushConfigs.getPaperChannel().getSenderPhysicalAddress());
-        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter );
-        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(recipient) );
-        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel(recipient) );
+        templateModel.put(FIELD_ADDRESS_WRITER, this.physicalAddressWriter);
+        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL, this.getAccessUrl(recipient));
+        templateModel.put(FIELD_PIATTAFORMA_NOTIFICHE_URL_LABEL, this.getAccessUrlLabel(recipient));
         templateModel.put(FIELD_PN_FAQ_COMPLETION_MOMENT_URL, this.getFAQCompletionMomentAccessLink());
         templateModel.put(FIELD_PN_FAQ_COMPLETION_MOMENT_URL_LABEL, this.getFAQCompletionMomentAccessLinkLabel());
         templateModel.put(FIELD_SEND_URL, this.getFAQSendURL());
-        templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken) );
+        templateModel.put(FIELD_QUICK_ACCESS_LINK, this.getQuickAccessLink(recipient, quickAccesstoken));
         templateModel.put(FIELD_RECIPIENT_TYPE, this.getRecipientTypeForHTMLTemplate(recipient));
         templateModel.put(FIELD_SENDURL, this.getAccessLink());
         templateModel.put(FIELD_SENDURL_LABEL, this.getAccessLinkLabel());
@@ -400,14 +375,14 @@ public class LegalFactGeneratorDocComposition {
         addAdditional(templateModel);
 
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccesstoken);
-        log.debug( "generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail );
+        log.debug("generateNotificationAAR iun {} quickAccessUrl {}", notification.getIun(), qrCodeQuickAccessUrlAarDetail);
         templateModel.put(FIELD_QRCODE_QUICK_ACCESS_LINK, qrCodeQuickAccessUrlAarDetail);
 
         return templateModel;
     }
 
     private void addAdditional(Map<String, Object> templateModel) {
-        if(this.pnDeliveryPushConfigs.getWebapp().getAdditional() != null) {
+        if (this.pnDeliveryPushConfigs.getWebapp().getAdditional() != null) {
             this.pnDeliveryPushConfigs.getWebapp().getAdditional()
                     .forEach((key, value) -> templateModel.put(FIELD_ADDITIONAL + key, value));
         }
@@ -430,9 +405,9 @@ public class LegalFactGeneratorDocComposition {
     }
 
     private String getQuickAccessLink(NotificationRecipientInt recipient, String quickAccessToken) {
-        String templateUrl = getAccessUrl(recipient) + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix() ;
+        String templateUrl = getAccessUrl(recipient) + pnDeliveryPushConfigs.getWebapp().getQuickAccessUrlAarDetailSuffix();
 
-        log.debug( "getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, quickAccessToken );
+        log.debug("getQrCodeQuickAccessUrlAarDetail templateUrl {} quickAccessLink {}", templateUrl, quickAccessToken);
         return templateUrl + '=' + quickAccessToken;
     }
 

@@ -15,12 +15,12 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetails
 import it.pagopa.pn.deliverypush.exceptions.PnReadFileException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.api.TemplateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
-import it.pagopa.pn.deliverypush.utils.LegalFactUtils;
+import it.pagopa.pn.deliverypush.legalfacts.generatorfactory.LegalFactGeneratorFactory;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -40,8 +40,8 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE;
 
 @Slf4j
-@Component("templatesClient")
-public class LegalFactGeneratorTemplatesClient {
+@AllArgsConstructor
+public class LegalFactGeneratorTemplatesClient implements LegalFactGeneratorFactory {
 
     private final CustomInstantWriter instantWriter;
     private final PhysicalAddressWriter physicalAddressWriter;
@@ -49,19 +49,7 @@ public class LegalFactGeneratorTemplatesClient {
     private final PnSendModeUtils pnSendModeUtils;
     private final TemplateApi templateEngineClient;
 
-    public LegalFactGeneratorTemplatesClient(
-            CustomInstantWriter instantWriter,
-            PhysicalAddressWriter physicalAddressWriter,
-            PnDeliveryPushConfigs pnDeliveryPushConfigs,
-            PnSendModeUtils pnSendModeUtils,
-            TemplateApi templateEngineClient) {
-        this.instantWriter = instantWriter;
-        this.physicalAddressWriter = physicalAddressWriter;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-        this.pnSendModeUtils = pnSendModeUtils;
-        this.templateEngineClient = templateEngineClient;
-    }
-
+    @Override
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) {
         String physicalAddressAndDenomination = null;
         List<NotificationRecipientInt> recipients = Optional.of(notification)
@@ -85,6 +73,7 @@ public class LegalFactGeneratorTemplatesClient {
         return convertFileMonoToBytes(templateEngineClient.notificationReceivedLegalFact(language, legalFact));
     }
 
+    @Override
     public byte[] generateNotificationViewedLegalFact(String iun,
                                                       NotificationRecipientInt recipient,
                                                       DelegateInfoInt delegateInfo,
@@ -99,6 +88,7 @@ public class LegalFactGeneratorTemplatesClient {
         return convertFileMonoToBytes(templateEngineClient.notificationViewedLegalFact(language, notificationViewedLegalFact));
     }
 
+    @Override
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
                                                        NotificationInt notification,
                                                        NotificationRecipientInt recipient,
@@ -132,8 +122,10 @@ public class LegalFactGeneratorTemplatesClient {
         return convertFileMonoToBytes(templateEngineClient.pecDeliveryWorkflowLegalFact(language, pecDeliveryWorkflowLegalFact));
     }
 
+    @Override
     public byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
                                                                  NotificationRecipientInt recipient,
+                                                                 EndWorkflowStatus status,
                                                                  Instant failureWorkflowDate) {
         AnalogDeliveryWorkflowFailureLegalFact analogDeliveryWorkflowFailureLegalFact = new AnalogDeliveryWorkflowFailureLegalFact()
                 .iun(notification.getIun())
@@ -144,6 +136,7 @@ public class LegalFactGeneratorTemplatesClient {
         return convertFileMonoToBytes(templateEngineClient.analogDeliveryWorkflowFailureLegalFact(language, analogDeliveryWorkflowFailureLegalFact));
     }
 
+    @Override
     public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) {
         NotificationCancelledLegalFact cancelledLegalFact = new NotificationCancelledLegalFact()
                 .notification(notificationTemplate(notification))
@@ -152,6 +145,7 @@ public class LegalFactGeneratorTemplatesClient {
         return convertFileMonoToBytes(templateEngineClient.notificationCancelledLegalFact(language, cancelledLegalFact));
     }
 
+    @Override
     public String generateNotificationAARSubject(NotificationInt notification) {
         NotificationAARForSubject notificationAARSubject = new NotificationAARForSubject()
                 .notification(notificationTemplate(notification));
@@ -186,6 +180,7 @@ public class LegalFactGeneratorTemplatesClient {
         }
     }
 
+    @Override
     public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
@@ -217,6 +212,7 @@ public class LegalFactGeneratorTemplatesClient {
         }
     }
 
+    @Override
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
         NotificationAARForEMAIL notificationAAR = new NotificationAARForEMAIL()
@@ -229,6 +225,7 @@ public class LegalFactGeneratorTemplatesClient {
         return templateEngineClient.notificationAARForEMAIL(language, notificationAAR).block();
     }
 
+    @Override
     public String generateNotificationAARPECBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
         NotificationAARForPEC notificationAAR = new NotificationAARForPEC()
@@ -243,15 +240,12 @@ public class LegalFactGeneratorTemplatesClient {
         return templateEngineClient.notificationAARForPEC(language, notificationAAR).block();
     }
 
+    @Override
     public String generateNotificationAARForSMS(NotificationInt notification) {
         NotificationAARForSMS notificationAARForSMS = new NotificationAARForSMS()
                 .notification(notificationTemplate(notification));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templateEngineClient.notificationAARForSMS(language, notificationAARForSMS).block();
-    }
-
-    public int getNumberOfPages(byte[] pdfBytes) {
-        return LegalFactUtils.getNumberOfPageFromPdfBytes(pdfBytes);
     }
 
     private String getAccessUrlLabel(NotificationRecipientInt recipient) {
@@ -303,17 +297,10 @@ public class LegalFactGeneratorTemplatesClient {
         return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + pnDeliveryPushConfigs.getWebapp().getFaqUrlTemplateSuffix();
     }
 
-    private String getAssetsLink() {
-        return pnDeliveryPushConfigs.getWebapp().getLandingUrl() + "static/generic_assets/";
-    }
-
     private String getFAQSendURL() {
         return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqSendHash();
     }
 
-    private String getLogoLink() {
-        return this.getAssetsLink() + "aar-logo-short-small.png";
-    }
 
     private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
         return recipientInt.getRecipientType() == RecipientTypeInt.PG ? "giuridica" : "fisica";
