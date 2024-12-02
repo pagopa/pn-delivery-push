@@ -62,7 +62,6 @@ public class LegalFactGenerator {
                 recipient, status, completionWorkflowDate);
     }
 
-
     public byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
                                                                  NotificationRecipientInt recipient,
                                                                  EndWorkflowStatus status,
