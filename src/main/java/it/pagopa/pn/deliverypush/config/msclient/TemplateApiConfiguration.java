@@ -15,7 +15,7 @@ public class TemplateApiConfiguration {
     public TemplateApi templateApiConfig(@Qualifier("withTracing") RestTemplate restTemplate,
                                          PnDeliveryPushConfigs cfg) {
         ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath("http://localhost:8099");
+        apiClient.setBasePath(cfg.getTemplatesEngineBaseUrl());
         return new TemplateApi(apiClient);
     }
 
