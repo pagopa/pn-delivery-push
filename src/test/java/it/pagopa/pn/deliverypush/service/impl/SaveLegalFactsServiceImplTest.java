@@ -61,24 +61,25 @@ class SaveLegalFactsServiceImplTest {
 
     @Test
     void saveAAR() throws IOException {
-        var result = this.getClass().getResourceAsStream("/pdf/response.pdf");
-        String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
-        NotificationInt notification = buildNotification(denomination);
-        NotificationRecipientInt recipient = buildRecipient(denomination);
-        FileCreationResponseInt file = buildFileCreationResponseInt();
-        String quickAccessToken = "test";
+        try (var result = this.getClass().getResourceAsStream("/pdf/response.pdf")) {
+            String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+            NotificationInt notification = buildNotification(denomination);
+            NotificationRecipientInt recipient = buildRecipient(denomination);
+            FileCreationResponseInt file = buildFileCreationResponseInt();
+            String quickAccessToken = "test";
 
-        AARInfo aarInfo = AARInfo.builder()
-                .bytesArrayGeneratedAar(result.readAllBytes())
-                .build();
-        Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken)).thenReturn(aarInfo);
-        Mockito.when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(Mono.just(file));
-        PdfInfo actual = saveLegalFactsService.sendCreationRequestForAAR(notification, recipient, quickAccessToken);
+            AARInfo aarInfo = AARInfo.builder()
+                    .bytesArrayGeneratedAar(result.readAllBytes())
+                    .build();
+            Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken)).thenReturn(aarInfo);
+            Mockito.when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(Mono.just(file));
+            PdfInfo actual = saveLegalFactsService.sendCreationRequestForAAR(notification, recipient, quickAccessToken);
 
-        Assertions.assertAll(
-                () -> Assertions.assertEquals("safestorage://001", actual.getKey()),
-                () -> Assertions.assertEquals(2, actual.getNumberOfPages())
-        );
+            Assertions.assertAll(
+                    () -> Assertions.assertEquals("safestorage://001", actual.getKey()),
+                    () -> Assertions.assertEquals(2, actual.getNumberOfPages())
+            );
+        }
     }
 
     @Test
