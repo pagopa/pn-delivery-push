@@ -12,8 +12,7 @@ import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
@@ -27,6 +26,7 @@ import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
+import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
@@ -95,7 +95,14 @@ public class AbstractWorkflowTestConfiguration {
     public InstantNowSupplier instantNowSupplierTest() {
         return Mockito.mock(InstantNowSupplier.class);
     }
-    
+
+    @Bean
+    public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc, @Lazy PnSendModeUtils pnSendModeUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+        CustomInstantWriter instantWriter = new CustomInstantWriter();
+        PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
+        return new LegalFactGeneratorDocComposition(dc, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplierTest(), pnSendModeUtils);
+    }
+
     @Bean
     public SaveLegalFactsServiceImpl LegalFactsTest(SafeStorageService safeStorageService,
                                                     LegalFactGenerator pdfUtils) {

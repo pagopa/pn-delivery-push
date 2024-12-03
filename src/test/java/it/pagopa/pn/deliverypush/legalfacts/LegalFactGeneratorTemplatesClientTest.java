@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ExtendWith(SpringExtension.class)
-class LegalFactGeneratorOldTemplatesClientTest {
+class LegalFactGeneratorTemplatesClientTest {
 
     LegalFactGeneratorTemplatesClient legalFactGeneratorTemplatesClient;
 
@@ -46,6 +47,7 @@ class LegalFactGeneratorOldTemplatesClientTest {
         List<NotificationRecipientInt> recipients = new ArrayList<>();
         NotificationRecipientInt recipientInt = NotificationRecipientInt.builder()
                 .denomination("denomination_test")
+                .digitalDomicile(new LegalDigitalAddressInt())
                 .build();
         recipients.add(recipientInt);
         NotificationInt notificationInt = NotificationInt.builder()
