@@ -38,7 +38,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.TestPropertySource;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -50,8 +49,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.with;
 
-@TestPropertySource(properties="pn.delivery-push.enableTemplatesEngine=true")
-class AnalogTestIT extends CommonTestConfiguration{
+class AnalogTestIT extends CommonTestConfiguration {
+
     @SpyBean
     LegalFactGenerator legalFactGenerator;
     @SpyBean
@@ -89,16 +88,23 @@ class AnalogTestIT extends CommonTestConfiguration{
         String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
-        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(EventId.builder()
+        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION + TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
                 .sentAttemptMade(0)
                 .build()
         );
 
+
+        LegalDigitalAddressInt legalDigitalAddressInt = LegalDigitalAddressInt.builder()
+                .address("Via Digital Address")
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
+                .build();
+
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
-                .withInternalId("ANON_"+taxId)
+                .withInternalId("ANON_" + taxId)
+                .withDigitalDomicile(legalDigitalAddressInt)
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
@@ -128,7 +134,7 @@ class AnalogTestIT extends CommonTestConfiguration{
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-        
+
         String timelineId = TimelineEventId.NOTIFICATION_VIEWED.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -137,7 +143,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         );
 
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
-        await().untilAsserted(() -> 
+        await().untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
         );
 
@@ -145,7 +151,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         await().pollDelay(Duration.ofMillis(200)).untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
         );
-        
+
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
 
@@ -167,11 +173,11 @@ class AnalogTestIT extends CommonTestConfiguration{
                                 .iun(iun)
                                 .recIndex(recIndex)
                                 .build()));
-        
+
         Assertions.assertTrue(timelineElementOpt.isPresent());
         TimelineElementInternal timelineElement = timelineElementOpt.get();
         NotificationViewedDetailsInt detailsInt = (NotificationViewedDetailsInt) timelineElement.getDetails();
-        
+
         Assertions.assertNotNull(detailsInt.getNotificationCost());
 
         //Viene effettuato il check dei legalFacts generati
@@ -182,7 +188,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .pecDeliveryWorkflowLegalFactsGenerated(false)
                 .notificationCompletelyUnreachableLegalFactGenerated(false)
                 .build();
-        
+
         TestUtils.checkGeneratedLegalFacts(
                 notification,
                 recipient,
@@ -194,7 +200,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 timelineService,
                 null
         );
-        
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -220,7 +226,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
-        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
+        String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION + TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
                 .iun(iun)
                 .recIndex(0)
                 .courtesyAddressType(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
@@ -229,7 +235,7 @@ class AnalogTestIT extends CommonTestConfiguration{
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
-                .withInternalId("ANON_"+taxId)
+                .withInternalId("ANON_" + taxId)
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
@@ -259,19 +265,19 @@ class AnalogTestIT extends CommonTestConfiguration{
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-        
+
         //Dal momento che l'ultimo elemento di timeline non viene inserito in prossimità della fine del workflow viene utilizzato un delay
-        with().pollDelay(5, SECONDS).await().untilAsserted(() ->{
+        with().pollDelay(5, SECONDS).await().untilAsserted(() -> {
             String timelineId = TimelineEventId.SCHEDULE_ANALOG_WORKFLOW.buildEventId(
                     EventId.builder()
                             .iun(iun)
                             .recIndex(recIndex)
                             .build()
             );
-            
+
             Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent());
         });
-        
+
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, listCourtesyAddress, timelineService, externalChannelMock);
 
@@ -313,7 +319,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 timelineService,
                 null
         );
-        
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -341,7 +347,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         String taxid01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
-                .withInternalId("ANON_"+taxid01)
+                .withInternalId("ANON_" + taxid01)
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
@@ -368,11 +374,11 @@ class AnalogTestIT extends CommonTestConfiguration{
 
         String iun = notification.getIun();
         Integer recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-        
+
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
-        
+
         await().untilAsserted(() ->
                 Assertions.assertTrue(
                         TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, recIndex, timelineService)
@@ -389,7 +395,7 @@ class AnalogTestIT extends CommonTestConfiguration{
 
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA
         TestUtils.checkSendPaperToExtChannel(iun, recIndex, paPhysicalAddress, 0, timelineService);
-        
+
         //Viene verificato l'effettivo invio delle due notifiche verso paperChannel
         Mockito.verify(paperChannelMock, Mockito.times(2)).prepare(Mockito.any(PaperChannelPrepareRequest.class));
         Mockito.verify(paperChannelMock, Mockito.times(2)).send(Mockito.any(PaperChannelSendRequest.class));
@@ -405,7 +411,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         Assertions.assertTrue(sendPaperDetailsOpt.isPresent());
 
         SendAnalogDetailsInt sendPaperDetails = sendPaperDetailsOpt.get();
-        Assertions.assertEquals( paPhysicalAddress.getAddress() , sendPaperDetails.getPhysicalAddress().getAddress() );
+        Assertions.assertEquals(paPhysicalAddress.getAddress(), sendPaperDetails.getPhysicalAddress().getAddress());
 
         //Viene verificato che il workflow sia fallito
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -511,7 +517,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                         TestUtils.checkIsPresentAnalogSuccessWorkflowAndRefinement(iun, recIndex, timelineService)
                 )
         );
-        
+
         //Viene verificato che non sia stato inviato alcun messaggio di cortesia
         TestUtils.checkSendCourtesyAddresses(iun, recIndex, Collections.emptyList(), timelineService, externalChannelMock);
 
@@ -589,16 +595,16 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .build();
 
         String taxid01 = "TAXID01";
-        
+
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
-                .withInternalId("ANON_"+taxid01)
+                .withInternalId("ANON_" + taxid01)
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
-        
+
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient1 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
@@ -608,13 +614,13 @@ class AnalogTestIT extends CommonTestConfiguration{
         String taxid02 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid02)
-                .withInternalId("ANON_"+taxid02)
+                .withInternalId("ANON_" + taxid02)
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test2@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         String fileDoc = "sha256_doc00";
@@ -625,7 +631,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
-                .withNotificationRecipients( List.of(recipient1, recipient2) )
+                .withNotificationRecipients(List.of(recipient1, recipient2))
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -658,7 +664,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                                         .build())).isPresent())
         );
 
-        
+
         //Viene verificato che sia stato inviato un messaggio ad ogni indirizzo presente nei courtesyaddress per il recipient1
         TestUtils.checkSendCourtesyAddressFromTimeline(iun, recIndex1, listCourtesyAddressRecipient1, timelineService);
 
@@ -668,7 +674,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         //Viene verificato l'effettivo invio del messaggio di cortesia verso external channel
         Mockito.verify(externalChannelMock, Mockito.times(listCourtesyAddressRecipient1.size() + listCourtesyAddressRecipient2.size()))
                 .sendCourtesyNotification(
-                        Mockito.any(NotificationInt.class), 
+                        Mockito.any(NotificationInt.class),
                         Mockito.any(NotificationRecipientInt.class),
                         Mockito.any(CourtesyDigitalAddressInt.class),
                         Mockito.anyString(),
@@ -685,7 +691,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        
+
         //Viene verificata la presenza del primo invio verso external channel e che l'invio sia avvenuto con l'indirizzo fornito dalla PA per il rec1
         TestUtils.checkSendPaperToExtChannel(iun, recIndex1, paPhysicalAddress1, 0, timelineService);
 
@@ -787,7 +793,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .address("test@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
-        
+
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
@@ -795,13 +801,13 @@ class AnalogTestIT extends CommonTestConfiguration{
         String taxid01 = "TAXID01";
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
-                .withInternalId("ANON_"+taxid01)
+                .withInternalId("ANON_" + taxid01)
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient1 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
@@ -811,13 +817,13 @@ class AnalogTestIT extends CommonTestConfiguration{
         String taxid02 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid02)
-                .withInternalId("ANON_"+taxid02)
+                .withInternalId("ANON_" + taxid02)
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test2@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         String fileDoc = "sha256_doc00";
@@ -828,15 +834,15 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
-                .withNotificationRecipients( List.of(recipient1, recipient2) )
+                .withNotificationRecipients(List.of(recipient1, recipient2))
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
-        
+
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
-        
+
         addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
         addressBookMock.addCourtesyDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient2);
 
@@ -875,7 +881,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                                 .recIndex(recIndex1)
                                 .build())
         ).isPresent());
-        
+
         //Viene verificato che il workflow sia fallito per il secondo recipient
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
@@ -952,7 +958,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 timelineService,
                 null
         );
-        
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -997,13 +1003,13 @@ class AnalogTestIT extends CommonTestConfiguration{
         String taxid01 = "TAXID01";
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
-                .withInternalId("ANON_"+taxid01)
+                .withInternalId("ANON_" + taxid01)
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient1 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         PhysicalAddressInt paPhysicalAddress2 = PhysicalAddressBuilder.builder()
@@ -1013,13 +1019,13 @@ class AnalogTestIT extends CommonTestConfiguration{
         String taxid02 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid02)
-                .withInternalId("ANON_"+taxid02)
+                .withInternalId("ANON_" + taxid02)
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test2@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         String fileDoc = "sha256_doc00";
@@ -1030,7 +1036,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
-                .withNotificationRecipients( List.of(recipient1, recipient2) )
+                .withNotificationRecipients(List.of(recipient1, recipient2))
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -1084,7 +1090,7 @@ class AnalogTestIT extends CommonTestConfiguration{
 
         Mockito.verify(paperChannelMock, Mockito.times(2)).send(
                 Mockito.any(PaperChannelSendRequest.class)
-            );
+        );
 
         //Viene verificato che il workflow sia fallito
         Assertions.assertTrue(timelineService.getTimelineElement(
@@ -1104,7 +1110,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                                 .recIndex(rec1Index)
                                 .build())).isPresent());
 
-        
+
         //Viene effettuato il check dei legalFacts generati per il primo recipient
         TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo = TestUtils.GeneratedLegalFactsInfo.builder()
                 .notificationReceivedLegalFactGenerated(true)
@@ -1146,7 +1152,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 timelineService,
                 null
         );
-        
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -1174,11 +1180,11 @@ class AnalogTestIT extends CommonTestConfiguration{
            
            - Indirizzo courtesy message presente, dunque inviato (Ottenuto valorizzando il courtesyAddress del addressBookEntry)
      */
-        
+
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
-        
+
         String iun = TestUtils.getRandomIun();
 
         //Simulazione attesa del primo recipient in 
@@ -1196,29 +1202,29 @@ class AnalogTestIT extends CommonTestConfiguration{
                         .recIndex(1)
                         .build()
         );
-        
+
         String taxId1 = TimelineDaoMock.SIMULATE_RECIPIENT_WAIT + elementIdInWait + TimelineDaoMock.WAIT_SEPARATOR + elementIdToWait;
-        
+
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId1)
-                .withInternalId("ANON_"+taxId1)
+                .withInternalId("ANON_" + taxId1)
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient1 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         String taxId2 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId2)
-                .withInternalId("ANON_"+taxId2)
+                .withInternalId("ANON_" + taxId2)
                 .build();
 
         List<CourtesyDigitalAddressInt> listCourtesyAddressRecipient2 = Collections.singletonList(CourtesyDigitalAddressInt.builder()
                 .address("test2@mail.it")
-                .type( CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL )
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
         LegalDigitalAddressInt platformAddress2 = LegalDigitalAddressInt.builder()
@@ -1235,7 +1241,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .withIun(iun)
                 .withPaId("paId01")
                 .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
-                .withNotificationRecipients( List.of(recipient1, recipient2) )
+                .withNotificationRecipients(List.of(recipient1, recipient2))
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
@@ -1253,7 +1259,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
 
-        
+
         // Viene atteso fino a che l'ultimo elemento di timeline sia stato inserito per procedere con le successive verifiche
         await().untilAsserted(() ->
                 Assertions.assertTrue(TestUtils.checkIsPresentAnalogFailureWorkflowAndRefinement(iun, rec1Index, timelineService))
@@ -1270,7 +1276,7 @@ class AnalogTestIT extends CommonTestConfiguration{
         await().untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId2).isPresent())
         );
-        
+
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
@@ -1364,16 +1370,17 @@ class AnalogTestIT extends CommonTestConfiguration{
                 timelineService,
                 null
         );
-        
+
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
 
         ConsoleAppenderCustom.checkLogs();
     }
+
     @NotNull
     private static List<String> replaceSafeStorageKeyFromListAttachment(List<String> attachments) {
-        return attachments.stream().map( attachment -> attachment.replace(SAFE_STORAGE_URL_PREFIX, "")).toList();
+        return attachments.stream().map(attachment -> attachment.replace(SAFE_STORAGE_URL_PREFIX, "")).toList();
     }
 
 }

@@ -16,7 +16,7 @@ import java.util.List;
 
 @SpringBootTest
 @TestPropertySource(properties = "pn.delivery-push.enableTemplatesEngine=false")
-class LegalFactGeneratorTemplatesClientTest {
+class LegalFactGeneratorTemplatesTest {
 
     @SpyBean
     LegalFactGenerator legalFactGeneratorDocComposition;

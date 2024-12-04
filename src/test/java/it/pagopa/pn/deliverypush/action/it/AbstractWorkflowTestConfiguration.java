@@ -12,12 +12,14 @@ import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.api.TemplateApi;
 import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClientImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
@@ -28,6 +30,7 @@ import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
 import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.mockito.Mockito;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
@@ -97,12 +100,23 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc,
+    @ConditionalOnProperty(name = "pn.delivery-push.enableTemplatesEngine", havingValue = "false")
+    public LegalFactGenerator legalFactGeneratorDocComposition(DocumentComposition dc,
                                                         @Lazy PnSendModeUtils pnSendModeUtils,
                                                         PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
         return new LegalFactGeneratorDocComposition(dc, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplierTest(), pnSendModeUtils);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "pn.delivery-push.enableTemplatesEngine", havingValue = "true", matchIfMissing = true)
+    public LegalFactGenerator legalFactGeneratorTemplatesClient(@Lazy PnSendModeUtils pnSendModeUtils,
+                                                                PnDeliveryPushConfigs pnDeliveryPushConfigs,
+                                                                TemplatesClientImpl templatesClient) {
+        CustomInstantWriter instantWriter = new CustomInstantWriter();
+        PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
+        return new LegalFactGeneratorTemplates(instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, pnSendModeUtils, templatesClient);
     }
 
     @Bean

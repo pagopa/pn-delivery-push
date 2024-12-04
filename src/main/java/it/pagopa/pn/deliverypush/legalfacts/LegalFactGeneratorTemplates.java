@@ -14,8 +14,8 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.api.TemplateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientImpl;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
@@ -37,13 +37,13 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 
 @Slf4j
 @AllArgsConstructor
-public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
+public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     private final CustomInstantWriter instantWriter;
     private final PhysicalAddressWriter physicalAddressWriter;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final PnSendModeUtils pnSendModeUtils;
-    private final TemplateApi templateEngineClient;
+    private final TemplatesClientImpl templatesClient;
 
     @Override
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) {
@@ -87,7 +87,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
                 .digests(extractNotificationAttachmentDigests(notification));
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationReceivedLegalFact(language, legalFact);
+        return templatesClient.notificationReceivedLegalFact(language, legalFact);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
                 .when(instantWriter.instantToDate(timeStamp));
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationViewedLegalFact(language, notificationViewedLegalFact);
+        return templatesClient.notificationViewedLegalFact(language, notificationViewedLegalFact);
     }
 
     @Override
@@ -147,7 +147,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
                 .endWorkflowDate(instantWriter.instantToDate(completionWorkflowDate));
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.pecDeliveryWorkflowLegalFact(language, pecDeliveryWorkflowLegalFact);
+        return templatesClient.pecDeliveryWorkflowLegalFact(language, pecDeliveryWorkflowLegalFact);
     }
 
     @Override
@@ -167,7 +167,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
                 .endWorkflowTime(instantWriter.instantToTime(failureWorkflowDate));
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.analogDeliveryWorkflowFailureLegalFact(language, analogDeliveryWorkflowFailureLegalFact);
+        return templatesClient.analogDeliveryWorkflowFailureLegalFact(language, analogDeliveryWorkflowFailureLegalFact);
     }
 
     @Override
@@ -193,7 +193,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
                 .notification(notificationCancelledNotification);
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationCancelledLegalFact(language, cancelledLegalFact);
+        return templatesClient.notificationCancelledLegalFact(language, cancelledLegalFact);
     }
 
     @Override
@@ -208,7 +208,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
                 .notification(aarForSubjectNotification);
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationAarForSubject(language, notificationAARSubject);
+        return templatesClient.notificationAarForSubject(language, notificationAARSubject);
     }
 
     private List<String> extractNotificationAttachmentDigests(NotificationInt notification) {
@@ -250,11 +250,11 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
             switch (aarTemplateType) {
                 case AAR_NOTIFICATION -> {
                     NotificationAar notificationAAR = getNotificationAAR(notification, recipient, quickAccessToken);
-                    bytesArrayGeneratedAar = templateEngineClient.notificationAar(language, notificationAAR);
+                    bytesArrayGeneratedAar = templatesClient.notificationAar(language, notificationAAR);
                 }
                 case AAR_NOTIFICATION_RADD_ALT -> {
                     NotificationAarRaddAlt notificationAARRADDalt = getNotificationAARRADDalt(notification, recipient, quickAccessToken);
-                    bytesArrayGeneratedAar = templateEngineClient.notificationAarRaddAlt(language, notificationAARRADDalt);
+                    bytesArrayGeneratedAar = templatesClient.notificationAarRaddAlt(language, notificationAARRADDalt);
                 }
                 case AAR_NOTIFICATION_RADD -> //TODO da vedere
                         throw new PnInternalException("NotificationAAR_RADD not implemented", ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE);
@@ -281,7 +281,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
                 .piattaformaNotificheURL(this.getAccessUrl(recipient));
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationAarForEmail(language, notificationAAR);
+        return templatesClient.notificationAarForEmail(language, notificationAAR);
     }
 
     @Override
@@ -310,7 +310,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
                 .recipientType(this.getRecipientTypeForHTMLTemplate(recipient));
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationAarForPec(language, notificationAAR);
+        return templatesClient.notificationAarForPec(language, notificationAAR);
     }
 
     @Override
@@ -326,7 +326,7 @@ public class LegalFactGeneratorTemplatesClient implements LegalFactGenerator {
                 .notification(aarForSmsNotification);
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templateEngineClient.notificationAarForSms(language, notificationAARForSMS);
+        return templatesClient.notificationAarForSms(language, notificationAARForSMS);
     }
 
     private String getAccessUrlLabel(NotificationRecipientInt recipient) {

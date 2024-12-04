@@ -16,6 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -23,7 +24,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @SpringBootTest
-class LegalFactGeneratorDocCompositionTest extends CommonTestConfiguration {
+@TestPropertySource(value = {"classpath:/application-testIT.properties"},
+        properties = {"pn.delivery-push.enableTemplatesEngine=false"})
+class LegalFactGeneratorDocCompositionTest {
 
     public static final String IUN = "IUN_TEST";
     public static final String QUICK_ACCESS_TOKEN = "quickAccessToken";
