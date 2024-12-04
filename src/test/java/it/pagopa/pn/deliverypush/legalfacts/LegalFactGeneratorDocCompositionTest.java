@@ -32,7 +32,7 @@ class LegalFactGeneratorDocCompositionTest extends CommonTestConfiguration {
     LegalFactGenerator legalFactGeneratorDocComposition;
 
     @ParameterizedTest
-    @MethodSource("provideTestCases")
+    @MethodSource("legalFactGeneratorDocCompositionTestCases")
     void testLegalFactGeneration(LegalFactTestCase testCase) {
         var result = Assertions.assertDoesNotThrow(() -> testCase.execute(legalFactGeneratorDocComposition));
         Assertions.assertNotNull(result);
@@ -46,7 +46,7 @@ class LegalFactGeneratorDocCompositionTest extends CommonTestConfiguration {
         }
     }
 
-    private static Stream<LegalFactTestCase> provideTestCases() {
+    private static Stream<LegalFactTestCase> legalFactGeneratorDocCompositionTestCases() {
         return Stream.of(
                 new LegalFactTestCase(
                         "generateNotificationReceivedLegalFact",
