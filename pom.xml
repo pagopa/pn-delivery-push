@@ -850,7 +850,7 @@
 							<generateModelTests>false</generateModelTests>
 							<typeMappings>
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
-								<typeMapping>file=org.springframework.core.io.Resource</typeMapping>
+								<typeMapping>file=byte[]</typeMapping>
 							</typeMappings>
 							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
 							<configOptions>
