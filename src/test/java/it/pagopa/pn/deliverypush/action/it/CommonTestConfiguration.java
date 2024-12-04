@@ -162,7 +162,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         WebhookEventsServiceMock.class
 })
 @ExtendWith(SpringExtension.class)
-@TestPropertySource("classpath:/application-testIT.properties")
+@TestPropertySource(value = "classpath:/application-testIT.properties",
+        properties = "pn.delivery-push.enableTemplatesEngine=false")
 @DirtiesContext
 @EnableScheduling
 public class CommonTestConfiguration {

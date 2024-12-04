@@ -97,7 +97,9 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc, @Lazy PnSendModeUtils pnSendModeUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+    public LegalFactGenerator legalFactPdfGeneratorTest(DocumentComposition dc,
+                                                        @Lazy PnSendModeUtils pnSendModeUtils,
+                                                        PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
         return new LegalFactGeneratorDocComposition(dc, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplierTest(), pnSendModeUtils);
