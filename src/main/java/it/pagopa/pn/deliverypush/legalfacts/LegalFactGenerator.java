@@ -13,18 +13,18 @@ import java.util.List;
 
 public interface LegalFactGenerator {
 
-    public static final String FIELD_SEND_DATE = "sendDate";
-    public static final String FIELD_SEND_DATE_NO_TIME = "sendDateNoTime";
-    public static final String FIELD_NOTIFICATION = "notification";
-    public static final String FIELD_DIGESTS = "digests";
-    public static final String FIELD_ADDRESS_WRITER = "addressWriter";
-    public static final String FIELD_SIGNATURE = "signature";
-    public static final String FIELD_TIME_REFERENCE = "timeReference";
-    public static final String FIELD_PDF_FILE_NAME = "pdfFileName";
-    public static final String FIELD_IUN = "iun";
-    public static final String FIELD_DELIVERIES = "deliveries";
-    public static final String FIELD_RECIPIENT = "recipient";
-    public static final String FIELD_WHEN = "when";
+    String FIELD_SEND_DATE = "sendDate";
+    String FIELD_SEND_DATE_NO_TIME = "sendDateNoTime";
+    String FIELD_NOTIFICATION = "notification";
+    String FIELD_DIGESTS = "digests";
+    String FIELD_ADDRESS_WRITER = "addressWriter";
+    String FIELD_SIGNATURE = "signature";
+    String FIELD_TIME_REFERENCE = "timeReference";
+    String FIELD_PDF_FILE_NAME = "pdfFileName";
+    String FIELD_IUN = "iun";
+    String FIELD_DELIVERIES = "deliveries";
+    String FIELD_RECIPIENT = "recipient";
+    String FIELD_WHEN = "when";
 
     byte[] generateNotificationReceivedLegalFact(NotificationInt notification) throws IOException;
 
