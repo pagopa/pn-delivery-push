@@ -24,9 +24,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @SpringBootTest
-@TestPropertySource(value = {"classpath:/application-testIT.properties"},
-        properties = {"pn.delivery-push.enableTemplatesEngine=false"})
-class LegalFactGeneratorDocCompositionTest {
+@TestPropertySource(properties = {"pn.delivery-push.enableTemplatesEngine=false"})
+class LegalFactGeneratorDocCompositionTest extends CommonTestConfiguration {
 
     public static final String IUN = "IUN_TEST";
     public static final String QUICK_ACCESS_TOKEN = "quickAccessToken";
@@ -208,8 +207,8 @@ class LegalFactGeneratorDocCompositionTest {
         }
     }
 
-    @FunctionalInterface
-    interface ThrowingFunction<T, R> {
-        R apply(T t) throws Throwable;
-    }
+        @FunctionalInterface
+        interface ThrowingFunction<T, R> {
+            R apply(T t) throws Throwable;
+        }
 }
