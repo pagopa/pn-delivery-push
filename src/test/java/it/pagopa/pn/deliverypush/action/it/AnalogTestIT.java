@@ -197,7 +197,6 @@ class AnalogTestIT extends CommonTestConfiguration {
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
-
         ConsoleAppenderCustom.checkLogs();
     }
 
