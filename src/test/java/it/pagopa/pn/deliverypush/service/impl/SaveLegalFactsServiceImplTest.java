@@ -61,7 +61,7 @@ class SaveLegalFactsServiceImplTest {
 
     @Test
     void saveAAR() throws IOException {
-        try (var result = this.getClass().getResourceAsStream("/pdf/responsept.pdf")) {
+        try (var result = this.getClass().getResourceAsStream("/pdf/response.pdf")) {
             String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
             NotificationInt notification = buildNotification(denomination);
             NotificationRecipientInt recipient = buildRecipient(denomination);
