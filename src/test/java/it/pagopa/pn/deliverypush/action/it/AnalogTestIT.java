@@ -95,16 +95,9 @@ class AnalogTestIT extends CommonTestConfiguration {
                 .build()
         );
 
-
-        LegalDigitalAddressInt legalDigitalAddressInt = LegalDigitalAddressInt.builder()
-                .address("Via Digital Address")
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                .build();
-
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
                 .withInternalId("ANON_" + taxId)
-                .withDigitalDomicile(legalDigitalAddressInt)
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
