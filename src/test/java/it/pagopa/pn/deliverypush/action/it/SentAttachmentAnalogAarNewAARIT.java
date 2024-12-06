@@ -41,7 +41,7 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
     static Instant sentNotificationTime = Instant.now();
 
     //Viene valorizzata la configurazione vecchia, cioè INSTANT.NOW meno 10 giorni
-    static AarTemplateType notCurrentConfTemplateType = AarTemplateType.AAR_NOTIFICATION;
+    static AarTemplateType notCurrentConfTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
 
     static PnSendMode notCurrentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.DAYS))
@@ -51,7 +51,7 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
             .build();
 
     //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 1 giorni
-    static AarTemplateType currentConfAaarTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD;
+    static AarTemplateType currentConfAaarTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
     static PnSendMode currentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(1, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR)

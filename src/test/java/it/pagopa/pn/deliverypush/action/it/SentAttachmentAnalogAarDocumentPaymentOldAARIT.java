@@ -41,7 +41,7 @@ class SentAttachmentAnalogAarDocumentPaymentOldAARIT extends SendAarAttachment {
     static Instant sentNotificationTime = Instant.now();
 
     //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 10 minuti
-    static AarTemplateType firstCurrentConfTemplateType = AarTemplateType.AAR_NOTIFICATION;
+    static AarTemplateType firstCurrentConfTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
     static PnSendMode firstCurrentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.MINUTES))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
@@ -49,7 +49,7 @@ class SentAttachmentAnalogAarDocumentPaymentOldAARIT extends SendAarAttachment {
             .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(firstCurrentConfTemplateType))
             .build();
     //Viene valorizzata la configurazione futura, cioè INSTANT.NOW più 10 giorni
-    static AarTemplateType secondConfTemplateType = AarTemplateType.AAR_NOTIFICATION;
+    static AarTemplateType secondConfTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
     static PnSendMode secondConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.plus(10, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
