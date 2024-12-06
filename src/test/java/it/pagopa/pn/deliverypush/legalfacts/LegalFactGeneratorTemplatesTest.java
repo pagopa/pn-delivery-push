@@ -1,20 +1,20 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.deliverypush.action.it.CommonTestConfiguration;
+import it.pagopa.pn.deliverypush.action.it.mockbean.TemplatesClientMock;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientImpl;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClient;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,130 +22,116 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
-//@SpringBootTest
-//@TestPropertySource(properties = "pn.delivery-push.enableTemplatesEngine=true")
-class LegalFactGeneratorTemplatesTest //extends CommonTestConfiguration
-{
+@SpringBootTest
+@TestPropertySource(properties = "pn.delivery-push.enableTemplatesEngine=true")
+class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
 
     @Autowired
     LegalFactGenerator legalFactGeneratorTemplatesTest;
     @MockBean
-    TemplatesClientImpl templatesClient;
+    TemplatesClient templatesClient;
 
-    private static final byte[] byteArray = {10, 20, 30, 40, 50};
+    TemplatesClientMock templatesClientMock = new TemplatesClientMock();
+
     private static final String IUN = "TEST_TEST";
-    private static final String TEST_RETURN = "AARSubject_ForSMS_PECBody";
+    private static final String TEST_RETURN = "Templates As String Result";
     public static final String QUICK_ACCESS_TOKEN = "quickAccessToken_TEST";
 
-    //@ParameterizedTest
-    //@MethodSource("legalFactGeneratorTestCases")
-    void testLegalFactGeneration(LegalFactTestCase testCase) {
-        @SuppressWarnings("unchecked")
-        OngoingStubbing<Object> stubbing = (OngoingStubbing<Object>) testCase.getMockBehavior().apply(templatesClient);
-        stubbing.thenReturn(testCase.getExpectedResult());
-
-        var result = Assertions.assertDoesNotThrow(() -> testCase.execute(legalFactGeneratorTemplatesTest));
+    @Test
+    void generateNotificationReceivedLegalFact() {
+        Mockito.when(templatesClient.notificationReceivedLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(NotificationReceivedLegalFact.class)))
+                .thenReturn(templatesClientMock.notificationReceivedLegalFact(LanguageEnum.IT, new NotificationReceivedLegalFact()));
+        var result = Assertions.assertDoesNotThrow(() ->
+                legalFactGeneratorTemplatesTest.generateNotificationReceivedLegalFact(notificationInt()));
         Assertions.assertNotNull(result);
     }
 
-    private static Stream<LegalFactTestCase> legalFactGeneratorTestCases() {
-        return Stream.of(
-                new LegalFactTestCase(
-                        "generateNotificationReceivedLegalFact",
-                        generator -> generator.generateNotificationReceivedLegalFact(notificationInt()),
-                        client -> Mockito.when(client.notificationReceivedLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(NotificationReceivedLegalFact.class))),
-                        byteArray
-                ),
-                new LegalFactTestCase(
-                        "generateNotificationViewedLegalFact",
-                        generator -> generator.generateNotificationViewedLegalFact(IUN, notificationRecipientInt(), delegateInfoInt(), Instant.now(), notificationInt()),
-                        client -> Mockito.when(client.notificationViewedLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(NotificationViewedLegalFact.class))),
-                        byteArray
-                ),
-                new LegalFactTestCase(
-                        "generatePecDeliveryWorkflowLegalFact",
-                        generator -> generator.generatePecDeliveryWorkflowLegalFact(
-                                List.of(sendDigitalFeedbackDetailsInt()), notificationInt(), notificationRecipientInt(), EndWorkflowStatus.SUCCESS, Instant.now()
-                        ),
-                        client -> Mockito.when(client.pecDeliveryWorkflowLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(PecDeliveryWorkflowLegalFact.class))),
-                        byteArray
-                ),
-                new LegalFactTestCase(
-                        "generateAnalogDeliveryFailureWorkflowLegalFact",
-                        generator -> generator.generateAnalogDeliveryFailureWorkflowLegalFact(notificationInt(), notificationRecipientInt(), EndWorkflowStatus.SUCCESS, Instant.now()),
-                        client -> Mockito.when(client.analogDeliveryWorkflowFailureLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(AnalogDeliveryWorkflowFailureLegalFact.class))),
-                        byteArray
-                ),
-                new LegalFactTestCase(
-                        "generateNotificationCancelledLegalFact",
-                        generator -> generator.generateNotificationCancelledLegalFact(notificationInt(), Instant.now()),
-                        client -> Mockito.when(client.notificationCancelledLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(NotificationCancelledLegalFact.class))),
-                        byteArray
-                ),
-                new LegalFactTestCase(
-                        "generateNotificationAARSubject",
-                        generator -> generator.generateNotificationAARSubject(notificationInt()),
-                        client -> Mockito.when(client.notificationAarForSubject(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForSubject.class))),
-                        TEST_RETURN
-                ),
-                new LegalFactTestCase(
-                        "generateNotificationAARBody",
-                        generator -> generator.generateNotificationAARBody(notificationInt(), notificationRecipientInt(), QUICK_ACCESS_TOKEN),
-                        client -> Mockito.when(client.notificationAarForEmail(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForEmail.class))),
-                        TEST_RETURN
-                ),
-                new LegalFactTestCase(
-                        "generateNotificationAARPECBody",
-                        generator -> generator.generateNotificationAARPECBody(notificationInt(), notificationRecipientInt(), QUICK_ACCESS_TOKEN),
-                        client -> Mockito.when(client.notificationAarForPec(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForPec.class))),
-                        TEST_RETURN
-                ),
-                new LegalFactTestCase(
-                        "generateNotificationAARForSMS",
-                        generator -> generator.generateNotificationAARForSMS(notificationInt()),
-                        client -> Mockito.when(client.notificationAarForSms(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForSms.class))),
-                        TEST_RETURN
-                )
+    @Test
+    void generateNotificationViewedLegalFact() {
+        Mockito.when(templatesClient.notificationViewedLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(NotificationViewedLegalFact.class)))
+                .thenReturn(templatesClientMock.notificationViewedLegalFact(LanguageEnum.IT, new NotificationViewedLegalFact()));
+        var result = Assertions.assertDoesNotThrow(() ->
+                legalFactGeneratorTemplatesTest.generateNotificationViewedLegalFact(
+                        IUN, notificationRecipientInt(), delegateInfoInt(), Instant.now(), notificationInt()
+                ));
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void generatePecDeliveryWorkflowLegalFact() {
+        Mockito.when(templatesClient.pecDeliveryWorkflowLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(PecDeliveryWorkflowLegalFact.class)))
+                .thenReturn(templatesClientMock.pecDeliveryWorkflowLegalFact(LanguageEnum.IT, new PecDeliveryWorkflowLegalFact()));
+        var result = Assertions.assertDoesNotThrow(() ->
+                legalFactGeneratorTemplatesTest.generatePecDeliveryWorkflowLegalFact(
+                        List.of(sendDigitalFeedbackDetailsInt()), notificationInt(), notificationRecipientInt(), EndWorkflowStatus.SUCCESS, Instant.now()
+                ));
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void generateAnalogDeliveryFailureWorkflowLegalFact() {
+        Mockito.when(templatesClient.analogDeliveryWorkflowFailureLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(AnalogDeliveryWorkflowFailureLegalFact.class)))
+                .thenReturn(templatesClientMock.analogDeliveryWorkflowFailureLegalFact(LanguageEnum.IT, new AnalogDeliveryWorkflowFailureLegalFact()));
+        var result = Assertions.assertDoesNotThrow(() ->
+                legalFactGeneratorTemplatesTest.generateAnalogDeliveryFailureWorkflowLegalFact(
+                        notificationInt(), notificationRecipientInt(), EndWorkflowStatus.SUCCESS, Instant.now()
+                ));
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void generateNotificationCancelledLegalFact() {
+        Mockito.when(templatesClient.notificationCancelledLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(NotificationCancelledLegalFact.class)))
+                .thenReturn(templatesClientMock.notificationCancelledLegalFact(LanguageEnum.IT, new NotificationCancelledLegalFact()));
+        var result = Assertions.assertDoesNotThrow(() ->
+                legalFactGeneratorTemplatesTest.generateNotificationCancelledLegalFact(notificationInt(), Instant.now()));
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void generateNotificationAARSubject() {
+        Mockito.when(templatesClient.notificationAarForSubject(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForSubject.class)))
+                .thenReturn(templatesClientMock.notificationAarForSubject(LanguageEnum.IT, new NotificationAarForSubject()));
+        var result = Assertions.assertDoesNotThrow(() -> legalFactGeneratorTemplatesTest.generateNotificationAARSubject(notificationInt()));
+        Assertions.assertEquals(TEST_RETURN, result);
+    }
+
+    @Test
+    void generateNotificationAAR_CASE_NOTIFICATION_AAR() {
+        Mockito.when(templatesClient.notificationAar(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAar.class)))
+                .thenReturn(templatesClientMock.notificationAar(LanguageEnum.IT, new NotificationAar()));
+
+        AARInfo result = Assertions.assertDoesNotThrow(() -> legalFactGeneratorTemplatesTest.generateNotificationAAR(
+                notificationInt(), notificationRecipientInt(), QUICK_ACCESS_TOKEN)
         );
+        Assertions.assertNotNull(result.getBytesArrayGeneratedAar());
     }
 
-    static class LegalFactTestCase {
-        private final String testName;
-        private final ThrowingFunction<LegalFactGenerator, Object> testFunction;
-        private final Function<TemplatesClientImpl, OngoingStubbing<?>> mockBehavior;
-        private final Object expectedResult;
-
-        LegalFactTestCase(String testName, ThrowingFunction<LegalFactGenerator, Object> testFunction,
-                          Function<TemplatesClientImpl, OngoingStubbing<?>> mockBehavior, Object expectedResult) {
-            this.testName = testName;
-            this.testFunction = testFunction;
-            this.mockBehavior = mockBehavior;
-            this.expectedResult = expectedResult;
-        }
-
-        Object execute(LegalFactGenerator generator) throws Throwable {
-            return testFunction.apply(generator);
-        }
-
-        Function<TemplatesClientImpl, OngoingStubbing<?>> getMockBehavior() {
-            return mockBehavior;
-        }
-
-        Object getExpectedResult() {
-            return expectedResult;
-        }
-
-        String getTestName() {
-            return testName;
-        }
+    @Test
+    void generateNotificationAARBody() {
+        Mockito.when(templatesClient.notificationAarForEmail(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForEmail.class)))
+                .thenReturn(templatesClientMock.notificationAarForEmail(LanguageEnum.IT, new NotificationAarForEmail()));
+        var result = Assertions.assertDoesNotThrow(() -> legalFactGeneratorTemplatesTest.generateNotificationAARBody(
+                notificationInt(), notificationRecipientInt(), QUICK_ACCESS_TOKEN));
+        Assertions.assertEquals(TEST_RETURN, result);
     }
 
-    @FunctionalInterface
-    interface ThrowingFunction<T, R> {
-        R apply(T t) throws Throwable;
+    @Test
+    void generateNotificationAARPECBody() {
+        Mockito.when(templatesClient.notificationAarForPec(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForPec.class)))
+                .thenReturn(templatesClientMock.notificationAarForPec(LanguageEnum.IT, new NotificationAarForPec()));
+        var result = Assertions.assertDoesNotThrow(() -> legalFactGeneratorTemplatesTest.generateNotificationAARPECBody(
+                notificationInt(), notificationRecipientInt(), QUICK_ACCESS_TOKEN));
+        Assertions.assertEquals(TEST_RETURN, result);
+    }
+
+    @Test
+    void generateNotificationAARForSMS() {
+        Mockito.when(templatesClient.notificationAarForSms(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForSms.class)))
+                .thenReturn(templatesClientMock.notificationAarForSms(LanguageEnum.IT, new NotificationAarForSms()));
+        var result = Assertions.assertDoesNotThrow(() -> legalFactGeneratorTemplatesTest.generateNotificationAARForSMS(notificationInt()));
+        Assertions.assertEquals(TEST_RETURN, result);
     }
 
     private static SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetailsInt() {
