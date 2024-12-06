@@ -18,7 +18,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregi
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClientImpl;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientImpl;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
@@ -39,6 +39,7 @@ import java.util.List;
 
 public class AbstractWorkflowTestConfiguration {
     static final int SEND_FEE = 100;
+
     @Bean
     public PnDeliveryPushConfigs pnDeliveryPushConfigs() {
         PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
@@ -56,12 +57,12 @@ public class AbstractWorkflowTestConfiguration {
     @Bean
     public NotificationProcessCostService notificationProcessCostService(@Lazy TimelineService timelineService,
                                                                          @Lazy PnExternalRegistriesClientReactive pnExternalRegistriesClientReactive,
-                                                                         @Lazy  PnDeliveryPushConfigs cfg) {
+                                                                         @Lazy PnDeliveryPushConfigs cfg) {
         return new NotificationProcessCostServiceImpl(timelineService, pnExternalRegistriesClientReactive, cfg);
     }
 
     @Bean
-    public PnDeliveryClient testPnDeliveryClient( PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
+    public PnDeliveryClient testPnDeliveryClient(PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
         return new PnDeliveryClientMock(pnDataVaultClientReactiveMock);
     }
 
@@ -69,7 +70,7 @@ public class AbstractWorkflowTestConfiguration {
     public UserAttributesClient testAddressBook() {
         return new UserAttributesClientMock();
     }
-    
+
     @Bean
     public PnSafeStorageClient safeStorageTest(DocumentCreationRequestService creationRequestService,
                                                SafeStorageResponseHandler safeStorageResponseHandler) {
@@ -82,15 +83,15 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     private ObjectMapper buildObjectMapper() {
-        ObjectMapper objectMapper = ((JsonMapper.Builder)((JsonMapper.Builder)JsonMapper.builder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)).build();
+        ObjectMapper objectMapper = ((JsonMapper.Builder) ((JsonMapper.Builder) JsonMapper.builder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)).build();
         objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
     }
 
     @Bean
     public DocumentComposition documentCompositionTest(HtmlSanitizer htmlSanitizer) throws IOException {
-        Configuration freemarker = new Configuration( new Version(_TemplateAPI.VERSION_INT_2_3_0));
-        return new DocumentComposition(  freemarker, htmlSanitizer );
+        Configuration freemarker = new Configuration(new Version(_TemplateAPI.VERSION_INT_2_3_0));
+        return new DocumentComposition(freemarker, htmlSanitizer);
     }
 
     @Bean
@@ -101,8 +102,8 @@ public class AbstractWorkflowTestConfiguration {
     @Bean
     @ConditionalOnProperty(name = "pn.delivery-push.enableTemplatesEngine", havingValue = "false")
     public LegalFactGenerator legalFactGeneratorDocComposition(DocumentComposition dc,
-                                                        @Lazy PnSendModeUtils pnSendModeUtils,
-                                                        PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+                                                               @Lazy PnSendModeUtils pnSendModeUtils,
+                                                               PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
         return new LegalFactGeneratorDocComposition(dc, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplierTest(), pnSendModeUtils);
@@ -110,13 +111,15 @@ public class AbstractWorkflowTestConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "pn.delivery-push.enableTemplatesEngine", havingValue = "true", matchIfMissing = true)
-    public LegalFactGenerator legalFactGeneratorTemplatesClient(@Lazy PnSendModeUtils pnSendModeUtils,
-                                                                PnDeliveryPushConfigs pnDeliveryPushConfigs,
-                                                                TemplatesClientImpl templatesClient) {
+    public LegalFactGenerator legalFactGeneratorTemplatesClient(@Lazy PnSendModeUtils pnSendModeUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
-        return new LegalFactGeneratorTemplates(instantWriter, physicalAddressWriter,
-                pnDeliveryPushConfigs, pnSendModeUtils, templatesClient);
+        return new LegalFactGeneratorTemplates(instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, pnSendModeUtils, templatesClient());
+    }
+
+    @Bean
+    public TemplatesClient templatesClient() {
+        return new TemplatesClientMock();
     }
 
     @Bean
@@ -131,31 +134,33 @@ public class AbstractWorkflowTestConfiguration {
         return new NationalRegistriesClientMock(
                 nationalRegistriesResponseHandler,
                 timelineService
-            );
+        );
     }
-    
+
     @Bean
     public ActionHandlerMock ActionHandlerMock(@Lazy ActionHandler actionHandler
     ) {
         return new ActionHandlerMock(actionHandler);
     }
-    
+
     @Bean
     public SchedulerServiceMock schedulerServiceMockMock(@Lazy ActionPoolMock actionPoolMock) {
         return new SchedulerServiceMock(actionPoolMock);
     }
 
-    
+
     @Bean
     public PnExternalRegistryClient pnExternalRegistryClientTest() {
         return Mockito.mock(PnExternalRegistryClientImpl.class);
     }
-    
+
     @Bean
-    public ParameterConsumer pnParameterConsumerClientTest(){
+    public ParameterConsumer pnParameterConsumerClientTest() {
         return new AbstractCachedSsmParameterConsumerMock();
     }
 
     @Bean
-    public F24Service f24Service(){return Mockito.mock(F24Service.class);}
+    public F24Service f24Service() {
+        return Mockito.mock(F24Service.class);
+    }
 }

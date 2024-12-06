@@ -4,17 +4,17 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.FileUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientImpl;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
@@ -43,11 +43,11 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     private final PhysicalAddressWriter physicalAddressWriter;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final PnSendModeUtils pnSendModeUtils;
-    private final TemplatesClientImpl templatesClient;
+    private final TemplatesClient templatesClient;
 
     @Override
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) {
-
+        log.info("retrieve NotificationReceivedLegalFact template for iun {}", notification.getIun());
         String physicalAddressAndDenomination;
         List<NotificationRecipientInt> recipients = Optional.of(notification)
                 .map(NotificationInt::getRecipients)
@@ -58,9 +58,9 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
             String denomination = recipientInt.getDenomination();
             physicalAddressAndDenomination = physicalAddressWriter.nullSafePhysicalAddressToString(
                     recipientInt.getPhysicalAddress(), denomination, "'<br />'");
-
             NotificationReceivedDigitalDomicile digitalDomicile = new NotificationReceivedDigitalDomicile()
-                    .address(recipientInt.getDigitalDomicile().getAddress());
+                    .address( Optional.of(recipientInt).map(NotificationRecipientInt::getDigitalDomicile)
+                            .map(DigitalAddressInt::getAddress).orElse(null));
 
             NotificationReceivedRecipient notificationReceivedRecipient = new NotificationReceivedRecipient()
                     .physicalAddressAndDenomination(physicalAddressAndDenomination)
@@ -71,9 +71,10 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
             receivedRecipients.add(notificationReceivedRecipient);
         }
 
+        var senderInt = Optional.of(notification).map(NotificationInt::getSender).orElse(new NotificationSenderInt());
         NotificationReceivedSender sender = new NotificationReceivedSender()
-                .paDenomination(notification.getSender().getPaDenomination())
-                .paTaxId(notification.getSender().getPaTaxId());
+                .paDenomination(senderInt.getPaDenomination())
+                .paTaxId(senderInt.getPaTaxId());
 
         NotificationReceivedNotification notificationReceivedNotification = new NotificationReceivedNotification()
                 .iun(notification.getIun())
@@ -96,14 +97,14 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                       DelegateInfoInt delegateInfo,
                                                       Instant timeStamp,
                                                       NotificationInt notification) {
-
+        log.info("retrieve NotificationViewedLegalFact template for iun {}", iun);
         NotificationViewedRecipient notificationViewedRecipient = new NotificationViewedRecipient()
                 .denomination(recipient.getDenomination())
                 .taxId(recipient.getTaxId());
 
         NotificationViewedDelegate delegate = new NotificationViewedDelegate()
-                .denomination(delegateInfo.getDenomination())
-                .taxId(delegateInfo.getTaxId());
+                .denomination(Optional.ofNullable(delegateInfo).map(DelegateInfoInt::getDenomination).orElse(null))
+                .taxId(Optional.ofNullable(delegateInfo).map(DelegateInfoInt::getTaxId).orElse(null));
 
         NotificationViewedLegalFact notificationViewedLegalFact = new NotificationViewedLegalFact()
                 .recipient(notificationViewedRecipient)
@@ -121,6 +122,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                        NotificationRecipientInt recipient,
                                                        EndWorkflowStatus status,
                                                        Instant completionWorkflowDate) {
+        log.info("retrieve PecDeliveryWorkflowLegalFact template for iun {}", notification.getIun());
         List<PecDeliveryWorkflowDelivery> pecDeliveries = feedbackFromExtChannelList.stream()
                 .map(feedbackFromExtChannel -> {
                     ResponseStatusInt sentPecStatus = feedbackFromExtChannel.getResponseStatus();
@@ -155,7 +157,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                                  NotificationRecipientInt recipient,
                                                                  EndWorkflowStatus status,
                                                                  Instant failureWorkflowDate) {
-
+        log.info("retrieve AnalogDeliveryFailureWorkflowLegalFact template for iun {}", notification.getIun());
         AnalogDeliveryWorkflowFailureRecipient analogDeliveryWorkflowFailureRecipient = new AnalogDeliveryWorkflowFailureRecipient()
                 .denomination(recipient.getDenomination())
                 .taxId(recipient.getTaxId());
@@ -172,7 +174,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     @Override
     public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) {
-
+        log.info("retrieve NotificationCancelledLegalFact template for iun {}", notification.getIun());
         NotificationCancelledSender sender = new NotificationCancelledSender()
                 .paDenomination(notification.getSender().getPaDenomination());
 
@@ -198,6 +200,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     @Override
     public String generateNotificationAARSubject(NotificationInt notification) {
+        log.info("retrieve NotificationAARSubject template for iun {}", notification.getIun());
         AarForSubjectSender sender = new AarForSubjectSender()
                 .paDenomination(notification.getSender().getPaDenomination());
 
@@ -249,10 +252,12 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
             byte[] bytesArrayGeneratedAar = new byte[0];
             switch (aarTemplateType) {
                 case AAR_NOTIFICATION -> {
+                    log.info("retrieve NotificationAAR template for iun {}", notification.getIun());
                     NotificationAar notificationAAR = getNotificationAAR(notification, recipient, quickAccessToken);
                     bytesArrayGeneratedAar = templatesClient.notificationAar(language, notificationAAR);
                 }
                 case AAR_NOTIFICATION_RADD_ALT -> {
+                    log.info("retrieve NotificationAARRADDalt template for iun {}", notification.getIun());
                     NotificationAarRaddAlt notificationAARRADDalt = getNotificationAARRADDalt(notification, recipient, quickAccessToken);
                     bytesArrayGeneratedAar = templatesClient.notificationAarRaddAlt(language, notificationAARRADDalt);
                 }
@@ -272,6 +277,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     @Override
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
+        log.info("retrieve NotificationAARBody template for iun {}", notification.getIun());
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
 
         NotificationAarForEmail notificationAAR = new NotificationAarForEmail()
@@ -288,6 +294,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     public String generateNotificationAARPECBody(NotificationInt notification,
                                                  NotificationRecipientInt recipient,
                                                  String quickAccessToken) {
+        log.info("retrieve NotificationAARPECBody template for iun {}", notification.getIun());
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
 
         AarForPecSender sender = new AarForPecSender()
@@ -315,6 +322,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     @Override
     public String generateNotificationAARForSMS(NotificationInt notification) {
+        log.info("retrieve NotificationAARForSMS template for iun {}", notification.getIun());
         AarForSmsSender sender = new AarForSmsSender()
                 .paDenomination(notification.getSender().getPaDenomination());
 
