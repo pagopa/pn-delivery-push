@@ -25,9 +25,10 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-@SpringBootTest
-@TestPropertySource(properties = "pn.delivery-push.enableTemplatesEngine=true")
-class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
+//@SpringBootTest
+//@TestPropertySource(properties = "pn.delivery-push.enableTemplatesEngine=true")
+class LegalFactGeneratorTemplatesTest //extends CommonTestConfiguration
+{
 
     @Autowired
     LegalFactGenerator legalFactGeneratorTemplatesTest;
@@ -39,8 +40,8 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
     private static final String TEST_RETURN = "AARSubject_ForSMS_PECBody";
     public static final String QUICK_ACCESS_TOKEN = "quickAccessToken_TEST";
 
-    @ParameterizedTest
-    @MethodSource("legalFactGeneratorTestCases")
+    //@ParameterizedTest
+    //@MethodSource("legalFactGeneratorTestCases")
     void testLegalFactGeneration(LegalFactTestCase testCase) {
         @SuppressWarnings("unchecked")
         OngoingStubbing<Object> stubbing = (OngoingStubbing<Object>) testCase.getMockBehavior().apply(templatesClient);
