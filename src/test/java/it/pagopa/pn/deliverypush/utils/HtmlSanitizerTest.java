@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGeneratorDocComposition;
 import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -301,13 +302,13 @@ class HtmlSanitizerTest {
     void sanitizeDigitalNotificationWorkflowTemplateWithImgHTMlElement() {
         String customDenomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
         Map<?, ?> templateModel = getTemplateModelForDigitalNotificationWorkflow(customDenomination, RecipientTypeInt.PF);
-        List<PecDeliveryInfo> deliveryInfosActual = (List<PecDeliveryInfo>) templateModel.get(FIELD_DELIVERIES);
+        List<LegalFactGeneratorDocComposition.PecDeliveryInfo> deliveryInfosActual = (List<LegalFactGeneratorDocComposition.PecDeliveryInfo>) templateModel.get(FIELD_DELIVERIES);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
         assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
-        List<PecDeliveryInfo> sanitizedDeliveryInfos = (List<PecDeliveryInfo>) sanitizedTemplateModelMap.get(FIELD_DELIVERIES);
+        List<LegalFactGeneratorDocComposition.PecDeliveryInfo> sanitizedDeliveryInfos = (List<LegalFactGeneratorDocComposition.PecDeliveryInfo>) sanitizedTemplateModelMap.get(FIELD_DELIVERIES);
 
         assertThat(sanitizedDeliveryInfos).isNotNull().hasSize(1);
         assertThat(sanitizedDeliveryInfos.get(0).getDenomination()).doesNotContain("<h1>", "<img");
@@ -496,8 +497,8 @@ class HtmlSanitizerTest {
         return templateModel;
     }
 
-    private PecDeliveryInfo buildPecDeliveryInfo(String denomination, RecipientTypeInt recipientType) {
-        return new PecDeliveryInfo(
+    private LegalFactGeneratorDocComposition.PecDeliveryInfo buildPecDeliveryInfo(String denomination, RecipientTypeInt recipientType) {
+        return new LegalFactGeneratorDocComposition.PecDeliveryInfo(
                 denomination,
                 UUID.randomUUID().toString(),
                 recipientType,

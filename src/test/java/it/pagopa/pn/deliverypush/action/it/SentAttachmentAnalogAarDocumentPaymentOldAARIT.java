@@ -12,14 +12,13 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
-import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
+import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,11 +34,14 @@ import static org.awaitility.Awaitility.await;
 
 @ContextConfiguration(classes = SentAttachmentAnalogAarDocumentPaymentOldAARIT.InnerTestConfiguration.class)
 class SentAttachmentAnalogAarDocumentPaymentOldAARIT extends SendAarAttachment {
-    
+
+    @SpyBean
+    LegalFactGenerator legalFactGenerator;
+
     static Instant sentNotificationTime = Instant.now();
 
     //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 10 minuti
-    static AarTemplateType firstCurrentConfTemplateType = AarTemplateType.AAR_NOTIFICATION;
+    static AarTemplateType firstCurrentConfTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
     static PnSendMode firstCurrentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.MINUTES))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
@@ -47,7 +49,7 @@ class SentAttachmentAnalogAarDocumentPaymentOldAARIT extends SendAarAttachment {
             .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(firstCurrentConfTemplateType))
             .build();
     //Viene valorizzata la configurazione futura, cioè INSTANT.NOW più 10 giorni
-    static AarTemplateType secondConfTemplateType = AarTemplateType.AAR_NOTIFICATION;
+    static AarTemplateType secondConfTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
     static PnSendMode secondConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.plus(10, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
@@ -159,10 +161,12 @@ class SentAttachmentAnalogAarDocumentPaymentOldAARIT extends SendAarAttachment {
         //Viene verificata che gli attachment inviati in fase di SEND siano esattamente quelli attesi
         checkSentAndExpectedAttachmentAreEquals(listAttachmentExpectedToSend, sendAttachmentKeySent);
 
-        //Viene ottenuta la lista di tutti i documenti generati
-        final List<DocumentComposition.TemplateType> listDocumentTypeGenerated = getListDocumentTypeGenerated(2);
-        //Viene quindi verificato se nella lista dei documenti generati c'è il documento atteso
-        Assertions.assertTrue(listDocumentTypeGenerated.contains(firstCurrentConfTemplateType.getTemplateType()));
+        if (legalFactGenerator instanceof LegalFactGeneratorDocComposition) {
+            //Viene ottenuta la lista di tutti i documenti generati
+            final List<DocumentComposition.TemplateType> listDocumentTypeGenerated = getListDocumentTypeGenerated(2);
+            //Viene quindi verificato se nella lista dei documenti generati c'è il documento atteso
+            Assertions.assertTrue(listDocumentTypeGenerated.contains(firstCurrentConfTemplateType.getTemplateType()));
+        }
     }
 
 }

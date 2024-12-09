@@ -57,7 +57,7 @@ class LegalFactPdfGeneratorTest {
         @Mock
         private PnSendModeUtils pnSendModeUtils;
 
-        private LegalFactGenerator pdfUtils;
+        private LegalFactGeneratorDocComposition pdfUtils;
 
         private DocumentComposition documentComposition;
 
@@ -99,7 +99,7 @@ class LegalFactPdfGeneratorTest {
                 pnDeliveryPushConfigs.setErrorCorrectionLevelQrCode(ErrorCorrectionLevel.H);
                 pnDeliveryPushConfigs.setAdditionalLangsEnabled(true);
 
-                pdfUtils = new LegalFactGenerator(documentComposition, instantWriter, physicalAddressWriter,
+                pdfUtils = new LegalFactGeneratorDocComposition(documentComposition, instantWriter, physicalAddressWriter,
                                 pnDeliveryPushConfigs, instantNowSupplier, pnSendModeUtils);
 
                 // create target test folder, if not exists

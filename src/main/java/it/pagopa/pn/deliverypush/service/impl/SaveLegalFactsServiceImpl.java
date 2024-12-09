@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.SaveLegalFactsService;
 import it.pagopa.pn.deliverypush.service.utils.FileUtils;
+import it.pagopa.pn.deliverypush.utils.LegalFactUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -61,7 +62,7 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
             log.debug("Start sendCreationRequestForAAR - iun={}", notification.getIun());
 
             AARInfo aarInfo = legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken);
-            int numberOfPages = legalFactBuilder.getNumberOfPages(aarInfo.getBytesArrayGeneratedAar());
+            int numberOfPages = LegalFactUtils.getNumberOfPageFromPdfBytes(aarInfo.getBytesArrayGeneratedAar());
 
             FileCreationWithContentRequest fileCreationRequest = new FileCreationWithContentRequest();
             fileCreationRequest.setContentType(LEGALFACTS_MEDIATYPE_STRING);
