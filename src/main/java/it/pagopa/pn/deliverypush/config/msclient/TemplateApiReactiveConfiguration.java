@@ -13,7 +13,7 @@ public class TemplateApiReactiveConfiguration extends CommonBaseClient {
     @Bean
     public TemplateApi templateReactiveConfiguration(PnDeliveryPushConfigs cfg) {
         ApiClient apiClient = new ApiClient(initWebClient(ApiClient.buildWebClientBuilder()));
-        apiClient.setBasePath("http://localhost:8099");
+        apiClient.setBasePath(cfg.getTemplatesEngineBaseUrl());
         return new TemplateApi(apiClient);
     }
 }
