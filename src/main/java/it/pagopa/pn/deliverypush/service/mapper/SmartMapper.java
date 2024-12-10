@@ -11,6 +11,7 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.function.BiFunction;
 
 
 @Slf4j
+@Component
 public class SmartMapper {
 
     private final TimelineMapperFactory timelineMapperFactory;

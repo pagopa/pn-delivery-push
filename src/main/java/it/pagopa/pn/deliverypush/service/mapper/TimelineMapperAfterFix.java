@@ -21,11 +21,10 @@ public class TimelineMapperAfterFix extends TimelineMapper {
             //L'ingestion timestamp viene settato con il timestamp originale dell'evento (dunque timestamp evento per SEND)
             result.setIngestionTimestamp(ingestionTimestamp);
 
-            Instant analogFailureWorkflowDate = getAnalogFailureWorkflowDate((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, result.getIun());
-
             //Nello switch case invece vengono effettuati ulteriori remapping dei timestamp, questi non dipendono dal singolo elemento, ma necessitano di tutta la timeline
             switch (result.getCategory()) {
                 case SCHEDULE_REFINEMENT -> {
+                    Instant analogFailureWorkflowDate = getAnalogFailureWorkflowDate((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, result.getIun());
                     if (analogFailureWorkflowDate != null) {
                         result.setTimestamp(analogFailureWorkflowDate);
                     } else {
@@ -47,6 +46,7 @@ public class TimelineMapperAfterFix extends TimelineMapper {
                     }
                 }
                 case COMPLETELY_UNREACHABLE_CREATION_REQUEST, COMPLETELY_UNREACHABLE -> {
+                    Instant analogFailureWorkflowDate = getAnalogFailureWorkflowDate((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, result.getIun());
                     if (analogFailureWorkflowDate != null)
                         result.setTimestamp(analogFailureWorkflowDate);
                     else
