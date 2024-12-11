@@ -100,7 +100,7 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "pn.delivery-push.enableTemplatesEngine", havingValue = "false")
+    @ConditionalOnProperty(name = "pn.delivery-push.enable-templates-engine", havingValue = "false")
     public LegalFactGenerator legalFactGeneratorDocComposition(DocumentComposition dc,
                                                                @Lazy PnSendModeUtils pnSendModeUtils,
                                                                PnDeliveryPushConfigs pnDeliveryPushConfigs) {
@@ -110,7 +110,7 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "pn.delivery-push.enableTemplatesEngine", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(name = "pn.delivery-push.enable-templates-engine", havingValue = "true", matchIfMissing = true)
     public LegalFactGenerator legalFactGeneratorTemplatesClient(@Lazy PnSendModeUtils pnSendModeUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();

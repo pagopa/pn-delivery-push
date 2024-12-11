@@ -24,7 +24,7 @@ import java.time.Instant;
 import java.util.List;
 
 @SpringBootTest
-@TestPropertySource(properties = "pn.delivery-push.enableTemplatesEngine=true")
+@TestPropertySource(properties = "pn.delivery-push.enable-templates-engine=true")
 class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
 
     @Autowired

@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  * Questa configurazione determina quale implementazione dell'interfaccia {@link LegalFactGenerator}
  * deve essere istanziata a seconda del valore della proprietà
- * {@code pn.user-attributes.enableTemplatesEngine}.
+ * {@code pn.user-attributes.enable-templates-engine}.
  * </p>
  *
  * <p>
@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
  * <p>
  * **Nota:** Quando l'implementazione {@link LegalFactGeneratorDocComposition} non sarà più necessaria,
  * si dovrà eliminare la classe presente  {@code LegalFactGeneratorConfig}, {@link LegalFactGeneratorDocComposition} e
- * la properties pn.delivery-push.enableTemplatesEngine.
+ * la properties pn.delivery-push.enable-templates-engine.
  * </p>
  */
 @Configuration
@@ -44,7 +44,7 @@ public class LegalFactGeneratorConfig {
     private final InstantNowSupplier instantNowSupplier;
 
     @Bean
-    @ConditionalOnProperty(name = "pn.delivery-push.enableTemplatesEngine", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(name = "pn.delivery-push.enable-templates-engine", havingValue = "true", matchIfMissing = true)
     public LegalFactGenerator legalFactGeneratorTemplatesClient() {
         return new LegalFactGeneratorTemplates(
                 instantWriter,
@@ -56,7 +56,7 @@ public class LegalFactGeneratorConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "pn.delivery-push.enableTemplatesEngine", havingValue = "false")
+    @ConditionalOnProperty(name = "pn.delivery-push.enable-templates-engine", havingValue = "false")
     public LegalFactGenerator legalFactGeneratorDocComposition() {
         return new LegalFactGeneratorDocComposition(
                 documentComposition,

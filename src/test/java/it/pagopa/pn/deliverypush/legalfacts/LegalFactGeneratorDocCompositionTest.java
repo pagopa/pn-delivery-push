@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @SpringBootTest
-@TestPropertySource(properties = {"pn.delivery-push.enableTemplatesEngine=false"})
+@TestPropertySource(properties = {"pn.delivery-push.enable-templates-engine=false"})
 class LegalFactGeneratorDocCompositionTest extends CommonTestConfiguration {
 
     public static final String IUN = "IUN_TEST";
