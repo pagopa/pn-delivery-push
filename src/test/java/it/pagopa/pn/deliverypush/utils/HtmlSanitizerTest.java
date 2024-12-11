@@ -1,4 +1,5 @@
 package it.pagopa.pn.deliverypush.utils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -21,11 +22,23 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
 class HtmlSanitizerTest {
+
+    private static final String FIELD_NOTIFICATION = "notification";
+    private static final String FIELD_DIGESTS = "digests";
+    private static final String FIELD_ADDRESS_WRITER = "addressWriter";
+    private static final String FIELD_SIGNATURE = "signature";
+    private static final String FIELD_TIME_REFERENCE = "timeReference";
+    private static final String FIELD_PDF_FILE_NAME = "pdfFileName";
+    private static final String FIELD_IUN = "iun";
+    private static final String FIELD_DELIVERIES = "deliveries";
+    private static final String FIELD_RECIPIENT = "recipient";
+    private static final String FIELD_WHEN = "when";
+    private static final String FIELD_SEND_DATE_NO_TIME = "sendDateNoTime";
+    private static final String FIELD_SEND_DATE = "sendDate";
 
     @Autowired
     ObjectMapper objectMapper;
@@ -208,7 +221,7 @@ class HtmlSanitizerTest {
         NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
+        assertThat((Map<?, ?>) sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         System.out.println("NEW MAP: " + sanitizedTemplateModelMap);
@@ -230,7 +243,7 @@ class HtmlSanitizerTest {
         NotificationInt notificationInt = (NotificationInt) templateModel.get(FIELD_NOTIFICATION);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
+        assertThat((Map<?, ?>) sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
@@ -257,7 +270,7 @@ class HtmlSanitizerTest {
         NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) templateModel.get(FIELD_RECIPIENT);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
+        assertThat((Map<?, ?>) sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationRecipientInt sanitizedNotificationRecipientInt = (NotificationRecipientInt) sanitizedTemplateModelMap.get(FIELD_RECIPIENT);
@@ -277,7 +290,7 @@ class HtmlSanitizerTest {
         Map<?, ?> templateModel = getTemplateModelForNotificationViewed(customDenomination);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
+        assertThat((Map<?, ?>) sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) sanitizedTemplateModelMap.get(FIELD_RECIPIENT);
@@ -305,7 +318,7 @@ class HtmlSanitizerTest {
         List<LegalFactGeneratorDocComposition.PecDeliveryInfo> deliveryInfosActual = (List<LegalFactGeneratorDocComposition.PecDeliveryInfo>) templateModel.get(FIELD_DELIVERIES);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
+        assertThat((Map<?, ?>) sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         List<LegalFactGeneratorDocComposition.PecDeliveryInfo> sanitizedDeliveryInfos = (List<LegalFactGeneratorDocComposition.PecDeliveryInfo>) sanitizedTemplateModelMap.get(FIELD_DELIVERIES);
@@ -332,7 +345,7 @@ class HtmlSanitizerTest {
         Map<?, ?> templateModel = getTemplateModelForFileCompliance(customSignature);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
+        assertThat((Map<?, ?>) sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
 
@@ -374,7 +387,7 @@ class HtmlSanitizerTest {
         NotificationRecipientInt notificationRecipientInt = (NotificationRecipientInt) templateModel.get(FIELD_RECIPIENT);
 
         Object sanitizedTemplateModel = htmlSanitizer.sanitize(templateModel);
-        assertThat((Map<?, ?>)sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
+        assertThat((Map<?, ?>) sanitizedTemplateModel).isNotEqualTo(templateModel).isInstanceOf(Map.class);
 
         Map<String, Object> sanitizedTemplateModelMap = (Map<String, Object>) sanitizedTemplateModel;
         NotificationInt sanitizedNotificationInt = (NotificationInt) sanitizedTemplateModelMap.get(FIELD_NOTIFICATION);
