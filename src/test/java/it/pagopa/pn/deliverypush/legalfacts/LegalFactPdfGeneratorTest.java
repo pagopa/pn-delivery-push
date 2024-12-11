@@ -823,7 +823,6 @@ class LegalFactPdfGeneratorTest {
         @ExtendWith(SpringExtension.class)
         void generateNotificationAAR_RADD_ALT_DE_Test() throws IOException {
                 ArgumentCaptor<DocumentComposition.TemplateType> captor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
-
                 Mockito.when(pnSendModeUtils.getPnSendMode(any())).thenReturn(PnSendMode.builder()
                         .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(AarTemplateType.AAR_NOTIFICATION_RADD_ALT))
                         .build());
