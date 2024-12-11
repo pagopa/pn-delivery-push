@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * <p>
  * **Nota:** Quando l'implementazione {@link LegalFactGeneratorDocComposition} non sarà più necessaria,
- * si dovrà eliminare la classe presente  {@code LegalFactGeneratorConfig} e qualsiasi riferimento,
+ * si dovrà eliminare la classe presente  {@code LegalFactGeneratorConfig}, {@link LegalFactGeneratorDocComposition} e
  * la properties pn.delivery-push.enableTemplatesEngine.
  * </p>
  */
