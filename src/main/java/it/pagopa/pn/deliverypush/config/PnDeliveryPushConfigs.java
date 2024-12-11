@@ -24,6 +24,8 @@ import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 @Import({SharedAutoConfiguration.class})
 public class PnDeliveryPushConfigs {
 
+    private String templatesEngineBaseUrl;
+
     private String deliveryBaseUrl;
 
     private String paperChannelBaseUrl;

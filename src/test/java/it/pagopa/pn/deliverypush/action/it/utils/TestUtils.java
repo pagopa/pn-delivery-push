@@ -666,7 +666,7 @@ public class TestUtils {
                                                 NotificationRecipientInt recipient,
                                                 Integer recIndex,
                                                 int sentPecAttemptNumber,
-                                                TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo,
+                                                GeneratedLegalFactsInfo generatedLegalFactsInfo,
                                                 EndWorkflowStatus endWorkflowStatus,
                                                 LegalFactGenerator legalFactGenerator,
                                                 TimelineService timelineService,
