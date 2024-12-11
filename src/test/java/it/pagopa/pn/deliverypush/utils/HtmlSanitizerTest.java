@@ -22,23 +22,15 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static it.pagopa.pn.deliverypush.legalfacts.LegalFactGeneratorDocComposition.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
 class HtmlSanitizerTest {
 
-    private static final String FIELD_NOTIFICATION = "notification";
-    private static final String FIELD_DIGESTS = "digests";
-    private static final String FIELD_ADDRESS_WRITER = "addressWriter";
     private static final String FIELD_SIGNATURE = "signature";
     private static final String FIELD_TIME_REFERENCE = "timeReference";
     private static final String FIELD_PDF_FILE_NAME = "pdfFileName";
-    private static final String FIELD_IUN = "iun";
-    private static final String FIELD_DELIVERIES = "deliveries";
-    private static final String FIELD_RECIPIENT = "recipient";
-    private static final String FIELD_WHEN = "when";
-    private static final String FIELD_SEND_DATE_NO_TIME = "sendDateNoTime";
-    private static final String FIELD_SEND_DATE = "sendDate";
 
     @Autowired
     ObjectMapper objectMapper;
