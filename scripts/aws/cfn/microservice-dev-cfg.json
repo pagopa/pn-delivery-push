@@ -71,6 +71,8 @@
     "FutureActionTtlExtraDays": "10",
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
-    "AdditionalLangsEnabled": "true"
-    }
+    "AdditionalLangsEnabled": "true",
+    "StartReadStreamTimestamp": "1999-01-01T00:00:00Z",
+    "StopReadStreamTimestamp": "2099-01-01T00:00:00Z"
+  }
 }
