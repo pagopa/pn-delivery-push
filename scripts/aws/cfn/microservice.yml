@@ -883,6 +883,16 @@ Parameters:
       - true
       - false
 
+  StartReadStreamTimestamp:
+    Type: String
+    Description: 'Start timestamp for read stream'
+    Default: "1999-01-01T00:00:00Z"
+
+  StopReadStreamTimestamp:
+    Type: String
+    Description: 'Stop timestamp for read stream'
+    Default: "2099-01-01T00:00:00Z"
+
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
@@ -1216,6 +1226,8 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           QUEUE_URL: !Ref DoneActionsQueueURL
+          START_READ_STREAM_TIMESTAMP: !Sub '${StartReadStreamTimestamp}'
+          STOP_READ_STREAM_TIMESTAMP: !Sub '${StopReadStreamTimestamp}'
       TracingConfig:
         Mode: Active
       Layers:
