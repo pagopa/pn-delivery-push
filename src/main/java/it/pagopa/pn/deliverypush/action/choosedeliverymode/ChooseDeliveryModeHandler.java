@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,7 @@ public class ChooseDeliveryModeHandler {
     private final ChooseDeliveryModeUtils chooseDeliveryUtils;
     private final NotificationService notificationService;
     private final TimelineService timelineService;
+    private final FeatureEnabledUtils featureEnabledUtils;
 
 
     /**
@@ -46,37 +48,56 @@ public class ChooseDeliveryModeHandler {
         log.info("Start ChooseDeliveryTypeAndStartWorkflow process - iun={} recipientIndex={}", iun, recIndex);
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        
-        Optional<LegalDigitalAddressInt> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
+        if (featureEnabledUtils.isPfNewWorkflowEnabled(notification.getSentAt())) {
+            pfStartNewWorkflow(recIndex, notification);
+        } else {
+            pfStartOldWorkflow(recIndex, notification);
+        }
+        log.info("END chooseDeliveryTypeAndStartWorkflow process - iun={} recipientIndex={}", notification.getIun(), recIndex);
+    }
 
+    private void pfStartOldWorkflow(Integer recIndex, NotificationInt notification) {
         //Verifico presenza indirizzo di piattaforma, ...
+        Optional<LegalDigitalAddressInt> platformAddressOpt = getPlatformAddress(notification, recIndex);
+        // ... se non lo trovo, verifico presenza indirizzo speciale, ...
+        if (platformAddressOpt.isEmpty()) {
+            LegalDigitalAddressInt specialAddress = getSpecialAddress(notification, recIndex);
+            if (specialAddress == null || !StringUtils.hasText(specialAddress.getAddress())) {
+                // ... se non lo trovo, verifico presenza indirizzo generale
+                pfStartNewWorkflow(recIndex, notification);
+            }
+        }
+    }
+
+    private void pfStartNewWorkflow(Integer recIndex, NotificationInt notification) {
+        nationalRegistriesService.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhaseInt.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, null);
+    }
+
+    private Optional<LegalDigitalAddressInt> getPlatformAddress(NotificationInt notification, Integer recIndex) {
+        Optional<LegalDigitalAddressInt> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
         if (platformAddressOpt.isPresent()) {
             log.info("Platform address is present, Digital workflow can be started - iun={} recipientIndex={}", notification.getIun(), recIndex);
             LegalDigitalAddressInt platformAddress = platformAddressOpt.get();
-
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.PLATFORM, true);
             digitalWorkFlowHandler.startDigitalWorkflow(notification, platformAddress, DigitalAddressSourceInt.PLATFORM, recIndex);
         } else {
             log.info("Platform address isn't present - iun={} recipientIndex={}", notification.getIun(), recIndex);
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.PLATFORM, false);
-
-            // ... se non lo trovo, verifico presenza indirizzo speciale, ...
-            LegalDigitalAddressInt specialAddress = chooseDeliveryUtils.getDigitalDomicile(notification, recIndex);
-            if (specialAddress != null && StringUtils.hasText(specialAddress.getAddress())) {
-                log.info("Special address is present, Digital workflow can be started  - iun={} id={}", notification.getIun(), recIndex);
-
-                chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, true);
-                digitalWorkFlowHandler.startDigitalWorkflow(notification, specialAddress, DigitalAddressSourceInt.SPECIAL, recIndex);
-            } else {
-                log.info("Special address isn't present, need to get General address async - iun={} recipientIndex={}", notification.getIun(), recIndex);
-                chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, false);
-
-                // ... se non lo trovo, lancio ricerca asincrona dell'indirizzo generale
-                nationalRegistriesService.sendRequestForGetDigitalGeneralAddress(notification, recIndex, ContactPhaseInt.CHOOSE_DELIVERY, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, null);
-            }
         }
+        return platformAddressOpt;
+    }
 
-        log.info("END chooseDeliveryTypeAndStartWorkflow process - iun={} recipientIndex={}", notification.getIun(), recIndex);
+    private LegalDigitalAddressInt getSpecialAddress(NotificationInt notification, Integer recIndex) {
+        LegalDigitalAddressInt specialAddress = chooseDeliveryUtils.getDigitalDomicile(notification, recIndex);
+        if (specialAddress != null && StringUtils.hasText(specialAddress.getAddress())) {
+            log.info("Special address is present, Digital workflow can be started  - iun={} id={}", notification.getIun(), recIndex);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, true);
+            digitalWorkFlowHandler.startDigitalWorkflow(notification, specialAddress, DigitalAddressSourceInt.SPECIAL, recIndex);
+        } else {
+            log.info("Special address isn't present, need to get General address async - iun={} recipientIndex={}", notification.getIun(), recIndex);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, false);
+        }
+        return specialAddress;
     }
 
     /**
@@ -98,7 +119,29 @@ public class ChooseDeliveryModeHandler {
         } else {
             log.info("General address is not present, digital workflow can't be started. Starting Analog Workflow  - iun={} id={}", notification.getIun(), recIndex);
             chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.GENERAL, false);
-            scheduleAnalogWorkflow(notification, recIndex);
+            if (featureEnabledUtils.isPfNewWorkflowEnabled(notification.getSentAt())) {
+                log.info("New workflow is enabled - iun={} id={}", notification.getIun(), recIndex);
+                generalAddressNotFoundStartNewWorkflow(notification, recIndex);
+            } else {
+                generalAddressNotFoundStartOldWorkflow(notification, recIndex);
+            }
+        }
+    }
+
+    private void generalAddressNotFoundStartOldWorkflow(NotificationInt notification, Integer recIndex) {
+        scheduleAnalogWorkflow(notification, recIndex);
+    }
+
+    private void generalAddressNotFoundStartNewWorkflow(NotificationInt notification, Integer recIndex) {
+        //Verifico presenza indirizzo speciale, ...
+        LegalDigitalAddressInt specialAddress = getSpecialAddress(notification, recIndex);
+        // ... se non lo trovo, verifico presenza indirizzo di piattaforma, ...
+        if (specialAddress == null) {
+            Optional<LegalDigitalAddressInt> platformAddressOpt = getPlatformAddress(notification, recIndex);
+            // ... se non lo trovo, parte il flusso di invio notifica analogica.
+            if (platformAddressOpt.isEmpty()) {
+                generalAddressNotFoundStartOldWorkflow(notification, recIndex);
+            }
         }
     }
 

@@ -389,6 +389,16 @@ Parameters:
     AllowedValues: [ true, false ]
     Default: false
 
+  pfNewWorkflowStart:
+    Type: String
+    Description: 'Start date for new workflow'
+    Default: '2021-01-01T00:00:00Z'
+
+  pfNewWorkflowStop:
+    Type: String
+    Description: 'End date for new workflow'
+    Default: '2021-01-01T00:00:00Z'
+
   #quickWorkAroundForPN-9116
   SendMoreThan20GramsDefaultValue:
     Type: String
@@ -1000,6 +1010,8 @@ Resources:
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
         ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
+        ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${pfNewWorkflowStart}'
+        ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${pfNewWorkflowStop}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'

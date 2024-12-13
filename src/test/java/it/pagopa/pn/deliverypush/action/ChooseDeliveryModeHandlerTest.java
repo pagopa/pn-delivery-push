@@ -16,6 +16,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,11 +53,12 @@ class ChooseDeliveryModeHandlerTest {
     private ChooseDeliveryModeHandler handler;
 
     private NotificationUtils notificationUtils;
+    private FeatureEnabledUtils featureEnabledUtils;
 
     @BeforeEach
     public void setup() {
         handler = new ChooseDeliveryModeHandler(digitalWorkFlowHandler, schedulerService, nationalRegistriesService,
-                chooseDeliveryUtils, notificationService, timelineService);
+                chooseDeliveryUtils, notificationService, timelineService, featureEnabledUtils);
         notificationUtils= new NotificationUtils();
     }
 

@@ -133,6 +133,10 @@ public class PnDeliveryPushConfigs {
 
     private boolean additionalLangsEnabled;
 
+    private String pfNewWorkflowStart;
+
+    private String pfNewWorkflowStop;
+
     @Data
     public static class Topics {
 

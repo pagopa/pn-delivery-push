@@ -336,9 +336,9 @@ public class DigitalWorkFlowUtils {
 
     public static DigitalAddressSourceInt nextSource(DigitalAddressSourceInt source) {
         return switch (source) {
-            case PLATFORM -> DigitalAddressSourceInt.SPECIAL;
-            case SPECIAL -> DigitalAddressSourceInt.GENERAL;
-            case GENERAL -> DigitalAddressSourceInt.PLATFORM;
+            case GENERAL -> DigitalAddressSourceInt.SPECIAL;
+            case SPECIAL -> DigitalAddressSourceInt.PLATFORM;
+            case PLATFORM -> DigitalAddressSourceInt.GENERAL;
             default -> throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name(), ERROR_CODE_DELIVERYPUSH_INVALIDADDRESSSOURCE);
         };
     }

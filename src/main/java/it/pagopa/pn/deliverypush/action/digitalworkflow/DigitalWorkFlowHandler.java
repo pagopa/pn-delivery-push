@@ -19,11 +19,13 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -48,6 +50,9 @@ public class DigitalWorkFlowHandler {
     private final InstantNowSupplier instantNowSupplier;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final DigitalWorkflowFirstSendRepeatHandler digitalWorkflowFirstSendRepeatHandler;
+    private final ChooseDeliveryModeUtils chooseDeliveryUtils;
+    private final DigitalWorkFlowHandler digitalWorkFlowHandler;
+    private final FeatureEnabledUtils featureEnabledUtils;
     
     /**
      * Starting digital workflow sending notification information to external channel
@@ -257,7 +262,44 @@ public class DigitalWorkFlowHandler {
             log.info("Found address is {} - iun={} id={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), iun, recIndex);
             handleSendWithDigitalAddress(notification, recIndex, addressInfo, iun, digitalAddress);
         } else {
-            handleDigitalAddressNotPresent(notification, recIndex, addressInfo, iun);
+            if (featureEnabledUtils.isPfNewWorkflowEnabled(notification.getSentAt())) {
+                checkAddressPfNewWorkflow(notification, recIndex, addressInfo, iun);
+            } else {
+                log.info("Address is not present - iun={} id={}", iun, recIndex);
+                checkAddressPfOldWorkflow(notification, recIndex, addressInfo, iun);
+            }
+        }
+    }
+
+    private void checkAddressPfOldWorkflow(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo, String iun) {
+        handleDigitalAddressNotPresent(notification, recIndex, addressInfo, iun);
+    }
+
+    public void checkAddressPfNewWorkflow(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo, String iun) {
+        // Verifica presenza indirizzo speciale.
+        LegalDigitalAddressInt specialAddress = chooseDeliveryUtils.getDigitalDomicile(notification, recIndex);
+        if (specialAddress != null && StringUtils.hasText(specialAddress.getAddress())) {
+            log.info("Special address is present, Digital workflow can be started  - iun={} id={}", notification.getIun(), recIndex);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, true);
+            digitalWorkFlowHandler.startDigitalWorkflow(notification, specialAddress, DigitalAddressSourceInt.SPECIAL, recIndex);
+        } else {
+            log.info("Special address isn't present, need to get General address async - iun={} recipientIndex={}", notification.getIun(), recIndex);
+            chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.SPECIAL, false);
+
+            // Se l'indirizzo speciale non è presente, inizia la verifica dell'indirizzo di piattaforma.
+            Optional<LegalDigitalAddressInt> platformAddressOpt = chooseDeliveryUtils.getPlatformAddress(notification, recIndex);
+            if (platformAddressOpt.isPresent()) {
+                log.info("Platform address is present, Digital workflow can be started - iun={} recipientIndex={}", notification.getIun(), recIndex);
+                LegalDigitalAddressInt platformAddress = platformAddressOpt.get();
+
+                chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.PLATFORM, true);
+                digitalWorkFlowHandler.startDigitalWorkflow(notification, platformAddress, DigitalAddressSourceInt.PLATFORM, recIndex);
+            } else {
+                log.info("Platform address isn't present - iun={} recipientIndex={}", notification.getIun(), recIndex);
+                chooseDeliveryUtils.addAvailabilitySourceToTimeline(recIndex, notification, DigitalAddressSourceInt.PLATFORM, false);
+                // Se i precedenti indirizzi non sono presenti, parte il flusso con indirizzo digitale mancante.
+                checkAddressPfOldWorkflow(notification, recIndex, addressInfo, iun);
+            }
         }
     }
     

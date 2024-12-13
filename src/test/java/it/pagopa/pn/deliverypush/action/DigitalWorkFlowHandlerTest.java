@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.action;
 
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
@@ -80,6 +81,7 @@ class DigitalWorkFlowHandlerTest {
     private DigitalWorkFlowRetryHandler handlerRetry;
 
     private DigitalWorkFlowExternalChannelResponseHandler handlerExtChannel;
+    private ChooseDeliveryModeUtils chooseDeliveryUtils;
 
 
     @BeforeEach
@@ -88,7 +90,7 @@ class DigitalWorkFlowHandlerTest {
         
         handler = new DigitalWorkFlowHandler(sendAndUnscheduleNotification, notificationService,
                 schedulerService, digitalWorkFlowUtils, completionWorkflow, nationalRegistriesService, instantNowSupplier,
-                pnDeliveryPushConfigs, digitalWorkflowFirstSendRepeatHandler);
+                pnDeliveryPushConfigs, digitalWorkflowFirstSendRepeatHandler, chooseDeliveryUtils, handler, featureEnabledUtils);
 
         handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, pnDeliveryPushConfigs, auditLogService, sendAndUnscheduleNotification);
         handlerRetry = new DigitalWorkFlowRetryHandler(notificationService, digitalWorkFlowUtils, sendAndUnscheduleNotification, handlerExtChannel, featureEnabledUtils);
