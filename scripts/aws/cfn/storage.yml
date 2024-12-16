@@ -477,7 +477,7 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       TimeToLiveSpecification:
         AttributeName: "ttl"
-        Enabled: true
+        Enabled: false
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
