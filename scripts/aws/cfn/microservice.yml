@@ -391,12 +391,12 @@ Parameters:
 
   pfNewWorkflowStart:
     Type: String
-    Description: 'Start date for new workflow'
+    Description: 'Start date for new workflow for PF recipient'
     Default: '2021-01-01T00:00:00Z'
 
   pfNewWorkflowStop:
     Type: String
-    Description: 'End date for new workflow'
+    Description: 'End date for new workflow for PF recipient'
     Default: '2021-01-01T00:00:00Z'
 
   #quickWorkAroundForPN-9116

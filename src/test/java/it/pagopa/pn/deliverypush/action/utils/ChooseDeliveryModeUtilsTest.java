@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtilsImpl;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -13,9 +13,12 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.Base64Utils;
 
 import java.time.Instant;
@@ -24,30 +27,30 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@ExtendWith(MockitoExtension.class)
 class ChooseDeliveryModeUtilsTest {
+
+    @Mock
     private TimelineService timelineService;
+    @Mock
     private TimelineUtils timelineUtils;
+    @Mock
     private CourtesyMessageUtils courtesyMessageUtils;
+    @Mock
     private AddressBookService addressBookService;
+    @Mock
     private NotificationUtils notificationUtils;
-    private ChooseDeliveryModeUtils chooseDeliveryModeUtils;
+
+    @InjectMocks
+    private ChooseDeliveryModeUtilsImpl chooseDeliveryModeUtils;
 
     private final Integer recIndex = 0;
 
-    @BeforeEach
-    void setup() {
-        timelineService = Mockito.mock(TimelineService.class);
-        timelineUtils = Mockito.mock(TimelineUtils.class);
-        courtesyMessageUtils = Mockito.mock(CourtesyMessageUtils.class);
-        addressBookService = Mockito.mock(AddressBookService.class);
-        notificationUtils = Mockito.mock(NotificationUtils.class);
-        chooseDeliveryModeUtils = new ChooseDeliveryModeUtils(timelineService, timelineUtils, courtesyMessageUtils, addressBookService, notificationUtils);
-    }
 
     @Test
     void addAvailabilitySourceToTimeline() {
 
-        Mockito.when(timelineUtils.buildAvailabilitySourceTimelineElement(Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(DigitalAddressSourceInt.class), Mockito.anyBoolean(), Mockito.eq(0))).thenReturn(Mockito.any(TimelineElementInternal.class));
+        Mockito.when(timelineUtils.buildAvailabilitySourceTimelineElement(Mockito.eq(0), Mockito.any(NotificationInt.class), Mockito.any(DigitalAddressSourceInt.class), Mockito.anyBoolean(), Mockito.eq(0))).thenReturn(Mockito.any(TimelineElementInternal.class));
 
         chooseDeliveryModeUtils.addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(DigitalAddressSourceInt.class), Mockito.anyBoolean());
 
