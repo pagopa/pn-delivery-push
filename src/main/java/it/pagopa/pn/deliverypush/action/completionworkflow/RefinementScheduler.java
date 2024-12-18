@@ -49,15 +49,17 @@ public class RefinementScheduler {
         switch (endWorkflowStatus){
             case SUCCESS:
                 schedulingDays = pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement();
+                checkNotificationNonVisibilityDateTime = true;
                 break;
             case FAILURE:
                 schedulingDays = pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysFailureDigitalRefinement();
+                checkNotificationNonVisibilityDateTime = false;
                 break;
             default:
                 handleError(notification, recIndex, endWorkflowStatus);
         }
         
-        scheduleRefinement(notification, recIndex, notificationDate, schedulingDays);
+        scheduleRefinement(notification, recIndex, notificationDate, schedulingDays, checkNotificationNonVisibilityDateTime);
     }
 
     public void scheduleAnalogRefinement(
@@ -79,18 +81,20 @@ public class RefinementScheduler {
                 handleError(notification, recIndex, endWorkflowStatus);
         }
 
-        scheduleRefinement(notification, recIndex, notificationDate, schedulingDays);
+        scheduleRefinement(notification, recIndex, notificationDate, schedulingDays, false);
     }
     
     private void scheduleRefinement(
             NotificationInt notification,
             Integer recIndex,
             Instant notificationDate, 
-            Duration schedulingDays
+            Duration schedulingDays,
+            Boolean checkNotificationNonVisibilityDateTime
+
     ) {
         log.info("Start scheduling refinement - iun={} id={}", notification.getIun(), recIndex);
 
-        Instant schedulingDate = getSchedulingDate(notificationDate, schedulingDays, notification.getIun());
+        Instant schedulingDate = getSchedulingDate(notificationDate, schedulingDays, notification.getIun(), checkNotificationNonVisibilityDateTime);
 
         boolean isNotificationAlreadyViewed = timelineUtils.checkIsNotificationViewed(notification.getIun(), recIndex);
 
@@ -120,7 +124,7 @@ public class RefinementScheduler {
         scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
     }
 
-    private Instant getSchedulingDate(Instant completionWorkflowDate, Duration scheduleTime, String iun) {
+    private Instant getSchedulingDate(Instant completionWorkflowDate, Duration scheduleTime, String iun, Boolean checkNotificationNonVisibilityDateTime) {
         String notificationNonVisibilityTime = pnDeliveryPushConfigs.getTimeParams().getNotificationNonVisibilityTime();
         String[] arrayTime = notificationNonVisibilityTime.split(":");
         int hour = Integer.parseInt(arrayTime[0]);
@@ -136,7 +140,7 @@ public class RefinementScheduler {
 
         log.debug("Formatted notificationDateTime={} and notificationNonVisibilityDateTime={} - iun={}", notificationDateTime, notificationNonVisibilityDateTime, iun);
 
-        if (notificationDateTime.isAfter(notificationNonVisibilityDateTime)){
+        if (checkNotificationNonVisibilityDateTime && notificationDateTime.isAfter(notificationNonVisibilityDateTime)){
             Duration timeToAddToScheduledTime = pnDeliveryPushConfigs.getTimeParams().getTimeToAddInNonVisibilityTimeCase();
             scheduleTime = scheduleTime.plus(timeToAddToScheduledTime);
             log.debug("NotificationDateTime is after notificationNonVisibilityDateTime, need to add {} day to schedulingTime. scheduleTime={} - iun={}", timeToAddToScheduledTime, scheduleTime, iun);

@@ -329,7 +329,7 @@ public class DigitalWorkFlowHandler {
                 completionWorkflow.completionSuccessDigitalWorkflow(
                         notification,
                         recIndex,
-                        timelineElement.getTimestamp(),
+                        sendDigitalDetailsInt.getNotificationDate(), //TODO secondo ciclo di tentativi primo ritentativo andato bene secondo tentativo indirizzo uguale a quello del primo tentativo Qui probabilmente deve essere preso il notificationDate
                         sendDigitalDetailsInt.getDigitalAddress()
                 );
             }else {
@@ -373,7 +373,7 @@ public class DigitalWorkFlowHandler {
             completionWorkflow.completionSuccessDigitalWorkflow(
                     notification,
                     recIndex,
-                    timelineElement.getTimestamp(),
+                    sendDigitalDetailsInt.getNotificationDate(), //Todo indirizzo base dati nullo del secondo ritentativo oppure si tratta di un KO, prendo timestamp indirizzo andato a buon fine come base
                     sendDigitalDetailsInt.getDigitalAddress()
             );
         }else {
