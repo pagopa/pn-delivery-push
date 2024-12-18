@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleRefinementDetailsI
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SimpleRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotificationNotAcceptedException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostResult;
@@ -1014,6 +1015,37 @@ class NotificationProcessCostServiceImplTest {
         checkCostData(notificationProcessCostResponse, firstAnalogCost, vat, paFee);
         Assertions.assertEquals(notificationView.getTimestamp(), notificationProcessCostResponse.getNotificationViewDate());
         Assertions.assertEquals(refinementDetails.getSchedulingDate(), notificationProcessCostResponse.getRefinementDate());
+    }
+
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void notificationProcessCost_NotificationNotAccepted() {
+        // notifica singolo recipient non ancora accettata
+
+        //GIVEN
+        String iun = "testIun";
+        int recIndex = 0;
+
+
+        Set<TimelineElementInternal> timelineElements = new HashSet<>();
+
+        Mockito.when(timelineService.getTimeline(iun, false))
+                .thenReturn(timelineElements);
+
+        //WHEN
+        Integer paFee = 100;
+        Integer vat = 10;
+
+        //THEN
+        Assertions.assertThrows(PnNotificationNotAcceptedException.class, () -> service.notificationProcessCost(
+                iun,
+                recIndex,
+                NotificationFeePolicy.DELIVERY_MODE,
+                false,
+                paFee,
+                vat
+        ).block());
+
     }
 
 
