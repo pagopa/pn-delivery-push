@@ -159,7 +159,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         AnalogFinalStatusResponseHandler.class,
         ActionHandler.class,
         WebhookActionsEventHandler.class,
-        WebhookEventsServiceMock.class
+        WebhookEventsServiceMock.class,
+        LockProviderMock.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:/application-testIT.properties")
@@ -299,6 +300,9 @@ public class CommonTestConfiguration {
         List<String> pnSendModeList = new ArrayList<>();
         pnSendModeList.add("1970-01-01T00:00:00Z;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION");
         pnSendModeList.add("2023-11-30T23:00:00Z;AAR;AAR;AAR-DOCUMENTS-PAYMENTS;AAR_NOTIFICATION_RADD");
+
+        //Impostazione delle proprietà di shedLock
+        Mockito.when(cfg.getTimelineLockDuration()).thenReturn(Duration.ofSeconds(60));
 
         Mockito.when(cfg.getPnSendMode()).thenReturn(pnSendModeList);
 
