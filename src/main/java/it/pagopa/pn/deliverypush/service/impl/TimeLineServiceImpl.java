@@ -60,6 +60,7 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -74,6 +75,7 @@ public class TimeLineServiceImpl implements TimelineService {
     private final StatusService statusService;
 
     private final NotificationService notificationService;
+    @Qualifier("lockProviderTimeline")
     private final LockProvider lockProvider;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
