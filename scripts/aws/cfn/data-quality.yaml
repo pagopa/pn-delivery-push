@@ -1,0 +1,177 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Data quality template, creates a nested stack for Glue Table and Crawler
+
+Parameters:
+  TemplateBucketBaseUrl:
+    Type: String
+    Description: The S3 bucket from which to fetch the templates used by this stack.
+  GlueServiceRoleArn:
+    Type: String
+    Description: Service role for the Glue Crawler.
+  LogsBucketName:
+    Type: String
+    Description: Logs bucket name
+  GlueDatabaseName:
+    Type: String
+    Description: Name of the Glue Database
+  TimelinesDynamoTableName:
+    Type: String
+    Description: DynamoDb table name for pn-delivery
+  TimelinesGlueTableName:
+    Type: String
+    AllowedPattern: ^[a-z_]+$
+    ConstraintDescription: Glue table name for pn-timelines, accept only lowercase
+      values and underscore.
+    Default: pn_timelines
+
+Resources:
+  PnTimelineDataQualityStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub ${TemplateBucketBaseUrl}/fragments/cdc-glue.yaml
+      Parameters:
+        DynamoTableName: !Ref TimelinesDynamoTableName
+        GlueTableName: !Ref TimelinesGlueTableName
+        GlueServiceRoleArn: !Ref GlueServiceRoleArn
+        LogsBucketName: !Ref LogsBucketName
+        GlueDatabaseName: !Ref GlueDatabaseName
+        #GenerateCdcView: false
+        DynamoDBKeysStructure: |
+          struct<iun:struct<S:string>,timelineElementId:struct<S:string>>
+        DynamoDBNewImageStructure: |
+          struct<
+            iun:struct<S:string>,
+            timelineElementId:struct<S:string>,
+            legalFactId:struct<L:array<struct<M:struct<
+              category:struct<S:string>,
+              key:struct<S:string>
+            >>>>,
+            timestamp:struct<S:string>,
+            category:struct<S:string>,
+            statusInfo:struct<M:struct<
+              statusChangeTimestamp:struct<S:string>,
+              actual:struct<S:string>,
+              statusChanged:struct<BOOL:boolean>
+            >>,
+            notificationSentAt:struct<S:string>,
+            paId:struct<S:string>,
+            details:struct<M:struct<
+              refusalReasons:struct<L:array<struct<M:struct<
+                errorCode:struct<S:string>,
+                detail:struct<S:string>
+              >>>>,
+              nextSourceAttemptsMade:struct<N:string>,
+              notificationCost:struct<N:string>,
+              numberOfRecipients:struct<N:string>,
+              physicalAddress:struct<M:struct<
+                zip:struct<S:string,NULL:boolean>,
+                foreignState:struct<S:string,NULL:boolean>,
+                address:struct<NULL:boolean>,
+                at:struct<NULL:boolean>,
+                province:struct<NULL:boolean>,
+                municipality:struct<NULL:boolean>,
+                addressDetails:struct<NULL:boolean>,
+                municipalityDetails:struct<NULL:boolean>
+              >>,
+              recIndex:struct<N:string>,
+              newAddress:struct<M:struct<
+                zip:struct<NULL:boolean>,
+                foreignState:struct<NULL:boolean>,
+                address:struct<NULL:boolean>,
+                at:struct<NULL:boolean>,
+                province:struct<NULL:boolean>,
+                municipality:struct<NULL:boolean>,
+                addressDetails:struct<NULL:boolean>,
+                municipalityDetails:struct<NULL:boolean>
+              >>
+        DynamoDBNewImageStructurePart2: |
+          ,
+              legalFactId:struct<S:string>,
+              numberOfPages:struct<N:string>,
+              aarKey:struct<S:string>,
+              schedulingAnalogDate:struct<S:string>,
+              generatedAarUrl:struct<S:string>,
+              sendDate:struct<S:string>,
+              digitalAddress:struct<M:struct<
+                type:struct<S:string>,
+                address:struct<NULL:boolean>
+              >>,
+              isAvailable:struct<BOOL:boolean>,
+              attemptDate:struct<S:string>,
+              digitalAddressSource:struct<S:string>,
+              isFirstSendRetry:struct<BOOL:boolean>,
+              retryNumber:struct<N:string>,
+              shouldRetry:struct<BOOL:boolean>,
+              sendingReceipts:struct<L:array<struct<M:struct<
+                system:struct<S:string>,
+                id:struct<S:string>
+              >>>>,
+              deliveryDetailCode:struct<S:string>,
+              eventTimestamp:struct<S:string>,
+              notificationDate:struct<S:string>,
+              requestTimelineId:struct<S:string>,
+              responseStatus:struct<S:string>,
+              completionWorkflowDate:struct<S:string>,
+              status:struct<S:string>,
+              schedulingDate:struct<S:string>,
+              deliveryFailureCause:struct<S:string>,
+              nextDigitalAddressSource:struct<S:string>,
+              sentAttemptMade:struct<N:string>,
+              contactPhase:struct<S:string>,
+              deliveryMode:struct<S:string>,
+              nextLastAttemptMadeForSource:struct<S:string>,
+              lastAttemptDate:struct<S:string>,
+              analogCost:struct<N:string>,
+              envelopeWeight:struct<N:string>,
+              prepareRequestId:struct<S:string>,
+              productType:struct<S:string>,
+              registeredLetterCode:struct<S:string>,
+              sendRequestId:struct<S:string>,
+              serviceLevel:struct<S:string>,
+              attachments:struct<L:array<struct<M:struct<
+                date:struct<S:string>,
+                id:struct<S:string,NULL:boolean>,
+                documentType:struct<S:string>,
+                url:struct<S:string>
+              >>>>,
+              relatedRequestId:struct<S:string>,
+              failureCause:struct<S:string>,
+              legalFactGenerationDate:struct<S:string>,
+              uncertainPaymentDate:struct<BOOL:boolean>,
+              amount:struct<N:string>,
+              recipientType:struct<S:string>,
+              noticeCode:struct<S:string>,
+              paymentSourceChannel:struct<S:string>,
+              creditorTaxId:struct<S:string>,
+              cancellationRequestId:struct<S:string>,
+              delegateInfo:struct<M:struct<
+                internalId:struct<S:string>,
+                operatorUuid:struct<S:string>,
+                delegateType:struct<S:string>,
+                mandateId:struct<S:string>
+              >>,
+              notRefinedRecipientIndexes:struct<L:array<struct<N:string>>>,
+              raddType:struct<S:string>,
+              raddTransactionId:struct<S:string>,
+              reason:struct<S:string>,
+              reasonCode:struct<S:string>,
+              f24Attachments:struct<L:array<struct<S:string>>>,
+              vat:struct<N:string>,
+              categorizedAttachmentsResult:struct<M:struct<
+                acceptedAttachments:struct<L:array<struct<M:struct<
+                  result:struct<S:string>,
+                  reasonDescription:struct<NULL:boolean,S:string>,
+                  fileKey:struct<S:string>,
+                  reasonCode:struct<NULL:boolean,S:string>
+                >>>>,
+                discardedAttachments:struct<L:array<struct<M:struct<
+                  result:struct<S:string>,
+                  reasonDescription:struct<NULL:boolean,S:string>,
+                  fileKey:struct<S:string>,
+                  reasonCode:struct<NULL:boolean,S:string>
+                >>>>
+              >>,
+              relatedFeedbackTimelineId:struct<S:string>,
+              aarTemplateType:struct<S:string>
+            >>
+          >
