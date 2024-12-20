@@ -15,6 +15,14 @@ const {
 
 const { InvalidDateException } = require("../app/exceptions");
 
+const futureDate = () => {
+    const date = new Date();
+    date.setDate(date.getDate() + 2);
+    return date.toISOString();
+}
+
+const futureDateStr = futureDate().toString();
+
 describe("Test Time Functions 1", () => {
   it("parse right", () => {
     const dateStr = "2024-10-23T12:00:00Z";
@@ -36,18 +44,16 @@ describe("Test Time Functions 1", () => {
   });
 
   it("isAfter: false", () => {
-    const dateStr = "2024-12-01T12:01:00Z";
-    const dt = parseISO(dateStr);
-    const act = actTime();
+      const dt = parseISO(futureDate());
+      const act = actTime();
 
-    const res = isAfter(act, dt);
+      const res = isAfter(act, dt);
 
-    expect(res).to.be.false;
+      expect(res).to.be.false;
   });
 
   it("isAfter: true", () => {
-    const dateStr = "2024-12-01T12:01:00Z";
-    const dt = parseISO(dateStr);
+    const dt = parseISO(futureDate());
     const act = actTime();
 
     const res = isAfter(dt, act);
@@ -79,8 +85,7 @@ describe("Test Time Functions 1", () => {
   });
 
   it("isAfterEq: major => true", () => {
-    const dateStr = "2024-12-01T12:01:00Z";
-    const dt = parseISO(dateStr);
+    const dt = parseISO(futureDate());
     const act = actTime();
 
     const res = isAfterEq(dt, act);
@@ -89,17 +94,15 @@ describe("Test Time Functions 1", () => {
   });
 
   it("isAfterEqStr: major => true", () => {
-    const dateStr = "2024-12-01T12:01:00Z";
     const act = actTime().toString()
-    const res = isAfterEqStr(dateStr, act);
+    const res = isAfterEqStr(futureDateStr, act);
 
     expect(res).to.be.true;
   });
 
   it("isAfterStr: major => true", () => {
-    const dateStr = "2024-12-01T12:01:00Z";
     const act = actTime().toString()
-    const res = isAfterStr(dateStr, act);
+    const res = isAfterStr(futureDateStr, act);
 
     expect(res).to.be.true;
   });
