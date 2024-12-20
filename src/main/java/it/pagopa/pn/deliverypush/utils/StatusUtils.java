@@ -26,13 +26,13 @@ public class StatusUtils {
     }
     
     private static final NotificationStatusInt INITIAL_STATUS = NotificationStatusInt.IN_VALIDATION;
-    private static final Set<TimelineElementCategoryInt> SUCCES_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(Arrays.asList(
+    public static final Set<TimelineElementCategoryInt> SUCCES_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(Arrays.asList(
             //Completato con successo
             TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, //Anche in caso di fallimento del digital workflow, la notifica si può considerare consegnata 
             TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW
     ));
-    
-    private static final Set<TimelineElementCategoryInt> FAILURE_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(List.of(
+
+    public static final Set<TimelineElementCategoryInt> FAILURE_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>(List.of(
             TimelineElementCategoryInt.COMPLETELY_UNREACHABLE
     ));
     
