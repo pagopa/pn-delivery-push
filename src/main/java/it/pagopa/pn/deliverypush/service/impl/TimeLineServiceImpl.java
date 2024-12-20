@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.service.impl;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
-import static it.pagopa.pn.deliverypush.utils.StatusUtils.*;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -79,15 +78,18 @@ public class TimeLineServiceImpl implements TimelineService {
     private final LockProvider lockProvider;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
+
+    private static final List<TimelineElementCategoryInt> COMPLETED_DELIVERY_WORKFLOW_CATEGORY = List.of(
+            //Completato con successo
+            TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, //Anche in caso di fallimento del digital workflow, la notifica si può considerare consegnata
+            TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW,
+            //Fallimento
+            TimelineElementCategoryInt.COMPLETELY_UNREACHABLE
+    );
+
     @Override
     public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
         MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.TIMELINE_KEY);
-
-        //TODO: da modificare per includere la category del deceduto
-        Set<TimelineElementCategoryInt> COMPLETED_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>() {{
-            addAll(SUCCES_DELIVERY_WORKFLOW_CATEGORY);
-            addAll(FAILURE_DELIVERY_WORKFLOW_CATEGORY);
-        }};
 
         log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
