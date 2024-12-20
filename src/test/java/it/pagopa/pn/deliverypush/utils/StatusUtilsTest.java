@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -9,6 +10,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineMapperFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -35,7 +38,8 @@ class StatusUtilsTest {
 
     @BeforeEach
     public void setup() {
-        this.statusUtils = new StatusUtils();
+        PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        this.statusUtils = new StatusUtils(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs)));
     }
 
     @Test

@@ -45,10 +45,11 @@ public class WebhookUtils {
     private final NotificationService notificationService;
     private final Duration ttl;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private final SmartMapper smartMapper;
 
     public WebhookUtils(TimelineService timelineService, StatusService statusService, NotificationService notificationService,
                         PnDeliveryPushConfigs pnDeliveryPushConfigs, DtoToEntityWebhookTimelineMapper mapperTimeline, EntityToDtoWebhookTimelineMapper entityToDtoTimelineMapper,
-                        WebhookTimelineElementJsonConverter timelineElementJsonConverter) {
+                        WebhookTimelineElementJsonConverter timelineElementJsonConverter, SmartMapper smartMapper) {
         this.timelineService = timelineService;
         this.statusService = statusService;
         this.notificationService = notificationService;
@@ -57,6 +58,7 @@ public class WebhookUtils {
         this.ttl = pnDeliveryPushConfigs.getWebhook().getTtl();
         this.mapperTimeline = mapperTimeline;
         this.timelineElementJsonConverter = timelineElementJsonConverter;
+        this.smartMapper = smartMapper;
     }
 
 
@@ -74,7 +76,7 @@ public class WebhookUtils {
         // calcolo vecchio e nuovo stato in base allo storico "di quel momento"
         StatusService.NotificationStatusUpdate notificationStatusUpdate = statusService.computeStatusChange(event.get(), filteredPreviousTimelineElementInternalSet, notificationInt);
         return RetrieveTimelineResult.builder()
-                .event(SmartMapper.mapTimelineInternal(event.get(), timelineElementInternalSet))  //bisogna cmq rimappare l'evento per sistemare le date
+                .event(smartMapper.mapTimelineInternal(event.get(), timelineElementInternalSet))  //bisogna cmq rimappare l'evento per sistemare le date
                 .notificationStatusUpdate(notificationStatusUpdate)
                 .notificationInt(notificationInt)
                 .build();
