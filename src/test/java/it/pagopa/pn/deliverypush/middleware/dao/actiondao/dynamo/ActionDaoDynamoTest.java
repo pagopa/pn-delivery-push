@@ -112,7 +112,7 @@ class ActionDaoDynamoTest {
 
         Key keyToDelete = buildKey(action, timeslot);
 
-        dynamo.unSchedule(action, timeslot);
+        dynamo.unScheduleFutureAction(action, timeslot);
 
         Mockito.verify(futureActionEntityDao, Mockito.times(1)).delete(keyToDelete);
     }

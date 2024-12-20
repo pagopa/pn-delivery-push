@@ -3,10 +3,10 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -30,7 +30,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 
-import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.SEND_COURTESY_MESSAGE;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
 @Component
@@ -193,7 +192,7 @@ public class DigitalWorkFlowUtils {
      * @param recIndex indice recipient
      * @return Evento timeline più recente
      */
-    public TimelineElementInternal getMostRecentTimelineElement(String iun, Integer recIndex) {
+/*    public TimelineElementInternal getMostRecentTimelineElement(String iun, Integer recIndex) {
         Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimeline(iun, false);
         Optional<TimelineElementInternal> timelineElementInternal = timelineElementInternals.stream()
                 .filter(timeElementInternal -> !timeElementInternal.getCategory().equals(SEND_COURTESY_MESSAGE))    //potrebbe essere arrivato un evento di courtesy per esempio l'attivazione di IO che va ignorato. Tutti gli altri eventi vanno considerati invece.
@@ -205,6 +204,20 @@ public class DigitalWorkFlowUtils {
             log.error("TimelineElementInternal element for recindex not exist - iun {} recIndex {}", iun, recIndex);
             throw new PnInternalException("TimelineElementInternal element for recindex not exist - iun " + iun + " recIndex " + recIndex, ERROR_CODE_DELIVERYPUSH_TIMELINEEVENTNOTFOUND);
         }
+    }*/
+    
+    public Optional<TimelineElementInternal> getSendDigitalFeedbackFromSourceTimeline(String iun, DigitalSendTimelineElementDetails originalDigitalSendTimelineDetailsInt) {
+        String elementId = TimelineEventId.SEND_DIGITAL_FEEDBACK.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(originalDigitalSendTimelineDetailsInt.getRecIndex())
+                        .sentAttemptMade(originalDigitalSendTimelineDetailsInt.getRetryNumber())
+                        .source(originalDigitalSendTimelineDetailsInt.getDigitalAddressSource())
+                        .isFirstSendRetry(originalDigitalSendTimelineDetailsInt.getIsFirstSendRetry())
+                        .build()
+        );
+        
+        return timelineService.getTimelineElement(iun, elementId);
     }
 
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String eventId) {

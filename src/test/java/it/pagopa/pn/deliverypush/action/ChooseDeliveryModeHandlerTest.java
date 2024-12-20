@@ -12,8 +12,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSende
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
@@ -24,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -34,9 +35,9 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.times;
 
+@ExtendWith(SpringExtension.class)
 class ChooseDeliveryModeHandlerTest {
 
-    @Mock
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
     @Mock
     private SchedulerService schedulerService;
@@ -55,13 +56,13 @@ class ChooseDeliveryModeHandlerTest {
 
     @BeforeEach
     public void setup() {
+        digitalWorkFlowHandler = Mockito.mock(DigitalWorkFlowHandler.class);
         handler = new ChooseDeliveryModeHandler(digitalWorkFlowHandler, schedulerService, nationalRegistriesService,
                 chooseDeliveryUtils, notificationService, timelineService);
         notificationUtils= new NotificationUtils();
     }
 
 
-    @ExtendWith(MockitoExtension.class)
     @Test
     void chooseDeliveryTypeAndStartWorkflowPlatformAddress() {
         //GIVEN

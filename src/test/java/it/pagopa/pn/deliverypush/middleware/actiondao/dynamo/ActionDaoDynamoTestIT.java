@@ -82,8 +82,8 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         Assertions.assertTrue(actionOpt2.isPresent());
         Assertions.assertEquals(actionOpt2.get(),action2);
 
-        actionDao.unSchedule(action, timeSlot);
-        actionDao.unSchedule(action2, timeSlot);
+        actionDao.unScheduleFutureAction(action, timeSlot);
+        actionDao.unScheduleFutureAction(action2, timeSlot);
     }
 
     
@@ -112,7 +112,7 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         Assertions.assertEquals(actionOpt.get(),action);
      
 
-        actionDao.unSchedule(action, timeSlot);
+        actionDao.unScheduleFutureAction(action, timeSlot);
     }
 
     
@@ -145,8 +145,8 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
 
         Action action2 = actionBuilder2.actionId(actionId2).build();
 
-        actionDao.unSchedule(action, timeSlot);
-        actionDao.unSchedule(action2, timeSlot);
+        actionDao.unScheduleFutureAction(action, timeSlot);
+        actionDao.unScheduleFutureAction(action2, timeSlot);
 
         //WHEN
         actionDao.addAction(action, timeSlot);
@@ -158,8 +158,8 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         Assertions.assertTrue(actions.contains(action));
         Assertions.assertTrue(actions.contains(action2));
 
-        actionDao.unSchedule(action, timeSlot);
-        actionDao.unSchedule(action2, timeSlot);
+        actionDao.unScheduleFutureAction(action, timeSlot);
+        actionDao.unScheduleFutureAction(action2, timeSlot);
 
     }
 
@@ -193,9 +193,9 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         
         List<Action> actionslist1 =  actionDao.findActionsByTimeSlot( timeSlot1 );
 
-        actionDao.unSchedule(action, timeSlot1);
-        actionDao.unSchedule(action2, timeSlot1);
-        actionDao.unSchedule(action2, timeSlot2);
+        actionDao.unScheduleFutureAction(action, timeSlot1);
+        actionDao.unScheduleFutureAction(action2, timeSlot1);
+        actionDao.unScheduleFutureAction(action2, timeSlot2);
 
         List<Action> actionslist2 =  actionDao.findActionsByTimeSlot( timeSlot1 );
 
@@ -214,8 +214,8 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         Assertions.assertTrue(actions2.contains(action2));
         Assertions.assertFalse(actions2.contains(action));
 
-        actionDao.unSchedule(action, timeSlot1);
-        actionDao.unSchedule(action2, timeSlot2);
+        actionDao.unScheduleFutureAction(action, timeSlot1);
+        actionDao.unScheduleFutureAction(action2, timeSlot2);
     }
 
     @Test

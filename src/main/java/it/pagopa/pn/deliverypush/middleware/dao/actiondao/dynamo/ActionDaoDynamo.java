@@ -141,12 +141,19 @@ public class ActionDaoDynamo implements ActionDao {
     }
 
     @Override
-    public void unSchedule(Action action, String timeSlot) {
+    public void unScheduleFutureAction(Action action, String timeSlot) {
         Key keyToDelete = Key.builder()
                 .partitionValue(timeSlot)
                 .sortValue(action.getActionId())
                 .build();
-        
+
+        updateItemLogicalDeleted(action, timeSlot);
         futureActionEntityDao.delete(keyToDelete);
+    }
+
+    private void updateItemLogicalDeleted(Action action, String timeSlot) {
+        FutureActionEntity futureActionEntity = DtoToEntityFutureActionMapper.dtoToEntity(action, timeSlot);
+        futureActionEntity.setLogicalDeleted(true);
+        futureActionEntityDao.put(futureActionEntity);
     }
 }

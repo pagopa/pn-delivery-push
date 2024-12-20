@@ -45,11 +45,6 @@ public class ActionServiceImpl implements ActionService {
 
     @Override
     public void unSchedule(Action action, String timeSlot) {
-        if(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())) {
-            log.debug("unSchedule: performance improvement IS ENABLED; not need to unschedule futureAction - actionId={}", action.getActionId());
-        }else {
-            log.debug("unSchedule: performance improvement NOT ENABLED; need to unschedule futureAction - actionId={}", action.getActionId());
-            actionDao.unSchedule(action, timeSlot);
-        }
+        actionDao.unScheduleFutureAction(action, timeSlot);
     }
 }

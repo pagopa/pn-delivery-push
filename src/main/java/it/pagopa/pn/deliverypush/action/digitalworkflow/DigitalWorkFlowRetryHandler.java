@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentRe
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEventCat;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.AllArgsConstructor;
@@ -161,47 +160,13 @@ public class DigitalWorkFlowRetryHandler {
             }
         }
     }
-
-    /**
-     * Ritorna TRUE se l'evento che ha schedulato il timer (che per ora è un evento di send di PEC)
-     * è ancora "valido". Infatti potrei avere che l'utente ha VISUALIZZATO la notifica, o che nel frattempo è arrivata
-     * da ext-channel (incredibilmente in ritardo ma fatalità proprio quando da fastidio :) ) il risultato dell'invio e quindi avere un FEEDBACK.
-     * La logica sul re-invio di una PEC si basa sul fatto che il precedente (ri)tentativo sia ancora in corso, o sia fallito con esito di "retry".
-     * Quindi mi devo aspettare che l'ULTIMO EVENTO IN TIMELINE IN ORDINE CRONOLOGICO sia appunto un evento di SEND_DIGITAL_PROGRESS
-     * o SEND_DIGITAL_DOMICILE. Inoltre, per scrupolo controllo che sia relativo all'originale retry-number e all'originale source.
-     *
-     *
-     * @param iun iun notifica
-     * @param recIndex indice recipient
-     * @param originalTimelineElement timelineId originale
-     * @return TRUE se l'evento è valido e va gestito
-     */
-    private boolean checkIfEventIsStillValid(String iun, int recIndex, TimelineElementInternal originalTimelineElement){
-
+    
+    private boolean checkIfEventIsStillValid(String iun, TimelineElementInternal originalTimelineElement){
         if (originalTimelineElement.getDetails() instanceof DigitalSendTimelineElementDetails originalDigitalSendTimelineDetailsInt) {
-            // devo controllare che il timeout scattato sia ancora rilevante.
-            // per capirlo, verifico se l'ultimo evento in ordine cronologico in timeline per recindex, appartiene a retrynumber e addresssource
-            // è il senddigital o senddigitalprogress .
-            // Se lo è, vuol dire che si può equiparare ad una risposta da ext-channel, che va trattata di conseguenza secondo configurazione.
-            TimelineElementInternal mostRecentElementInternal = digitalWorkFlowUtils.getMostRecentTimelineElement(iun, recIndex);
-            log.info("checkIfEventIsStillValid mostRecentTimelineId for iun={} recIndex={} timelineId={}", iun, recIndex, mostRecentElementInternal.getElementId());
 
-            Integer lastRetryNumber;
-            DigitalAddressSourceInt lastAddressSource;
+            Optional<TimelineElementInternal> sendDigitalFeedbackOpt = digitalWorkFlowUtils.getSendDigitalFeedbackFromSourceTimeline(iun, originalDigitalSendTimelineDetailsInt);
 
-            // controllo gli eventi, e se sono di questi due tipi, mi interessa, sennò NO
-            if ((mostRecentElementInternal.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS
-                    || mostRecentElementInternal.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
-                    && mostRecentElementInternal.getDetails() instanceof DigitalSendTimelineElementDetails mostrecentDigitalSendTimelineDetailsInt) {
-
-                lastRetryNumber = mostrecentDigitalSendTimelineDetailsInt.getRetryNumber();
-                lastAddressSource = mostrecentDigitalSendTimelineDetailsInt.getDigitalAddressSource();
-
-                // per scrupolo, controllo anche che il retryNumber e l'addressSource siano gli stessi dell'originale.
-                return originalDigitalSendTimelineDetailsInt.getRetryNumber().equals(lastRetryNumber)
-                        && originalDigitalSendTimelineDetailsInt.getDigitalAddressSource() != null && lastAddressSource != null
-                        && originalDigitalSendTimelineDetailsInt.getDigitalAddressSource().getValue().equals(lastAddressSource.getValue());
-            }
+            return sendDigitalFeedbackOpt.isEmpty();
         }
         return false;
     }

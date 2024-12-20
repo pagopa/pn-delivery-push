@@ -98,7 +98,7 @@ class ActionServiceImplTest {
         Mockito.when(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())).thenReturn( false);
         actionService.unSchedule(action, time);
 
-        Mockito.verify(actionDao, Mockito.times(1)).unSchedule(action, time);
+        Mockito.verify(actionDao, Mockito.times(1)).unScheduleFutureAction(action, time);
     }
 
     @Test
@@ -108,7 +108,7 @@ class ActionServiceImplTest {
         Mockito.when(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())).thenReturn( true);
         actionService.unSchedule(action, time);
 
-        Mockito.verify(actionDao, Mockito.never()).unSchedule(action, time);
+        Mockito.verify(actionDao, Mockito.never()).unScheduleFutureAction(action, time);
     }
     
     private Action buildAction() {
