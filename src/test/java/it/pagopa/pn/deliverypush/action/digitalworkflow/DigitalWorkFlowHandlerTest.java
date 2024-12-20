@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;

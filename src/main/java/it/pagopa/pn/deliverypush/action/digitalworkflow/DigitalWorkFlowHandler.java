@@ -403,7 +403,7 @@ public class DigitalWorkFlowHandler {
 
     private void nextWorkflowStep(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt addressInfo, String iun) {
         //... altrimenti si passa alla prossima workflow action
-        log.info("Need to start next workflow action - iun={} id={}",
+        log.info("Need to start next workflow action - source={} iun={} id={}",
                 addressInfo.getDigitalAddressSource(), iun, recIndex);
 
         digitalWorkFlowUtils.addAvailabilitySourceToTimeline(recIndex, notification, addressInfo.getDigitalAddressSource(), false, addressInfo.getSentAttemptMade());

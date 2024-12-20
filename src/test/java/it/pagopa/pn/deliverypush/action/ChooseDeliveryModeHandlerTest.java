@@ -161,8 +161,6 @@ class ChooseDeliveryModeHandlerTest {
 
     @Test
     void handleGeneralAddressResponseDigital() {
-        when(cfg.getPfNewWorkflowStart()).thenReturn("2099-03-31T23:00:00Z");
-        when(cfg.getPfNewWorkflowStop()).thenReturn("2099-03-31T23:00:00Z");
 
         NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .digitalAddress(LegalDigitalAddressInt.builder()
@@ -312,7 +310,7 @@ class ChooseDeliveryModeHandlerTest {
                 Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt());
         verify(chooseDeliveryUtils, times(0)).addScheduleAnalogWorkflowToTimeline(eq(recIndex), eq(notification), any(Instant.class));
         verifyNoInteractions(timelineService);
-        verify(schedulerService);
+        verifyNoInteractions(schedulerService);
 
     }
 

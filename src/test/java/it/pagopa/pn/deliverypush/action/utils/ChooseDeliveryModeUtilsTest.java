@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.eq;
+
 @ExtendWith(MockitoExtension.class)
 class ChooseDeliveryModeUtilsTest {
 
@@ -50,9 +52,9 @@ class ChooseDeliveryModeUtilsTest {
     @Test
     void addAvailabilitySourceToTimeline() {
 
-        Mockito.when(timelineUtils.buildAvailabilitySourceTimelineElement(Mockito.eq(0), Mockito.any(NotificationInt.class), Mockito.any(DigitalAddressSourceInt.class), Mockito.anyBoolean(), Mockito.eq(0))).thenReturn(Mockito.any(TimelineElementInternal.class));
+        Mockito.when(timelineUtils.buildAvailabilitySourceTimelineElement(0, null, null, false, 0)).thenReturn(Mockito.any(TimelineElementInternal.class));
 
-        chooseDeliveryModeUtils.addAvailabilitySourceToTimeline(Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(DigitalAddressSourceInt.class), Mockito.anyBoolean());
+        chooseDeliveryModeUtils.addAvailabilitySourceToTimeline(eq(0), Mockito.any(NotificationInt.class), Mockito.any(DigitalAddressSourceInt.class), eq(false));
 
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }

@@ -510,9 +510,7 @@ class DigitalWorkFlowUtilsTest {
 
         Mockito.when(timelineService.getTimeline("001", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
 
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            digitalWorkFlowUtils.getMostRecentTimelineElement("IUN_01", 1);
-        });
+        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> digitalWorkFlowUtils.getMostRecentTimelineElement("IUN_01", 1));
 
         String expectErrorMsg = "PN_DELIVERYPUSH_TIMELINEEVENTNOTFOUND";
 

@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.*;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtilsImpl;
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
