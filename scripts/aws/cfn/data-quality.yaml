@@ -20,8 +20,7 @@ Parameters:
   TimelinesGlueTableName:
     Type: String
     AllowedPattern: ^[a-z_]+$
-    ConstraintDescription: Glue table name for pn-timelines, accept only lowercase
-      values and underscore.
+    ConstraintDescription: Glue table name for pn-timelines, accept only lowercase values and underscore.
     Default: pn_timelines
 
 Resources:
