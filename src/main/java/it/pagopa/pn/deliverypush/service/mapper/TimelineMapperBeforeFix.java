@@ -1,12 +1,8 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleRefinementDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,30 +36,8 @@ public class TimelineMapperBeforeFix extends TimelineMapper {
                         throw new PnInternalException("SEND_ANALOG_FEEDBACK NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
                     }
                 }
-                case REFINEMENT -> {
-                    ScheduleRefinementDetailsInt details = findScheduleRefinementDetails((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
-                    if (details != null) {
-                        log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {}", result.getCategory(), result.getTimestamp(), details.getSchedulingDate());
-                        result.setTimestamp(details.getSchedulingDate());
-                    } else {
-                        throw new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
-                    }
-                }
-                case SEND_DIGITAL_DOMICILE -> {
-                    // allo scopo di ottenere il timestamp di AAR_GEN per impostare il timestamp di SEND_DIGITAL_DOMICILE, per far si
-                    // che il timestamp di SEND_DIGITAL_DOMICILE non sia successivo a quello di SEND_DIGITAL_FEEDBACK per serc SEND
-                    //
-                    // ottenere channelType e verificare che è sercq
-                    // se sercq, ottenere l'address, e se è sercq-send:
-                    //  - ottieniamo timestamp di AAR_GEN
-                    // - lo usiamo per impostare il timestamp di SEND_DIGITAL_DOMICILE (setTimeStamp)
-                    //
-                    SendDigitalDetailsInt details = (SendDigitalDetailsInt) result.getDetails();
-                    if (LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType())) {
-                        Instant aarRgenTimestamp = findAARgenTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
-                        result.setTimestamp(aarRgenTimestamp);
-                    }
-                }
+                case REFINEMENT -> caseRefinement(timelineElementInternalSet, result);
+                case SEND_DIGITAL_DOMICILE -> caseSendDigitalDomicile(timelineElementInternalSet, result);
                 default -> {
                     //nothing to do
                 }
