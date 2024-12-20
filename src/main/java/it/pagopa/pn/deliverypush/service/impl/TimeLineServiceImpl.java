@@ -79,16 +79,15 @@ public class TimeLineServiceImpl implements TimelineService {
     private final LockProvider lockProvider;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-    //TODO: da modificare per includere la category del deceduto
-    public static final Set<TimelineElementCategoryInt> COMPLETED_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>() {{
-        addAll(SUCCES_DELIVERY_WORKFLOW_CATEGORY);
-        addAll(FAILURE_DELIVERY_WORKFLOW_CATEGORY);
-    }};
-
-
     @Override
     public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
         MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.TIMELINE_KEY);
+
+        //TODO: da modificare per includere la category del deceduto
+        Set<TimelineElementCategoryInt> COMPLETED_DELIVERY_WORKFLOW_CATEGORY = new HashSet<>() {{
+            addAll(SUCCES_DELIVERY_WORKFLOW_CATEGORY);
+            addAll(FAILURE_DELIVERY_WORKFLOW_CATEGORY);
+        }};
 
         log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();

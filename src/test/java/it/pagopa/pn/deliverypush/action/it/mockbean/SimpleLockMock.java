@@ -8,7 +8,7 @@ import java.util.Optional;
 public class SimpleLockMock implements SimpleLock {
     @Override
     public void unlock() {
-
+        //method implemented just for mocking purposes
     }
 
     @Override

@@ -149,7 +149,6 @@ class TimeLineServiceImplTest {
 
         TimelineElementInternal newElement = getAnalogSuccessTimelineCriticalElement(iun, elementId);
 
-     //   Optional<SimpleLock> simpleLock = Optional.ofNullable(Mockito.mock(SimpleLock.class));
         Mockito.when(lockProvider.lock(Mockito.any())).thenReturn(Optional.of(simpleLock));
 
         timeLineService.addTimelineElement(newElement, notification);
@@ -180,10 +179,6 @@ class TimeLineServiceImplTest {
                 .thenReturn(setTimelineElement);
 
         TimelineElementInternal newElement = getAnalogSuccessTimelineCriticalElement(iun, elementId);
-
-        SimpleLock simpleLock = Mockito.mock(SimpleLock.class);
-        LockProvider lockProvider = Mockito.mock(LockProvider.class);
-        Mockito.when(lockProvider.lock(Mockito.any())).thenReturn(Optional.of(simpleLock));
 
         assertThrows(PnInternalException.class, () -> timeLineService.addTimelineElement(newElement, notification));
     }
@@ -234,7 +229,6 @@ void addCriticalTimelineElementException() {
     // Given
     String iun = "iun_12345";
     String elementId = "elementId_12345";
-    TimelineElementInternal dto = getAnalogSuccessTimelineCriticalElement(iun, elementId);
     NotificationInt notification = getNotificationWithMultipleRecipients(iun);
 
     TimelineElementInternal newElement = getAnalogSuccessTimelineCriticalElement(iun, elementId);

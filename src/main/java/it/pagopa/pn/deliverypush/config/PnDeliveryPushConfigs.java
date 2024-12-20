@@ -133,7 +133,7 @@ public class PnDeliveryPushConfigs {
 
     private boolean additionalLangsEnabled;
 
-    public Duration timelineLockDuration;
+    private Duration timelineLockDuration;
 
     private TimelineShedlockDao timelineShedlockDao;
 
