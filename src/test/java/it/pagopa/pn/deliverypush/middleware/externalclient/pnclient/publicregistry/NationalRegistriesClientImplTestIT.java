@@ -19,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
+import java.time.Instant;
+
 @SpringBootTest
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
@@ -57,8 +59,7 @@ class NationalRegistriesClientImplTestIT extends MockAWSObjectsTest{
                         .withStatusCode(200));
 
         Assertions.assertDoesNotThrow(
-                () -> nationalRegistriesClient.sendRequestForGetDigitalAddress("001", "PF", "002")
-        );
+                () -> nationalRegistriesClient.sendRequestForGetDigitalAddress("001", "PF", "002", Instant.now()));
     }
 
 }

@@ -1,10 +1,9 @@
-package it.pagopa.pn.deliverypush.action;
+package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
-import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
@@ -43,6 +42,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.when;
 
 class DigitalWorkFlowHandlerTest {
     @Mock
@@ -68,8 +68,6 @@ class DigitalWorkFlowHandlerTest {
     @Mock
     private DigitalWorkflowFirstSendRepeatHandler digitalWorkflowFirstSendRepeatHandler;
     @Mock
-    private FeatureEnabledUtils featureEnabledUtils;
-    @Mock
     private PnDeliveryPushConfigs.ExternalChannel externalChannel;
     
     private SendAndUnscheduleNotification sendAndUnscheduleNotification;
@@ -85,10 +83,10 @@ class DigitalWorkFlowHandlerTest {
     @BeforeEach
     public void setup() {
         sendAndUnscheduleNotification = new SendAndUnscheduleNotification(externalChannelService, pnDeliveryPushConfigs, schedulerService);
-        
+        FeatureEnabledUtils featureEnabledUtils = new FeatureEnabledUtils(pnDeliveryPushConfigs);
         handler = new DigitalWorkFlowHandler(sendAndUnscheduleNotification, notificationService,
                 schedulerService, digitalWorkFlowUtils, completionWorkflow, nationalRegistriesService, instantNowSupplier,
-                pnDeliveryPushConfigs, digitalWorkflowFirstSendRepeatHandler);
+                pnDeliveryPushConfigs, digitalWorkflowFirstSendRepeatHandler, featureEnabledUtils);
 
         handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, pnDeliveryPushConfigs, auditLogService, sendAndUnscheduleNotification);
         handlerRetry = new DigitalWorkFlowRetryHandler(notificationService, digitalWorkFlowUtils, sendAndUnscheduleNotification, handlerExtChannel, featureEnabledUtils);
@@ -104,6 +102,60 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_scheduleExecuteAction() {
+        when(pnDeliveryPushConfigs.getPfNewWorkflowStart()).thenReturn("2099-02-13T23:00:00Z");
+        when(pnDeliveryPushConfigs.getPfNewWorkflowStop()).thenReturn("2099-02-14T23:00:00Z");
+        DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
+                .lastAttemptDate(Instant.now())
+                .sentAttemptMade(0)
+                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+                .digitalAddress(LegalDigitalAddressInt.builder()
+                        .address("test@mail.it")
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
+                .build();
+
+        DigitalAddressInfoSentAttempt nextAddressInfo = DigitalAddressInfoSentAttempt.builder()
+                .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
+                .sentAttemptMade(0)
+                .lastAttemptDate(Instant.now())
+                .build();
+
+
+        when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
+                        .recIndex(0)
+                        .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
+                        .digitalAddressSource(lastAttemptMade.getDigitalAddressSource())
+                        .digitalAddress(LegalDigitalAddressInt.builder()
+                                .type(lastAttemptMade.getDigitalAddress().getType())
+                                .address(lastAttemptMade.getDigitalAddress().getAddress())
+                                .build())
+                        .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
+                        .build());
+
+        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
+        when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class), captor.capture()))
+                .thenReturn(nextAddressInfo);
+        NotificationInt notification = getNotification();
+
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+
+        when(digitalWorkFlowUtils.addPrepareSendToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.any()))
+                .thenReturn("timeline_id_1234");
+
+        handler.startScheduledNextWorkflow(notification.getIun(), 1, "timeline_id_0");
+
+        Assertions.assertEquals(false, captor.getValue());
+
+        Mockito.verify(schedulerService).scheduleEvent(Mockito.eq(notification.getIun()), Mockito.eq(1),
+                Mockito.any(Instant.class), Mockito.eq(ActionType.DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION), Mockito.eq("timeline_id_1234"));
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void nextWorkFlowAction_scheduleExecuteActionNewWorkflow() {
+        when(pnDeliveryPushConfigs.getPfNewWorkflowStart()).thenReturn("1099-02-13T23:00:00Z");
+        when(pnDeliveryPushConfigs.getPfNewWorkflowStop()).thenReturn("2099-02-14T23:00:00Z");
         DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
                 .lastAttemptDate(Instant.now())
                 .sentAttemptMade(0)
@@ -120,7 +172,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
 
-        Mockito.when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getScheduleDigitalWorkflowTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(ScheduleDigitalWorkflowDetailsInt.builder()
                         .recIndex(0)
                         .sentAttemptMade(lastAttemptMade.getSentAttemptMade())
@@ -132,17 +184,21 @@ class DigitalWorkFlowHandlerTest {
                         .lastAttemptDate(lastAttemptMade.getLastAttemptDate())
                         .build());
 
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
+        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
+
+        when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class), captor.capture()))
                 .thenReturn(nextAddressInfo);
         NotificationInt notification = getNotification();
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(digitalWorkFlowUtils.addPrepareSendToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.any()))
+        when(digitalWorkFlowUtils.addPrepareSendToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.any()))
                 .thenReturn("timeline_id_1234");
 
         handler.startScheduledNextWorkflow(notification.getIun(), 1, "timeline_id_0");
+
+        Assertions.assertEquals(true, captor.getValue());
 
         Mockito.verify(schedulerService).scheduleEvent(Mockito.eq(notification.getIun()), Mockito.eq(1),
                 Mockito.any(Instant.class), Mockito.eq(ActionType.DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION), Mockito.eq("timeline_id_1234"));
@@ -162,22 +218,22 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
         DigitalAddressInfoSentAttempt nextAddressInfo = DigitalAddressInfoSentAttempt.builder()
-                .digitalAddressSource(DigitalWorkFlowUtils.nextSource(lastAttemptMade.getDigitalAddressSource()))
+                .digitalAddressSource(DigitalWorkFlowUtils.nextSource(lastAttemptMade.getDigitalAddressSource(), false))
                 .sentAttemptMade(0)
                 .lastAttemptDate(Instant.now())
                 .build();
         
         NotificationInt notification = getNotification();
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
 
-        Mockito.when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
                 .thenReturn(PrepareDigitalDetailsInt.builder().build());
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
                 .thenReturn(lastAttemptMade);
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
                 .thenReturn(nextAddressInfo);
 
 
@@ -210,28 +266,28 @@ class DigitalWorkFlowHandlerTest {
 
         NotificationInt notification = getNotification();
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
 
-        Mockito.when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
                 .thenReturn(PrepareDigitalDetailsInt.builder().build());
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
                 .thenReturn(lastAttemptMade);
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
                 .thenReturn(nextAddressInfo);
 
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.any(NotificationInt.class)))
+        when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.any(NotificationInt.class)))
                 .thenReturn(LegalDigitalAddressInt.builder()
                         .address("testAddress@test.it")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build());
 
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
+        when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
+        when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
 
         //WHEN        
@@ -252,6 +308,8 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void nextWorkFlowAction_0_NotGeneral_WithoutAddress() {
+        when(pnDeliveryPushConfigs.getPfNewWorkflowStart()).thenReturn("2099-02-13T23:00:00Z");
+        when(pnDeliveryPushConfigs.getPfNewWorkflowStop()).thenReturn("2099-02-14T23:00:00Z");
         //GIVEN
         DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
                 .lastAttemptDate(Instant.now())
@@ -268,7 +326,7 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
 
-        Mockito.when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class)))
+        when(digitalWorkFlowUtils.getNextAddressInfo(Mockito.anyString(), Mockito.anyInt(), Mockito.any(DigitalAddressInfoSentAttempt.class), Mockito.anyBoolean()))
                .thenReturn(DigitalAddressInfoSentAttempt.builder()
                         .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
                         .sentAttemptMade(1)
@@ -277,18 +335,18 @@ class DigitalWorkFlowHandlerTest {
 
         NotificationInt notification = getNotification();
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.any(NotificationInt.class)))
+        when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.any(NotificationInt.class)))
                 .thenReturn(null);
 
 
 
-        Mockito.when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
                 .thenReturn(PrepareDigitalDetailsInt.builder().build());
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
                 .thenReturn(lastAttemptMade);
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
                 .thenReturn(nextAddressInfo);
 
         //WHEN
@@ -326,26 +384,26 @@ class DigitalWorkFlowHandlerTest {
 
 
         
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        when(instantNowSupplier.get()).thenReturn(Instant.now());
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
-        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+        when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
 
-        Mockito.when(digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any()))
+        when(digitalWorkFlowUtils.addScheduledDigitalWorkflowToTimeline(Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any()))
                         .thenReturn("timeline_id_0");
 
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
 
 
-        Mockito.when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
                 .thenReturn(PrepareDigitalDetailsInt.builder().build());
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
                 .thenReturn(lastAttemptMade);
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
                 .thenReturn(nextAddressInfo);
         //WHEN
         handler.startNextWorkFlowActionExecute("iun",0, "timeline_id_1234");
@@ -385,23 +443,23 @@ class DigitalWorkFlowHandlerTest {
                 .build();
 
 
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        when(instantNowSupplier.get()).thenReturn(Instant.now());
 
-           Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+           when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        when(instantNowSupplier.get()).thenReturn(Instant.now());
 
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
 
 
-        Mockito.when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
                 .thenReturn(PrepareDigitalDetailsInt.builder().build());
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
                 .thenReturn(lastAttemptMade);
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
                 .thenReturn(nextAddressInfo);
         //WHEN
         handler.startNextWorkFlowActionExecute("iun", 0, "timeline_id_1234");
@@ -426,7 +484,7 @@ class DigitalWorkFlowHandlerTest {
 
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
-        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
+        when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
 
         Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
 
@@ -440,29 +498,29 @@ class DigitalWorkFlowHandlerTest {
 
         
 
-        Mockito.when(instantNowSupplier.get()).thenReturn(Instant.now());
+        when(instantNowSupplier.get()).thenReturn(Instant.now());
 
 
         NotificationInt notification = getNotification();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.any(NotificationInt.class)))
+        when(digitalWorkFlowUtils.getAddressFromSource(Mockito.any(DigitalAddressSourceInt.class), Mockito.anyInt(), Mockito.any(NotificationInt.class)))
                 .thenReturn(LegalDigitalAddressInt.builder()
                         .address("estAddress@test.it")
                         .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                         .build());
 
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
+        when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
+        when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
 
 
-        Mockito.when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getPrepareSendDigitalWorkflowTimelineElement(Mockito.any(), Mockito.anyString()))
                 .thenReturn(PrepareDigitalDetailsInt.builder().build());
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptLastAttemptMadeFromPrepare(Mockito.any()))
                 .thenReturn(lastAttemptMade);
-        Mockito.when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
+        when(digitalWorkFlowUtils.getDigitalAddressInfoSentAttemptNextAddressInfoFromPrepare(Mockito.any()))
                 .thenReturn(nextAddressInfo);
 
         //WHEN
@@ -501,8 +559,8 @@ class DigitalWorkFlowHandlerTest {
 
         NotificationInt notification = getNotification();
 
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
+        when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
+        when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
         //WHEN
         handler.handleGeneralAddressResponse(response, notification, details);
@@ -590,10 +648,10 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Optional.of(element ));
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         //WHEN
@@ -660,21 +718,21 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
 
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
         PnDeliveryPushConfigs.ExternalChannel externalChannelConfig = Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class);
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannelConfig);
-        Mockito.when(externalChannelConfig.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
-        Mockito.when(externalChannelConfig.getDigitalCodesRetryable()).thenReturn(List.of("C008", "C010"));
-        Mockito.when(externalChannelConfig.getDigitalRetryCount()).thenReturn(-1);
-        Mockito.when(externalChannelConfig.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
+        when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannelConfig);
+        when(externalChannelConfig.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010"));
+        when(externalChannelConfig.getDigitalCodesRetryable()).thenReturn(List.of("C008", "C010"));
+        when(externalChannelConfig.getDigitalRetryCount()).thenReturn(-1);
+        when(externalChannelConfig.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -703,10 +761,10 @@ class DigitalWorkFlowHandlerTest {
         // GIVEN
         Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.reset(auditLogEvent);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(externalChannelConfig.getDigitalRetryCount()).thenReturn(0);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateSuccess(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        when(externalChannelConfig.getDigitalRetryCount()).thenReturn(0);
         
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -729,8 +787,8 @@ class DigitalWorkFlowHandlerTest {
         // GIVEN
         Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.reset(auditLogEvent);
-        Mockito.when(externalChannelConfig.getDigitalRetryCount()).thenReturn(3);
-        Mockito.when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(Boolean.class), Mockito.any())).thenReturn(Collections.EMPTY_SET);
+        when(externalChannelConfig.getDigitalRetryCount()).thenReturn(3);
+        when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(Boolean.class), Mockito.any())).thenReturn(Collections.EMPTY_SET);
 
 
         //WHEN
@@ -759,9 +817,9 @@ class DigitalWorkFlowHandlerTest {
         // GIVEN
         Mockito.clearInvocations(digitalWorkFlowUtils);
         Mockito.reset(auditLogEvent);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(externalChannelConfig.getDigitalRetryCount()).thenReturn(3);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        when(externalChannelConfig.getDigitalRetryCount()).thenReturn(3);
 
         TimelineElementInternal t1 = TimelineElementInternal.builder()
                 .iun("iun1").elementId("aaaa1").timestamp(Instant.now().minusMillis(30000))
@@ -813,7 +871,7 @@ class DigitalWorkFlowHandlerTest {
                         .build())
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(Boolean.class), Mockito.any())).thenReturn(
+        when(digitalWorkFlowUtils.getPreviousTimelineProgress(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.any(Boolean.class), Mockito.any())).thenReturn(
                 Set.of(t1, t2, t3, t4));
 
 
@@ -892,7 +950,7 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
 
         NotificationInt notification = getNotification();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         final SendDigitalProgressDetailsInt digitalProgressDetails = SendDigitalProgressDetailsInt.builder()
@@ -909,7 +967,7 @@ class DigitalWorkFlowHandlerTest {
                 .relatedFeedbackTimelineId("relatedFeedbackId")
                 .build();
         
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
                 TimelineElementInternal.builder()
                         .elementId(sourceTimelineId)
                         .iun(notification.getIun())
@@ -931,14 +989,14 @@ class DigitalWorkFlowHandlerTest {
                 .deliveryDetailCode("DP00")
                 .build();
         
-        Mockito.when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
+        when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
                 .elementId(sourceTimelineId)
                 .iun(notification.getIun())
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS)
                 .details(sendDigitalDetailsMostRecent)
                 .build());
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
+        when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
+        when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
         //WHEN
         handlerRetry.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
@@ -973,10 +1031,10 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
 
         NotificationInt notification = getNotification();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
                 TimelineElementInternal.builder()
                         .elementId(sourceTimelineId)
                         .iun(notification.getIun())
@@ -996,7 +1054,7 @@ class DigitalWorkFlowHandlerTest {
 
         ));
 
-        Mockito.when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
+        when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
                 .elementId(sourceTimelineId)
                 .iun(notification.getIun())
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS)
@@ -1012,8 +1070,8 @@ class DigitalWorkFlowHandlerTest {
                         .deliveryDetailCode("DP00")
                         .build())
                 .build());
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
+        when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
+        when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
         //WHEN
         handlerRetry.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
@@ -1049,10 +1107,10 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
 
         NotificationInt notification = getNotification();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
                 TimelineElementInternal.builder()
                         .elementId(sourceTimelineId)
                         .iun(notification.getIun())
@@ -1072,7 +1130,7 @@ class DigitalWorkFlowHandlerTest {
 
         ));
 
-        Mockito.when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
+        when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
                 .elementId(sourceTimelineId)
                 .iun(notification.getIun())
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
@@ -1086,8 +1144,8 @@ class DigitalWorkFlowHandlerTest {
                                 .build())
                         .build())
                 .build());
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
-        Mockito.when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
+        when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(Mockito.mock(PnDeliveryPushConfigs.ExternalChannel.class));
+        when(pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout()).thenReturn(Duration.ofSeconds(100));
 
         //WHEN
         handlerRetry.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
@@ -1123,10 +1181,10 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
 
         NotificationInt notification = getNotification();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
                 TimelineElementInternal.builder()
                         .elementId(sourceTimelineId)
                         .iun(notification.getIun())
@@ -1144,7 +1202,7 @@ class DigitalWorkFlowHandlerTest {
 
         ));
 
-        Mockito.when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
+        when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
                 .elementId(sourceTimelineId)
                 .iun(notification.getIun())
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
@@ -1190,7 +1248,7 @@ class DigitalWorkFlowHandlerTest {
 
         NotificationInt notification = getNotification();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
                 TimelineElementInternal.builder()
                         .elementId(sourceTimelineId)
                         .iun(notification.getIun())
@@ -1232,10 +1290,10 @@ class DigitalWorkFlowHandlerTest {
         String sourceTimelineId = "iun_something_1_somethingelse";
         
         NotificationInt notification = getNotification();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
                 TimelineElementInternal.builder()
                         .elementId(sourceTimelineId)
                         .iun(notification.getIun())
@@ -1255,7 +1313,7 @@ class DigitalWorkFlowHandlerTest {
 
         ));
 
-        Mockito.when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
+        when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
                 .elementId(sourceTimelineId)
                 .iun(notification.getIun())
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS)
@@ -1272,7 +1330,7 @@ class DigitalWorkFlowHandlerTest {
                         .build())
                 .build());
 
-        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
+        when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
 
 
         //WHEN
@@ -1286,6 +1344,8 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void elapsedExtChannelTimeoutNoRetry() {
+        when(pnDeliveryPushConfigs.getPerformanceImprovementEndDate()).thenReturn("2099-02-13T23:00:00Z");
+        when(pnDeliveryPushConfigs.getPerformanceImprovementStartDate()).thenReturn("2099-02-14T23:00:00Z");
         //GIVEN
         DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
                 .lastAttemptDate(Instant.now())
@@ -1307,10 +1367,10 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
 
         NotificationInt notification = getNotification();
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
                 TimelineElementInternal.builder()
                         .elementId(sourceTimelineId)
                         .iun(notification.getIun())
@@ -1330,7 +1390,7 @@ class DigitalWorkFlowHandlerTest {
 
         ));
 
-        Mockito.when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
+        when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
                 .elementId(sourceTimelineId)
                 .iun(notification.getIun())
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
@@ -1389,10 +1449,10 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
         
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         //WHEN
@@ -1457,10 +1517,10 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         //WHEN
@@ -1517,10 +1577,10 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         //WHEN
@@ -1578,16 +1638,16 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
         
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
         
         
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -1647,16 +1707,16 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -1715,16 +1775,16 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
         
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -1791,16 +1851,16 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateWarning(Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -1866,10 +1926,10 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         //WHEN
@@ -1915,15 +1975,15 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateWarning(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         assertDoesNotThrow(() -> handlerExtChannel.handleExternalChannelResponse(extChannelResponse));
@@ -1970,15 +2030,15 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
         
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_RECEIVE), Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -2044,14 +2104,14 @@ class DigitalWorkFlowHandlerTest {
                 .details( details )
                 .build();
 
-        Mockito.when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
+        when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn( Optional.of(element ) );
 
 
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+        when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
-        Mockito.when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
-        Mockito.when(externalChannel.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
+        when(externalChannel.getDigitalRetryCount()).thenReturn(-1);
+        when(externalChannel.getDigitalRetryDelay()).thenReturn(Duration.ofMillis(100));
 
         //WHEN
         handlerExtChannel.handleExternalChannelResponse(extChannelResponse);
@@ -2080,6 +2140,7 @@ class DigitalWorkFlowHandlerTest {
 
     private NotificationInt getNotification() {
         return NotificationInt.builder()
+                .sentAt(Instant.now())
                 .iun("IUN-01")
                 .paProtocolNumber("protocol_01")
                 .sender(NotificationSenderInt.builder()

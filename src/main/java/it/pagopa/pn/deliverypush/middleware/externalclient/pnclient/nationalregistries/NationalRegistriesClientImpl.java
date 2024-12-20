@@ -23,13 +23,18 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
     private final AgenziaEntrateApi agenziaEntrateApi;
 
     @Override
-    public void sendRequestForGetDigitalAddress(String taxId, String recipientType, String correlationId) {
+    public void sendRequestForGetDigitalAddress(String taxId, String recipientType, String correlationId, Instant notificationSentAt) {
         log.logInvokingAsyncExternalService(CLIENT_NAME, GET_DIGITAL_GENERAL_ADDRESS, correlationId);
-        
+
+        //The instant.now has been replaced with notificationSentAt for the referenceRequestDate field, as the value of this field was not being used
+        // for any logic either in delivery-push or in NationalRegistries within the digital flow.
+        // For task PN-13423, it became necessary to populate it with notificationSentAt in order to apply the same logic used
+        // in delivery-push for the feature flag enabling the new workflow for PF on national-registries.
+        // RIPRISTINARE INSTANT.NOW ALLA RIMOZIONE DEL FEATURE FLAG PER IL NUOVO WORKFLOW DELLE PF
         AddressRequestBodyFilter addressRequestBodyFilter = new AddressRequestBodyFilter()
                 .taxId(taxId)
                 .correlationId(correlationId)
-                .referenceRequestDate(Instant.now())
+                .referenceRequestDate(notificationSentAt)
                 .domicileType(AddressRequestBodyFilter.DomicileTypeEnum.DIGITAL);
         
         MDCUtils.addMDCToContextAndExecute(

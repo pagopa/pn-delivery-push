@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
+import java.time.Instant;
 
 class NationalRegistriesClientImplTest {
 
@@ -32,7 +33,7 @@ class NationalRegistriesClientImplTest {
         Mockito.when(addressApi.getAddresses(Mockito.eq("PF"), Mockito.any(AddressRequestBody.class), Mockito.eq("pn-delivery-push")))
                         .thenReturn(Mono.just(new AddressOK().correlationId("002")));
         
-        publicRegistry.sendRequestForGetDigitalAddress("001", "PF", "002");
+        publicRegistry.sendRequestForGetDigitalAddress("001", "PF", "002", Instant.now());
 
         Mockito.verify(addressApi, Mockito.times(1)).getAddresses(Mockito.eq("PF"), Mockito.any(AddressRequestBody.class), Mockito.eq("pn-delivery-push"));
     }
@@ -43,7 +44,7 @@ class NationalRegistriesClientImplTest {
                 .thenReturn(Mono.error(WebClientResponseException.create(502, "bad Gateway", null, null, Charset.defaultCharset())));
 
         Assertions.assertThrows(WebClientResponseException.BadGateway.class,
-                () -> publicRegistry.sendRequestForGetDigitalAddress("001", "PF", "002"));
+                () -> publicRegistry.sendRequestForGetDigitalAddress("001", "PF", "002", Instant.now()));
         Mockito.verify(addressApi, Mockito.times(1)).getAddresses(Mockito.eq("PF"), Mockito.any(AddressRequestBody.class), Mockito.eq("pn-delivery-push"));
     }
 
