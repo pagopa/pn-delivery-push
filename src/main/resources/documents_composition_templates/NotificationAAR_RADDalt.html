@@ -230,11 +230,11 @@
 
         .border-bottom {
           border-bottom: solid 1.3px #ECECEC;
-          margin-top: 4.2mm;
+          margin-top: 3mm;
           color: #7D7D7D;
         }
         .mb-form {
-          margin-bottom: 4.2mm;
+          margin-bottom: 3mm;
         }
 
         #radd-termini-condizioni {
@@ -247,7 +247,7 @@
         }
 
         #mandate-box {
-          margin-top: 5.6mm;
+          margin-top: 4mm;
         }
         #mandate-box__form {
           padding-left: 5.3px;
@@ -539,8 +539,8 @@
     <div id="lower-section" style="height: 99mm; position: relative;">
         <div id="view-online-box-description">
             <div class="section-list nine-px eleven-lh">
-                <ol>
-                    <li>Inquadra il codice QR o vai su <b><a
+                <ol style="margin-top: 0;">
+                    <li style="margin-top: 0;">Inquadra il codice QR o vai su <b><a
                             href="${piattaformaNotificheURL}auth/login">${piattaformaNotificheURLLabel}</a></b></li>
                     <li>Entra con SPID o CIE (Carta d'Identità Elettronica);</li>
                     <li>Accedi ai documenti notificati.</li>
@@ -559,10 +559,9 @@
                 Io, ${recipient.denomination} ${recipient.taxId}, delego
                 <#else>
                 <div>
-                    Io,
-                    <span style="width: 86mm; display: inline-block;" class="nine-px eleven-lh border-bottom mb-form">
-                  Nome e Cognome
-                </span>
+                    <p>Io,  <span style="display: inline-block; width: 84mm; margin-top: 0;" class="nine-px eleven-lh border-bottom mb-form">
+                    Nome e Cognome
+                  </span></p>
                     in qualità di legale rappresentante di ${recipient.denomination} ${recipient.taxId}, delego
                 </div>
             </#if>
@@ -573,7 +572,7 @@
                 Codice Fiscale
             </div>
             a ritirare i documenti notificati.
-            <div class="nine-px eleven-lh border-bottom mb-form">
+            <div class="nine-px eleven-lh border-bottom mb-form" style="margin-bottom: 0;">
                 Firma
             </div>
         </div>
