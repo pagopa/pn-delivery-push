@@ -133,6 +133,8 @@ public class PnDeliveryPushConfigs {
 
     private boolean additionalLangsEnabled;
 
+    private Instant featureUnreachableRefinementPostAARStartDate;
+
     @Data
     public static class Topics {
 
