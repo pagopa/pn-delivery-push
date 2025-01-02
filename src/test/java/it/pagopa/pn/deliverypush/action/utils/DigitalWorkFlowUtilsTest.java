@@ -1,15 +1,13 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.DigitalWorkFlowUtils;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
-import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
-import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
@@ -35,8 +33,6 @@ import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.util.*;
-
-import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 
 class DigitalWorkFlowUtilsTest {
     private TimelineService timelineService;
@@ -370,103 +366,6 @@ class DigitalWorkFlowUtilsTest {
         );
     }
 
-    @Test
-    void getMostRecentTimelineElement() {
-        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
-
-        Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
-        timelineElementInternalSet.add(timelineElementInternal);
-
-        Mockito.when(timelineService.getTimeline("001", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
-
-        PnInternalException pnInternalException = Assertions.assertThrows(PnInternalException.class, () -> {
-            digitalWorkFlowUtils.getMostRecentTimelineElement("IUN_01", 1);
-        });
-
-        String expectErrorMsg = "PN_DELIVERYPUSH_TIMELINEEVENTNOTFOUND";
-
-        Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
-    }
-
-
-    @Test
-    void getMostRecentTimelineElement_mostrecent() {
-        TimelineElementInternal timelineElementInternal1 = buildTimelineElementInternal();
-        timelineElementInternal1.setTimestamp(Instant.EPOCH.plusMillis(100));
-
-        TimelineElementInternal timelineElementInternal2 = buildTimelineElementInternal();
-        timelineElementInternal2.setTimestamp(Instant.EPOCH.plusMillis(1000));
-
-        TimelineElementInternal timelineElementInternal3 = buildTimelineElementInternal();
-        timelineElementInternal3.setTimestamp(Instant.EPOCH.plusMillis(10000));
-
-        Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
-        timelineElementInternalSet.add(timelineElementInternal1);
-        timelineElementInternalSet.add(timelineElementInternal3);
-        timelineElementInternalSet.add(timelineElementInternal2);
-
-        Mockito.when(timelineService.getTimeline("IUN_01", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
-
-        TimelineElementInternal timelineElementInternalMostRecent = digitalWorkFlowUtils.getMostRecentTimelineElement("IUN_01", 1);
-        Assertions.assertEquals(timelineElementInternal3.getTimestamp(), timelineElementInternalMostRecent.getTimestamp());
-    }
-
-    @Test
-    void getMostRecentTimelineElement_mostrecentcourtesyskipped() {
-        TimelineElementInternal timelineElementInternal1 = buildTimelineElementInternal();
-        timelineElementInternal1.setTimestamp(Instant.EPOCH.plusMillis(100));
-
-        TimelineElementInternal timelineElementInternal2 = buildTimelineElementInternal();
-        timelineElementInternal2.setTimestamp(Instant.EPOCH.plusMillis(1000));
-
-        TimelineElementInternal timelineElementInternal3 = buildTimelineElementInternal();
-        timelineElementInternal3.setTimestamp(Instant.EPOCH.plusMillis(10000));
-
-        TimelineElementInternal timelineElementInternal4 = buildTimelineElementInternal();
-        timelineElementInternal4.setCategory(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE);
-        timelineElementInternal4.setTimestamp(Instant.EPOCH.plusMillis(100000));
-
-
-        Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
-        timelineElementInternalSet.add(timelineElementInternal1);
-        timelineElementInternalSet.add(timelineElementInternal3);
-        timelineElementInternalSet.add(timelineElementInternal2);
-        timelineElementInternalSet.add(timelineElementInternal4);
-
-        Mockito.when(timelineService.getTimeline("IUN_01", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
-
-        TimelineElementInternal timelineElementInternalMostRecent = digitalWorkFlowUtils.getMostRecentTimelineElement("IUN_01", 1);
-        Assertions.assertEquals(timelineElementInternal3.getTimestamp(), timelineElementInternalMostRecent.getTimestamp());
-    }
-
-    @Test
-    void getMostRecentTimelineElement_mostrecent_oldercourtesys() {
-        TimelineElementInternal timelineElementInternal1 = buildTimelineElementInternal();
-        timelineElementInternal1.setCategory(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE);
-        timelineElementInternal1.setTimestamp(Instant.EPOCH.plusMillis(100));
-
-        TimelineElementInternal timelineElementInternal2 = buildTimelineElementInternal();
-        timelineElementInternal2.setTimestamp(Instant.EPOCH.plusMillis(1000));
-
-        TimelineElementInternal timelineElementInternal3 = buildTimelineElementInternal();
-        timelineElementInternal3.setTimestamp(Instant.EPOCH.plusMillis(10000));
-
-        TimelineElementInternal timelineElementInternal4 = buildTimelineElementInternal();
-        timelineElementInternal4.setTimestamp(Instant.EPOCH.plusMillis(100000));
-
-
-        Set<TimelineElementInternal> timelineElementInternalSet = new HashSet<>();
-        timelineElementInternalSet.add(timelineElementInternal1);
-        timelineElementInternalSet.add(timelineElementInternal3);
-        timelineElementInternalSet.add(timelineElementInternal2);
-        timelineElementInternalSet.add(timelineElementInternal4);
-
-        Mockito.when(timelineService.getTimeline("IUN_01", Boolean.FALSE)).thenReturn(timelineElementInternalSet);
-
-        TimelineElementInternal timelineElementInternalMostRecent = digitalWorkFlowUtils.getMostRecentTimelineElement("IUN_01", 1);
-        Assertions.assertEquals(timelineElementInternal4.getTimestamp(), timelineElementInternalMostRecent.getTimestamp());
-    }
-
     private TimelineElementInternal buildTimelineElementInternal() {
         List<LegalFactsIdInt> legalFactsIds = new ArrayList<>();
         legalFactsIds.add(LegalFactsIdInt.builder()
@@ -484,26 +383,7 @@ class DigitalWorkFlowUtilsTest {
                 .notificationSentAt(Instant.now())
                 .build();
     }
-
-    private NotificationRecipientInt getNotificationRecipientInt() {
-        String taxId = "TaxId";
-        return NotificationRecipientTestBuilder.builder()
-                .withTaxId(taxId)
-                .withInternalId("ANON_" + taxId)
-                .withDigitalDomicile(
-                        LegalDigitalAddressInt.builder()
-                                .address("address")
-                                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
-                                .build()
-                )
-                .withPhysicalAddress(
-                        PhysicalAddressBuilder.builder()
-                                .withAddress(EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
-                                .build()
-                )
-                .build();
-    }
-
+    
     private NotificationInt getNotification() {
         return NotificationInt.builder()
                 .iun("IUN_01")

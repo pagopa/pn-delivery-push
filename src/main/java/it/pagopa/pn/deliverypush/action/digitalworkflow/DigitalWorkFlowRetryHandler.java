@@ -39,12 +39,14 @@ public class DigitalWorkFlowRetryHandler {
      */
     public void startScheduledRetryWorkflow(String iun, Integer recIndex, String timelineId) {
         log.debug("startScheduledRetryWorkflow - iun={} recIndex={} timelineId={}", iun, recIndex, timelineId);
-
+        
+        //Viene recuperato l'evento di timeline di SEND o eventualmente di Progress se si tratta di un retry
         Optional<TimelineElementInternal> timelineElement = digitalWorkFlowUtils.getTimelineElement(iun, timelineId);
+        
         if (timelineElement.isPresent() && timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails originalSendDigitalProgressDetailsInt) {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-            if (checkIfEventIsStillValid(iun, recIndex, timelineElement.get())) {
+            if (checkIfEventIsStillValid(iun, timelineElement.get())) {
                 sendAndUnscheduleNotification.sendDigitalNotificationAndScheduleTimeoutAction(
                         notification,
                         originalSendDigitalProgressDetailsInt.getDigitalAddress(),
@@ -82,7 +84,7 @@ public class DigitalWorkFlowRetryHandler {
      * @param recIndex id recipient
      * @param timelineId id timeline che ha generato la schedulazione
      */
-    public void elapsedExtChannelTimeout(String iun, int recIndex, String timelineId, Instant notBeforeAction) {
+    public void elapsedExtChannelTimeout(String iun, int recIndex, String timelineId) {
         log.info("elapsedExtChannelTimeout - iun={} recIndex={} timelineId={}", iun, recIndex, timelineId);
 
         // recupero il timelineId originale, del quale mi interessano retrynumber e addresssource
@@ -114,58 +116,59 @@ public class DigitalWorkFlowRetryHandler {
         }
 
         // devo controllare che il timeout scattato sia ancora rilevante.
-        // per capirlo, verifico se l'ultimo evento in ordine cronologico in timeline per recindex, appartiene a retrynumber e addresssource
-        // è il senddigital o senddigitalprogress .
-        // Se lo è, vuol dire che si può equiparare ad una risposta da ext-channel, che va trattata di conseguenza secondo configurazione.
-        if (checkIfEventIsStillValid(iun, recIndex, timelineElement.get()))
+        if (checkIfEventIsStillValid(iun, timelineElement.get()))
         {
-            // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
-            log.info("Timeout expired and need to send new attempt - iun={} recIdx={}", iun, recIndex);
-            // se lo è schedulo gestisco secondo configurazione
-            // EMULO la response proveniente da ext-channel, così poi la logica sarà la stessa
-            digitalWorkFlowExternalChannelResponseHandler.handleExternalChannelResponse(ExtChannelDigitalSentResponseInt.builder()
-                    .eventCode(EventCodeInt.DP10)
-                    .requestId(timelineId)
-                    .iun(iun)
-                    .eventTimestamp(Instant.now())
-                    .status(ExtChannelProgressEventCat.PROGRESS)
-                    .eventDetails("expired timeout")
-                    .build());
+            // Effettuo un nuovo tentativo d'invio verso externalChannel
+            resendNewEventoToExtChannel(iun, recIndex, timelineId);
         }
-        else
-        {
+        else {
             // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
-            if(featureEnabledUtils.isPerformanceImprovementEnabled(notBeforeAction)) {
-                log.debug("Timeout expired but the sending attempt has ended. Not need to resend - iun={} recIdx={}", iun, recIndex);
-            }else {
-                NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-                SendInformation digitalAddressFeedback = SendInformation.builder()
-                        .retryNumber(originalRetryNumber)
-                        .eventTimestamp(Instant.now())
-                        .digitalAddressSource(originalAddressSource)
-                        .digitalAddress(originalAddressInfo)
-                        .isFirstSendRetry(null)
-                        .relatedFeedbackTimelineId(null)
-                        .build();
-
-                digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification,
-                        EventCodeInt.DP10,
-                        recIndex,
-                        false,
-                        null,
-                        digitalAddressFeedback);
-                
-                log.error("elapsedExtChannelTimeout Last timelineevent doesn't match original timelineevent source and retrynumber, skipping more actions iun={} recIdx={}", iun, recIndex);
-            }
+            handleDontNeddToRetryCase(iun, recIndex, originalRetryNumber, originalAddressSource, originalAddressInfo);
         }
     }
-    
+
+    private void resendNewEventoToExtChannel(String iun, int recIndex, String timelineId) {
+        log.info("Timeout expired and need to send new attempt - iun={} recIdx={}", iun, recIndex);
+        // se lo è schedulo gestisco secondo configurazione
+        // EMULO la response proveniente da ext-channel, così poi la logica sarà la stessa
+        digitalWorkFlowExternalChannelResponseHandler.handleExternalChannelResponse(ExtChannelDigitalSentResponseInt.builder()
+                .eventCode(EventCodeInt.DP10)
+                .requestId(timelineId)
+                .iun(iun)
+                .eventTimestamp(Instant.now())
+                .status(ExtChannelProgressEventCat.PROGRESS)
+                .eventDetails("expired timeout")
+                .build());
+    }
+
+    private void handleDontNeddToRetryCase(String iun, int recIndex, Integer originalRetryNumber, DigitalAddressSourceInt originalAddressSource, LegalDigitalAddressInt originalAddressInfo) {
+        // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
+
+        NotificationInt notification = notificationService.getNotificationByIun(iun);
+
+        SendInformation digitalAddressFeedback = SendInformation.builder()
+                .retryNumber(originalRetryNumber)
+                .eventTimestamp(Instant.now())
+                .digitalAddressSource(originalAddressSource)
+                .digitalAddress(originalAddressInfo)
+                .isFirstSendRetry(null)
+                .relatedFeedbackTimelineId(null)
+                .build();
+
+        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification,
+                EventCodeInt.DP10,
+                recIndex,
+                false,
+                null,
+                digitalAddressFeedback);
+
+        log.info("elapsedExtChannelTimeout but don't need to retry, skipping more actions iun={} recIdx={}", iun, recIndex);
+    }
+
     private boolean checkIfEventIsStillValid(String iun, TimelineElementInternal originalTimelineElement){
+        //L'evento viene definito non valido (dunque l'invio si è concluso) se esiste un SEND_DIGITAL_FEEDBACK relativo a tale evento, al contrario risulta ancora valido
         if (originalTimelineElement.getDetails() instanceof DigitalSendTimelineElementDetails originalDigitalSendTimelineDetailsInt) {
-
             Optional<TimelineElementInternal> sendDigitalFeedbackOpt = digitalWorkFlowUtils.getSendDigitalFeedbackFromSourceTimeline(iun, originalDigitalSendTimelineDetailsInt);
-
             return sendDigitalFeedbackOpt.isEmpty();
         }
         return false;

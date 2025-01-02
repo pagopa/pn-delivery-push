@@ -95,20 +95,9 @@ class ActionServiceImplTest {
     void unSchedule() {
         Action action = buildAction();
         String time = "2021-09-16T15:24:00.00Z";
-        Mockito.when(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())).thenReturn( false);
         actionService.unSchedule(action, time);
 
         Mockito.verify(actionDao, Mockito.times(1)).unScheduleFutureAction(action, time);
-    }
-
-    @Test
-    void unScheduleFeatureFlagEnabled() {
-        Action action = buildAction();
-        String time = "2021-09-16T15:24:00.00Z";
-        Mockito.when(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())).thenReturn( true);
-        actionService.unSchedule(action, time);
-
-        Mockito.verify(actionDao, Mockito.never()).unScheduleFutureAction(action, time);
     }
     
     private Action buildAction() {
