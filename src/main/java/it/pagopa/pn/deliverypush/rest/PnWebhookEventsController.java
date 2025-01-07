@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.api.EventsApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ExternalEventsRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV25;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV26;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import it.pagopa.pn.deliverypush.utils.MdcKey;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class PnWebhookEventsController implements EventsApi {
     private final WebhookEventsService webhookService;
 
     @Override
-    public Mono<ResponseEntity<Flux<ProgressResponseElementV25>>> consumeEventStreamV25(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, String lastEventId,  final ServerWebExchange exchange) {
+    public Mono<ResponseEntity<Flux<ProgressResponseElementV26>>> consumeEventStreamV26(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, UUID streamId, List<String> xPagopaPnCxGroups, String xPagopaPnApiVersion, String lastEventId,  final ServerWebExchange exchange) {
         log.info("[enter] getEventStream xPagopaPnCxId={} streamId={} lastEventID={}", xPagopaPnCxId, streamId.toString(), lastEventId);
         MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
 

@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -7,11 +8,12 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV25;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV26;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +35,7 @@ class SmartMapperTest {
                         .build())
                 .build();
 
-        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV25.class);
+        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV26.class);
         
         Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(sendDigitalDetails.getDigitalAddress().getAddress(), details.getDigitalAddress().getAddress() );
@@ -41,7 +43,7 @@ class SmartMapperTest {
 
     @Test
     void fromExternalToInternalSendDigitalDetails() {
-        var timelineElementDetails = TimelineElementDetailsV25.builder()
+        var timelineElementDetails = TimelineElementDetailsV26.builder()
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSource.PLATFORM)
                 .digitalAddress(DigitalAddress.builder()
@@ -69,7 +71,7 @@ class SmartMapperTest {
                         .build())
                 .build();
 
-        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV25.class);
+        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV26.class);
 
         Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(sendDigitalDetails.getFoundAddress().getAddress(), details.getFoundAddress().getAddress() );
@@ -84,18 +86,18 @@ class SmartMapperTest {
         source.setNotRefinedRecipientIndexes(list);
         source.setNotificationCost(100);
 
-        TimelineElementDetailsV25 ret = SmartMapper.mapToClass(source, TimelineElementDetailsV25.class);
+        TimelineElementDetailsV26 ret = SmartMapper.mapToClass(source, TimelineElementDetailsV26.class);
 
         Assertions.assertEquals(1, ret.getNotRefinedRecipientIndexes().size());
 
         source.getNotRefinedRecipientIndexes().clear();
-        ret = SmartMapper.mapToClass(source, TimelineElementDetailsV25.class);
+        ret = SmartMapper.mapToClass(source, TimelineElementDetailsV26.class);
 
         Assertions.assertEquals(0, ret.getNotRefinedRecipientIndexes().size());
 
         NotHandledDetailsInt altro = new NotHandledDetailsInt();
         altro.setReason("test");
-        ret = SmartMapper.mapToClass(altro, TimelineElementDetailsV25.class);
+        ret = SmartMapper.mapToClass(altro, TimelineElementDetailsV26.class);
 
         Assertions.assertNull(ret.getNotRefinedRecipientIndexes());
     }
@@ -278,5 +280,63 @@ class SmartMapperTest {
 
 
         Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
+    }
+
+    @Test
+    void testMapAnalogWorkflowRecipientDeceased(){
+        Instant sourceEventTimestamp = Instant.EPOCH;
+        Instant deceasedSourceIngestionTimestamp = Instant.now();
+        Instant analogWorkflowRecipientDeceasedTimestamp = Instant.from(deceasedSourceIngestionTimestamp).minus(2, ChronoUnit.DAYS);
+
+        TimelineElementInternal analogWorkflowRecipientDeceased = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(deceasedSourceIngestionTimestamp)
+                .details( AnalogWorfklowRecipientDeceasedDetailsInt.builder()
+                        .recIndex(0)
+                        .notificationDate(sourceEventTimestamp)
+                        .build())
+                .build();
+
+        // è necessario avere anche un elemento di tipo SEND_ANALOG_FEEDBACK per poter fare il mapping, poichè è da lì che si prende l'eventTimestamp
+        TimelineElementInternal sendAnalogFeedback = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(analogWorkflowRecipientDeceasedTimestamp)
+                .details( SendAnalogFeedbackDetailsInt.builder()
+                        .recIndex(0)
+                        .notificationDate(sourceEventTimestamp)
+                        .build())
+                .build();
+
+        TimelineElementInternal ret = SmartMapper.mapTimelineInternal(analogWorkflowRecipientDeceased, Set.of(analogWorkflowRecipientDeceased, sendAnalogFeedback));
+
+        Assertions.assertNotSame(ret , analogWorkflowRecipientDeceased);
+        Assertions.assertNotEquals(ret.getTimestamp(),analogWorkflowRecipientDeceased.getTimestamp());
+        Assertions.assertEquals(deceasedSourceIngestionTimestamp, ret.getIngestionTimestamp());
+        Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
+        Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
+    }
+
+    @Test
+    void testMapAnalogWorkflowRecipientDeceasedFails(){
+        Instant sourceEventTimestamp = Instant.EPOCH;
+        Instant deceasedSourceIngestionTimestamp = Instant.now();
+
+        TimelineElementInternal analogWorkflowRecipientDeceased = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(deceasedSourceIngestionTimestamp)
+                .details( AnalogWorfklowRecipientDeceasedDetailsInt.builder()
+                        .recIndex(0)
+                        .notificationDate(sourceEventTimestamp)
+                        .build())
+                .build();
+
+        Assertions.assertThrows(PnInternalException.class, () -> SmartMapper.mapTimelineInternal(analogWorkflowRecipientDeceased, Set.of(analogWorkflowRecipientDeceased)));
+
     }
 }

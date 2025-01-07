@@ -120,6 +120,8 @@ public class PnDeliveryPushConfigs {
 
     private List<String> pnSendMode;
 
+    private String activationDeceasedWorkflowDate;
+
     //quickWorkAroundForPN-9116
     private boolean sendMoreThan20GramsDefaultValue;
 

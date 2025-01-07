@@ -71,6 +71,7 @@
     "FutureActionTtlExtraDays": "10",
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
-    "AdditionalLangsEnabled": "true"
+    "AdditionalLangsEnabled": "true",
+    "ActivationDeceasedWorkflowDate": "2024-11-25T00:00:00Z"
     }
 }
