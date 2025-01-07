@@ -42,6 +42,31 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE;
 import static it.pagopa.pn.deliverypush.legalfacts.DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD;
 
+/**
+ * Implementation of the {@link LegalFactGenerator} interface for generating legal facts related to notifications.
+ * <p>
+ * This class provides concrete methods for generating various legal facts, including PDF documents, based on
+ * notification information such as notification reception, cancellation, viewing, and workflow status. It uses
+ * templates and a document composition service to generate the appropriate legal facts in the form of byte arrays
+ * or other representations.
+ * </p>
+ * <p>
+ * The methods in this class include functionality for handling notifications' statuses, workflows, attachments,
+ * and generating AAR (Accountability and Receipt) information.
+ * </p>
+ * <p>
+ * This class is used in scenarios such as legal fact generation for notifications related to PEC deliveries,
+ * cancellation requests, failure workflows, and more.
+ * </p>
+ * <p>
+ * Note: Once the {@link LegalFactGeneratorTemplates} class is approved, both {@link LegalFactGeneratorDocComposition}
+ * and {@link DocumentComposition} will be eliminated.
+ * </p>
+ *
+ * @see LegalFactGenerator
+ * @see LegalFactGeneratorTemplates
+ * @see DocumentComposition
+ */
 @Slf4j
 @AllArgsConstructor
 public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
@@ -89,6 +114,17 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
     private final InstantNowSupplier instantNowSupplier;
     private final PnSendModeUtils pnSendModeUtils;
 
+    /**
+     * Generates a legal fact for a received notification.
+     * <p>
+     * This method generates a PDF legal fact for a notification that has been received, including relevant
+     * notification data such as send date, sender information, and any associated document digests.
+     * </p>
+     *
+     * @param notification the notification that the legal fact is based on.
+     * @return a byte array representing the generated legal fact (PDF).
+     * @throws IOException if there is an error during document generation.
+     */
     @Override
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) throws IOException {
         Map<String, Object> templateModel = new HashMap<>();
@@ -114,6 +150,18 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     }
 
+    /**
+     * Generates a legal fact for a cancelled notification.
+     * <p>
+     * This method generates a PDF legal fact for a notification that has been cancelled, including the
+     * notification cancellation date and relevant data.
+     * </p>
+     *
+     * @param notification the notification that the legal fact is based on.
+     * @param notificationCancellationRequestDate the cancellation date of the notification.
+     * @return a byte array representing the generated legal fact (PDF).
+     * @throws IOException if there is an error during document generation.
+     */
     @Override
     public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) throws IOException {
 
@@ -137,13 +185,9 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
         // F24 digests
         for (NotificationRecipientInt recipient : notification.getRecipients()) {
-
             //add digests for v21
             addDigestsForMultiPayments(recipient.getPayments(), digests);
-
         }
-
-
         return digests;
     }
 
@@ -160,6 +204,21 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
         }
     }
 
+    /**
+     * Generates a legal fact for a viewed notification.
+     * <p>
+     * This method generates a PDF legal fact for a notification that has been viewed, including relevant
+     * information about the recipient, delegate, timestamp, and notification details.
+     * </p>
+     *
+     * @param iun the unique identifier of the notification.
+     * @param recipient the recipient who viewed the notification.
+     * @param delegateInfo the delegate information, if applicable.
+     * @param timeStamp the timestamp when the notification was viewed.
+     * @param notification the notification that the legal fact is based on.
+     * @return a byte array representing the generated legal fact (PDF).
+     * @throws IOException if there is an error during document generation.
+     */
     @Override
     public byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient, DelegateInfoInt delegateInfo, Instant timeStamp, NotificationInt notification) throws IOException {
 
@@ -212,6 +271,21 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
         boolean ok;
     }
 
+    /**
+     * Generates a legal fact for the PEC delivery workflow.
+     * <p>
+     * This method generates a PDF legal fact for a notification's PEC delivery workflow, including information
+     * about the delivery status, recipient details, and the completion date of the workflow.
+     * </p>
+     *
+     * @param feedbackFromExtChannelList the list of feedback from external channels.
+     * @param notification the notification that the legal fact is based on.
+     * @param recipient the recipient of the notification.
+     * @param status the status of the workflow.
+     * @param completionWorkflowDate the completion date of the workflow.
+     * @return a byte array representing the generated legal fact (PDF).
+     * @throws IOException if there is an error during document generation.
+     */
     @Override
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
                                                        NotificationInt notification,
@@ -256,7 +330,20 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
         );
     }
 
-
+    /**
+     * Generates a legal fact for the analog delivery failure workflow.
+     * <p>
+     * This method generates a PDF legal fact for a failed analog delivery workflow, including the recipient's
+     * details, the failure status, and the failure workflow date.
+     * </p>
+     *
+     * @param notification the notification that the legal fact is based on.
+     * @param recipient the recipient of the notification.
+     * @param status the status of the failure workflow.
+     * @param failureWorkflowDate the failure workflow date.
+     * @return a byte array representing the generated legal fact (PDF).
+     * @throws IOException if there is an error during document generation.
+     */
     @Override
     public byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
                                                                  NotificationRecipientInt recipient,
@@ -277,6 +364,18 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
         );
     }
 
+    /**
+     * Generates the AAR (Accountability and Receipt) information for a notification.
+     * <p>
+     * This method generates the AAR legal fact based on the notification and recipient details.
+     * </p>
+     *
+     * @param notification the notification that the AAR is based on.
+     * @param recipient the recipient of the notification.
+     * @param quickAccessToken the quick access token.
+     * @return an {@link AARInfo} object containing the AAR data.
+     * @throws IOException if there is an error during document generation.
+     */
     @Override
     public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException {
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccessToken);
@@ -301,6 +400,17 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     }
 
+    /**
+     * Generates the body text for the AAR notification.
+     * <p>
+     * This method generates the AAR body text for email or other text-based formats.
+     * </p>
+     *
+     * @param notification the notification that the AAR is based on.
+     * @param recipient the recipient of the notification.
+     * @param quickAccesstoken the quick access token.
+     * @return the AAR body text as a string.
+     */
     @Override
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccesstoken) {
         Map<String, Object> templateModel = prepareTemplateModelParams(notification, recipient, quickAccesstoken);
@@ -322,6 +432,15 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     }
 
+    /**
+     * Generates the subject for an AAR (Accredited Addressee Receipt) notification.
+     * This method prepares a template model containing the notification data and uses the
+     * {@link DocumentComposition} class to generate the subject based on a predefined template.
+     *
+     * @param notification the notification for which the AAR subject is generated.
+     * @return the generated AAR subject as a {@link String}.
+     * @throws PnInvalidTemplateException if there is an issue with retrieving the template.
+     */
     @Override
     public String generateNotificationAARSubject(NotificationInt notification) {
         Map<String, Object> templateModel = new HashMap<>();
@@ -330,9 +449,17 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
                 DocumentComposition.TemplateType.AAR_NOTIFICATION_SUBJECT,
                 templateModel
         );
-
     }
 
+    /**
+     * Generates the AAR (Accredited Addressee Receipt) notification content for SMS.
+     * This method prepares a template model containing the notification data and uses the
+     * {@link DocumentComposition} class to generate the SMS content based on a predefined template.
+     *
+     * @param notification the notification for which the AAR SMS content is generated.
+     * @return the generated AAR SMS content as a {@link String}.
+     * @throws PnInvalidTemplateException if there is an issue with retrieving the template.
+     */
     @Override
     public String generateNotificationAARForSMS(NotificationInt notification) {
         Map<String, Object> templateModel = new HashMap<>();
