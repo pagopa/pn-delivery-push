@@ -5,6 +5,8 @@ import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHan
 import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -12,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE;
@@ -71,7 +74,7 @@ public class SendDigitalFinalStatusResponseHandler {
     private void handleSuccessfulSending(String iun, SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails, SendDigitalFinalStatusResponseDetails details) {
         int recIndex = sendDigitalFeedbackDetails.getRecIndex();
         log.debug("handleSuccessfulSending - iun={} id={}", iun, recIndex);
-        
+
         if(details.getIsFirstSendRetry() != null && details.getIsFirstSendRetry()){
             log.info("Is response for firstSendRetry - iun={} id={}",  iun, recIndex);
             //Si tratta della response al primo invio degli eventuali due invii (relativi al secondo ciclo di notifica),
@@ -81,9 +84,20 @@ public class SendDigitalFinalStatusResponseHandler {
             digitalWorkFlowHandler.checkAndSendNotification(notification, recIndex, details.getLastAttemptAddressInfo());
         } else {
             log.info("Is not response for firstSendRetry - iun={} id={}",  iun, recIndex);
+            
+            /* A questo punto devo distinguere le 2 casistiche, se si tratta di un tentativo classico è giusto procedere così come ora, se invece si tratta di un caso di
+            devo recuperare il primo invio ed utilizzare quella data se è andato in OK, se invece non è andato in OK utilizzo questa data
+            */
+            Instant startRefinement = sendDigitalFeedbackDetails.getNotificationDate();
+            if(details.getAlreadyPresentRelatedFeedbackTimelineId() != null){
+                //recupero primo ritentativo
+                TimelineElementInternal timelineElement = digitalWorkFlowHandler.getTimelineElement(iun, recIndex, details.getAlreadyPresentRelatedFeedbackTimelineId());
+                SendDigitalFeedbackDetailsInt sendDigitalDetailsInt = (SendDigitalFeedbackDetailsInt) timelineElement.getDetails();
 
-            //Se si tratta di un feedback classico, piuttosto che il feedaback al secondo tentativo del secondo ciclo d'invii per una source, porto la notifica in accettata
-            //perchè sono sicuro che almeno questo feedback è positivo, non mi interessa dunque di controllare il primo feedback
+                if(ResponseStatusInt.OK.equals(sendDigitalDetailsInt.getResponseStatus())){
+                    startRefinement = sendDigitalDetailsInt.getNotificationDate();
+                }
+            }
             
             NotificationInt notification = notificationService.getNotificationByIun(iun);
             
@@ -91,7 +105,7 @@ public class SendDigitalFinalStatusResponseHandler {
             completionWorkFlowHandler.completionSuccessDigitalWorkflow(
                     notification,
                     recIndex,
-                    sendDigitalFeedbackDetails.getNotificationDate(),
+                    startRefinement,
                     details.getLastAttemptAddressInfo().getDigitalAddress()
             );
         }
@@ -124,6 +138,7 @@ public class SendDigitalFinalStatusResponseHandler {
 
                 NotificationInt notification = notificationService.getNotificationByIun(iun);
 
+                //primo ritentativo OK secondo ritentativo in KO
                 //verifico se il primo tentativo è andato a buon fine ed eventualmente completo il workflow con successo
                 boolean completedWorkflowSuccess = digitalWorkFlowHandler.checkFirstAttemptAndCompleteWorkflow(
                         notification, recIndex, details.getAlreadyPresentRelatedFeedbackTimelineId(), iun);
