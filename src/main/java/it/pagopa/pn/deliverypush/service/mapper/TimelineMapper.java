@@ -14,11 +14,14 @@ import java.util.Set;
 @Slf4j
 public abstract class TimelineMapper {
 
+    public static final String ELEMENT_DETAILS_NULL = "ELEMENT DETAILS NULL";
+    public static final String SCHEDULE_REFINEMENT_NOT_PRESENT_ERROR_IN_MAPPING = "SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING";
+
     public abstract void remapSpecificTimelineElementData(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result, Instant ingestionTimestamp);
 
     Instant findAARgenTimestamp(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
         if (elementDetails == null) {
-            throw new PnInternalException("ELEMENT DETAILS NULL", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
+            throw new PnInternalException(ELEMENT_DETAILS_NULL, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
         }
         int recIndex = elementDetails.getRecIndex();
 
@@ -26,7 +29,7 @@ public abstract class TimelineMapper {
                 e.getCategory() == TimelineElementCategoryInt.AAR_GENERATION &&
                         e.getDetails() instanceof RecipientRelatedTimelineElementDetails aarGenerationTimelineElementDetails &&
                         aarGenerationTimelineElementDetails.getRecIndex() == recIndex
-        ).findFirst().orElseThrow(() -> new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT));
+        ).findFirst().orElseThrow(() -> new PnInternalException(SCHEDULE_REFINEMENT_NOT_PRESENT_ERROR_IN_MAPPING, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT));
 
         return aarGenerationTimelineElement.getTimestamp();
     }
@@ -34,7 +37,7 @@ public abstract class TimelineMapper {
 
     ScheduleRefinementDetailsInt findScheduleRefinementDetails(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
         if (elementDetails == null) {
-            throw new PnInternalException("ELEMENT DETAILS NULL", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
+            throw new PnInternalException(ELEMENT_DETAILS_NULL, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
         }
         int recIndex = elementDetails.getRecIndex();
 
@@ -42,14 +45,14 @@ public abstract class TimelineMapper {
                 e.getCategory() == TimelineElementCategoryInt.SCHEDULE_REFINEMENT &&
                         e.getDetails() instanceof RecipientRelatedTimelineElementDetails scheduleRefinementTimelineElementDetails &&
                         scheduleRefinementTimelineElementDetails.getRecIndex() == recIndex
-        ).findFirst().orElseThrow(() -> new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT));
+        ).findFirst().orElseThrow(() -> new PnInternalException(SCHEDULE_REFINEMENT_NOT_PRESENT_ERROR_IN_MAPPING, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT));
 
         return (ScheduleRefinementDetailsInt) scheduleRefinementTimelineElment.getDetails();
     }
 
     Instant computeEndAnalogWorkflowBusinessData(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet, String iun) {
         if (elementDetails == null) {
-            throw new PnInternalException("ELEMENT DETAILS NULL", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
+            throw new PnInternalException(ELEMENT_DETAILS_NULL, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
         }
         int recIndex = elementDetails.getRecIndex();
 
@@ -67,7 +70,7 @@ public abstract class TimelineMapper {
             log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {}", result.getCategory(), result.getTimestamp(), details.getSchedulingDate());
             result.setTimestamp(details.getSchedulingDate());
         } else {
-            throw new PnInternalException("SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING", PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
+            throw new PnInternalException(SCHEDULE_REFINEMENT_NOT_PRESENT_ERROR_IN_MAPPING, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
         }
     }
 
