@@ -463,6 +463,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
         AarForPecNotification pecNotification = new AarForPecNotification()
                 .iun(notification.getIun())
+                .subject(notification.getSubject())
                 .sender(sender);
 
         AarForPecRecipient aarForPecRecipient = new AarForPecRecipient()
