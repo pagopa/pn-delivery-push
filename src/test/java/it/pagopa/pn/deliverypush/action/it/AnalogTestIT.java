@@ -63,8 +63,6 @@ class AnalogTestIT extends CommonTestConfiguration{
     @Autowired
     TimelineService timelineService;
     @Autowired
-    NotificationUtils notificationUtils;
-    @Autowired
     StatusUtils statusUtils;
     
     @Test
@@ -84,7 +82,7 @@ class AnalogTestIT extends CommonTestConfiguration{
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String iun = TestUtils.getRandomIun();;
+        String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
         String taxId = TimelineDaoMock.SIMULATE_VIEW_NOTIFICATION +  TimelineEventId.SEND_ANALOG_DOMICILE.buildEventId(EventId.builder()

@@ -228,6 +228,32 @@ public class TestUtils {
         Assertions.assertNotNull(failDigitalWorkflow.getLegalFactsIds().get(0));
     }
 
+    public static void checkAnalogWorkflowRecipientDeceased(
+            String iun,
+            Integer recIndex,
+            TimelineService timelineService,
+            CompletionWorkFlowHandler completionWorkflow) {
+
+        // Verifica che il workflow del destinatario deceduto sia stato eseguito
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build())).isPresent());
+
+        // Verifica che il metodo completionAnalogWorkflow sia stato chiamato almeno una volta con i parametri specifici
+        Mockito.verify(completionWorkflow, Mockito.atLeastOnce()).completionAnalogWorkflow(
+                Mockito.argThat(notification -> notification.getIun().equals(iun)),
+                Mockito.eq(recIndex),
+                Mockito.any(Instant.class),
+                Mockito.any(PhysicalAddressInt.class),
+                Mockito.eq(EndWorkflowStatus.DECEASED)
+        );
+    }
+
+
     public static void checkRefinement(String iun, Integer recIndex, TimelineService timelineService) {
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
@@ -343,6 +369,17 @@ public class TestUtils {
         List<NotificationStatusHistoryElementInt> statusHistoryElements = statusUtils.getStatusHistory(timelineElements, numberOfRecipient, notificationCreatedAt);
 
         return statusUtils.getCurrentStatus(statusHistoryElements);
+    }
+
+    public synchronized static boolean checkNotificationStatusHistoryContainsDesiredStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils, NotificationStatusInt desiredStatus) {
+        int numberOfRecipient = notification.getRecipients().size();
+        Instant notificationCreatedAt = notification.getSentAt();
+
+        Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(notification.getIun(), true);
+
+        List<NotificationStatusHistoryElementInt> statusHistoryElements = statusUtils.getStatusHistory(timelineElements, numberOfRecipient, notificationCreatedAt);
+
+        return statusHistoryElements.stream().anyMatch(history -> history.getStatus().equals(desiredStatus));
     }
 
     public static void checkIsNotPresentRefinement(String iun, Integer recIndex, TimelineService timelineService) {
@@ -483,6 +520,20 @@ public class TestUtils {
         }
 
         return false;
+    }
+
+    public static boolean checkIsPresentAnalogWorkflowRecipientDeceased(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> analogRecipientDeceased = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        return analogRecipientDeceased.isPresent();
     }
     
     public static boolean checkIsPresentDigitalFailure(String iun, Integer recIndex, TimelineService timelineService) {
