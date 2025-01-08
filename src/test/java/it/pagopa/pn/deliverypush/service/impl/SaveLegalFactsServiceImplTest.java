@@ -32,6 +32,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.Mockito.mockStatic;
+
 class SaveLegalFactsServiceImplTest {
 
     private static final String SAVE_LEGAL_FACT_EXCEPTION_MESSAGE = "Generating %s legal fact for IUN=%s and recipientId=%s";
@@ -59,26 +61,25 @@ class SaveLegalFactsServiceImplTest {
 
     @Test
     void saveAAR() throws IOException {
-        String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
-        NotificationInt notification = buildNotification(denomination);
-        NotificationRecipientInt recipient = buildRecipient(denomination);
-        FileCreationWithContentRequest fileCreation = buildFileCreationWithContentRequest(PN_AAR);
-        FileCreationResponseInt file = buildFileCreationResponseInt();
-        String quickAccessToken = "test";
+        try (var result = this.getClass().getResourceAsStream("/pdf/response.pdf")) {
+            String denomination = "<h1>SSRF WITH IMAGE POC</h1> <img src='https://prova.it'></img>";
+            NotificationInt notification = buildNotification(denomination);
+            NotificationRecipientInt recipient = buildRecipient(denomination);
+            FileCreationResponseInt file = buildFileCreationResponseInt();
+            String quickAccessToken = "test";
 
-        AARInfo aarInfo = AARInfo.builder()
-                .bytesArrayGeneratedAar(denomination.getBytes())
-                .build();
-        Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken)).thenReturn(aarInfo);
-        Mockito.when(legalFactBuilder.getNumberOfPages(denomination.getBytes())).thenReturn(1);
-        Mockito.when(safeStorageService.createAndUploadContent(fileCreation)).thenReturn(Mono.just(file));
+            AARInfo aarInfo = AARInfo.builder()
+                    .bytesArrayGeneratedAar(result.readAllBytes())
+                    .build();
+            Mockito.when(legalFactBuilder.generateNotificationAAR(notification, recipient, quickAccessToken)).thenReturn(aarInfo);
+            Mockito.when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(Mono.just(file));
+            PdfInfo actual = saveLegalFactsService.sendCreationRequestForAAR(notification, recipient, quickAccessToken);
 
-        PdfInfo actual = saveLegalFactsService.sendCreationRequestForAAR(notification, recipient, quickAccessToken);
-
-        Assertions.assertAll(
-                () -> Assertions.assertEquals("safestorage://001", actual.getKey()),
-                () -> Assertions.assertEquals(1, actual.getNumberOfPages())
-        );
+            Assertions.assertAll(
+                    () -> Assertions.assertEquals("safestorage://001", actual.getKey()),
+                    () -> Assertions.assertEquals(2, actual.getNumberOfPages())
+            );
+        }
     }
 
     @Test

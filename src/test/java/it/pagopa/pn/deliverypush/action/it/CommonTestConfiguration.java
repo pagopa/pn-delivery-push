@@ -166,7 +166,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         TimelineMapperFactory.class
 })
 @ExtendWith(SpringExtension.class)
-@TestPropertySource("classpath:/application-testIT.properties")
+@TestPropertySource(value = "classpath:/application-testIT.properties")
 @DirtiesContext
 @EnableScheduling
 public class CommonTestConfiguration {
