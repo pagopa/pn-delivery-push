@@ -303,7 +303,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .paDenomination(notification.getSender().getPaDenomination());
 
         AarForSubjectNotification aarForSubjectNotification = new AarForSubjectNotification()
-                .sender(sender);
+                .sender(sender)
+                .iun(notification.getIun());
 
         NotificationAarForSubject notificationAARSubject = new NotificationAarForSubject()
                 .notification(aarForSubjectNotification);
