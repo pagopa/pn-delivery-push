@@ -10,22 +10,6 @@ import org.springframework.stereotype.Component;
  * Implementation of the {@link TemplatesClient} interface for interacting with a template engine to generate various legal facts.
  * <p>
  * This class is responsible for delegating calls to the {@link TemplateApi} client for generating legal facts in byte array or string format.
- * These legal facts are related to notifications, workflows, and other types of legal events, such as notification reception, cancellation, and workflow failures.
- * </p>
- * <p>
- * The methods in this class use specific templates and a language enum to generate the appropriate legal fact representations.
- * </p>
- *
- * <p>
- * Each method corresponds to a specific type of legal fact generation, such as:
- * <ul>
- *     <li>Notification received legal fact</li>
- *     <li>Notification viewed legal fact</li>
- *     <li>Pec delivery workflow legal fact</li>
- *     <li>Analog delivery workflow failure legal fact</li>
- *     <li>Notification cancelled legal fact</li>
- *     <li>Notification AAR (Accountability and Receipt) for different formats (subject, SMS, email, PEC, RADD ALT)</li>
- * </ul>
  * </p>
  */
 @Component
@@ -96,7 +80,7 @@ public class TemplatesClientImpl implements TemplatesClient {
     }
 
     /**
-     * Generates the subject of an AAR (Accountability and Receipt) for a notification in the specified language.
+     * Generates the subject of an AAR for a notification in the specified language.
      *
      * @param xLanguage                 The language for the subject.
      * @param notificationAarForSubject The notification AAR for subject to generate.
@@ -108,7 +92,7 @@ public class TemplatesClientImpl implements TemplatesClient {
     }
 
     /**
-     * Generates an AAR (Accountability and Receipt) legal fact for a notification in the specified language.
+     * Generates an AAR legal fact for a notification in the specified language.
      *
      * @param xLanguage       The language for the legal fact.
      * @param notificationAar The notification AAR to generate.
@@ -120,7 +104,7 @@ public class TemplatesClientImpl implements TemplatesClient {
     }
 
     /**
-     * Generates an AAR (Accountability and Receipt) for SMS for a notification in the specified language.
+     * Generates an AAR for SMS for a notification in the specified language.
      *
      * @param xLanguage             The language for the legal fact.
      * @param notificationAarForSms The notification AAR for SMS to generate.
@@ -132,7 +116,7 @@ public class TemplatesClientImpl implements TemplatesClient {
     }
 
     /**
-     * Generates an AAR (Accountability and Receipt) for email for a notification in the specified language.
+     * Generates an AAR for email for a notification in the specified language.
      *
      * @param xLanguage               The language for the legal fact.
      * @param notificationAarForEmail The notification AAR for email to generate.
@@ -144,7 +128,7 @@ public class TemplatesClientImpl implements TemplatesClient {
     }
 
     /**
-     * Generates an AAR (Accountability and Receipt) for PEC for a notification in the specified language.
+     * Generates an AAR for PEC for a notification in the specified language.
      *
      * @param xLanguage             The language for the legal fact.
      * @param notificationAarForPec The notification AAR for PEC to generate.
@@ -156,7 +140,7 @@ public class TemplatesClientImpl implements TemplatesClient {
     }
 
     /**
-     * Generates an AAR (Accountability and Receipt) for RADD ALT for a notification in the specified language.
+     * Generates an AAR for RADD ALT for a notification in the specified language.
      *
      * @param xLanguage              The language for the legal fact.
      * @param notificationAarRaddAlt The notification AAR for RADD ALT to generate.

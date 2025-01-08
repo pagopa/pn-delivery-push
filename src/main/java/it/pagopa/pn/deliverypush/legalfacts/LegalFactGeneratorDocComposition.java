@@ -43,21 +43,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 import static it.pagopa.pn.deliverypush.legalfacts.DocumentComposition.TemplateType.AAR_NOTIFICATION_RADD;
 
 /**
- * Implementation of the {@link LegalFactGenerator} interface for generating legal facts related to notifications.
- * <p>
- * This class provides concrete methods for generating various legal facts, including PDF documents, based on
- * notification information such as notification reception, cancellation, viewing, and workflow status. It uses
- * templates and a document composition service to generate the appropriate legal facts in the form of byte arrays
- * or other representations.
- * </p>
- * <p>
- * The methods in this class include functionality for handling notifications' statuses, workflows, attachments,
- * and generating AAR (Accountability and Receipt) information.
- * </p>
- * <p>
- * This class is used in scenarios such as legal fact generation for notifications related to PEC deliveries,
- * cancellation requests, failure workflows, and more.
- * </p>
+ * Implementation of the {@link LegalFactGenerator} interface for generating legal facts using the old {@link LegalFactGeneratorDocComposition}.
  * <p>
  * Note: Once the {@link LegalFactGeneratorTemplates} class is approved, both {@link LegalFactGeneratorDocComposition}
  * and {@link DocumentComposition} will be eliminated.
@@ -116,10 +102,6 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     /**
      * Generates a legal fact for a received notification.
-     * <p>
-     * This method generates a PDF legal fact for a notification that has been received, including relevant
-     * notification data such as send date, sender information, and any associated document digests.
-     * </p>
      *
      * @param notification the notification that the legal fact is based on.
      * @return a byte array representing the generated legal fact (PDF).
@@ -152,10 +134,6 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     /**
      * Generates a legal fact for a cancelled notification.
-     * <p>
-     * This method generates a PDF legal fact for a notification that has been cancelled, including the
-     * notification cancellation date and relevant data.
-     * </p>
      *
      * @param notification the notification that the legal fact is based on.
      * @param notificationCancellationRequestDate the cancellation date of the notification.
@@ -206,10 +184,6 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     /**
      * Generates a legal fact for a viewed notification.
-     * <p>
-     * This method generates a PDF legal fact for a notification that has been viewed, including relevant
-     * information about the recipient, delegate, timestamp, and notification details.
-     * </p>
      *
      * @param iun the unique identifier of the notification.
      * @param recipient the recipient who viewed the notification.
@@ -273,10 +247,6 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     /**
      * Generates a legal fact for the PEC delivery workflow.
-     * <p>
-     * This method generates a PDF legal fact for a notification's PEC delivery workflow, including information
-     * about the delivery status, recipient details, and the completion date of the workflow.
-     * </p>
      *
      * @param feedbackFromExtChannelList the list of feedback from external channels.
      * @param notification the notification that the legal fact is based on.
@@ -332,10 +302,6 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     /**
      * Generates a legal fact for the analog delivery failure workflow.
-     * <p>
-     * This method generates a PDF legal fact for a failed analog delivery workflow, including the recipient's
-     * details, the failure status, and the failure workflow date.
-     * </p>
      *
      * @param notification the notification that the legal fact is based on.
      * @param recipient the recipient of the notification.
@@ -366,9 +332,6 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     /**
      * Generates the AAR (Accountability and Receipt) information for a notification.
-     * <p>
-     * This method generates the AAR legal fact based on the notification and recipient details.
-     * </p>
      *
      * @param notification the notification that the AAR is based on.
      * @param recipient the recipient of the notification.
@@ -402,9 +365,6 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
 
     /**
      * Generates the body text for the AAR notification.
-     * <p>
-     * This method generates the AAR body text for email or other text-based formats.
-     * </p>
      *
      * @param notification the notification that the AAR is based on.
      * @param recipient the recipient of the notification.
@@ -433,9 +393,7 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
     }
 
     /**
-     * Generates the subject for an AAR (Accredited Addressee Receipt) notification.
-     * This method prepares a template model containing the notification data and uses the
-     * {@link DocumentComposition} class to generate the subject based on a predefined template.
+     * Generates the subject for an AAR notification.
      *
      * @param notification the notification for which the AAR subject is generated.
      * @return the generated AAR subject as a {@link String}.
@@ -452,9 +410,7 @@ public class LegalFactGeneratorDocComposition implements LegalFactGenerator {
     }
 
     /**
-     * Generates the AAR (Accredited Addressee Receipt) notification content for SMS.
-     * This method prepares a template model containing the notification data and uses the
-     * {@link DocumentComposition} class to generate the SMS content based on a predefined template.
+     * Generates the AAR notification content for SMS.
      *
      * @param notification the notification for which the AAR SMS content is generated.
      * @return the generated AAR SMS content as a {@link String}.

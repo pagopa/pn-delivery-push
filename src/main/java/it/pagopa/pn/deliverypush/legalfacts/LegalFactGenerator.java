@@ -12,11 +12,9 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Interface for generating legal facts related to notifications.
+ * Interface for generating legal facts.
  * <p>
- * This interface defines methods for generating various legal facts in the form of byte arrays or other data types
- * based on notification information. These legal facts represent different stages or types of notifications
- * including received, cancelled, viewed, and delivery workflows. Each method may throw an {@link IOException}
+ * Each method may throw an {@link IOException}
  * if an error occurs during the generation process.
  * </p>
  * <p>
@@ -33,7 +31,7 @@ public interface LegalFactGenerator {
      * Generates the legal fact for a received notification.
      *
      * @param notification the notification object containing details about the notification.
-     * @return a byte array representing the legal fact for the received notification.
+     * @return a byte array representing the pdf legal fact for the received notification.
      */
     byte[] generateNotificationReceivedLegalFact(NotificationInt notification) throws IOException;
 
@@ -42,7 +40,7 @@ public interface LegalFactGenerator {
      *
      * @param notification the notification object containing details about the notification.
      * @param notificationCancellationRequestDate the timestamp of the cancellation request.
-     * @return a byte array representing the legal fact for the cancelled notification.
+     * @return a byte array representing the pdf legal fact for the cancelled notification.
      */
     byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) throws IOException;
 
@@ -54,7 +52,7 @@ public interface LegalFactGenerator {
      * @param delegateInfo additional delegate information (if any).
      * @param timeStamp the timestamp when the notification was viewed.
      * @param notification the notification object containing details about the notification.
-     * @return a byte array representing the legal fact for the viewed notification.
+     * @return a byte array representing the pdf legal fact for the viewed notification.
      */
     byte[] generateNotificationViewedLegalFact(String iun, NotificationRecipientInt recipient,
                                                       DelegateInfoInt delegateInfo,
@@ -69,7 +67,7 @@ public interface LegalFactGenerator {
      * @param recipient the recipient of the notification.
      * @param status the end workflow status.
      * @param completionWorkflowDate the timestamp when the workflow was completed.
-     * @return a byte array representing the legal fact for the PEC delivery workflow.
+     * @return a byte array representing the pdf legal fact for the PEC delivery workflow.
      */
     byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
                                                        NotificationInt notification,
@@ -84,7 +82,7 @@ public interface LegalFactGenerator {
      * @param recipient the recipient of the notification.
      * @param status the end workflow status.
      * @param failureWorkflowDate the timestamp when the failure workflow occurred.
-     * @return a byte array representing the legal fact for the analog delivery failure workflow.
+     * @return a byte array representing the pdf legal fact for the analog delivery failure workflow.
      */
     byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
                                                                  NotificationRecipientInt recipient,
@@ -92,7 +90,7 @@ public interface LegalFactGenerator {
                                                                  Instant failureWorkflowDate) throws IOException;
 
     /**
-     * Generates an AAR (Acknowledgment of Receipt) information for a notification.
+     * Generates an AAR information for a notification.
      *
      * @param notification the notification object containing details about the notification.
      * @param recipient the recipient of the notification.
