@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV25;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV26;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.time.Instant;
@@ -24,7 +24,7 @@ class TimelineElementWebhookMapperTest {
         LegalFactsIdInt legalFactsIdInt = getLegalFactsIdInt(LegalFactCategoryInt.DIGITAL_DELIVERY);
         TimelineElementInternal timelineElementDetailsInt = getTimelineElementInternal(category, elementId, instant, legalFactsIdInt);
 
-        TimelineElementV25 timelineElement = TimelineElementWebhookMapper.internalToExternal(timelineElementDetailsInt);
+        TimelineElementV26 timelineElement = TimelineElementWebhookMapper.internalToExternal(timelineElementDetailsInt);
         Assertions.assertNotNull(timelineElement);
         Assertions.assertEquals(category.getValue(), timelineElement.getCategory().getValue());
         Assertions.assertEquals(elementId, timelineElement.getElementId());

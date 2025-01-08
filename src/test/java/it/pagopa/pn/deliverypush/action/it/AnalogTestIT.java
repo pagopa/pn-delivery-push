@@ -64,8 +64,6 @@ class AnalogTestIT extends CommonTestConfiguration {
     @Autowired
     TimelineService timelineService;
     @Autowired
-    NotificationUtils notificationUtils;
-    @Autowired
     StatusUtils statusUtils;
 
     @Test

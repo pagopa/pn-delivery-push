@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV25;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV26;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -32,7 +32,7 @@ public class SmartMapper {
     private static String SERCQ_SEND = "send-self";
 
 
-    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV25> addressDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV26> addressDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getNewAddress());
@@ -41,7 +41,7 @@ public class SmartMapper {
     };
 
 
-    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV25> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
+    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV26> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getPhysicalAddress());
@@ -71,8 +71,8 @@ public class SmartMapper {
 
         List<BiFunction> postMappingTransformers = new ArrayList<>();
         postMappingTransformers.add( (source, result)-> {
-            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV25){
-                ((TimelineElementDetailsV25) result).setNotRefinedRecipientIndexes(null);
+            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV26){
+                ((TimelineElementDetailsV26) result).setNotRefinedRecipientIndexes(null);
             }
             return result;
         });
@@ -139,7 +139,7 @@ public class SmartMapper {
                         result.setTimestamp(endAnalogWorkflowBusinessDate);
                     }
                 }
-                case ANALOG_SUCCESS_WORKFLOW, ANALOG_FAILURE_WORKFLOW, COMPLETELY_UNREACHABLE_CREATION_REQUEST, COMPLETELY_UNREACHABLE -> {
+                case ANALOG_SUCCESS_WORKFLOW, ANALOG_FAILURE_WORKFLOW, COMPLETELY_UNREACHABLE_CREATION_REQUEST, COMPLETELY_UNREACHABLE, ANALOG_WORKFLOW_RECIPIENT_DECEASED -> {
                     Instant endAnalogWorkflowBusinessDate = computeEndAnalogWorkflowBusinessData((RecipientRelatedTimelineElementDetails)result.getDetails(), timelineElementInternalSet, result.getIun());
                     if(endAnalogWorkflowBusinessDate != null){
                         log.debug("MAP TIMESTAMP: elem category {}, elem previous timestamp {}, elem new timestamp {} ", result.getCategory(), result.getTimestamp(), endAnalogWorkflowBusinessDate);

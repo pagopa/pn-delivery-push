@@ -42,19 +42,21 @@ public class ViewNotification {
                                             Instant eventTimestamp) {
         log.info("Start view notification process - iun={} id={}", notification.getIun(), recIndex);
         if(delegateInfo != null){
-            return changeAttachmentRetentionIfNotRefined(notification, recIndex)
+            return changeAttachmentRetentionIfNotRefinedOrDeceased(notification, recIndex)
                     .then(getDelegateInfoAndHandleLegalFactCreation(notification, recipient, recIndex, raddInfo, delegateInfo, eventTimestamp));
         } else {
-            return changeAttachmentRetentionIfNotRefined(notification, recIndex)
+            return changeAttachmentRetentionIfNotRefinedOrDeceased(notification, recIndex)
                     .then(handleLegalFactCreation(notification, recipient, recIndex, raddInfo, eventTimestamp, null));
         }
     }
 
-    private Mono<Void> changeAttachmentRetentionIfNotRefined(NotificationInt notification, Integer recIndex){
+    private Mono<Void> changeAttachmentRetentionIfNotRefinedOrDeceased(NotificationInt notification, Integer recIndex){
 
-        if (timelineUtils.checkIsNotificationRefined(notification.getIun(), recIndex))
+        boolean isNotificationRefined = timelineUtils.checkIsNotificationRefined(notification.getIun(), recIndex);
+        boolean isRecipientDeceased = timelineUtils.checkIsRecipientDeceased(notification.getIun(), recIndex);
+        if (isNotificationRefined || isRecipientDeceased)
         {
-            log.info("No need to change attachment retention, notification is already REFINED iun={} recIndex={}", notification.getIun(), recIndex);
+            log.info("No need to change attachment retention, notification is already REFINED or recipient is DECEASED iun={} recIndex={}", notification.getIun(), recIndex);
             return Mono.empty();
         }
 
