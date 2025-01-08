@@ -101,7 +101,7 @@ class LegalFactGeneratorDocCompositionTest extends CommonTestConfiguration {
                         "generateNotificationAARSubject",
                         legalFactGenerator -> legalFactGenerator.generateNotificationAARSubject(notificationInt()),
                         null,
-                        "SEND - Nuova notifica da paDenomination_TEST_TEST"
+                        "SEND - Nuova notifica da paDenomination_TEST_TEST - iun_TEST_TEST"
                 ),
                 new LegalFactTestCase(
                         "generateNotificationAARForSMS",
