@@ -46,10 +46,10 @@ public class AnalogFailureDeliveryCreationResponseHandler {
             CompletelyUnreachableCreationRequestDetails completelyUnreachableCreationRequestDetails = completelyUnreachableCreationRequestDetailsOpt.get();
             // recupero la data di generazione del DEPOSITO AAR, per poterla inserire nell'atto opponibile
             TimelineElementInternal analogFailureWorkflowTimelineElement = retrieveAnalogFailureWorkflowTimelineElement(notification.getIun(), recIndex);
-
-            Instant scheduleRefinementDate = completelyUnreachableCreationRequestDetails.getCompletionWorkflowDate(); //Data business evento di feedback irreperibile
+        
+            Instant scheduleRefinementDate = completelyUnreachableCreationRequestDetails.getCompletionWorkflowDate(); //Data business evento di feedback irreperibile, data che viene ancora utilizzata per notifiche precedenti alla fix ma risulta una data errata
             if(notification.getSentAt() != null && notification.getSentAt().isAfter(featureUnreachableRefinementPostAARStartDate)) {
-                scheduleRefinementDate = analogFailureWorkflowTimelineElement.getTimestamp();
+                scheduleRefinementDate = analogFailureWorkflowTimelineElement.getTimestamp(); //data corretta da utilizzare per tutte le notifiche generate a valle della fix
             }
 
             completelyUnreachableUtils.handleCompletelyUnreachable(notification, recIndex, completelyUnreachableCreationRequestDetails.getLegalFactId(), analogFailureWorkflowTimelineElement.getTimestamp());
