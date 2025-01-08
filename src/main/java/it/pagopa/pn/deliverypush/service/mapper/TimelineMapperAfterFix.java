@@ -34,7 +34,7 @@ public class TimelineMapperAfterFix extends TimelineMapper {
                         }
                     }
                 }
-                case ANALOG_SUCCESS_WORKFLOW -> {
+                case ANALOG_SUCCESS_WORKFLOW, ANALOG_WORKFLOW_RECIPIENT_DECEASED -> {
                     //Viene presa come riferimento la data dell’evento più recente tra PREPARE_ANALOG_DOMICILE_FAILURE e SEND_ANALOG_FEEDBACK
                     Instant endAnalogWorkflowBusinessDate = computeEndAnalogWorkflowBusinessData((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, result.getIun());
                     if (endAnalogWorkflowBusinessDate != null) {

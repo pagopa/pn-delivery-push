@@ -5,9 +5,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ElementTimestampTimelineEl
 import it.pagopa.pn.deliverypush.dto.timeline.details.NormalizedAddressDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareAnalogDomicileFailureDetailsInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV25;
-import it.pagopa.pn.deliverypush.dto.timeline.details.*;
-import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV26;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Converter;

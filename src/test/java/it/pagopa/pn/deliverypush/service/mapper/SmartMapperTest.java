@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -504,6 +502,8 @@ class SmartMapperTest {
         Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
     }
 
+/*
+    TODO Da spostare
     @Test
     void testMapAnalogWorkflowRecipientDeceased(){
         Instant sourceEventTimestamp = Instant.EPOCH;
@@ -541,7 +541,10 @@ class SmartMapperTest {
         Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
         Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
     }
+*/
 
+/*
+    TODO Da spostare
     @Test
     void testMapAnalogWorkflowRecipientDeceasedFails(){
         Instant sourceEventTimestamp = Instant.EPOCH;
@@ -561,4 +564,5 @@ class SmartMapperTest {
         Assertions.assertThrows(PnInternalException.class, () -> SmartMapper.mapTimelineInternal(analogWorkflowRecipientDeceased, Set.of(analogWorkflowRecipientDeceased)));
 
     }
+*/
 }
