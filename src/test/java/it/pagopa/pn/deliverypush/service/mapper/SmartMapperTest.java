@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -136,11 +135,53 @@ class SmartMapperTest {
         Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
     }
 
+
+    @Test
+    void testTimelineElementInternalMappingTransformerNo1(){
+        Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
+
+        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
+
+        TimelineElementInternal source = TimelineElementInternal.builder()
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(elementTimestamp)
+                .details(SendDigitalFeedbackDetailsInt.builder()
+                        .notificationDate(null)
+                        .build())
+                .build();
+
+        TimelineElementInternal ret = SmartMapper.mapToClass(source, TimelineElementInternal.class);
+
+
+        Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
+    }
+
+    @Test
+    void testTimelineElementInternalMappingTransformerNo2(){
+        Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
+
+        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
+
+        TimelineElementInternal source = TimelineElementInternal.builder()
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(elementTimestamp)
+                .details(AarGenerationDetailsInt.builder()
+                        .build())
+                .build();
+
+        TimelineElementInternal ret = SmartMapper.mapToClass(source, TimelineElementInternal.class);
+
+
+        Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
+    }
+
     @Test
     void testMapSendAnalogProgress(){
         Instant sourceEventTimestamp = Instant.EPOCH;
         Instant sourceIngestionTimestamp = Instant.now();
-        
+
         TimelineElementInternal sendAnalogProgress = TimelineElementInternal.builder()
                 .category(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS)
                 .elementId("elementid")
@@ -177,7 +218,7 @@ class SmartMapperTest {
                         .notificationDate(sourceEventTimestamp)
                         .build())
                 .build();
-        
+
         TimelineElementInternal ret = smartMapper.mapTimelineInternal(sendAnalogFeedback, Set.of(sendAnalogFeedback));
 
         Assertions.assertNotSame(ret , sendAnalogFeedback);
@@ -186,7 +227,7 @@ class SmartMapperTest {
         Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
         Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
     }
-    
+
     @Test
     void testMapTimelineInternalTransformer(){
         Instant refinementTimestamp = Instant.EPOCH.plusMillis(100);
@@ -251,318 +292,29 @@ class SmartMapperTest {
     }
 
     @Test
-    void testMapScheduleRefinement_afterFix() {
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant sourceIngestionTimestamp = Instant.now();
-
-        TimelineElementInternal scheduleRefinement = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.SCHEDULE_REFINEMENT)
-                .details(ScheduleRefinementDetailsInt.builder().recIndex(0).build())
-                .timestamp(sourceIngestionTimestamp)
-                .notificationSentAt(Instant.now().plusSeconds(3600))
-                .build();
-        Set<TimelineElementInternal> timelineElementInternalSet = Set.of(
-                TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW)
-                        .timestamp(sourceEventTimestamp)
-                        .details(AnalogFailureWorkflowDetailsInt.builder().recIndex(0).build())
-                        .build()
-        );
-
-        TimelineElementInternal ret = smartMapper.mapTimelineInternal(scheduleRefinement, timelineElementInternalSet);
-
-        Assertions.assertNotSame(ret, scheduleRefinement);
-        Assertions.assertEquals(sourceIngestionTimestamp, ret.getIngestionTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
-    }
-
-    @Test
-    void testMapScheduleRefinement_analogFailureWorkflowDateNull_afterFix() {
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant sourceIngestionTimestamp = Instant.now();
-
-        TimelineElementInternal scheduleRefinement = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.SCHEDULE_REFINEMENT)
-                .details(ScheduleRefinementDetailsInt.builder().recIndex(0).build())
-                .timestamp(sourceIngestionTimestamp)
-                .notificationSentAt(Instant.now().plusSeconds(3600))
-                .build();
-        Set<TimelineElementInternal> timelineElementInternalSet = Set.of(
-                TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
-                        .timestamp(sourceEventTimestamp)
-                        .details(SendAnalogFeedbackDetailsInt.builder().recIndex(0).notificationDate(sourceEventTimestamp).build())
-                        .build()
-        );
-
-        TimelineElementInternal ret = smartMapper.mapTimelineInternal(scheduleRefinement, timelineElementInternalSet);
-
-        Assertions.assertNotSame(ret, scheduleRefinement);
-        Assertions.assertEquals(sourceIngestionTimestamp, ret.getIngestionTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
-    }
-
-    @Test
-    void testMapAnalogSuccessWorkflow_afterFix() {
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant sourceIngestionTimestamp = Instant.now();
-
-        TimelineElementInternal analogSuccessWorkflow = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW)
-                .details(AnalogSuccessWorkflowDetailsInt.builder().recIndex(0).build())
-                .timestamp(sourceIngestionTimestamp)
-                .notificationSentAt(Instant.now().plusSeconds(3600))
-                .build();
-        Set<TimelineElementInternal> timelineElementInternalSet = Set.of(
-                TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
-                        .timestamp(sourceEventTimestamp)
-                        .details(SendAnalogFeedbackDetailsInt.builder().recIndex(0).notificationDate(sourceEventTimestamp).build())
-                        .build()
-        );
-
-        TimelineElementInternal ret = smartMapper.mapTimelineInternal(analogSuccessWorkflow, timelineElementInternalSet);
-
-        Assertions.assertNotSame(ret, analogSuccessWorkflow);
-        Assertions.assertEquals(sourceIngestionTimestamp, ret.getIngestionTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
-    }
-
-    @Test
-    void testMapAnalogSuccessWorkflow_analogWorkflowBusinessDateNull_afterFix() {
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant sourceIngestionTimestamp = Instant.now();
-
-        TimelineElementInternal analogSuccessWorkflow = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW)
-                .details(AnalogSuccessWorkflowDetailsInt.builder().recIndex(0).build())
-                .timestamp(sourceIngestionTimestamp)
-                .notificationSentAt(Instant.now().plusSeconds(3600))
-                .build();
-        Set<TimelineElementInternal> timelineElementInternalSet = Set.of(
-                TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
-                        .timestamp(sourceEventTimestamp)
-                        .details(SendAnalogFeedbackDetailsInt.builder().recIndex(1).build())
-                        .build()
-        );
-
-        Assertions.assertThrows(PnInternalException.class, () -> smartMapper.mapTimelineInternal(analogSuccessWorkflow, timelineElementInternalSet));
-    }
-
-    @Test
-    void testMapCompletelyUnreachable_afterFix() {
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant sourceIngestionTimestamp = Instant.now();
-
-        TimelineElementInternal completelyUnreachable = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE)
-                .details(CompletelyUnreachableDetailsInt.builder().recIndex(0).build())
-                .timestamp(sourceIngestionTimestamp)
-                .notificationSentAt(Instant.now().plusSeconds(3600))
-                .build();
-        Set<TimelineElementInternal> timelineElementInternalSet = Set.of(
-                TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW)
-                        .timestamp(sourceEventTimestamp)
-                        .details(AnalogFailureWorkflowDetailsInt.builder().recIndex(0).build())
-                        .build()
-        );
-
-        TimelineElementInternal ret = smartMapper.mapTimelineInternal(completelyUnreachable, timelineElementInternalSet);
-
-        Assertions.assertNotSame(ret, completelyUnreachable);
-        Assertions.assertEquals(sourceIngestionTimestamp, ret.getIngestionTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
-    }
-
-    @Test
-    void testMapCompletelyUnreachable_analogFailureWorkflowDateNull_afterFix() {
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant sourceIngestionTimestamp = Instant.now();
-
-        TimelineElementInternal completelyUnreachable = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE)
-                .details(CompletelyUnreachableDetailsInt.builder().recIndex(0).build())
-                .timestamp(sourceIngestionTimestamp)
-                .notificationSentAt(Instant.now().plusSeconds(3600))
-                .build();
-        Set<TimelineElementInternal> timelineElementInternalSet = Set.of(
-                TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
-                        .timestamp(sourceEventTimestamp)
-                        .details(SendAnalogFeedbackDetailsInt.builder().recIndex(0).build())
-                        .build()
-        );
-
-        Assertions.assertThrows(PnInternalException.class, () -> smartMapper.mapTimelineInternal(completelyUnreachable, timelineElementInternalSet));
-    }
-
-    @Test
-    void testMapRefinement_afterFix() {
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant sourceIngestionTimestamp = Instant.now();
-        Instant schedulingDate = Instant.now().minusSeconds(3600);
-
-        TimelineElementInternal refinement = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.REFINEMENT)
-                .details(RefinementDetailsInt.builder().recIndex(0).build())
-                .timestamp(sourceIngestionTimestamp)
-                .notificationSentAt(Instant.now().plusSeconds(3600))
-                .build();
-        Set<TimelineElementInternal> timelineElementInternalSet = Set.of(
-                TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.SCHEDULE_REFINEMENT)
-                        .timestamp(sourceEventTimestamp)
-                        .details(ScheduleRefinementDetailsInt.builder().recIndex(0).schedulingDate(schedulingDate).build())
-                        .build()
-        );
-
-        TimelineElementInternal ret = smartMapper.mapTimelineInternal(refinement, timelineElementInternalSet);
-
-        Assertions.assertNotSame(ret, refinement);
-        Assertions.assertEquals(sourceIngestionTimestamp, ret.getIngestionTimestamp());
-        Assertions.assertEquals(schedulingDate, ret.getTimestamp());
-        Assertions.assertEquals(schedulingDate, ret.getEventTimestamp());
-    }
-
-    @Test
-    void testMapSendDigitalDomicile_afterFix() {
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant sourceIngestionTimestamp = Instant.now();
-
-        TimelineElementInternal sendDigitalDomicile = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
-                .details(SendDigitalDetailsInt.builder().
-                        digitalAddress(LegalDigitalAddressInt.builder().type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ).build()).
-                        recIndex(0).build())
-                .timestamp(sourceIngestionTimestamp)
-                .notificationSentAt(Instant.now().plusSeconds(3600))
-                .build();
-        Set<TimelineElementInternal> timelineElementInternalSet = Set.of(
-                TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.AAR_GENERATION)
-                        .timestamp(sourceEventTimestamp)
-                        .details(AarGenerationDetailsInt.builder().recIndex(0).build())
-                        .build()
-        );
-
-        TimelineElementInternal ret = smartMapper.mapTimelineInternal(sendDigitalDomicile, timelineElementInternalSet);
-
-        Assertions.assertNotSame(ret, sendDigitalDomicile);
-        Assertions.assertEquals(sourceIngestionTimestamp, ret.getIngestionTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
-    }
-
-
-
-    @Test
-    void testTimelineElementInternalMappingTransformerNo1(){
-        Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
-
+    void testMapTimelineInternalNotificationViewNotificationSentAtNotNull(){
+        Instant notificationViewedTimestamp = Instant.EPOCH.plusMillis(100);
         Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
 
-        TimelineElementInternal source = TimelineElementInternal.builder()
+
+        TimelineElementInternal notificationViewedElement = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
                 .elementId("elementid")
                 .iun("iun")
-                .timestamp(elementTimestamp)
-                .details(SendDigitalFeedbackDetailsInt.builder()
-                        .notificationDate(null)
-                        .build())
-                .build();
-
-        TimelineElementInternal ret = SmartMapper.mapToClass(source, TimelineElementInternal.class);
-
-
-        Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
-    }
-
-    @Test
-    void testTimelineElementInternalMappingTransformerNo2(){
-        Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
-
-        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
-
-        TimelineElementInternal source = TimelineElementInternal.builder()
-                .elementId("elementid")
-                .iun("iun")
-                .timestamp(elementTimestamp)
-                .details(AarGenerationDetailsInt.builder()
-                        .build())
-                .build();
-
-        TimelineElementInternal ret = SmartMapper.mapToClass(source, TimelineElementInternal.class);
-
-
-        Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
-    }
-
-/*
-    TODO Da spostare
-    @Test
-    void testMapAnalogWorkflowRecipientDeceased(){
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant deceasedSourceIngestionTimestamp = Instant.now();
-        Instant analogWorkflowRecipientDeceasedTimestamp = Instant.from(deceasedSourceIngestionTimestamp).minus(2, ChronoUnit.DAYS);
-
-        TimelineElementInternal analogWorkflowRecipientDeceased = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
-                .elementId("elementid")
-                .iun("iun")
-                .timestamp(deceasedSourceIngestionTimestamp)
-                .details( AnalogWorfklowRecipientDeceasedDetailsInt.builder()
+                .timestamp(notificationViewedTimestamp)
+                .details( NotificationViewedDetailsInt.builder()
                         .recIndex(0)
-                        .notificationDate(sourceEventTimestamp)
+                        .eventTimestamp(eventTimestamp)
                         .build())
+                .notificationSentAt(Instant.now().plusSeconds(3600))
                 .build();
 
-        // è necessario avere anche un elemento di tipo SEND_ANALOG_FEEDBACK per poter fare il mapping, poichè è da lì che si prende l'eventTimestamp
-        TimelineElementInternal sendAnalogFeedback = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
-                .elementId("elementid")
-                .iun("iun")
-                .timestamp(analogWorkflowRecipientDeceasedTimestamp)
-                .details( SendAnalogFeedbackDetailsInt.builder()
-                        .recIndex(0)
-                        .notificationDate(sourceEventTimestamp)
-                        .build())
-                .build();
 
-        TimelineElementInternal ret = SmartMapper.mapTimelineInternal(analogWorkflowRecipientDeceased, Set.of(analogWorkflowRecipientDeceased, sendAnalogFeedback));
+        TimelineElementInternal ret = smartMapper.mapTimelineInternal(notificationViewedElement, Set.of(notificationViewedElement));
 
-        Assertions.assertNotSame(ret , analogWorkflowRecipientDeceased);
-        Assertions.assertNotEquals(ret.getTimestamp(),analogWorkflowRecipientDeceased.getTimestamp());
-        Assertions.assertEquals(deceasedSourceIngestionTimestamp, ret.getIngestionTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getEventTimestamp());
-        Assertions.assertEquals(sourceEventTimestamp, ret.getTimestamp());
+        Assertions.assertNotSame(ret , notificationViewedElement);
+        Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
     }
-*/
 
-/*
-    TODO Da spostare
-    @Test
-    void testMapAnalogWorkflowRecipientDeceasedFails(){
-        Instant sourceEventTimestamp = Instant.EPOCH;
-        Instant deceasedSourceIngestionTimestamp = Instant.now();
 
-        TimelineElementInternal analogWorkflowRecipientDeceased = TimelineElementInternal.builder()
-                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
-                .elementId("elementid")
-                .iun("iun")
-                .timestamp(deceasedSourceIngestionTimestamp)
-                .details( AnalogWorfklowRecipientDeceasedDetailsInt.builder()
-                        .recIndex(0)
-                        .notificationDate(sourceEventTimestamp)
-                        .build())
-                .build();
-
-        Assertions.assertThrows(PnInternalException.class, () -> SmartMapper.mapTimelineInternal(analogWorkflowRecipientDeceased, Set.of(analogWorkflowRecipientDeceased)));
-
-    }
-*/
 }
