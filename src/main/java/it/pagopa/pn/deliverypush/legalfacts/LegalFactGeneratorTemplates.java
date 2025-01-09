@@ -67,7 +67,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
         for (var recipientInt : recipients) {
             String denomination = recipientInt.getDenomination();
             physicalAddressAndDenomination = physicalAddressWriter.nullSafePhysicalAddressToString(
-                    recipientInt.getPhysicalAddress(), denomination, "'<br />'");
+                    recipientInt.getPhysicalAddress(), denomination, "<br/>");
             NotificationReceivedDigitalDomicile digitalDomicile = new NotificationReceivedDigitalDomicile()
                     .address( Optional.of(recipientInt).map(NotificationRecipientInt::getDigitalDomicile)
                             .map(DigitalAddressInt::getAddress).orElse(null));
@@ -463,6 +463,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
         AarForPecNotification pecNotification = new AarForPecNotification()
                 .iun(notification.getIun())
+                .subject(notification.getSubject())
                 .sender(sender);
 
         AarForPecRecipient aarForPecRecipient = new AarForPecRecipient()
