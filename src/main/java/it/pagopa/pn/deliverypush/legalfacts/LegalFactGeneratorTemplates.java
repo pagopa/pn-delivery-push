@@ -131,14 +131,10 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .denomination(recipient.getDenomination())
                 .taxId(recipient.getTaxId());
 
-        NotificationViewedDelegate delegate = new NotificationViewedDelegate()
-                .denomination(Optional.ofNullable(delegateInfo).map(DelegateInfoInt::getDenomination).orElse(null))
-                .taxId(Optional.ofNullable(delegateInfo).map(DelegateInfoInt::getTaxId).orElse(null));
-
         NotificationViewedLegalFact notificationViewedLegalFact = new NotificationViewedLegalFact()
                 .recipient(notificationViewedRecipient)
                 .iun(iun)
-                .delegate(delegate)
+                .delegate(notificationViewedDelegate(delegateInfo))
                 .when(instantWriter.instantToDate(timeStamp));
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
@@ -723,6 +719,14 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     private LanguageEnum getLanguage(List<String> additionalLanguages) {
         return (!pnDeliveryPushConfigs.isAdditionalLangsEnabled() || CollectionUtils.isEmpty(additionalLanguages))
                 ? LanguageEnum.IT : LanguageEnum.fromValue(additionalLanguages.get(0));
+    }
+
+    private NotificationViewedDelegate notificationViewedDelegate(DelegateInfoInt delegateInfo) {
+        return delegateInfo != null ?
+                new NotificationViewedDelegate()
+                        .denomination(delegateInfo.getDenomination())
+                        .taxId(delegateInfo.getTaxId())
+                : null;
     }
 }
 
