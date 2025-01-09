@@ -33,6 +33,8 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineMapperFactory;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -159,7 +161,9 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         AnalogFinalStatusResponseHandler.class,
         ActionHandler.class,
         WebhookActionsEventHandler.class,
-        WebhookEventsServiceMock.class
+        WebhookEventsServiceMock.class,
+        SmartMapper.class,
+        TimelineMapperFactory.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:/application-testIT.properties")
@@ -317,6 +321,8 @@ public class CommonTestConfiguration {
         pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[3]);
         pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[4]);
         Mockito.when(cfg.getRaddExperimentationStoresName()).thenReturn(pnRaddExperimentationStore);
+
+        Mockito.when(cfg.getFeatureUnreachableRefinementPostAARStartDate()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
     }
 
 }

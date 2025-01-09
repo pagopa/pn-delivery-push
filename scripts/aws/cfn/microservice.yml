@@ -887,6 +887,10 @@ Parameters:
     Type: String
     Description: 'start date enable feature flag deceased new workflow'
 
+  FeatureUnreachableRefinementPostAARStartDate:
+    Type: String
+    Description: 'Start date for feature recipient unreachable refinement after ten days from AAR'
+
   EnableTemplatesEngine:
     Type: String
     Default: false
@@ -1014,6 +1018,7 @@ Resources:
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
+        ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'

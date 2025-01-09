@@ -45,7 +45,7 @@ public class RefinementScheduler {
             EndWorkflowStatus endWorkflowStatus
     ){
         Duration schedulingDays = null;
-        
+
         switch (endWorkflowStatus){
             case SUCCESS:
                 schedulingDays = pnDeliveryPushConfigs.getTimeParams().getSchedulingDaysSuccessDigitalRefinement();
@@ -56,8 +56,10 @@ public class RefinementScheduler {
             default:
                 handleError(notification, recIndex, endWorkflowStatus);
         }
+
+        Instant schedulingDate = getSchedulingDate(notificationDate, schedulingDays, notification.getIun(), endWorkflowStatus);
         
-        scheduleRefinement(notification, recIndex, notificationDate, schedulingDays);
+        scheduleRefinement(notification, recIndex, schedulingDate);
     }
 
     public void scheduleAnalogRefinement(
@@ -79,18 +81,17 @@ public class RefinementScheduler {
                 handleError(notification, recIndex, endWorkflowStatus);
         }
 
-        scheduleRefinement(notification, recIndex, notificationDate, schedulingDays);
+        Instant schedulingDate = notificationDate.plus(schedulingDays);
+
+        scheduleRefinement(notification, recIndex, schedulingDate);
     }
     
     private void scheduleRefinement(
             NotificationInt notification,
             Integer recIndex,
-            Instant notificationDate, 
-            Duration schedulingDays
+            Instant schedulingDate
     ) {
         log.info("Start scheduling refinement - iun={} id={}", notification.getIun(), recIndex);
-
-        Instant schedulingDate = getSchedulingDate(notificationDate, schedulingDays, notification.getIun());
 
         boolean isNotificationAlreadyViewed = timelineUtils.checkIsNotificationViewed(notification.getIun(), recIndex);
 
@@ -120,7 +121,7 @@ public class RefinementScheduler {
         scheduler.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.REFINEMENT_NOTIFICATION);
     }
 
-    private Instant getSchedulingDate(Instant completionWorkflowDate, Duration scheduleTime, String iun) {
+    private Instant getSchedulingDate(Instant completionWorkflowDate, Duration scheduleTime, String iun, EndWorkflowStatus endWorkflowStatus) {
         String notificationNonVisibilityTime = pnDeliveryPushConfigs.getTimeParams().getNotificationNonVisibilityTime();
         String[] arrayTime = notificationNonVisibilityTime.split(":");
         int hour = Integer.parseInt(arrayTime[0]);
@@ -136,7 +137,7 @@ public class RefinementScheduler {
 
         log.debug("Formatted notificationDateTime={} and notificationNonVisibilityDateTime={} - iun={}", notificationDateTime, notificationNonVisibilityDateTime, iun);
 
-        if (notificationDateTime.isAfter(notificationNonVisibilityDateTime)){
+        if (EndWorkflowStatus.SUCCESS == endWorkflowStatus && notificationDateTime.isAfter(notificationNonVisibilityDateTime)){
             Duration timeToAddToScheduledTime = pnDeliveryPushConfigs.getTimeParams().getTimeToAddInNonVisibilityTimeCase();
             scheduleTime = scheduleTime.plus(timeToAddToScheduledTime);
             log.debug("NotificationDateTime is after notificationNonVisibilityDateTime, need to add {} day to schedulingTime. scheduleTime={} - iun={}", timeToAddToScheduledTime, scheduleTime, iun);

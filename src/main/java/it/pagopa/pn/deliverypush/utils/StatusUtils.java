@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.dto.transition.TransitionRequest;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -18,13 +19,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONSTATUSFAILED;
-import static it.pagopa.pn.deliverypush.service.mapper.SmartMapper.mapTimelineInternal;
 
 @Component
 public class StatusUtils {
     private final StateMap stateMap;
+    private final SmartMapper smartMapper;
     
-    public StatusUtils(){
+    public StatusUtils(SmartMapper smartMapper){
+        this.smartMapper = smartMapper;
         this.stateMap = new StateMap();
     }
     
@@ -66,7 +68,7 @@ public class StatusUtils {
 
         //Map TimelineElementInternal per cambio timestamp con business timestamp
         Set<TimelineElementInternal> timelineElementListMapped = timelineElementList.stream()
-                .map(elem -> mapTimelineInternal(elem, timelineElementList)).collect(Collectors.toSet());
+                .map(elem -> smartMapper.mapTimelineInternal(elem, timelineElementList)).collect(Collectors.toSet());
 
 
         //La timeline ricevuta in ingresso è relativa a tutta la notifica e non al singolo recipient

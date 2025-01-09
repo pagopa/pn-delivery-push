@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -25,6 +26,8 @@ import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineMapperFactory;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +54,6 @@ class TimeLineServiceImplTest {
     private StatusService statusService;
     private ConfidentialInformationService confidentialInformationService;
     private SchedulerService schedulerService;
-
     private NotificationService notificationService;
 
     @BeforeEach
@@ -64,8 +66,10 @@ class TimeLineServiceImplTest {
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
         notificationService = Mockito.mock(NotificationService.class);
+        PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        SmartMapper smartMapper = new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs));
 //        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
-        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService);
+        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService, smartMapper);
         //timeLineService.setSchedulerService(schedulerService);
 
     }
