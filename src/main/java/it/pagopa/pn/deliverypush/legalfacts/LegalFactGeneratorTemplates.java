@@ -51,9 +51,9 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * @return a byte[] representing the generated pdf notification received legal fact.
      * @throws IllegalArgumentException if the notification is null or contains incomplete data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure the {@code templatesClient} is properly configured to handle the generated
-     * {@link NotificationReceivedLegalFact} and return the expected byte array.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure the {@code templatesClient} is properly configured to handle the generated
+     *                                  {@link NotificationReceivedLegalFact} and return the expected byte array.
      */
     @Override
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) {
@@ -69,7 +69,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
             physicalAddressAndDenomination = physicalAddressWriter.nullSafePhysicalAddressToString(
                     recipientInt.getPhysicalAddress(), denomination, "<br/>");
             NotificationReceivedDigitalDomicile digitalDomicile = new NotificationReceivedDigitalDomicile()
-                    .address( Optional.of(recipientInt).map(NotificationRecipientInt::getDigitalDomicile)
+                    .address(Optional.of(recipientInt).map(NotificationRecipientInt::getDigitalDomicile)
                             .map(DigitalAddressInt::getAddress).orElse(null));
 
             NotificationReceivedRecipient notificationReceivedRecipient = new NotificationReceivedRecipient()
@@ -104,21 +104,21 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     /**
      * Generates the legal fact for the viewing of a notification.
      *
-     * @param iun           the unique identifier of the notification (IUN).
-     * @param recipient     the recipient of the notification, represented by a
-     *                      {@link NotificationRecipientInt} object containing information such
-     *                      as name (denomination) and tax ID.
-     * @param delegateInfo  the delegate's information (if present), represented by a
-     *                      {@link DelegateInfoInt} object containing name and tax ID.
-     * @param timeStamp     the timestamp of when the notification was viewed, as an {@link Instant} object.
-     * @param notification  the {@link NotificationInt} object representing the full notification,
-     *                      from which additional information such as additional languages is extracted.
+     * @param iun          the unique identifier of the notification (IUN).
+     * @param recipient    the recipient of the notification, represented by a
+     *                     {@link NotificationRecipientInt} object containing information such
+     *                     as name (denomination) and tax ID.
+     * @param delegateInfo the delegate's information (if present), represented by a
+     *                     {@link DelegateInfoInt} object containing name and tax ID.
+     * @param timeStamp    the timestamp of when the notification was viewed, as an {@link Instant} object.
+     * @param notification the {@link NotificationInt} object representing the full notification,
+     *                     from which additional information such as additional languages is extracted.
      * @return a byte array representing the pdf legal fact of the notification viewing.
      * @throws IllegalArgumentException if any required parameter is null or contains incomplete data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure that {@code templatesClient} is properly configured to handle the generated
-     * {@link NotificationViewedLegalFact} object and return the expected byte array.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure that {@code templatesClient} is properly configured to handle the generated
+     *                                  {@link NotificationViewedLegalFact} object and return the expected byte array.
      */
     @Override
     public byte[] generateNotificationViewedLegalFact(String iun,
@@ -131,14 +131,10 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .denomination(recipient.getDenomination())
                 .taxId(recipient.getTaxId());
 
-        NotificationViewedDelegate delegate = new NotificationViewedDelegate()
-                .denomination(Optional.ofNullable(delegateInfo).map(DelegateInfoInt::getDenomination).orElse(null))
-                .taxId(Optional.ofNullable(delegateInfo).map(DelegateInfoInt::getTaxId).orElse(null));
-
         NotificationViewedLegalFact notificationViewedLegalFact = new NotificationViewedLegalFact()
                 .recipient(notificationViewedRecipient)
                 .iun(iun)
-                .delegate(delegate)
+                .delegate(notificationViewedDelegate(delegateInfo))
                 .when(instantWriter.instantToDate(timeStamp));
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
@@ -163,9 +159,9 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * @return a byte array representing the pdf PEC delivery workflow legal fact.
      * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure that {@code templatesClient} is correctly configured to handle the generated
-     * {@link PecDeliveryWorkflowLegalFact} object and return the expected byte array.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure that {@code templatesClient} is correctly configured to handle the generated
+     *                                  {@link PecDeliveryWorkflowLegalFact} object and return the expected byte array.
      */
     @Override
     public byte[] generatePecDeliveryWorkflowLegalFact(List<SendDigitalFeedbackDetailsInt> feedbackFromExtChannelList,
@@ -206,21 +202,21 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     /**
      * Generates the legal fact for the failure of the analog delivery workflow.
      *
-     * @param notification       the {@link NotificationInt} object containing the details of the notification,
-     *                           such as its unique identifier (IUN).
-     * @param recipient          the recipient of the notification, represented by a
-     *                           {@link NotificationRecipientInt} object, which includes information such
-     *                           as name (denomination) and tax ID.
-     * @param status             the {@link EndWorkflowStatus} representing the final status of the analog
-     *                           delivery workflow (e.g., failed).
+     * @param notification        the {@link NotificationInt} object containing the details of the notification,
+     *                            such as its unique identifier (IUN).
+     * @param recipient           the recipient of the notification, represented by a
+     *                            {@link NotificationRecipientInt} object, which includes information such
+     *                            as name (denomination) and tax ID.
+     * @param status              the {@link EndWorkflowStatus} representing the final status of the analog
+     *                            delivery workflow (e.g., failed).
      * @param failureWorkflowDate the {@link Instant} representing the timestamp when the analog delivery
      *                            workflow failure occurred.
      * @return a byte array representing the pdf legal fact for the analog delivery workflow failure.
      * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure that {@code templatesClient} is properly configured to handle the generated
-     * {@link AnalogDeliveryWorkflowFailureLegalFact} object and return the expected byte array.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure that {@code templatesClient} is properly configured to handle the generated
+     *                                  {@link AnalogDeliveryWorkflowFailureLegalFact} object and return the expected byte array.
      */
     @Override
     public byte[] generateAnalogDeliveryFailureWorkflowLegalFact(NotificationInt notification,
@@ -245,18 +241,17 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     /**
      * Generates the legal fact for a cancelled notification.
      *
-     * @param notification                      the {@link NotificationInt} object containing details
-     *                                          about the notification, including its unique identifier (IUN),
-     *                                          sender information, and recipients.
+     * @param notification                        the {@link NotificationInt} object containing details
+     *                                            about the notification, including its unique identifier (IUN),
+     *                                            sender information, and recipients.
      * @param notificationCancellationRequestDate the {@link Instant} representing the timestamp when
      *                                            the notification cancellation request was made.
      * @return a byte array representing the legal fact for the cancelled notification.
-     *
      * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure that {@code templatesClient} is properly configured to handle the generated
-     * {@link NotificationCancelledLegalFact} object and return the expected pdf byte array.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure that {@code templatesClient} is properly configured to handle the generated
+     *                                  {@link NotificationCancelledLegalFact} object and return the expected pdf byte array.
      */
     @Override
     public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) {
@@ -292,9 +287,9 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * @return a {@link String} representing the subject line for the AAR of the notification.
      * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure that {@code templatesClient} is properly configured to handle the generated
-     * {@link NotificationAarForSubject} object and return the expected subject string.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure that {@code templatesClient} is properly configured to handle the generated
+     *                                  {@link NotificationAarForSubject} object and return the expected subject string.
      */
     @Override
     public String generateNotificationAARSubject(NotificationInt notification) {
@@ -319,7 +314,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * @param notification the {@link NotificationInt} object containing the details of the notification,
      *                     including its attached documents and recipients with payment information.
      * @return a {@link List} of {@link String} representing the SHA-256 digests (in hexadecimal uppercase)
-     *         of all relevant attachments from the notification.
+     * of all relevant attachments from the notification.
      */
     private List<String> extractNotificationAttachmentDigests(NotificationInt notification) {
         List<String> digests = new ArrayList<>();
@@ -362,12 +357,11 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      *                     about the notification, including its unique identifier (IUN)
      *                     and sender information.
      * @return a {@link AARInfo} representing the AAR info for the notification.
-     *
      * @throws IllegalArgumentException if the notification is null or contains invalid data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure that {@code templatesClient} is properly configured to handle the generated
-     * {@link NotificationAarForSubject} object and return the expected subject string.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure that {@code templatesClient} is properly configured to handle the generated
+     *                                  {@link NotificationAarForSubject} object and return the expected subject string.
      */
     @Override
     public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
@@ -406,19 +400,18 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     /**
      * Generates the AAR body for a notification.
      *
-     * @param notification      the {@link NotificationInt} object containing details about the notification,
-     *                          including its unique identifier (IUN).
-     * @param recipient         the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                          including relevant details such as contact information.
-     * @param quickAccessToken  a {@link String} representing the token used to generate the quick access URL
-     *                          for the notification details.
+     * @param notification     the {@link NotificationInt} object containing details about the notification,
+     *                         including its unique identifier (IUN).
+     * @param recipient        the {@link NotificationRecipientInt} object representing the recipient of the notification,
+     *                         including relevant details such as contact information.
+     * @param quickAccessToken a {@link String} representing the token used to generate the quick access URL
+     *                         for the notification details.
      * @return a {@link String} representing the body of the AAR email for the notification.
-     *
      * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure that {@code templatesClient} is properly configured to handle the generated
-     * {@link NotificationAarForEmail} object and return the expected email body string.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure that {@code templatesClient} is properly configured to handle the generated
+     *                                  {@link NotificationAarForEmail} object and return the expected email body string.
      */
     @Override
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
@@ -438,18 +431,18 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     /**
      * Generates the AAR body for a PEC notification.
      *
-     * @param notification      the {@link NotificationInt} object containing details about the notification,
-     *                          including its unique identifier (IUN) and sender information.
-     * @param recipient         the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                          including their tax ID and other relevant details.
-     * @param quickAccessToken  a {@link String} representing the token used to generate the quick access URL
-     *                          for the notification details.
+     * @param notification     the {@link NotificationInt} object containing details about the notification,
+     *                         including its unique identifier (IUN) and sender information.
+     * @param recipient        the {@link NotificationRecipientInt} object representing the recipient of the notification,
+     *                         including their tax ID and other relevant details.
+     * @param quickAccessToken a {@link String} representing the token used to generate the quick access URL
+     *                         for the notification details.
      * @return a {@link String} representing the PEC email body for the AAR of the notification.
      * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure that {@code templatesClient} is properly configured to handle the generated
-     * {@link NotificationAarForPec} object and return the expected PEC email body string.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure that {@code templatesClient} is properly configured to handle the generated
+     *                                  {@link NotificationAarForPec} object and return the expected PEC email body string.
      */
     @Override
     public String generateNotificationAARPECBody(NotificationInt notification,
@@ -490,9 +483,9 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * @return a {@link String} representing the SMS body for the AAR of the notification.
      * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
      *
-     * <p><strong>Note:</strong></p>
-     * Ensure that {@code templatesClient} is properly configured to handle the generated
-     * {@link NotificationAarForSms} object and return the expected SMS body string.
+     *                                  <p><strong>Note:</strong></p>
+     *                                  Ensure that {@code templatesClient} is properly configured to handle the generated
+     *                                  {@link NotificationAarForSms} object and return the expected SMS body string.
      */
     @Override
     public String generateNotificationAARForSMS(NotificationInt notification) {
@@ -517,7 +510,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * @param recipient the {@link NotificationRecipientInt} object representing the recipient of the notification,
      *                  used to retrieve the access URL.
      * @return a {@link String} representing the label of the access URL, typically the host without the "www." prefix.
-     *         If the URL is invalid, returns the full access URL.
+     * If the URL is invalid, returns the full access URL.
      */
     private String getAccessUrlLabel(NotificationRecipientInt recipient) {
         try {
@@ -532,23 +525,23 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     /**
      * Generates a Base64-encoded QR code image for quick access, using the provided recipient and access token.
      *
-     * @param recipient the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                  used to generate the quick access URL.
+     * @param recipient        the {@link NotificationRecipientInt} object representing the recipient of the notification,
+     *                         used to generate the quick access URL.
      * @param quickAccessToken the token used to generate the quick access URL, ensuring secure access to the resource.
      * @return a {@link String} representing the Base64-encoded QR code image in a data URI format.
      */
     private String getQrCodeQuickAccessUrlAarDetail(NotificationRecipientInt recipient, String quickAccessToken) {
         String url = getQuickAccessLink(recipient, quickAccessToken);
         // Definire altezza e larghezza del qrcode
-        return "data:image/png;base64, " .concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 180, 180,
+        return "data:image/png;base64, ".concat(Base64Utils.encodeToString(QrCodeUtils.generateQRCodeImage(url, 180, 180,
                 pnDeliveryPushConfigs.getErrorCorrectionLevelQrCode())));
     }
 
     /**
      * Generates a quick access link URL for a given recipient, appending the quick access token to the base URL.
      *
-     * @param recipient the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                  used to retrieve the base access URL.
+     * @param recipient        the {@link NotificationRecipientInt} object representing the recipient of the notification,
+     *                         used to retrieve the base access URL.
      * @param quickAccessToken the token used to generate the quick access link, typically used for secure access.
      * @return a {@link String} representing the full quick access URL, including the token as a query parameter.
      */
@@ -632,10 +625,10 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     /**
      * Constructs a {@link NotificationAar} object for an Acknowledgment of Receipt (AAR) notification.
      *
-     * @param notification the {@link NotificationInt} object containing the details about the notification,
-     *                     including its unique identifier (IUN), subject, and sender information.
-     * @param recipient    the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                     including their tax ID and recipient type.
+     * @param notification     the {@link NotificationInt} object containing the details about the notification,
+     *                         including its unique identifier (IUN), subject, and sender information.
+     * @param recipient        the {@link NotificationRecipientInt} object representing the recipient of the notification,
+     *                         including their tax ID and recipient type.
      * @param quickAccessToken a {@link String} representing the token used to generate the quick access QR code link
      *                         for the notification details.
      * @return a {@link NotificationAar} object containing all the necessary information for the AAR notification.
@@ -672,14 +665,14 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * Constructs a {@link NotificationAarRaddAlt} object for an AAR notification
      * with alternative details.
      *
-     * @param notification the {@link NotificationInt} object containing details about the notification,
-     *                     including its unique identifier (IUN), subject, and sender information.
-     * @param recipient    the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                     including their tax ID and recipient type.
+     * @param notification     the {@link NotificationInt} object containing details about the notification,
+     *                         including its unique identifier (IUN), subject, and sender information.
+     * @param recipient        the {@link NotificationRecipientInt} object representing the recipient of the notification,
+     *                         including their tax ID and recipient type.
      * @param quickAccessToken a {@link String} representing the token used to generate the quick access QR code
      *                         link for the notification details.
      * @return a {@link NotificationAarRaddAlt} object containing all the necessary information for the AAR
-     *         notification with alternative details.
+     * notification with alternative details.
      * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
      */
     private NotificationAarRaddAlt getNotificationAARRADDalt(NotificationInt notification,
@@ -717,12 +710,20 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * @param additionalLanguages a {@link List} of {@link String} representing the additional languages to be considered.
      *                            If the list is empty or null, the default language (Italian) is returned.
      * @return a {@link LanguageEnum} representing the selected language. It returns {@link LanguageEnum#IT}
-     *         if no additional languages are available or enabled, otherwise the first language from the list.
+     * if no additional languages are available or enabled, otherwise the first language from the list.
      * @throws IllegalArgumentException if the provided list contains invalid language values.
      */
     private LanguageEnum getLanguage(List<String> additionalLanguages) {
         return (!pnDeliveryPushConfigs.isAdditionalLangsEnabled() || CollectionUtils.isEmpty(additionalLanguages))
                 ? LanguageEnum.IT : LanguageEnum.fromValue(additionalLanguages.get(0));
+    }
+
+    private NotificationViewedDelegate notificationViewedDelegate(DelegateInfoInt delegateInfo) {
+        return delegateInfo != null ?
+                new NotificationViewedDelegate()
+                .denomination(delegateInfo.getDenomination())
+                .taxId(delegateInfo.getTaxId())
+                : null;
     }
 }
 
