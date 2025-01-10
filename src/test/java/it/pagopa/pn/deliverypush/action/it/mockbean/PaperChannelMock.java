@@ -27,8 +27,9 @@ public class PaperChannelMock implements PaperChannelSendClient {
     public static final String EXTCHANNEL_SEND_FAIL_KOUNREACHABLE = "KOUNREACHABLE"; //Invio notifica fallita
     public static final String EXT_CHANNEL_SEND_NEW_ADDR = "NEW_ADDR:"; //Invio notifica fallita con nuovo indirizzo da investigazione
     //Esempio: La combinazione di EXT_CHANNEL_SEND_NEW_ADDR + EXTCHANNEL_SEND_OK ad esempio significa -> Invio notifica fallito ma con nuovo indirizzo trovato e l'invio a tale indirzzo avrà successo
-
-    public static final int WAITING_TIME = 100;
+    public static final String EXTCHANNEL_SEND_DECEASED = "DECEASED"; //Invio notifica ok ma con destinatario deceduto
+    
+    public static final int WAITING_TIME = 3000;
     private static final Pattern NEW_ADDRESS_INPUT_PATTERN = Pattern.compile("^" + EXT_CHANNEL_SEND_NEW_ADDR + "(.*)$");
     public static final String PAPER_ADDRESS_FULL_NAME = "full name";
     public static final String PAPER_ADDRESS_CITTA = "citta";
@@ -102,8 +103,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
         {
             status = "KOUNREACHABLE";
         }
-        else
-        {
+        else {
             Matcher matcher = NEW_ADDRESS_INPUT_PATTERN.matcher(address);
             if (matcher.find()) {
                 status = "OK";
@@ -111,7 +111,9 @@ public class PaperChannelMock implements PaperChannelSendClient {
                 status = "KOUNREACHABLE";
             } else if (address.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
                 status = "OK";
-            }  else if (address.startsWith(EXTCHANNEL_SEND_FAIL)) {
+            } else if (address.startsWith(EXTCHANNEL_SEND_FAIL)) {
+                status = "OK";
+            } else if (address.startsWith(EXTCHANNEL_SEND_DECEASED)) {
                 status = "OK";
             } else {
                 throw new IllegalArgumentException("Address " + address + " do not match test rule for mocks");
@@ -136,7 +138,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
         paperChannelResponseHandler.paperChannelResponseReceiver(singleStatusUpdate);
     }
 
-    private void simulateSendResponse(String timelineEventId, String address) {
+    private void simulateSendResponse(String timelineEventId, String address) throws InterruptedException {
         PaperChannelUpdate singleStatusUpdate = new PaperChannelUpdate();
         SendEvent sendEvent = new SendEvent();
         sendEvent.setStatusDateTime(Instant.now());
@@ -155,6 +157,11 @@ public class PaperChannelMock implements PaperChannelSendClient {
         } else if (address.startsWith(EXTCHANNEL_SEND_SUCCESS)) {
             status = StatusCodeEnum.OK;
             newAddress = null;
+        } else if(address.startsWith(EXTCHANNEL_SEND_DECEASED)) {
+            status = StatusCodeEnum.OK;
+            newAddress = null;
+            sendEvent.setDeliveryFailureCause("M02");
+            Thread.sleep(WAITING_TIME);
         } else {
             throw new IllegalArgumentException("Address " + address + " do not match test rule for mocks");
         }
