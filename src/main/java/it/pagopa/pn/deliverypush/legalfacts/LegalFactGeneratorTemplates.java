@@ -14,12 +14,12 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClient;
+import static it.pagopa.pn.deliverypush.service.mapper.TemplatesEngineMapper.notificationReceivedNotification;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 
@@ -87,20 +87,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
         return templatesClient.notificationReceivedLegalFact(language, legalFact);
     }
 
-    private NotificationReceivedRecipient notificationReceivedNotification(String physicalAddressAndDenomination,
-                                                                              NotificationRecipientInt recipientInt) {
-        var digitalDomicile = digitalDomicile(recipientInt);
-       return  (StringUtils.isBlank(physicalAddressAndDenomination)
-                || recipientInt.getDenomination() == null
-                || recipientInt.getTaxId() == null
-                || digitalDomicile == null)
-                ? null :
-                new NotificationReceivedRecipient()
-                .physicalAddressAndDenomination(physicalAddressAndDenomination)
-                .denomination(recipientInt.getDenomination())
-                .taxId(recipientInt.getTaxId())
-                .digitalDomicile(digitalDomicile);
-    }
 
     private NotificationReceivedSender sender(NotificationInt notification) {
         var senderInt = Optional.of(notification).map(NotificationInt::getSender).orElse(new NotificationSenderInt());
@@ -109,12 +95,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .paDenomination(senderInt.getPaDenomination())
                 .paTaxId(senderInt.getPaTaxId())
                 : null;
-    }
-
-    private NotificationReceivedDigitalDomicile digitalDomicile(NotificationRecipientInt recipientInt) {
-        String address = Optional.of(recipientInt).map(NotificationRecipientInt::getDigitalDomicile)
-                .map(DigitalAddressInt::getAddress).orElse(null);
-        return address != null ? new NotificationReceivedDigitalDomicile().address(address) : null;
     }
 
     /**
@@ -449,7 +429,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .perfezionamentoURL(this.getPerfezionamentoLink())
                 .quickAccessLink(qrCodeQuickAccessUrlAarDetail)
                 .pnFaqSendURL(this.getFAQSendURL())
-                .piattaformaNotificheURL(this.getAccessUrl(recipient));
+                .piattaformaNotificheURL(this.getAccessUrl(recipient))
+                .notification();
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForEmail(language, notificationAAR);
