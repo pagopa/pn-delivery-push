@@ -19,16 +19,14 @@ import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE;
@@ -68,28 +66,16 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
             String denomination = recipientInt.getDenomination();
             physicalAddressAndDenomination = physicalAddressWriter.nullSafePhysicalAddressToString(
                     recipientInt.getPhysicalAddress(), denomination, "<br/>");
-            NotificationReceivedDigitalDomicile digitalDomicile = new NotificationReceivedDigitalDomicile()
-                    .address( Optional.of(recipientInt).map(NotificationRecipientInt::getDigitalDomicile)
-                            .map(DigitalAddressInt::getAddress).orElse(null));
 
-            NotificationReceivedRecipient notificationReceivedRecipient = new NotificationReceivedRecipient()
-                    .physicalAddressAndDenomination(physicalAddressAndDenomination)
-                    .denomination(recipientInt.getDenomination())
-                    .taxId(recipientInt.getTaxId())
-                    .digitalDomicile(digitalDomicile);
-
-            receivedRecipients.add(notificationReceivedRecipient);
+           var notificationReceivedNotification = notificationReceivedNotification(physicalAddressAndDenomination, recipientInt);
+            if (notificationReceivedNotification != null) {
+                receivedRecipients.add(notificationReceivedNotification);
+            }
         }
-
-        var senderInt = Optional.of(notification).map(NotificationInt::getSender).orElse(new NotificationSenderInt());
-        NotificationReceivedSender sender = new NotificationReceivedSender()
-                .paDenomination(senderInt.getPaDenomination())
-                .paTaxId(senderInt.getPaTaxId());
-
         NotificationReceivedNotification notificationReceivedNotification = new NotificationReceivedNotification()
                 .iun(notification.getIun())
                 .recipients(receivedRecipients)
-                .sender(sender);
+                .sender(sender(notification));
 
         NotificationReceivedLegalFact legalFact = new NotificationReceivedLegalFact()
                 .sendDate(instantWriter.instantToDate(notification.getSentAt()))
@@ -99,6 +85,36 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationReceivedLegalFact(language, legalFact);
+    }
+
+    private NotificationReceivedRecipient notificationReceivedNotification(String physicalAddressAndDenomination,
+                                                                              NotificationRecipientInt recipientInt) {
+        var digitalDomicile = digitalDomicile(recipientInt);
+       return  (StringUtils.isBlank(physicalAddressAndDenomination)
+                || recipientInt.getDenomination() == null
+                || recipientInt.getTaxId() == null
+                || digitalDomicile == null)
+                ? null :
+                new NotificationReceivedRecipient()
+                .physicalAddressAndDenomination(physicalAddressAndDenomination)
+                .denomination(recipientInt.getDenomination())
+                .taxId(recipientInt.getTaxId())
+                .digitalDomicile(digitalDomicile(recipientInt));
+    }
+
+    private NotificationReceivedSender sender(NotificationInt notification) {
+        var senderInt = Optional.of(notification).map(NotificationInt::getSender).orElse(new NotificationSenderInt());
+        return (senderInt.getPaDenomination() != null || senderInt.getPaTaxId() !=null) ?
+                new NotificationReceivedSender()
+                .paDenomination(senderInt.getPaDenomination())
+                .paTaxId(senderInt.getPaTaxId())
+                : null;
+    }
+
+    private NotificationReceivedDigitalDomicile digitalDomicile(NotificationRecipientInt recipientInt) {
+        String address = Optional.of(recipientInt).map(NotificationRecipientInt::getDigitalDomicile)
+                .map(DigitalAddressInt::getAddress).orElse(null);
+        return address != null ? new NotificationReceivedDigitalDomicile().address(address) : null;
     }
 
     /**
@@ -171,6 +187,13 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                        Instant completionWorkflowDate) {
         log.info("retrieve PecDeliveryWorkflowLegalFact template for iun {}", notification.getIun());
         List<PecDeliveryWorkflowDelivery> pecDeliveries = feedbackFromExtChannelList.stream()
+                .filter(feedbackFromExtChannel ->
+                        Objects.nonNull(feedbackFromExtChannel.getResponseStatus())
+                        || Objects.nonNull(feedbackFromExtChannel.getNotificationDate())
+                        || Optional.of(feedbackFromExtChannel)
+                                        .map(SendDigitalFeedbackDetailsInt::getDigitalAddress)
+                                        .map(DigitalAddressInt::getAddress).isPresent()
+                )
                 .map(feedbackFromExtChannel -> {
                     ResponseStatusInt sentPecStatus = feedbackFromExtChannel.getResponseStatus();
                     Instant notificationDate = feedbackFromExtChannel.getNotificationDate();
@@ -262,6 +285,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
         List<NotificationCancelledRecipient> recipients = notification.getRecipients()
                 .stream()
+                .filter(recipientInt -> Objects.nonNull(recipientInt.getDenomination()) || Objects.nonNull(recipientInt.getTaxId()))
                 .map(recipientInt -> new NotificationCancelledRecipient()
                         .denomination(recipientInt.getDenomination())
                         .taxId(recipientInt.getTaxId()))
