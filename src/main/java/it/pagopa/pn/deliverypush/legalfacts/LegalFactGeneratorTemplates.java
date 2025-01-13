@@ -421,11 +421,19 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
         log.info("retrieve NotificationAARBody template for iun {}", notification.getIun());
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
 
+        AarForEmailSender sender = new AarForEmailSender()
+                .paDenomination(notification.getSender().getPaDenomination());
+
+        AarForEmailNotification aarForEmailNotification = new AarForEmailNotification()
+                .iun(notification.getIun())
+                .sender(sender);
+
         NotificationAarForEmail notificationAAR = new NotificationAarForEmail()
                 .perfezionamentoURL(this.getPerfezionamentoLink())
                 .quickAccessLink(qrCodeQuickAccessUrlAarDetail)
                 .pnFaqSendURL(this.getFAQSendURL())
-                .piattaformaNotificheURL(this.getAccessUrl(recipient));
+                .piattaformaNotificheURL(this.getAccessUrl(recipient))
+                .notification(aarForEmailNotification);
 
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForEmail(language, notificationAAR);
@@ -693,7 +701,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
         AarRaddAltRecipient aarRecipient = new AarRaddAltRecipient()
                 .recipientType(recipient.getRecipientType().getValue())
-                .taxId(recipient.getTaxId());
+                .taxId(recipient.getTaxId())
+                .denomination(recipient.getDenomination());
 
         return new NotificationAarRaddAlt()
                 .notification(altNotification)
@@ -704,7 +713,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .sendURLLAbel(this.getAccessLinkLabel())
                 .perfezionamentoURL(this.getPerfezionamentoLink())
                 .perfezionamentoURLLabel(this.getPerfezionamentoLinkLabel())
-                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail);
+                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail)
+                .raddPhoneNumber(pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber());
     }
 
     /**
