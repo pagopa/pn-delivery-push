@@ -701,7 +701,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
         AarRaddAltRecipient aarRecipient = new AarRaddAltRecipient()
                 .recipientType(recipient.getRecipientType().getValue())
-                .taxId(recipient.getTaxId());
+                .taxId(recipient.getTaxId())
+                .denomination(recipient.getDenomination());
 
         return new NotificationAarRaddAlt()
                 .notification(altNotification)
@@ -712,7 +713,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .sendURLLAbel(this.getAccessLinkLabel())
                 .perfezionamentoURL(this.getPerfezionamentoLink())
                 .perfezionamentoURLLabel(this.getPerfezionamentoLinkLabel())
-                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail);
+                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail)
+                .raddPhoneNumber(pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber());
     }
 
     /**
