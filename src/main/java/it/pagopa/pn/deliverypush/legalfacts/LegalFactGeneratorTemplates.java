@@ -192,7 +192,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                         || Objects.nonNull(feedbackFromExtChannel.getNotificationDate())
                         || Optional.of(feedbackFromExtChannel)
                                         .map(SendDigitalFeedbackDetailsInt::getDigitalAddress)
-                                        .map(DigitalAddressInt::getAddress).isPresent()
+                                        .map(DigitalAddressInt::getAddress).isEmpty()
                 )
                 .map(feedbackFromExtChannel -> {
                     ResponseStatusInt sentPecStatus = feedbackFromExtChannel.getResponseStatus();
