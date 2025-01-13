@@ -99,7 +99,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 .physicalAddressAndDenomination(physicalAddressAndDenomination)
                 .denomination(recipientInt.getDenomination())
                 .taxId(recipientInt.getTaxId())
-                .digitalDomicile(digitalDomicile(recipientInt));
+                .digitalDomicile(digitalDomicile);
     }
 
     private NotificationReceivedSender sender(NotificationInt notification) {
