@@ -54,10 +54,11 @@ public class TimelineDaoMock implements TimelineDao {
         this.notificationUtils = notificationUtils;
         this.notificationCancellationService = notificationCancellationService;
         this.pnDeliveryClientMock = pnDeliveryClientMock;
+        this.clear();
     }
 
     public void clear() {
-       // this.timelineList = new CopyOnWriteArrayList<>();
+        this.timelineList = new CopyOnWriteArrayList<>();
     }
 
     private void checkAndAddTimelineElement(TimelineElementInternal dto) {

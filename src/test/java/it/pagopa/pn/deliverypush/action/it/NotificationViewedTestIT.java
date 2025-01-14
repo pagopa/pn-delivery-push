@@ -82,7 +82,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration {
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withDigitalDomicile(digitalDomicile)
                 .withPhysicalAddress(
                         PhysicalAddressBuilder.builder()
@@ -214,7 +214,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration {
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withDigitalDomicile(digitalDomicile)
                 .withPhysicalAddress(
                         PhysicalAddressBuilder.builder()
@@ -353,7 +353,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
         
-        String taxId01 = "TAXID01";
+        String taxId01 = TestUtils.getTaxId();
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
                 .withInternalId(taxId01 +"anon")
@@ -371,7 +371,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String taxId02 = "TAXID02";
+        String taxId02 = TestUtils.getTaxId();
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId02)
                 .withInternalId(taxId02 + "ANON")

@@ -37,6 +37,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
                                  SafeStorageResponseHandler safeStorageResponseHandler) {
         this.creationRequestService = creationRequestService;
         this.safeStorageResponseHandler = safeStorageResponseHandler;
+        this.clear();
     }
 
     public void clear() {

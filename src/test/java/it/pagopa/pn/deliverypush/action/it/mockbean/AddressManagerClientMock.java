@@ -41,9 +41,13 @@ public class AddressManagerClientMock implements AddressManagerClient {
         this.addressManagerResponseHandler = addressManagerResponseHandler;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
+        this.clear();
     }
     
     public void clear() {
+        if(this.mapNormalizedAddress != null ){
+            log.debug("Attenzione è diverso da null");
+        }
         this.mapNormalizedAddress = new ConcurrentHashMap<>();
     }
 

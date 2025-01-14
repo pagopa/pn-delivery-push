@@ -102,7 +102,7 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
                 .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
                 .build();
 
-        String taxId01 = "TAXID01";
+        String taxId01 = TestUtils.getTaxId();
 
         String pagoPaAttachment = "thisIsAnAttachment";
         List<NotificationDocumentInt> pagoPaAttachmentList = TestUtils.getDocumentList(pagoPaAttachment);

@@ -175,7 +175,7 @@ class RaddExperimentationDynamicAARIT extends SendAarAttachment {
                 .withZip("001002")
                 .build();
 
-        String taxId01 = "TAXID01";
+        String taxId01 = TestUtils.getTaxId();
 
         String pagoPaAttachment = "thisIsAnAttachment";
         List<NotificationDocumentInt> pagoPaAttachmentList = TestUtils.getDocumentList(pagoPaAttachment);

@@ -1239,4 +1239,9 @@ public class TestUtils {
         String content;
         NotificationDocumentInt document;
     }
+
+    @NotNull
+    public static String getTaxId() {
+        return "TAXID_" + UUID.randomUUID();
+    }
 }

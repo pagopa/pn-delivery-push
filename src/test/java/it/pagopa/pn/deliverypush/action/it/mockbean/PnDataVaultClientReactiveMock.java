@@ -18,7 +18,11 @@ import java.util.concurrent.ConcurrentMap;
 public class PnDataVaultClientReactiveMock implements PnDataVaultClientReactive {
     private ConcurrentMap<String, BaseRecipientDto> confidentialMap;
     private ConcurrentMap<String, NotificationRecipientAddressesDto> normalizedAddress;
-    
+
+    public PnDataVaultClientReactiveMock() {
+        this.clear();
+    }
+
     public void clear() {
         this.confidentialMap = new ConcurrentHashMap<>();
         this.normalizedAddress = new ConcurrentHashMap<>();

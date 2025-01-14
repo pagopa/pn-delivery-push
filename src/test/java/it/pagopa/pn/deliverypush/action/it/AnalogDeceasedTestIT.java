@@ -77,7 +77,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest")
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
@@ -300,7 +300,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest01")
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress)
                 .build();
 
@@ -416,7 +416,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest1")
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
@@ -426,7 +426,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest2")
-                .withTaxId("TAXID02")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
@@ -577,7 +577,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String taxid01 = "TAXID01";
+        String taxid01 = TestUtils.getTaxId();
 
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
@@ -596,7 +596,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest2")
-                .withTaxId("TAXID02")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
@@ -793,7 +793,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest1")
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
@@ -803,7 +803,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest2")
-                .withTaxId("TAXID02")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress2)
                 .build();
 
@@ -952,7 +952,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest1")
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 

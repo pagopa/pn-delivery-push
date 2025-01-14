@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUti
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
-import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationpaid.NotificationPaidHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
@@ -220,7 +219,8 @@ public class CommonTestConfiguration {
 
         ConsoleAppenderCustom.initializeLog();
 
-        TestUtils.initializeAllMockClient(
+        addressBookMock.clear();
+/*        TestUtils.initializeAllMockClient(
                 safeStorageClientMock,
                 pnDeliveryClientMock,
                 addressBookMock,
@@ -233,7 +233,7 @@ public class CommonTestConfiguration {
                 addressManagerClientMock,
                 f24ClientMock,
                 actionPoolMock
-        );
+        );*/
     }
 
     private void setcCommonsConfigurationPropertiesForTest(PnDeliveryPushConfigs cfg) {
@@ -289,7 +289,7 @@ public class CommonTestConfiguration {
         externalChannel.setDigitalCodesFatallog(Arrays.asList("C008", "C010"));
         externalChannel.setDigitalRetryCount(-1);
         externalChannel.setDigitalRetryDelay(Duration.ofMinutes(10));
-        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofSeconds(50));
+        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofHours(24));
         Mockito.when(cfg.getExternalChannel()).thenReturn(externalChannel);
 
         // Impostazione delle proprietà di retention degli allegati
@@ -323,6 +323,9 @@ public class CommonTestConfiguration {
         Mockito.when(cfg.getRaddExperimentationStoresName()).thenReturn(pnRaddExperimentationStore);
 
         Mockito.when(cfg.getFeatureUnreachableRefinementPostAARStartDate()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
+
+        Mockito.when(cfg.getPerformanceImprovementStartDate()).thenReturn("2024-06-01T00:00:00Z");
+        Mockito.when(cfg.getPerformanceImprovementEndDate()).thenReturn("2099-07-14T20:00:00Z");
     }
 
 }

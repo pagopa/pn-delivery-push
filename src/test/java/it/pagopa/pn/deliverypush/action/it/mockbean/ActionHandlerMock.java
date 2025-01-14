@@ -55,9 +55,10 @@ public class ActionHandlerMock {
                     consumer.accept(message);
                 }
                 case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION ->{
-                    final Message<Action> message = getBaseActionMessage(action);
+                    log.debug("There is no action to do");
+/*                    final Message<Action> message = getBaseActionMessage(action);
                     Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushElapsedExternalChannelNoResponseTimeoutActionConsumer();
-                    consumer.accept(message);
+                    consumer.accept(message);*/
                 }
                 case NOTIFICATION_VALIDATION ->{
                     final Message<Action> message = getBaseActionMessage(action);

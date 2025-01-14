@@ -52,7 +52,7 @@ class CheckAttachmentRetentionIT extends CommonTestConfiguration {
     void verifyCheckAttachmentAlreadyRefined() {
         String iun = TestUtils.getRandomIun();
 
-        String taxId = "taxIdTest";
+        String taxId = TestUtils.getTaxId();
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
                 .withInternalId("ANON_"+taxId)
@@ -123,7 +123,7 @@ class CheckAttachmentRetentionIT extends CommonTestConfiguration {
     void verifyCheckAttachmentNotRefined() {
         String iun = TestUtils.getRandomIun();
 
-        String taxId = "taxIdTest";
+        String taxId = TestUtils.getTaxId();
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
                 .withInternalId("ANON_"+taxId)

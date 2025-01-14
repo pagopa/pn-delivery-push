@@ -76,7 +76,7 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
         String iun = TestUtils.getRandomIun();
 
         //Simulazione visualizzazione notifica a valle del send del messaggio di cortesi
-        String taxId = "testTaxId";
+        String taxId = TestUtils.getTaxId();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
@@ -183,7 +183,7 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String taxid01 = "TAXID01";
+        String taxid01 = TestUtils.getTaxId();
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
                 .withInternalId("ANON_"+taxid01)
