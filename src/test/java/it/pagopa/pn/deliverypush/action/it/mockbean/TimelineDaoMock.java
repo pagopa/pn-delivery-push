@@ -1,7 +1,5 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import static org.awaitility.Awaitility.await;
-
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
@@ -15,6 +13,10 @@ import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.utils.ThreadPool;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.context.annotation.Lazy;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -22,9 +24,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
-import org.springframework.context.annotation.Lazy;
+
+import static org.awaitility.Awaitility.await;
 
 @Slf4j
 public class TimelineDaoMock implements TimelineDao {
@@ -56,7 +57,7 @@ public class TimelineDaoMock implements TimelineDao {
     }
 
     public void clear() {
-        this.timelineList = new CopyOnWriteArrayList<>();
+       // this.timelineList = new CopyOnWriteArrayList<>();
     }
 
     private void checkAndAddTimelineElement(TimelineElementInternal dto) {
