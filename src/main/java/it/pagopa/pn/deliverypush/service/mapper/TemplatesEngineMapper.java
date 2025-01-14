@@ -21,18 +21,6 @@ public class TemplatesEngineMapper {
     private TemplatesEngineMapper() {
     }
 
-    /**
-     * Constructs a {@link NotificationAarRaddAlt} object for an AAR notification
-     * with alternative details.
-     *
-     * @param notification the {@link NotificationInt} object containing details about the notification,
-     *                     including its unique identifier (IUN), subject, and sender information.
-     * @param recipient    the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                     including their tax ID and recipient type.
-     * @return a {@link NotificationAarRaddAlt} object containing all the necessary information for the AAR
-     *         notification with alternative details.
-     * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
-     */
     public static NotificationAarRaddAlt notificationAARRADDalt(NotificationInt notification,
                                                                 NotificationRecipientInt recipient,
                                                                 String qrCodeQuickAccessUrlAarDetail,
@@ -69,18 +57,6 @@ public class TemplatesEngineMapper {
                 .raddPhoneNumber(raddPhoneNumber);
     }
 
-    /**
-     * Constructs a {@link NotificationAar} object for an Acknowledgment of Receipt (AAR) notification.
-     *
-     * @param notification the {@link NotificationInt} object containing the details about the notification,
-     *                     including its unique identifier (IUN), subject, and sender information.
-     * @param recipient    the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                     including their tax ID and recipient type.
-     * @param qrCodeQuickAccessUrlAarDetail a {@link String} representing the token used to generate the quick access QR code link
-     *                         for the notification details.
-     * @return a {@link NotificationAar} object containing all the necessary information for the AAR notification.
-     * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
-     */
     public static NotificationAar notificationAAR(NotificationInt notification,
                                                   NotificationRecipientInt recipient,
                                                   String qrCodeQuickAccessUrlAarDetail,
@@ -289,8 +265,8 @@ public class TemplatesEngineMapper {
             String denomination = recipientInt.getDenomination();
             physicalAddressAndDenomination = physicalAddressWriter.nullSafePhysicalAddressToString(
                     recipientInt.getPhysicalAddress(), denomination, "<br/>");
-            NotificationReceivedRecipient notificationReceivedNotification = notificationReceivedNotification(physicalAddressAndDenomination,
-                    recipientInt);
+            NotificationReceivedRecipient notificationReceivedNotification =
+                    notificationReceivedNotification(physicalAddressAndDenomination, recipientInt);
             receivedRecipients.add(notificationReceivedNotification);
         }
 

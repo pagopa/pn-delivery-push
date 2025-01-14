@@ -53,7 +53,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     @Override
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) {
         log.info("retrieve NotificationReceivedLegalFact template for iun {}", notification.getIun());
-        NotificationReceivedLegalFact legalFact = notificationReceivedLegalFact(notification, physicalAddressWriter, instantWriter);
+        NotificationReceivedLegalFact legalFact =
+                notificationReceivedLegalFact(notification, physicalAddressWriter, instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationReceivedLegalFact(language, legalFact);
     }
@@ -85,8 +86,13 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                       Instant timeStamp,
                                                       NotificationInt notification) {
         log.info("retrieve NotificationViewedLegalFact template for iun {}", iun);
-        NotificationViewedLegalFact notificationViewedLegalFact = notificationViewedLegalFact(iun, recipient,
-                delegateInfo, timeStamp, instantWriter);
+        NotificationViewedLegalFact notificationViewedLegalFact =
+                notificationViewedLegalFact(
+                        iun,
+                        recipient,
+                        delegateInfo,
+                        timeStamp,
+                        instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationViewedLegalFact(language, notificationViewedLegalFact);
     }
@@ -120,8 +126,14 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                        EndWorkflowStatus status,
                                                        Instant completionWorkflowDate) {
         log.info("retrieve PecDeliveryWorkflowLegalFact template for iun {}", notification.getIun());
-        PecDeliveryWorkflowLegalFact pecDeliveryWorkflowLegalFact = pecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
-                notification, recipient,status, completionWorkflowDate, instantWriter);
+        PecDeliveryWorkflowLegalFact pecDeliveryWorkflowLegalFact =
+                pecDeliveryWorkflowLegalFact(
+                        feedbackFromExtChannelList,
+                        notification,
+                        recipient,
+                        status,
+                        completionWorkflowDate,
+                        instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.pecDeliveryWorkflowLegalFact(language, pecDeliveryWorkflowLegalFact);
     }
@@ -151,8 +163,12 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                                  EndWorkflowStatus status,
                                                                  Instant failureWorkflowDate) {
         log.info("retrieve AnalogDeliveryFailureWorkflowLegalFact template for iun {}", notification.getIun());
-        AnalogDeliveryWorkflowFailureLegalFact analogDeliveryWorkflowFailureLegalFact = analogDeliveryWorkflowFailureLegalFact(notification,
-                recipient, failureWorkflowDate, instantWriter);
+        AnalogDeliveryWorkflowFailureLegalFact analogDeliveryWorkflowFailureLegalFact =
+                analogDeliveryWorkflowFailureLegalFact(
+                        notification,
+                        recipient,
+                        failureWorkflowDate,
+                        instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.analogDeliveryWorkflowFailureLegalFact(language, analogDeliveryWorkflowFailureLegalFact);
     }
@@ -176,7 +192,11 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     @Override
     public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) {
         log.info("retrieve NotificationCancelledLegalFact template for iun {}", notification.getIun());
-        NotificationCancelledLegalFact cancelledLegalFact = cancelledLegalFact(notification, notificationCancellationRequestDate, instantWriter);
+        NotificationCancelledLegalFact cancelledLegalFact =
+                cancelledLegalFact(
+                        notification,
+                        notificationCancellationRequestDate,
+                        instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationCancelledLegalFact(language, cancelledLegalFact);
     }
@@ -233,14 +253,31 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
             switch (aarTemplateType) {
                 case AAR_NOTIFICATION -> {
                     log.info("retrieve NotificationAAR template for iun {}", notification.getIun());
-                    NotificationAar notificationAAR =  notificationAAR(notification, recipient, qrCodeQuickAccessUrlAarDetail,
-                            accessUrl, accessUrlLabel, perfezionamentoLink, perfezionamentoLinkLabel);
+                    NotificationAar notificationAAR =
+                            notificationAAR(
+                                    notification,
+                                    recipient,
+                                    qrCodeQuickAccessUrlAarDetail,
+                                    accessUrl,
+                                    accessUrlLabel,
+                                    perfezionamentoLink,
+                                    perfezionamentoLinkLabel);
                     bytesArrayGeneratedAar = templatesClient.notificationAar(language, notificationAAR);
                 }
                 case AAR_NOTIFICATION_RADD_ALT -> {
                     log.info("retrieve NotificationAARRADDalt template for iun {}", notification.getIun());
-                    NotificationAarRaddAlt notificationAARRADDalt = notificationAARRADDalt(notification, recipient, qrCodeQuickAccessUrlAarDetail, accessUrl,
-                            accessUrlLabel, accessLink, this.getAccessLinkLabel(), perfezionamentoLink, perfezionamentoLinkLabel, pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber());
+                    NotificationAarRaddAlt notificationAARRADDalt =
+                            notificationAARRADDalt(
+                                    notification,
+                                    recipient,
+                                    qrCodeQuickAccessUrlAarDetail,
+                                    accessUrl,
+                                    accessUrlLabel,
+                                    accessLink,
+                                    this.getAccessLinkLabel(),
+                                    perfezionamentoLink,
+                                    perfezionamentoLinkLabel,
+                                    pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber());
                     bytesArrayGeneratedAar = templatesClient.notificationAarRaddAlt(language, notificationAARRADDalt);
                 }
                 case AAR_NOTIFICATION_RADD -> throw new PnInternalException("NotificationAAR_RADD not implemented", ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE);
@@ -277,8 +314,13 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
         log.info("retrieve NotificationAARBody template for iun {}", notification.getIun());
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
-        NotificationAarForEmail notificationAAR = notificationAarForEmail(notification, this.getPerfezionamentoLink(),
-                this.getPerfezionamentoLink(), qrCodeQuickAccessUrlAarDetail, this.getAccessUrl(recipient));
+        NotificationAarForEmail notificationAAR =
+                notificationAarForEmail(
+                        notification,
+                        this.getPerfezionamentoLink(),
+                        this.getPerfezionamentoLink(),
+                        qrCodeQuickAccessUrlAarDetail,
+                        this.getAccessUrl(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForEmail(language, notificationAAR);
     }
@@ -305,8 +347,14 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                  String quickAccessToken) {
         log.info("retrieve NotificationAARPECBody template for iun {}", notification.getIun());
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
-        NotificationAarForPec notificationAAR = notificationAarForPec(notification, recipient, qrCodeQuickAccessUrlAarDetail,
-                this.getPerfezionamentoLink(), this.getFAQSendURL(), this.getAccessUrl(recipient), this.getRecipientTypeForHTMLTemplate(recipient));
+        NotificationAarForPec notificationAAR = notificationAarForPec(
+                notification,
+                recipient,
+                qrCodeQuickAccessUrlAarDetail,
+                this.getPerfezionamentoLink(),
+                this.getFAQSendURL(),
+                this.getAccessUrl(recipient),
+                this.getRecipientTypeForHTMLTemplate(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForPec(language, notificationAAR);
     }
