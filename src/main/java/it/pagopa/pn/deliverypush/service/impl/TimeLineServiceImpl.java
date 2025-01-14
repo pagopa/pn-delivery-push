@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
+import static it.pagopa.pn.deliverypush.utils.StatusUtils.COMPLETED_DELIVERY_WORKFLOW_CATEGORY;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -53,7 +54,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
@@ -65,7 +65,6 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final TimelineCounterEntityDao timelineCounterEntityDao;
@@ -75,18 +74,30 @@ public class TimeLineServiceImpl implements TimelineService {
 
     private final NotificationService notificationService;
     private final SmartMapper smartMapper;
-    @Qualifier("lockProviderTimeline")
     private final LockProvider lockProvider;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
-
-    private static final List<TimelineElementCategoryInt> COMPLETED_DELIVERY_WORKFLOW_CATEGORY = List.of(
-            //Completato con successo
-            TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, //Anche in caso di fallimento del digital workflow, la notifica si può considerare consegnata
-            TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW,
-            //Fallimento
-            TimelineElementCategoryInt.COMPLETELY_UNREACHABLE
-    );
+    public TimeLineServiceImpl(
+            TimelineDao timelineDao,
+            TimelineCounterEntityDao timelineCounterEntityDao,
+            StatusUtils statusUtils,
+            ConfidentialInformationService confidentialInformationService,
+            StatusService statusService,
+            NotificationService notificationService,
+            SmartMapper smartMapper,
+            @Qualifier("lockProviderTimeline") LockProvider lockProvider,
+            PnDeliveryPushConfigs pnDeliveryPushConfigs
+    ) {
+        this.timelineDao = timelineDao;
+        this.timelineCounterEntityDao = timelineCounterEntityDao;
+        this.statusUtils = statusUtils;
+        this.confidentialInformationService = confidentialInformationService;
+        this.statusService = statusService;
+        this.notificationService = notificationService;
+        this.smartMapper = smartMapper;
+        this.lockProvider = lockProvider;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+    }
 
     @Override
     public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
@@ -119,7 +130,7 @@ public class TimeLineServiceImpl implements TimelineService {
     private boolean addCriticalTimelineElement(TimelineElementInternal dto, NotificationInt notification, PnAuditLogEvent logEvent) {
         log.debug("addCriticalTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
 
-        Optional<SimpleLock> optSimpleLock = lockProvider.lock(new LockConfiguration(Instant.now(), notification.getIun(), pnDeliveryPushConfigs.getTimelineLockDuration(), Duration.ofNanos(1)));
+        Optional<SimpleLock> optSimpleLock = lockProvider.lock(new LockConfiguration(Instant.now(), notification.getIun(), pnDeliveryPushConfigs.getTimelineLockDuration(), Duration.ZERO));
         if (optSimpleLock.isEmpty()) {
             logEvent.generateFailure("Lock not acquired for iun={} and timeline with category={}", notification.getIun(), dto.getCategory()).log();
             throw new PnInternalException("Lock not acquired for iun " + notification.getIun(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);

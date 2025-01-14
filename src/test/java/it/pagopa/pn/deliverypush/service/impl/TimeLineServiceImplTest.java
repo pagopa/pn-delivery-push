@@ -77,9 +77,7 @@ class TimeLineServiceImplTest {
         lockProvider = Mockito.mock(LockProvider.class);
         Mockito.when(pnDeliveryPushConfigs.getTimelineLockDuration()).thenReturn(Duration.ofSeconds(5));
 //        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
-        // TODO: FIX
-        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService, smartMapper);
-        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService, lockProvider, pnDeliveryPushConfigs);
+        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService, smartMapper, lockProvider, pnDeliveryPushConfigs);
         //timeLineService.setSchedulerService(schedulerService);
 
     }
