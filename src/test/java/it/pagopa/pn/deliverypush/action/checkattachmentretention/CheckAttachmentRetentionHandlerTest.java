@@ -52,7 +52,7 @@ class CheckAttachmentRetentionHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         String iun = notification.getIun();
         
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, 0)).thenReturn(true);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(iun, 0)).thenReturn(true);
         
         //WHEN
         checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun, Instant.now());
@@ -76,8 +76,8 @@ class CheckAttachmentRetentionHandlerTest {
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         String iun = notification.getIun();
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, 0)).thenReturn(true);
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, 1)).thenReturn(true);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(iun, 0)).thenReturn(true);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(iun, 1)).thenReturn(true);
 
         //WHEN
         checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun, Instant.now());
@@ -100,8 +100,8 @@ class CheckAttachmentRetentionHandlerTest {
                 .build();
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(notification.getIun(), 0)).thenReturn(false);
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(notification.getIun(), 1)).thenReturn(true);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(notification.getIun(), 0)).thenReturn(false);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(notification.getIun(), 1)).thenReturn(true);
 
         Duration retentionAfterExpiration = Duration.ofDays(120);
         Duration checkAttachmentDaysBeforeExpiration = Duration.ofDays(10);
@@ -127,7 +127,7 @@ class CheckAttachmentRetentionHandlerTest {
         NotificationInt notification = NotificationTestBuilder.builder().build();
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
 
-        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(notification.getIun(), 0)).thenReturn(false);
+        Mockito.when(timelineUtils.checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(notification.getIun(), 0)).thenReturn(false);
 
         Duration retentionAfterExpiration = Duration.ofDays(120);
         Duration checkAttachmentDaysBeforeExpiration = Duration.ofDays(10);

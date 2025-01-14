@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
