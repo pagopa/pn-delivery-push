@@ -240,7 +240,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 case AAR_NOTIFICATION_RADD_ALT -> {
                     log.info("retrieve NotificationAARRADDalt template for iun {}", notification.getIun());
                     NotificationAarRaddAlt notificationAARRADDalt = notificationAARRADDalt(notification, recipient, qrCodeQuickAccessUrlAarDetail, accessUrl,
-                            accessUrlLabel, accessLink, this.getAccessLinkLabel(), perfezionamentoLink, perfezionamentoLinkLabel);
+                            accessUrlLabel, accessLink, this.getAccessLinkLabel(), perfezionamentoLink, perfezionamentoLinkLabel, pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber());
                     bytesArrayGeneratedAar = templatesClient.notificationAarRaddAlt(language, notificationAARRADDalt);
                 }
                 case AAR_NOTIFICATION_RADD -> throw new PnInternalException("NotificationAAR_RADD not implemented", ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE);
@@ -277,7 +277,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
         log.info("retrieve NotificationAARBody template for iun {}", notification.getIun());
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
-        NotificationAarForEmail notificationAAR = notificationAarForEmail(this.getPerfezionamentoLink(),
+        NotificationAarForEmail notificationAAR = notificationAarForEmail(notification, this.getPerfezionamentoLink(),
                 this.getPerfezionamentoLink(), qrCodeQuickAccessUrlAarDetail, this.getAccessUrl(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForEmail(language, notificationAAR);
@@ -424,7 +424,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     private String getFAQSendURL() {
         return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqSendHash();
     }
-
 
     /**
      * Determines the recipient type for an HTML template based on the recipient's type.

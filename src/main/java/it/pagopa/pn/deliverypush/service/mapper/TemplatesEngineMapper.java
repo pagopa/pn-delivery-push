@@ -34,14 +34,15 @@ public class TemplatesEngineMapper {
      * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
      */
     public static NotificationAarRaddAlt notificationAARRADDalt(NotificationInt notification,
-                                                             NotificationRecipientInt recipient,
-                                                             String qrCodeQuickAccessUrlAarDetail,
-                                                             String accessUrl,
-                                                             String accessUrlLabel,
-                                                             String accessLink,
-                                                             String accessLinkLabel,
-                                                             String perfezionamentoLink,
-                                                             String perfezionamentoLinkLabel) {
+                                                                NotificationRecipientInt recipient,
+                                                                String qrCodeQuickAccessUrlAarDetail,
+                                                                String accessUrl,
+                                                                String accessUrlLabel,
+                                                                String accessLink,
+                                                                String accessLinkLabel,
+                                                                String perfezionamentoLink,
+                                                                String perfezionamentoLinkLabel,
+                                                                String raddPhoneNumber) {
         AarRaddAltSender sender = new AarRaddAltSender()
                 .paDenomination(notification.getSender().getPaDenomination());
 
@@ -52,7 +53,8 @@ public class TemplatesEngineMapper {
 
         AarRaddAltRecipient aarRecipient = new AarRaddAltRecipient()
                 .recipientType(recipient.getRecipientType().getValue())
-                .taxId(recipient.getTaxId());
+                .taxId(recipient.getTaxId())
+                .denomination(recipient.getDenomination());
 
         return new NotificationAarRaddAlt()
                 .notification(altNotification)
@@ -63,7 +65,8 @@ public class TemplatesEngineMapper {
                 .sendURLLAbel(accessLinkLabel)
                 .perfezionamentoURL(perfezionamentoLink)
                 .perfezionamentoURLLabel(perfezionamentoLinkLabel)
-                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail);
+                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail)
+                .raddPhoneNumber(raddPhoneNumber);
     }
 
     /**
@@ -147,15 +150,24 @@ public class TemplatesEngineMapper {
                 .recipientType(recipientTypeForHTMLTemplate);
     }
 
-    public static NotificationAarForEmail notificationAarForEmail(String perfezionamentoLink,
+    public static NotificationAarForEmail notificationAarForEmail(NotificationInt notification,
+                                                                  String perfezionamentoLink,
                                                                   String qrCodeQuickAccessUrlAarDetail,
                                                                   String faqSendURL,
                                                                   String accessUrl) {
+        AarForEmailSender sender = new AarForEmailSender()
+                .paDenomination(notification.getSender().getPaDenomination());
+
+        AarForEmailNotification aarForEmailNotification = new AarForEmailNotification()
+                .iun(notification.getIun())
+                .sender(sender);
+
         return new NotificationAarForEmail()
                 .perfezionamentoURL(perfezionamentoLink)
                 .quickAccessLink(qrCodeQuickAccessUrlAarDetail)
                 .pnFaqSendURL(faqSendURL)
-                .piattaformaNotificheURL(accessUrl);
+                .piattaformaNotificheURL(accessUrl)
+                .notification(aarForEmailNotification);
     }
 
     public static NotificationAarForSubject notificationAARSubject(NotificationInt notification) {
