@@ -1,14 +1,11 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.utils.FileUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
@@ -25,13 +22,11 @@ import org.springframework.util.CollectionUtils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_CONFIGURATION_NOT_FOUND;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE;
+import static it.pagopa.pn.deliverypush.service.mapper.TemplatesEngineMapper.*;
 
 @Slf4j
 @AllArgsConstructor
@@ -58,48 +53,11 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     @Override
     public byte[] generateNotificationReceivedLegalFact(NotificationInt notification) {
         log.info("retrieve NotificationReceivedLegalFact template for iun {}", notification.getIun());
-        String physicalAddressAndDenomination;
-        List<NotificationRecipientInt> recipients = Optional.of(notification)
-                .map(NotificationInt::getRecipients)
-                .orElse(new ArrayList<>());
-
-        List<NotificationReceivedRecipient> receivedRecipients = new ArrayList<>();
-        for (var recipientInt : recipients) {
-            String denomination = recipientInt.getDenomination();
-            physicalAddressAndDenomination = physicalAddressWriter.nullSafePhysicalAddressToString(
-                    recipientInt.getPhysicalAddress(), denomination, "<br/>");
-            NotificationReceivedDigitalDomicile digitalDomicile = new NotificationReceivedDigitalDomicile()
-                    .address( Optional.of(recipientInt).map(NotificationRecipientInt::getDigitalDomicile)
-                            .map(DigitalAddressInt::getAddress).orElse(null));
-
-            NotificationReceivedRecipient notificationReceivedRecipient = new NotificationReceivedRecipient()
-                    .physicalAddressAndDenomination(physicalAddressAndDenomination)
-                    .denomination(recipientInt.getDenomination())
-                    .taxId(recipientInt.getTaxId())
-                    .digitalDomicile(digitalDomicile);
-
-            receivedRecipients.add(notificationReceivedRecipient);
-        }
-
-        var senderInt = Optional.of(notification).map(NotificationInt::getSender).orElse(new NotificationSenderInt());
-        NotificationReceivedSender sender = new NotificationReceivedSender()
-                .paDenomination(senderInt.getPaDenomination())
-                .paTaxId(senderInt.getPaTaxId());
-
-        NotificationReceivedNotification notificationReceivedNotification = new NotificationReceivedNotification()
-                .iun(notification.getIun())
-                .recipients(receivedRecipients)
-                .sender(sender);
-
-        NotificationReceivedLegalFact legalFact = new NotificationReceivedLegalFact()
-                .sendDate(instantWriter.instantToDate(notification.getSentAt()))
-                .subject(notification.getSubject())
-                .notification(notificationReceivedNotification)
-                .digests(extractNotificationAttachmentDigests(notification));
-
+        NotificationReceivedLegalFact legalFact = notificationReceivedLegalFact(notification, physicalAddressWriter, instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationReceivedLegalFact(language, legalFact);
     }
+
 
     /**
      * Generates the legal fact for the viewing of a notification.
@@ -127,16 +85,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                       Instant timeStamp,
                                                       NotificationInt notification) {
         log.info("retrieve NotificationViewedLegalFact template for iun {}", iun);
-        NotificationViewedRecipient notificationViewedRecipient = new NotificationViewedRecipient()
-                .denomination(recipient.getDenomination())
-                .taxId(recipient.getTaxId());
-
-        NotificationViewedLegalFact notificationViewedLegalFact = new NotificationViewedLegalFact()
-                .recipient(notificationViewedRecipient)
-                .iun(iun)
-                .delegate(notificationViewedDelegate(delegateInfo))
-                .when(instantWriter.instantToDate(timeStamp));
-
+        NotificationViewedLegalFact notificationViewedLegalFact = notificationViewedLegalFact(iun, recipient,
+                delegateInfo, timeStamp, instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationViewedLegalFact(language, notificationViewedLegalFact);
     }
@@ -170,31 +120,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                        EndWorkflowStatus status,
                                                        Instant completionWorkflowDate) {
         log.info("retrieve PecDeliveryWorkflowLegalFact template for iun {}", notification.getIun());
-        List<PecDeliveryWorkflowDelivery> pecDeliveries = feedbackFromExtChannelList.stream()
-                .map(feedbackFromExtChannel -> {
-                    ResponseStatusInt sentPecStatus = feedbackFromExtChannel.getResponseStatus();
-                    Instant notificationDate = feedbackFromExtChannel.getNotificationDate();
-                    String addressSource = Optional.ofNullable(feedbackFromExtChannel.getDigitalAddressSource())
-                            .map(DigitalAddressSourceInt::getValue)
-                            .orElse(null);
-                    return new PecDeliveryWorkflowDelivery()
-                            .denomination(recipient.getDenomination())
-                            .taxId(recipient.getTaxId())
-                            .address(feedbackFromExtChannel.getDigitalAddress().getAddress())
-                            .addressSource(addressSource)
-                            .type(feedbackFromExtChannel.getDigitalAddress().getType().getValue())
-                            .responseDate(instantWriter.instantToDate(notificationDate))
-                            .ok(ResponseStatusInt.OK.equals(sentPecStatus));
-                })
-                .sorted(Comparator.comparing(PecDeliveryWorkflowDelivery::getResponseDate))
-                .toList();
-
-        PecDeliveryWorkflowLegalFact pecDeliveryWorkflowLegalFact = new PecDeliveryWorkflowLegalFact()
-                .iun(notification.getIun())
-                .endWorkflowStatus(status.toString())
-                .deliveries(pecDeliveries)
-                .endWorkflowDate(instantWriter.instantToDate(completionWorkflowDate));
-
+        PecDeliveryWorkflowLegalFact pecDeliveryWorkflowLegalFact = pecDeliveryWorkflowLegalFact(feedbackFromExtChannelList,
+                notification, recipient,status, completionWorkflowDate, instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.pecDeliveryWorkflowLegalFact(language, pecDeliveryWorkflowLegalFact);
     }
@@ -224,16 +151,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                                  EndWorkflowStatus status,
                                                                  Instant failureWorkflowDate) {
         log.info("retrieve AnalogDeliveryFailureWorkflowLegalFact template for iun {}", notification.getIun());
-        AnalogDeliveryWorkflowFailureRecipient analogDeliveryWorkflowFailureRecipient = new AnalogDeliveryWorkflowFailureRecipient()
-                .denomination(recipient.getDenomination())
-                .taxId(recipient.getTaxId());
-
-        AnalogDeliveryWorkflowFailureLegalFact analogDeliveryWorkflowFailureLegalFact = new AnalogDeliveryWorkflowFailureLegalFact()
-                .iun(notification.getIun())
-                .recipient(analogDeliveryWorkflowFailureRecipient)
-                .endWorkflowDate(instantWriter.instantToDate(failureWorkflowDate, true))
-                .endWorkflowTime(instantWriter.instantToTime(failureWorkflowDate));
-
+        AnalogDeliveryWorkflowFailureLegalFact analogDeliveryWorkflowFailureLegalFact = analogDeliveryWorkflowFailureLegalFact(notification,
+                recipient, failureWorkflowDate, instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.analogDeliveryWorkflowFailureLegalFact(language, analogDeliveryWorkflowFailureLegalFact);
     }
@@ -257,25 +176,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     @Override
     public byte[] generateNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate) {
         log.info("retrieve NotificationCancelledLegalFact template for iun {}", notification.getIun());
-        NotificationCancelledSender sender = new NotificationCancelledSender()
-                .paDenomination(notification.getSender().getPaDenomination());
-
-        List<NotificationCancelledRecipient> recipients = notification.getRecipients()
-                .stream()
-                .map(recipientInt -> new NotificationCancelledRecipient()
-                        .denomination(recipientInt.getDenomination())
-                        .taxId(recipientInt.getTaxId()))
-                .toList();
-
-        NotificationCancelledNotification notificationCancelledNotification = new NotificationCancelledNotification()
-                .iun(notification.getIun())
-                .recipients(recipients)
-                .sender(sender);
-
-        NotificationCancelledLegalFact cancelledLegalFact = new NotificationCancelledLegalFact()
-                .notificationCancelledDate(instantWriter.instantToDate(notificationCancellationRequestDate))
-                .notification(notificationCancelledNotification);
-
+        NotificationCancelledLegalFact cancelledLegalFact = cancelledLegalFact(notification, notificationCancellationRequestDate, instantWriter);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationCancelledLegalFact(language, cancelledLegalFact);
     }
@@ -295,60 +196,9 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     @Override
     public String generateNotificationAARSubject(NotificationInt notification) {
         log.info("retrieve NotificationAARSubject template for iun {}", notification.getIun());
-        AarForSubjectSender sender = new AarForSubjectSender()
-                .paDenomination(notification.getSender().getPaDenomination());
-
-        AarForSubjectNotification aarForSubjectNotification = new AarForSubjectNotification()
-                .sender(sender)
-                .iun(notification.getIun());
-
-        NotificationAarForSubject notificationAARSubject = new NotificationAarForSubject()
-                .notification(aarForSubjectNotification);
-
+        NotificationAarForSubject notificationAARSubject = notificationAARSubject(notification);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForSubject(language, notificationAARSubject);
-    }
-
-    /**
-     * Extracts the SHA-256 digests of the attachments related to a notification.
-     *
-     * @param notification the {@link NotificationInt} object containing the details of the notification,
-     *                     including its attached documents and recipients with payment information.
-     * @return a {@link List} of {@link String} representing the SHA-256 digests (in hexadecimal uppercase)
-     *         of all relevant attachments from the notification.
-     */
-    private List<String> extractNotificationAttachmentDigests(NotificationInt notification) {
-        List<String> digests = new ArrayList<>();
-        // - Documents digests
-        for (NotificationDocumentInt attachment : notification.getDocuments()) {
-            digests.add(FileUtils.convertBase64toHexUppercase(attachment.getDigests().getSha256()));
-        }
-        // F24 digests
-        for (NotificationRecipientInt recipient : notification.getRecipients()) {
-            //add digests for v21
-            addDigestsForMultiPayments(recipient.getPayments(), digests);
-        }
-        return digests;
-    }
-
-    /**
-     * Adds the SHA-256 digests of the attachments related to the payments made by the recipient.
-     *
-     * @param payments a {@link List} of {@link NotificationPaymentInfoInt} objects representing the payments
-     *                 made by the recipient, potentially containing attachments.
-     * @param digests  a {@link List} of {@link String} where the extracted digests will be added.
-     */
-    private void addDigestsForMultiPayments(List<NotificationPaymentInfoInt> payments, List<String> digests) {
-        if (!CollectionUtils.isEmpty(payments)) {
-            payments.forEach(payment -> {
-                if (payment.getPagoPA() != null && payment.getPagoPA().getAttachment() != null) {
-                    digests.add(FileUtils.convertBase64toHexUppercase(payment.getPagoPA().getAttachment().getDigests().getSha256()));
-                }
-                if (payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
-                    digests.add(FileUtils.convertBase64toHexUppercase(payment.getF24().getMetadataAttachment().getDigests().getSha256()));
-                }
-            });
-        }
     }
 
     /**
@@ -369,6 +219,12 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     public AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         PnSendMode pnSendMode = pnSendModeUtils.getPnSendMode(notification.getSentAt());
+        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
+        String accessUrl = this.getAccessUrl(recipient);
+        String accessUrlLabel = this.getAccessUrlLabel(recipient);
+        String perfezionamentoLink = this.getPerfezionamentoLink();
+        String perfezionamentoLinkLabel = this.getPerfezionamentoLinkLabel();
+        String accessLink = this.getAccessLink();
         if (pnSendMode != null) {
             final AarTemplateChooseStrategy aarTemplateTypeChooseStrategy = pnSendMode.getAarTemplateTypeChooseStrategy();
             final AarTemplateType aarTemplateType = aarTemplateTypeChooseStrategy.choose(recipient.getPhysicalAddress());
@@ -377,16 +233,17 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
             switch (aarTemplateType) {
                 case AAR_NOTIFICATION -> {
                     log.info("retrieve NotificationAAR template for iun {}", notification.getIun());
-                    NotificationAar notificationAAR = getNotificationAAR(notification, recipient, quickAccessToken);
+                    NotificationAar notificationAAR =  notificationAAR(notification, recipient, qrCodeQuickAccessUrlAarDetail,
+                            accessUrl, accessUrlLabel, perfezionamentoLink, perfezionamentoLinkLabel);
                     bytesArrayGeneratedAar = templatesClient.notificationAar(language, notificationAAR);
                 }
                 case AAR_NOTIFICATION_RADD_ALT -> {
                     log.info("retrieve NotificationAARRADDalt template for iun {}", notification.getIun());
-                    NotificationAarRaddAlt notificationAARRADDalt = getNotificationAARRADDalt(notification, recipient, quickAccessToken);
+                    NotificationAarRaddAlt notificationAARRADDalt = notificationAARRADDalt(notification, recipient, qrCodeQuickAccessUrlAarDetail, accessUrl,
+                            accessUrlLabel, accessLink, this.getAccessLinkLabel(), perfezionamentoLink, perfezionamentoLinkLabel, pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber());
                     bytesArrayGeneratedAar = templatesClient.notificationAarRaddAlt(language, notificationAARRADDalt);
                 }
-                case AAR_NOTIFICATION_RADD -> //TODO da vedere
-                        throw new PnInternalException("NotificationAAR_RADD not implemented", ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE);
+                case AAR_NOTIFICATION_RADD -> throw new PnInternalException("NotificationAAR_RADD not implemented", ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE);
             }
             return AARInfo.builder()
                     .bytesArrayGeneratedAar(bytesArrayGeneratedAar)
@@ -420,21 +277,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
         log.info("retrieve NotificationAARBody template for iun {}", notification.getIun());
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
-
-        AarForEmailSender sender = new AarForEmailSender()
-                .paDenomination(notification.getSender().getPaDenomination());
-
-        AarForEmailNotification aarForEmailNotification = new AarForEmailNotification()
-                .iun(notification.getIun())
-                .sender(sender);
-
-        NotificationAarForEmail notificationAAR = new NotificationAarForEmail()
-                .perfezionamentoURL(this.getPerfezionamentoLink())
-                .quickAccessLink(qrCodeQuickAccessUrlAarDetail)
-                .pnFaqSendURL(this.getFAQSendURL())
-                .piattaformaNotificheURL(this.getAccessUrl(recipient))
-                .notification(aarForEmailNotification);
-
+        NotificationAarForEmail notificationAAR = notificationAarForEmail(notification, this.getPerfezionamentoLink(),
+                this.getPerfezionamentoLink(), qrCodeQuickAccessUrlAarDetail, this.getAccessUrl(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForEmail(language, notificationAAR);
     }
@@ -461,27 +305,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                  String quickAccessToken) {
         log.info("retrieve NotificationAARPECBody template for iun {}", notification.getIun());
         String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
-
-        AarForPecSender sender = new AarForPecSender()
-                .paDenomination(notification.getSender().getPaDenomination());
-
-        AarForPecNotification pecNotification = new AarForPecNotification()
-                .iun(notification.getIun())
-                .subject(notification.getSubject())
-                .sender(sender);
-
-        AarForPecRecipient aarForPecRecipient = new AarForPecRecipient()
-                .taxId(recipient.getTaxId());
-
-        NotificationAarForPec notificationAAR = new NotificationAarForPec()
-                .perfezionamentoURL(this.getPerfezionamentoLink())
-                .quickAccessLink(qrCodeQuickAccessUrlAarDetail)
-                .pnFaqSendURL(this.getFAQSendURL())
-                .piattaformaNotificheURL(this.getAccessUrl(recipient))
-                .notification(pecNotification)
-                .recipient(aarForPecRecipient)
-                .recipientType(this.getRecipientTypeForHTMLTemplate(recipient));
-
+        NotificationAarForPec notificationAAR = notificationAarForPec(notification, recipient, qrCodeQuickAccessUrlAarDetail,
+                this.getPerfezionamentoLink(), this.getFAQSendURL(), this.getAccessUrl(recipient), this.getRecipientTypeForHTMLTemplate(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForPec(language, notificationAAR);
     }
@@ -501,16 +326,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     @Override
     public String generateNotificationAARForSMS(NotificationInt notification) {
         log.info("retrieve NotificationAARForSMS template for iun {}", notification.getIun());
-        AarForSmsSender sender = new AarForSmsSender()
-                .paDenomination(notification.getSender().getPaDenomination());
-
-        AarForSmsNotification aarForSmsNotification = new AarForSmsNotification()
-                .iun(notification.getIun())
-                .sender(sender);
-
-        NotificationAarForSms notificationAARForSMS = new NotificationAarForSms()
-                .notification(aarForSmsNotification);
-
+        NotificationAarForSms notificationAARForSMS = notificationAarForSms(notification);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForSms(language, notificationAARForSMS);
     }
@@ -609,7 +425,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
         return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqSendHash();
     }
 
-
     /**
      * Determines the recipient type for an HTML template based on the recipient's type.
      *
@@ -634,90 +449,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     }
 
     /**
-     * Constructs a {@link NotificationAar} object for an Acknowledgment of Receipt (AAR) notification.
-     *
-     * @param notification the {@link NotificationInt} object containing the details about the notification,
-     *                     including its unique identifier (IUN), subject, and sender information.
-     * @param recipient    the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                     including their tax ID and recipient type.
-     * @param quickAccessToken a {@link String} representing the token used to generate the quick access QR code link
-     *                         for the notification details.
-     * @return a {@link NotificationAar} object containing all the necessary information for the AAR notification.
-     * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
-     */
-    private NotificationAar getNotificationAAR(NotificationInt notification,
-                                               NotificationRecipientInt recipient,
-                                               String quickAccessToken) {
-        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
-
-        AarSender sender = new AarSender()
-                .paDenomination(notification.getSender().getPaDenomination());
-
-        AarNotification aarNotification = new AarNotification()
-                .iun(notification.getIun())
-                .subject(notification.getSubject())
-                .sender(sender);
-
-        AarRecipient aarRecipient = new AarRecipient()
-                .recipientType(recipient.getRecipientType().getValue())
-                .taxId(recipient.getTaxId());
-
-        return new NotificationAar()
-                .notification(aarNotification)
-                .recipient(aarRecipient)
-                .piattaformaNotificheURL(this.getAccessUrl(recipient))
-                .piattaformaNotificheURLLabel(this.getAccessUrlLabel(recipient))
-                .perfezionamentoURL(this.getPerfezionamentoLink())
-                .perfezionamentoURLLabel(this.getPerfezionamentoLinkLabel())
-                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail);
-    }
-
-    /**
-     * Constructs a {@link NotificationAarRaddAlt} object for an AAR notification
-     * with alternative details.
-     *
-     * @param notification the {@link NotificationInt} object containing details about the notification,
-     *                     including its unique identifier (IUN), subject, and sender information.
-     * @param recipient    the {@link NotificationRecipientInt} object representing the recipient of the notification,
-     *                     including their tax ID and recipient type.
-     * @param quickAccessToken a {@link String} representing the token used to generate the quick access QR code
-     *                         link for the notification details.
-     * @return a {@link NotificationAarRaddAlt} object containing all the necessary information for the AAR
-     *         notification with alternative details.
-     * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
-     */
-    private NotificationAarRaddAlt getNotificationAARRADDalt(NotificationInt notification,
-                                                             NotificationRecipientInt recipient,
-                                                             String quickAccessToken) {
-        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
-
-        AarRaddAltSender sender = new AarRaddAltSender()
-                .paDenomination(notification.getSender().getPaDenomination());
-
-        AarRaddAltNotification altNotification = new AarRaddAltNotification()
-                .iun(notification.getIun())
-                .subject(notification.getSubject())
-                .sender(sender);
-
-        AarRaddAltRecipient aarRecipient = new AarRaddAltRecipient()
-                .recipientType(recipient.getRecipientType().getValue())
-                .taxId(recipient.getTaxId())
-                .denomination(recipient.getDenomination());
-
-        return new NotificationAarRaddAlt()
-                .notification(altNotification)
-                .recipient(aarRecipient)
-                .piattaformaNotificheURL(this.getAccessUrl(recipient))
-                .piattaformaNotificheURLLabel(this.getAccessUrlLabel(recipient))
-                .sendURL(this.getAccessLink())
-                .sendURLLAbel(this.getAccessLinkLabel())
-                .perfezionamentoURL(this.getPerfezionamentoLink())
-                .perfezionamentoURLLabel(this.getPerfezionamentoLinkLabel())
-                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail)
-                .raddPhoneNumber(pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber());
-    }
-
-    /**
      * Determines the language to be used for the notification based on the provided list of additional languages.
      *
      * @param additionalLanguages a {@link List} of {@link String} representing the additional languages to be considered.
@@ -731,12 +462,4 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 ? LanguageEnum.IT : LanguageEnum.fromValue(additionalLanguages.get(0));
     }
 
-    private NotificationViewedDelegate notificationViewedDelegate(DelegateInfoInt delegateInfo) {
-        return delegateInfo != null ?
-                new NotificationViewedDelegate()
-                        .denomination(delegateInfo.getDenomination())
-                        .taxId(delegateInfo.getTaxId())
-                : null;
-    }
 }
-
