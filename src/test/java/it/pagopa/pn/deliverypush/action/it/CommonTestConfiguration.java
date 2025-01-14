@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUti
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
+import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.action.notificationpaid.NotificationPaidHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationCost;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewLegalFactCreationResponseHandler;
@@ -219,8 +220,7 @@ public class CommonTestConfiguration {
 
         ConsoleAppenderCustom.initializeLog();
 
-        addressBookMock.clear();
-/*        TestUtils.initializeAllMockClient(
+        TestUtils.initializeAllMockClient(
                 safeStorageClientMock,
                 pnDeliveryClientMock,
                 addressBookMock,
@@ -233,7 +233,7 @@ public class CommonTestConfiguration {
                 addressManagerClientMock,
                 f24ClientMock,
                 actionPoolMock
-        );*/
+        );
     }
 
     private void setcCommonsConfigurationPropertiesForTest(PnDeliveryPushConfigs cfg) {
