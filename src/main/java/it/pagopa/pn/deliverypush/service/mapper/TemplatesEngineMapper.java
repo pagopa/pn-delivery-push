@@ -2,8 +2,8 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.commons.utils.FileUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetails
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
 import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
@@ -43,7 +42,6 @@ public class TemplatesEngineMapper {
                                                              String accessLinkLabel,
                                                              String perfezionamentoLink,
                                                              String perfezionamentoLinkLabel) {
-
         AarRaddAltSender sender = new AarRaddAltSender()
                 .paDenomination(notification.getSender().getPaDenomination());
 
@@ -180,7 +178,6 @@ public class TemplatesEngineMapper {
 
         List<NotificationCancelledRecipient> recipients = notification.getRecipients()
                 .stream()
-                .filter(recipientInt -> Objects.nonNull(recipientInt.getDenomination()) || Objects.nonNull(recipientInt.getTaxId()))
                 .map(recipientInt -> new NotificationCancelledRecipient()
                         .denomination(recipientInt.getDenomination())
                         .taxId(recipientInt.getTaxId()))
@@ -218,13 +215,6 @@ public class TemplatesEngineMapper {
                                                                             Instant completionWorkflowDate,
                                                                             CustomInstantWriter instantWriter) {
         List<PecDeliveryWorkflowDelivery> pecDeliveries = feedbackFromExtChannelList.stream()
-                .filter(feedbackFromExtChannel ->
-                        Objects.nonNull(feedbackFromExtChannel.getResponseStatus())
-                                || Objects.nonNull(feedbackFromExtChannel.getNotificationDate())
-                                || Optional.of(feedbackFromExtChannel)
-                                .map(SendDigitalFeedbackDetailsInt::getDigitalAddress)
-                                .map(DigitalAddressInt::getAddress).isEmpty()
-                )
                 .map(feedbackFromExtChannel -> {
                     ResponseStatusInt sentPecStatus = feedbackFromExtChannel.getResponseStatus();
                     Instant notificationDate = feedbackFromExtChannel.getNotificationDate();
@@ -287,12 +277,11 @@ public class TemplatesEngineMapper {
             String denomination = recipientInt.getDenomination();
             physicalAddressAndDenomination = physicalAddressWriter.nullSafePhysicalAddressToString(
                     recipientInt.getPhysicalAddress(), denomination, "<br/>");
-
-            var notificationReceivedNotification = notificationReceivedNotification(physicalAddressAndDenomination, recipientInt);
-            if (notificationReceivedNotification != null) {
-                receivedRecipients.add(notificationReceivedNotification);
-            }
+            NotificationReceivedRecipient notificationReceivedNotification = notificationReceivedNotification(physicalAddressAndDenomination,
+                    recipientInt);
+            receivedRecipients.add(notificationReceivedNotification);
         }
+
         NotificationReceivedNotification notificationReceivedNotification = new NotificationReceivedNotification()
                 .iun(notification.getIun())
                 .recipients(receivedRecipients)
@@ -307,29 +296,21 @@ public class TemplatesEngineMapper {
 
     private static NotificationReceivedRecipient notificationReceivedNotification(String physicalAddressAndDenomination,
                                                                                   NotificationRecipientInt recipientInt) {
-        var digitalDomicile = digitalDomicile(recipientInt);
-        return (StringUtils.isBlank(physicalAddressAndDenomination)
-                || recipientInt.getDenomination() == null
-                || recipientInt.getTaxId() == null
-                || digitalDomicile == null)
-                ? null :
+        return recipientInt != null ?
                 new NotificationReceivedRecipient()
                         .physicalAddressAndDenomination(physicalAddressAndDenomination)
                         .denomination(recipientInt.getDenomination())
                         .taxId(recipientInt.getTaxId())
-                        .digitalDomicile(digitalDomicile);
-
+                        .digitalDomicile(digitalDomicile(recipientInt.getDigitalDomicile())) : null;
     }
 
-    private static NotificationReceivedDigitalDomicile digitalDomicile(NotificationRecipientInt recipientInt) {
-        String address = Optional.of(recipientInt).map(NotificationRecipientInt::getDigitalDomicile)
-                .map(DigitalAddressInt::getAddress).orElse(null);
-        return address != null ? new NotificationReceivedDigitalDomicile().address(address) : null;
+    private static NotificationReceivedDigitalDomicile digitalDomicile(LegalDigitalAddressInt domicile) {
+        return domicile != null ? new NotificationReceivedDigitalDomicile().address(domicile.getAddress()) : null;
     }
 
     private static NotificationReceivedSender sender(NotificationInt notification) {
-        var senderInt = Optional.of(notification).map(NotificationInt::getSender).orElse(new NotificationSenderInt());
-        return (senderInt.getPaDenomination() != null || senderInt.getPaTaxId() != null) ?
+        var senderInt = Optional.of(notification).map(NotificationInt::getSender).orElse(null);
+        return senderInt != null ?
                 new NotificationReceivedSender()
                         .paDenomination(senderInt.getPaDenomination())
                         .paTaxId(senderInt.getPaTaxId())
@@ -377,5 +358,4 @@ public class TemplatesEngineMapper {
             });
         }
     }
-
 }
