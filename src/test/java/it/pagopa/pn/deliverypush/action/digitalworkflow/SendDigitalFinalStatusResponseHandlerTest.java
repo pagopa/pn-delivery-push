@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -156,6 +157,57 @@ class SendDigitalFinalStatusResponseHandlerTest {
                 notification,
                 recIndex,
                 sendDigitalFeedbackDetails.getNotificationDate(),
+                details.getLastAttemptAddressInfo().getDigitalAddress()
+        );
+    }
+
+    @Test
+    void handleSendDigitalFinalStatusResponseTestOKisNotFirstSendRetryAndAlreadyPresentRelatedFeedbackTimelineIdNotNull() {
+        //GIVEN
+        NotificationInt notification = getNotification();
+        String iun = notification.getIun();
+        String sendDigitalFeedbackTimelineId = "sendDigitalFeedbackTimelineId";
+        int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, notification.getRecipients().get(0).getTaxId());
+
+        Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
+
+        SendDigitalFinalStatusResponseDetails details = SendDigitalFinalStatusResponseDetails.builder()
+                .lastAttemptAddressInfo(
+                        DigitalAddressInfoSentAttempt.builder()
+                                .relatedFeedbackTimelineId(sendDigitalFeedbackTimelineId)
+                                .build()
+                )
+                .isFirstSendRetry(false)
+                .alreadyPresentRelatedFeedbackTimelineId("alreadyPresentRelatedFeedbackTimelineId")
+                .build();
+
+        SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails = SendDigitalFeedbackDetailsInt.builder()
+                .responseStatus(ResponseStatusInt.OK)
+                .notificationDate(Instant.now())
+                .build();
+
+        SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetails2 = SendDigitalFeedbackDetailsInt.builder()
+                .responseStatus(ResponseStatusInt.OK)
+                .notificationDate(Instant.now().plusSeconds(3600))
+                .build();
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .details(sendDigitalFeedbackDetails2)
+                .build();
+
+        Mockito.when( timelineService.getTimelineElementDetails(Mockito.eq(iun), Mockito.eq(sendDigitalFeedbackTimelineId), Mockito.any())).thenReturn(
+                Optional.of(sendDigitalFeedbackDetails)
+        );
+        Mockito.when(digitalWorkFlowHandler.getTimelineElement(Mockito.eq(iun), Mockito.eq(recIndex), Mockito.eq("alreadyPresentRelatedFeedbackTimelineId"))).thenReturn(timelineElementInternal);
+
+        //WHEN
+        sendDigitalFinalStatusResponseHandler.handleSendDigitalFinalStatusResponse(iun, details);
+
+        //THEN
+        Mockito.verify(completionWorkFlowHandler).completionSuccessDigitalWorkflow(
+                notification,
+                recIndex,
+                sendDigitalFeedbackDetails2.getNotificationDate(),
                 details.getLastAttemptAddressInfo().getDigitalAddress()
         );
     }

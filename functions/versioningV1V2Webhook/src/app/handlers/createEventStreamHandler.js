@@ -27,9 +27,8 @@ class CreateEventStreamHandler extends EventHandler {
                 requestBody = createStreamCreationRequestV22(requestBody);
             break;
             case 23:
-                requestBody = requestBody;
-            break;
             case 24:
+            case 25:
                 requestBody = requestBody;
             break;
             default:
@@ -56,6 +55,9 @@ class CreateEventStreamHandler extends EventHandler {
                 transformedObject = response.data;
             break;
             case 24:
+                transformedObject = response.data;
+            break;
+            case 25:
                 transformedObject = response.data;
             break;
             default:

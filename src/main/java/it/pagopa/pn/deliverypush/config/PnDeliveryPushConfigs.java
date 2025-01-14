@@ -24,6 +24,8 @@ import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 @Import({SharedAutoConfiguration.class})
 public class PnDeliveryPushConfigs {
 
+    private String templatesEngineBaseUrl;
+
     private String deliveryBaseUrl;
 
     private String paperChannelBaseUrl;
@@ -120,6 +122,8 @@ public class PnDeliveryPushConfigs {
 
     private List<String> pnSendMode;
 
+    private String activationDeceasedWorkflowDate;
+
     //quickWorkAroundForPN-9116
     private boolean sendMoreThan20GramsDefaultValue;
 
@@ -132,6 +136,8 @@ public class PnDeliveryPushConfigs {
     private String performanceImprovementEndDate;
 
     private boolean additionalLangsEnabled;
+
+    private Instant featureUnreachableRefinementPostAARStartDate;
 
     private Duration timelineLockDuration;
 
