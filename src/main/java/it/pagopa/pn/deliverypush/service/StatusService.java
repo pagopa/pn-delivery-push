@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.Instant;
 import java.util.Set;
 
 public interface StatusService {
@@ -27,14 +26,6 @@ public interface StatusService {
      * @return entrambi i notificationstatus (old, new) - cambio di stato elaborato
      */
     NotificationStatusUpdate getStatus(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline, NotificationInt notification);
-
-    /**
-     * aggiorna lo stato chiamando pn-delivery
-     * @param iun iun della notifica
-     * @param nextState prossimo stato
-     * @param timeStamp timestamp
-     */
-    void updateStatus(String iun, NotificationStatusInt nextState, Instant timeStamp);
 
     /**
      * calcola lo stato in base al dto e al set di timeline correnti

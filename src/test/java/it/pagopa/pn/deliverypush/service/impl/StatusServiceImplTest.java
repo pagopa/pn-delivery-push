@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAccepte
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
@@ -32,10 +31,9 @@ class StatusServiceImplTest {
     
     @BeforeEach
     void setup() {
-        PnDeliveryClient pnDeliveryClient = Mockito.mock( PnDeliveryClient.class );
         statusUtils = Mockito.mock( StatusUtils.class );
 
-        statusService = new StatusServiceImpl(pnDeliveryClient, statusUtils);
+        statusService = new StatusServiceImpl(statusUtils);
     }
 
     @Test

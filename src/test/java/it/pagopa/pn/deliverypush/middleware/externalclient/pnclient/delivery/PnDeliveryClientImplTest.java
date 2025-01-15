@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.api.InternalOnlyApi;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV24;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,18 +23,6 @@ class PnDeliveryClientImplTest {
     @BeforeEach
     void setup() {
         client = new PnDeliveryClientImpl(pnDeliveryApi);
-    }
-
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void updateStatus() {
-
-        RequestUpdateStatusDto statusDto = new RequestUpdateStatusDto();
-        statusDto.setIun("001");
-        Mockito.when(pnDeliveryApi.updateStatusWithHttpInfo(statusDto))
-                .thenReturn(ResponseEntity.ok().build());
-
-        Assertions.assertDoesNotThrow(()->client.updateStatus(statusDto));
     }
 
     @Test
