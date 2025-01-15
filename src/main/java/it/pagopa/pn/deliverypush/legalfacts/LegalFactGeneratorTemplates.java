@@ -345,7 +345,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                                  NotificationRecipientInt recipient,
                                                  String quickAccessToken) {
         log.info("retrieve NotificationAARPECBody template for iun {}", notification.getIun());
-        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
         NotificationAarForPec notificationAAR = notificationAarForPec(
                 notification,
                 recipient,
