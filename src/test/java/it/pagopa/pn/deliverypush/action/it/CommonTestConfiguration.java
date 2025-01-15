@@ -163,8 +163,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         WebhookActionsEventHandler.class,
         WebhookEventsServiceMock.class,
         SmartMapper.class,
-        TimelineMapperFactory.class,
-        LockProviderMock.class
+        TimelineMapperFactory.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:/application-testIT.properties")
