@@ -313,13 +313,12 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     @Override
     public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
         log.info("retrieve NotificationAARBody template for iun {}", notification.getIun());
-        String qrCodeQuickAccessUrlAarDetail = this.getQrCodeQuickAccessUrlAarDetail(recipient, quickAccessToken);
         NotificationAarForEmail notificationAAR =
                 notificationAarForEmail(
                         notification,
                         this.getPerfezionamentoLink(),
-                        this.getPerfezionamentoLink(),
-                        qrCodeQuickAccessUrlAarDetail,
+                        this.getQuickAccessLink(recipient, quickAccessToken),
+                        this.getFAQSendURL(),
                         this.getAccessUrl(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClient.notificationAarForEmail(language, notificationAAR);
@@ -350,7 +349,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
         NotificationAarForPec notificationAAR = notificationAarForPec(
                 notification,
                 recipient,
-                qrCodeQuickAccessUrlAarDetail,
+                this.getQuickAccessLink(recipient, quickAccessToken),
                 this.getPerfezionamentoLink(),
                 this.getFAQSendURL(),
                 this.getAccessUrl(recipient),

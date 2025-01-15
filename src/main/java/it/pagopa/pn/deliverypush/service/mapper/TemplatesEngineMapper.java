@@ -100,7 +100,7 @@ public class TemplatesEngineMapper {
 
     public static NotificationAarForPec notificationAarForPec(NotificationInt notification,
                                                               NotificationRecipientInt recipient,
-                                                              String qrCodeQuickAccessUrlAarDetail,
+                                                              String quickAccessLink,
                                                               String perfezionamentoLink,
                                                               String faqSendURL,
                                                               String accessUrl,
@@ -118,7 +118,7 @@ public class TemplatesEngineMapper {
 
         return new NotificationAarForPec()
                 .perfezionamentoURL(perfezionamentoLink)
-                .quickAccessLink(qrCodeQuickAccessUrlAarDetail)
+                .quickAccessLink(quickAccessLink)
                 .pnFaqSendURL(faqSendURL)
                 .piattaformaNotificheURL(accessUrl)
                 .notification(pecNotification)
@@ -128,9 +128,9 @@ public class TemplatesEngineMapper {
 
     public static NotificationAarForEmail notificationAarForEmail(NotificationInt notification,
                                                                   String perfezionamentoLink,
-                                                                  String qrCodeQuickAccessUrlAarDetail,
+                                                                  String quickAccessLink,
                                                                   String faqSendURL,
-                                                                  String accessUrl) {
+                                                                  String piattaformaNotificheURL) {
         AarForEmailSender sender = new AarForEmailSender()
                 .paDenomination(notification.getSender().getPaDenomination());
 
@@ -140,9 +140,9 @@ public class TemplatesEngineMapper {
 
         return new NotificationAarForEmail()
                 .perfezionamentoURL(perfezionamentoLink)
-                .quickAccessLink(qrCodeQuickAccessUrlAarDetail)
+                .quickAccessLink(quickAccessLink)
                 .pnFaqSendURL(faqSendURL)
-                .piattaformaNotificheURL(accessUrl)
+                .piattaformaNotificheURL(piattaformaNotificheURL)
                 .notification(aarForEmailNotification);
     }
 
