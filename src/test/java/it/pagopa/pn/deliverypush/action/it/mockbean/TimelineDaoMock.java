@@ -149,7 +149,10 @@ public class TimelineDaoMock implements TimelineDao {
 
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
-        return timelineList.stream().filter(timelineElement -> timelineId.equals(timelineElement.getElementId()) && iun.equals(timelineElement.getIun())).findFirst();
+        log.info("[TEST] Searching timelineId={} in timelineIds={}", timelineId, timelineList.stream().map(TimelineElementInternal::getElementId).toList());
+        return timelineList.stream()
+                .filter(timelineElement -> timelineId.equals(timelineElement.getElementId()) && iun.equals(timelineElement.getIun()))
+                .findFirst();
     }
 
     @Override

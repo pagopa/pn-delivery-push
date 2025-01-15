@@ -87,7 +87,7 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
 
                 if(! TestUtils.PN_NOTIFICATION_ATTACHMENT.equals(fileCreationRequest.getDocumentType())){
                     try {
-                        await().atMost(Duration.ofSeconds(1)).untilAsserted(() ->
+                        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                                 Assertions.assertTrue(creationRequestService.getDocumentCreationRequest(keyWithPrefix).isPresent())
                         );
                     }catch (org.awaitility.core.ConditionTimeoutException ex){

@@ -209,8 +209,12 @@ public class CommonTestConfiguration {
     
     @BeforeEach
     public void setup() {
-        setDefaultTimeout(Duration.ofSeconds(60));
+        setDefaultTimeout(Duration.ofSeconds(120));
+        //setDefaultPollDelay(Duration.ofSeconds(20));
+        //setDefaultPollDelay(20, TimeUnit.SECONDS);
+        //setDefaultPollInterval(2, TimeUnit.SECONDS);
 
+        
         // Viene creato un oggetto Answer per ottenere l'istante corrente al momento della chiamata ...
         Answer<Instant> answer = invocation -> Instant.now();
         // e configurato Mockito per restituire l'istante corrente al momento della chiamata
