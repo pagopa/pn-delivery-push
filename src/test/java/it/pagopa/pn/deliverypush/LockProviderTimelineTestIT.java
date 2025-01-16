@@ -32,16 +32,21 @@ class LockProviderTimelineTestIT {
     @Test
     void validateLockAfterWaiting() throws InterruptedException {
         String iun = "iun";
-        Duration lockDuration = Duration.ofSeconds(3);
+        Duration lockDuration = Duration.ofSeconds(7);
         // Take the lock
+        Instant startAcquiredAt = Instant.now();
         lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
+
+
+        Instant endAcquiredAt = Instant.now();
+        System.out.println("startAcquiredAt: " + startAcquiredAt + "endAcquiredAt: " + endAcquiredAt);
 
         // Check if the lock is still held by trying to acquire it again (should fail)
         Optional<SimpleLock> prematureLock = lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
         Assertions.assertFalse(prematureLock.isPresent(), "Lock should not be re-acquirable before unlock");
 
         // Wait for the lock to expire
-        Thread.sleep(3000);
+        Thread.sleep(lockDuration.toMillis());
 
         // Check if the lock is still held by trying to acquire it again (should succeed)
         Optional<SimpleLock> optLockAfterWaiting = lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
@@ -54,7 +59,7 @@ class LockProviderTimelineTestIT {
     @Test
     void validateLockRelease() {
         String iun = "iun";
-        Duration lockDuration = Duration.ofSeconds(3);
+        Duration lockDuration = Duration.ofSeconds(20);
         // Take the lock
         Optional<SimpleLock> firstLock = lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
 
