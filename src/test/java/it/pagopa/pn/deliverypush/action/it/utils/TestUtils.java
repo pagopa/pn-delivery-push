@@ -367,8 +367,11 @@ public class TestUtils {
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(notification.getIun(), true);
 
         List<NotificationStatusHistoryElementInt> statusHistoryElements = statusUtils.getStatusHistory(timelineElements, numberOfRecipient, notificationCreatedAt);
-
-        return statusUtils.getCurrentStatus(statusHistoryElements);
+        
+        log.info("[TEST] timelineElements {}", timelineElements.stream().map(t -> t.getElementId()).toList());
+        NotificationStatusInt notificationStatusInt =  statusUtils.getCurrentStatus(statusHistoryElements);
+        log.info("[TEST] notificationStatus {} - iun={}", notificationStatusInt, notification.getIun());
+        return notificationStatusInt;
     }
 
     public synchronized static boolean checkNotificationStatusHistoryContainsDesiredStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils, NotificationStatusInt desiredStatus) {
