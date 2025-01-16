@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 public class SafeStorageClientMock implements PnSafeStorageClient {
@@ -73,16 +74,22 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
     public Mono<FileCreationResponse> createFile(FileCreationWithContentRequest fileCreationRequest, String sha256) {
         log.info("[TEST] createFile documentType={}", fileCreationRequest.getDocumentType());
 
-        String key = sha256;
+        String key = "RANDOM_"+ UUID.randomUUID();
+        if(savedFileMap.get(key) != null){
+            log.error("[TEST] Cannot save more than one file with same fileKey {}",key);
+            return Mono.error(new RuntimeException("Cannot save more than one file with same fileKey"));
+        }
+        
         savedFileMap.put(key,fileCreationRequest);
 
         ThreadPool.start( new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
                 String keyWithPrefix = FileUtils.getKeyWithStoragePrefix(key);
-
+                
                 log.info("[TEST] Start wait for createFile documentType={} keyWithPrefix={}",fileCreationRequest.getDocumentType(), keyWithPrefix);
 
                 if(! TestUtils.PN_NOTIFICATION_ATTACHMENT.equals(fileCreationRequest.getDocumentType())){
+                    log.info("[TEST] Start wait for createFile in IF documentType={} keyWithPrefix={}",fileCreationRequest.getDocumentType(), keyWithPrefix);
 
                     MethodExecutor.waitForExecution(
                             () -> creationRequestService.getDocumentCreationRequest(keyWithPrefix)

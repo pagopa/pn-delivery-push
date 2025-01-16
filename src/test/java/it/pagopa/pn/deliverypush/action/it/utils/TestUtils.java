@@ -22,6 +22,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -624,7 +625,29 @@ public class TestUtils {
             safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256()).block();
         }
     }
-
+    
+    public static List<NotificationDocumentInt> firstFileUploadFromNotification(List<TestUtils.DocumentWithContent> documentWithContentList,
+                                                       List<NotificationDocumentInt> listNotificationDocument,
+                                                       SafeStorageClientMock safeStorageClientMock) {
+        for (TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
+            FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
+            fileCreationWithContentRequest.setContentType("application/pdf");
+            fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
+            fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
+            FileCreationResponse response = safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256()).block();
+            listNotificationDocument = listNotificationDocument.stream().filter(doc -> doc.equals(documentWithContent.getDocument()))
+                            .map(doc -> {
+                                        NotificationDocumentInt.Ref actualRefWithoutKey = doc.getRef();
+                                        return doc.toBuilder()
+                                                .ref(actualRefWithoutKey.toBuilder()
+                                                        .key(response.getKey())
+                                                        .build())
+                                                .build();
+                            }).toList();
+            System.out.println("List is " + listNotificationDocument);
+        }
+        return listNotificationDocument;
+    }
 
     public static void firstFileUploadFromNotificationTooBig(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock) {
         for (TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
@@ -666,10 +689,11 @@ public class TestUtils {
     }
 
     public static List<NotificationDocumentInt> getDocumentList(String fileDoc) {
+
         return List.of(
                 NotificationDocumentInt.builder()
                         .ref(NotificationDocumentInt.Ref.builder()
-                                .key(Base64Utils.encodeToString(fileDoc.getBytes()))
+                                .key(null) //Nota la file key è null, in questa fase non è dato saperla dovrà essere valorizzata da safeStorage e aggiornata nel test
                                 .versionToken("v01_doc00")
                                 .build()
                         )
