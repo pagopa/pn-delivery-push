@@ -34,7 +34,7 @@ public class F24ClientMock implements PnF24Client {
     @Override
     public Mono<RequestAccepted> validate(String iun) {
         new Thread(() -> {
-            await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
                     Assertions.assertTrue(timelineService.getTimelineElement(iun, "VALIDATE_F24_REQUEST.IUN_" + iun).isPresent())
             );
 
@@ -63,7 +63,7 @@ public class F24ClientMock implements PnF24Client {
         new Thread(() -> {
             AtomicReference<TimelineElementInternal> timelineElementInternal = new AtomicReference<>();
 
-             await().atMost(Duration.ofSeconds(30)).until(() -> {
+             await().atLeast(Duration.ofSeconds(1)).until(() -> {
                  Optional<TimelineElementInternal> timelineElement =
                          timelineService.getTimelineElement(iun, "GENERATE_F24_REQUEST.IUN_" + iun);
                     if(timelineElement.isPresent()){

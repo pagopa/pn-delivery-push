@@ -56,7 +56,7 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
             //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
             String iunFromElementId = correlationId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1];
             String iun = iunFromElementId.replace("IUN_", "");
-            await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
                     Assertions.assertTrue(timelineService.getTimelineElement(iun, correlationId).isPresent())
             );
 

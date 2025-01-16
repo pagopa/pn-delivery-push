@@ -83,7 +83,7 @@ public class TimelineDaoMock implements TimelineDao {
                 String waitForElementId = notificationRecipientInt.getTaxId().replaceFirst(".*" + WAIT_SEPARATOR, "");
                 log.debug("[TEST] Wait for elementId {}", waitForElementId);
 
-                await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+                await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
                         Assertions.assertTrue(getTimelineElement(dto.getIun(), waitForElementId).isPresent())
                 );
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateCancelNotificationString)){
@@ -149,7 +149,7 @@ public class TimelineDaoMock implements TimelineDao {
 
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
-        log.info("[TEST] Searching timelineId={} in timelineIds={}", timelineId, timelineList.stream().map(TimelineElementInternal::getElementId).toList());
+      //  log.info("[TEST] Searching timelineId={} in timelineIds={}", timelineId, timelineList.stream().map(TimelineElementInternal::getElementId).toList());
         return timelineList.stream()
                 .filter(timelineElement -> timelineId.equals(timelineElement.getElementId()) && iun.equals(timelineElement.getIun()))
                 .findFirst();

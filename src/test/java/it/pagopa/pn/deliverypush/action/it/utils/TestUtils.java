@@ -368,9 +368,9 @@ public class TestUtils {
 
         List<NotificationStatusHistoryElementInt> statusHistoryElements = statusUtils.getStatusHistory(timelineElements, numberOfRecipient, notificationCreatedAt);
         
-        log.info("[TEST] timelineElements {}", timelineElements);
+     //   log.info("[TEST] timelineElements {}", timelineElements);
         NotificationStatusInt notificationStatusInt =  statusUtils.getCurrentStatus(statusHistoryElements);
-        log.info("[TEST] notificationStatus {} - iun={}", notificationStatusInt, notification.getIun());
+     //   log.info("[TEST] notificationStatus {} - iun={}", notificationStatusInt, notification.getIun());
         return notificationStatusInt;
     }
 

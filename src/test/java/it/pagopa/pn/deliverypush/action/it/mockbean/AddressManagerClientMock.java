@@ -56,7 +56,7 @@ public class AddressManagerClientMock implements AddressManagerClient {
         ThreadPool.start(new Thread( () ->{
 
             String iun = timelineUtils.getIunFromTimelineId(normalizeItemsRequest.getCorrelationId());
-            await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
                     Assertions.assertTrue(timelineService.getTimelineElement(iun, normalizeItemsRequest.getCorrelationId()).isPresent())
             );
             log.info("[TEST] Start handle normalizeAddress corrId={}", normalizeItemsRequest.getCorrelationId());
