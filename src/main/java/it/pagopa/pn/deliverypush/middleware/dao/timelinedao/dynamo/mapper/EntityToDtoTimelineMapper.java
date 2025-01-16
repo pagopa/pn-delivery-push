@@ -33,7 +33,6 @@ public class EntityToDtoTimelineMapper {
                 .notificationSentAt(entity.getNotificationSentAt())
                 .paId(entity.getPaId())
                 .eventTimestamp(entity.getBusinessTimestamp())
-                .ingestionTimestamp(entity.getIngestionTimestamp())
                 .build();
     }
 

@@ -29,7 +29,6 @@ public class TimelineElementEntity {
     private StatusInfoEntity statusInfo;
     private Instant notificationSentAt;
     private Instant businessTimestamp;
-    private Instant ingestionTimestamp;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN )
@@ -109,9 +108,5 @@ public class TimelineElementEntity {
 
     public void setBusinessTimestamp(Instant businessTimestamp){this.businessTimestamp = businessTimestamp;}
 
-    @DynamoDbAttribute(value = "ingestionTimestamp") @DynamoDbIgnoreNulls
-    public Instant getIngestionTimestamp() {return ingestionTimestamp;}
-
-    public void setIngestionTimestamp(Instant ingestionTimestamp) {this.ingestionTimestamp = ingestionTimestamp;}
 }
 

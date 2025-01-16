@@ -25,7 +25,6 @@ public class DtoToEntityTimelineMapper {
                 .statusInfo(dtoToStatusInfoEntity(dto.getStatusInfo()))
                 .notificationSentAt(dto.getNotificationSentAt())
                 .businessTimestamp(dto.getEventTimestamp())
-                .ingestionTimestamp(dto.getIngestionTimestamp())
                 .build();
     }
 
