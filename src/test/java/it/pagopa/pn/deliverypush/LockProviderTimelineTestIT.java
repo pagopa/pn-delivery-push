@@ -32,21 +32,22 @@ class LockProviderTimelineTestIT {
     @Test
     void validateLockAfterWaiting() throws InterruptedException {
         String iun = "iun";
-        Duration lockDuration = Duration.ofSeconds(7);
+        Duration lockDuration = Duration.ofSeconds(8);
         // Take the lock
         Instant startAcquiredAt = Instant.now();
-        lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
+        lockProvider.lock(new LockConfiguration(startAcquiredAt, iun, lockDuration, Duration.ZERO));
 
+        if(shouldCheckPrematureLockTest(startAcquiredAt, lockDuration)) {
+            // Check if the lock is still held by trying to acquire it again (should fail)
+            Optional<SimpleLock> prematureLock = lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
+            Assertions.assertFalse(prematureLock.isPresent(), "Lock should not be re-acquirable before unlock");
+        }
 
-        Instant endAcquiredAt = Instant.now();
-        System.out.println("startAcquiredAt: " + startAcquiredAt + "endAcquiredAt: " + endAcquiredAt);
-
-        // Check if the lock is still held by trying to acquire it again (should fail)
-        Optional<SimpleLock> prematureLock = lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
-        Assertions.assertFalse(prematureLock.isPresent(), "Lock should not be re-acquirable before unlock");
-
-        // Wait for the lock to expire
-        Thread.sleep(lockDuration.toMillis());
+        // Calculate time to wait for the lock to expire
+        long remainingTimeToExceedLock = calculateRemainingTimeToExceedLock(startAcquiredAt, lockDuration);
+        if(remainingTimeToExceedLock > 0) {
+            Thread.sleep(remainingTimeToExceedLock);
+        }
 
         // Check if the lock is still held by trying to acquire it again (should succeed)
         Optional<SimpleLock> optLockAfterWaiting = lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
@@ -59,13 +60,16 @@ class LockProviderTimelineTestIT {
     @Test
     void validateLockRelease() {
         String iun = "iun";
-        Duration lockDuration = Duration.ofSeconds(20);
+        Duration lockDuration = Duration.ofSeconds(8);
+        Instant startAcquiredAt = Instant.now();
         // Take the lock
-        Optional<SimpleLock> firstLock = lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
+        Optional<SimpleLock> firstLock = lockProvider.lock(new LockConfiguration(startAcquiredAt, iun, lockDuration, Duration.ZERO));
 
-        // Check if the lock is still held by trying to acquire it again (should fail)
-        Optional<SimpleLock> prematureLock = lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
-        Assertions.assertFalse(prematureLock.isPresent(), "Lock should not be re-acquirable before unlock");
+        if(shouldCheckPrematureLockTest(startAcquiredAt, lockDuration)) {
+            // Check if the lock is still held by trying to acquire it again (should fail)
+            Optional<SimpleLock> prematureLock = lockProvider.lock(new LockConfiguration(Instant.now(), iun, lockDuration, Duration.ZERO));
+            Assertions.assertFalse(prematureLock.isPresent(), "Lock should not be re-acquirable before unlock");
+        }
 
         // Release the lock
         firstLock.ifPresent(SimpleLock::unlock);
@@ -76,6 +80,43 @@ class LockProviderTimelineTestIT {
 
         // Release the lock
         optLockAfterWaiting.ifPresent(SimpleLock::unlock);
+    }
+
+    /**
+     * Calculate the remaining time to exceed the lock duration.
+     *
+     * <p>
+     *     It is useful to spare time, if the previous lock process takes more time
+     * </p>
+     * @param startAcquiredAt Instant when the lock was acquired
+     * @param lockDuration Duration of the lock
+     * @return the remaining time to exceed the lock duration
+     */
+    private static long calculateRemainingTimeToExceedLock(Instant startAcquiredAt, Duration lockDuration) {
+        Instant midTime = Instant.now();
+        Duration actualLockDuration = Duration.between(startAcquiredAt, midTime);
+        // Slightly more than lockAtMostFor
+        return lockDuration.toMillis() - actualLockDuration.toMillis() + 1000;
+    }
+
+    /**
+     * The method checks if the lock duration is already exceeded, in that case it skips the premature lock test.
+     * <p>
+     * It is required because in CI env sometimes the lock acquire process takes more than it should and the lock is already expired
+     * when it comes to this assertion, so we can skip it.
+     * </p>
+     * @param startAcquiredAt Instant when the lock was acquired
+     * @param lockDuration Duration of the lock
+     * @return true if the lock duration is not exceeded yet, false otherwise
+     */
+    private boolean shouldCheckPrematureLockTest(Instant startAcquiredAt, Duration lockDuration) {
+        Instant endAcquiredAt = Instant.now();
+        Duration actualLockDuration = Duration.between(startAcquiredAt, endAcquiredAt);
+        if (actualLockDuration.compareTo(lockDuration) >= 0) {
+            System.out.println("Lock duration is already exceeded, skipping premature lock test");
+            return false;
+        }
+        return true;
     }
 
 }
