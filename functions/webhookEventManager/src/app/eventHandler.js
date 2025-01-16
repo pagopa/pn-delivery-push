@@ -7,6 +7,11 @@ const QUEUE_URL = process.env.QUEUE_URL
 
 exports.handleEvent = async (event) => {
 
+  if (Date.now() < new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`) || Date.now() >= new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`)) {
+    console.log('Skipping event with id: ', event.eventID);
+    return null;
+  }
+
   const cdcEvents = extractKinesisData(event);
   console.log(`Batch size: ${cdcEvents.length} cdc`);
 
