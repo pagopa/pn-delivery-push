@@ -74,6 +74,8 @@
     "AdditionalLangsEnabled": "true",
     "EnableTemplatesEngine": "true",
     "ActivationDeceasedWorkflowDate": "2024-11-25T00:00:00Z",
-    "FeatureUnreachableRefinementPostAARStartDate": "2024-11-27T00:00:00Z"
+    "FeatureUnreachableRefinementPostAARStartDate": "2024-11-27T00:00:00Z",
+    "StartBusinessTimestamp": "2099-01-01T00:00:00Z",
+    "StopBusinessTimestamp": "2099-02-01T00:00:00Z"
   }
 }

@@ -899,6 +899,14 @@ Parameters:
       - true
       - false
 
+  StartBusinessTimestamp:
+    Type: String
+    Description: 'Start business timestamp'
+
+  StopBusinessTimestamp:
+    Type: String
+    Description: 'Stop business timestamp'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
 
