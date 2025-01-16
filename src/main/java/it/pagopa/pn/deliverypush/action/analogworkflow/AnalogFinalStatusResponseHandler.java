@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_INVALIDEVENTCODE;
@@ -20,10 +22,12 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @AllArgsConstructor
 @Component
 public class AnalogFinalStatusResponseHandler {
+    public static final String DECEASED_FAILURE_CAUSE = "M02";
     private TimelineService timelineService;
     private CompletionWorkFlowHandler completionWorkFlow;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final NotificationService notificationService;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public void handleFinalResponse(String iun, int recIndex, String analogFeedbackTimelineId){
         log.debug("Start handle analog final response - iun={} id={} feedbackTimelineId={}", iun, recIndex, analogFeedbackTimelineId);
@@ -50,18 +54,32 @@ public class AnalogFinalStatusResponseHandler {
     }
 
     private void handleSuccessfulSending(NotificationInt notification, int recIndex, SendAnalogFeedbackDetailsInt sendAnalogFeedbackDetails) {
+        EndWorkflowStatus endWorkflowStatus;
+        if (DECEASED_FAILURE_CAUSE.equals(sendAnalogFeedbackDetails.getDeliveryFailureCause())
+                && shouldFollowDeceasedWorkflow(notification.getSentAt())
+        ) {
+            endWorkflowStatus = EndWorkflowStatus.DECEASED;
+        } else {
+            endWorkflowStatus = EndWorkflowStatus.SUCCESS;
+        }
+
         completionWorkFlow.completionAnalogWorkflow(
                 notification,
                 recIndex,
                 sendAnalogFeedbackDetails.getNotificationDate(),
                 sendAnalogFeedbackDetails.getPhysicalAddress(),
-                EndWorkflowStatus.SUCCESS
+                endWorkflowStatus
         );
     }
     
     private void handleNotSuccessfulSending(NotificationInt notification, int recIndex, SendAnalogFeedbackDetailsInt sendAnalogFeedbackDetails) {
         int sentAttemptMade = sendAnalogFeedbackDetails.getSentAttemptMade() + 1;
         analogWorkflowHandler.nextWorkflowStep(notification, recIndex, sentAttemptMade, sendAnalogFeedbackDetails.getNotificationDate());
+    }
+
+    private boolean shouldFollowDeceasedWorkflow(Instant notificationDate) {
+        String activationDate = pnDeliveryPushConfigs.getActivationDeceasedWorkflowDate();
+        return activationDate != null && notificationDate.isAfter(Instant.parse(activationDate));
     }
 
 }

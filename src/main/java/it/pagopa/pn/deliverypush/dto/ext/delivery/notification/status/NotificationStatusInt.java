@@ -22,12 +22,15 @@ public enum NotificationStatusInt {
 
     REFUSED("REFUSED", NotificationStatusInt.VERSION_10),
 
-    CANCELLED("CANCELLED", NotificationStatusInt.VERSION_10);
+    CANCELLED("CANCELLED", NotificationStatusInt.VERSION_10),
+
+    RETURNED_TO_SENDER("RETURNED_TO_SENDER", NotificationStatusInt.VERSION_26);
 
     private final String value;
     private final int version;
 
     public static final int VERSION_10 = 10;
+    public static final int VERSION_26 = 26;
 
     NotificationStatusInt(String value, int version) {
         this.value = value;

@@ -665,7 +665,7 @@ Parameters:
     Type: Number
     Description: 'VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency'
     Default: 1
-      
+
   ActionRouterKinesisBatchSize:
     Type: Number
     Description: "Batch size for kinesis to lambda action router"
@@ -883,6 +883,22 @@ Parameters:
       - true
       - false
 
+  ActivationDeceasedWorkflowDate:
+    Type: String
+    Description: 'start date enable feature flag deceased new workflow'
+
+  FeatureUnreachableRefinementPostAARStartDate:
+    Type: String
+    Description: 'Start date for feature recipient unreachable refinement after ten days from AAR'
+
+  EnableTemplatesEngine:
+    Type: String
+    Default: false
+    Description: 'Enable TemplatesEngine'
+    AllowedValues:
+      - true
+      - false
+
   StartReadStreamTimestamp:
     Type: String
     Description: 'Start timestamp for read stream'
@@ -1010,6 +1026,10 @@ Resources:
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
         ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
+        ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
+        ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
+        ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -1951,7 +1971,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.5"
+          PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.6"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:

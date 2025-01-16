@@ -33,9 +33,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV23;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV26;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
@@ -72,6 +72,7 @@ public class TimeLineServiceImpl implements TimelineService {
     private final StatusService statusService;
 
     private final NotificationService notificationService;
+    private final SmartMapper smartMapper;
 
 
     @Override
@@ -355,7 +356,7 @@ public class TimeLineServiceImpl implements TimelineService {
                                                        NotificationStatusInt currentStatus) {
 
         var timelineList = timelineElements.stream()
-                .map(t -> SmartMapper.mapTimelineInternal(t, timelineElements)) // rimappo su se stessa, per sistemare eventuali campi interni
+                .map(t -> smartMapper.mapTimelineInternal(t, timelineElements)) // rimappo su se stessa, per sistemare eventuali campi interni
                 .sorted(Comparator.naturalOrder())
                 .filter(this::isNotDiagnosticTimelineElement)
                 .map(TimelineElementMapper::internalToExternal)
@@ -368,7 +369,7 @@ public class TimeLineServiceImpl implements TimelineService {
                                 NotificationStatusHistoryElementMapper::internalToExternal
                         ).toList()
                 )
-                .notificationStatus(currentStatus != null ? NotificationStatus.valueOf(currentStatus.getValue()) : null)
+                .notificationStatus(currentStatus != null ? NotificationStatusV26.valueOf(currentStatus.getValue()) : null)
                 .build();
     }
 
@@ -377,8 +378,8 @@ public class TimeLineServiceImpl implements TimelineService {
             return true;
         }
         String internalCategory = timelineElementInternal.getCategory().getValue();
-        return Arrays.stream(TimelineElementCategoryV23.values())
-                .anyMatch(timelineElementCategoryV23 -> timelineElementCategoryV23.getValue().equalsIgnoreCase(internalCategory));
+        return Arrays.stream(TimelineElementCategoryV26.values())
+                .anyMatch(TimelineElementCategoryV26 -> TimelineElementCategoryV26.getValue().equalsIgnoreCase(internalCategory));
 
     }
 

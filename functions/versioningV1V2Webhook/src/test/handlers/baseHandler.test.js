@@ -9,13 +9,13 @@ describe('EventHandler', () => {
     });
 
     process.env = Object.assign(process.env, {
-        PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.3",
+        PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
         ATTEMPT_TIMEOUT_SEC: 5,
         NUM_RETRY: 3
     });
 
     it('correct URL', () => {
-        expect(eventHandler.baseUrl).to.equal("https://api.dev.notifichedigitali.it/delivery-progresses/v2.3");
+        expect(eventHandler.baseUrl).to.equal("https://api.dev.notifichedigitali.it/delivery-progresses/v2.6");
     });
 
     it('prepare headers correctly', () => {
