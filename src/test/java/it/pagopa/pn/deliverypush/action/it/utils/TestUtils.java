@@ -615,69 +615,84 @@ public class TestUtils {
         Assertions.assertEquals(recipient.getPhysicalAddress().getAddress(), simpleRegisteredLetterDetails.getPhysicalAddress().getAddress());
 
     }
-
-    public static void firstFileUploadFromNotification(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock) {
-        for (TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
-            FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
-            fileCreationWithContentRequest.setContentType("application/pdf");
-            fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
-            fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
-            safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256()).block();
-        }
-    }
     
-    public static List<NotificationDocumentInt> firstFileUploadFromNotification(List<TestUtils.DocumentWithContent> documentWithContentList,
-                                                       List<NotificationDocumentInt> listNotificationDocument,
-                                                       SafeStorageClientMock safeStorageClientMock) {
+    public static List<NotificationDocumentInt> firstFileUploadFromNotification(
+            List<TestUtils.DocumentWithContent> documentWithContentList,
+            List<NotificationDocumentInt> listNotificationDocument,
+            SafeStorageClientMock safeStorageClientMock) 
+    {
         for (TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf");
             fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
-            FileCreationResponse response = safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256()).block();
-            listNotificationDocument = listNotificationDocument.stream().filter(doc -> doc.equals(documentWithContent.getDocument()))
-                            .map(doc -> {
-                                        NotificationDocumentInt.Ref actualRefWithoutKey = doc.getRef();
-                                        return doc.toBuilder()
-                                                .ref(actualRefWithoutKey.toBuilder()
-                                                        .key(response.getKey())
-                                                        .build())
-                                                .build();
-                            }).toList();
-            System.out.println("List is " + listNotificationDocument);
+
+            listNotificationDocument = createFileAndGetDocumentList(listNotificationDocument, safeStorageClientMock, documentWithContent.getDocument(), fileCreationWithContentRequest);
         }
         return listNotificationDocument;
     }
 
-    public static void firstFileUploadFromNotificationTooBig(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock) {
+    private static @NotNull List<NotificationDocumentInt> createFileAndGetDocumentList(List<NotificationDocumentInt> listNotificationDocument,
+                                                                                       SafeStorageClientMock safeStorageClientMock,
+                                                                                       NotificationDocumentInt documentToUpload,
+                                                                                       FileCreationWithContentRequest fileCreationWithContentRequest) {
+        
+        FileCreationResponse response = safeStorageClientMock.createFile(fileCreationWithContentRequest, documentToUpload.getDigests().getSha256()).block();
+        listNotificationDocument = listNotificationDocument.stream().filter(doc -> doc.equals(documentToUpload))
+                        .map(doc -> {
+                                    NotificationDocumentInt.Ref actualRefWithoutKey = doc.getRef();
+                                    return doc.toBuilder()
+                                            .ref(actualRefWithoutKey.toBuilder()
+                                                    .key(response.getKey())
+                                                    .build())
+                                            .build();
+                        }).toList();
+        return listNotificationDocument;
+    }
+
+    public static List<NotificationDocumentInt> firstFileUploadFromNotificationTooBig(List<TestUtils.DocumentWithContent> documentWithContentList,
+                                                             List<NotificationDocumentInt> listNotificationDocument,
+                                                             SafeStorageClientMock safeStorageClientMock) {
         for (TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf" + TOO_BIG);
             fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
             safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
+            listNotificationDocument = createFileAndGetDocumentList(listNotificationDocument, safeStorageClientMock, documentWithContent.getDocument(), fileCreationWithContentRequest);
         }
+        return listNotificationDocument;
     }
 
 
-    public static void firstFileUploadFromNotificationNotAPDF(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock) {
+    public static List<NotificationDocumentInt> firstFileUploadFromNotificationNotAPDF(List<TestUtils.DocumentWithContent> documentWithContentList,
+                                                              List<NotificationDocumentInt> listNotificationDocument,
+                                                              SafeStorageClientMock safeStorageClientMock) {
         for (TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf" + NOT_A_PDF);
             fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
-            safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
+            listNotificationDocument = createFileAndGetDocumentList(listNotificationDocument, safeStorageClientMock, documentWithContent.getDocument(), fileCreationWithContentRequest);
         }
+        
+        return listNotificationDocument;
     }
 
-    public static void firstFileUploadFromNotificationError(NotificationInt notification, SafeStorageClientMock safeStorageClientMock, byte[] fileSha) {
+    public static NotificationInt firstFileUploadFromNotificationError(NotificationInt notification, SafeStorageClientMock safeStorageClientMock, byte[] differentFileContent) {
+        List<NotificationDocumentInt> listNotificationDocument = notification.getDocuments();
+
         for (NotificationDocumentInt attachment : notification.getDocuments()) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf");
             fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
-            fileCreationWithContentRequest.setContent(fileSha);
+            fileCreationWithContentRequest.setContent(differentFileContent);
             safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
+            listNotificationDocument = createFileAndGetDocumentList(listNotificationDocument, safeStorageClientMock, attachment, fileCreationWithContentRequest);
         }
+        return notification.toBuilder()
+                .documents(listNotificationDocument)
+                .build();
     }
 
     public static List<TestUtils.DocumentWithContent> getDocumentWithContents(String fileDoc, List<NotificationDocumentInt> notificationDocumentList) {
