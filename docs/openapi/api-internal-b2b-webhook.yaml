@@ -47,7 +47,7 @@ info:
       | Eventi del workflow digitale | SEND_DIGITAL_DOMICILE, SEND_DIGITAL_FEEDBACK, DIGITAL_SUCCESS_WORKFLOW, DIGITAL_FAILURE_WORKFLOW, SEND_SIMPLE_REGISTERED_LETTER, SIMPLE_REGISTERED_LETTER_PROGRESS |
       | Eventi del workflow analogico | SEND_ANALOG_DOMICILE ,SEND_ANALOG_PROGRESS, SEND_ANALOG_FEEDBACK, ANALOG_SUCCESS_WORKFLOW, ANALOG_FAILURE_WORKFLOW, COMPLETELY_UNREACHABLE |
       | Eventi di chiusura del workflow | REFINEMENT, NOTIFICATION_VIEWED, NOTIFICATION_CANCELLED |
-      | Altri eventi | NOTIFICATION_RADD_RETRIEVED |
+      | Altri eventi | NOTIFICATION_RADD_RETRIEVED, ANALOG_WORKFLOW_RECIPIENT_DECEASED |
 
     Il placeholder __DEFAULT__ può essere usato assieme ad altri eventi di timeline, ad esempio il filtro "DEFAULT,SEND_COURTESY_MESSAGE" permetterà di ricevere anche gli eventi relativi agli invii dei messaggi di cortesia, oltre che a tutti quelli di maggior rilievo.
 
@@ -56,7 +56,8 @@ info:
     ### Filtri applicabili ai flussi di cambiamento di stato della notifica
 
     Gli stati della notifica che possono essere inseriti come __filterValues__ sono i seguenti:
-
+    
+    
     Stati - v1:
       - __ACCEPTED__: L'ente ha depositato la notifica con successo.
       - __REFUSED__: Notifica rifiutata a seguito della validazione.
@@ -66,6 +67,9 @@ info:
       - __EFFECTIVE_DATE__: Il destinatario non ha letto la notifica entro il termine stabilito.
       - __UNREACHABLE__: Il destinatario non è reperibile.
       - __CANCELLED__: L'ente ha annullato l'invio della notifica.
+    
+       Stati - v2.6:
+       - __RETURNED_TO_SENDER__: La notifica è stata restituita al mittente.
 
     ### Filtri applicabili ai flussi di eventi di timeline
 
@@ -132,6 +136,15 @@ info:
       | Categoria | Descrizione |
       |-----------|-------------|
       |__NOTIFICATION_RADD_RETRIEVED__ | Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica |
+
+      </details>
+    
+      <details>
+        <summary>Eventi di timeline - v2.6 (tutti gli elementi v1 + v2 + v2.6 + gli elementi seguenti)</summary>
+
+      | Categoria | Descrizione |
+      |-----------|-------------|
+      |__ANALOG_WORKFLOW_RECIPIENT_DECEASED__ | Destinatario deceduto |
 
       </details>
 
