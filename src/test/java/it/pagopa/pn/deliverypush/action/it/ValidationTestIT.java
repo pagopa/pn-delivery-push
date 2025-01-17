@@ -18,7 +18,6 @@ import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.util.Base64Utils;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -366,7 +364,6 @@ class ValidationTestIT extends CommonTestConfiguration{
         ConsoleAppenderCustom.checkLogs();
     }
     @Test
-    @Disabled
     void f24ValidationKo() {
         // GIVEN
         PhysicalAddressInt paPhysicalAddress1 = PhysicalAddressBuilder.builder()
@@ -375,21 +372,28 @@ class ValidationTestIT extends CommonTestConfiguration{
 
         String paymentDocName = "metadata_0_0";
         NotificationDocumentInt paymentDoc = TestUtils.getDocumentList(paymentDocName).get(0);
+        List<NotificationDocumentInt> listPaymentDoc = List.of(paymentDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContentForPayments = TestUtils.getDocumentWithContents(paymentDocName, listPaymentDoc );
+        listPaymentDoc = TestUtils.firstFileUploadFromNotification(listDocumentWithContentForPayments, listPaymentDoc, safeStorageClientMock);
+
+        final List<NotificationPaymentInfoInt> paymentWithF24 = TestUtils.getPaymentWithF24(listPaymentDoc.get(0));
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withPhysicalAddress(paPhysicalAddress1)
-                .withPayments(TestUtils.getPaymentWithF24(paymentDoc))
+                .withPayments(paymentWithF24)
                 .build();
 
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
-        List<TestUtils.DocumentWithContent> listDocumentWithContentForPayments = TestUtils.getDocumentWithContents(paymentDocName, List.of(paymentDoc));
 
+/*
         //List which contains documents and payments
         List<TestUtils.DocumentWithContent> notificationDocuments = new ArrayList<>(listDocumentWithContent);
         notificationDocuments.addAll(listDocumentWithContentForPayments);
+*/
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun(TestUtils.getRandomIun() + F24_VALIDATION_FAIL)
@@ -398,7 +402,6 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .withNotificationRecipient(recipient)
                 .build();
 
-        //TestUtils.firstFileUploadFromNotification(notificationDocuments, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
 
