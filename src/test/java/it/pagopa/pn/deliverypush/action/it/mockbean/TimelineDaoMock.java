@@ -165,6 +165,8 @@ public class TimelineDaoMock implements TimelineDao {
 
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun) {
+        log.info("[TEST] get timeline for iun={} in timelineIds={}", iun, timelineList.stream().map(TimelineElementInternal::getElementId).toList());
+
         return timelineList.stream()
                 .filter(
                         timelineElement -> iun.equals(timelineElement.getIun())

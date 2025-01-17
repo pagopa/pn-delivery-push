@@ -382,7 +382,8 @@ public class TestUtils {
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(notification.getIun(), true);
 
         List<NotificationStatusHistoryElementInt> statusHistoryElements = statusUtils.getStatusHistory(timelineElements, numberOfRecipient, notificationCreatedAt);
-
+        
+        log.info("[TEST] Searching status {} in status history is {} ",desiredStatus, statusHistoryElements);
         return statusHistoryElements.stream().anyMatch(history -> history.getStatus().equals(desiredStatus));
     }
 
