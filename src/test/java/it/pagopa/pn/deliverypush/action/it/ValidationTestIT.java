@@ -96,7 +96,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
         
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -173,7 +173,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -228,7 +228,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -283,7 +283,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -340,7 +340,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -411,7 +411,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -481,7 +481,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -593,7 +593,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,

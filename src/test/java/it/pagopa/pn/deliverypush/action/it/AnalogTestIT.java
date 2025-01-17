@@ -1266,7 +1266,7 @@ class AnalogTestIT extends CommonTestConfiguration {
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId2).isPresent())
         );
 
-        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
