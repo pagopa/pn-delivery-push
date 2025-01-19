@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 class TimeLineServiceImplTest {
     private TimelineDao timelineDao;
@@ -104,6 +106,14 @@ class TimeLineServiceImplTest {
         timeLineService.addTimelineElement(newElement, notification);
         
         //THEN
+        // Verifichiamo che alla dao NON venga passato un elemento di timeline con la data di business valorizzata
+        ArgumentCaptor<TimelineElementInternal> captor = ArgumentCaptor.forClass(TimelineElementInternal.class);
+        verify(timelineDao).addTimelineElementIfAbsent(captor.capture());
+        TimelineElementInternal dtoToPersist = captor.getValue();
+        Assertions.assertEquals(dtoToPersist.getTimestamp(), newElement.getTimestamp());
+        Assertions.assertNull(dtoToPersist.getEventTimestamp());
+
+
         //mi aspetto che il timestampLastUpdateStatus sia null quando gli elementi già salvati non hanno valorizzato
         //lo statusInfo e non c'è stato un cambio di stato
         StatusInfoInternal actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses, null);
@@ -145,15 +155,22 @@ class TimeLineServiceImplTest {
         timeLineService.addTimelineElement(newElement, notification);
 
         //THEN
+        // Verifichiamo che alla dao venga passato un elemento di timeline con la data di business valorizzata
+        ArgumentCaptor<TimelineElementInternal> captor = ArgumentCaptor.forClass(TimelineElementInternal.class);
+        verify(timelineDao).addTimelineElementIfAbsent(captor.capture());
+        TimelineElementInternal dtoToPersist = captor.getValue();
+        Assertions.assertEquals(dtoToPersist.getTimestamp(), newElement.getTimestamp());
+        Assertions.assertNotNull(dtoToPersist.getEventTimestamp());
+
         //mi aspetto che il timestampLastUpdateStatus sia null quando gli elementi già salvati non hanno valorizzato
         //lo statusInfo e non c'è stato un cambio di stato
         StatusInfoInternal actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses, null);
-        TimelineElementInternal dtoWithStatusInfo = newElement.toBuilder().statusInfo(actualStatusInfo).build();
         Assertions.assertEquals(expectedStatusInfo.getActual(), actualStatusInfo.getActual());
         Assertions.assertEquals(expectedStatusInfo.isStatusChanged(), actualStatusInfo.isStatusChanged());
         Assertions.assertNull(actualStatusInfo.getStatusChangeTimestamp());
+
         Mockito.verify(smartMapper).mapTimelineInternal(Mockito.any(), Mockito.any());
-        Mockito.verify(timelineDao).addTimelineElementIfAbsent(dtoWithStatusInfo);
+        Mockito.verify(timelineDao).addTimelineElementIfAbsent(dtoToPersist);
         Mockito.verify(statusService).getStatus(newElement, setTimelineElement, notification);
         Mockito.verify(confidentialInformationService).saveTimelineConfidentialInformation(newElement);
     }
@@ -857,6 +874,7 @@ class TimeLineServiceImplTest {
                 .category(TimelineElementCategoryInt.AAR_GENERATION)
                 .iun(iun)
                 .details( details )
+                .timestamp(Instant.now())
                 .build();
     }
 

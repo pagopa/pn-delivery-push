@@ -46,7 +46,6 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationStatusHistoryElementMapper;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementMapper;
-import it.pagopa.pn.deliverypush.service.mapper.TimelineMapper;
 import it.pagopa.pn.deliverypush.utils.MdcKey;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import java.time.Instant;
@@ -98,11 +97,12 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 // aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
-                Instant cachedTimestamp= dtoWithStatusInfo.getTimestamp();
-                Instant now=Instant.now();
+
+                Instant now = Instant.now();
                 if((now.isAfter(pnDeliveryPushConfigs.getStartBusinessTimestamp()) || !now.isBefore(pnDeliveryPushConfigs.getStartBusinessTimestamp())) && now.isBefore(pnDeliveryPushConfigs.getStopBusinessTimestamp())) {
+                    Instant cachedTimestamp = dtoWithStatusInfo.getTimestamp();
                     // calcolo e aggiungo il businessTimestamp
-                    smartMapper.mapTimelineInternal(dtoWithStatusInfo, currentTimeline);
+                    dtoWithStatusInfo = smartMapper.mapTimelineInternal(dtoWithStatusInfo, currentTimeline);
                     dtoWithStatusInfo.setTimestamp(cachedTimestamp);
                 }
 

@@ -99,7 +99,6 @@ class TimelineDaoDynamoTest {
                 .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .details( NotificationRequestAcceptedDetailsInt.builder().build() )
                 .timestamp(Instant.now())
-                .ingestionTimestamp(Instant.now())
                 .eventTimestamp(Instant.now())
                 .statusInfo(StatusInfoInternal.builder().build())
                 .build();
