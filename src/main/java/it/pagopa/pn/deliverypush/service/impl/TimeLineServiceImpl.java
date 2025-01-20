@@ -99,7 +99,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
 
                 Instant now = Instant.now();
-                if((now.isAfter(pnDeliveryPushConfigs.getStartBusinessTimestamp()) || !now.isBefore(pnDeliveryPushConfigs.getStartBusinessTimestamp())) && now.isBefore(pnDeliveryPushConfigs.getStopBusinessTimestamp())) {
+                if((now.isAfter(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()) || now.isBefore(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp()))) {
                     Instant cachedTimestamp = dtoWithStatusInfo.getTimestamp();
                     // calcolo e aggiungo il businessTimestamp
                     dtoWithStatusInfo = smartMapper.mapTimelineInternal(dtoWithStatusInfo, currentTimeline);

@@ -139,9 +139,9 @@ public class PnDeliveryPushConfigs {
 
     private Instant featureUnreachableRefinementPostAARStartDate;
 
-    private Instant startBusinessTimestamp;
+    private Instant startWriteBusinessTimestamp;
 
-    private Instant stopBusinessTimestamp;
+    private Instant stopWriteBusinessTimestamp;
 
     @Data
     public static class Topics {

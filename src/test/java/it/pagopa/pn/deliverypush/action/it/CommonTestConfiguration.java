@@ -324,8 +324,8 @@ public class CommonTestConfiguration {
 
         Mockito.when(cfg.getFeatureUnreachableRefinementPostAARStartDate()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
 
-        Mockito.when(cfg.getStartBusinessTimestamp()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
-        Mockito.when(cfg.getStopBusinessTimestamp()).thenReturn(Instant.parse("2099-11-27T00:00:00Z"));
+        Mockito.when(cfg.getStartWriteBusinessTimestamp()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
+        Mockito.when(cfg.getStopWriteBusinessTimestamp()).thenReturn(Instant.parse("2099-11-27T00:00:00Z"));
     }
 
 }

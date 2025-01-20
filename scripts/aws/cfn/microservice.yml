@@ -899,13 +899,13 @@ Parameters:
       - true
       - false
       
-  StartBusinessTimestamp:
+  StartWriteBusinessTimestamp:
     Type: String
-    Description: 'Start business timestamp'
+    Description: 'Start write business timestamp in timeline'
 
-  StopBusinessTimestamp:
+  StopWriteBusinessTimestamp:
     Type: String
-    Description: 'Stop business timestamp'
+    Description: 'Stop write business timestamp in timeline'
 
   StartReadStreamTimestamp:
     Type: String
@@ -1037,6 +1037,8 @@ Resources:
         ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
+        ContainerEnvEntry87: !Sub 'PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${StartWriteBusinessTimestamp}'
+        ContainerEnvEntry88: !Sub 'PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${StopWriteBusinessTimestamp}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'

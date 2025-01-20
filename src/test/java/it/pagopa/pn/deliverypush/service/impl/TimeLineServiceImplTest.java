@@ -70,8 +70,8 @@ class TimeLineServiceImplTest {
         schedulerService = Mockito.mock(SchedulerService.class);
         notificationService = Mockito.mock(NotificationService.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        Mockito.when(pnDeliveryPushConfigs.getStartBusinessTimestamp()).thenReturn(Instant.now().plus(Duration.ofDays(1)));
-        Mockito.when(pnDeliveryPushConfigs.getStopBusinessTimestamp()).thenReturn(Instant.now().minus(Duration.ofDays(1)));
+        Mockito.when(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()).thenReturn(Instant.now().plus(Duration.ofDays(1)));
+        Mockito.when(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp()).thenReturn(Instant.now().minus(Duration.ofDays(1)));
 //        smartMapper = new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs));
         smartMapper= Mockito.spy(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs)));
 //        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
@@ -136,8 +136,8 @@ class TimeLineServiceImplTest {
         StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
         Mockito.when(statusService.getStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
         Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-        Mockito.when(pnDeliveryPushConfigs.getStartBusinessTimestamp()).thenReturn(Instant.now().minus(Duration.ofDays(1)));
-        Mockito.when(pnDeliveryPushConfigs.getStopBusinessTimestamp()).thenReturn(Instant.now().plus(Duration.ofDays(1)));
+        Mockito.when(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()).thenReturn(Instant.now().minus(Duration.ofDays(1)));
+        Mockito.when(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp()).thenReturn(Instant.now().plus(Duration.ofDays(1)));
 
         String elementId2 = "elementId2";
         Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
