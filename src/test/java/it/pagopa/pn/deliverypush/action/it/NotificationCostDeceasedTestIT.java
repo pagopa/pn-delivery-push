@@ -63,7 +63,7 @@ class NotificationCostDeceasedTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest")
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 

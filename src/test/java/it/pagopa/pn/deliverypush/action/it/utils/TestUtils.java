@@ -367,8 +367,11 @@ public class TestUtils {
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(notification.getIun(), true);
 
         List<NotificationStatusHistoryElementInt> statusHistoryElements = statusUtils.getStatusHistory(timelineElements, numberOfRecipient, notificationCreatedAt);
-
-        return statusUtils.getCurrentStatus(statusHistoryElements);
+        
+     //   log.info("[TEST] timelineElements {}", timelineElements);
+        NotificationStatusInt notificationStatusInt =  statusUtils.getCurrentStatus(statusHistoryElements);
+     //   log.info("[TEST] notificationStatus {} - iun={}", notificationStatusInt, notification.getIun());
+        return notificationStatusInt;
     }
 
     public synchronized static boolean checkNotificationStatusHistoryContainsDesiredStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils, NotificationStatusInt desiredStatus) {
@@ -1238,5 +1241,10 @@ public class TestUtils {
     public static class DocumentWithContent {
         String content;
         NotificationDocumentInt document;
+    }
+
+    @NotNull
+    public static String getTaxId() {
+        return "TAXID_" + UUID.randomUUID();
     }
 }

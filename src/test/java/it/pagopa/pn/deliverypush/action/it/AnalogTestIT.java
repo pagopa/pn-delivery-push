@@ -334,7 +334,7 @@ class AnalogTestIT extends CommonTestConfiguration {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String taxid01 = "TAXID01";
+        String taxid01 = TestUtils.getTaxId();
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
                 .withInternalId("ANON_" + taxid01)
@@ -476,7 +476,7 @@ class AnalogTestIT extends CommonTestConfiguration {
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withInternalId("internalIdTest")
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress1)
                 .build();
 
@@ -584,7 +584,7 @@ class AnalogTestIT extends CommonTestConfiguration {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String taxid01 = "TAXID01";
+        String taxid01 = TestUtils.getTaxId();
 
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
@@ -601,7 +601,7 @@ class AnalogTestIT extends CommonTestConfiguration {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String taxid02 = "TAXID02";
+        String taxid02 = TestUtils.getTaxId();
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid02)
                 .withInternalId("ANON_" + taxid02)
@@ -788,7 +788,7 @@ class AnalogTestIT extends CommonTestConfiguration {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String taxid01 = "TAXID01";
+        String taxid01 = TestUtils.getTaxId();
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
                 .withInternalId("ANON_" + taxid01)
@@ -804,7 +804,7 @@ class AnalogTestIT extends CommonTestConfiguration {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String taxid02 = "TAXID02";
+        String taxid02 = TestUtils.getTaxId();
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid02)
                 .withInternalId("ANON_" + taxid02)
@@ -990,7 +990,7 @@ class AnalogTestIT extends CommonTestConfiguration {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String taxid01 = "TAXID01";
+        String taxid01 = TestUtils.getTaxId();
         NotificationRecipientInt recipient1 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid01)
                 .withInternalId("ANON_" + taxid01)
@@ -1006,7 +1006,7 @@ class AnalogTestIT extends CommonTestConfiguration {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String taxid02 = "TAXID02";
+        String taxid02 = TestUtils.getTaxId();
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxid02)
                 .withInternalId("ANON_" + taxid02)
@@ -1206,7 +1206,7 @@ class AnalogTestIT extends CommonTestConfiguration {
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
                 .build());
 
-        String taxId2 = "TAXID02";
+        String taxId2 = TestUtils.getTaxId();
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId2)
                 .withInternalId("ANON_" + taxId2)
