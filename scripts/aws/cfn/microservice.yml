@@ -902,10 +902,12 @@ Parameters:
   StartWriteBusinessTimestamp:
     Type: String
     Description: 'Start write business timestamp in timeline'
+    Default: "2099-01-01T00:00:00Z"
 
   StopWriteBusinessTimestamp:
     Type: String
     Description: 'Stop write business timestamp in timeline'
+    Default: "2099-12-01T00:00:00Z"
 
   StartReadStreamTimestamp:
     Type: String
