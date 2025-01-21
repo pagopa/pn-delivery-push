@@ -37,7 +37,6 @@
 			<version>2.6.1</version>
 		</dependency>
 
-		
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
 			<artifactId>dynamodb-enhanced</artifactId>
