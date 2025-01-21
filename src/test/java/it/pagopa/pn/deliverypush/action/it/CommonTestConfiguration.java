@@ -326,6 +326,9 @@ public class CommonTestConfiguration {
 
         Mockito.when(cfg.getPfNewWorkflowStop()).thenReturn("2099-03-31T23:00:00Z");
         Mockito.when(cfg.getPfNewWorkflowStart()).thenReturn("2099-02-13T23:00:00Z");
+
+        Mockito.when(cfg.getStartWriteBusinessTimestamp()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
+        Mockito.when(cfg.getStopWriteBusinessTimestamp()).thenReturn(Instant.parse("2099-11-27T00:00:00Z"));
     }
 
 }

@@ -909,6 +909,26 @@ Parameters:
       - true
       - false
 
+  StartWriteBusinessTimestamp:
+    Type: String
+    Description: 'Start write business timestamp in timeline'
+    Default: "2099-01-01T00:00:00Z"
+
+  StopWriteBusinessTimestamp:
+    Type: String
+    Description: 'Stop write business timestamp in timeline'
+    Default: "2099-12-01T00:00:00Z"
+
+  StartReadStreamTimestamp:
+    Type: String
+    Description: 'Start timestamp for read stream'
+    Default: "1999-01-01T00:00:00Z"
+
+  StopReadStreamTimestamp:
+    Type: String
+    Description: 'Stop timestamp for read stream'
+    Default: "2099-01-01T00:00:00Z"
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
 
@@ -1031,6 +1051,8 @@ Resources:
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
         ContainerEnvEntry87: !Sub 'PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${pfNewWorkflowStart}'
         ContainerEnvEntry88: !Sub 'PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${pfNewWorkflowStop}'
+        ContainerEnvEntry89: !Sub 'PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${StartWriteBusinessTimestamp}'
+        ContainerEnvEntry90: !Sub 'PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${StopWriteBusinessTimestamp}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -1247,6 +1269,8 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           QUEUE_URL: !Ref DoneActionsQueueURL
+          START_READ_STREAM_TIMESTAMP: !Sub '${StartReadStreamTimestamp}'
+          STOP_READ_STREAM_TIMESTAMP: !Sub '${StopReadStreamTimestamp}'
       TracingConfig:
         Mode: Active
       Layers:
