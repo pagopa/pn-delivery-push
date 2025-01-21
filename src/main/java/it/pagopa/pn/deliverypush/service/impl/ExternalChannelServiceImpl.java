@@ -10,6 +10,7 @@ import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -88,9 +89,12 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), sendInformation.getDigitalAddress(), recIndex);
 
         try {
-            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, false);
+            LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE addressType = sendInformation.getDigitalAddress().getType();
 
-            if (sendInformation.getDigitalAddress().getType().equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
+            boolean retrieveAarOnly = addressType.equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) && sendInformation.getDigitalAddressSource().equals(DigitalAddressSourceInt.SPECIAL);
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, retrieveAarOnly);
+
+            if (addressType.equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
                 addInformationToAddress(notification.getIun(), recIndex, sendInformation.getDigitalAddress());
 
             String eventId;
