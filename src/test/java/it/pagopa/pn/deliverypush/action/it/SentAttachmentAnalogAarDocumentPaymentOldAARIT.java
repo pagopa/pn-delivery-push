@@ -79,7 +79,8 @@ class SentAttachmentAnalogAarDocumentPaymentOldAARIT extends SendAarAttachment {
             pnSendModeList.add(secondConfString);
 
             Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(pnSendModeList);
-
+            Mockito.when(pnDeliveryPushConfigs.getPfNewWorkflowStart()).thenReturn("2099-02-13T23:00:00Z");
+            Mockito.when(pnDeliveryPushConfigs.getPfNewWorkflowStop()).thenReturn("2099-02-13T23:00:00Z");
             return pnDeliveryPushConfigs;
         }
     }

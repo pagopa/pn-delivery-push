@@ -139,6 +139,10 @@ public class PnDeliveryPushConfigs {
 
     private Instant featureUnreachableRefinementPostAARStartDate;
 
+    private String pfNewWorkflowStart;
+
+    private String pfNewWorkflowStop;
+
     @Data
     public static class Topics {
 
