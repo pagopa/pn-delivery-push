@@ -295,7 +295,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
         //Secondo recipient, solo cartaceo
 
 
-        String taxId02 = TestUtils.getTaxId();
+        String taxId02 = "TAXID02";
         NotificationRecipientInt recipient2 = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId02)
                 .withInternalId(taxId02 + "ANON")

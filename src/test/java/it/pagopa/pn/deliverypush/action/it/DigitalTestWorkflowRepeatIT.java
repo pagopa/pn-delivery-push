@@ -80,7 +80,7 @@ class DigitalTestWorkflowRepeatIT extends CommonTestConfiguration {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String taxId01 = TestUtils.getTaxId();
+        String taxId01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
@@ -228,7 +228,7 @@ class DigitalTestWorkflowRepeatIT extends CommonTestConfiguration {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String taxId01 = TestUtils.getTaxId();
+        String taxId01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
@@ -375,7 +375,7 @@ class DigitalTestWorkflowRepeatIT extends CommonTestConfiguration {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String taxId01 = TestUtils.getTaxId();
+        String taxId01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
@@ -539,7 +539,7 @@ class DigitalTestWorkflowRepeatIT extends CommonTestConfiguration {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
         
-        String taxId01 = TestUtils.getTaxId();
+        String taxId01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)
@@ -714,7 +714,7 @@ class DigitalTestWorkflowRepeatIT extends CommonTestConfiguration {
                 .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
 
-        String taxId01 = TestUtils.getTaxId();
+        String taxId01 = "TAXID01";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId01)
                 .withInternalId("ANON_"+taxId01)

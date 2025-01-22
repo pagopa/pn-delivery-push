@@ -49,7 +49,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
         log.info("[TEST] prepare paperChannelPrepareRequest:{}", paperChannelPrepareRequest);
 
         ThreadPool.start(new Thread(() -> {
-            await().pollDelay(Duration.ofMillis(200)).atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
+            await().pollDelay(Duration.ofMillis(200)).atMost(Duration.ofSeconds(30)).untilAsserted(() ->
 
                     Assertions.assertTrue(true)
 
@@ -73,7 +73,7 @@ public class PaperChannelMock implements PaperChannelSendClient {
 
 
         ThreadPool.start(new Thread(() -> {
-            await().pollDelay(Duration.ofMillis(200)).atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
+            await().pollDelay(Duration.ofMillis(200)).atMost(Duration.ofSeconds(30)).untilAsserted(() ->
 
                     Assertions.assertTrue(true)
 

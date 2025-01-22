@@ -1,5 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
+import static org.awaitility.Awaitility.await;
+
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
@@ -13,10 +15,6 @@ import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.utils.ThreadPool;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
-import org.springframework.context.annotation.Lazy;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,8 +22,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-
-import static org.awaitility.Awaitility.await;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.context.annotation.Lazy;
 
 @Slf4j
 public class TimelineDaoMock implements TimelineDao {
@@ -54,7 +53,6 @@ public class TimelineDaoMock implements TimelineDao {
         this.notificationUtils = notificationUtils;
         this.notificationCancellationService = notificationCancellationService;
         this.pnDeliveryClientMock = pnDeliveryClientMock;
-        this.clear();
     }
 
     public void clear() {
@@ -83,7 +81,7 @@ public class TimelineDaoMock implements TimelineDao {
                 String waitForElementId = notificationRecipientInt.getTaxId().replaceFirst(".*" + WAIT_SEPARATOR, "");
                 log.debug("[TEST] Wait for elementId {}", waitForElementId);
 
-                await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
+                await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                         Assertions.assertTrue(getTimelineElement(dto.getIun(), waitForElementId).isPresent())
                 );
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateCancelNotificationString)){
@@ -149,10 +147,7 @@ public class TimelineDaoMock implements TimelineDao {
 
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
-      //  log.info("[TEST] Searching timelineId={} in timelineIds={}", timelineId, timelineList.stream().map(TimelineElementInternal::getElementId).toList());
-        return timelineList.stream()
-                .filter(timelineElement -> timelineId.equals(timelineElement.getElementId()) && iun.equals(timelineElement.getIun()))
-                .findFirst();
+        return timelineList.stream().filter(timelineElement -> timelineId.equals(timelineElement.getElementId()) && iun.equals(timelineElement.getIun())).findFirst();
     }
 
     @Override

@@ -64,7 +64,7 @@ class AnalogTestNormalizedAddressIT extends CommonTestConfiguration{
 
         String iun = TestUtils.getRandomIun();
 
-        String taxId = TestUtils.getTaxId();
+        String taxId = "test_tax_id";
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
                 .withInternalId("ANON_"+taxId)

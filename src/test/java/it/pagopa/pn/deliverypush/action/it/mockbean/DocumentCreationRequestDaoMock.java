@@ -12,10 +12,6 @@ import java.util.concurrent.ConcurrentMap;
 public class DocumentCreationRequestDaoMock implements DocumentCreationRequestDao {
     private ConcurrentMap<String, DocumentCreationRequest> documentMap;
 
-    public DocumentCreationRequestDaoMock() {
-        this.clear();
-    }
-
     public void clear() {
         this.documentMap = new ConcurrentHashMap<>();
     }

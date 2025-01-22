@@ -23,7 +23,6 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
 
     public PnDeliveryClientMock( @Lazy PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
         this.pnDataVaultClientReactiveMock = pnDataVaultClientReactiveMock;
-        this.clear();
     }
 
     public void clear() {

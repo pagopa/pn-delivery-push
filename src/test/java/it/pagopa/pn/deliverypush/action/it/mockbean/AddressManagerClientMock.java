@@ -41,13 +41,9 @@ public class AddressManagerClientMock implements AddressManagerClient {
         this.addressManagerResponseHandler = addressManagerResponseHandler;
         this.timelineService = timelineService;
         this.timelineUtils = timelineUtils;
-        this.clear();
     }
     
     public void clear() {
-        if(this.mapNormalizedAddress != null ){
-            log.debug("Attenzione è diverso da null");
-        }
         this.mapNormalizedAddress = new ConcurrentHashMap<>();
     }
 
@@ -56,7 +52,7 @@ public class AddressManagerClientMock implements AddressManagerClient {
         ThreadPool.start(new Thread( () ->{
 
             String iun = timelineUtils.getIunFromTimelineId(normalizeItemsRequest.getCorrelationId());
-            await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
+            await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
                     Assertions.assertTrue(timelineService.getTimelineElement(iun, normalizeItemsRequest.getCorrelationId()).isPresent())
             );
             log.info("[TEST] Start handle normalizeAddress corrId={}", normalizeItemsRequest.getCorrelationId());

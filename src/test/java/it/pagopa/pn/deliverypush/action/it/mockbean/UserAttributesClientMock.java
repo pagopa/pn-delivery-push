@@ -2,11 +2,11 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyDigitalAddress;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.LegalDigitalAddress;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.service.mapper.CourtesyCourtesyDigitalAddressMapper;
 import it.pagopa.pn.deliverypush.service.mapper.LegalLegalDigitalAddressMapper;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.CourtesyDigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.userattributes.model.LegalDigitalAddress;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,20 +17,11 @@ public class UserAttributesClientMock implements UserAttributesClient {
     private Map<String, Collection<LegalDigitalAddress>> mapLegalDigitalAddresses; //Ciò che viene restituito al primo tentativo
     private Map<String, Collection<LegalDigitalAddress>> mapSecondCycleLegalDigitalAddresses; //Ciò che viene restituito al secondo tentativo
     private Map<String, Collection<CourtesyDigitalAddress>> mapCourtesyDigitalAddresses;
-    
-    public UserAttributesClientMock(){
-        this.mapLegalDigitalAddresses = new HashMap<>();
-        this.mapSecondCycleLegalDigitalAddresses = new HashMap<>();
-        this.mapCourtesyDigitalAddresses = new HashMap<>();
-        this.clear();
-    }
-    
+
     public void clear() {
-/*
         this.mapLegalDigitalAddresses = new HashMap<>();
         this.mapSecondCycleLegalDigitalAddresses = new HashMap<>();
         this.mapCourtesyDigitalAddresses = new HashMap<>();
-*/
         this.getLegalAddressCalledTimes = 0;
     }
 
@@ -73,7 +64,6 @@ public class UserAttributesClientMock implements UserAttributesClient {
         String id = getId(taxId, senderId);
         
         Collection<LegalDigitalAddress> collectionLegalDigitalAddresses;
-
         if(getLegalAddressCalledTimes == 0){
             collectionLegalDigitalAddresses = mapLegalDigitalAddresses.get(id);
         }else {

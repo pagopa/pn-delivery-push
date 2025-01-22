@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.action.it.utils.MethodExecutor;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
@@ -21,8 +20,11 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.awaitility.Awaitility.await;
 
 @Slf4j
 public class SafeStorageClientMock implements PnSafeStorageClient {
@@ -35,7 +37,6 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
                                  SafeStorageResponseHandler safeStorageResponseHandler) {
         this.creationRequestService = creationRequestService;
         this.safeStorageResponseHandler = safeStorageResponseHandler;
-        this.clear();
     }
 
     public void clear() {
@@ -79,24 +80,15 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
 
         ThreadPool.start( new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
-                log.info("[TEST] Start new thread for createFile - file={}", sha256);
-
                 String keyWithPrefix = FileUtils.getKeyWithStoragePrefix(key);
 
                 log.info("[TEST] Start wait for createFile documentType={} keyWithPrefix={}",fileCreationRequest.getDocumentType(), keyWithPrefix);
 
                 if(! TestUtils.PN_NOTIFICATION_ATTACHMENT.equals(fileCreationRequest.getDocumentType())){
                     try {
-                        log.info("[TEST] Starting to wait file in IF - file={}", sha256);
-
-/*                        await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->{
-                            log.info("[TEST] im waiting in createFile - file={}", sha256);
-                            Assertions.assertTrue(creationRequestService.getDocumentCreationRequest(keyWithPrefix).isPresent());
-                        }
-                        );*/
-                        
-                        MethodExecutor.waitForExecution(() -> creationRequestService.getDocumentCreationRequest(keyWithPrefix));
-                        
+                        await().atMost(Duration.ofSeconds(1)).untilAsserted(() ->
+                                Assertions.assertTrue(creationRequestService.getDocumentCreationRequest(keyWithPrefix).isPresent())
+                        );
                     }catch (org.awaitility.core.ConditionTimeoutException ex){
                         log.error("TEST] Exception in createFile DocumentCreationRequest not founded - fileKey={} documentType={}", keyWithPrefix, fileCreationRequest.getDocumentType());
                         throw ex;
