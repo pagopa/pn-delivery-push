@@ -250,6 +250,18 @@ Parameters:
     Type: String
     Description: ARN Dynamo Name used by application to access the key-value store of CounterTable
 
+  PnTimelineShedlockTableName:
+    Type: String
+    Description: 'Name of the DynamoDB table for timeline ShedLock'
+
+  PnTimelineShedlockTableArn:
+    Type: String
+    Description: 'ARN of the DynamoDB table for timeline ShedLock'
+
+  TimelineLockDuration:
+    Type: String
+    Description: 'Duration of the lock for the timeline shedlock'
+
   PaperNotificationFailedDynamoTableName:
     Type: String
     Description: 'Name of dynamodb table containing unreacheble notifications recipients'
@@ -1019,6 +1031,8 @@ Resources:
         ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
+        ContainerEnvEntry87: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
+        ContainerEnvEntry88: !Sub 'PN_DELIVERYPUSH_TIMELINE_SHEDLOCKDAO_TABLENAME=${PnTimelineShedlockTableName}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -1079,6 +1093,7 @@ Resources:
               - dynamodb:UpdateItem
             Resource:
               - !Sub "${TimelinesCounterTableArn}"
+              - !Sub "${PnTimelineShedlockTableArn}"
           - Effect: Allow
             Action:
               - 'ssm:GetParameter'
@@ -2131,6 +2146,7 @@ Resources:
         DynamoDBTableNames: !Join 
           - ',' 
           - - !Ref TimelinesDynamoTableName
+            - !Ref PnTimelineShedlockTableName
             - !Ref TimelinesCounterTableName
             - !Ref PaperNotificationFailedDynamoTableName
             - !Ref ActionDynamoTableName

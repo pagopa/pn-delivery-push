@@ -24,7 +24,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class StatusUtils {
     private final StateMap stateMap;
     private final SmartMapper smartMapper;
-    
+
     public StatusUtils(SmartMapper smartMapper){
         this.smartMapper = smartMapper;
         this.stateMap = new StateMap();
@@ -32,7 +32,7 @@ public class StatusUtils {
     
     private static final NotificationStatusInt INITIAL_STATUS = NotificationStatusInt.IN_VALIDATION;
     // Attenzione: L'ordine in cui sono stati inseriti gli stati è importante per la logica di priorità
-    private static final List<TimelineElementCategoryInt> COMPLETED_DELIVERY_WORKFLOW_CATEGORY = new ArrayList<>(Arrays.asList(
+    public static final List<TimelineElementCategoryInt> COMPLETED_DELIVERY_WORKFLOW_CATEGORY = new ArrayList<>(Arrays.asList(
             //Completato con successo
             TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, //Anche in caso di fallimento del digital workflow, la notifica si può considerare consegnata
             TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW,
