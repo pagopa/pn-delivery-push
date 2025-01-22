@@ -12,6 +12,10 @@ import java.util.concurrent.ConcurrentMap;
 public class PnDataVaultClientMock implements PnDataVaultClient {
     ConcurrentMap<String, ConfidentialTimelineElementDto> confidentialMap;
     
+    public PnDataVaultClientMock (){
+        this.clear();
+    }
+    
     public void clear() {
         this.confidentialMap = new ConcurrentHashMap<>();
     }

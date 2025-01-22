@@ -17,9 +17,7 @@ import java.util.concurrent.ConcurrentMap;
 import static org.awaitility.Awaitility.await;
 
 public class NationalRegistriesClientMock implements NationalRegistriesClient {
-
-    private int getNationalRegistriesCalledTimes = 0;
-
+    
     public static final String NOT_VALID = "NOT_VALID";
     public static final String EXCEPTION = "EXCEPTION";
     private final NationalRegistriesResponseHandler nationalRegistriesResponseHandler;
@@ -34,12 +32,12 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
     ) {
         this.nationalRegistriesResponseHandler = nationalRegistriesResponseHandler;
         this.timelineService = timelineService;
+        this.clear();
     }
 
     public void clear() {
         this.digitalAddressResponse = new ConcurrentHashMap<>();
         this.digitalAddressResponseSecondCycle = new ConcurrentHashMap<>();
-        this.getNationalRegistriesCalledTimes = 0;
     }
 
     public void addDigital(String key, LegalDigitalAddressInt value) {
@@ -58,7 +56,7 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
             //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
             String iunFromElementId = correlationId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1];
             String iun = iunFromElementId.replace("IUN_", "");
-            await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
                     Assertions.assertTrue(timelineService.getTimelineElement(iun, correlationId).isPresent())
             );
 
@@ -86,14 +84,14 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
 
     private void simulateDigitalAddressResponse(String taxId, String correlationId) {
         LegalDigitalAddressInt address;
-
+        System.out.println("correlationId "+ correlationId);
+        int getNationalRegistriesCalledTimes = Integer.parseInt(correlationId.substring(correlationId.lastIndexOf("ATTEMPT_") + 8)) ;
+        
         if(getNationalRegistriesCalledTimes == 0){
             address = this.digitalAddressResponse.get(taxId);
         } else {
             address = this.digitalAddressResponseSecondCycle.get(taxId);
         }
-
-        getNationalRegistriesCalledTimes += 1;
         
         NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .correlationId(correlationId)

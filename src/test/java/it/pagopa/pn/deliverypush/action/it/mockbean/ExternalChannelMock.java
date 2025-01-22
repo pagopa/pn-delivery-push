@@ -91,7 +91,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         ThreadPool.start(new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
                 // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
-                await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+                await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
                         Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), timelineEventId).isPresent())
                 );
                 
@@ -124,7 +124,7 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
         );
         
         //Viene atteso finchè l'elemento di timeline relativo al progress non sia stato inserito
-        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+        await().atLeast(Duration.ofSeconds(1)).untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(notification.getIun(), elementId).isPresent())
         );
     }

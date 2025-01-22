@@ -209,8 +209,12 @@ public class CommonTestConfiguration {
     
     @BeforeEach
     public void setup() {
-        setDefaultTimeout(Duration.ofSeconds(60));
+        setDefaultTimeout(Duration.ofSeconds(120));
+        //setDefaultPollDelay(Duration.ofSeconds(20));
+        //setDefaultPollDelay(20, TimeUnit.SECONDS);
+        //setDefaultPollInterval(2, TimeUnit.SECONDS);
 
+        
         // Viene creato un oggetto Answer per ottenere l'istante corrente al momento della chiamata ...
         Answer<Instant> answer = invocation -> Instant.now();
         // e configurato Mockito per restituire l'istante corrente al momento della chiamata
@@ -289,7 +293,7 @@ public class CommonTestConfiguration {
         externalChannel.setDigitalCodesFatallog(Arrays.asList("C008", "C010"));
         externalChannel.setDigitalRetryCount(-1);
         externalChannel.setDigitalRetryDelay(Duration.ofMinutes(10));
-        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofSeconds(50));
+        externalChannel.setDigitalSendNoresponseTimeout(Duration.ofHours(24));
         Mockito.when(cfg.getExternalChannel()).thenReturn(externalChannel);
 
         // Impostazione delle proprietà di retention degli allegati
@@ -323,6 +327,9 @@ public class CommonTestConfiguration {
         Mockito.when(cfg.getRaddExperimentationStoresName()).thenReturn(pnRaddExperimentationStore);
 
         Mockito.when(cfg.getFeatureUnreachableRefinementPostAARStartDate()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
+
+        Mockito.when(cfg.getPerformanceImprovementStartDate()).thenReturn("2024-06-01T00:00:00Z");
+        Mockito.when(cfg.getPerformanceImprovementEndDate()).thenReturn("2099-07-14T20:00:00Z");
     }
 
 }

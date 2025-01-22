@@ -13,6 +13,7 @@ public class PaperNotificationFailedDaoMock implements PaperNotificationFailedDa
     
     public PaperNotificationFailedDaoMock(Collection<PaperNotificationFailed> paperNotificationsFailed) {
         this.paperNotificationsFailed = paperNotificationsFailed;
+        this.clear();
     }
 
     public void clear() {

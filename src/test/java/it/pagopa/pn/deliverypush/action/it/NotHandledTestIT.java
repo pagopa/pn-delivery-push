@@ -206,7 +206,7 @@ class NotHandledTestIT extends CommonTestConfiguration {
                 .withAddress(ExternalChannelMock.EXT_CHANNEL_SEND_NEW_ADDR + ExternalChannelMock.EXTCHANNEL_SEND_FAIL + " Via Nuova")
                 .build();
 
-        String taxId = "TAXID01";
+        String taxId = TestUtils.getTaxId();
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
                 .withInternalId("ANON_"+taxId)

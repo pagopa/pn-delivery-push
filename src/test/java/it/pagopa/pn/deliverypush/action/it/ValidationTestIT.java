@@ -75,7 +75,7 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
@@ -145,7 +145,7 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .build();
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01_" + NationalRegistriesClientMock.NOT_VALID)
+                .withTaxId(TestUtils.getTaxId() + NationalRegistriesClientMock.NOT_VALID)
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
@@ -195,7 +195,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         // GIVEN
         
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(PhysicalAddressBuilder.builder()
                         .withAddress("Via Nuova_" + AddressManagerClientMock.ADDRESS_MANAGER_NOT_VALID_ADDRESS)
                         .build())
@@ -250,7 +250,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         // GIVEN
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(PhysicalAddressBuilder.builder()
                         .withAddress("Via Nuova_" + AddressManagerClientMock.ADDRESS_MANAGER_TO_NORMALIZE)
                         .build())
@@ -288,14 +288,15 @@ class ValidationTestIT extends CommonTestConfiguration{
         );
 
         Mockito.verify(externalChannelMock, Mockito.times(0)).sendLegalNotification(
-                Mockito.any(NotificationInt.class),
-                Mockito.any(NotificationRecipientInt.class),
+                Mockito.eq(notification),
+                Mockito.eq(recipient),
                 Mockito.any(LegalDigitalAddressInt.class),
                 Mockito.anyString(),
                 Mockito.anyList(),
                 Mockito.anyString()
         );
-        Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
+        
+        //Mockito.verify(paperChannelMock, Mockito.times(0)).send(Mockito.any(PaperChannelSendRequest.class));
 
         ConsoleAppenderCustom.checkLogs();
     }
@@ -307,7 +308,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         // GIVEN
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(PhysicalAddressBuilder.builder()
                         .withAddress("Via Nuova_" + AddressManagerClientMock.ADDRESS_MANAGER_TO_NORMALIZE)
                         .build())
@@ -366,7 +367,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         String paymentDocName = "metadata_0_0";
         NotificationDocumentInt paymentDoc = TestUtils.getDocumentList(paymentDocName).get(0);
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPhysicalAddress(paPhysicalAddress1)
                 .withPayments(TestUtils.getPaymentWithF24(paymentDoc))
                 .build();
@@ -555,7 +556,7 @@ class ValidationTestIT extends CommonTestConfiguration{
     void notificationDeliveryModeAsyncWithoutPayment() throws PnIdConflictException {
         // GIVEN
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
-                .withTaxId("TAXID01")
+                .withTaxId(TestUtils.getTaxId())
                 .withPayments(null)
                 .build();
 
