@@ -27,7 +27,6 @@ import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.with;
 
-@Disabled("Test fail sometimes")
 class NotificationPaidTestIT extends CommonTestConfiguration{
     @SpyBean
     LegalFactGenerator legalFactGenerator;
@@ -99,11 +97,11 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
                 .build();
 
         TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-
+        
         pnDeliveryClientMock.addNotification(notification);
 
         Integer recIndex = notificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-
+        
 
         //Start del workflow
         startWorkflowHandler.startWorkflow(iun);
@@ -121,7 +119,7 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
                         .recIndex(recIndex)
                         .build()
         );
-
+        
         //Dal momento che l'ultimo elemento di timeline non viene inserito in prossimità della fine del workflow viene utilizzato un delay
         with().pollDelay(5, SECONDS).await().untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent())
@@ -165,7 +163,7 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
                 timelineService,
                 null
         );
-
+        
         //Vengono stampati tutti i legalFacts generati
         String className = this.getClass().getSimpleName();
         TestUtils.writeAllGeneratedLegalFacts(iun, className, timelineService, safeStorageClientMock);
@@ -220,18 +218,18 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
                         .build()
         );
         simulateNotificationPaid(iun, recIndex, timelineIdToWait);
-
+        
         with().pollDelay(5, SECONDS).await().untilAsserted(() ->
                 Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineIdToWait).isPresent())
         );
-
+        
         //Viene verificata la presenza dell'indirizzo di piattaforma
         TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato che sia stata effettuata una sola chiamata ad external channel
         int sentPecAttemptNumber = 1;
         Mockito.verify(externalChannelMock, Mockito.times(sentPecAttemptNumber)).sendLegalNotification(Mockito.any(NotificationInt.class), Mockito.any(), Mockito.any(LegalDigitalAddressInt.class), Mockito.anyString(),Mockito.anyList(), Mockito.anyString());
-
+        
         //Viene verificato che il workflow abbia avuto successo
         TestUtils.checkSuccessDigitalWorkflow(iun, recIndex, timelineService, completionWorkflow, platformAddress, 1, 0);
 
@@ -286,9 +284,9 @@ class NotificationPaidTestIT extends CommonTestConfiguration{
                 .paymentSourceChannel("Internal")
                 .uncertainPaymentDate(false)
                 .build();
-
+        
         notificationPaidHandler.handleNotificationPaid(paymentEventPayload);
-
+        
         return paymentEventPayload;
     }
 

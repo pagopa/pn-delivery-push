@@ -24,7 +24,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 
-@Disabled("Test fail sometimes")
 class NotificationCostDeceasedTestIT extends CommonTestConfiguration {
     @Autowired
     StartWorkflowHandler startWorkflowHandler;

@@ -15,7 +15,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -34,7 +33,6 @@ import java.util.List;
 import static org.awaitility.Awaitility.await;
 
 @ContextConfiguration(classes = SentAttachmentAnalogAarNewAARIT.InnerTestConfiguration.class)
-@Disabled("Test fail sometimes")
 class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
 
     @SpyBean
@@ -92,10 +90,10 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
        - General address vuoto (Ottenuto non valorizzando nessun digital address per il recipient in PUB_REGISTRY_DIGITAL)
-
+       
        - Pa physical address presente ed effettua invio con successo
         */
-
+        
         PhysicalAddressInt paPhysicalAddress = PhysicalAddressBuilder.builder()
                 .withAddress(ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS + " Via Nuova")
                 .build();
