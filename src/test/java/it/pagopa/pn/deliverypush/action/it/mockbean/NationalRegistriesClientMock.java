@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
+import it.pagopa.pn.deliverypush.action.it.utils.MethodExecutor;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
@@ -59,8 +60,9 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
             //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
             String iunFromElementId = correlationId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1];
             String iun = iunFromElementId.replace("IUN_", "");
-            await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, correlationId).isPresent())
+
+            MethodExecutor.waitForExecution(
+                    () -> timelineService.getTimelineElement(iun, correlationId)
             );
 
             Assertions.assertDoesNotThrow(() -> {

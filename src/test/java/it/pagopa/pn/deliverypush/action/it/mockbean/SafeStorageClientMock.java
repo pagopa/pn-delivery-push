@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
+import it.pagopa.pn.deliverypush.action.it.utils.MethodExecutor;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
@@ -20,11 +21,9 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.awaitility.Awaitility.await;
+import java.util.UUID;
 
 @Slf4j
 public class SafeStorageClientMock implements PnSafeStorageClient {
@@ -75,24 +74,26 @@ public class SafeStorageClientMock implements PnSafeStorageClient {
     public Mono<FileCreationResponse> createFile(FileCreationWithContentRequest fileCreationRequest, String sha256) {
         log.info("[TEST] createFile documentType={}", fileCreationRequest.getDocumentType());
 
-        String key = sha256;
+        String key = "RANDOM_"+ UUID.randomUUID();
+        if(savedFileMap.get(key) != null){
+            log.error("[TEST] Cannot save more than one file with same fileKey {}",key);
+            return Mono.error(new RuntimeException("Cannot save more than one file with same fileKey"));
+        }
+        
         savedFileMap.put(key,fileCreationRequest);
 
         ThreadPool.start( new Thread(() -> {
             Assertions.assertDoesNotThrow(() -> {
                 String keyWithPrefix = FileUtils.getKeyWithStoragePrefix(key);
-
+                
                 log.info("[TEST] Start wait for createFile documentType={} keyWithPrefix={}",fileCreationRequest.getDocumentType(), keyWithPrefix);
 
                 if(! TestUtils.PN_NOTIFICATION_ATTACHMENT.equals(fileCreationRequest.getDocumentType())){
-                    try {
-                        await().atMost(Duration.ofSeconds(1)).untilAsserted(() ->
-                                Assertions.assertTrue(creationRequestService.getDocumentCreationRequest(keyWithPrefix).isPresent())
-                        );
-                    }catch (org.awaitility.core.ConditionTimeoutException ex){
-                        log.error("TEST] Exception in createFile DocumentCreationRequest not founded - fileKey={} documentType={}", keyWithPrefix, fileCreationRequest.getDocumentType());
-                        throw ex;
-                    }
+                    log.info("[TEST] Start wait for createFile in IF documentType={} keyWithPrefix={}",fileCreationRequest.getDocumentType(), keyWithPrefix);
+
+                    MethodExecutor.waitForExecution(
+                            () -> creationRequestService.getDocumentCreationRequest(keyWithPrefix)
+                    );
                     
                     log.info("[TEST] END wait for createFile documentType={} keyWithPrefix={}",fileCreationRequest.getDocumentType(), keyWithPrefix);
 
