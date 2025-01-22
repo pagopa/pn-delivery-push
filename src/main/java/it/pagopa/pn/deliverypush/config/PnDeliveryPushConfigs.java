@@ -139,6 +139,8 @@ public class PnDeliveryPushConfigs {
 
     private Instant featureUnreachableRefinementPostAARStartDate;
 
+    private boolean specialAddressAarOnly;
+
     @Data
     public static class Topics {
 

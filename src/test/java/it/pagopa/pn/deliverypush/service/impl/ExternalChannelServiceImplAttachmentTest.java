@@ -77,6 +77,8 @@ class ExternalChannelServiceImplAttachmentTest {
     private NotificationService notificationService;
     @Mock
     private AuditLogService auditLogService;
+    @Mock
+    private PnDeliveryPushConfigs cfg;
     private ExternalChannelService externalChannelService;
     private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:send-self:notification-already-delivered";
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
@@ -105,7 +107,8 @@ class ExternalChannelServiceImplAttachmentTest {
                 auditLogService,
                 timelineUtils,
                 attachmentUtils,
-                timelineService);
+                timelineService,
+                cfg);
     }
 
 

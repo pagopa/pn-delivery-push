@@ -618,6 +618,11 @@ Parameters:
     Type: String
     Description: 'Configuration for send notification attachment, AAR, and AAR type. Comma separated list made up by: "Configuration start time" (UTC);"Send attachment mode for analog";"Send attachment mode for simple registered letter";"Send attachment mode for legal mail";"AAR template type" - if last parameter value ("AAR template type") is <RADD_TEMPLATE_DEFINITION> it means that the AAR template type need to be obtained dynamically, used for RADD experimentation'
 
+  SpecialAddressAarOnly:
+    Default: false
+    Type: String
+    Description: 'Configuration to choose, in the case of digital send to a special address, whether to send only the AAR attachment or send what is foreseen by the "PnSendMode" feature flag'
+
   SafeStorageFileNotFoundRetry:
     Default: false
     Type: String
@@ -1019,6 +1024,7 @@ Resources:
         ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
+        ContainerEnvEntry87: !Sub 'PN_DELIVERYPUSH_SPECIALADDRESSAARONLY=${SpecialAddressAarOnly}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'

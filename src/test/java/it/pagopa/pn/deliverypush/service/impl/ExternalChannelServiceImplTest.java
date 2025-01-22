@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -75,6 +76,9 @@ class ExternalChannelServiceImplTest {
     @Mock
     private TimelineService timelineService;
 
+    @Mock
+    private PnDeliveryPushConfigs cfg;
+
     private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:send-self:notification-already-delivered";
 
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
@@ -89,7 +93,7 @@ class ExternalChannelServiceImplTest {
                 notificationUtils,
                 digitalWorkFlowUtils,
                 notificationService, auditLogService,
-                timelineUtils, attachmentUtils, timelineService);
+                timelineUtils, attachmentUtils, timelineService, cfg);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -221,6 +225,7 @@ class ExternalChannelServiceImplTest {
 
         Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
         Mockito.when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
+        Mockito.when(cfg.isSpecialAddressAarOnly()).thenReturn(true);
 
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.SPECIAL;
         int recIndex = 0;

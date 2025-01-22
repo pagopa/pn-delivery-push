@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -46,13 +47,15 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final TimelineUtils timelineUtils;
     private final AttachmentUtils attachmentUtils;
     private final TimelineService timelineService;
+    private final PnDeliveryPushConfigs cfg;
 
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
                                       NotificationService notificationService, AuditLogService auditLogService,
-                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService) {
+                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService,
+                                      PnDeliveryPushConfigs cfg) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
@@ -62,6 +65,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         this.timelineUtils = timelineUtils;
         this.attachmentUtils = attachmentUtils;
         this.timelineService = timelineService;
+        this.cfg = cfg;
     }
 
     /**
@@ -91,7 +95,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         try {
             LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE addressType = sendInformation.getDigitalAddress().getType();
 
-            boolean retrieveAarOnly = addressType.equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) && sendInformation.getDigitalAddressSource().equals(DigitalAddressSourceInt.SPECIAL);
+            boolean retrieveAarOnly = cfg.isSpecialAddressAarOnly() &&addressType.equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC) && sendInformation.getDigitalAddressSource().equals(DigitalAddressSourceInt.SPECIAL);
             DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, retrieveAarOnly);
 
             if (addressType.equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
