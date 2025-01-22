@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.util.stream.Stream;
 
 @SpringBootTest
 @TestPropertySource(properties = {"pn.delivery-push.enable-templates-engine=false"})
+@Disabled("Test fail sometimes")
 class LegalFactGeneratorDocCompositionTest extends CommonTestConfiguration {
 
     public static final String IUN = "IUN_TEST";

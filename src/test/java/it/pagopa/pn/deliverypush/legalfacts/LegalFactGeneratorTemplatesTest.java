@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetails
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClient;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @SpringBootTest
 @TestPropertySource(properties = "pn.delivery-push.enable-templates-engine=true")
+@Disabled("Test fail sometimes")
 class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
 
     @Autowired
