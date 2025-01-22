@@ -1,9 +1,8 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import static org.awaitility.Awaitility.await;
-
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
+import it.pagopa.pn.deliverypush.action.it.utils.MethodExecutor;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -15,16 +14,15 @@ import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.utils.ThreadPool;
-import java.time.Duration;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
-import org.springframework.context.annotation.Lazy;
 
 @Slf4j
 public class TimelineDaoMock implements TimelineDao {
@@ -81,9 +79,10 @@ public class TimelineDaoMock implements TimelineDao {
                 String waitForElementId = notificationRecipientInt.getTaxId().replaceFirst(".*" + WAIT_SEPARATOR, "");
                 log.debug("[TEST] Wait for elementId {}", waitForElementId);
 
-                await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                        Assertions.assertTrue(getTimelineElement(dto.getIun(), waitForElementId).isPresent())
+                MethodExecutor.waitForExecution(
+                        () -> getTimelineElement(dto.getIun(), waitForElementId)
                 );
+                
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateCancelNotificationString)){
                 //Viene simulata la cancellazione della notifica prima di uno specifico inserimento in timeline
                 log.debug("[TEST] Simulate cancel notification {}", dto);
@@ -91,7 +90,11 @@ public class TimelineDaoMock implements TimelineDao {
                 // bisogna anche generare l'action
 
                 ThreadPool.start(new Thread(() -> {
-                    await().atLeast(Duration.ofSeconds(1));
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                     notificationCancellationActionHandler.continueCancellationProcess(dto.getIun());
                 }));
 
@@ -120,7 +123,11 @@ public class TimelineDaoMock implements TimelineDao {
                 // bisogna anche generare l'action
 
                 ThreadPool.start(new Thread(() -> {
-                    await().atLeast(Duration.ofSeconds(1));
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                     notificationCancellationActionHandler.continueCancellationProcess(dto.getIun());
                 }));
             }
@@ -147,6 +154,7 @@ public class TimelineDaoMock implements TimelineDao {
 
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
+        log.info("[TEST] Searching timelineId={} in timelineIds={}", timelineId, timelineList.stream().map(TimelineElementInternal::getElementId).toList());
         return timelineList.stream().filter(timelineElement -> timelineId.equals(timelineElement.getElementId()) && iun.equals(timelineElement.getIun())).findFirst();
     }
 
@@ -157,6 +165,8 @@ public class TimelineDaoMock implements TimelineDao {
 
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun) {
+        log.info("[TEST] get timeline for iun={} in timelineIds={}", iun, timelineList.stream().map(TimelineElementInternal::getElementId).toList());
+
         return timelineList.stream()
                 .filter(
                         timelineElement -> iun.equals(timelineElement.getIun())

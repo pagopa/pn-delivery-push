@@ -25,7 +25,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.util.Base64Utils;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -85,7 +84,7 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .build();
 
         byte[] differentFileSha = "error".getBytes();
-        TestUtils.firstFileUploadFromNotificationError(notification, safeStorageClientMock, differentFileSha);
+        notification = TestUtils.firstFileUploadFromNotificationError(notification, safeStorageClientMock, differentFileSha);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -97,7 +96,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
         
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -149,13 +148,21 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .withDigitalDomicile(digitalDomicile)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
+
         NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationRecipient(recipient)
                 .build();
 
         byte[] differentFileSha = "error".getBytes();
-        TestUtils.firstFileUploadFromNotificationError(notification, safeStorageClientMock, differentFileSha);
+        notification = TestUtils.firstFileUploadFromNotificationError(notification, safeStorageClientMock, differentFileSha);
+        
+        
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -166,7 +173,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -204,6 +211,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -211,7 +219,6 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         
@@ -221,7 +228,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -259,6 +266,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotificationTooBig(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -266,7 +274,6 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotificationTooBig(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
 
@@ -276,7 +283,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -316,6 +323,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotificationNotAPDF(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -323,7 +331,6 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotificationNotAPDF(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
 
@@ -333,7 +340,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -365,21 +372,28 @@ class ValidationTestIT extends CommonTestConfiguration{
 
         String paymentDocName = "metadata_0_0";
         NotificationDocumentInt paymentDoc = TestUtils.getDocumentList(paymentDocName).get(0);
+        List<NotificationDocumentInt> listPaymentDoc = List.of(paymentDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContentForPayments = TestUtils.getDocumentWithContents(paymentDocName, listPaymentDoc );
+        listPaymentDoc = TestUtils.firstFileUploadFromNotification(listDocumentWithContentForPayments, listPaymentDoc, safeStorageClientMock);
+
+        final List<NotificationPaymentInfoInt> paymentWithF24 = TestUtils.getPaymentWithF24(listPaymentDoc.get(0));
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withTaxId("TAXID01")
                 .withPhysicalAddress(paPhysicalAddress1)
-                .withPayments(TestUtils.getPaymentWithF24(paymentDoc))
+                .withPayments(paymentWithF24)
                 .build();
 
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
-        List<TestUtils.DocumentWithContent> listDocumentWithContentForPayments = TestUtils.getDocumentWithContents(paymentDocName, List.of(paymentDoc));
 
+/*
         //List which contains documents and payments
         List<TestUtils.DocumentWithContent> notificationDocuments = new ArrayList<>(listDocumentWithContent);
         notificationDocuments.addAll(listDocumentWithContentForPayments);
+*/
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun(TestUtils.getRandomIun() + F24_VALIDATION_FAIL)
@@ -388,7 +402,6 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(notificationDocuments, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
 
@@ -398,7 +411,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -449,6 +462,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -458,7 +472,6 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .withPaFee(100)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
 
@@ -468,7 +481,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
@@ -499,6 +512,11 @@ class ValidationTestIT extends CommonTestConfiguration{
         String fileDocPayment = "keyPagoPaForm_doc00";
         List<NotificationDocumentInt> paymentDocuments = TestUtils.getDocumentList(fileDocPayment);
         List<TestUtils.DocumentWithContent> listPaymentDocumentWithContent = TestUtils.getDocumentWithContents(fileDocPayment, paymentDocuments);
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent,notificationDocumentList, safeStorageClientMock);
+        paymentDocuments = TestUtils.firstFileUploadFromNotification(listPaymentDocumentWithContent, paymentDocuments, safeStorageClientMock);
 
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
                 .withPhysicalAddress(
@@ -518,9 +536,6 @@ class ValidationTestIT extends CommonTestConfiguration{
                 ))
                 .build();
 
-        String fileDoc = "sha256_doc00";
-        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
-        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -532,8 +547,6 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-        TestUtils.firstFileUploadFromNotification(listPaymentDocumentWithContent, safeStorageClientMock);
         
         pnDeliveryClientMock.addNotification(notification);
         
@@ -559,18 +572,18 @@ class ValidationTestIT extends CommonTestConfiguration{
                 .withPayments(null)
                 .build();
 
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
+
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withPaId("paId01")
                 .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withPagoPaIntMode(PagoPaIntMode.ASYNC)
                 .withNotificationRecipient(recipient)
                 .build();
-
-        String fileDoc = "sha256_doc00";
-        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
-        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-
+        
         pnDeliveryClientMock.addNotification(notification);
 
         String iun = notification.getIun();
@@ -580,7 +593,7 @@ class ValidationTestIT extends CommonTestConfiguration{
         startWorkflowHandler.startWorkflow(iun);
 
         //THEN
-        await().atMost(Duration.ofSeconds(1000)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 //Check worfklow is failed
                 Assertions.assertTrue(timelineService.getTimelineElement(
                         iun,
