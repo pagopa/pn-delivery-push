@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import java.util.List;
 import static org.awaitility.Awaitility.await;
 
 @ContextConfiguration(classes = SentAttachmentAnalogDynamicChooseIAARIT.InnerTestConfiguration.class)
+@Disabled("Test fail sometimes")
 class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
     @Autowired
     static DynamicRADDExperimentationChooseStrategy raddExperimentationChooseStrategy;

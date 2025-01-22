@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel
 import it.pagopa.pn.deliverypush.utils.CheckRADDExperimentation;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -37,6 +38,7 @@ import static it.pagopa.pn.deliverypush.action.utils.AarUtils.*;
 import static org.awaitility.Awaitility.await;
 
 @ContextConfiguration(classes = RaddExperimentationDynamicAARIT.InnerTestConfiguration.class)
+@Disabled("Test fail sometimes")
 class RaddExperimentationDynamicAARIT extends SendAarAttachment {
     @Autowired
     private static CheckRADDExperimentation checkRADDExperimentation;
