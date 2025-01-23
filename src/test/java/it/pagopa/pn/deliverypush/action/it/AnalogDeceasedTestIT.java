@@ -35,7 +35,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +83,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -91,9 +91,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
                 .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipient(recipient)
                 .build();
-
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-
+        
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
 
@@ -130,7 +128,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         TestUtils.checkIsNotPresentRefinement(iun, recIndex, timelineService);
 
         //Viene verificato che lo stato della notifica sia RETURNED_TO_SENDER
-        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.RETURNED_TO_SENDER, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
@@ -195,6 +193,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun(iun)
@@ -204,7 +203,6 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
@@ -241,11 +239,11 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         TestUtils.checkIsNotPresentRefinement(iun, recIndex, timelineService);
 
         //Viene verificato che lo stato della notifica sia RETURNED_TO_SENDER
-        await().atMost(Duration.ofSeconds(10)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.RETURNED_TO_SENDER, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
-        await().atMost(Duration.ofSeconds(10)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.CANCELLED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
@@ -307,6 +305,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -315,7 +314,6 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
@@ -340,7 +338,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         );
 
         //Viene verificato lo stato della notifica che risulta perfezionata per decorrenza termini
-        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
@@ -433,6 +431,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -441,7 +440,6 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
                 .withNotificationRecipients(List.of(recipient1, recipient2))
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
@@ -467,7 +465,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato che lo stato della notifica sia transitato in DELIVERED
-        await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertTrue(TestUtils.checkNotificationStatusHistoryContainsDesiredStatus(notification, timelineService, statusUtils, NotificationStatusInt.DELIVERED))
         );
 
@@ -477,7 +475,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         );
 
         //Viene verificato lo stato della notifica che risulta perfezionata per decorrenza termini
-        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
@@ -604,15 +602,15 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
 
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
+
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withPaId("paId01")
                 .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .withNotificationRecipients(List.of(recipient1, recipient2))
                 .build();
-
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-
+        
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
         addressBookMock.addCourtesyDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), listCourtesyAddressRecipient1);
@@ -688,7 +686,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
                                 .build())).isPresent());
 
         //Viene verificato che lo stato della notifica sia transitato in irreperibile
-        await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertTrue(TestUtils.checkNotificationStatusHistoryContainsDesiredStatus(notification, timelineService, statusUtils, NotificationStatusInt.UNREACHABLE))
         );
 
@@ -698,7 +696,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         );
 
         //Viene verificato lo stato della notifica che risulta perfezionata per decorrenza termini in seguito al refinement
-        await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
@@ -810,6 +808,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -818,7 +817,6 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
                 .withNotificationRecipients(List.of(recipient1, recipient2))
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
@@ -844,7 +842,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato che lo stato della notifica sia transitato in RETURNED_TO_SENDER
-        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.RETURNED_TO_SENDER, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
@@ -982,6 +980,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withIun(iun)
@@ -991,7 +990,6 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
                 .withNotificationRecipients(List.of(recipient1, recipient2))
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.emptyList());
@@ -1016,7 +1014,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         TestUtils.checkGetAddress(iun, recIndex2, false, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato che lo stato della notifica sia transitato in DELIVERED
-        await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertTrue(TestUtils.checkNotificationStatusHistoryContainsDesiredStatus(notification, timelineService, statusUtils, NotificationStatusInt.DELIVERED))
         );
 
@@ -1026,7 +1024,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         );
 
         //Viene verificato lo stato della notifica che risulta perfezionata per decorrenza termini
-        await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.EFFECTIVE_DATE, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
         );
 
@@ -1045,7 +1043,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         );
 
         //Viene verificato che non esista uno stato di VIEWED poichè la visualizzazione da parte di un deceduto non ha effetto
-        await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
+        await().untilAsserted(() ->
                 Assertions.assertFalse(TestUtils.checkNotificationStatusHistoryContainsDesiredStatus(notification, timelineService, statusUtils, NotificationStatusInt.VIEWED))
         );
 

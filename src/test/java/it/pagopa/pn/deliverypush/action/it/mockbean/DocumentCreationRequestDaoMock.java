@@ -18,12 +18,24 @@ public class DocumentCreationRequestDaoMock implements DocumentCreationRequestDa
 
     @Override
     public void addDocumentCreationRequest(DocumentCreationRequest documentCreationRequest) {
+        if(documentMap.get(documentCreationRequest.getKey()) != null){
+            log.error("[TEST] Cannot save more than one addDocumentCreationRequest with same fileKey {}",documentCreationRequest.getKey());
+            throw new RuntimeException("Cannot save more than one addDocumentCreationRequest with same fileKey");
+        }
         documentMap.put(documentCreationRequest.getKey(), documentCreationRequest);
+        log.info("document added to documentMap {}", documentCreationRequest);
     }
 
     @Override
     public Optional<DocumentCreationRequest> getDocumentCreationRequest(String key) {
         DocumentCreationRequest documentCreationRequest = documentMap.get(key);
-        return documentCreationRequest != null ? Optional.of(documentCreationRequest) : Optional.empty();
+        
+        Optional<DocumentCreationRequest> documentCreationRequestOptional = documentCreationRequest != null ? Optional.of(documentCreationRequest) : Optional.empty();
+        if(documentCreationRequestOptional.isPresent()){
+            return documentCreationRequestOptional;
+        }else {
+            log.info("document creation request for fileKey {} is not present. This is documentCreationRequestPresent={}", key, documentMap.toString());
+            return Optional.empty();
+        }
     }
 }
