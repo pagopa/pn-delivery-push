@@ -75,7 +75,7 @@
     "EnableTemplatesEngine": "true",
     "ActivationDeceasedWorkflowDate": "2024-11-25T00:00:00Z",
     "FeatureUnreachableRefinementPostAARStartDate": "2024-11-27T00:00:00Z",
-    "WebhookFeatureFlags": "1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z",
-    "pfNewWorkflowFeatureFlag": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z"
+    "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z",
+    "pfNewWorkflowFeatureFlag": "2019-01-01T00:00:00Z,2099-02-01T00:00:00Z"
   }
 }
