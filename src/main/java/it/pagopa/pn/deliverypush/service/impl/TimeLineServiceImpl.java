@@ -99,11 +99,6 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
 
-                // aggiorna lo stato su pn-delivery se i due stati differiscono
-                if (!notificationStatuses.getOldStatus().equals(notificationStatuses.getNewStatus())) {
-                    statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
-                }
-
                 // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
                 // asincrona da una lambda che opera partendo da stream Kinesis
 

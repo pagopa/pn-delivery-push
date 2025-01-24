@@ -34,11 +34,6 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
         this.notifications.add(sentNotification);
         log.info("ADDED_IUN:" + notification.getIun());
     }
-    
-    @Override
-    public void updateStatus(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto dto) {
-        //Nothing to do
-    }
 
     @Override
     public SentNotificationV24 getSentNotification(String iun) {
