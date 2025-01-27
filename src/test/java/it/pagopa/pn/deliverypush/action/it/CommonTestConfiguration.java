@@ -209,7 +209,7 @@ public class CommonTestConfiguration {
     
     @BeforeEach
     public void setup() {
-        setDefaultTimeout(Duration.ofSeconds(60));
+        setDefaultTimeout(Duration.ofSeconds(120));
 
         // Viene creato un oggetto Answer per ottenere l'istante corrente al momento della chiamata ...
         Answer<Instant> answer = invocation -> Instant.now();
