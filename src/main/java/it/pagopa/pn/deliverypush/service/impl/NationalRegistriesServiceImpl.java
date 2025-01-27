@@ -44,7 +44,7 @@ public class NationalRegistriesServiceImpl implements NationalRegistriesService 
 
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
 
-        nationalRegistriesClient.sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId);
+        nationalRegistriesClient.sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId, notification.getSentAt());
         publicRegistryUtils.addPublicRegistryCallToTimeline(
                 notification,
                 recIndex,
