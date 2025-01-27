@@ -235,7 +235,8 @@ describe("event handler tests", function () {
     const result = await lambda.handleEvent(testData, {
       getRemainingTimeInMillis: () => 10000000000,
     });
-    expect(result).to.be.null;
+    expect(result).to.be.not.null;
+    expect(result.batchItemFailures).to.be.empty;
   });
 
   it("event after flag interval", async () => {
@@ -273,7 +274,8 @@ describe("event handler tests", function () {
     const result = await lambda.handleEvent(testData, {
       getRemainingTimeInMillis: () => 10000000000,
     });
-    expect(result).to.be.null;
+    expect(result).to.be.not.null;
+    expect(result.batchItemFailures).to.be.empty;
   });
 
 });

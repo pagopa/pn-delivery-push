@@ -7,11 +7,6 @@ const QUEUE_URL = process.env.QUEUE_URL
 
 exports.handleEvent = async (event) => {
 
-  if (Date.now() < new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`) || Date.now() >= new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`)) {
-    console.log('Skipping event with id: ', event.eventID);
-    return null;
-  }
-
   const cdcEvents = extractKinesisData(event);
   console.log(`Batch size: ${cdcEvents.length} cdc`);
 
@@ -24,6 +19,10 @@ exports.handleEvent = async (event) => {
     let batchItemFailures = [];
     while(cdcEvents.length > 0){
       let currentCdcEvents = cdcEvents.splice(0,10);
+      currentCdcEvents.filter((i) => i.timestamp >= new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`) && i.timestamp < new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`))
+      if (currentCdcEvents.length == 0) {
+        return
+      }
       try{
         let processedItems = await mapEvents(currentCdcEvents);
         if (processedItems.length > 0){
