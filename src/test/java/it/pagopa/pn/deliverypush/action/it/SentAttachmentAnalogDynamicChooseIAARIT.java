@@ -106,6 +106,13 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
 
         String pagoPaAttachment = "thisIsAnAttachment";
         List<NotificationDocumentInt> pagoPaAttachmentList = TestUtils.getDocumentList(pagoPaAttachment);
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
+
+        List<TestUtils.DocumentWithContent> listAttachmentWithContent = TestUtils.getDocumentWithContents(pagoPaAttachment, pagoPaAttachmentList);
+        pagoPaAttachmentList = TestUtils.firstFileUploadFromNotification(listAttachmentWithContent, pagoPaAttachmentList, safeStorageClientMock);
 
         PagoPaInt paGoPaPayment= PagoPaInt.builder()
                 .creditorTaxId("cred")
@@ -124,13 +131,6 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
                 ))
                 .build();
 
-        String fileDoc = "sha256_doc00";
-        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
-        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-
-        List<TestUtils.DocumentWithContent> listAttachmentWithContent = TestUtils.getDocumentWithContents(pagoPaAttachment, pagoPaAttachmentList);
-        TestUtils.firstFileUploadFromNotification(listAttachmentWithContent, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)

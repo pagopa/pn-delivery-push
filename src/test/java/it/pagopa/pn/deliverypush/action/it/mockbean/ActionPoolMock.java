@@ -23,6 +23,11 @@ public class ActionPoolMock {
     public void clear() {
         this.futureAction = new ArrayList<>();
     }
+
+    @Scheduled(fixedRate = 5000)
+    protected void notExpiredAction() {
+        log.info("[TEST] This is not expiredAction {}", futureAction.stream().toList());
+    }
     
     @Scheduled(fixedRate = 500) //500 millis
     protected void pollForFutureActions() {
@@ -60,6 +65,7 @@ public class ActionPoolMock {
                 actionHandlerMock.handleSchedulingAction(action);
                 futureAction.remove(action);
             } else {
+                log.info("[TEST] action is not expired {}", action);
                 expired = false;
             }
             i++;

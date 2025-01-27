@@ -74,6 +74,7 @@ class AnalogTestNormalizedAddressIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -83,7 +84,6 @@ class AnalogTestNormalizedAddressIT extends CommonTestConfiguration{
                 .withNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         
         pnDeliveryClientMock.addNotification(notification);
 
