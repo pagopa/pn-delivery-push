@@ -15,11 +15,7 @@ Parameters:
     
   LegalPersonPortalUrl:
     Type: String
-    Description: 'Url del portale della Persona Giuridica da inserire degli AAR'    
-
-  AddressBookUrl:
-    Type: String
-    Description: 'The URL of address book mock service'
+    Description: 'Url del portale della Persona Giuridica da inserire degli AAR'
 
   WebhookScanInterval:
     Type: String
@@ -846,11 +842,7 @@ Parameters:
   PerformanceImprovementEndDate:
     Type: String
     Description: 'End date enable feature flag performance improvement'
-  
-  EnvironmentType:
-    Type: String
-    Description: Environment type
-  
+
   FutureActionTtlExtraDays:
     Default: 365
     Type: Number
@@ -898,26 +890,16 @@ Parameters:
     AllowedValues:
       - true
       - false
-      
-  StartWriteBusinessTimestamp:
-    Type: String
-    Description: 'Start write business timestamp in timeline'
-    Default: "2099-01-01T00:00:00Z"
 
-  StopWriteBusinessTimestamp:
-    Type: String
-    Description: 'Stop write business timestamp in timeline'
-    Default: "2099-12-01T00:00:00Z"
+  WebhookFeatureFlags:
+    Type: CommaDelimitedList
+    Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestam
+    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
 
-  StartReadStreamTimestamp:
-    Type: String
-    Description: 'Start timestamp for read stream'
-    Default: "1999-01-01T00:00:00Z"
-
-  StopReadStreamTimestamp:
-    Type: String
-    Description: 'Stop timestamp for read stream'
-    Default: "2099-01-01T00:00:00Z"
+  pfNewWorkflowFeatureFlag:
+    Type: CommaDelimitedList
+    Description: List containing in order pfNewWorkflowStart, pfNewWorkflowStop
+    Default: '2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
@@ -1039,8 +1021,8 @@ Resources:
         ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
-        ContainerEnvEntry87: !Sub 'PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${StartWriteBusinessTimestamp}'
-        ContainerEnvEntry88: !Sub 'PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${StopWriteBusinessTimestamp}'
+        ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
+        ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -1257,8 +1239,8 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           QUEUE_URL: !Ref DoneActionsQueueURL
-          START_READ_STREAM_TIMESTAMP: !Sub '${StartReadStreamTimestamp}'
-          STOP_READ_STREAM_TIMESTAMP: !Sub '${StopReadStreamTimestamp}'
+          START_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref WebhookFeatureFlags ]} ]
+          STOP_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref WebhookFeatureFlags ] } ]
       TracingConfig:
         Mode: Active
       Layers:
