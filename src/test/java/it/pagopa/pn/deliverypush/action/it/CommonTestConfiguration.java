@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.*;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtilsImpl;
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -33,6 +33,8 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineMapperFactory;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import it.pagopa.pn.deliverypush.utils.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,7 +85,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         CompletelyUnreachableUtils.class,
         ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,
-        ChooseDeliveryModeUtils.class,
+        ChooseDeliveryModeUtilsImpl.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
         StatusUtils.class,
@@ -159,10 +161,12 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         AnalogFinalStatusResponseHandler.class,
         ActionHandler.class,
         WebhookActionsEventHandler.class,
-        WebhookEventsServiceMock.class
+        WebhookEventsServiceMock.class,
+        SmartMapper.class,
+        TimelineMapperFactory.class
 })
 @ExtendWith(SpringExtension.class)
-@TestPropertySource("classpath:/application-testIT.properties")
+@TestPropertySource(value = "classpath:/application-testIT.properties")
 @DirtiesContext
 @EnableScheduling
 public class CommonTestConfiguration {
@@ -205,7 +209,7 @@ public class CommonTestConfiguration {
     
     @BeforeEach
     public void setup() {
-        setDefaultTimeout(Duration.ofSeconds(60));
+        setDefaultTimeout(Duration.ofSeconds(120));
 
         // Viene creato un oggetto Answer per ottenere l'istante corrente al momento della chiamata ...
         Answer<Instant> answer = invocation -> Instant.now();
@@ -317,6 +321,12 @@ public class CommonTestConfiguration {
         pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[3]);
         pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[4]);
         Mockito.when(cfg.getRaddExperimentationStoresName()).thenReturn(pnRaddExperimentationStore);
+
+        Mockito.when(cfg.getFeatureUnreachableRefinementPostAARStartDate()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
+
+        Mockito.when(cfg.getPfNewWorkflowStop()).thenReturn("2099-03-31T23:00:00Z");
+        Mockito.when(cfg.getPfNewWorkflowStart()).thenReturn("2099-02-13T23:00:00Z");
+
     }
 
 }

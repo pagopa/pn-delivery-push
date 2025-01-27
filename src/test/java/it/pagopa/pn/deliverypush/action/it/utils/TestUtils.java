@@ -22,6 +22,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
@@ -228,6 +229,32 @@ public class TestUtils {
         Assertions.assertNotNull(failDigitalWorkflow.getLegalFactsIds().get(0));
     }
 
+    public static void checkAnalogWorkflowRecipientDeceased(
+            String iun,
+            Integer recIndex,
+            TimelineService timelineService,
+            CompletionWorkFlowHandler completionWorkflow) {
+
+        // Verifica che il workflow del destinatario deceduto sia stato eseguito
+        Assertions.assertTrue(timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build())).isPresent());
+
+        // Verifica che il metodo completionAnalogWorkflow sia stato chiamato almeno una volta con i parametri specifici
+        Mockito.verify(completionWorkflow, Mockito.atLeastOnce()).completionAnalogWorkflow(
+                Mockito.argThat(notification -> notification.getIun().equals(iun)),
+                Mockito.eq(recIndex),
+                Mockito.any(Instant.class),
+                Mockito.any(PhysicalAddressInt.class),
+                Mockito.eq(EndWorkflowStatus.DECEASED)
+        );
+    }
+
+
     public static void checkRefinement(String iun, Integer recIndex, TimelineService timelineService) {
         Assertions.assertTrue(timelineService.getTimelineElement(
                 iun,
@@ -341,8 +368,23 @@ public class TestUtils {
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(notification.getIun(), true);
 
         List<NotificationStatusHistoryElementInt> statusHistoryElements = statusUtils.getStatusHistory(timelineElements, numberOfRecipient, notificationCreatedAt);
+        
+        log.info("[TEST] timelineElements {}", timelineElements.stream().map(t -> t.getElementId()).toList());
+        NotificationStatusInt notificationStatusInt =  statusUtils.getCurrentStatus(statusHistoryElements);
+        log.info("[TEST] notificationStatus {} - iun={}", notificationStatusInt, notification.getIun());
+        return notificationStatusInt;
+    }
 
-        return statusUtils.getCurrentStatus(statusHistoryElements);
+    public synchronized static boolean checkNotificationStatusHistoryContainsDesiredStatus(NotificationInt notification, TimelineService timelineService, StatusUtils statusUtils, NotificationStatusInt desiredStatus) {
+        int numberOfRecipient = notification.getRecipients().size();
+        Instant notificationCreatedAt = notification.getSentAt();
+
+        Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(notification.getIun(), true);
+
+        List<NotificationStatusHistoryElementInt> statusHistoryElements = statusUtils.getStatusHistory(timelineElements, numberOfRecipient, notificationCreatedAt);
+        
+        log.info("[TEST] Searching status {} in status history is {} ",desiredStatus, statusHistoryElements);
+        return statusHistoryElements.stream().anyMatch(history -> history.getStatus().equals(desiredStatus));
     }
 
     public static void checkIsNotPresentRefinement(String iun, Integer recIndex, TimelineService timelineService) {
@@ -484,6 +526,20 @@ public class TestUtils {
 
         return false;
     }
+
+    public static boolean checkIsPresentAnalogWorkflowRecipientDeceased(String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> analogRecipientDeceased = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        return analogRecipientDeceased.isPresent();
+    }
     
     public static boolean checkIsPresentDigitalFailure(String iun, Integer recIndex, TimelineService timelineService) {
         Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
@@ -560,47 +616,84 @@ public class TestUtils {
         Assertions.assertEquals(recipient.getPhysicalAddress().getAddress(), simpleRegisteredLetterDetails.getPhysicalAddress().getAddress());
 
     }
-
-    public static void firstFileUploadFromNotification(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock) {
+    
+    public static List<NotificationDocumentInt> firstFileUploadFromNotification(
+            List<TestUtils.DocumentWithContent> documentWithContentList,
+            List<NotificationDocumentInt> listNotificationDocument,
+            SafeStorageClientMock safeStorageClientMock) 
+    {
         for (TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf");
             fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
-            safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256()).block();
+
+            listNotificationDocument = createFileAndGetDocumentList(listNotificationDocument, safeStorageClientMock, documentWithContent.getDocument(), fileCreationWithContentRequest);
         }
+        return listNotificationDocument;
     }
 
+    private static @NotNull List<NotificationDocumentInt> createFileAndGetDocumentList(List<NotificationDocumentInt> listNotificationDocument,
+                                                                                       SafeStorageClientMock safeStorageClientMock,
+                                                                                       NotificationDocumentInt documentToUpload,
+                                                                                       FileCreationWithContentRequest fileCreationWithContentRequest) {
+        
+        FileCreationResponse response = safeStorageClientMock.createFile(fileCreationWithContentRequest, documentToUpload.getDigests().getSha256()).block();
+        listNotificationDocument = listNotificationDocument.stream().filter(doc -> doc.equals(documentToUpload))
+                        .map(doc -> {
+                                    NotificationDocumentInt.Ref actualRefWithoutKey = doc.getRef();
+                                    return doc.toBuilder()
+                                            .ref(actualRefWithoutKey.toBuilder()
+                                                    .key(response.getKey())
+                                                    .build())
+                                            .build();
+                        }).toList();
+        return listNotificationDocument;
+    }
 
-    public static void firstFileUploadFromNotificationTooBig(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock) {
+    public static List<NotificationDocumentInt> firstFileUploadFromNotificationTooBig(List<TestUtils.DocumentWithContent> documentWithContentList,
+                                                             List<NotificationDocumentInt> listNotificationDocument,
+                                                             SafeStorageClientMock safeStorageClientMock) {
         for (TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf" + TOO_BIG);
             fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
             safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
+            listNotificationDocument = createFileAndGetDocumentList(listNotificationDocument, safeStorageClientMock, documentWithContent.getDocument(), fileCreationWithContentRequest);
         }
+        return listNotificationDocument;
     }
 
 
-    public static void firstFileUploadFromNotificationNotAPDF(List<TestUtils.DocumentWithContent> documentWithContentList, SafeStorageClientMock safeStorageClientMock) {
+    public static List<NotificationDocumentInt> firstFileUploadFromNotificationNotAPDF(List<TestUtils.DocumentWithContent> documentWithContentList,
+                                                              List<NotificationDocumentInt> listNotificationDocument,
+                                                              SafeStorageClientMock safeStorageClientMock) {
         for (TestUtils.DocumentWithContent documentWithContent : documentWithContentList) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf" + NOT_A_PDF);
             fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
             fileCreationWithContentRequest.setContent(documentWithContent.getContent().getBytes());
-            safeStorageClientMock.createFile(fileCreationWithContentRequest, documentWithContent.getDocument().getDigests().getSha256());
+            listNotificationDocument = createFileAndGetDocumentList(listNotificationDocument, safeStorageClientMock, documentWithContent.getDocument(), fileCreationWithContentRequest);
         }
+        
+        return listNotificationDocument;
     }
 
-    public static void firstFileUploadFromNotificationError(NotificationInt notification, SafeStorageClientMock safeStorageClientMock, byte[] fileSha) {
+    public static NotificationInt firstFileUploadFromNotificationError(NotificationInt notification, SafeStorageClientMock safeStorageClientMock, byte[] differentFileContent) {
+        List<NotificationDocumentInt> listNotificationDocument = notification.getDocuments();
+
         for (NotificationDocumentInt attachment : notification.getDocuments()) {
             FileCreationWithContentRequest fileCreationWithContentRequest = new FileCreationWithContentRequest();
             fileCreationWithContentRequest.setContentType("application/pdf");
             fileCreationWithContentRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENT);
-            fileCreationWithContentRequest.setContent(fileSha);
+            fileCreationWithContentRequest.setContent(differentFileContent);
             safeStorageClientMock.createFile(fileCreationWithContentRequest, attachment.getDigests().getSha256());
+            listNotificationDocument = createFileAndGetDocumentList(listNotificationDocument, safeStorageClientMock, attachment, fileCreationWithContentRequest);
         }
+        return notification.toBuilder()
+                .documents(listNotificationDocument)
+                .build();
     }
 
     public static List<TestUtils.DocumentWithContent> getDocumentWithContents(String fileDoc, List<NotificationDocumentInt> notificationDocumentList) {
@@ -612,10 +705,11 @@ public class TestUtils {
     }
 
     public static List<NotificationDocumentInt> getDocumentList(String fileDoc) {
+
         return List.of(
                 NotificationDocumentInt.builder()
                         .ref(NotificationDocumentInt.Ref.builder()
-                                .key(Base64Utils.encodeToString(fileDoc.getBytes()))
+                                .key(null) //Nota la file key è null, in questa fase non è dato saperla dovrà essere valorizzata da safeStorage e aggiornata nel test
                                 .versionToken("v01_doc00")
                                 .build()
                         )
@@ -666,7 +760,7 @@ public class TestUtils {
                                                 NotificationRecipientInt recipient,
                                                 Integer recIndex,
                                                 int sentPecAttemptNumber,
-                                                TestUtils.GeneratedLegalFactsInfo generatedLegalFactsInfo,
+                                                GeneratedLegalFactsInfo generatedLegalFactsInfo,
                                                 EndWorkflowStatus endWorkflowStatus,
                                                 LegalFactGenerator legalFactGenerator,
                                                 TimelineService timelineService,

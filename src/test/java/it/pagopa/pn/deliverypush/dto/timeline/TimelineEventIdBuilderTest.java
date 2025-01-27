@@ -568,8 +568,30 @@ class TimelineEventIdBuilderTest {
     }
 
     @Test
+    void buildANALOG_WORKFLOW_RECIPIENT_DECEASEDTest() {
+        //vecchia versione 123456789_analog_success_workflow_1
+        String timeLineEventIdExpected = "ANALOG_WORKFLOW_RECIPIENT_DECEASED.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.getValue())
+                .withIun(IUN)
+                .withRecIndex(0)
+                .build();
+
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .recIndex(0)
+                .build());
+
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+
+    }
+
+    @Test
     void buildANALOG_FAILURE_WORKFLOWTest() {
-        //vecchia versione 123456789_analog_failure_workflow_1
         String timeLineEventIdExpected = "ANALOG_FAILURE_WORKFLOW.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
         String timeLineEventIdActual = new TimelineEventIdBuilder()
                 .withCategory(TimelineEventId.ANALOG_FAILURE_WORKFLOW.getValue())

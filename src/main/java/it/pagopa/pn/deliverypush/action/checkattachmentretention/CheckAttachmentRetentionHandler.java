@@ -32,7 +32,7 @@ public class CheckAttachmentRetentionHandler {
         boolean isNotificationViewedRefinedOrCancelled = notification.getRecipients().stream()
                 .allMatch(recipient -> {
                     int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-                    return timelineUtils.checkNotificationIsViewedOrRefinedOrCancelled(iun, recIndex);
+                    return timelineUtils.checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(iun, recIndex);
                 });
         
         if(! isNotificationViewedRefinedOrCancelled ){
