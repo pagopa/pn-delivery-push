@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -25,6 +26,8 @@ import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineMapperFactory;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +54,6 @@ class TimeLineServiceImplTest {
     private StatusService statusService;
     private ConfidentialInformationService confidentialInformationService;
     private SchedulerService schedulerService;
-
     private NotificationService notificationService;
 
     @BeforeEach
@@ -64,8 +66,10 @@ class TimeLineServiceImplTest {
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
         notificationService = Mockito.mock(NotificationService.class);
+        PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        SmartMapper smartMapper = new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs));
 //        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
-        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService);
+        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService, smartMapper);
         //timeLineService.setSchedulerService(schedulerService);
 
     }
@@ -467,11 +471,11 @@ class TimeLineServiceImplTest {
         //Viene verificato che il numero di elementi restituiti sia 2, dunque che sia stato eliminato l'elemento con category "IN VALIDATION"
         Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
         
-        NotificationStatusHistoryElement firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
+        NotificationStatusHistoryElementV26 firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
         Assertions.assertEquals(acceptedElementElement.getStatus(), NotificationStatusInt.valueOf(firstElement.getStatus().getValue()) );
         Assertions.assertEquals(inValidationElement.getActiveFrom(), firstElement.getActiveFrom());
 
-        NotificationStatusHistoryElement secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
+        NotificationStatusHistoryElementV26 secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
         Assertions.assertEquals(deliveringElement.getStatus(), NotificationStatusInt.valueOf(secondElement.getStatus().getValue()));
         Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
         
@@ -483,7 +487,7 @@ class TimeLineServiceImplTest {
 
         var firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
         
-        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
+        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatusV26.valueOf(currentStatus.getValue()) );
         Assertions.assertEquals( elementInt.getElementId(), firstElementReturned.getElementId() );
         
         SendAnalogDetailsInt details = (SendAnalogDetailsInt) elementInt.getDetails();
@@ -550,11 +554,11 @@ class TimeLineServiceImplTest {
         //Viene verificato che il numero di elementi restituiti sia 2, dunque che sia stato eliminato l'elemento con category "IN VALIDATION"
         Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
 
-        NotificationStatusHistoryElement firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
+        NotificationStatusHistoryElementV26 firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
         Assertions.assertEquals(acceptedElementElement.getStatus(), NotificationStatusInt.valueOf(firstElement.getStatus().getValue()) );
         Assertions.assertEquals(inValidationElement.getActiveFrom(), firstElement.getActiveFrom());
 
-        NotificationStatusHistoryElement secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
+        NotificationStatusHistoryElementV26 secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
         Assertions.assertEquals(deliveringElement.getStatus(), NotificationStatusInt.valueOf(secondElement.getStatus().getValue()));
         Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
 
@@ -565,7 +569,7 @@ class TimeLineServiceImplTest {
 
         var firstElementReturned = notificationHistoryResponse.getTimeline().get(0);
 
-        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
+        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatusV26.valueOf(currentStatus.getValue()) );
         Assertions.assertEquals( elementInternalProg.getElementId(), firstElementReturned.getElementId() );
 
     }
@@ -629,16 +633,16 @@ class TimeLineServiceImplTest {
         //Viene verificato che il numero di elementi restituiti sia 2, dunque che sia stato eliminato l'elemento con category "IN VALIDATION"
         Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
 
-        NotificationStatusHistoryElement firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
+        NotificationStatusHistoryElementV26 firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
         Assertions.assertEquals(acceptedElementElement.getStatus(), NotificationStatusInt.valueOf(firstElement.getStatus().getValue()) );
         Assertions.assertEquals(inValidationElement.getActiveFrom(), firstElement.getActiveFrom());
 
-        NotificationStatusHistoryElement secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
+        NotificationStatusHistoryElementV26 secondElement = notificationHistoryResponse.getNotificationStatusHistory().get(1);
         Assertions.assertEquals(deliveringElement.getStatus(), NotificationStatusInt.valueOf(secondElement.getStatus().getValue()));
         Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
 
         //Verifica timeline
-        List<TimelineElementV25> timelineElementList = notificationHistoryResponse.getTimeline();
+        List<TimelineElementV26> timelineElementList = notificationHistoryResponse.getTimeline();
 
         //Mi aspetto che sia rimosso l'elemento di timeline di diagnostica. (Con category VALIDATE_REQUEST_F24)
         Assertions.assertEquals(2, timelineElementList.size());
@@ -646,14 +650,14 @@ class TimeLineServiceImplTest {
         var firstElementReturned = timelineElementList.get(0);
         var secondElementReturned = timelineElementList.get(1);
 
-        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatus.valueOf(currentStatus.getValue()) );
+        Assertions.assertEquals( notificationHistoryResponse.getNotificationStatus(), NotificationStatusV26.valueOf(currentStatus.getValue()) );
         Assertions.assertEquals( elementInternalProg.getElementId(), firstElementReturned.getElementId() );
         Assertions.assertEquals( elementInternalFeedback.getElementId(), secondElementReturned.getElementId());
         Assertions.assertFalse(timelineElementContainsElementId(timelineElementList, elementId1+"VALIDATED_F24" ) );
 
     }
 
-    private boolean timelineElementContainsElementId(List<TimelineElementV25> timelineElements, String elementId) {
+    private boolean timelineElementContainsElementId(List<TimelineElementV26> timelineElements, String elementId) {
         return timelineElements.stream()
                 .anyMatch(timelineElement -> timelineElement.getElementId().equalsIgnoreCase(elementId));
     }

@@ -1,23 +1,20 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
 import it.pagopa.pn.api.dto.events.*;
+import it.pagopa.pn.deliverypush.action.it.utils.MethodExecutor;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.f24.model.RequestAccepted;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.f24.PnF24Client;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.F24ResponseHandler;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Lazy;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static org.awaitility.Awaitility.await;
 
 @Setter
 @Slf4j
@@ -34,8 +31,8 @@ public class F24ClientMock implements PnF24Client {
     @Override
     public Mono<RequestAccepted> validate(String iun) {
         new Thread(() -> {
-            await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-                    Assertions.assertTrue(timelineService.getTimelineElement(iun, "VALIDATE_F24_REQUEST.IUN_" + iun).isPresent())
+            MethodExecutor.waitForExecution(
+                    () -> timelineService.getTimelineElement(iun, "VALIDATE_F24_REQUEST.IUN_" + iun)
             );
 
             log.info("[TEST] Start handle validate setId={}", iun);
@@ -63,15 +60,18 @@ public class F24ClientMock implements PnF24Client {
         new Thread(() -> {
             AtomicReference<TimelineElementInternal> timelineElementInternal = new AtomicReference<>();
 
-             await().atMost(Duration.ofSeconds(30)).until(() -> {
-                 Optional<TimelineElementInternal> timelineElement =
-                         timelineService.getTimelineElement(iun, "GENERATE_F24_REQUEST.IUN_" + iun);
-                    if(timelineElement.isPresent()){
-                        timelineElementInternal.set(timelineElement.get());
-                        return true;
-                    }
-                    return false;
-             });
+            MethodExecutor.waitForExecution(
+                    () -> timelineService.getTimelineElement(iun, "GENERATE_F24_REQUEST.IUN_" + iun)
+            );
+            Optional<TimelineElementInternal> timelineElement = timelineService.getTimelineElement(iun, "GENERATE_F24_REQUEST.IUN_" + iun);
+
+            if (timelineElement.isPresent()) {
+                timelineElementInternal.set(timelineElement.get());
+            }else {
+                log.error("[TEST] Timeline element not present for requestId {}", requestId);
+            }
+            
+
 
             log.info("[TEST] Start handle preparePdf setId={}", iun);
 

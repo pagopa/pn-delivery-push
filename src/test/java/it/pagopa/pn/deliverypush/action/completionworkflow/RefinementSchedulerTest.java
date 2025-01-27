@@ -1,17 +1,16 @@
 package it.pagopa.pn.deliverypush.action.completionworkflow;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationRecipientTestBuilder;
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
@@ -161,7 +160,7 @@ class RefinementSchedulerTest {
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void scheduleDigitalRefinementFailureNotViewedBeforeNonVisibilityTime() {
+    void scheduleDigitalRefinementFailureViewedBeforeNonVisibilityTime() {
         //GIVEN
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder().build();
         NotificationInt notification = NotificationTestBuilder.builder()
@@ -192,7 +191,6 @@ class RefinementSchedulerTest {
         Assertions.assertEquals(schedulingDateOk, schedulingDateCaptor.getValue());
     }
 
-
     @Test
     @ExtendWith(SpringExtension.class)
     void scheduleAnalogRefinementSuccess() {
@@ -207,10 +205,7 @@ class RefinementSchedulerTest {
         Instant notificationDate = Instant.now();
 
         TimeParams times = new TimeParams();
-        times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(10));
-
-        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
 
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessAnalogRefinement());
@@ -240,10 +235,7 @@ class RefinementSchedulerTest {
         Instant notificationDate = Instant.now();
 
         TimeParams times = new TimeParams();
-        times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysFailureAnalogRefinement(Duration.ofSeconds(10));
-
-        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
 
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysFailureAnalogRefinement());
@@ -275,10 +267,7 @@ class RefinementSchedulerTest {
         Instant notificationDate = Instant.now();
 
         TimeParams times = new TimeParams();
-        times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(10));
-
-        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
 
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessAnalogRefinement());
@@ -319,10 +308,7 @@ class RefinementSchedulerTest {
         Instant notificationDate = Instant.now();
 
         TimeParams times = new TimeParams();
-        times.setNotificationNonVisibilityTime("21:00");
         times.setSchedulingDaysSuccessAnalogRefinement(Duration.ofSeconds(10));
-
-        times.setTimeToAddInNonVisibilityTimeCase(Duration.ofDays(0));
 
         Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(times);
         Instant schedulingDateOk = notificationDate.plus(times.getSchedulingDaysSuccessAnalogRefinement());

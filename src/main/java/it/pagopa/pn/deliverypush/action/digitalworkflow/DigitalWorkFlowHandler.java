@@ -333,7 +333,7 @@ public class DigitalWorkFlowHandler {
                 completionWorkflow.completionSuccessDigitalWorkflow(
                         notification,
                         recIndex,
-                        timelineElement.getTimestamp(),
+                        sendDigitalDetailsInt.getNotificationDate(), //secondo ciclo di tentativi primo ritentativo andato bene secondo tentativo indirizzo uguale a quello del primo tentativo
                         sendDigitalDetailsInt.getDigitalAddress()
                 );
             }else {
@@ -377,7 +377,7 @@ public class DigitalWorkFlowHandler {
             completionWorkflow.completionSuccessDigitalWorkflow(
                     notification,
                     recIndex,
-                    timelineElement.getTimestamp(),
+                    sendDigitalDetailsInt.getNotificationDate(), //indirizzo base dati nullo del secondo ritentativo oppure si tratta di un KO, prendo timestamp indirizzo andato a buon fine come base
                     sendDigitalDetailsInt.getDigitalAddress()
             );
         }else {
@@ -388,7 +388,7 @@ public class DigitalWorkFlowHandler {
     }
 
     @NotNull
-    private TimelineElementInternal getTimelineElement(String iun, Integer recIndex, String relatedFeedbackTimelineId) {
+    public TimelineElementInternal getTimelineElement(String iun, Integer recIndex, String relatedFeedbackTimelineId) {
         Optional<TimelineElementInternal> timelineElementOpt = digitalWorkFlowUtils.getTimelineElement(iun, relatedFeedbackTimelineId);
         TimelineElementInternal timelineElement;
 

@@ -48,7 +48,7 @@
     "AttachmentTimeToAddAfterExpiration": "120d",
     "SendMoreThan20GramsDefaultValue": "true",
     "MountEfs": "false",
-    "PnCronAnalyzer": "* */1 * * * *",
+    "PnCronAnalyzer": "-",
     "WireTapLogActivation": "false",
     "RaddOperatorCaf": "true",
     "RaddOperatorMooney": "true",
@@ -72,6 +72,9 @@
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
     "AdditionalLangsEnabled": "true",
+    "EnableTemplatesEngine": "true",
+    "ActivationDeceasedWorkflowDate": "2024-11-25T00:00:00Z",
+    "FeatureUnreachableRefinementPostAARStartDate": "2024-11-27T00:00:00Z",
     "pfNewWorkflowStart": "2099-07-14T20:00:00Z",
     "pfNewWorkflowStop": "2099-07-14T23:59:59Z"
     }

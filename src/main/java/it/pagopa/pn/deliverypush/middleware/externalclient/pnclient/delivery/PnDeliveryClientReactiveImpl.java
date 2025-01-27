@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationStatusV26;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV24;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery_reactive.api.InternalOnlyApi;
@@ -52,7 +52,7 @@ public class PnDeliveryClientReactiveImpl extends CommonBaseClient implements Pn
 
         RequestUpdateStatusDto requestUpdateStatusDto = new RequestUpdateStatusDto();
         requestUpdateStatusDto.setIun(iun);
-        requestUpdateStatusDto.setNextStatus(NotificationStatus.fromValue(notificationStatusInt.getValue()));
+        requestUpdateStatusDto.setNextStatus(NotificationStatusV26.fromValue(notificationStatusInt.getValue()));
         requestUpdateStatusDto.setTimestamp(updateStatusTimestamp);
 
 

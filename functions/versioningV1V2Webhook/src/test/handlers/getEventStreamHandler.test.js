@@ -60,10 +60,11 @@ describe("GetEventStreamHandler", () => {
             expect(result).to.be.false;
         });
     });
-    describe("handlerEvent", () => {
+
+    describe("handlerEvent that applies a map function for response body", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.3",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
         });
 
         it("successful request", async () => {
@@ -85,7 +86,7 @@ describe("GetEventStreamHandler", () => {
 
             let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}`;
 
-            const responseBodyV23 = {
+            const responseBodyV26 = {
                 title: "stream name",
                 eventType: "STATUS",
                 groups: [{
@@ -111,7 +112,7 @@ describe("GetEventStreamHandler", () => {
                 activationDate: "2024-02-01T12:00:00Z"
             }
 
-            mock.onGet(url).reply(200, responseBodyV23);
+            mock.onGet(url).reply(200, responseBodyV26);
 
             const context = {};
             const response = await getEventStreamHandler.handlerEvent(event, context);
@@ -122,57 +123,106 @@ describe("GetEventStreamHandler", () => {
         });
     });
 
-    describe("handlerEvent", () => {
+    describe("handlerEvent that does not apply a map function for response body", () => {
 
-        process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.3",
+        let getEventStreamHandler;
+
+        beforeEach(() => {
+            getEventStreamHandler = new GetEventStreamHandler();
+            mock = new MockAdapter(axios);
         });
 
-        it("successful request 2.4", async () => {
-            const streamId = "12345";
-            const event = {
-                path: "/delivery-progresses/v2.4/streams/" + streamId,
-                pathParameters : { streamId: streamId },
-                httpMethod: "GET",
-                headers: {},
-                requestContext: {
-                    authorizer: {},
-                },
-                body: {
+        afterEach(() => {
+            mock.restore();
+        });
+
+        const testCases = [
+            {
+                version: "v2.3",
+                responseBody: {
                     title: "stream name",
                     eventType: "STATUS",
-                    filterValues: ["status_1", "status_2"]
+                    groups: [
+                        { groupId: "group1", groupName: "Group One" },
+                        { groupId: "group2", groupName: "Group Two" }
+                    ],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    version: "v23"
                 }
-            };
-
-            let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}`;
-
-            const responseBodyV24 = {
-                title: "stream name",
-                eventType: "STATUS",
-                groups: [{
-                    groupId: "group1",
-                    groupName: "Group One"
-                },
-                    {
-                        groupId: "group2",
-                        groupName: "Group Two"
-                    }],
-                filterValues: ["status_1", "status_2"],
-                streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
-                activationDate: "2024-02-01T12:00:00Z",
-                disabledDate: "2024-02-02T12:00:00Z",
-                version: "v24"
+            },
+            {
+                version: "v2.4",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [
+                        { groupId: "group1", groupName: "Group One" },
+                        { groupId: "group2", groupName: "Group Two" }
+                    ],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    version: "v24"
+                }
+            },
+            {
+                version: "v2.5",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [
+                        { groupId: "group1", groupName: "Group One" },
+                        { groupId: "group2", groupName: "Group Two" }
+                    ],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    version: "v25"
+                }
             }
+        ];
 
-            mock.onGet(url).reply(200, responseBodyV24);
+        describe("handlerEvent", () => {
 
-            const context = {};
-            const response = await getEventStreamHandler.handlerEvent(event, context);
+            process.env = Object.assign(process.env, {
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+            });
 
-            expect(response.statusCode).to.equal(200);
-            expect(response.body).to.equal(JSON.stringify(responseBodyV24));
-            expect(mock.history.get.length).to.equal(1);
+            testCases.forEach(({ version, responseBody }) => {
+                it(`successful request ${version}`, async () => {
+                    const streamId = "12345";
+                    const event = {
+                        path: `/delivery-progresses/${version}/streams/${streamId}`,
+                        pathParameters: { streamId: streamId },
+                        httpMethod: "GET",
+                        headers: {},
+                        requestContext: {
+                            authorizer: {},
+                        },
+                        body: {
+                            title: "stream name",
+                            eventType: "STATUS",
+                            filterValues: ["status_1", "status_2"]
+                        }
+                    };
+
+                    let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}`;
+
+                    mock.onGet(url).reply(200, responseBody);
+
+                    const context = {};
+                    const response = await getEventStreamHandler.handlerEvent(event, context);
+
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.body).to.equal(JSON.stringify(responseBody));
+                    expect(mock.history.get.length).to.equal(1);
+                });
+            });
         });
     });
 });
