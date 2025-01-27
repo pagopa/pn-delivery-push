@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.*;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.checkattachmentretention.CheckAttachmentRetentionHandler;
 import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeHandler;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtilsImpl;
 import it.pagopa.pn.deliverypush.action.completionworkflow.*;
 import it.pagopa.pn.deliverypush.action.digitalworkflow.*;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
@@ -85,7 +85,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         CompletelyUnreachableUtils.class,
         ExternalChannelUtils.class,
         AnalogWorkflowUtils.class,
-        ChooseDeliveryModeUtils.class,
+        ChooseDeliveryModeUtilsImpl.class,
         TimelineUtils.class,
         PublicRegistryUtils.class,
         StatusUtils.class,
@@ -322,10 +322,11 @@ public class CommonTestConfiguration {
         pnRaddExperimentationStore.add(PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST[4]);
         Mockito.when(cfg.getRaddExperimentationStoresName()).thenReturn(pnRaddExperimentationStore);
 
+        Mockito.when(cfg.getFeatureUnreachableRefinementPostAARStartDate()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
+
         Mockito.when(cfg.getPfNewWorkflowStop()).thenReturn("2099-03-31T23:00:00Z");
         Mockito.when(cfg.getPfNewWorkflowStart()).thenReturn("2099-02-13T23:00:00Z");
 
-        Mockito.when(cfg.getFeatureUnreachableRefinementPostAARStartDate()).thenReturn(Instant.parse("2024-11-27T00:00:00Z"));
     }
 
 }
