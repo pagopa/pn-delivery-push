@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import org.junit.jupiter.api.Assertions;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -53,7 +54,7 @@ public class NationalRegistriesClientMock implements NationalRegistriesClient {
     }
     
     @Override
-    public void sendRequestForGetDigitalAddress(String taxId, String recipientType, String correlationId) {
+    public void sendRequestForGetDigitalAddress(String taxId, String recipientType, String correlationId, Instant notificationSentAt) {
         ThreadPool.start( new Thread(() -> {
             // Viene atteso fino a che l'elemento di timeline relativo all'invio verso extChannel sia stato inserito
             //timelineEventId = <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>
