@@ -163,4 +163,10 @@ public class AbstractWorkflowTestConfiguration {
     public F24Service f24Service() {
         return Mockito.mock(F24Service.class);
     }
+
+    @Bean("lockProviderTimeline")
+    public LockProviderMock lockProviderTimeline() {
+        return new LockProviderMock();
+    }
+
 }

@@ -6,6 +6,7 @@ import net.javacrumbs.shedlock.provider.dynamodb2.DynamoDBLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
@@ -16,8 +17,16 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 public class PnDeliveryPushSchedulingConfiguration {
 
     @Bean
+    @Primary
     public LockProvider lockProvider(DynamoDbClient dynamoDB, PnDeliveryPushConfigs cfg) {
         String lockTableName = cfg.getLastPollForFutureActionDao().getLockTableName();
+        log.info("Shared Lock tableName={}", lockTableName);
+        return new DynamoDBLockProvider(dynamoDB, lockTableName);
+    }
+
+    @Bean(name = "lockProviderTimeline")
+    public LockProvider lockProviderTimeline(DynamoDbClient dynamoDB, PnDeliveryPushConfigs cfg) {
+        String lockTableName = cfg.getTimelineShedlockDao().getTableName();
         log.info("Shared Lock tableName={}", lockTableName);
         return new DynamoDBLockProvider(dynamoDB, lockTableName);
     }

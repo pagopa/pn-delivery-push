@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
+import static it.pagopa.pn.deliverypush.utils.StatusUtils.COMPLETED_DELIVERY_WORKFLOW_CATEGORY;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -48,23 +49,22 @@ import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementMapper;
 import it.pagopa.pn.deliverypush.utils.MdcKey;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
+
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import lombok.RequiredArgsConstructor;
+import java.util.*;
+
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.core.LockConfiguration;
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.core.SimpleLock;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final TimelineCounterEntityDao timelineCounterEntityDao;
@@ -74,7 +74,30 @@ public class TimeLineServiceImpl implements TimelineService {
 
     private final NotificationService notificationService;
     private final SmartMapper smartMapper;
+    private final LockProvider lockProvider;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+
+    public TimeLineServiceImpl(
+            TimelineDao timelineDao,
+            TimelineCounterEntityDao timelineCounterEntityDao,
+            StatusUtils statusUtils,
+            ConfidentialInformationService confidentialInformationService,
+            StatusService statusService,
+            NotificationService notificationService,
+            SmartMapper smartMapper,
+            @Qualifier("lockProviderTimeline") LockProvider lockProvider,
+            PnDeliveryPushConfigs pnDeliveryPushConfigs
+    ) {
+        this.timelineDao = timelineDao;
+        this.timelineCounterEntityDao = timelineCounterEntityDao;
+        this.statusUtils = statusUtils;
+        this.confidentialInformationService = confidentialInformationService;
+        this.statusService = statusService;
+        this.notificationService = notificationService;
+        this.smartMapper = smartMapper;
+        this.lockProvider = lockProvider;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
+    }
 
     @Override
     public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
@@ -85,55 +108,16 @@ public class TimeLineServiceImpl implements TimelineService {
 
         PnAuditLogEvent logEvent = getPnAuditLogEvent(dto, auditLogBuilder);
         logEvent.log();
-        boolean timelineInsertSkipped;
+
 
         if (notification != null) {
-            try{
-                Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun(), true);
-                StatusService.NotificationStatusUpdate notificationStatuses = statusService.getStatus(dto, currentTimeline, notification);
-
-                // vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
-                confidentialInformationService.saveTimelineConfidentialInformation(dto);
-
-                // aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
-                TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
-
-                Instant now = Instant.now();
-                if(now.isAfter(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()) && now.isBefore(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp())) {
-                    Instant cachedTimestamp = dtoWithStatusInfo.getTimestamp();
-                    // calcolo e aggiungo il businessTimestamp
-                    dtoWithStatusInfo = smartMapper.mapTimelineInternal(dtoWithStatusInfo, currentTimeline);
-                    dtoWithStatusInfo.setTimestamp(cachedTimestamp);
-                }
-
-                timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
-
-                // aggiorna lo stato su pn-delivery se i due stati differiscono
-                if (!notificationStatuses.getOldStatus().equals(notificationStatuses.getNewStatus())) {
-                    statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
-                }
-
-                // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
-                // asincrona da una lambda che opera partendo da stream Kinesis
-
-                String alreadyInsertMsg = "Timeline event was already inserted before - timelineId="+ dto.getElementId();
-                String successMsg = String.format("Timeline event inserted with: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s paId=%s TIMESTAMP=%s",
-                    dto.getCategory(),
-                    dto.getIun(),
-                    dto.getDetails() != null ? dto.getDetails().toLog() : null,
-                    dto.getElementId(),
-                    dto.getPaId(),
-                    dto.getTimestamp());
-                logEvent.generateSuccess(timelineInsertSkipped ? alreadyInsertMsg : successMsg).log();
-
-                MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
-
-                return timelineInsertSkipped;
-            } catch (Exception ex) {
-                MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
-                logEvent.generateFailure("Exception in addTimelineElement", ex).log();
-                throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED, ex);
+            boolean isMultiRecipient = notification.getRecipients().size() > 1;
+            boolean isCriticalTimelineElement = COMPLETED_DELIVERY_WORKFLOW_CATEGORY.contains(dto.getCategory());
+            if (isMultiRecipient && isCriticalTimelineElement) {
+                return addCriticalTimelineElement(dto, notification, logEvent);
             }
+
+            return addTimelineElement(dto, notification, logEvent);
 
         } else {
             MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
@@ -143,10 +127,86 @@ public class TimeLineServiceImpl implements TimelineService {
 
     }
 
+    private boolean addCriticalTimelineElement(TimelineElementInternal dto, NotificationInt notification, PnAuditLogEvent logEvent) {
+        log.debug("addCriticalTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());
+
+        Optional<SimpleLock> optSimpleLock = lockProvider.lock(new LockConfiguration(Instant.now(), notification.getIun(), pnDeliveryPushConfigs.getTimelineLockDuration(), Duration.ZERO));
+        if (optSimpleLock.isEmpty()) {
+            logEvent.generateFailure("Lock not acquired for iun={} and timeline with category={}", notification.getIun(), dto.getCategory()).log();
+            throw new PnInternalException("Lock not acquired for iun " + notification.getIun(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
+        }
+
+        SimpleLock simpleLock = optSimpleLock.get();
+
+        try {
+            return processTimelinePersistence(dto, notification, logEvent);
+        } catch (Exception ex) {
+            MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
+            logEvent.generateFailure("Exception in addTimelineElement", ex).log();
+            throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED, ex);
+        } finally {
+            simpleLock.unlock();
+        }
+    }
+
+    private boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification, PnAuditLogEvent logEvent) {
+        try {
+            return processTimelinePersistence(dto, notification, logEvent);
+        } catch (Exception ex) {
+            MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
+            logEvent.generateFailure("Exception in addTimelineElement", ex).log();
+            throw new PnInternalException("Exception in addTimelineElement - iun=" + notification.getIun() + " elementId=" + dto.getElementId(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED, ex);
+        }
+    }
+
+    private boolean processTimelinePersistence(TimelineElementInternal dto, NotificationInt notification, PnAuditLogEvent logEvent) {
+        boolean timelineInsertSkipped;
+        Set<TimelineElementInternal> currentTimeline = getTimeline(dto.getIun(), true);
+        StatusService.NotificationStatusUpdate notificationStatuses = statusService.getStatus(dto, currentTimeline, notification);
+
+        // vengono salvate le informazioni confidenziali in sicuro, dal momento che successivamente non saranno salvate a DB
+        confidentialInformationService.saveTimelineConfidentialInformation(dto);
+
+        // aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
+        TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
+
+        Instant now = Instant.now();
+        if(now.isAfter(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()) && now.isBefore(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp())) {
+            Instant cachedTimestamp = dtoWithStatusInfo.getTimestamp();
+            // calcolo e aggiungo il businessTimestamp
+            dtoWithStatusInfo = smartMapper.mapTimelineInternal(dtoWithStatusInfo, currentTimeline);
+            dtoWithStatusInfo.setTimestamp(cachedTimestamp);
+        }
+
+        timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
+
+        // aggiorna lo stato su pn-delivery se i due stati differiscono
+        if (!notificationStatuses.getOldStatus().equals(notificationStatuses.getNewStatus())) {
+            statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
+        }
+
+        // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
+        // asincrona da una lambda che opera partendo da stream Kinesis
+
+        String alreadyInsertMsg = "Timeline event was already inserted before - timelineId=" + dto.getElementId();
+        String successMsg = String.format("Timeline event inserted with: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s paId=%s TIMESTAMP=%s",
+                dto.getCategory(),
+                dto.getIun(),
+                dto.getDetails() != null ? dto.getDetails().toLog() : null,
+                dto.getElementId(),
+                dto.getPaId(),
+                dto.getTimestamp());
+        logEvent.generateSuccess(timelineInsertSkipped ? alreadyInsertMsg : successMsg).log();
+
+        MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
+
+        return timelineInsertSkipped;
+    }
+
     private boolean persistTimelineElement(TimelineElementInternal dtoWithStatusInfo) {
         try {
             timelineDao.addTimelineElementIfAbsent(dtoWithStatusInfo);
-        } catch (PnIdConflictException ex){
+        } catch (PnIdConflictException ex) {
             log.warn("Exception idconflict is expected for retry, letting flow continue");
             return true;
         }
@@ -155,12 +215,12 @@ public class TimeLineServiceImpl implements TimelineService {
 
     private PnAuditLogEvent getPnAuditLogEvent(TimelineElementInternal dto, PnAuditLogBuilder auditLogBuilder) {
         String auditLog = String.format("Timeline event inserted with: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s paId=%s TIMESTAMP=%s",
-            dto.getCategory(),
-            dto.getIun(),
-            dto.getDetails() != null ? dto.getDetails().toLog() : null,
-            dto.getElementId(),
-            dto.getPaId(),
-            dto.getTimestamp());
+                dto.getCategory(),
+                dto.getIun(),
+                dto.getDetails() != null ? dto.getDetails().toLog() : null,
+                dto.getElementId(),
+                dto.getPaId(),
+                dto.getTimestamp());
         return auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_TIMELINE, auditLog)
                 .iun(dto.getIun())
@@ -183,7 +243,7 @@ public class TimeLineServiceImpl implements TimelineService {
         return addConfidentialInformationIfTimelineElementIsPresent(iun, timelineId, timelineElementInternalOpt);
     }
 
-    private Optional<TimelineElementInternal> addConfidentialInformationIfTimelineElementIsPresent(String iun, String timelineId, Optional<TimelineElementInternal> timelineElementInternalOpt){
+    private Optional<TimelineElementInternal> addConfidentialInformationIfTimelineElementIsPresent(String iun, String timelineId, Optional<TimelineElementInternal> timelineElementInternalOpt) {
         if (timelineElementInternalOpt.isPresent()) {
             TimelineElementInternal timelineElementInt = timelineElementInternalOpt.get();
 
@@ -230,7 +290,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 .stream().filter(x -> x.getCategory().equals(category))
                 .filter(x -> {
 
-                    if ( x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails){
+                    if (x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails) {
                         return recRelatedTimelineElementDetails.getRecIndex() == recIndex;
                     }
                     return false;
@@ -246,7 +306,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 .stream().filter(x -> x.getCategory().equals(category))
                 .filter(x -> {
 
-                    if ( timelineDetailsClass.isInstance(x.getDetails()) && x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails){
+                    if (timelineDetailsClass.isInstance(x.getDetails()) && x.getDetails() instanceof RecipientRelatedTimelineElementDetails recRelatedTimelineElementDetails) {
                         return recRelatedTimelineElementDetails.getRecIndex() == recIndex;
                     }
                     return false;
@@ -309,7 +369,7 @@ public class TimeLineServiceImpl implements TimelineService {
     @Override
     public Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired) {
         log.debug("getTimelineByIunTimelineId - iun={} timelineId={}", iun, timelineId);
-        Set<TimelineElementInternal> setTimelineElements =  this.timelineDao.getTimelineFilteredByElementId(iun, timelineId);
+        Set<TimelineElementInternal> setTimelineElements = this.timelineDao.getTimelineFilteredByElementId(iun, timelineId);
         setConfidentialInfo(confidentialInfoRequired, iun, setTimelineElements);
         return setTimelineElements;
     }
@@ -420,8 +480,8 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     private int getRecipientIndex(NotificationInt notificationInt, String recipientId) {
-        for(int i = 0; i < notificationInt.getRecipients().size(); i++ ) {
-            if(notificationInt.getRecipients().get(i).getInternalId().equals(recipientId)) {
+        for (int i = 0; i < notificationInt.getRecipients().size(); i++) {
+            if (notificationInt.getRecipients().get(i).getInternalId().equals(recipientId)) {
                 return i;
             }
         }
@@ -508,7 +568,7 @@ public class TimeLineServiceImpl implements TimelineService {
     }
 
     private TimelineElementInternal enrichWithStatusInfo(TimelineElementInternal dto, Set<TimelineElementInternal> currentTimeline,
-                                      StatusService.NotificationStatusUpdate notificationStatuses, Instant notificationSentAt) {
+                                                         StatusService.NotificationStatusUpdate notificationStatuses, Instant notificationSentAt) {
 
         Instant timestampLastTimelineElement = getTimestampLastUpdateStatus(currentTimeline, notificationSentAt);
         StatusInfoInternal statusInfo = buildStatusInfo(notificationStatuses, timestampLastTimelineElement);
@@ -522,7 +582,7 @@ public class TimeLineServiceImpl implements TimelineService {
                 .max(Comparator.comparing(StatusInfoInternal::getStatusChangeTimestamp));
 
         return max.map(StatusInfoInternal::getStatusChangeTimestamp).orElse(notificationSentAt);
-        
+
     }
 
     protected StatusInfoInternal buildStatusInfo(StatusService.NotificationStatusUpdate notificationStatuses,
@@ -533,8 +593,7 @@ public class TimeLineServiceImpl implements TimelineService {
         if (isStatusChanged(notificationStatuses)) {
             statusChanged = true;
             statusChangeTimestamp = Instant.now();
-        }
-        else {
+        } else {
             statusChangeTimestamp = timestampLastUpdateStatus;
         }
 
