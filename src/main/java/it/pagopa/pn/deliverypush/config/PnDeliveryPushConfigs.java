@@ -139,6 +139,10 @@ public class PnDeliveryPushConfigs {
 
     private Instant featureUnreachableRefinementPostAARStartDate;
 
+    private Instant startWriteBusinessTimestamp;
+
+    private Instant stopWriteBusinessTimestamp;
+
     private String pfNewWorkflowStart;
 
     private String pfNewWorkflowStop;

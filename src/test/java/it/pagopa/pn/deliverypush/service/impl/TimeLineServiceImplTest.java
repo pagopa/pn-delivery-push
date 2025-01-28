@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 class TimeLineServiceImplTest {
     private TimelineDao timelineDao;
@@ -60,6 +62,9 @@ class TimeLineServiceImplTest {
     private SimpleLock simpleLock;
     private LockProvider lockProvider;
 
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private SmartMapper smartMapper;
+
     @BeforeEach
     void setup() {
         timelineDao = Mockito.mock( TimelineDao.class );
@@ -70,13 +75,16 @@ class TimeLineServiceImplTest {
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
         notificationService = Mockito.mock(NotificationService.class);
-        PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        SmartMapper smartMapper = new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs));
-
+        pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        Mockito.when(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()).thenReturn(Instant.now().plus(Duration.ofDays(1)));
+        Mockito.when(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp()).thenReturn(Instant.now().minus(Duration.ofDays(1)));
+//        smartMapper = new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs));
+        smartMapper= Mockito.spy(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs)));
+//        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
         simpleLock = Mockito.mock(SimpleLock.class);
         lockProvider = Mockito.mock(LockProvider.class);
         Mockito.when(pnDeliveryPushConfigs.getTimelineLockDuration()).thenReturn(Duration.ofSeconds(5));
-//        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
+
         timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, notificationService, smartMapper, lockProvider, pnDeliveryPushConfigs);
         //timeLineService.setSchedulerService(schedulerService);
 
@@ -108,6 +116,14 @@ class TimeLineServiceImplTest {
         timeLineService.addTimelineElement(newElement, notification);
 
         //THEN
+        // Verifichiamo che alla dao NON venga passato un elemento di timeline con la data di business valorizzata
+        ArgumentCaptor<TimelineElementInternal> captor = ArgumentCaptor.forClass(TimelineElementInternal.class);
+        verify(timelineDao).addTimelineElementIfAbsent(captor.capture());
+        TimelineElementInternal dtoToPersist = captor.getValue();
+        Assertions.assertEquals(dtoToPersist.getTimestamp(), newElement.getTimestamp());
+        Assertions.assertNull(dtoToPersist.getEventTimestamp());
+
+
         //mi aspetto che il timestampLastUpdateStatus sia null quando gli elementi già salvati non hanno valorizzato
         //lo statusInfo e non c'è stato un cambio di stato
         StatusInfoInternal actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses, null);
@@ -186,6 +202,55 @@ class TimeLineServiceImplTest {
     }
 
     @Test
+    void addTimelineElementWithBusinessTimestampFeatureFlag(){
+        //GIVEN
+        String iun = "iun_12345";
+        String elementId = "elementId_12345";
+
+        NotificationInt notification = getNotification(iun);
+        StatusService.NotificationStatusUpdate notificationStatuses = new StatusService.NotificationStatusUpdate(NotificationStatusInt.ACCEPTED, NotificationStatusInt.ACCEPTED);
+        Mockito.when(statusService.getStatus(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(notificationStatuses);
+        Mockito.doNothing().when(schedulerService).scheduleWebhookEvent(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        Mockito.when(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()).thenReturn(Instant.now().minus(Duration.ofDays(1)));
+        Mockito.when(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp()).thenReturn(Instant.now().plus(Duration.ofDays(1)));
+
+        String elementId2 = "elementId2";
+        Set<TimelineElementInternal> setTimelineElement = getSendPaperDetailsList(iun, elementId2);
+        Mockito.when(timelineDao.getTimeline(Mockito.anyString()))
+                .thenReturn(setTimelineElement);
+
+        Instant timestampLastElementInTimeline = setTimelineElement.iterator().next().getTimestamp();
+        StatusInfoInternal expectedStatusInfo = StatusInfoInternal.builder()
+                .actual(NotificationStatusInt.ACCEPTED.getValue())
+                .statusChangeTimestamp(timestampLastElementInTimeline).build();
+
+        TimelineElementInternal newElement = getAarGenerationTimelineElement(iun, elementId);
+
+        //WHEN
+        timeLineService.addTimelineElement(newElement, notification);
+
+        //THEN
+        // Verifichiamo che alla dao venga passato un elemento di timeline con la data di business valorizzata
+        ArgumentCaptor<TimelineElementInternal> captor = ArgumentCaptor.forClass(TimelineElementInternal.class);
+        verify(timelineDao).addTimelineElementIfAbsent(captor.capture());
+        TimelineElementInternal dtoToPersist = captor.getValue();
+        Assertions.assertEquals(dtoToPersist.getTimestamp(), newElement.getTimestamp());
+        Assertions.assertNotNull(dtoToPersist.getEventTimestamp());
+
+        //mi aspetto che il timestampLastUpdateStatus sia null quando gli elementi già salvati non hanno valorizzato
+        //lo statusInfo e non c'è stato un cambio di stato
+        StatusInfoInternal actualStatusInfo = timeLineService.buildStatusInfo(notificationStatuses, null);
+        Assertions.assertEquals(expectedStatusInfo.getActual(), actualStatusInfo.getActual());
+        Assertions.assertEquals(expectedStatusInfo.isStatusChanged(), actualStatusInfo.isStatusChanged());
+        Assertions.assertNull(actualStatusInfo.getStatusChangeTimestamp());
+
+        Mockito.verify(smartMapper).mapTimelineInternal(Mockito.any(), Mockito.any());
+        Mockito.verify(timelineDao).addTimelineElementIfAbsent(dtoToPersist);
+        Mockito.verify(statusService).getStatus(newElement, setTimelineElement, notification);
+        Mockito.verify(confidentialInformationService).saveTimelineConfidentialInformation(newElement);
+    }
+
+    @Test
     void addTimelineElementIdConflict(){
         //GIVEN
         String iun = "iun_12345";
@@ -226,22 +291,22 @@ class TimeLineServiceImplTest {
         Mockito.verify(confidentialInformationService).saveTimelineConfidentialInformation(newElement);
     }
 
-@Test
-void addCriticalTimelineElementException() {
-    // Given
-    String iun = "iun_12345";
-    String elementId = "elementId_12345";
-    NotificationInt notification = getNotificationWithMultipleRecipients(iun);
+    @Test
+    void addCriticalTimelineElementException() {
+        // Given
+        String iun = "iun_12345";
+        String elementId = "elementId_12345";
+        NotificationInt notification = getNotificationWithMultipleRecipients(iun);
 
-    TimelineElementInternal newElement = getAnalogSuccessTimelineCriticalElement(iun, elementId);
+        TimelineElementInternal newElement = getAnalogSuccessTimelineCriticalElement(iun, elementId);
 
 
-    Mockito.when(lockProvider.lock(Mockito.any())).thenReturn(Optional.of(simpleLock));
-    Mockito.doThrow(new PnInternalException("error", "test")).when(timelineDao).addTimelineElementIfAbsent(Mockito.any(TimelineElementInternal.class));
-    assertThrows(PnInternalException.class, () -> timeLineService.addTimelineElement(newElement, notification));
+        Mockito.when(lockProvider.lock(Mockito.any())).thenReturn(Optional.of(simpleLock));
+        Mockito.doThrow(new PnInternalException("error", "test")).when(timelineDao).addTimelineElementIfAbsent(Mockito.any(TimelineElementInternal.class));
+        assertThrows(PnInternalException.class, () -> timeLineService.addTimelineElement(newElement, notification));
 
-    Mockito.verify(simpleLock).unlock();
-}
+        Mockito.verify(simpleLock).unlock();
+    }
 
     @Test
     void addTimelineElementError(){
@@ -901,6 +966,7 @@ void addCriticalTimelineElementException() {
                 .category(TimelineElementCategoryInt.AAR_GENERATION)
                 .iun(iun)
                 .details( details )
+                .timestamp(Instant.now())
                 .build();
     }
 

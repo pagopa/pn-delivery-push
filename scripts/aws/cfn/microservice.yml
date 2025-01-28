@@ -902,7 +902,12 @@ Parameters:
     AllowedValues:
       - true
       - false
-      -
+
+  WebhookFeatureFlags:
+    Type: CommaDelimitedList
+    Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestam
+    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
+
   pfNewWorkflowFeatureFlag:
     Type: CommaDelimitedList
     Description: List containing in order pfNewWorkflowStart, pfNewWorkflowStop
@@ -1030,8 +1035,10 @@ Resources:
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
         ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
         ContainerEnvEntry88: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ]} ]
-        ContainerEnvEntry89: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry90: !Sub 'PN_DELIVERYPUSH_TIMELINE_SHEDLOCKDAO_TABLENAME=${PnTimelineShedlockTableName}'
+        ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
+        ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
+        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
+        ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_TIMELINE_SHEDLOCKDAO_TABLENAME=${PnTimelineShedlockTableName}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -1249,6 +1256,8 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           QUEUE_URL: !Ref DoneActionsQueueURL
+          START_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref WebhookFeatureFlags ]} ]
+          STOP_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref WebhookFeatureFlags ] } ]
       TracingConfig:
         Mode: Active
       Layers:

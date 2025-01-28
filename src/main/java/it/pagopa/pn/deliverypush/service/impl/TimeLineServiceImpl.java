@@ -170,6 +170,14 @@ public class TimeLineServiceImpl implements TimelineService {
         // aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
         TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
 
+        Instant now = Instant.now();
+        if(now.isAfter(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()) && now.isBefore(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp())) {
+            Instant cachedTimestamp = dtoWithStatusInfo.getTimestamp();
+            // calcolo e aggiungo il businessTimestamp
+            dtoWithStatusInfo = smartMapper.mapTimelineInternal(dtoWithStatusInfo, currentTimeline);
+            dtoWithStatusInfo.setTimestamp(cachedTimestamp);
+        }
+
         timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
 
         // aggiorna lo stato su pn-delivery se i due stati differiscono
