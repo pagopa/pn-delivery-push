@@ -143,6 +143,10 @@ public class PnDeliveryPushConfigs {
 
     private Instant stopWriteBusinessTimestamp;
 
+    private String pfNewWorkflowStart;
+
+    private String pfNewWorkflowStop;
+
     @Data
     public static class Topics {
 
