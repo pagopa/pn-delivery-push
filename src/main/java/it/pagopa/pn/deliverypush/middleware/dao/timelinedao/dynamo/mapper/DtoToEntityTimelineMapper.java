@@ -24,6 +24,7 @@ public class DtoToEntityTimelineMapper {
                 .legalFactIds( convertLegalFactsToEntity( dto.getLegalFactsIds() ) )
                 .statusInfo(dtoToStatusInfoEntity(dto.getStatusInfo()))
                 .notificationSentAt(dto.getNotificationSentAt())
+                .businessTimestamp(dto.getEventTimestamp())
                 .build();
     }
 

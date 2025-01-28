@@ -10,6 +10,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -73,7 +74,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
     private final NotificationService notificationService;
     private final SmartMapper smartMapper;
-
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     @Override
     public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
@@ -96,6 +97,14 @@ public class TimeLineServiceImpl implements TimelineService {
 
                 // aggiungo al DTO lo status info che poi verrà mappato sull'entity e salvato
                 TimelineElementInternal dtoWithStatusInfo = enrichWithStatusInfo(dto, currentTimeline, notificationStatuses, notification.getSentAt());
+
+                Instant now = Instant.now();
+                if(now.isAfter(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()) && now.isBefore(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp())) {
+                    Instant cachedTimestamp = dtoWithStatusInfo.getTimestamp();
+                    // calcolo e aggiungo il businessTimestamp
+                    dtoWithStatusInfo = smartMapper.mapTimelineInternal(dtoWithStatusInfo, currentTimeline);
+                    dtoWithStatusInfo.setTimestamp(cachedTimestamp);
+                }
 
                 timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
 

@@ -19,6 +19,10 @@ exports.handleEvent = async (event) => {
     let batchItemFailures = [];
     while(cdcEvents.length > 0){
       let currentCdcEvents = cdcEvents.splice(0,10);
+      currentCdcEvents.filter((i) => i.timestamp >= new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`) && i.timestamp < new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`))
+      if (currentCdcEvents.length == 0) {
+        return
+      }
       try{
         let processedItems = await mapEvents(currentCdcEvents);
         if (processedItems.length > 0){
