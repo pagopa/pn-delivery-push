@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
@@ -20,12 +19,11 @@ import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
-        "pn.delivery-push.timeline-shedlock-dao.table-name" + "=" + "TimelinesShedlock"
+        "pn.delivery-push.last-poll-for-future-action.lock-table-name" + "=" + "PnDeliveryPushShedLock"
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
 class LockProviderTimelineTestIT {
-    @Qualifier("lockProviderTimeline")
     @Autowired
     private LockProvider lockProvider;
 

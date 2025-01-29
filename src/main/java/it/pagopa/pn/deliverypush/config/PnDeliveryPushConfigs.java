@@ -149,8 +149,6 @@ public class PnDeliveryPushConfigs {
 
     private Duration timelineLockDuration;
 
-    private TimelineShedlockDao timelineShedlockDao;
-
     @Data
     public static class Topics {
 
@@ -296,11 +294,6 @@ public class PnDeliveryPushConfigs {
     @Data
     public static class LegalFacts {
         private SanitizeMode sanitizeMode;
-    }
-
-    @Data
-    public static class TimelineShedlockDao{
-        private String tableName;
     }
 
     private boolean safeStorageFileNotFoundRetry;

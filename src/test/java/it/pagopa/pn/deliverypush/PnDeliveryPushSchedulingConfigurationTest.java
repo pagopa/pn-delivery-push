@@ -28,15 +28,4 @@ class PnDeliveryPushSchedulingConfigurationTest {
         Assertions.assertNotNull(provider);
     }
 
-    @Test
-    void lockProviderTimeline() {
-        DynamoDbClient dynamoDB = DynamoDbClient.builder().build();
-        PnDeliveryPushConfigs cfg = new PnDeliveryPushConfigs();
-        PnDeliveryPushConfigs.TimelineShedlockDao dao = new PnDeliveryPushConfigs.TimelineShedlockDao();
-        dao.setTableName("Lock");
-        cfg.setTimelineShedlockDao(dao);
-        LockProvider provider = configuration.lockProviderTimeline(dynamoDB, cfg);
-        Assertions.assertNotNull(provider);
-    }
-
 }
