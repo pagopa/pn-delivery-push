@@ -246,14 +246,6 @@ Parameters:
     Type: String
     Description: ARN Dynamo Name used by application to access the key-value store of CounterTable
 
-  PnTimelineShedlockTableName:
-    Type: String
-    Description: 'Name of the DynamoDB table for timeline ShedLock'
-
-  PnTimelineShedlockTableArn:
-    Type: String
-    Description: 'ARN of the DynamoDB table for timeline ShedLock'
-
   TimelineLockDuration:
     Type: String
     Description: 'Duration of the lock for the timeline shedlock'
@@ -1038,7 +1030,6 @@ Resources:
         ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_TIMELINE_SHEDLOCKDAO_TABLENAME=${PnTimelineShedlockTableName}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
@@ -1099,7 +1090,6 @@ Resources:
               - dynamodb:UpdateItem
             Resource:
               - !Sub "${TimelinesCounterTableArn}"
-              - !Sub "${PnTimelineShedlockTableArn}"
           - Effect: Allow
             Action:
               - 'ssm:GetParameter'
@@ -2154,7 +2144,6 @@ Resources:
         DynamoDBTableNames: !Join 
           - ',' 
           - - !Ref TimelinesDynamoTableName
-            - !Ref PnTimelineShedlockTableName
             - !Ref TimelinesCounterTableName
             - !Ref PaperNotificationFailedDynamoTableName
             - !Ref ActionDynamoTableName

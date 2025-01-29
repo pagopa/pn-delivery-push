@@ -54,17 +54,18 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final TimelineCounterEntityDao timelineCounterEntityDao;
@@ -76,28 +77,6 @@ public class TimeLineServiceImpl implements TimelineService {
     private final SmartMapper smartMapper;
     private final LockProvider lockProvider;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
-
-    public TimeLineServiceImpl(
-            TimelineDao timelineDao,
-            TimelineCounterEntityDao timelineCounterEntityDao,
-            StatusUtils statusUtils,
-            ConfidentialInformationService confidentialInformationService,
-            StatusService statusService,
-            NotificationService notificationService,
-            SmartMapper smartMapper,
-            @Qualifier("lockProviderTimeline") LockProvider lockProvider,
-            PnDeliveryPushConfigs pnDeliveryPushConfigs
-    ) {
-        this.timelineDao = timelineDao;
-        this.timelineCounterEntityDao = timelineCounterEntityDao;
-        this.statusUtils = statusUtils;
-        this.confidentialInformationService = confidentialInformationService;
-        this.statusService = statusService;
-        this.notificationService = notificationService;
-        this.smartMapper = smartMapper;
-        this.lockProvider = lockProvider;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
-    }
 
     @Override
     public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {

@@ -23,11 +23,4 @@ public class PnDeliveryPushSchedulingConfiguration {
         log.info("Shared Lock tableName={}", lockTableName);
         return new DynamoDBLockProvider(dynamoDB, lockTableName);
     }
-
-    @Bean(name = "lockProviderTimeline")
-    public LockProvider lockProviderTimeline(DynamoDbClient dynamoDB, PnDeliveryPushConfigs cfg) {
-        String lockTableName = cfg.getTimelineShedlockDao().getTableName();
-        log.info("Shared Lock tableName={}", lockTableName);
-        return new DynamoDBLockProvider(dynamoDB, lockTableName);
-    }
 }
