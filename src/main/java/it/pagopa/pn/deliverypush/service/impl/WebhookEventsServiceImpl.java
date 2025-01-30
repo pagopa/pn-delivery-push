@@ -190,9 +190,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         if (eventType == StreamCreationRequestV26.EventTypeEnum.TIMELINE) {
             filteredValues = categoriesByFilter(stream);
         } else if (eventType == StreamCreationRequestV26.EventTypeEnum.STATUS) {
-            filteredValues = stream.getFilterValues() == null || stream.getFilterValues().isEmpty()
-                    ? statusByVersion(webhookUtils.getVersion(stream.getVersion()))
-                    : stream.getFilterValues();
+            filteredValues = statusByFilter(stream);
         }
 
         log.info("timelineEventCategory={} for stream={}", stream.getStreamId(), timelineEventCategory);
@@ -270,19 +268,35 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
     }
 
     private Set<String> categoriesByFilter(StreamEntity stream) {
-        Set<String> categoriesSet;
+        Set<String> versionedCategoriesSet = categoriesByVersion(webhookUtils.getVersion(stream.getVersion()));
         if (CollectionUtils.isEmpty(stream.getFilterValues())) {
-            categoriesSet = categoriesByVersion(webhookUtils.getVersion(stream.getVersion()));
-        } else {
-            categoriesSet = stream.getFilterValues().stream()
+            return versionedCategoriesSet;
+        }
+
+        Set<String> categoriesSet = stream.getFilterValues().stream()
                     .filter(v -> !v.equalsIgnoreCase(DEFAULT_CATEGORIES))
                     .collect(Collectors.toSet());
-            if (stream.getFilterValues().contains(DEFAULT_CATEGORIES)) {
-                log.debug("pnDeliveryPushConfigs.getListCategoriesPa[0]={}", pnDeliveryPushConfigs.getListCategoriesPa().get(0));
-                categoriesSet.addAll(pnDeliveryPushConfigs.getListCategoriesPa());
-            }
+        if (stream.getFilterValues().contains(DEFAULT_CATEGORIES)) {
+            log.debug("pnDeliveryPushConfigs.getListCategoriesPa[0]={}", pnDeliveryPushConfigs.getListCategoriesPa().get(0));
+            categoriesSet.addAll(pnDeliveryPushConfigs.getListCategoriesPa());
         }
-        return categoriesSet;
+
+        // I filtri indicati sullo stream non possono prescindere da quelle che sono le categorie accettate per la versione di riferimento
+        return categoriesSet.stream()
+                .filter(versionedCategoriesSet::contains) // Qualsiasi categoria che non appartenente alla versione di riferimento dello stream viene scartata
+                .collect(Collectors.toSet());
+    }
+
+    private Set<String> statusByFilter(StreamEntity stream) {
+        Set<String> versionedStatusSet = statusByVersion(webhookUtils.getVersion(stream.getVersion()));
+        if(CollectionUtils.isEmpty(stream.getFilterValues())) {
+            return versionedStatusSet;
+        }
+
+        // I filtri indicati sullo stream non possono prescindere da quelli che sono gli stati accettati per la versione di riferimento
+        return stream.getFilterValues().stream()
+                .filter(versionedStatusSet::contains) // Qualsiasi stato non appartenente alla versione di riferimento dello stream viene scartato
+                .collect(Collectors.toSet());
     }
 
     private List<EventTimelineInternalDto> removeDuplicatedItems(List<EventTimelineInternalDto> eventEntities) {
