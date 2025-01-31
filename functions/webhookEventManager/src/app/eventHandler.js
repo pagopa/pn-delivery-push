@@ -19,23 +19,24 @@ exports.handleEvent = async (event) => {
     let batchItemFailures = [];
     while(cdcEvents.length > 0){
       let currentCdcEvents = cdcEvents.splice(0,10);
+      let filteredItems = currentCdcEvents.filter((i) => new Date(i.timestamp) >= new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`) && new Date(i.timestamp) < new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`))
       try{
-        let processedItems = await mapEvents(currentCdcEvents);
+        let processedItems = await mapEvents(filteredItems);
         if (processedItems.length > 0){
           let responseError = await sendMessages(processedItems);
 
           if(responseError.length > 0){
-            console.log('Error in persist current cdcEvents: ', currentCdcEvents);
+            console.log('Error in persist current cdcEvents: ', filteredItems);
             batchItemFailures = batchItemFailures.concat(responseError.map((i) => {
             return { itemIdentifier: i.kinesisSeqNumber };
             }));
           }
         }else{
-          console.log('No events to persist in current cdcEvents: ',currentCdcEvents);
+          console.log('No events to persist in current cdcEvents: ',filteredItems);
         }
       }catch(exc){
-        console.log('Error in persist current cdcEvents: ', currentCdcEvents);
-        batchItemFailures = batchItemFailures.concat(currentCdcEvents.map((i) => {
+        console.log('Error in persist current cdcEvents: ', filteredItems);
+        batchItemFailures = batchItemFailures.concat(filteredItems.map((i) => {
           return { itemIdentifier: i.kinesisSeqNumber };
         }));
       }

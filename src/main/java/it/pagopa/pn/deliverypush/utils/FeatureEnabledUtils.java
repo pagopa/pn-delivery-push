@@ -22,4 +22,14 @@ public class FeatureEnabledUtils {
         return isEnabled;
     }
 
+    public boolean isPfNewWorkflowEnabled(Instant notificationSentAt) {
+        boolean isEnabled = false;
+        Instant startDate = Instant.parse(configs.getPfNewWorkflowStart());
+        Instant endDate = Instant.parse(configs.getPfNewWorkflowStop());
+        if (notificationSentAt.compareTo(startDate) >= 0 && notificationSentAt.compareTo(endDate) <= 0) {
+            isEnabled = true;
+        }
+        return isEnabled;
+    }
+
 }

@@ -49,11 +49,11 @@ public class PaperChannelMock implements PaperChannelSendClient {
         log.info("[TEST] prepare paperChannelPrepareRequest:{}", paperChannelPrepareRequest);
 
         ThreadPool.start(new Thread(() -> {
-            await().pollDelay(Duration.ofMillis(200)).atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-
-                    Assertions.assertTrue(true)
-
-            );
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
             Assertions.assertDoesNotThrow(() -> {
                 String address = paperChannelPrepareRequest.getDiscoveredAddress()!=null?paperChannelPrepareRequest.getDiscoveredAddress().getAddress():null;
@@ -73,11 +73,11 @@ public class PaperChannelMock implements PaperChannelSendClient {
 
 
         ThreadPool.start(new Thread(() -> {
-            await().pollDelay(Duration.ofMillis(200)).atMost(Duration.ofSeconds(30)).untilAsserted(() ->
-
-                    Assertions.assertTrue(true)
-
-            );
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
             Assertions.assertDoesNotThrow(() -> {
                 simulateSendResponse(paperChannelSendRequest.getRequestId(), paperChannelSendRequest.getReceiverAddress().getAddress());
