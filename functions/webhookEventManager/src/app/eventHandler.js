@@ -1,6 +1,7 @@
 const { extractKinesisData } = require("./lib/kinesis.js");
 const { mapEvents } = require("./lib/eventMapper.js");
 const { SQSClient, SendMessageBatchCommand } = require("@aws-sdk/client-sqs");
+const { parseKinesisObjToJsonObj } = require("./lib/utils");
 
 const sqs = new SQSClient({ region: process.env.REGION });
 const QUEUE_URL = process.env.QUEUE_URL
@@ -19,7 +20,12 @@ exports.handleEvent = async (event) => {
     let batchItemFailures = [];
     while(cdcEvents.length > 0){
       let currentCdcEvents = cdcEvents.splice(0,10);
-      let filteredItems = currentCdcEvents.filter((i) => new Date(i.timestamp) >= new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`) && new Date(i.timestamp) < new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`))
+      if (currentCdcEvents.length == 0) {
+        return batchItemFailures;
+      }
+      let filteredItems = currentCdcEvents
+        .map(event => ({...parseKinesisObjToJsonObj(event), kinesisSeqNumber: event.kinesisSeqNumber}))
+        .filter((eventItem) => new Date(eventItem.dynamodb.NewImage.timestamp) >= new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`) && new Date(eventItem.dynamodb.NewImage.timestamp) < new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`))
       try{
         let processedItems = await mapEvents(filteredItems);
         if (processedItems.length > 0){
