@@ -9,7 +9,7 @@ describe("event handler tests", function () {
   });
 
   it("test Ok", async () => {
-    const event = {};
+    const event = require("./kinesis.event.example.json");
 
     const mockSQSClient = {
       send: async () => ({}) // Mock per un successo
@@ -26,12 +26,7 @@ describe("event handler tests", function () {
       },
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{}];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
-          return [{ test: 1 }];
+          return [{...event.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
         },
       },
     });
@@ -44,7 +39,7 @@ describe("event handler tests", function () {
   });
 
   it("test errore nella send", async () => {
-    const event = {};
+    const event = require("./kinesis.event.example.json");
 
     const mockSQSClient = {
       send: async () => ({
@@ -69,12 +64,7 @@ describe("event handler tests", function () {
       },
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{payload: '1', kinesisSeqNumber: 'test'}];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
-          return [{ test: 1 }];
+          return [{...event.Records[0].kinesis.data, kinesisSeqNumber: "message-1",}];
         },
       },
     });
@@ -86,7 +76,7 @@ describe("event handler tests", function () {
   });
 
   it("test exception nella send", async () => {
-    const event = {};
+    const event = require("./kinesis.event.example.json");
 
     const mockSQSClient = {
       send: async () => {
@@ -105,12 +95,7 @@ describe("event handler tests", function () {
       },
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{payload: '1', kinesisSeqNumber: 'test', timestamp: '2024-10-15T12:50:38.268589375Z'}];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
-          return [{ test: 1 }];
+          return [{...event.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
         },
       },
     });
@@ -149,11 +134,6 @@ describe("event handler tests", function () {
     const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{ test: 1 }];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
           return [];
         },
       },
@@ -183,12 +163,7 @@ describe("event handler tests", function () {
       },
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{}];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
-          return [{ test: 1 }];
+          return [{...testData.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
         },
       },
     });
@@ -222,12 +197,7 @@ describe("event handler tests", function () {
       },
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{}];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
-          return [{ test: 1 }];
+          return [{...testData.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
         },
       },
     });
@@ -261,12 +231,7 @@ describe("event handler tests", function () {
       },
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{}];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
-          return [{ test: 1 }];
+          return [{...testData.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
         },
       },
     });
