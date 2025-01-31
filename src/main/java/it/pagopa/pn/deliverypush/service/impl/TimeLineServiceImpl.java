@@ -54,7 +54,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
@@ -159,8 +159,8 @@ public class TimeLineServiceImpl implements TimelineService {
 
         timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
 
-                // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
-                // asincrona da una lambda che opera partendo da stream Kinesis
+        // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
+        // asincrona da una lambda che opera partendo da stream Kinesis
 
         String alreadyInsertMsg = "Timeline event was already inserted before - timelineId=" + dto.getElementId();
         String successMsg = String.format("Timeline event inserted with: CATEGORY=%s IUN=%s {DETAILS: %s} TIMELINEID=%s paId=%s TIMESTAMP=%s",
