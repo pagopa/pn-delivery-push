@@ -451,6 +451,8 @@ Resources:
         - AttributeName: "sortKey"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      KinesisStreamSpecification:
+        StreamArn: !Ref CdcKinesisSourceStreamArn
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
