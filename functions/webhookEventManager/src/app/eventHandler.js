@@ -18,6 +18,8 @@ exports.handleEvent = async (event) => {
     };
   }else{
     let batchItemFailures = [];
+    let startDate = new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`);
+    let stopDate = new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`);
     while(cdcEvents.length > 0){
       let currentCdcEvents = cdcEvents.splice(0,10);
       if (currentCdcEvents.length == 0) {
@@ -25,7 +27,7 @@ exports.handleEvent = async (event) => {
       }
       let filteredItems = currentCdcEvents
         .map(event => ({...parseKinesisObjToJsonObj(event), kinesisSeqNumber: event.kinesisSeqNumber}))
-        .filter((eventItem) => new Date(eventItem.dynamodb.NewImage.timestamp) >= new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`) && new Date(eventItem.dynamodb.NewImage.timestamp) < new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`))
+        .filter((eventItem) => new Date(eventItem.dynamodb.NewImage.timestamp) >= startDate && new Date(eventItem.dynamodb.NewImage.timestamp) < stopDate)
       try{
         let processedItems = await mapEvents(filteredItems);
         if (processedItems.length > 0){
