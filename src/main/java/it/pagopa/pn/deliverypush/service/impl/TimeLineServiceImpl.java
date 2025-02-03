@@ -111,7 +111,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
         Optional<SimpleLock> optSimpleLock = lockProvider.lock(new LockConfiguration(Instant.now(), notification.getIun(), pnDeliveryPushConfigs.getTimelineLockDuration(), Duration.ZERO));
         if (optSimpleLock.isEmpty()) {
-            logEvent.generateFailure("Lock not acquired for iun={} and timeline with category={}", notification.getIun(), dto.getCategory()).log();
+            logEvent.generateFailure("Lock not acquired for iun={} and timelineId={}", notification.getIun(), dto.getElementId()).log();
             throw new PnInternalException("Lock not acquired for iun " + notification.getIun(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
         }
 
