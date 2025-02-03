@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const fs = require("fs");
+const { parseKinesisObjToJsonObj } = require("../app/lib/utils");
 
 const { mapEvents } = require("../app/lib/eventMapper");
 
@@ -11,7 +12,7 @@ describe("event mapper tests", function () {
     let event = JSON.parse(eventJSON);
     event = setCategory(event, "REQUEST_REFUSED");
 
-    const events = [event];
+    const events = [parseKinesisObjToJsonObj(event)];
 
     const res = await mapEvents(events);
 

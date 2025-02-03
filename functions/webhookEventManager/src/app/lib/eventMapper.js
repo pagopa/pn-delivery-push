@@ -1,4 +1,3 @@
-const { parseKinesisObjToJsonObj } = require("./utils");
 const crypto = require('crypto');
 
 const TABLES = {
@@ -17,7 +16,7 @@ exports.mapEvents = async (events) => {
 
   for (let i = 0; i < filteredEvents.length; i++) {
 
-    let timelineObj = parseKinesisObjToJsonObj(filteredEvents[i].dynamodb.NewImage);
+    let timelineObj = filteredEvents[i].dynamodb.NewImage;
 
     let date = new Date();
 
