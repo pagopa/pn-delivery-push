@@ -2,6 +2,7 @@
   "Records": [
     {
       "kinesis": {
+        "sequenceNumber": "test",
         "data": {
           "awsRegion": "eu-central-1",
           "eventID": "2c19ee21-4cb5-4fcf-aadb-7aac6555b46f",
