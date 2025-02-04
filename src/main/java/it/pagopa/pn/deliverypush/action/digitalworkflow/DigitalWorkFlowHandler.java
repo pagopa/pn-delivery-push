@@ -257,7 +257,7 @@ public class DigitalWorkFlowHandler {
                 addressInfo.getDigitalAddressSource(), addressInfo.getSentAttemptMade(), iun, recIndex);
         
         if (digitalAddress != null) {
-            log.info("Found address is {} - iun={} id={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), iun, recIndex);
+            log.info("Found address is {} - type {} - iun={} id={}", LogUtils.maskEmailAddress(digitalAddress.getAddress()), addressInfo.getDigitalAddressSource(), iun, recIndex);
             handleSendWithDigitalAddress(notification, recIndex, addressInfo, iun, digitalAddress);
         } else {
             log.info("Address is not present - iun={} id={}", iun, recIndex);
