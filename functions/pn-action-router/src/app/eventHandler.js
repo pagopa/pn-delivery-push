@@ -107,7 +107,7 @@ async function startHandleEvent(event, context) {
         console.info('Action is not in working windows ', action.notBefore)
       }
     }else{
-      console.info('The record is not to send ', decodedRecord)
+      console.info('The record is not to send ', JSON.stringify(decodedRecord))
     }
   }
 
