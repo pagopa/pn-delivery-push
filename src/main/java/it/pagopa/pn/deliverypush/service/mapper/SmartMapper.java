@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NormalizedAddressDetailsIn
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareAnalogDomicileFailureDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV26;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -24,12 +25,14 @@ import java.util.function.BiFunction;
 @Component
 public class SmartMapper {
 
+    private FeatureEnabledUtils featureEnabledUtils;
     private final TimelineMapperFactory timelineMapperFactory;
     private static ModelMapper modelMapper;
     private static BiFunction postMappingTransformer;
     
-    public SmartMapper (TimelineMapperFactory timelineMapperFactory){
+    public SmartMapper (TimelineMapperFactory timelineMapperFactory, FeatureEnabledUtils featureEnabledUtils){
         this.timelineMapperFactory = timelineMapperFactory;
+        this.featureEnabledUtils = featureEnabledUtils;
     }
 
     private static String SERCQ_SEND = "send-self";
@@ -130,7 +133,8 @@ public class SmartMapper {
         TimelineElementInternal result = mapTimelineInternal(source);
 
         TimelineMapper timelineMapper = timelineMapperFactory.getTimelineMapper(source.getNotificationSentAt());
-        timelineMapper.remapSpecificTimelineElementData(timelineElementInternalSet, result, ingestionTimestamp);
+        boolean isPfNewWorkflowEnabled = featureEnabledUtils.isPfNewWorkflowEnabled(source.getNotificationSentAt());
+        timelineMapper.remapSpecificTimelineElementData(timelineElementInternalSet, result, ingestionTimestamp, isPfNewWorkflowEnabled);
 
         return result;
     }

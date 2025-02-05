@@ -17,7 +17,7 @@ public abstract class TimelineMapper {
     public static final String ELEMENT_DETAILS_NULL = "ELEMENT DETAILS NULL";
     public static final String SCHEDULE_REFINEMENT_NOT_PRESENT_ERROR_IN_MAPPING = "SCHEDULE_REFINEMENT NOT PRESENT, ERROR IN MAPPING";
 
-    public abstract void remapSpecificTimelineElementData(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result, Instant ingestionTimestamp);
+    public abstract void remapSpecificTimelineElementData(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result, Instant ingestionTimestamp, boolean isPfNewWorkflowEnabled);
 
     Instant findAARgenTimestamp(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
         if (elementDetails == null) {
@@ -34,6 +34,21 @@ public abstract class TimelineMapper {
         return aarGenerationTimelineElement.getTimestamp();
     }
 
+    private Instant findSendDigitalDomicileTimestamp(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
+        if (elementDetails == null) {
+            throw new PnInternalException(ELEMENT_DETAILS_NULL, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
+        }
+        int recIndex = elementDetails.getRecIndex();
+
+        TimelineElementInternal sendDigitalDomicileInternal = timelineElementInternalSet.stream().filter(e ->
+                e.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE &&
+                        e.getDetails() instanceof RecipientRelatedTimelineElementDetails sendDigitalDomicileElementDetails &&
+                        sendDigitalDomicileElementDetails.getRecIndex() == recIndex
+        ).findFirst().orElseThrow(() -> new PnInternalException(SCHEDULE_REFINEMENT_NOT_PRESENT_ERROR_IN_MAPPING, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT));
+
+        return sendDigitalDomicileInternal.getTimestamp();
+
+    }
 
     ScheduleRefinementDetailsInt findScheduleRefinementDetails(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
         if (elementDetails == null) {
@@ -74,9 +89,10 @@ public abstract class TimelineMapper {
         }
     }
 
-    void caseSendDigitalDomicile(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result) {
+    void caseSendDigitalDomicile(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result, boolean isPfNewWorkflowEnabled) {
         // allo scopo di ottenere il timestamp di AAR_GEN per impostare il timestamp di SEND_DIGITAL_DOMICILE, per far si
-        // che il timestamp di SEND_DIGITAL_DOMICILE non sia successivo a quello di SEND_DIGITAL_FEEDBACK per serc SEND
+        // che il timestamp di SEND_DIGITAL_DOMICILE non sia successivo a quello di SEND_DIGITAL_FEEDBACK per serc SEND solo in caso di vecchio
+        // workflow di recupero domicili digitali
         //
         // ottenere channelType e verificare che è sercq
         // se sercq, ottenere l'address, e se è sercq-send:
@@ -84,9 +100,24 @@ public abstract class TimelineMapper {
         // - lo usiamo per impostare il timestamp di SEND_DIGITAL_DOMICILE (setTimeStamp)
         //
         SendDigitalDetailsInt details = (SendDigitalDetailsInt) result.getDetails();
-        if (LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType())) {
+        if (!isPfNewWorkflowEnabled && LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType())) {
             Instant aarRgenTimestamp = findAARgenTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
             result.setTimestamp(aarRgenTimestamp);
+        }
+    }
+
+    void caseSendDigitalFeedback(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result, boolean isPfNewWorkflowEnabled) {
+        //caso implementato solo per la gestione del digital feedback in caso di SERCQ e nuovo workflow di recupero domicili digitali attivo
+        SendDigitalFeedbackDetailsInt details = (SendDigitalFeedbackDetailsInt) result.getDetails();
+        if (isPfNewWorkflowEnabled && LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType())) {
+            Instant sendDigitalDomicileTimestamp =  findSendDigitalDomicileTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
+            if(sendDigitalDomicileTimestamp.isAfter(result.getIngestionTimestamp())){
+                result.setTimestamp(sendDigitalDomicileTimestamp);
+                result.setEventTimestamp(sendDigitalDomicileTimestamp);
+            }else {
+                result.setTimestamp(result.getIngestionTimestamp());
+                result.setEventTimestamp(result.getIngestionTimestamp());
+            }
         }
     }
 

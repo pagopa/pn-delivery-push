@@ -39,7 +39,7 @@ public class TimelineMapperBeforeFixTest {
                         .build()
         );
 
-        timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, scheduleRefinement, sourceIngestionTimestamp);
+        timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, scheduleRefinement, sourceIngestionTimestamp, false);
 
         Assertions.assertEquals(sourceIngestionTimestamp, scheduleRefinement.getIngestionTimestamp());
         Assertions.assertEquals(sourceEventTimestamp, scheduleRefinement.getTimestamp());
@@ -66,7 +66,7 @@ public class TimelineMapperBeforeFixTest {
                         .build()
         );
 
-        timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, analogSuccessWorkflow, sourceIngestionTimestamp);
+        timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, analogSuccessWorkflow, sourceIngestionTimestamp, false);
 
         Assertions.assertEquals(sourceIngestionTimestamp, analogSuccessWorkflow.getIngestionTimestamp());
         Assertions.assertEquals(sourceEventTimestamp, analogSuccessWorkflow.getTimestamp());
@@ -93,7 +93,7 @@ public class TimelineMapperBeforeFixTest {
                         .build()
         );
 
-        Assertions.assertThrows(PnInternalException.class, () -> timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, analogSuccessWorkflow, sourceIngestionTimestamp));
+        Assertions.assertThrows(PnInternalException.class, () -> timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, analogSuccessWorkflow, sourceIngestionTimestamp, false));
     }
 
     @Test
@@ -116,7 +116,7 @@ public class TimelineMapperBeforeFixTest {
                         .build()
         );
 
-        timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, refinement, sourceIngestionTimestamp);
+        timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, refinement, sourceIngestionTimestamp, false);
 
         Assertions.assertEquals(sourceIngestionTimestamp, refinement.getIngestionTimestamp());
         Assertions.assertEquals(schedulingDate, refinement.getTimestamp());
@@ -144,11 +144,39 @@ public class TimelineMapperBeforeFixTest {
                         .build()
         );
 
-        timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, sendDigitalDomicile, sourceIngestionTimestamp);
+        timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, sendDigitalDomicile, sourceIngestionTimestamp, false);
 
         Assertions.assertEquals(sourceIngestionTimestamp, sendDigitalDomicile.getIngestionTimestamp());
         Assertions.assertEquals(sourceEventTimestamp, sendDigitalDomicile.getTimestamp());
         Assertions.assertEquals(sourceEventTimestamp, sendDigitalDomicile.getEventTimestamp());
+    }
+
+    @Test
+    void testMapSendDigitalDomicileWithPfNewWorkflowEnabled() {
+        Instant sourceEventTimestamp = Instant.EPOCH;
+        Instant sourceIngestionTimestamp = Instant.now();
+
+        TimelineElementInternal sendDigitalDomicile = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(SendDigitalDetailsInt.builder().
+                        digitalAddress(LegalDigitalAddressInt.builder().type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ).build()).
+                        recIndex(0).build())
+                .timestamp(sourceIngestionTimestamp)
+                .notificationSentAt(Instant.now().plusSeconds(3600))
+                .build();
+        Set<TimelineElementInternal> timelineElementInternalSet = Set.of(
+                TimelineElementInternal.builder()
+                        .category(TimelineElementCategoryInt.AAR_GENERATION)
+                        .timestamp(sourceEventTimestamp.plusSeconds(3600))
+                        .details(AarGenerationDetailsInt.builder().recIndex(0).build())
+                        .build()
+        );
+
+        timelineMapperBeforeFix.remapSpecificTimelineElementData(timelineElementInternalSet, sendDigitalDomicile, sourceIngestionTimestamp, true);
+
+        Assertions.assertEquals(sourceIngestionTimestamp, sendDigitalDomicile.getIngestionTimestamp());
+        Assertions.assertEquals(sourceIngestionTimestamp, sendDigitalDomicile.getTimestamp());
+        Assertions.assertEquals(sourceIngestionTimestamp, sendDigitalDomicile.getEventTimestamp());
     }
 
 
