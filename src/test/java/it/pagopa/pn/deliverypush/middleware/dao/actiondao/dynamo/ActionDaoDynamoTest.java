@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.FutureActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.ActionEntity;
@@ -11,6 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -48,6 +52,7 @@ class ActionDaoDynamoTest {
         PnDeliveryPushConfigs.FutureActionDao factionDao = new PnDeliveryPushConfigs.FutureActionDao();
         factionDao.setTableName("FutureAction");
         Mockito.when(pnDeliveryPushConfigs.getActionDao()).thenReturn(actionDao);
+        Mockito.when(pnDeliveryPushConfigs.getActionTtlDays()).thenReturn("1095");
         Mockito.when(pnDeliveryPushConfigs.getFutureActionDao()).thenReturn(factionDao);
 
         dynamo = new ActionDaoDynamo(actionEntityDao, futureActionEntityDao,
@@ -64,7 +69,12 @@ class ActionDaoDynamoTest {
         
         dynamo.addAction(action, timeslot);
 
-        Mockito.verify(actionEntityDao, Mockito.times(1)).put(actionEntity);
+        ArgumentCaptor<ActionEntity> actionEntityArgumentCaptor = ArgumentCaptor.forClass(ActionEntity.class);
+
+        Mockito.verify(actionEntityDao, Mockito.times(1)).put(actionEntityArgumentCaptor.capture());
+        ActionEntity capturedEntity = actionEntityArgumentCaptor.getValue();
+        capturedEntity.setTtl(actionEntity.getTtl()); //Questo campo non è replicabile nel test
+        Assertions.assertEquals(actionEntity, capturedEntity);
         Mockito.verify(futureActionEntityDao, Mockito.times(1)).put(futureActionEntity);
     }
 
