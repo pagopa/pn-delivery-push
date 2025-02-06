@@ -14,11 +14,11 @@ Parameters:
   TemplateBucketBaseUrl:
     Type: String
     Description: URL da cui caricare i frammenti di template di infrastruttura
-  
+
   Version:
     Type: String
     Description: 'keep track of used projects commitIds'
-  
+
   CdcKinesisSourceStreamArn:
     Type: String
     Description: 'Where to send CDC'
@@ -26,15 +26,15 @@ Parameters:
   AlarmSNSTopicName:
     Type: String
     Description: 'Topic alarm'
-  
+
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Where to send Logs'
-  
+
   LogRetention:
     Type: Number
     Default: 14
-  
+
   EnvironmentType:
     Type: String
     Description: Environment type
@@ -99,7 +99,7 @@ Parameters:
     Type: Number
     Default: 60
     Description: Evaluation periods for oncall alarms for pn-<xx>Action tables
-  
+
   AlarmSNSTopicArn:
     Type: String
 
@@ -140,16 +140,16 @@ Resources:
   ScheduledActionsQueue:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_push_actions'
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName        
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
         VisibilityTimeout: 60
         MaxReceiveCount: 10
         DelaySeconds: 1
-  
+
   # Internal queues
   ScheduledValidationActionsQueue:
     Type: AWS::CloudFormation::Stack
@@ -163,11 +163,11 @@ Resources:
         VisibilityTimeout: 60
         MaxReceiveCount: 10
         DelaySeconds: 1
-        
+
   DoneActionsQueue:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
@@ -219,7 +219,7 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ: "false"
         QueueHasAlarm: "true"
-  
+
   ActionRouterDLQ:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -232,7 +232,7 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ: "false"
         QueueHasAlarm: "true"
-  
+
   ActionEnqueuerDLQ:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -245,7 +245,7 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ: "false"
         QueueHasAlarm: "true"
-  
+
   ActionTimeoutErrorDLQ:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -258,12 +258,12 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ: "false"
         QueueHasAlarm: "true"
-        
+
   # Notification Timeline DynamoDB Table
   TimelinesTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-Timelines'
       AttributeDefinitions:
@@ -279,7 +279,7 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       KinesisStreamSpecification:
         StreamArn: !Ref CdcKinesisSourceStreamArn
-      StreamSpecification: 
+      StreamSpecification:
         StreamViewType: NEW_IMAGE
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
@@ -288,7 +288,7 @@ Resources:
   PaperNotificationFailedTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-PaperNotificationFailed'
       AttributeDefinitions:
@@ -331,7 +331,7 @@ Resources:
   ActionTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-Action'
       AttributeDefinitions:
@@ -359,14 +359,14 @@ Resources:
         Enabled: true
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
-  
+
 
 
   # Future Action Table
   FutureActionTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-FutureAction'
       AttributeDefinitions:
@@ -403,7 +403,7 @@ Resources:
   LastPollForFutureActionTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-LastPollForFutureActionTable'
       AttributeDefinitions:
@@ -420,7 +420,7 @@ Resources:
   PnDeliveryPushShedLockTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-PnDeliveryPushShedLock'
       AttributeDefinitions:
@@ -437,7 +437,7 @@ Resources:
   PnDeliveryPushWebhookStreamsTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-WebhookStreams'
       AttributeDefinitions:
@@ -451,6 +451,8 @@ Resources:
         - AttributeName: "sortKey"
           KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"
+      KinesisStreamSpecification:
+        StreamArn: !Ref CdcKinesisSourceStreamArn
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
@@ -461,7 +463,7 @@ Resources:
   PnDeliveryPushWebhookEventsTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-WebhookEvents'
       AttributeDefinitions:
@@ -485,7 +487,7 @@ Resources:
   DocumentCreationRequestTable:
     Type: AWS::DynamoDB::Table
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain   
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-DocumentCreationRequestTable'
       AttributeDefinitions:
@@ -511,12 +513,12 @@ Resources:
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true      
+        PointInTimeRecoveryEnabled: true
 
   PnDeliveryPushLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain 
+    DeletionPolicy: Retain
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
@@ -527,7 +529,7 @@ Resources:
   NotificationCancellationActionInsertLambdaLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain    
+    DeletionPolicy: Retain
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
@@ -629,11 +631,11 @@ Outputs:
     Description: pn-delivery-push actions queue ARN
   ScheduledActionsQueueAlarmARN:
     Value: !GetAtt ScheduledActionsQueue.Outputs.SqsDLQAlarmArn
-    Description: pn-delivery-push actions queue dlq alarm queue 
+    Description: pn-delivery-push actions queue dlq alarm queue
   ScheduledActionsQueueAgeAlarmARN:
     Value: !GetAtt ScheduledActionsQueue.Outputs.SqsAgeAlarmArn
     Description: pn-delivery-push actions queue age alarm ARN
-  
+
   # Scheduled Actions
   ScheduledValidationActionsQueueName:
     Value: !GetAtt ScheduledValidationActionsQueue.Outputs.QueueName
@@ -650,7 +652,7 @@ Outputs:
   ScheduledValidationActionsQueueAgeAlarmARN:
     Value: !GetAtt ScheduledValidationActionsQueue.Outputs.SqsAgeAlarmArn
     Description: pn-delivery-push validation actions queue age alarm ARN
-  
+
   # Already Done Actions
   DoneActionsQueueName:
     Value: !GetAtt DoneActionsQueue.Outputs.QueueName
@@ -751,7 +753,7 @@ Outputs:
 
   VersioningGetNotificationLegalFactsLambdaName:
     Value: !Sub "${ProjectName}-versioningGetNotificationLegalFactsLambda"
-  
+
   ActionRouterLambdaName:
     Value: !Sub "${ProjectName}-actionRouterLambda"
 
@@ -761,7 +763,7 @@ Outputs:
   ActionRemoverLambdaName:
     Value: !Sub "${ProjectName}-actionRemover"
 
-  
+
   ValidationMessageEventBridgeToQueueLambdaName:
     Value: !Sub "${ProjectName}-validationMessageEventBridgeToQueueLambda"
 
@@ -825,14 +827,14 @@ Outputs:
   ActionRouterDLQAlarmARN:
     Value: !GetAtt ActionRouterDLQ.Outputs.SqsDLQAlarmArn
     Description: ActionRouterDLQ alarm ARN
-  
+
   ActionEnqueuerDLQARN:
     Value: !GetAtt ActionEnqueuerDLQ.Outputs.QueueARN
     Description: ActionEnqueuerDLQ queue ARN
   ActionEnqueuerDLQAlarmARN:
     Value: !GetAtt ActionEnqueuerDLQ.Outputs.SqsDLQAlarmArn
     Description: ActionEnqueuerDLQ alarm ARN
-  
+
   ActionTimeoutErrorDLQARN:
     Value: !GetAtt ActionTimeoutErrorDLQ.Outputs.QueueARN
     Description: ActionTimeoutErrorDLQ queue ARN

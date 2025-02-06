@@ -28,7 +28,8 @@ public class TimelineElementEntity {
     private TimelineElementDetailsEntity details;
     private StatusInfoEntity statusInfo;
     private Instant notificationSentAt;
-    
+    private Instant businessTimestamp;
+
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN )
     public String getIun() {
@@ -75,7 +76,7 @@ public class TimelineElementEntity {
     public void setLegalFactIds(List<LegalFactsIdEntity> legalFactIds) {
         this.legalFactIds = legalFactIds;
     }
-    
+
     @DynamoDbAttribute(value = "details") @DynamoDbIgnoreNulls
     public TimelineElementDetailsEntity getDetails() {
         return details;
@@ -101,5 +102,11 @@ public class TimelineElementEntity {
     public void setNotificationSentAt(Instant notificationSentAt) {
         this.notificationSentAt = notificationSentAt;
     }
+
+    @DynamoDbAttribute(value = "businessTimestamp") @DynamoDbIgnoreNulls
+    public Instant getBusinessTimestamp(){return businessTimestamp;}
+
+    public void setBusinessTimestamp(Instant businessTimestamp){this.businessTimestamp = businessTimestamp;}
+
 }
 

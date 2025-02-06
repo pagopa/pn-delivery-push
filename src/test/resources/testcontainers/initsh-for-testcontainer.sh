@@ -1,6 +1,6 @@
 echo "### CREATE DELIVERY-PUSH COMPONENT ###"
 
-bash <(curl -s https://raw.githubusercontent.com/pagopa/pn-delivery-push/c2ee07ef41ea189a4bd9b6c2f3661f6f111d8d69/src/test/resources/testcontainers/init.sh)
+bash <(curl -s https://raw.githubusercontent.com/pagopa/pn-delivery-push/e1646bf00880ab7f1fdcbc3ba98e9213d4abe41a/src/test/resources/testcontainers/init.sh)
 
 ## La creazione delle queue local-delivery-push-inputs.fifo è già presente nel file init.sh di delivery. Viene duplicata su deliveryPush per solo per test-container
 

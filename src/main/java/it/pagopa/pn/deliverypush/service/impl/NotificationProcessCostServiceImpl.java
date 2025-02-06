@@ -9,11 +9,8 @@ import it.pagopa.pn.deliverypush.dto.cost.PaymentsInfoForRecipientInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateCostPhaseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogSendTimelineElement;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ScheduleRefinementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.exceptions.PnNotificationNotAcceptedException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry_reactive.model.UpdateNotificationCostRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
@@ -174,7 +171,12 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
         Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun, false);
         log.debug("get timeline for notificationProcessCost completed - iun={} id={}", iun, recIndex);
 
-        for(TimelineElementInternal timelineElement : timelineElements){
+        boolean isNotificationAccepted = false;
+        for(TimelineElementInternal timelineElement : timelineElements) {
+
+            if(timelineElement.getDetails() instanceof NotificationRequestAcceptedDetailsInt){
+                isNotificationAccepted = true;
+            }
             
             if( timelineElement.getDetails() instanceof RecipientRelatedTimelineElementDetails timelineElementRec 
                     && recIndex == timelineElementRec.getRecIndex()){
@@ -187,6 +189,11 @@ public class NotificationProcessCostServiceImpl implements NotificationProcessCo
                 
                 analogCost = getAnalogCost(recIndex, analogCost, timelineElement);
             }
+        }
+
+        if(!isNotificationAccepted){
+            log.warn("Notification with iun is not ACCEPTED - iun={}", iun);
+            throw new PnNotificationNotAcceptedException();
         }
         return new Result(notificationViewDate, refinementDate, analogCost);
     }

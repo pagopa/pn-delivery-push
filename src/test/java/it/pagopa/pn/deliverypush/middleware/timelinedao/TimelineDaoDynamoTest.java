@@ -88,6 +88,33 @@ class TimelineDaoDynamoTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    void successfullyInsertAndRetrieveWithTimestamps() {
+        // GIVEN
+        String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
+
+        String id1 = "sender_ack";
+        TimelineElementInternal row1 = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(id1)
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .details( NotificationRequestAcceptedDetailsInt.builder().build() )
+                .timestamp(Instant.now())
+                .eventTimestamp(Instant.now())
+                .statusInfo(StatusInfoInternal.builder().build())
+                .build();
+
+        // WHEN
+        dao.addTimelineElementIfAbsent(row1);
+
+        // THEN
+        // check first row
+        Optional<TimelineElementInternal> retrievedRow1 = dao.getTimelineElement(iun, id1);
+        Assertions.assertTrue(retrievedRow1.isPresent());
+        Assertions.assertEquals(row1, retrievedRow1.get());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
     void successfullyInsertAndRetrieveStrongly() {
         // GIVEN
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";

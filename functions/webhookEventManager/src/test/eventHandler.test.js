@@ -3,8 +3,13 @@ const proxyquire = require("proxyquire").noPreserveCache();
 
 describe("event handler tests", function () {
 
+  process.env = Object.assign(process.env, {
+    START_READ_STREAM_TIMESTAMP: "1999-01-01T00:00:00Z",
+    STOP_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z"
+  });
+
   it("test Ok", async () => {
-    const event = {};
+    const event = require("./kinesis.event.example.json");
 
     const mockSQSClient = {
       send: async () => ({}) // Mock per un successo
@@ -21,12 +26,7 @@ describe("event handler tests", function () {
       },
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{}];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
-          return [{ test: 1 }];
+          return [{...event.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
         },
       },
     });
@@ -39,7 +39,7 @@ describe("event handler tests", function () {
   });
 
   it("test errore nella send", async () => {
-    const event = {};
+    const event = require("./kinesis.event.example.json");
 
     const mockSQSClient = {
       send: async () => ({
@@ -64,12 +64,7 @@ describe("event handler tests", function () {
       },
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{payload: '1', kinesisSeqNumber: 'test'}];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
-          return [{ test: 1 }];
+          return [{...event.Records[0].kinesis.data, kinesisSeqNumber: "message-1",}];
         },
       },
     });
@@ -81,7 +76,7 @@ describe("event handler tests", function () {
   });
 
   it("test exception nella send", async () => {
-    const event = {};
+    const event = require("./kinesis.event.example.json");
 
     const mockSQSClient = {
       send: async () => {
@@ -100,12 +95,7 @@ describe("event handler tests", function () {
       },
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{payload: '1', kinesisSeqNumber: 'test'}];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
-          return [{ test: 1 }];
+          return [{...event.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
         },
       },
     });
@@ -144,11 +134,6 @@ describe("event handler tests", function () {
     const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
       "./lib/kinesis.js": {
         extractKinesisData: () => {
-          return [{ test: 1 }];
-        },
-      },
-      "./lib/eventMapper.js": {
-        mapEvents: () => {
           return [];
         },
       },
@@ -160,5 +145,102 @@ describe("event handler tests", function () {
     });
   });
 
+  it("event in between flag interval", async () => {
+    const testData = require("./kinesis.event.example.json");
+
+    const mockSQSClient = {
+      send: async () => ({}) // Mock per un successo
+    };
+
+    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
+      "@aws-sdk/client-sqs": {
+        SQSClient: class {
+          constructor() {
+            return mockSQSClient;
+          }
+        },
+        SendMessageBatchCommand: class {},
+      },
+      "./lib/kinesis.js": {
+        extractKinesisData: () => {
+          return [{...testData.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
+        },
+      },
+    });
+
+    const result = await lambda.handleEvent(testData, {
+      getRemainingTimeInMillis: () => 10000000000,
+    });
+    expect(result).to.be.not.null;
+    expect(result.batchItemFailures).to.be.empty;
+  });
+
+  it("event before flag interval", async () => {
+    process.env = Object.assign(process.env, {
+      START_READ_STREAM_TIMESTAMP: "2098-01-01T00:00:00Z",
+      STOP_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z"
+    });
+    const testData = require("./kinesis.event.example.json");
+
+    const mockSQSClient = {
+      send: async () => ({}) // Mock per un successo
+    };
+
+    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
+      "@aws-sdk/client-sqs": {
+        SQSClient: class {
+          constructor() {
+            return mockSQSClient;
+          }
+        },
+        SendMessageBatchCommand: class {},
+      },
+      "./lib/kinesis.js": {
+        extractKinesisData: () => {
+          return [{...testData.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
+        },
+      },
+    });
+
+    const result = await lambda.handleEvent(testData, {
+      getRemainingTimeInMillis: () => 10000000000,
+    });
+    expect(result).to.be.not.null;
+    expect(result.batchItemFailures).to.be.empty;
+  });
+
+  it("event after flag interval", async () => {
+    process.env = Object.assign(process.env, {
+      START_READ_STREAM_TIMESTAMP: "1998-01-01T00:00:00Z",
+      STOP_READ_STREAM_TIMESTAMP: "1999-01-01T00:00:00Z"
+    });
+    const testData = require("./kinesis.event.example.json");
+
+    const mockSQSClient = {
+      send: async () => ({}) // Mock per un successo
+    };
+
+    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
+      "@aws-sdk/client-sqs": {
+        SQSClient: class {
+          constructor() {
+            return mockSQSClient;
+          }
+        },
+        SendMessageBatchCommand: class {},
+      },
+      "./lib/kinesis.js": {
+        extractKinesisData: () => {
+          return [{...testData.Records[0].kinesis.data, kinesisSeqNumber: "test",}];
+        },
+      },
+    });
+
+    const result = await lambda.handleEvent(testData, {
+      getRemainingTimeInMillis: () => 10000000000,
+    });
+    expect(result).to.be.not.null;
+    expect(result.batchItemFailures).to.be.empty;
+  });
 
 });

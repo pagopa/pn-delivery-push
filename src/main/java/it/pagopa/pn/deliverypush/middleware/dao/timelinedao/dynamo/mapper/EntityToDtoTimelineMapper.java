@@ -32,6 +32,7 @@ public class EntityToDtoTimelineMapper {
                 .statusInfo(entityToStatusInfoInternal(entity.getStatusInfo()))
                 .notificationSentAt(entity.getNotificationSentAt())
                 .paId(entity.getPaId())
+                .eventTimestamp(entity.getBusinessTimestamp())
                 .build();
     }
 
