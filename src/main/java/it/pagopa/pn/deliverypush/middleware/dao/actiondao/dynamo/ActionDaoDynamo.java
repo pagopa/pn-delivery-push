@@ -51,7 +51,7 @@ public class ActionDaoDynamo implements ActionDao {
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.dynamoDbTableAction = dynamoDbEnhancedClient.table(  pnDeliveryPushConfigs.getActionDao().getTableName(), TableSchema.fromClass(ActionEntity.class));
         this.dynamoDbTableFutureAction = dynamoDbEnhancedClient.table( pnDeliveryPushConfigs.getFutureActionDao().getTableName(), TableSchema.fromClass(FutureActionEntity.class));
-        this.actionTtl = pnDeliveryPushConfigs.getActionTtl();
+        this.actionTtl = pnDeliveryPushConfigs.getActionTtlDays();
     }
 
     @Override
