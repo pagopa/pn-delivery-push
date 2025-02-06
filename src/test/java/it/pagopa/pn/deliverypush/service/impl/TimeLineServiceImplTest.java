@@ -28,6 +28,7 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineMapperFactory;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
@@ -61,6 +62,7 @@ class TimeLineServiceImplTest {
     private NotificationService notificationService;
     private SimpleLock simpleLock;
     private LockProvider lockProvider;
+    private FeatureEnabledUtils featureEnabledUtils;
 
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private SmartMapper smartMapper;
@@ -71,15 +73,16 @@ class TimeLineServiceImplTest {
         timelineCounterDao = Mockito.mock( TimelineCounterEntityDao.class );
         statusUtils = Mockito.mock( StatusUtils.class );
         statusService = Mockito.mock( StatusService.class );
-
+        featureEnabledUtils = Mockito.mock(FeatureEnabledUtils.class);
         confidentialInformationService = Mockito.mock( ConfidentialInformationService.class );
         schedulerService = Mockito.mock(SchedulerService.class);
         notificationService = Mockito.mock(NotificationService.class);
         pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+
         Mockito.when(pnDeliveryPushConfigs.getStartWriteBusinessTimestamp()).thenReturn(Instant.now().plus(Duration.ofDays(1)));
         Mockito.when(pnDeliveryPushConfigs.getStopWriteBusinessTimestamp()).thenReturn(Instant.now().minus(Duration.ofDays(1)));
 //        smartMapper = new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs));
-        smartMapper= Mockito.spy(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs)));
+        smartMapper= Mockito.spy(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs), featureEnabledUtils));
 //        timeLineService = new TimeLineServiceImpl(timelineDao , timelineCounterDao , statusUtils, confidentialInformationService, statusService, schedulerService, notificationService);
         simpleLock = Mockito.mock(SimpleLock.class);
         lockProvider = Mockito.mock(LockProvider.class);

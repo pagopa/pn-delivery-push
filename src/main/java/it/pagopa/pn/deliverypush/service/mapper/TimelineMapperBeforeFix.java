@@ -12,7 +12,7 @@ import java.util.Set;
 @Slf4j
 public class TimelineMapperBeforeFix extends TimelineMapper {
 
-    public void remapSpecificTimelineElementData(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result, Instant ingestionTimestamp) {
+    public void remapSpecificTimelineElementData(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result, Instant ingestionTimestamp, boolean isPfNewWorkflowEnabled) {
         if (result != null) {
             //L'ingestion timestamp viene settato con il timestamp originale dell'evento (dunque timestamp evento per SEND)
             result.setIngestionTimestamp(ingestionTimestamp);
@@ -37,7 +37,8 @@ public class TimelineMapperBeforeFix extends TimelineMapper {
                     }
                 }
                 case REFINEMENT -> caseRefinement(timelineElementInternalSet, result);
-                case SEND_DIGITAL_DOMICILE -> caseSendDigitalDomicile(timelineElementInternalSet, result);
+                case SEND_DIGITAL_DOMICILE -> caseSendDigitalDomicile(timelineElementInternalSet, result, isPfNewWorkflowEnabled);
+                case SEND_DIGITAL_FEEDBACK -> caseSendDigitalFeedback(timelineElementInternalSet, result, isPfNewWorkflowEnabled);
                 default -> {
                     //nothing to do
                 }

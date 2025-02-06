@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
@@ -13,7 +14,7 @@ import java.util.Set;
 @Slf4j
 public class TimelineMapperAfterFix extends TimelineMapper {
 
-    public void remapSpecificTimelineElementData(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result, Instant ingestionTimestamp) {
+    public void remapSpecificTimelineElementData(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result, Instant ingestionTimestamp, boolean isPfNewWorkflowEnabled) {
         if (result != null) {
             //L'ingestion timestamp viene settato con il timestamp originale dell'evento (dunque timestamp evento per SEND)
             result.setIngestionTimestamp(ingestionTimestamp);
@@ -58,7 +59,8 @@ public class TimelineMapperAfterFix extends TimelineMapper {
                         caseRefinement(timelineElementInternalSet, result);
                 case SEND_DIGITAL_DOMICILE -> //Se l’invio della notifica è di tipo SERCQ viene recuperato l’elemento di timeline AAR_GENERATION
                                               //per estrapolare la data in cui è stato effettivamente salvato sulla piattaforma l’atto e restituirla.
-                        caseSendDigitalDomicile(timelineElementInternalSet, result);
+                        caseSendDigitalDomicile(timelineElementInternalSet, result, isPfNewWorkflowEnabled);
+                case SEND_DIGITAL_FEEDBACK -> caseSendDigitalFeedback(timelineElementInternalSet, result, isPfNewWorkflowEnabled);
                 default -> {
                     //nothing to do
                 }

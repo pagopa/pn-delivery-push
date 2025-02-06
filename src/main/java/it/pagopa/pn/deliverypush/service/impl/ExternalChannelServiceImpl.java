@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.util.*;
 
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -45,13 +46,14 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final TimelineUtils timelineUtils;
     private final AttachmentUtils attachmentUtils;
     private final TimelineService timelineService;
+    private final FeatureEnabledUtils featureEnabledUtils;
 
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
                                       NotificationService notificationService, AuditLogService auditLogService,
-                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService) {
+                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService, FeatureEnabledUtils featureEnabledUtils) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
@@ -61,6 +63,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         this.timelineUtils = timelineUtils;
         this.attachmentUtils = attachmentUtils;
         this.timelineService = timelineService;
+        this.featureEnabledUtils = featureEnabledUtils;
     }
 
     /**
@@ -90,7 +93,8 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         try {
             DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, false);
 
-            if (sendInformation.getDigitalAddress().getType().equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
+            if (!featureEnabledUtils.isPfNewWorkflowEnabled(notification.getSentAt())
+                    && sendInformation.getDigitalAddress().getType().equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
                 addInformationToAddress(notification.getIun(), recIndex, sendInformation.getDigitalAddress());
 
             String eventId;

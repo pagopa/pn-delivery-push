@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.mock;
+
 class StatusUtilsMultiRecipientTest {
 
     private StatusUtils statusUtils;
@@ -29,8 +31,9 @@ class StatusUtilsMultiRecipientTest {
 
     @BeforeEach
     public void setup() {
-        PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        this.statusUtils = new StatusUtils(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs)));
+        PnDeliveryPushConfigs pnDeliveryPushConfigs = mock(PnDeliveryPushConfigs.class);
+        FeatureEnabledUtils featureEnabledUtils = mock(FeatureEnabledUtils.class);
+        this.statusUtils = new StatusUtils(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs), featureEnabledUtils));
     }
     
     @Test
@@ -190,7 +193,7 @@ class StatusUtilsMultiRecipientTest {
                 .elementId("sendDigitalFeedbackRec1")
                 .timestamp((Instant.parse("2021-09-16T17:30:15.00Z")))
                 .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
-                .details(SendAnalogFeedbackDetailsInt.builder().recIndex(0).notificationDate(Instant.parse("2021-09-16T17:30:15.00Z")).build())
+                .details(SendDigitalFeedbackDetailsInt.builder().recIndex(0).notificationDate(Instant.parse("2021-09-16T17:30:15.00Z")).build())
                 .build();
 
         TimelineElementInternal digitalDeliveryCreationRequest = TimelineElementInternal.builder()

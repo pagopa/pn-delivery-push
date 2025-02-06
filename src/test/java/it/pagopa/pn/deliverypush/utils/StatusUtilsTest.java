@@ -26,6 +26,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
+import static org.mockito.Mockito.mock;
+
 @DirtiesContext
 class StatusUtilsTest {
     @Mock
@@ -40,7 +42,8 @@ class StatusUtilsTest {
     @BeforeEach
     public void setup() {
         PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
-        this.statusUtils = new StatusUtils(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs)));
+        FeatureEnabledUtils featureEnabledUtils = mock(FeatureEnabledUtils.class);
+        this.statusUtils = new StatusUtils(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs), featureEnabledUtils));
     }
 
     @Test
