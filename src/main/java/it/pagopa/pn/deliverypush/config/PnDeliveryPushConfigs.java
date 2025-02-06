@@ -104,7 +104,7 @@ public class PnDeliveryPushConfigs {
 
     private boolean checkPdfValidEnabled;
     
-    private Duration actionTtlDays;
+    private String actionTtlDays;
     
     private boolean checkCfEnabled;
 
