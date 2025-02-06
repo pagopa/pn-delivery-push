@@ -54,7 +54,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
@@ -65,7 +65,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final TimelineCounterEntityDao timelineCounterEntityDao;
@@ -111,7 +111,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
         Optional<SimpleLock> optSimpleLock = lockProvider.lock(new LockConfiguration(Instant.now(), notification.getIun(), pnDeliveryPushConfigs.getTimelineLockDuration(), Duration.ZERO));
         if (optSimpleLock.isEmpty()) {
-            logEvent.generateFailure("Lock not acquired for iun={} and timeline with category={}", notification.getIun(), dto.getCategory()).log();
+            logEvent.generateFailure("Lock not acquired for iun={} and timelineId={}", notification.getIun(), dto.getElementId()).log();
             throw new PnInternalException("Lock not acquired for iun " + notification.getIun(), ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
         }
 
@@ -158,11 +158,6 @@ public class TimeLineServiceImpl implements TimelineService {
         }
 
         timelineInsertSkipped = persistTimelineElement(dtoWithStatusInfo);
-
-        // aggiorna lo stato su pn-delivery se i due stati differiscono
-        if (!notificationStatuses.getOldStatus().equals(notificationStatuses.getNewStatus())) {
-            statusService.updateStatus(dto.getIun(), notificationStatuses.getNewStatus(), dto.getTimestamp());
-        }
 
         // non schedulo più il webhook in questo punto (schedulerService.scheduleWebhookEvent), dato che la cosa viene fatta in maniera
         // asincrona da una lambda che opera partendo da stream Kinesis
