@@ -44,8 +44,19 @@ public abstract class TimelineMapper {
         return timelineElementInternalSet.stream().filter(e ->
                 e.getCategory() == timelineElementCategoryInt &&
                         e.getDetails() instanceof RecipientRelatedTimelineElementDetails sendDigitalDomicileElementDetails &&
-                        sendDigitalDomicileElementDetails.getRecIndex() == recIndex
+                        sendDigitalDomicileElementDetails.getRecIndex() == recIndex &&
+                        (isSendDigitalFeedbackSercQ(e) || isSendDigitalDomicileSercQ(e))
         ).findFirst().map(TimelineElementInternal::getTimestamp).orElse(null);
+    }
+
+    private static boolean isSendDigitalDomicileSercQ(TimelineElementInternal e) {
+        return e.getDetails() instanceof SendDigitalDetailsInt sendDigitalDetailsInt &&
+                LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(sendDigitalDetailsInt.getDigitalAddress().getType());
+    }
+
+    private static boolean isSendDigitalFeedbackSercQ(TimelineElementInternal e) {
+        return e.getDetails() instanceof SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetailsInt &&
+                LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(sendDigitalFeedbackDetailsInt.getDigitalAddress().getType());
     }
 
     ScheduleRefinementDetailsInt findScheduleRefinementDetails(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
@@ -102,17 +113,17 @@ public abstract class TimelineMapper {
         if (!isPfNewWorkflowEnabled && isSercq) {
             Instant aarRgenTimestamp = findAARgenTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
             result.setTimestamp(aarRgenTimestamp);
-        } else if (isPfNewWorkflowEnabled && isSercq){
+        } else if (isPfNewWorkflowEnabled && isSercq) {
             setDigitalDomicile(timelineElementInternalSet, result);
         }
     }
 
     private void setDigitalDomicile(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result) {
-        Instant sendDigitalFeedbackTimestamp =  findSendDigitalTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK);
-        if(Objects.nonNull(sendDigitalFeedbackTimestamp) && sendDigitalFeedbackTimestamp.isBefore(result.getIngestionTimestamp())){
+        Instant sendDigitalFeedbackTimestamp = findSendDigitalTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK);
+        if (Objects.nonNull(sendDigitalFeedbackTimestamp) && sendDigitalFeedbackTimestamp.isBefore(result.getIngestionTimestamp())) {
             result.setTimestamp(sendDigitalFeedbackTimestamp);
             result.setEventTimestamp(sendDigitalFeedbackTimestamp);
-        }else {
+        } else {
             result.setTimestamp(result.getIngestionTimestamp());
             result.setEventTimestamp(result.getIngestionTimestamp());
         }
@@ -127,11 +138,11 @@ public abstract class TimelineMapper {
     }
 
     private void setDigitalFeedbackTimestamp(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result) {
-        Instant sendDigitalDomicileTimestamp =  findSendDigitalTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE);
-        if(Objects.nonNull(sendDigitalDomicileTimestamp) && sendDigitalDomicileTimestamp.isAfter(result.getIngestionTimestamp())){
+        Instant sendDigitalDomicileTimestamp = findSendDigitalTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE);
+        if (Objects.nonNull(sendDigitalDomicileTimestamp) && sendDigitalDomicileTimestamp.isAfter(result.getIngestionTimestamp())) {
             result.setTimestamp(sendDigitalDomicileTimestamp);
             result.setEventTimestamp(sendDigitalDomicileTimestamp);
-        }else {
+        } else {
             result.setTimestamp(result.getIngestionTimestamp());
             result.setEventTimestamp(result.getIngestionTimestamp());
         }
