@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -34,20 +35,17 @@ public abstract class TimelineMapper {
         return aarGenerationTimelineElement.getTimestamp();
     }
 
-    private Instant findSendDigitalDomicileTimestamp(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
+    private Instant findSendDigitalTimestamp(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementCategoryInt timelineElementCategoryInt) {
         if (elementDetails == null) {
             throw new PnInternalException(ELEMENT_DETAILS_NULL, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT);
         }
         int recIndex = elementDetails.getRecIndex();
 
-        TimelineElementInternal sendDigitalDomicileInternal = timelineElementInternalSet.stream().filter(e ->
-                e.getCategory() == TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE &&
+        return timelineElementInternalSet.stream().filter(e ->
+                e.getCategory() == timelineElementCategoryInt &&
                         e.getDetails() instanceof RecipientRelatedTimelineElementDetails sendDigitalDomicileElementDetails &&
                         sendDigitalDomicileElementDetails.getRecIndex() == recIndex
-        ).findFirst().orElseThrow(() -> new PnInternalException(SCHEDULE_REFINEMENT_NOT_PRESENT_ERROR_IN_MAPPING, PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT));
-
-        return sendDigitalDomicileInternal.getTimestamp();
-
+        ).findFirst().map(TimelineElementInternal::getTimestamp).orElse(null);
     }
 
     ScheduleRefinementDetailsInt findScheduleRefinementDetails(RecipientRelatedTimelineElementDetails elementDetails, Set<TimelineElementInternal> timelineElementInternalSet) {
@@ -100,9 +98,23 @@ public abstract class TimelineMapper {
         // - lo usiamo per impostare il timestamp di SEND_DIGITAL_DOMICILE (setTimeStamp)
         //
         SendDigitalDetailsInt details = (SendDigitalDetailsInt) result.getDetails();
-        if (!isPfNewWorkflowEnabled && LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType())) {
+        boolean isSercq = LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType());
+        if (!isPfNewWorkflowEnabled && isSercq) {
             Instant aarRgenTimestamp = findAARgenTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
             result.setTimestamp(aarRgenTimestamp);
+        } else if (isPfNewWorkflowEnabled && isSercq){
+            setDigitalDomicile(timelineElementInternalSet, result);
+        }
+    }
+
+    private void setDigitalDomicile(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result) {
+        Instant sendDigitalFeedbackTimestamp =  findSendDigitalTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK);
+        if(Objects.nonNull(sendDigitalFeedbackTimestamp) && sendDigitalFeedbackTimestamp.isBefore(result.getIngestionTimestamp())){
+            result.setTimestamp(sendDigitalFeedbackTimestamp);
+            result.setEventTimestamp(sendDigitalFeedbackTimestamp);
+        }else {
+            result.setTimestamp(result.getIngestionTimestamp());
+            result.setEventTimestamp(result.getIngestionTimestamp());
         }
     }
 
@@ -110,14 +122,18 @@ public abstract class TimelineMapper {
         //caso implementato solo per la gestione del digital feedback in caso di SERCQ e nuovo workflow di recupero domicili digitali attivo
         SendDigitalFeedbackDetailsInt details = (SendDigitalFeedbackDetailsInt) result.getDetails();
         if (isPfNewWorkflowEnabled && LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ.equals(details.getDigitalAddress().getType())) {
-            Instant sendDigitalDomicileTimestamp =  findSendDigitalDomicileTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet);
-            if(sendDigitalDomicileTimestamp.isAfter(result.getIngestionTimestamp())){
-                result.setTimestamp(sendDigitalDomicileTimestamp);
-                result.setEventTimestamp(sendDigitalDomicileTimestamp);
-            }else {
-                result.setTimestamp(result.getIngestionTimestamp());
-                result.setEventTimestamp(result.getIngestionTimestamp());
-            }
+            setDigitalFeedbackTimestamp(timelineElementInternalSet, result);
+        }
+    }
+
+    private void setDigitalFeedbackTimestamp(Set<TimelineElementInternal> timelineElementInternalSet, TimelineElementInternal result) {
+        Instant sendDigitalDomicileTimestamp =  findSendDigitalTimestamp((RecipientRelatedTimelineElementDetails) result.getDetails(), timelineElementInternalSet, TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE);
+        if(Objects.nonNull(sendDigitalDomicileTimestamp) && sendDigitalDomicileTimestamp.isAfter(result.getIngestionTimestamp())){
+            result.setTimestamp(sendDigitalDomicileTimestamp);
+            result.setEventTimestamp(sendDigitalDomicileTimestamp);
+        }else {
+            result.setTimestamp(result.getIngestionTimestamp());
+            result.setEventTimestamp(result.getIngestionTimestamp());
         }
     }
 
