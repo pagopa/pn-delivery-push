@@ -368,6 +368,48 @@ class SmartMapperTest {
     }
 
     @Test
+    void testMapSendDigitalFeedbackSercQNewWorkflowDomicileAfterFeedbackPec(){
+        Mockito.when(featureEnabledUtils.isPfNewWorkflowEnabled(any())).thenReturn(true);
+
+        Instant sourceIngestionTimestamp = Instant.now();
+        Instant digitalDomicileTimestamp = sourceIngestionTimestamp.minusSeconds(3600);
+
+        TimelineElementInternal sendDigitalFeedback = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .details(SendDigitalFeedbackDetailsInt.builder()
+                        .recIndex(0)
+                        .digitalAddress(LegalDigitalAddressInt.builder().type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ).build())
+                        .notificationDate(digitalDomicileTimestamp)
+                        .build())
+                .timestamp(digitalDomicileTimestamp)
+                .notificationSentAt(Instant.now().plusSeconds(3600))
+                .build();
+
+        TimelineElementInternal sendDigitalDomiclie = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_DOMICILE)
+                .details(SendDigitalDetailsInt.builder()
+                        .recIndex(0)
+                        .digitalAddress(LegalDigitalAddressInt.builder().type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
+                        .build())
+                .timestamp(sourceIngestionTimestamp)
+                .notificationSentAt(Instant.now().plusSeconds(3600))
+                .build();
+
+
+        TimelineElementInternal feedback = smartMapper.mapTimelineInternal(sendDigitalFeedback, Set.of(sendDigitalFeedback, sendDigitalDomiclie));
+        TimelineElementInternal domiclie = smartMapper.mapTimelineInternal(sendDigitalDomiclie, Set.of(sendDigitalFeedback, sendDigitalDomiclie));
+
+        Assertions.assertEquals(digitalDomicileTimestamp, feedback.getIngestionTimestamp());
+        Assertions.assertEquals(digitalDomicileTimestamp, feedback.getEventTimestamp());
+        Assertions.assertEquals(digitalDomicileTimestamp, feedback.getTimestamp());
+
+        Assertions.assertEquals(sourceIngestionTimestamp, domiclie.getIngestionTimestamp());
+        Assertions.assertEquals(sourceIngestionTimestamp, domiclie.getEventTimestamp());
+        Assertions.assertEquals(sourceIngestionTimestamp, domiclie.getTimestamp());
+    }
+
+
+    @Test
     void testMapSendDigitalFeedbackSercQNewWorkflow(){
         Mockito.when(featureEnabledUtils.isPfNewWorkflowEnabled(any())).thenReturn(true);
 
