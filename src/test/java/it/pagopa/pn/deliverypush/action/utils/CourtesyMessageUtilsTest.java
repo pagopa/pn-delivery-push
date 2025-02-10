@@ -316,6 +316,75 @@ class CourtesyMessageUtilsTest {
     }
 
     @Test
+    void checkAddressesForSendEmailAndSmsCourtesyWithNotificationCancelled() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressSms = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
+                .address("3331111333")
+                .build();
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressEmail = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
+                .address("indirizzo@test.it")
+                .build();
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(List.of(courtesyDigitalAddressSms, courtesyDigitalAddressEmail)));
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())).thenReturn(true);
+
+        //WHEN
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+
+        //THEN
+        // non vengono inseriti elementi di timeline
+        Mockito.verify(timelineUtils, Mockito.times(0)).buildSendCourtesyMessageTimelineElement(Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(), Mockito.anyString(), Mockito.any());
+        Mockito.verify(timelineService, Mockito.times(0)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+        Mockito.verify(externalChannelService, Mockito.times(0)).sendCourtesyNotification(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    void checkAddressesForSendAppIoCourtesyWithNotificationCancelled() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressAppIo = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+                .address("3331111333")
+                .build();
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(List.of(courtesyDigitalAddressAppIo)));
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())).thenReturn(true);
+
+        //WHEN
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+
+        //THEN
+        // non vengono inseriti elementi di timeline
+        Mockito.verify(timelineUtils, Mockito.times(0)).buildSendCourtesyMessageTimelineElement(Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(), Mockito.anyString(), Mockito.any());
+        Mockito.verify(timelineService, Mockito.times(0)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+        Mockito.verify(externalChannelService, Mockito.times(0)).sendCourtesyNotification(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
+    @Test
     void checkAddressesForSendCourtesyMessageCourtesyEmpty() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();

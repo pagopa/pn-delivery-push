@@ -181,11 +181,6 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     @Override
     public void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId) {
         log.debug("Start sendCourtesyNotification - iun {} id {}", notification.getIun(), recIndex);
-
-        if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())){
-            log.warn("sendCourtesyNotification blocked for cancelled iun {}", notification.getIun());
-            return;
-        }
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), courtesyAddress, recIndex, eventId);
 
         try {
