@@ -158,6 +158,12 @@ public class CourtesyMessageUtils {
 
     private int manageCourtesyMessage(NotificationInt notification, int recIndex, boolean firstCourtesyMessage, Instant schedulingAnalogDate, int courtesyAddrIndex, CourtesyDigitalAddressInt courtesyAddress) {
         log.info("Send courtesy message to externalChannel courtesyType={} - iun={} id={} ", courtesyAddress.getType(), notification.getIun(), recIndex);
+
+        if(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())) {
+            log.info("manageCourtesyMessage blocked for cancelled notification iun={}", notification.getIun());
+            return courtesyAddrIndex;
+        }
+
         String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddress.getType(), Boolean.FALSE);
         externalChannelService.sendCourtesyNotification(notification, courtesyAddress, recIndex, eventId);
         addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, Instant.now(), eventId, null);
@@ -171,6 +177,11 @@ public class CourtesyMessageUtils {
         // ci sono casi in cui non viene inviato perchè l'utente non ha abilitato IO. Quindi in questi casi non viene salvato l'evento di timeline
         // NB: anche nel caso di invio di Opt-in, non salvo l'evento in timeline.
         log.info("Send courtesy message to App IO - iun={} id={} ", notification.getIun(), recIndex);
+
+        if(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())) {
+            log.info("manageIOMessage blocked for cancelled notification iun={}", notification.getIun());
+            return courtesyAddrIndex;
+        }
 
         if(! firstCourtesyMessage) {
             String timelineElementIdForProbableAnalog = getTimelineElementId(recIndex, notification.getIun());
