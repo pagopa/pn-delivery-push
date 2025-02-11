@@ -91,5 +91,42 @@ describe("DeleteEventStreamHandler", () => {
             });
         });
 
+        describe("handlerEvent flag url change", () => {
+            it("successful request", async () => {
+                process.env = Object.assign(process.env, {
+                    PN_STREAM_URL: "https://api.dev.notifichedigitali.it/delivery-progresses-2/v2.6",
+                    START_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z",
+                });
+
+                deleteEventStreamHandler = new DeleteEventStreamHandler();
+
+                const streamId = "12345";
+                const event = {
+                    path: "/delivery-progresses/streams",
+                    pathParameters : { streamId: streamId },
+                    httpMethod: "DELETE",
+                    headers: {},
+                    requestContext: {
+                        authorizer: {},
+                    },
+                };
+
+                let url = `${process.env.PN_STREAM_URL}/streams/${streamId}`;
+
+                mock.onDelete(url).reply(204);
+
+                const context = {};
+                const response = await deleteEventStreamHandler.handlerEvent(event, context);
+
+                expect(response.statusCode).to.equal(204);
+
+                expect(mock.history.delete.length).to.equal(1);
+
+                process.env = Object.assign(process.env, {
+                    START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+                });
+            });
+        });
+
     });
 });

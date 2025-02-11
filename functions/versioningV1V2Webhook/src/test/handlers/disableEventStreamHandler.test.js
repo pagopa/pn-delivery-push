@@ -214,6 +214,66 @@ describe("DisableEventStreamHandler", () => {
         });    
     });
 
+    describe("handlerEvent", () => {
+
+        it("successful request 2.6", async () => {
+
+            process.env = Object.assign(process.env, {
+                PN_STREAM_URL: "https://api.dev.notifichedigitali.it/delivery-progresses-2/v2.6",
+                START_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z",
+            });
+
+            disableEventStreamHandler = new DisableEventStreamHandler();
+
+            const streamId = "12345";
+            const b = '{}'
+            const event = {
+                path: "/delivery-progresses/v2.6/streams/{streamId}/action/disable",
+                pathParameters : { streamId: streamId },
+                httpMethod: "PUT",
+                headers: {},
+                requestContext: {
+                    authorizer: {},
+                },
+                body: b
+            };
+
+            let url = `${process.env.PN_STREAM_URL}/streams/${streamId}/action/disable`;
+
+            const responseBodyV26 = {
+                title: "stream name",
+                eventType: "STATUS",
+                groups: [{
+                    groupId: "group1",
+                    groupName: "Group One"
+                },
+                    {
+                        groupId: "group2",
+                        groupName: "Group Two"
+                    }],
+                filterValues: ["status_1", "status_2"],
+                streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                activationDate: "2024-02-01T12:00:00Z",
+                disabledDate: "2024-02-02T12:00:00Z",
+                version: "v26"
+            }
+
+            mock.onPost(url).reply(200, responseBodyV26);
+
+            const context = {};
+            const response = await disableEventStreamHandler.handlerEvent(event, context);
+
+            expect(response.statusCode).to.equal(200);
+            expect(response.body).to.equal(JSON.stringify(responseBodyV26));
+
+            expect(mock.history.post.length).to.equal(1);
+
+            process.env = Object.assign(process.env, {
+                START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+            });
+        });    
+    });
+
     describe("handlerEvent 1.0 error", () => {
 
         process.env = Object.assign(process.env, {

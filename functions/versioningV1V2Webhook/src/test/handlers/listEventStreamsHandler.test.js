@@ -92,4 +92,51 @@ describe("ListEventStreamsHandler", () => {
             expect(mock.history.get.length).to.equal(1);
         });
     });
+
+    describe("handlerEvent url change flag", () => {
+        it("successful request", async () => {
+            process.env = Object.assign(process.env, {
+                PN_STREAM_URL: "https://api.dev.notifichedigitali.it/delivery-progresses-2/v2.6",
+                START_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z",
+            });
+
+            listEventStreamsHandler = new ListEventStreamsHandler();
+
+            const event = {
+                path: "/delivery-progresses/streams",
+                httpMethod: "GET",
+                headers: {},
+                requestContext: {
+                    authorizer: {},
+                },
+            };
+
+            let url = `${process.env.PN_STREAM_URL}/streams`;
+
+            const responseBody = [
+                {
+                title: "stream name 1",
+                streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv"
+                },
+                {
+                    title: "stream name 2",
+                    streamId: "abcdefgh-ijkl-mnop-qrst-uvwxyz123456"
+                }
+            ]
+
+            mock.onGet(url).reply(200, responseBody);
+
+            const context = {};
+            const response = await listEventStreamsHandler.handlerEvent(event, context);
+
+            expect(response.statusCode).to.equal(200);
+            expect(response.body).to.equal(JSON.stringify(responseBody));
+
+            expect(mock.history.get.length).to.equal(1);
+
+            process.env = Object.assign(process.env, {
+                START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+            });
+        });
+    });
 });

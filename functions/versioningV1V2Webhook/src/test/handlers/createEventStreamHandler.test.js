@@ -59,11 +59,12 @@ describe("CreateEventStreamHandler", () => {
 
     describe("handlerEvent that applies a map function for response body", () => {
 
-        process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
-        });
-
         it("successful request v10", async () => {
+            process.env = Object.assign(process.env, {
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+                START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+                STOP_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z"
+            });
 
             const b = JSON.stringify({
                                           title: "stream name",
@@ -182,6 +183,22 @@ describe("CreateEventStreamHandler", () => {
                     disabledDate: "2024-02-02T12:00:00Z",
                     version: "v25"
                 }
+            },
+            {
+                version: "v2.6",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [
+                        { groupId: "group1", groupName: "Group One" },
+                        { groupId: "group2", groupName: "Group Two" }
+                    ],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    version: "v26"
+                }
             }
         ];
 
@@ -189,6 +206,8 @@ describe("CreateEventStreamHandler", () => {
 
             process.env = Object.assign(process.env, {
                 PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+                START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+                STOP_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z"
             });
 
             testCases.forEach(({ version, responseBody }) => {
@@ -221,6 +240,51 @@ describe("CreateEventStreamHandler", () => {
                     expect(response.body).to.equal(JSON.stringify(responseBody));
 
                     expect(mock.history.post.length).to.equal(1);
+                });
+            });
+        });
+
+        describe("handlerEvent test url change", () => {
+            testCases.forEach(({ version, responseBody }) => {
+                it(`successful request ${version}`, async () => {
+                    process.env = Object.assign(process.env, {
+                        PN_STREAM_URL: "https://api.dev.notifichedigitali.it/delivery-progresses-2/v2.6",
+                        START_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z",
+                    });
+
+                    createEventStreamHandler = new CreateEventStreamHandler();
+
+                    const b = JSON.stringify({
+                        title: "stream name",
+                        eventType: "STATUS",
+                        filterValues: ["status_1", "status_2"]
+                    });
+
+                    const event = {
+                        path: `/delivery-progresses/${version}/streams`,
+                        httpMethod: "POST",
+                        headers: {},
+                        requestContext: {
+                            authorizer: {},
+                        },
+                        body: b
+                    };
+
+                    let url = `${process.env.PN_STREAM_URL}/streams`;
+
+                    mock.onPost(url).reply(200, responseBody);
+
+                    const context = {};
+                    const response = await createEventStreamHandler.handlerEvent(event, context);
+
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.body).to.equal(JSON.stringify(responseBody));
+
+                    expect(mock.history.post.length).to.equal(1);
+
+                    process.env = Object.assign(process.env, {
+                        START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+                    });
                 });
             });
         });

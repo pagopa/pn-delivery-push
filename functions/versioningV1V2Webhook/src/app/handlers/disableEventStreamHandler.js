@@ -59,6 +59,9 @@ class DisableEventStreamHandler extends EventHandler {
             case 25:
                 transformedObject = response.data;
             break;
+            case 26:
+                transformedObject = response.data;
+            break;
             default:
                 console.error('Invalid version ', version)
             break;
