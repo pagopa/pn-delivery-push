@@ -6,9 +6,11 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.mode
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @CustomLog
+@Component
 public class PnEmdIntegrationClientImpl extends CommonBaseClient implements PnEmdIntegrationClient {
 
     private final MessageApi messageApi;
