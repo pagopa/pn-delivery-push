@@ -506,11 +506,11 @@ Parameters:
     Type: Number
     Description: activate when N datapoint on M (Validator task)
 
-  AutoscalingThreshold:
+  AutoscalingThreshold:  #TODO DA ELIMINARE??
     Default: 70
     Type: String
 
-  AutoscalingThresholdValidator:
+  AutoscalingThresholdValidator: #TODO DA ELIMINARE??
     Default: 70
     Type: String
 
@@ -538,10 +538,15 @@ Parameters:
     Type: String
     Default: 'FATAL'
     
-  ConsumedQueueMessagePerMinute:
+  ConsumedQueueMessagePerMinute:  #TODO DA RIVEDERNE IL VALORE
     Type: Number
     Default: 0
     Description: Weight to assign to queue number of visible messages metric
+
+  ConsumedQueueMessagePerMinuteValidator: #TODO DA RIVEDERNE IL VALORE
+    Type: Number
+    Default: 0
+    Description: Weight to assign to queue number of visible messages metric (Validator task)
 
   ApplicationLoadBalancerMetricsDimensionName:
     Type: String
@@ -2180,6 +2185,94 @@ Resources:
             - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
 
   #### Alarm for custom metric Autoscaling
+  AlarmCustomAutoscalingValidator:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "${ProjectName}-delivery-push-validator-autoscaling-custom"
+      AlarmDescription: "Trigger scaling based on custom metric"
+      DatapointsToAlarm: !Ref AutoscalingDataPointValidatorN
+      ComparisonOperator: "GreaterThanOrEqualToThreshold"
+      Metrics:
+        - Id: m1
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "DeliveryPushValidationInputsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m2
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "ScheduledValidationActionsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m3
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "SafeStorageToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m4
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "AddressManagerToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m5
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "F24ToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m6
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: TargetGroup
+                  Value: !GetAtt DeliveryPushMicroservice.Outputs.TargetGroupName
+                - Name: LoadBalancer
+                  Value: !Ref ApplicationLoadBalancerMetricsDimensionName
+              Namespace: "AWS/ApplicationELB"
+              MetricName: "HealthyHostCount"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: code
+          Expression: !Sub "IF(m8==0, 101, (100*(m1+m2+m3+m4+m5)) / (${ConsumedQueueMessagePerMinuteValidator} * m6) )"
+          Label: !Sub "${ProjectName}-delivery-push-validator-queue-custom-metric"
+          ReturnData: False
+      EvaluationPeriods: !Ref AutoscalingDataPointValidatorM
+      Threshold: 60
+      AlarmActions:
+        - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleUpPolicy
+      OKActions:
+        - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleDownPolicy
+
+  #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscaling:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -2193,7 +2286,7 @@ Resources:
             Metric:
               Dimensions:
                 - Name: QueueName
-                  Value: !Ref "AddressManagerToDeliveryPushQueueName"
+                  Value: !Ref "DeliveryPushInputsQueueName"
               Namespace: "AWS/SQS"
               MetricName: "ApproximateNumberOfMessagesVisible"
             Period: !Ref AutoscalingCheckPeriod
@@ -2204,24 +2297,13 @@ Resources:
             Metric:
               Dimensions:
                 - Name: QueueName
-                  Value: !Ref "DeliveryPushInputsQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m3
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
                   Value: !Ref "ExternalChannelsOutputsQueueName"
               Namespace: "AWS/SQS"
               MetricName: "ApproximateNumberOfMessagesVisible"
             Period: !Ref AutoscalingCheckPeriod
             Stat: Average
           ReturnData: False          
-        - Id: m4
+        - Id: m3
           MetricStat:
             Metric:
               Dimensions:
@@ -2231,19 +2313,8 @@ Resources:
               MetricName: "ApproximateNumberOfMessagesVisible"
             Period: !Ref AutoscalingCheckPeriod
             Stat: Average
-          ReturnData: False          
-        - Id: m5
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "SafeStorageToDeliveryPushQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False                    
-        - Id: m6
+          ReturnData: False
+        - Id: m4
           MetricStat:
             Metric:
               Dimensions:
@@ -2278,19 +2349,8 @@ Resources:
             Period: !Ref AutoscalingCheckPeriod
             Stat: Average
           ReturnData: False
-        - Id: m9
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "F24ToDeliveryPushQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False        
         - Id: code
-          Expression: !Sub "IF(m8==0, 101, (100*(m1+m2+m3+m4+m5+m6)) / (${ConsumedQueueMessagePerMinute} * m8) )"
+          Expression: !Sub "IF(m8==0, 101, (100*(m1+m2+m3+m4)) / (${ConsumedQueueMessagePerMinute} * m8) )"
           Label: !Sub "${ProjectName}-delivery-push-queue-custom-metric"
           ReturnData: False
         - Id: http

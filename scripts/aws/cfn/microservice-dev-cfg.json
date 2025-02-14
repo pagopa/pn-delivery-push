@@ -19,6 +19,7 @@
     "MaxTasksNumberValidator": "11",
     "AutoscalingThresholdValidator": "650",
     "ConsumedQueueMessagePerMinute": "3000",
+    "ConsumedQueueMessagePerMinuteValidator": "3000",
     "MountEfs": "false",
     "PnCronAnalyzer": "-",
     "WireTapLogActivation": "false",
