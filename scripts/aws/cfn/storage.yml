@@ -537,6 +537,17 @@ Resources:
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
         LogGroupRetention: !Ref LogRetention
 
+  PnDeliveryPushHttpLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub '${ProjectName}-delivery-push-http'
+        LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
+        LogGroupRetention: !Ref LogRetention
+
   NotificationCancellationActionInsertLambdaLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -799,6 +810,9 @@ Outputs:
 
   EcsValidatorLogGroup:
     Value: !GetAtt PnDeliveryPushValidatorLogGroup.Outputs.LogGroupName
+
+  EcsHttpLogGroup:
+    Value: !GetAtt PnDeliveryPushHttpLogGroup.Outputs.LogGroupName
 
   # Lambda functions
   NotificationCancellationActionInsertLambdaName:

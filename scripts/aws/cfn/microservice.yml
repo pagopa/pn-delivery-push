@@ -412,6 +412,11 @@ Parameters:
     Type: String
     Description: 'Ecs log group name (Validator task)'
 
+  # Log group parameters
+  EcsHttpLogGroup:
+    Type: String
+    Description: 'Ecs log group name (http task)'
+
   # Heath Check parameters
   HealthCheckInterval:
     Description: Seconds between two health check
@@ -480,6 +485,28 @@ Parameters:
     Description: memory amount reserved to the task pod (Validator task)
     AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
 
+  # Instance parameters
+  # 256 (.25 vCPU) - Available memory values: 0.5GB, 1GB, 2GB
+  # 512 (.5 vCPU) - Available memory values: 1GB, 2GB, 3GB, 4GB
+  # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
+  # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
+  # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
+  CpuValueHttp:
+    Type: Number
+    Default: 1024
+    Description: Fargate virtual CPU quantity 1024 equals one vCPU (Http task)
+
+  # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
+  # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
+  # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
+  # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
+  # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
+  MemoryAmountHttp:
+    Type: String
+    Default: 2GB
+    Description: memory amount reserved to the task pod (Http task)
+    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
+
   # Autoscaling parameters
   AutoscalingCheckPeriod:
     Default: 60
@@ -506,11 +533,25 @@ Parameters:
     Type: Number
     Description: activate when N datapoint on M (Validator task)
 
+  AutoscalingDataPointHttpN:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M (Http task)
+
+  AutoscalingDataPointHttpM:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M (Http task)
+
   AutoscalingThreshold:  #TODO DA ELIMINARE??
     Default: 70
     Type: String
 
   AutoscalingThresholdValidator: #TODO DA ELIMINARE??
+    Default: 70
+    Type: String
+
+  AutoscalingThresholdHttp:
     Default: 70
     Type: String
 
@@ -533,6 +574,16 @@ Parameters:
     Default: 6
     Type: Number
     Description: maximum autoscaling number of tasks (Validator task)
+
+  MinTasksNumberHttp:
+    Default: 1
+    Type: Number
+    Description: minimum autoscaling number of tasks (Http task)
+
+  MaxTasksNumberHttp:
+    Default: 6
+    Type: Number
+    Description: maximum autoscaling number of tasks (Http task)
 
   LogAlarmStrategy:
     Type: String
@@ -888,7 +939,7 @@ Resources:
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
-        MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
+        MappedPaths: '/null'
         ECSClusterName: !Ref ECSClusterName #TODO Da valutare se cambiarlo
         Subnets: !Join [ ',', !Ref SubnetsIds ]
         VpcId: !Ref VpcId
@@ -905,7 +956,7 @@ Resources:
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
-  # PN-Delivery-push microservice
+  # PN-Delivery-push validator microservice
   DeliveryPushValidatorMicroservice:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -1000,6 +1051,103 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
         AlbSecurityGroup: !Ref AlbSecurityGroup
         EcsLogGroup: !Ref EcsValidatorLogGroup
+        LogAlarmStrategyV1: !Ref LogAlarmStrategy
+
+  # PN-Delivery-push microservice
+  DeliveryPushHttpMicroservice:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push-http'
+        CpuValue: !Ref CpuValueHttp
+        MemoryAmount: !Ref MemoryAmountHttp
+        HealthCheckTimeout: !Ref HealthCheckTimeout
+        HealthCheckInterval: !Ref HealthCheckInterval
+        HealthyThresholdCount: !Ref HealthyThresholdCount
+        UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
+        AutoscalingStrategy: REST-API
+        AutoscalingThreshold: !Ref AutoscalingThresholdHttp
+        AutoscalingCheckPeriod: !Ref AutoscalingCheckPeriod
+        MinTasksNumber: !Ref MinTasksNumberHttp
+        MaxTasksNumber: !Ref MaxTasksNumberHttp
+        AutoscalingDataPointN: !Ref AutoscalingDataPointHttpN
+        AutoscalingDataPointM: !Ref AutoscalingDataPointHttpM
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        EfsFilesystem: !Ref FargateEFSFileSystemID
+        MountEfs: !Ref MountEfs
+        WireTapLogActivation: !Ref WireTapLogActivation
+        ContainerImageURI: !Sub '${ContainerImageUri}'
+        ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
+        ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
+        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080' #TODO Valutare
+        ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
+        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
+        ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
+        ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar' #TODO Valutare
+        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
+        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
+        ContainerEnvEntry20:
+          Fn::If:
+            - UseExternalChannelMock
+            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
+        ContainerEnvEntry24: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080' #TODO Valutare
+        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
+        ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080' #TODO Valutare
+        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080' #TODO Valutare
+        ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080' #TODO Valutare
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST='
+        ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
+        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
+        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
+        ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
+        ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
+        ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
+        ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
+        ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq' #TODO Valutare
+        ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_TOPICS_SAFESTORAGEEVENTS=${SafeStorageToDeliveryPushQueueName}'
+        ContainerEnvEntry43: !Sub 'PN_DELIVERYPUSH_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080' #TODO Valutare
+        ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
+        ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
+        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
+        ContainerEnvEntry52: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
+        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
+        ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
+        ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
+        ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080' #TODO Valutare
+        ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'
+        ContainerEnvEntry68: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
+        ContainerEnvEntry69: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
+        ContainerEnvEntry74: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
+        ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
+        ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
+        ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
+        ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
+        ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080' #TODO Valutare
+        ContainerEnvEntry87: !Sub [ 'PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ] } ] #TODO Valutare
+        ContainerEnvEntry88: !Sub [ 'PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ] } ] #TODO Valutare
+        ContainerEnvEntry89: !Sub [ 'PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ] } ] #TODO Valutare
+        ContainerEnvEntry90: !Sub [ 'PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ] } ] #TODO Valutare
+        ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
+        ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
+        MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
+        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
+        MappedPaths: '/delivery-push/*,/delivery-push-private/*,/delivery-progresses/*'
+        ECSClusterName: !Ref ECSClusterName
+        Subnets: !Join [ ',', !Ref SubnetsIds ]
+        VpcId: !Ref VpcId
+        EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
+        LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
+        LoadbalancerRulePriority:
+          Fn::Transform:
+            Name: GenerateLBPriorityIdMacro
+            Parameters:
+              msNumber: !Ref MicroserviceNumber
+              index: 2
+        TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
+        AlbSecurityGroup: !Ref AlbSecurityGroup
+        EcsLogGroup: !Ref EcsHttpLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
   # Grant operational rights to PN-Delivery-push microservice microservice
@@ -2266,7 +2414,7 @@ Resources:
           Label: !Sub "${ProjectName}-delivery-push-validator-queue-custom-metric"
           ReturnData: False
       EvaluationPeriods: !Ref AutoscalingDataPointValidatorM
-      Threshold: 60
+      Threshold: 60 #TODO Perchè il threshold è settato fisso e non viene usato un parametro?
       AlarmActions:
         - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleUpPolicy
       OKActions:
@@ -2325,18 +2473,7 @@ Resources:
             Period: !Ref AutoscalingCheckPeriod
             Stat: Average
           ReturnData: False       
-        - Id: m7
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: TargetGroup
-                  Value: !GetAtt DeliveryPushMicroservice.Outputs.TargetGroupName
-              Namespace: "AWS/ApplicationELB"
-              MetricName: "RequestCountPerTarget"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Sum
-          ReturnData: False                                        
-        - Id: m8
+        - Id: m5
           MetricStat:
             Metric:
               Dimensions:
@@ -2350,16 +2487,8 @@ Resources:
             Stat: Average
           ReturnData: False
         - Id: code
-          Expression: !Sub "IF(m8==0, 101, (100*(m1+m2+m3+m4)) / (${ConsumedQueueMessagePerMinute} * m8) )"
+          Expression: !Sub "IF(m8==0, 101, (100*(m1+m2+m3+m4)) / (${ConsumedQueueMessagePerMinute} * m5) )"
           Label: !Sub "${ProjectName}-delivery-push-queue-custom-metric"
-          ReturnData: False
-        - Id: http
-          Expression: !Sub "(100 * m7) / ${AutoscalingThreshold}"
-          Label: !Sub "${ProjectName}-delivery-push-http-custom-metric"
-          ReturnData: False
-        - Id: e1
-          Expression: "IF( code<http, http, code )"
-          Label: !Sub "${ProjectName}-delivery-push-autoscale-custom-metric"
       EvaluationPeriods: !Ref AutoscalingDataPointM
       Threshold: 60
       AlarmActions:
