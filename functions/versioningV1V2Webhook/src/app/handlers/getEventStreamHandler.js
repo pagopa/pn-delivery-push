@@ -49,6 +49,7 @@ class GetEventStreamHandler extends EventHandler {
             case 23:
             case 24:
             case 25:
+            case 26:
                 transformedObject = response.data;
             break;
             default:

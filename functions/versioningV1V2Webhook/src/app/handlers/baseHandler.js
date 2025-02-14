@@ -5,6 +5,9 @@ class EventHandler {
     numRetry;
     constructor() {
         this.baseUrl = process.env.PN_WEBHOOK_URL;
+        if (Date.now() < new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`) || Date.now() >= new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`)) {
+            this.baseUrl = process.env.PN_STREAM_URL;
+        }
         this.attemptTimeout = process.env.ATTEMPT_TIMEOUT_SEC * 1000;
         this.numRetry = process.env.NUM_RETRY;
     }
@@ -65,6 +68,11 @@ class EventHandler {
         if (event["path"].includes("v2.5")) {
             version = 25;
         }
+
+        if (event["path"].includes("v2.6")) {
+            version = 26;
+        }
+
 
         console.log('version is ', version);
 
