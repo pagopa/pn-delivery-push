@@ -96,6 +96,8 @@ public class PnDeliveryPushConfigs {
 
     private String f24BaseUrl;
 
+    private String emdIntegrationBaseUrl;
+
     private String addressManagerApiKey;
     
     private Duration[] validationRetryIntervals;

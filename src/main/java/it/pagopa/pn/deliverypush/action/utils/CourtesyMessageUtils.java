@@ -6,6 +6,8 @@ import static it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregis
 import static it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse.ResultEnum.SENT_OPTIN;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -16,16 +18,18 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageRequestBody;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
-import it.pagopa.pn.deliverypush.service.AddressBookService;
-import it.pagopa.pn.deliverypush.service.ExternalChannelService;
-import it.pagopa.pn.deliverypush.service.IoService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.emdintegration.PnEmdIntegrationClient;
+import it.pagopa.pn.deliverypush.service.*;
+
 import java.time.Instant;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 @Component
 @Slf4j
@@ -40,6 +44,8 @@ public class CourtesyMessageUtils {
     private final NotificationUtils notificationUtils;
     private final IoService iOservice;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private final PnEmdIntegrationClient pnEmdIntegrationClient;
+    private final AuditLogService auditLogService;
 
 
     /**
@@ -51,15 +57,12 @@ public class CourtesyMessageUtils {
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
         //Vengono ottenuti tutti gli indirizzi di cortesia per il recipient ...
-        addressBookService.getCourtesyAddress(recipient.getInternalId(), notification.getSender().getPaId())
-                .ifPresent(listCourtesyAddresses -> {
-                    int courtesyAddrIndex = FIRST_COURTESY_ELEMENT;
+        List<CourtesyDigitalAddressInt> listCourtesyAddresses = addressBookService.getCourtesyAddress(recipient.getInternalId(), notification.getSender().getPaId());
 
-                    for (CourtesyDigitalAddressInt courtesyAddress : listCourtesyAddresses) {
-                        courtesyAddrIndex = sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress);
-                    }
-                });
-
+        int courtesyAddrIndex = FIRST_COURTESY_ELEMENT;
+        for (CourtesyDigitalAddressInt courtesyAddress : listCourtesyAddresses) {
+            courtesyAddrIndex = sendCourtesyMessage(notification, recIndex, courtesyAddrIndex, courtesyAddress);
+        }
         log.debug("End sendCourtesyMessage - IUN={} id={}", notification.getIun(), recIndex);
     }
 
@@ -78,10 +81,13 @@ public class CourtesyMessageUtils {
 
             switch (courtesyAddress.getType()) {
                 case EMAIL, SMS ->
-                    courtesyAddrIndex = manageCourtesyMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, courtesyAddress);
+                        courtesyAddrIndex = manageCourtesyMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, courtesyAddress);
 
                 case APPIO ->
-                    courtesyAddrIndex = manageIOMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, courtesyAddress);
+                        courtesyAddrIndex = manageIOMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, courtesyAddress);
+
+                case TPP ->
+                        courtesyAddrIndex = manageTPPMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate, courtesyAddrIndex, courtesyAddress);
 
                 default -> handleCourtesyTypeError(notification, recIndex, courtesyAddress);
             }
@@ -98,8 +104,8 @@ public class CourtesyMessageUtils {
     private void handleCourtesyTypeError(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress) {
         log.error("Is not possibile to send courtesy message, courtesyAddressType={} is not defined - iun={} id={}",
                 courtesyAddress.getType(), notification.getIun(), recIndex);
-        throw new PnInternalException("Is not possibile to send courtesy message, courtesyAddressType="+ courtesyAddress.getType()+
-                " is not defined - iun="+ notification.getIun()+" id="+ recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESY);
+        throw new PnInternalException("Is not possibile to send courtesy message, courtesyAddressType=" + courtesyAddress.getType() +
+                " is not defined - iun=" + notification.getIun() + " id=" + recIndex, ERROR_CODE_DELIVERYPUSH_ERRORCOURTESY);
     }
 
     public void addSendCourtesyMessageToTimeline(NotificationInt notification, Integer recIndex, CourtesyDigitalAddressInt courtesyAddress, Instant sentDate) {
@@ -134,13 +140,13 @@ public class CourtesyMessageUtils {
     }
 
 
-    public List<SendCourtesyMessageDetailsInt> getSentCourtesyMessagesDetails(String iun, int recIndex){
+    public List<SendCourtesyMessageDetailsInt> getSentCourtesyMessagesDetails(String iun, int recIndex) {
         // cerco dal DB tutte le timeline relative a iun/recindex che sono di tipo courtesy
         String elementIdForSearch = TimelineEventId.SEND_COURTESY_MESSAGE
                 .buildSearchEventIdByIunAndRecipientIndex(iun, recIndex);
 
         return this.timelineService.getTimelineByIunTimelineId(iun, elementIdForSearch, false)
-                .stream().map(x -> (SendCourtesyMessageDetailsInt)x.getDetails()).toList();
+                .stream().map(x -> (SendCourtesyMessageDetailsInt) x.getDetails()).toList();
     }
 
     private void addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
@@ -183,14 +189,14 @@ public class CourtesyMessageUtils {
             return courtesyAddrIndex;
         }
 
-        if(! firstCourtesyMessage) {
+        if (!firstCourtesyMessage) {
             String timelineElementIdForProbableAnalog = getTimelineElementId(recIndex, notification.getIun());
             schedulingAnalogDate = retrieveProbableSchedulingAnalogTimeline(notification.getIun(), timelineElementIdForProbableAnalog);
         }
 
-        SendMessageResponse.ResultEnum result =  iOservice.sendIOMessage(notification, recIndex, schedulingAnalogDate);
+        SendMessageResponse.ResultEnum result = iOservice.sendIOMessage(notification, recIndex, schedulingAnalogDate);
 
-        if(SENT_COURTESY.equals(result) || SENT_OPTIN.equals(result) || NOT_SENT_OPTIN_ALREADY_SENT.equals(result)) {
+        if (SENT_COURTESY.equals(result) || SENT_OPTIN.equals(result) || NOT_SENT_OPTIN_ALREADY_SENT.equals(result)) {
             IoSendMessageResultInt ioSendMessageResult = IoSendMessageResultInt.valueOf(result.getValue());
             String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddress.getType(), SENT_OPTIN.equals(result) || NOT_SENT_OPTIN_ALREADY_SENT.equals(result));
 
@@ -198,16 +204,60 @@ public class CourtesyMessageUtils {
             addProbableSchedulingElementIfFirstMCourtesyMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate);
 
             return courtesyAddrIndex + 1;
-        }
-
-        else {
+        } else {
             log.info("skipping saving courtesy timeline iun={} id={}", notification.getIun(), recIndex);
             return courtesyAddrIndex;
         }
     }
 
+    private int manageTPPMessage(NotificationInt notification, Integer recIndex, boolean firstCourtesyMessage, Instant schedulingAnalogDate, int courtesyAddrIndex, CourtesyDigitalAddressInt courtesyAddress) {
+        String eventId = getTimelineElementId(recIndex, notification.getIun(), courtesyAddress.getType(), Boolean.FALSE);
+        log.info("manageTPPMessage - iun={} id={} ", notification.getIun(), recIndex);
+
+        if (timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())) {
+            log.warn("manageTPPMessage blocked for cancelled iun {}", notification.getIun());
+            return courtesyAddrIndex;
+        }
+
+        SendMessageRequestBody request = buildSendMessageRequest(notification, recIndex);
+
+        PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), recIndex, eventId);
+
+        it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse response = pnEmdIntegrationClient.sendMessage(request);
+
+        if (response.getOutcome() == it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse.OutcomeEnum.OK) {
+            addSendCourtesyMessageToTimeline(notification, recIndex, courtesyAddress, Instant.now(), eventId, null);
+            addProbableSchedulingElementIfFirstMCourtesyMessage(notification, recIndex, firstCourtesyMessage, schedulingAnalogDate);
+            logEvent.generateSuccess("successful sent courtesy message via TPP channel with recIndex ={} and iun ={}", recIndex, notification.getIun()).log();
+            return courtesyAddrIndex + 1;
+        } else {
+            logEvent.generateSuccess("TPP channel not enabled for recipient with recIndex={} and iun={}", recIndex, notification.getIun()).log();
+            return courtesyAddrIndex;
+        }
+    }
+
+    private SendMessageRequestBody buildSendMessageRequest(NotificationInt notification, Integer recIndex) {
+        return new SendMessageRequestBody()
+                .recipientId(notification.getRecipients().get(recIndex).getTaxId())
+                .internalRecipientId(notification.getRecipients().get(recIndex).getInternalId())
+                .originId(notification.getIun())
+                .senderDescription(notification.getSender().getPaDenomination())
+                .associatedPayment(hasPagoPaPayment(notification));
+    }
+
+    private PnAuditLogEvent buildAuditLogEvent(String iun, int recIndex, String eventId) {
+        return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DA_SEND_TPP, "sendTppMessage eventId={}", eventId);
+    }
+
+    private boolean hasPagoPaPayment(NotificationInt notification) {
+        return notification.getRecipients().stream()
+                .filter(recipient -> !CollectionUtils.isEmpty(recipient.getPayments()))
+                .flatMap(recipient -> recipient.getPayments().stream())
+                .anyMatch(paymentInfo -> paymentInfo.getPagoPA() != null);
+    }
+
     private void addProbableSchedulingElementIfFirstMCourtesyMessage(NotificationInt notification, int recIndex, boolean firstCourtesyMessage, Instant schedulingAnalogDate) {
-        if(firstCourtesyMessage) {
+        if (firstCourtesyMessage) {
 
             String timelineElementId = getTimelineElementId(recIndex, notification.getIun());
             addTimelineElement(
