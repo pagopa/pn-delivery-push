@@ -8,7 +8,7 @@ function isTimeToLeave (context){
 
 function isRecordToSend(record) {
     console.log("eventName ", record.eventName);
-    if (record.eventName != "INSERT" || 
+    if (record.eventName != "INSERT" ||
             (record.dynamodb.NewImage.notToHandle && (record.dynamodb.NewImage.notToHandle.BOOL == true || record.dynamodb.NewImage.notToHandle.S == "true"))
         ){
         return false;
