@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.utils;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
@@ -784,7 +785,7 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_VIEWED, elementId, details, timelineBuilder);
     }
 
-    public TimelineElementInternal buildNotificationViewedLegalFactCreationRequestTimelineElement(
+    public TimelineElementInternal buildNotificationViewedLegalFactCreationRequestTimelineElementOld(
             NotificationInt notification,
             Integer recIndex,
             String legalFactId,
@@ -806,6 +807,37 @@ public class TimelineUtils {
                 .raddTransactionId(raddInfo != null ? raddInfo.getTransactionId() : null)
                 .delegateInfo(delegateInfo)
                 .eventTimestamp(eventTimestamp)
+                .build();
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, elementId,
+                details, timelineBuilder);
+    }
+
+    public TimelineElementInternal buildNotificationViewedLegalFactCreationRequestTimelineElement(
+            NotificationInt notification,
+            String legalFactId,
+            NotificationViewedInt notificationViewed
+    ) {
+        log.debug("buildNotificationViewedLegalFactCreationRequestTimelineElement - iun={} and id={}", notification.getIun(), notificationViewed.getRecipientIndex());
+
+        String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(notificationViewed.getRecipientIndex())
+                        .build());
+
+        NotificationViewedCreationRequestDetailsInt details = NotificationViewedCreationRequestDetailsInt.builder()
+                .recIndex(notificationViewed.getRecipientIndex())
+                .legalFactId(legalFactId)
+                .raddType(notificationViewed.getRaddInfo() != null ? notificationViewed.getRaddInfo().getType() : null)
+                .raddTransactionId(notificationViewed.getRaddInfo() != null ? notificationViewed.getRaddInfo().getTransactionId() : null)
+                .delegateInfo(notificationViewed.getDelegateInfo())
+                .eventTimestamp(notificationViewed.getViewedDate())
+                .sourceChannel(notificationViewed.getSourceChannel())
+                .sourceChannelDetails(notificationViewed.getSourceChannelDetails())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()

@@ -19,6 +19,8 @@ public class NotificationViewedCreationRequestDetailsInt implements RecipientRel
     private String raddTransactionId;
     private DelegateInfoInt delegateInfo;
     private Instant eventTimestamp;
+    private String sourceChannel;
+    private String sourceChannelDetails;
     
     public String toLog() {
         return String.format(

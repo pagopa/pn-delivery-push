@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -113,7 +114,12 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
 
         //Simulazione visualizzazione della notifica per il secondo recipient
         Instant notificationViewDate2 = Instant.now();
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, 0, null, notificationViewDate2);
+        notificationViewedRequestHandler.handleViewNotificationDelivery(NotificationViewedInt.builder()
+                .iun(iun)
+                .recipientIndex(0)
+                .viewedDate(notificationViewDate2)
+                .build()
+        );
 
         await().atLeast(Duration.ofSeconds(1));
 

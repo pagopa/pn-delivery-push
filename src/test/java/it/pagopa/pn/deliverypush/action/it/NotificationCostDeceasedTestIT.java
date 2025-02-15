@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -103,7 +104,12 @@ class NotificationCostDeceasedTestIT extends CommonTestConfiguration {
 
         // Simulazione della visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, notificationViewDate);
+        notificationViewedRequestHandler.handleViewNotificationDelivery(NotificationViewedInt.builder()
+                .iun(iun)
+                .viewedDate(notificationViewDate)
+                .recipientIndex(recIndex)
+                .build()
+        );
 
         // Attesa fino a che in timeline ci sia l'evento di visualizzazione
         await().untilAsserted(() ->
