@@ -75,9 +75,9 @@ class NotificationViewedRequestHandlerTest {
         //THEN
         
         Mockito.verify(viewNotification).startVewNotificationProcess(
-                Mockito.eq(notification),
-                Mockito.eq(recipientInt),
-                Mockito.eq(notificationViewedInt)
+                notification,
+                recipientInt,
+                notificationViewedInt
         );
     }
 
@@ -105,9 +105,9 @@ class NotificationViewedRequestHandlerTest {
         //THEN
 
         Mockito.verify(viewNotification).startVewNotificationProcess(
-                Mockito.eq(notification),
-                Mockito.eq(recipientInt),
-                Mockito.eq(notificationViewedInt)
+                notification,
+                recipientInt,
+                notificationViewedInt
         );
     }
     
@@ -140,9 +140,9 @@ class NotificationViewedRequestHandlerTest {
         //THEN
 
         Mockito.verify(viewNotification).startVewNotificationProcess(
-                Mockito.eq(notification),
-                Mockito.eq(recipientInt),
-                Mockito.eq(notificationViewedInt)
+                notification,
+                recipientInt,
+                notificationViewedInt
         );
     }
     
