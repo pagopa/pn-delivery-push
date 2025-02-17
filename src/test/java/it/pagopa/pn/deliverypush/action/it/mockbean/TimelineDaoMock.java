@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedReque
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
@@ -72,7 +73,12 @@ public class TimelineDaoMock implements TimelineDao {
             if(notificationRecipientInt.getTaxId().startsWith(simulateViewNotificationString)){
                 log.debug("[TEST] Simulate view notification {}", dto);
                 //Viene simulata la visualizzazione della notifica prima di uno specifico inserimento in timeline
-                notificationViewedRequestHandler.handleViewNotificationDelivery( dto.getIun(), ((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex(), null, Instant.now());
+                NotificationViewedInt notificationViewedInt = NotificationViewedInt.builder()
+                        .iun(dto.getIun())
+                        .recipientIndex(((RecipientRelatedTimelineElementDetails) dto.getDetails()).getRecIndex())
+                        .viewedDate(Instant.now())
+                        .build();
+                notificationViewedRequestHandler.handleViewNotificationDelivery(notificationViewedInt);
             }else if(notificationRecipientInt.getTaxId().startsWith(simulateRecipientWaitString)){
                 //Viene simulata l'attesa in un determinato stato (elemento di timeline) per uno specifico recipient. 
                 // L'attesa dura fino all'inserimento in timeline di un determinato elemento per un altro recipient

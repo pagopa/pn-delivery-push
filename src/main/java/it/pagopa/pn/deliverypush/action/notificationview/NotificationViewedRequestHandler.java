@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -50,53 +51,53 @@ public class NotificationViewedRequestHandler {
     }
     
     //La richiesta proviene da delivery (La visualizzazione potrebbe essere da parte del delegato o da parte del destinatario)
-    public void handleViewNotificationDelivery(String iun, Integer recIndex, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
+    public void handleViewNotificationDelivery(NotificationViewedInt notificationViewedInt) {
         MDCUtils.addMDCToContextAndExecute(
-                handleViewNotification(iun, recIndex, null, delegateInfo, eventTimestamp)
+                handleViewNotification(notificationViewedInt)
         ).block();
     }
 
-    //La richiesta proviene da RADD, visualizzazione da parte del destinatario 
-    public Mono<Void> handleViewNotificationRadd(String iun, Integer recIndex, RaddInfo raddInfo, Instant eventTimestamp) {
-        return handleViewNotification(iun, recIndex, raddInfo, null, eventTimestamp);
+    //La richiesta proviene da RADD, visualizzazione da parte del destinatario
+    public Mono<Void> handleViewNotificationRadd(NotificationViewedInt notificationViewedInt) {
+        return handleViewNotification(notificationViewedInt);
     }
-    
-    private Mono<Void> handleViewNotification(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo, Instant eventTimestamp) {
-        
+
+    private Mono<Void> handleViewNotification(NotificationViewedInt notificationViewedInt) {
+
         return Mono.fromCallable(() -> (
-                timelineUtils.checkIsNotificationCancellationRequested(iun)))
-            .flatMap( isNotificationCancelled -> {
-                if (Boolean.TRUE.equals(isNotificationCancelled)){
-                    log.warn("For this notification a cancellation has been requested - iun={} id={}", iun, recIndex);
-                    return Mono.empty();
-                } else {
-                    return Mono.just(timelineUtils.checkIsNotificationViewed(iun, recIndex));
-                }
-            })
-            .flatMap( isNotificationAlreadyViewed -> {
-                
-                //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
-                if(Boolean.FALSE.equals(isNotificationAlreadyViewed) ){
+                        timelineUtils.checkIsNotificationCancellationRequested(notificationViewedInt.getIun())))
+                .flatMap( isNotificationCancelled -> {
+                    if (Boolean.TRUE.equals(isNotificationCancelled)){
+                        log.warn("For this notification a cancellation has been requested - iun={} id={}", notificationViewedInt.getIun(), notificationViewedInt.getRecipientIndex());
+                        return Mono.empty();
+                    } else {
+                        return Mono.just(timelineUtils.checkIsNotificationViewed(notificationViewedInt.getIun(), notificationViewedInt.getRecipientIndex()));
+                    }
+                })
+                .flatMap( isNotificationAlreadyViewed -> {
 
-                    PnAuditLogEvent logEvent = generateAuditLog(iun, recIndex, raddInfo, delegateInfo);
-                    logEvent.log();
+                    //I processi collegati alla visualizzazione di una notifica vengono effettuati solo la prima volta che la stessa viene visualizzata
+                    if(Boolean.FALSE.equals(isNotificationAlreadyViewed) ){
 
-                    log.debug("Notification is not already viewed - iun={} id={}", iun, recIndex);
+                        PnAuditLogEvent logEvent = generateAuditLog(notificationViewedInt.getIun(), notificationViewedInt.getRecipientIndex(), notificationViewedInt.getRaddInfo(), notificationViewedInt.getDelegateInfo());
+                        logEvent.log();
 
-                    return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
-                            .flatMap( notification -> {
-                                            NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-                                            return viewNotification.startVewNotificationProcess(notification, recipient, recIndex, raddInfo, delegateInfo, eventTimestamp)
-                                                .doOnSuccess( x->
+                        log.debug("Notification is not already viewed - iun={} id={}", notificationViewedInt.getIun(), notificationViewedInt.getRecipientIndex());
+
+                        return Mono.fromCallable(() -> notificationService.getNotificationByIun(notificationViewedInt.getIun()))
+                                .flatMap( notification -> {
+                                    NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, notificationViewedInt.getRecipientIndex());
+                                    return viewNotification.startVewNotificationProcess(notification, recipient, notificationViewedInt)
+                                            .doOnSuccess( x->
                                                     logEvent.generateSuccess().log()
-                                                );
-                                    })
-                            .doOnError( err -> logEvent.generateFailure("Exception in View notification iun={} id={}", iun, recIndex, err).log());
-                } else {
-                    log.debug("Notification is already viewed - iun={} id={}", iun, recIndex);
-                    return Mono.empty();
-                }
-            });
+                                            );
+                                })
+                                .doOnError( err -> logEvent.generateFailure("Exception in View notification iun={} id={}", notificationViewedInt.getIun(), notificationViewedInt.getRecipientIndex(), err).log());
+                    } else {
+                        log.debug("Notification is already viewed - iun={} id={}", notificationViewedInt.getIun(), notificationViewedInt.getRecipientIndex());
+                        return Mono.empty();
+                    }
+                });
     }
 
     private PnAuditLogEvent generateAuditLog(String iun, Integer recIndex, RaddInfo raddInfo, DelegateInfoInt delegateInfo ) {
