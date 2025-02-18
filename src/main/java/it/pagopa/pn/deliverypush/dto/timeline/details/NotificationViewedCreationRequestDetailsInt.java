@@ -24,12 +24,14 @@ public class NotificationViewedCreationRequestDetailsInt implements RecipientRel
     
     public String toLog() {
         return String.format(
-                "recIndex=%d legalFactId=%s raddType=%s raddTransactionId=%s delegateInfo=%s eventTimestamp=%s" ,
+                "recIndex=%d legalFactId=%s raddType=%s raddTransactionId=%s delegateInfo=%s sourceChannel=%s sourceChannelDetails=%s eventTimestamp=%s" ,
                 recIndex,
                 legalFactId,
                 raddType,
                 raddTransactionId,
                 delegateInfo,
+                sourceChannel,
+                sourceChannelDetails,
                 eventTimestamp
         );
     }
