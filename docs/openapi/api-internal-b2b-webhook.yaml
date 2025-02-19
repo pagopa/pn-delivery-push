@@ -822,6 +822,11 @@ components:
                 La creazione del nuovo stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi del precedente stream.
               type: string
               format: uuid
+            waitForAccepted:
+              description: >-
+                Indica se per lo stream è richiesto l'ordinamento degli eventi.
+              type: boolean
+              default: false
 
     StreamRequestV26:
       description: >-
