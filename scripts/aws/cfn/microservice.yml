@@ -589,15 +589,20 @@ Parameters:
     Type: String
     Default: 'FATAL'
     
-  ConsumedQueueMessagePerMinute:  #TODO DA RIVEDERNE IL VALORE
+  ConsumedQueueMessagePerMinute:
     Type: Number
     Default: 0
     Description: Weight to assign to queue number of visible messages metric
 
-  ConsumedQueueMessagePerMinuteValidator: #TODO DA RIVEDERNE IL VALORE
+  ConsumedQueueMessagePerMinuteValidator:
     Type: Number
     Default: 0
     Description: Weight to assign to queue number of visible messages metric (Validator task)
+
+  ConsumedQueueMessagePerMinuteWorkflow:
+    Type: Number
+    Default: 0
+    Description: Weight to assign to queue number of visible messages metric (Workflow task)
 
   ApplicationLoadBalancerMetricsDimensionName:
     Type: String
@@ -2502,11 +2507,15 @@ Resources:
             Period: !Ref AutoscalingCheckPeriod
             Stat: Average
           ReturnData: False
-        - Id: e1
+        - Id: code
           Expression: !Sub "IF(m6==0, 101, (100*(m1+m2+m3+m4+m5)) / (${ConsumedQueueMessagePerMinuteValidator} * m6) )"
-          Label: !Sub "${ProjectName}-delivery-push-validator-queue-custom-metric"
+          Label: !Sub "${ProjectName}-delivery-push-queue-validator-custom-metric"
+          ReturnData: False
+        - Id: e1
+          Expression: "code"
+          Label: !Sub "${ProjectName}-delivery-push-autoscale-validator-custom-metric"
       EvaluationPeriods: !Ref AutoscalingDataPointValidatorM
-      Threshold: 60 #TODO Perchè il threshold è settato fisso e non viene usato un parametro?
+      Threshold: 60
       AlarmActions:
         - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleUpPolicy
       OKActions:
@@ -2518,7 +2527,7 @@ Resources:
     Properties:
       AlarmName: !Sub "${ProjectName}-delivery-push-autoscaling-custom-workflow"
       AlarmDescription: "Trigger scaling based on custom metric"
-      DatapointsToAlarm: !Ref AutoscalingDataPointN
+      DatapointsToAlarm: !Ref AutoscalingDataPointWorkflowN
       ComparisonOperator: "GreaterThanOrEqualToThreshold"
       Metrics:
         - Id: m1
@@ -2578,10 +2587,15 @@ Resources:
             Period: !Ref AutoscalingCheckPeriod
             Stat: Average
           ReturnData: False
+        - Id: code
+          Expression: !Sub "IF(m5==0, 101, (100*(m1+m2+m3+m4)) / (${ConsumedQueueMessagePerMinuteWorkflow} * m5) )"
+          Label: !Sub "${ProjectName}-delivery-push-queue-workflow-custom-metric"
+          ReturnData: False
         - Id: e1
-          Expression: !Sub "IF(m5==0, 101, (100*(m1+m2+m3+m4)) / (${ConsumedQueueMessagePerMinute} * m5) )"
-          Label: !Sub "${ProjectName}-delivery-push-queue-custom-metric"
-      EvaluationPeriods: !Ref AutoscalingDataPointM
+          Expression: "code"
+          Label: !Sub "${ProjectName}-delivery-push-autoscale-workflow-custom-metric"
+
+      EvaluationPeriods: !Ref AutoscalingDataPointWorkflowM
       Threshold: 60
       AlarmActions:
         - !GetAtt DeliveryPushWorkflowMicroservice.Outputs.ScaleUpPolicy
