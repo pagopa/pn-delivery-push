@@ -37,7 +37,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV26'
+                $ref: '#/components/schemas/StreamMetadataResponseV27'
         '400':
           description: Invalid input
           content:
@@ -158,7 +158,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV26'
+                $ref: '#/components/schemas/StreamMetadataResponseV27'
         '400':
           description: Invalid input
           content:
@@ -219,14 +219,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamRequestV26'
+              $ref: '#/components/schemas/StreamRequestV27'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV26'
+                $ref: '#/components/schemas/StreamMetadataResponseV27'
         '400':
           description: Invalid input
           content:
@@ -374,7 +374,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV26'
+                $ref: '#/components/schemas/StreamMetadataResponseV27'
         '400':
           description: Invalid input
           content:
@@ -2425,7 +2425,7 @@ components:
         notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV26'
+        - $ref: '#/components/schemas/StreamRequestV27'
         - type: object
           properties:
             replacedStreamId:
@@ -2442,7 +2442,7 @@ components:
                 autorizzazione dell'apiKey sui gruppi del precedente stream.
               type: string
               format: uuid
-    StreamRequestV26:
+    StreamRequestV27:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di
         eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
@@ -2504,10 +2504,10 @@ components:
     StreamGroup:
       type: string
       description: Identificativo del gruppo.
-    StreamMetadataResponseV26:
+    StreamMetadataResponseV27:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV26'
+        - $ref: '#/components/schemas/StreamRequestV27'
         - type: object
           required:
             - streamId
@@ -2550,8 +2550,8 @@ components:
     ProgressResponseV26:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV26'
-    ProgressResponseElementV26:
+        $ref: '#/components/schemas/ProgressResponseElementV27'
+    ProgressResponseElementV27:
       type: object
       required:
         - eventId

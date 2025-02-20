@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV27;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamRequestV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamRequestV27;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import java.util.Set;
 import org.springframework.beans.BeanUtils;
@@ -30,7 +30,7 @@ public class DtoToEntityStreamMapper {
         return streamEntity;
     }
 
-    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamRequestV26 dto) {
+    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamRequestV27 dto) {
         StreamCreationRequestV27 creationRequestv26 = new StreamCreationRequestV27();
         BeanUtils.copyProperties(dto, creationRequestv26);
         creationRequestv26.setEventType(StreamCreationRequestV27.EventTypeEnum.fromValue(dto.getEventType().getValue()));

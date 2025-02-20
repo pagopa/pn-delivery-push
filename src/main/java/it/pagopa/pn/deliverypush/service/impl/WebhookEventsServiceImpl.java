@@ -10,7 +10,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.webhook.EventTimelineInternalDto;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV27;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV27;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV26;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
@@ -88,9 +88,9 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                                         return Flux.fromStream(items.stream());
                                     return addConfidentialInformationAtEventTimelineList(removeDuplicatedItems(items));
                                 })
-                                // converto l'eventTimelineInternalDTO in ProgressResponseElementV26
+                                // converto l'eventTimelineInternalDTO in ProgressResponseElementV27
                                 .map(this::getProgressResponseFromEventTimeline)
-                                .sort(Comparator.comparing(ProgressResponseElementV26::getEventId))
+                                .sort(Comparator.comparing(ProgressResponseElementV27::getEventId))
                                 .collectList()
                                 .map(eventList -> {
                                     var retryAfter = pnDeliveryPushConfigs.getWebhook().getScheduleInterval().intValue();
@@ -110,7 +110,7 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
                 );
     }
 
-    private ProgressResponseElementV26 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline) {
+    private ProgressResponseElementV27 getProgressResponseFromEventTimeline(EventTimelineInternalDto eventTimeline) {
         var response = ProgressResponseElementMapper.internalToExternal(eventTimeline.getEventEntity());
         if (StringUtils.hasText(eventTimeline.getEventEntity().getElement())) {
             TimelineElementV26 timelineElement = TimelineElementWebhookMapper.internalToExternal(eventTimeline.getTimelineElementInternal());
