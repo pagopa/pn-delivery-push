@@ -11,7 +11,7 @@ import it.pagopa.pn.deliverypush.dto.webhook.EventTimelineInternalDto;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV26;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV27;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementV26;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
@@ -172,8 +172,8 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
             return Mono.empty();
         }
 
-        StreamCreationRequestV26.EventTypeEnum eventType = StreamCreationRequestV26.EventTypeEnum.fromValue(stream.getEventType());
-        if (eventType == StreamCreationRequestV26.EventTypeEnum.STATUS
+        StreamCreationRequestV27.EventTypeEnum eventType = StreamCreationRequestV27.EventTypeEnum.fromValue(stream.getEventType());
+        if (eventType == StreamCreationRequestV27.EventTypeEnum.STATUS
                 && newStatus.equals(oldStatus)) {
             log.info("skipping saving webhook event for stream={} because old and new status are same status={} iun={}", stream.getStreamId(), newStatus, timelineElementInternal.getIun());
             return Mono.empty();
@@ -187,9 +187,9 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
         }
 
         Set<String> filteredValues = new LinkedHashSet<>();
-        if (eventType == StreamCreationRequestV26.EventTypeEnum.TIMELINE) {
+        if (eventType == StreamCreationRequestV27.EventTypeEnum.TIMELINE) {
             filteredValues = categoriesByFilter(stream);
-        } else if (eventType == StreamCreationRequestV26.EventTypeEnum.STATUS) {
+        } else if (eventType == StreamCreationRequestV27.EventTypeEnum.STATUS) {
             filteredValues = statusByFilter(stream);
         }
 
@@ -197,8 +197,8 @@ public class WebhookEventsServiceImpl extends WebhookServiceImpl implements Webh
 
         // e poi c'è il caso in cui lo stream ha un filtro sugli eventi interessati
         // se è nullo/vuoto o contiene lo stato, vuol dire che devo salvarlo
-        if ((eventType == StreamCreationRequestV26.EventTypeEnum.STATUS && filteredValues.contains(newStatus))
-                || (eventType == StreamCreationRequestV26.EventTypeEnum.TIMELINE && filteredValues.contains(timelineEventCategory))) {
+        if ((eventType == StreamCreationRequestV27.EventTypeEnum.STATUS && filteredValues.contains(newStatus))
+                || (eventType == StreamCreationRequestV27.EventTypeEnum.TIMELINE && filteredValues.contains(timelineEventCategory))) {
             return saveEventWithAtomicIncrement(stream, newStatus, timelineElementInternal);
         } else {
             log.info("skipping saving webhook event for stream={} because timelineeventcategory is not in list timelineeventcategory={} iun={}", stream.getStreamId(), timelineEventCategory, timelineElementInternal.getIun());

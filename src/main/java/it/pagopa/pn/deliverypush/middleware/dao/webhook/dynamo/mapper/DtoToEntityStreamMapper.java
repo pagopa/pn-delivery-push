@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamCreationRequestV27;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamRequestV26;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import java.util.Set;
@@ -17,7 +17,7 @@ public class DtoToEntityStreamMapper {
         currentVersion = pnDeliveryPushConfigs.getWebhook().getCurrentVersion();
     }
 
-    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamCreationRequestV26 dto) {
+    public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamCreationRequestV27 dto) {
         StreamEntity streamEntity = new StreamEntity(paId, streamId);
         streamEntity.setEventType(dto.getEventType().getValue());
         streamEntity.setTitle(dto.getTitle());
@@ -31,9 +31,9 @@ public class DtoToEntityStreamMapper {
     }
 
     public static StreamEntity dtoToEntity(String paId, String streamId, String version, StreamRequestV26 dto) {
-        StreamCreationRequestV26 creationRequestv26 = new StreamCreationRequestV26();
+        StreamCreationRequestV27 creationRequestv26 = new StreamCreationRequestV27();
         BeanUtils.copyProperties(dto, creationRequestv26);
-        creationRequestv26.setEventType(StreamCreationRequestV26.EventTypeEnum.fromValue(dto.getEventType().getValue()));
+        creationRequestv26.setEventType(StreamCreationRequestV27.EventTypeEnum.fromValue(dto.getEventType().getValue()));
         return dtoToEntity(paId, streamId, version, creationRequestv26);
     }
 }

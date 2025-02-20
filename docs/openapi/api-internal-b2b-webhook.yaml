@@ -348,7 +348,7 @@ paths:
     ############################################################################################
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
-  '/delivery-progresses/v2.6/streams':
+  '/delivery-progresses/v2.7/streams':
     parameters:                                               # NO EXTERNAL
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -367,13 +367,13 @@ paths:
         invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStreamV26
+      operationId: createEventStreamV27
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StreamCreationRequestV26"
+              $ref: "#/components/schemas/StreamCreationRequestV27"
       responses:
         '200':
           description: OK
@@ -405,6 +405,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+  '/delivery-progresses/v2.6/streams':
+    parameters: # NO EXTERNAL
+      - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
+      - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
+      - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
+      - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+      - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
     get:
       summary: Elenca stream di eventi
       description: >-
@@ -806,7 +813,7 @@ components:
     ############################################################################################
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
-    StreamCreationRequestV26:
+    StreamCreationRequestV27:
       description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
