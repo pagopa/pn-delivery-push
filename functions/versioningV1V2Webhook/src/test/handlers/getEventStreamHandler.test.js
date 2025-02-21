@@ -184,6 +184,23 @@ describe("GetEventStreamHandler", () => {
                     disabledDate: "2024-02-02T12:00:00Z",
                     version: "v25"
                 }
+            },
+            {
+                version: "v2.6",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [
+                        { groupId: "group1", groupName: "Group One" },
+                        { groupId: "group2", groupName: "Group Two" }
+                    ],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    waitForAccepted: true,
+                    version: "v26"
+                }
             }
         ];
 
@@ -217,6 +234,10 @@ describe("GetEventStreamHandler", () => {
 
                     const context = {};
                     const response = await getEventStreamHandler.handlerEvent(event, context);
+
+                    if (responseBody.version === "v26") {
+                        delete responseBody.waitForAccepted;
+                    }
 
                     expect(response.statusCode).to.equal(200);
                     expect(response.body).to.equal(JSON.stringify(responseBody));
