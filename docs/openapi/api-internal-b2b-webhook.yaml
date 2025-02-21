@@ -870,7 +870,9 @@ components:
             maxLength: 256
             pattern: ^[A-Z_]+$
         waitForAccepted:
-          description: TODO
+          description: >-
+            Stream di tipo TIMELINE: se true pubblica gli eventi sullo stream solo dopo la pubblicazione dell'evento di accettazione/rifiuto della notifica. 
+            Tutti gli eventi dello stato IN_VALIDATION vengono pubblicati senza ritardo.
           type: boolean
           default: false
 
