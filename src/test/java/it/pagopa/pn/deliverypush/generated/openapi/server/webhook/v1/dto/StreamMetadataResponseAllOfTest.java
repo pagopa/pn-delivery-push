@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 
 class StreamMetadataResponseAllOfTest {
 
-    private StreamMetadataResponseV26AllOf response;
+    private StreamMetadataResponseV27AllOf response;
 
     @BeforeEach
     void setUp() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        response = new StreamMetadataResponseV26AllOf();
+        response = new StreamMetadataResponseV27AllOf();
         response.setStreamId(UUID.fromString("f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"));
         response.setActivationDate(instant);
     }
@@ -31,7 +31,7 @@ class StreamMetadataResponseAllOfTest {
 
     @Test
     void testEquals() {
-        StreamMetadataResponseV26AllOf expected = StreamMetadataResponseV26AllOf.builder()
+        StreamMetadataResponseV27AllOf expected = StreamMetadataResponseV27AllOf.builder()
                 .streamId(UUID.fromString("f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"))
                 .activationDate(Instant.parse("2021-09-16T15:23:00.00Z"))
                 .build();
@@ -39,9 +39,9 @@ class StreamMetadataResponseAllOfTest {
     }
     @Test
     void testStreamId() {
-        StreamMetadataResponseV26AllOf actual = new StreamMetadataResponseV26AllOf();
+        StreamMetadataResponseV27AllOf actual = new StreamMetadataResponseV27AllOf();
         actual.streamId(UUID.fromString("f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"));
-        StreamMetadataResponseV26AllOf expected = StreamMetadataResponseV26AllOf.builder()
+        StreamMetadataResponseV27AllOf expected = StreamMetadataResponseV27AllOf.builder()
                 .streamId(UUID.fromString("f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454"))
                 .build();
         Assertions.assertEquals(expected, actual);
@@ -49,9 +49,9 @@ class StreamMetadataResponseAllOfTest {
 
     @Test
     void testActivationDate() {
-        StreamMetadataResponseV26AllOf actual = new StreamMetadataResponseV26AllOf();
+        StreamMetadataResponseV27AllOf actual = new StreamMetadataResponseV27AllOf();
         actual.activationDate(Instant.parse("2021-09-16T15:23:00.00Z"));
-        StreamMetadataResponseV26AllOf expected = StreamMetadataResponseV26AllOf.builder()
+        StreamMetadataResponseV27AllOf expected = StreamMetadataResponseV27AllOf.builder()
                 .activationDate(Instant.parse("2021-09-16T15:23:00.00Z"))
                 .build();
         Assertions.assertEquals(expected, actual);
