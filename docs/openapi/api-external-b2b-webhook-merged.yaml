@@ -365,7 +365,7 @@ paths:
           description: Ok
         '500':
           description: Internal Server Error
-  /delivery-progresses/v2.6/streams:
+  /delivery-progresses/v2.7/streams:
     post:
       summary: Crea nuovo stream di eventi
       description: >-
@@ -378,20 +378,20 @@ paths:
         pochi secondi dopo che è stata  invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStreamV26
+      operationId: createEventStreamV27
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamCreationRequestV26'
+              $ref: '#/components/schemas/StreamCreationRequestV27'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV26'
+                $ref: '#/components/schemas/StreamMetadataResponseV27'
         '400':
           description: Invalid input
           content:
@@ -421,7 +421,7 @@ paths:
       description: Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreamsV26
+      operationId: listEventStreamsV27
       responses:
         '200':
           description: OK
@@ -441,7 +441,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: remote-refs.yaml#/components/schemas/Problem
-  /delivery-progresses/v2.6/streams/{streamId}:
+  /delivery-progresses/v2.7/streams/{streamId}:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
@@ -449,14 +449,14 @@ paths:
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV26
+      operationId: retrieveEventStreamV27
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV26'
+                $ref: '#/components/schemas/StreamMetadataResponseV27'
         '400':
           description: Invalid input
           content:
@@ -488,20 +488,20 @@ paths:
         eventi
       tags:
         - Streams
-      operationId: updateEventStreamV26
+      operationId: updateEventStreamV27
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StreamRequestV26'
+              $ref: '#/components/schemas/StreamRequestV27'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV26'
+                $ref: '#/components/schemas/StreamMetadataResponseV27'
         '400':
           description: Invalid input
           content:
@@ -533,7 +533,7 @@ paths:
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV26
+      operationId: removeEventStreamV27
       responses:
         '204':
           description: OK
@@ -561,7 +561,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: remote-refs.yaml#/components/schemas/Problem
-  /delivery-progresses/v2.6/streams/{streamId}/action/disable:
+  /delivery-progresses/v2.7/streams/{streamId}/action/disable:
     post:
       summary: Disabilita uno stream
       description: >-
@@ -581,7 +581,7 @@ paths:
         id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
-      operationId: disableEventStreamV26
+      operationId: disableEventStreamV27
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -590,7 +590,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StreamMetadataResponseV26'
+                $ref: '#/components/schemas/StreamMetadataResponseV27'
         '400':
           description: Invalid input
           content:
@@ -615,7 +615,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: remote-refs.yaml#/components/schemas/Problem
-  /delivery-progresses/v2.6/streams/{streamId}/events:
+  /delivery-progresses/v2.7/streams/{streamId}/events:
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -625,7 +625,7 @@ paths:
         Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStreamV26
+      operationId: consumeEventStreamV27
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -649,7 +649,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProgressResponseV26'
+                $ref: '#/components/schemas/ProgressResponseV27'
         '400':
           description: Invalid input
           content:
@@ -1944,13 +1944,13 @@ components:
         type: string
         format: uuid
   schemas:
-    StreamCreationRequestV26:
+    StreamCreationRequestV27:
       description: >-
         Richiesta di creazione di uno stream di eventi di avanzamento delle
         notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV26'
+        - $ref: '#/components/schemas/StreamRequestV27'
         - type: object
           properties:
             replacedStreamId:
@@ -1967,7 +1967,7 @@ components:
                 autorizzazione dell'apiKey sui gruppi del precedente stream.
               type: string
               format: uuid
-    StreamRequestV26:
+    StreamRequestV27:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di
         eventi di avanzamento delle notifiche. L'aggiornamento delle proprietà
@@ -2026,13 +2026,22 @@ components:
             minLength: 4
             maxLength: 256
             pattern: ^[A-Z_]+$
+        waitForAccepted:
+          description: >-
+            Stream di tipo TIMELINE: se true pubblica gli eventi sullo stream
+            solo dopo la pubblicazione dell'evento di accettazione/rifiuto della
+            notifica.  Tutti gli eventi dello stato IN_VALIDATION vengono
+            pubblicati senza ritardo. Stream di tipo STATUS: se true pubblica
+            gli stati garantendo che il primo stato sia l'ACCEPTED o il REFUSED
+          type: boolean
+          default: false
     StreamGroup:
       type: string
       description: Identificativo del gruppo.
-    StreamMetadataResponseV26:
+    StreamMetadataResponseV27:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV26'
+        - $ref: '#/components/schemas/StreamRequestV27'
         - type: object
           required:
             - streamId
@@ -2072,20 +2081,18 @@ components:
           type: string
           maxLength: 256
           pattern: ^.*$
-    ProgressResponseV26:
+    ProgressResponseV27:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV26'
-    ProgressResponseElementV26:
+        $ref: '#/components/schemas/ProgressResponseElementV27'
+    ProgressResponseElementV27:
       type: object
       required:
         - eventId
         - element
       properties:
         eventId:
-          description: >-
-            Elemento che garantisce univocità e ordinamento temporale
-            all'interno dello stream
+          description: Elemento che garantisce univocità all'interno dello stream
           type: string
         notificationRequestId:
           description: Identificativo della richiesta di notifica

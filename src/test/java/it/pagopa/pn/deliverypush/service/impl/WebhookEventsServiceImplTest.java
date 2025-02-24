@@ -15,7 +15,7 @@ import it.pagopa.pn.deliverypush.dto.webhook.EventTimelineInternalDto;
 import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnWebhookForbiddenException;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV27;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.EventEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
@@ -139,7 +139,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setGroups(groupsList);
@@ -149,7 +149,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(Set.of(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW.getValue()));
         entity.setActivationDate(Instant.now());
         entity.setGroups(groupsList);
@@ -282,7 +282,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setVersion("v10");
@@ -368,7 +368,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setVersion("v10");
@@ -453,7 +453,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setVersion("v23");
@@ -489,7 +489,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setVersion("V23");
@@ -578,7 +578,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
 
@@ -675,7 +675,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setVersion("v10");
@@ -709,7 +709,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(1L);
@@ -720,7 +720,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
@@ -791,7 +791,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.getFilterValues().add(NotificationStatusInt.ACCEPTED.getValue());
         entity.setActivationDate(Instant.now());
@@ -802,7 +802,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
@@ -899,7 +899,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.getFilterValues().add(TimelineElementCategoryInt.AAR_GENERATION.getValue());
         entity.setActivationDate(Instant.now());
@@ -910,7 +910,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
@@ -1004,7 +1004,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(1L);
@@ -1015,7 +1015,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(UUID.randomUUID().toString());
         entity.setTitle("2");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.TIMELINE.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.TIMELINE.toString());
         entity.setFilterValues(new HashSet<>());
         entity.setActivationDate(Instant.now());
         entity.setEventAtomicCounter(2L);
@@ -1176,7 +1176,7 @@ class WebhookEventsServiceImplTest {
         entity.setStreamId(uuid);
         entity.setTitle("1");
         entity.setPaId(xpagopacxid);
-        entity.setEventType(StreamMetadataResponseV26.EventTypeEnum.STATUS.toString());
+        entity.setEventType(StreamMetadataResponseV27.EventTypeEnum.STATUS.toString());
         entity.setFilterValues(new HashSet<>());
         entity.getFilterValues().add(NotificationStatusInt.DELIVERING.getValue());
         entity.getFilterValues().add(NotificationStatusInt.RETURNED_TO_SENDER.getValue());
@@ -1280,7 +1280,7 @@ class WebhookEventsServiceImplTest {
         streamEntity.setStreamId(uuid);
         streamEntity.setTitle("1");
         streamEntity.setPaId(xpagopacxid);
-        streamEntity.setEventType(StreamMetadataResponseV26.EventTypeEnum.TIMELINE.toString());
+        streamEntity.setEventType(StreamMetadataResponseV27.EventTypeEnum.TIMELINE.toString());
         streamEntity.setFilterValues(Set.of(TimelineElementCategoryInt.REQUEST_ACCEPTED.getValue()));
         streamEntity.setActivationDate(Instant.now());
         streamEntity.setEventAtomicCounter(1L);
@@ -1361,7 +1361,7 @@ class WebhookEventsServiceImplTest {
         streamEntity.setStreamId(uuid);
         streamEntity.setTitle("1");
         streamEntity.setPaId(xpagopacxid);
-        streamEntity.setEventType(StreamMetadataResponseV26.EventTypeEnum.TIMELINE.toString());
+        streamEntity.setEventType(StreamMetadataResponseV27.EventTypeEnum.TIMELINE.toString());
         streamEntity.setFilterValues(Set.of("DEFAULT"));
         streamEntity.setActivationDate(Instant.now());
         streamEntity.setEventAtomicCounter(1L);
