@@ -56,7 +56,7 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
     TestDao<StreamEntity> testDao;
 
     @BeforeEach
-    void setup( @Value("${pn.delivery-push.webhook-dao.streams-table-name}") String table) {
+    void setup(@Value("${pn.delivery-push.webhook-dao.streams-table-name}") String table) {
         testDao = new TestDao<>(dynamoDbEnhancedAsyncClient, table, StreamEntity.class);
 
     }
@@ -66,10 +66,11 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
         //Given
         List<StreamEntity> addressesEntities = new ArrayList<>();
         int N = 4;
-        for(int i = 0;i<N;i++)
-        {
+        for (int i = 0; i < N; i++) {
             StreamEntity ae = newStream(UUID.randomUUID().toString());
             addressesEntities.add(ae);
+            StreamEntity retry = newStream("RETRY#" + ae.getStreamId());
+            addressesEntities.add(retry);
         }
 
         try {
@@ -96,11 +97,14 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
         try {
             Assertions.assertNotNull(results);
             Assertions.assertEquals(N, results.size());
-            for(int i = 0;i<N;i++)
-            {
-
+            for (int i = 0; i < N; i++) {
                 int finalI = i;
-                assertEquals(1, results.stream().filter(x -> x.getStreamId().equals(addressesEntities.get(finalI).getStreamId())).count());
+                String streamId = addressesEntities.get(finalI).getStreamId();
+                if(streamId.startsWith("RETRY#")) {
+                    assertEquals(0, results.stream().filter(x -> x.getStreamId().equals(addressesEntities.get(finalI).getStreamId())).count());
+                }else {
+                    assertEquals(1, results.stream().filter(x -> x.getStreamId().equals(addressesEntities.get(finalI).getStreamId())).count());
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException();
@@ -142,7 +146,7 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
         try {
             StreamEntity elementFromDb = testDao.get(ae.getPaId(), ae.getStreamId());
 
-            Assertions.assertEquals( elementFromDb, res);
+            Assertions.assertEquals(elementFromDb, res);
         } catch (Exception e) {
             fail(e);
         } finally {
@@ -159,10 +163,13 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
         //Given
         String streamId = UUID.randomUUID().toString();
         StreamEntity ae = newStream(streamId);
+        StreamEntity retry = newStream("RETRY#"+streamId);
 
         try {
             testDao.delete(ae.getPaId(), ae.getStreamId());
             daoDynamo.save(ae).block(d);
+            testDao.delete(retry.getPaId(), retry.getStreamId());
+            daoDynamo.save(retry).block(d);
         } catch (Exception e) {
             System.out.println("Nothing to remove");
         }
@@ -174,12 +181,17 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
         try {
             StreamEntity elementFromDb = testDao.get(ae.getPaId(), ae.getStreamId());
 
-            Assertions.assertNull( elementFromDb);
+            Assertions.assertNull(elementFromDb);
+            StreamEntity retryElementFromDb = testDao.get(retry.getPaId(), retry.getStreamId());
+
+            Assertions.assertNull(elementFromDb);
+            Assertions.assertNull(retryElementFromDb);
         } catch (Exception e) {
             fail(e);
         } finally {
             try {
                 testDao.delete(ae.getPaId(), ae.getStreamId());
+                testDao.delete(retry.getPaId(), retry.getStreamId());
             } catch (Exception e) {
                 System.out.println("Nothing to remove");
             }
@@ -205,13 +217,13 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
         try {
             StreamEntity elementFromDb = testDao.get(ae.getPaId(), ae.getStreamId());
 
-            Assertions.assertEquals( elementFromDb.getPaId(), res.getPaId());
-            Assertions.assertEquals( elementFromDb.getStreamId(), res.getStreamId());
-            Assertions.assertEquals( elementFromDb.getFilterValues(), res.getFilterValues());
-            Assertions.assertEquals( elementFromDb.getEventType(), res.getEventType());
-            Assertions.assertEquals( elementFromDb.getTitle(), res.getTitle());
-            Assertions.assertEquals( elementFromDb.getActivationDate(), res.getActivationDate());
-            Assertions.assertEquals( 0, elementFromDb.getEventAtomicCounter());
+            Assertions.assertEquals(elementFromDb.getPaId(), res.getPaId());
+            Assertions.assertEquals(elementFromDb.getStreamId(), res.getStreamId());
+            Assertions.assertEquals(elementFromDb.getFilterValues(), res.getFilterValues());
+            Assertions.assertEquals(elementFromDb.getEventType(), res.getEventType());
+            Assertions.assertEquals(elementFromDb.getTitle(), res.getTitle());
+            Assertions.assertEquals(elementFromDb.getActivationDate(), res.getActivationDate());
+            Assertions.assertEquals(0, elementFromDb.getEventAtomicCounter());
 
 
         } catch (Exception e) {
@@ -253,13 +265,13 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
         try {
             StreamEntity elementFromDb = testDao.get(ae.getPaId(), ae.getStreamId());
 
-            Assertions.assertEquals( elementFromDb.getPaId(), res.getPaId());
-            Assertions.assertEquals( elementFromDb.getStreamId(), res.getStreamId());
-            Assertions.assertEquals( elementFromDb.getFilterValues(), ae.getFilterValues());
-            Assertions.assertEquals( elementFromDb.getEventType(), ae.getEventType());
-            Assertions.assertEquals( elementFromDb.getTitle(), ae.getTitle());
-            Assertions.assertEquals( elementFromDb.getActivationDate(), ae.getActivationDate());
-            Assertions.assertEquals( 3, elementFromDb.getEventAtomicCounter());
+            Assertions.assertEquals(elementFromDb.getPaId(), res.getPaId());
+            Assertions.assertEquals(elementFromDb.getStreamId(), res.getStreamId());
+            Assertions.assertEquals(elementFromDb.getFilterValues(), ae.getFilterValues());
+            Assertions.assertEquals(elementFromDb.getEventType(), ae.getEventType());
+            Assertions.assertEquals(elementFromDb.getTitle(), ae.getTitle());
+            Assertions.assertEquals(elementFromDb.getActivationDate(), ae.getActivationDate());
+            Assertions.assertEquals(3, elementFromDb.getEventAtomicCounter());
 
 
         } catch (Exception e) {
@@ -297,7 +309,7 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
         Long res = daoDynamo.updateAndGetAtomicCounter(streamEntity).block(d);
 
         assert res != null;
-        assertEquals(previousvalue+1, res.longValue());
+        assertEquals(previousvalue + 1, res.longValue());
     }
 
     @Test
@@ -310,7 +322,7 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
         List<Integer> range = IntStream.rangeClosed(0, elements)
                 .boxed().collect(Collectors.toList());
 
-        int[] results = new int[elements+2];
+        int[] results = new int[elements + 2];
         results[0] = 0; // il primo lo salto
         daoDynamo.save(streamEntity).block(d);
 
@@ -321,13 +333,12 @@ class StreamEntityDaoDynamoTestIT extends MockActionPoolTest {
             return res;
         }).collect(Collectors.toSet());
 
-        for(int i = 1;i< elements+2;i++)
-        {
+        for (int i = 1; i < elements + 2; i++) {
             assertEquals(i, results[i]);
         }
     }
 
-    private StreamEntity newStream(String uuid){
+    private StreamEntity newStream(String uuid) {
         StreamEntity entity = new StreamEntity("paid", uuid);
         entity.setTitle("title");
         entity.setEventType("STATUS");
