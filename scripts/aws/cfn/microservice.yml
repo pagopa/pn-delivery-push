@@ -897,8 +897,8 @@ Parameters:
 
   WebhookFeatureFlags:
     Type: CommaDelimitedList
-    Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestam
-    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
+    Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestam, gateway override path
+    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,delivery-progress-2'
 
   pfNewWorkflowFeatureFlag:
     Type: CommaDelimitedList
@@ -1154,7 +1154,7 @@ Resources:
         DnsName: !Ref ApiDnsName
         ProjectName: !Ref ProjectName
         ServiceApiPath: 'delivery-progresses'
-        ServiceApiPathOverride: 'delivery-progresses-2'
+        ServiceApiPathOverride: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 4, !Ref WebhookFeatureFlags ]} ]
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
@@ -1973,7 +1973,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses-2/v2.7"
+          PN_WEBHOOK_URL: !Sub [ "http://${ApplicationLoadBalancerDomain}:8080/${selectedPath}/v2.7", { SelectedEnv: !Select [ 4, !Ref WebhookFeatureFlags ] } ]
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
