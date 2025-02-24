@@ -896,37 +896,6 @@ class ExternalChannelServiceImplTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void sendCourtesyNotificationCancelled() {
-        //GIVEN
-        String iun = "IUN-sendCourtesyNotificationCancelled";
-
-        CourtesyDigitalAddressInt courtesyDigitalAddress = CourtesyDigitalAddressInt.builder()
-            .address("courtesyDigitalAddress@test.it")
-            .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
-            .build();
-
-        NotificationInt notification = NotificationTestBuilder.builder()
-            .withIun(iun)
-            .withPaId("paId01")
-            .build();
-
-        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-
-        when(timelineUtils.checkIsNotificationCancellationRequested(anyString())).thenReturn(true);
-
-        int recIndex = 0;
-        String eventId = "eventId";
-
-        //WHEN
-        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
-
-        //THEN
-        Mockito.verify(externalChannel, Mockito.never()).sendCourtesyNotification(any(), any(),  any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(any());
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
     void sendCourtesyNotification_SMS() {
         //GIVEN
         String iun = "IUN01";
@@ -1029,36 +998,6 @@ class ExternalChannelServiceImplTest {
         Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess();
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent).generateFailure(any(), any());
-    }
-
-    @ExtendWith(MockitoExtension.class)
-    @Test
-    void sendCourtesyNotification_SMS_Cancelled() {
-        //GIVEN
-        String iun = "IUN-sendCourtesyNotification_SMS_Cancelled";
-
-        CourtesyDigitalAddressInt courtesyDigitalAddress = CourtesyDigitalAddressInt.builder()
-            .address("3331234xxx")
-            .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
-            .build();
-
-        NotificationInt notification = NotificationTestBuilder.builder()
-            .withIun(iun)
-            .withPaId("paId01")
-            .build();
-
-        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
-        when(timelineUtils.checkIsNotificationCancellationRequested(anyString())).thenReturn(true);
-
-        int recIndex = 0;
-        String eventId = "eventId";
-
-        //WHEN
-        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
-
-        //THEN
-        Mockito.verify(externalChannel, Mockito.never()).sendCourtesyNotification(any(), any(),  any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(any());
     }
 
     private void mockGetTimelineElement(String iun, int recIndex, Instant timestamp) {

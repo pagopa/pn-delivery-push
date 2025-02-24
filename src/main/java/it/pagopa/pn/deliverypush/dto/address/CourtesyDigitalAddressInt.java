@@ -14,7 +14,8 @@ public class CourtesyDigitalAddressInt extends DigitalAddressInt{
     public enum COURTESY_DIGITAL_ADDRESS_TYPE_INT {
         EMAIL("EMAIL"),
         SMS("SMS"),
-        APPIO("APPIO");
+        APPIO("APPIO"),
+        TPP("TPP");
 
         private final String value;
 
