@@ -68,6 +68,10 @@ class ConsumeEventStreamHandler extends EventHandler {
                         console.debug('Mapping to v25')
                         responseBody.push(data);
                     break;
+                    case 26:
+                        console.debug('Mapping to v26')
+                        responseBody.push(data);
+                    break;
                     default:
                         console.error('Invalid version ', version)
                     break;
