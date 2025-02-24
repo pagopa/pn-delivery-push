@@ -873,6 +873,7 @@ components:
           description: >-
             Stream di tipo TIMELINE: se true pubblica gli eventi sullo stream solo dopo la pubblicazione dell'evento di accettazione/rifiuto della notifica. 
             Tutti gli eventi dello stato IN_VALIDATION vengono pubblicati senza ritardo.
+            Stream di tipo STATUS: se true pubblica gli stati garantendo che il primo stato sia l'ACCEPTED o il REFUSED
           type: boolean
           default: false
 
@@ -954,7 +955,7 @@ components:
       properties:
         eventId:
           description: >-
-            Elemento che garantisce univocità e ordinamento temporale all'interno dello stream
+            Elemento che garantisce univocità all'interno dello stream
           type: string
         notificationRequestId:
           description: Identificativo della richiesta di notifica
