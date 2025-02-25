@@ -20,7 +20,8 @@ public class DigitalAddressEntity {
         EMAIL("EMAIL"),
         SMS("SMS"),
         APPIO("APPIO"),
-        SERCQ("SERCQ");
+        SERCQ("SERCQ"),
+        TPP("TPP");
 
         private final String value;
 
