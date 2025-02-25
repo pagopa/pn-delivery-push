@@ -898,7 +898,7 @@ Parameters:
   WebhookFeatureFlags:
     Type: CommaDelimitedList
     Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestam, gateway override path
-    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,delivery-progress-2'
+    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,delivery-progresses-2'
 
   pfNewWorkflowFeatureFlag:
     Type: CommaDelimitedList
