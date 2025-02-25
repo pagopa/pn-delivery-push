@@ -1153,8 +1153,8 @@ Resources:
         IntendedUsage: B2B
         DnsName: !Ref ApiDnsName
         ProjectName: !Ref ProjectName
-        ServiceApiPath: 'delivery-progresses'
-        ServiceApiPathOverride: 'delivery-progresses-2'
+        ServiceApiPathOverride: 'delivery-progresses'
+        ServiceApiPath: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 4, !Ref WebhookFeatureFlags ]} ]
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
@@ -1973,7 +1973,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.6"
+          PN_WEBHOOK_URL: !Sub [ "http://${ApplicationLoadBalancerDomain}:8080/${SelectedPath}/v2.7", { SelectedPath: !Select [ 4, !Ref WebhookFeatureFlags ] } ]
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:
