@@ -32,6 +32,9 @@ class UpdateEventStreamHandler extends EventHandler {
             case 24:
                 requestBody = requestBody;
             break;
+            case 26:
+                requestBody = requestBody;
+            break;
             default:
                 console.error('Invalid version ', version)
             break;
@@ -68,6 +71,7 @@ class UpdateEventStreamHandler extends EventHandler {
             case 23:
             case 24:
             case 25:
+            case 26:
                 transformedObject = response.data;
             break;
             default:
