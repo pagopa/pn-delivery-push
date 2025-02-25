@@ -1358,8 +1358,8 @@ Resources:
         IntendedUsage: B2B
         DnsName: !Ref ApiDnsName
         ProjectName: !Ref ProjectName
-        ServiceApiPath: 'delivery-progresses'
-        ServiceApiPathOverride: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 4, !Ref WebhookFeatureFlags ]} ]
+        ServiceApiPathOverride: 'delivery-progresses'
+        ServiceApiPath: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 4, !Ref WebhookFeatureFlags ]} ]
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
