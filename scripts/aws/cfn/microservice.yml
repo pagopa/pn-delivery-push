@@ -543,11 +543,11 @@ Parameters:
     Type: Number
     Description: activate when N datapoint on M (Workflow task)
 
-  AutoscalingThreshold:  #TODO DA ELIMINARE??
+  AutoscalingThreshold:
     Default: 70
     Type: String
 
-  AutoscalingThresholdValidator: #TODO DA ELIMINARE??
+  AutoscalingThresholdValidator:
     Default: 70
     Type: String
 
