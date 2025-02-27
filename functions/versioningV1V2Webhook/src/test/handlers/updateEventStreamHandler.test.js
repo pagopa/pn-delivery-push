@@ -61,7 +61,7 @@ describe("UpdateEventStreamHandler", () => {
     describe("handlerEvent that applies a map function for response body", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
         it("successful request v10", async () => {
@@ -99,7 +99,8 @@ describe("UpdateEventStreamHandler", () => {
                 streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
                 activationDate: "2024-02-01T12:00:00Z",
                 disabledDate: "2024-02-02T12:00:00Z",
-                version: "v10"
+                version: "v10",
+                waitForAccepted: false
             }
 
             const responseBodyV10 = {
@@ -107,7 +108,7 @@ describe("UpdateEventStreamHandler", () => {
                 eventType: "STATUS",
                 filterValues: ["status_1", "status_2"],
                 streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
-                activationDate: "2024-02-01T12:00:00Z"
+                activationDate: "2024-02-01T12:00:00Z",
             }
 
             mock.onPut(url).reply(200, responseBodyV23);
@@ -117,12 +118,13 @@ describe("UpdateEventStreamHandler", () => {
 
             expect(response.statusCode).to.equal(200);
             expect(response.body).to.equal(JSON.stringify(responseBodyV10));
+            expect(response.body.waitForAccepted).to.be.undefined
 
             expect(mock.history.put.length).to.equal(1);
         });
     });
 
-    describe("handlerEvent that doesn't apply a map function for response body", () => {
+    describe("handlerEvent that apply a map function for waitForAccepted in response body", () => {
 
         let updateEventStreamHandler;
 
@@ -205,7 +207,7 @@ describe("UpdateEventStreamHandler", () => {
         describe("handlerEvent", () => {
 
             process.env = Object.assign(process.env, {
-                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
             });
 
             testCases.forEach(({ version, responseBody }) => {
@@ -236,6 +238,8 @@ describe("UpdateEventStreamHandler", () => {
 
                     expect(response.statusCode).to.equal(200);
                     expect(response.body).to.equal(JSON.stringify(responseBody));
+                    expect(response.body.waitForAccepted).to.be.undefined
+
                     expect(mock.history.put.length).to.equal(1);
                 });
             });

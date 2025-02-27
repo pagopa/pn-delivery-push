@@ -1,6 +1,7 @@
 const axios = require("axios");
 const axiosRetry = require("axios-retry").default;
 const EventHandler  = require('./baseHandler.js');
+const { createStreamMetadataResponseV26 } = require("./mapper/transformStreamMetadataResponseFromV27ToV26");
 class DisableEventStreamHandler extends EventHandler {
     constructor() {
         super();
@@ -51,16 +52,16 @@ class DisableEventStreamHandler extends EventHandler {
         
         switch(version) {
             case 23:
-                transformedObject = response.data;
+                transformedObject = createStreamMetadataResponseV26(response.data);
             break;
             case 24:
-                transformedObject = response.data;
+                transformedObject = createStreamMetadataResponseV26(response.data);
             break;
             case 25:
-                transformedObject = response.data;
+                transformedObject = createStreamMetadataResponseV26(response.data);
             break;
             case 26:
-                transformedObject = response.data;
+                transformedObject = createStreamMetadataResponseV26(response.data);
             break;
             default:
                 console.error('Invalid version ', version)
