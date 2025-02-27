@@ -19,15 +19,19 @@ public class NotificationViewedCreationRequestDetailsInt implements RecipientRel
     private String raddTransactionId;
     private DelegateInfoInt delegateInfo;
     private Instant eventTimestamp;
+    private String sourceChannel;
+    private String sourceChannelDetails;
     
     public String toLog() {
         return String.format(
-                "recIndex=%d legalFactId=%s raddType=%s raddTransactionId=%s delegateInfo=%s eventTimestamp=%s" ,
+                "recIndex=%d legalFactId=%s raddType=%s raddTransactionId=%s delegateInfo=%s sourceChannel=%s sourceChannelDetails=%s eventTimestamp=%s" ,
                 recIndex,
                 legalFactId,
                 raddType,
                 raddTransactionId,
                 delegateInfo,
+                sourceChannel,
+                sourceChannelDetails,
                 eventTimestamp
         );
     }

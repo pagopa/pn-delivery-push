@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.EventComunicationApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotificationViewedDto;
@@ -40,7 +41,15 @@ public class PnNotificationViewController implements EventComunicationApi {
                                 .type(request.getRaddType())
                                 .transactionId(request.getRaddBusinessTransactionId())
                                 .build();
-                        return notificationViewedRequestHandler.handleViewNotificationRadd(iun, recIndex, raddInfo, request.getRaddBusinessTransactionDate())
+
+                        NotificationViewedInt notificationViewedInt = NotificationViewedInt.builder()
+                                .iun(iun)
+                                .recipientIndex(recIndex)
+                                .raddInfo(raddInfo)
+                                .viewedDate(request.getRaddBusinessTransactionDate())
+                                .build();
+
+                        return notificationViewedRequestHandler.handleViewNotificationRadd(notificationViewedInt)
                                 .then(
                                         Mono.fromCallable(() -> {
                                             log.info("End notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
