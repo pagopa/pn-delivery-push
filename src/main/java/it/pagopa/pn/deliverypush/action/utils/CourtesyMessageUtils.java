@@ -242,17 +242,18 @@ public class CourtesyMessageUtils {
                 .internalRecipientId(notification.getRecipients().get(recIndex).getInternalId())
                 .originId(notification.getIun())
                 .senderDescription(notification.getSender().getPaDenomination())
-                .associatedPayment(hasPagoPaPayment(notification));
+                .associatedPayment(hasRecipientPagoPaPayment(notification, recIndex));
     }
 
     private PnAuditLogEvent buildAuditLogEvent(String iun, int recIndex, String eventId) {
         return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DA_SEND_TPP, "sendTppMessage eventId={}", eventId);
     }
 
-    private boolean hasPagoPaPayment(NotificationInt notification) {
-        return notification.getRecipients().stream()
-                .filter(recipient -> !CollectionUtils.isEmpty(recipient.getPayments()))
-                .flatMap(recipient -> recipient.getPayments().stream())
+    private boolean hasRecipientPagoPaPayment(NotificationInt notification, Integer recIndex) {
+        if(CollectionUtils.isEmpty(notification.getRecipients().get(recIndex).getPayments())) {
+            return false;
+        }
+        return notification.getRecipients().get(recIndex).getPayments().stream()
                 .anyMatch(paymentInfo -> paymentInfo.getPagoPA() != null);
     }
 

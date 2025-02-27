@@ -7,10 +7,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -29,6 +26,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,6 +37,7 @@ import org.springframework.util.Base64Utils;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,12 +117,19 @@ class CourtesyMessageUtilsTest {
         Mockito.verify(timelineService, times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
-    @Test
-    void checkAddressesForSendCourtesyMessageTPP() {
-        //GIVEN
-        NotificationRecipientInt recipient = getNotificationRecipientInt();
-        NotificationInt notification = getNotificationInt(recipient);
+    // Method source to prepare 3 notifications, first without payments, second with PagoPa payment, third with F24 payment
+    private static Stream<Arguments> courtesyTPPArguments() {
+        return Stream.of(
+                Arguments.of(getNotificationRecipientInt(), getNotificationInt(getNotificationRecipientInt())),
+                Arguments.of(getNotificationRecipientInt(List.of(NotificationPaymentInfoInt.builder().pagoPA(PagoPaInt.builder().build()).build())), getNotificationInt(getNotificationRecipientInt(List.of(NotificationPaymentInfoInt.builder().pagoPA(PagoPaInt.builder().build()).build())))),
+                Arguments.of(getNotificationRecipientInt(List.of(NotificationPaymentInfoInt.builder().f24(F24Int.builder().build()).build())), getNotificationInt(getNotificationRecipientInt(List.of(NotificationPaymentInfoInt.builder().f24(F24Int.builder().build()).build()))))
+        );
+    }
 
+    @ParameterizedTest
+    @MethodSource("courtesyTPPArguments")
+    void checkAddressesForSendCourtesyMessageTPP(NotificationRecipientInt recipient, NotificationInt notification) {
+        //GIVEN
         TimeParams timeParams = new TimeParams();
         timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
         Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
@@ -151,7 +159,7 @@ class CourtesyMessageUtilsTest {
                 Mockito.eq(0), Mockito.eq(notification), Mockito.eq(courtesyDigitalAddressInt), Mockito.any(Instant.class),
                 Mockito.anyString(), Mockito.isNull());
 
-        // viene verificato che viene generato anche l'eventId per il PROBABLE_SCHEDULING_ANALOG_DATE
+        // Verify eventId for PROBABLE_SCHEDULING_ANALOG_DATE
         ArgumentCaptor<String> probableAnalogEventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
         verify(timelineUtils).buildProbableDateSchedulingAnalogTimelineElement(Mockito.eq(0),
                 Mockito.eq(notification), probableAnalogEventIdArgumentCaptor.capture(), Mockito.any());
@@ -161,7 +169,7 @@ class CourtesyMessageUtilsTest {
                 .recIndex(0)
                 .build()));
 
-        // vengono salvati 2 elementi di timeline, PROBABLE_SCHEDULING_ANALOG_DATE e SEND_COURTESY_MESSAGE
+        // Verify timeline elements
         Mockito.verify(timelineService, times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
@@ -595,7 +603,7 @@ class CourtesyMessageUtilsTest {
         Mockito.verify(timelineService, times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
-    private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
+    private static NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
         return NotificationTestBuilder.builder()
                 .withIun("iun_01")
                 .withPaId("paId01")
@@ -603,7 +611,11 @@ class CourtesyMessageUtilsTest {
                 .build();
     }
 
-    private NotificationRecipientInt getNotificationRecipientInt() {
+    private static NotificationRecipientInt getNotificationRecipientInt() {
+        return getNotificationRecipientInt(Collections.emptyList());
+    }
+
+    private static NotificationRecipientInt getNotificationRecipientInt(List<NotificationPaymentInfoInt> payments) {
         String taxId = "TaxId";
         return NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
@@ -619,6 +631,7 @@ class CourtesyMessageUtilsTest {
                                 .withAddress(EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
                                 .build()
                 )
+                .withPayments(payments)
                 .build();
     }
 
