@@ -68,7 +68,8 @@ describe("CreateEventStreamHandler", () => {
             const b = JSON.stringify({
                                           title: "stream name",
                                           eventType: "STATUS",
-                                          filterValues: ["status_1", "status_2"]
+                                          filterValues: ["status_1", "status_2"],
+                                          waitForAccepted: true
                                       });
 
             const event = {
@@ -121,7 +122,7 @@ describe("CreateEventStreamHandler", () => {
         });
     });
 
-    describe("handlerEvent that applies a map function for waitForAccept in response body", () => {
+    describe("handlerEvent that applies a map function for waitForAccept in response and request body", () => {
 
         let createEventStreamHandler;
 
@@ -209,7 +210,8 @@ describe("CreateEventStreamHandler", () => {
                                 const b = JSON.stringify({
                                     title: "stream name",
                                     eventType: "STATUS",
-                                    filterValues: ["status_1", "status_2"]
+                                    filterValues: ["status_1", "status_2"],
+                                    waitForAccepted: true
                                 });
 
                                 const event = {
@@ -223,8 +225,13 @@ describe("CreateEventStreamHandler", () => {
                                 };
 
                                 let url = `${process.env.PN_WEBHOOK_URL}/streams`;
-
-                                mock.onPost(url).reply(200, responseBody);
+                                
+                                 mock.onPost(url).reply((config) => {
+                                    capturedRequestBody = JSON.parse(config.data); 
+                                    expect(capturedRequestBody.waitForAccepted).to.be.undefined
+                                    return [200, responseBody];
+                                  });
+                               
 
                                 const context = {};
                                 const response = await createEventStreamHandler.handlerEvent(event, context);
