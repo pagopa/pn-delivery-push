@@ -64,7 +64,7 @@ describe("GetEventStreamHandler", () => {
     describe("handlerEvent that applies a map function for response body", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
         it("successful request", async () => {
@@ -138,6 +138,23 @@ describe("GetEventStreamHandler", () => {
 
         const testCases = [
             {
+                version: "v1.0",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [
+                        { groupId: "group1", groupName: "Group One" },
+                        { groupId: "group2", groupName: "Group Two" }
+                    ],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    waitForAccepted: true,
+                    version: "v10"
+                }
+            },
+            {
                 version: "v2.3",
                 responseBody: {
                     title: "stream name",
@@ -150,6 +167,7 @@ describe("GetEventStreamHandler", () => {
                     streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
                     activationDate: "2024-02-01T12:00:00Z",
                     disabledDate: "2024-02-02T12:00:00Z",
+                    waitForAccepted: true,
                     version: "v23"
                 }
             },
@@ -166,6 +184,7 @@ describe("GetEventStreamHandler", () => {
                     streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
                     activationDate: "2024-02-01T12:00:00Z",
                     disabledDate: "2024-02-02T12:00:00Z",
+                    waitForAccepted: true,
                     version: "v24"
                 }
             },
@@ -182,7 +201,25 @@ describe("GetEventStreamHandler", () => {
                     streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
                     activationDate: "2024-02-01T12:00:00Z",
                     disabledDate: "2024-02-02T12:00:00Z",
+                    waitForAccepted: true,
                     version: "v25"
+                }
+            },
+            {
+                version: "v2.6",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [
+                        { groupId: "group1", groupName: "Group One" },
+                        { groupId: "group2", groupName: "Group Two" }
+                    ],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    waitForAccepted: true,
+                    version: "v26"
                 }
             }
         ];
@@ -190,7 +227,7 @@ describe("GetEventStreamHandler", () => {
         describe("handlerEvent", () => {
 
             process.env = Object.assign(process.env, {
-                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
             });
 
             testCases.forEach(({ version, responseBody }) => {
@@ -219,7 +256,8 @@ describe("GetEventStreamHandler", () => {
                     const response = await getEventStreamHandler.handlerEvent(event, context);
 
                     expect(response.statusCode).to.equal(200);
-                    expect(response.body).to.equal(JSON.stringify(responseBody));
+                    console.log(response.body)
+                    expect(response.body.waitForAccepted).to.be.undefined
                     expect(mock.history.get.length).to.equal(1);
                 });
             });

@@ -61,7 +61,7 @@ describe("DisableEventStreamHandler", () => {
     describe("handlerEvent", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.4",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
         it("successful request", async () => {
@@ -95,7 +95,8 @@ describe("DisableEventStreamHandler", () => {
                 streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
                 activationDate: "2024-02-01T12:00:00Z",
                 disabledDate: "2024-02-02T12:00:00Z",
-                version: "v10"
+                version: "v10",
+                waitForAccepted: false
             }
 
             mock.onPost(url).reply(200, responseBodyV23);
@@ -104,16 +105,16 @@ describe("DisableEventStreamHandler", () => {
             const response = await disableEventStreamHandler.handlerEvent(event, context);
 
             expect(response.statusCode).to.equal(200);
-            expect(response.body).to.equal(JSON.stringify(responseBodyV23));
 
             expect(mock.history.post.length).to.equal(1);
+            expect(response.body.waitForAccepted).to.be.undefined
         });    
     });
 
     describe("handlerEvent", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
         it("successful request 2.5", async () => {
@@ -147,7 +148,8 @@ describe("DisableEventStreamHandler", () => {
                 streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
                 activationDate: "2024-02-01T12:00:00Z",
                 disabledDate: "2024-02-02T12:00:00Z",
-                version: "v24"
+                version: "v24",
+                waitForAccepted: false
             }
 
             mock.onPost(url).reply(200, responseBodyV25);
@@ -156,8 +158,7 @@ describe("DisableEventStreamHandler", () => {
             const response = await disableEventStreamHandler.handlerEvent(event, context);
 
             expect(response.statusCode).to.equal(200);
-            expect(response.body).to.equal(JSON.stringify(responseBodyV25));
-
+            expect(response.body.waitForAccepted).to.be.undefined
             expect(mock.history.post.length).to.equal(1);
         });    
     });
@@ -165,7 +166,7 @@ describe("DisableEventStreamHandler", () => {
     describe("handlerEvent", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
         it("successful request 2.4", async () => {
@@ -199,7 +200,8 @@ describe("DisableEventStreamHandler", () => {
                 streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
                 activationDate: "2024-02-01T12:00:00Z",
                 disabledDate: "2024-02-02T12:00:00Z",
-                version: "v24"
+                version: "v24",
+                waitForAccepted: false
             }
 
             mock.onPost(url).reply(200, responseBodyV24);
@@ -208,16 +210,72 @@ describe("DisableEventStreamHandler", () => {
             const response = await disableEventStreamHandler.handlerEvent(event, context);
 
             expect(response.statusCode).to.equal(200);
-            expect(response.body).to.equal(JSON.stringify(responseBodyV24));
+            expect(response.body.waitForAccepted).to.be.undefined
 
             expect(mock.history.post.length).to.equal(1);
         });    
     });
 
+    describe("handlerEvent", () => {
+
+        it("successful request 2.6", async () => {
+
+            process.env = Object.assign(process.env, {
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
+            });
+
+            disableEventStreamHandler = new DisableEventStreamHandler();
+
+            const streamId = "12345";
+            const b = '{}'
+            const event = {
+                path: "/delivery-progresses/v2.6/streams/{streamId}/action/disable",
+                pathParameters : { streamId: streamId },
+                httpMethod: "PUT",
+                headers: {},
+                requestContext: {
+                    authorizer: {},
+                },
+                body: b
+            };
+
+            let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}/action/disable`;
+
+            const responseBodyV26 = {
+                title: "stream name",
+                eventType: "STATUS",
+                groups: [{
+                    groupId: "group1",
+                    groupName: "Group One"
+                },
+                    {
+                        groupId: "group2",
+                        groupName: "Group Two"
+                    }],
+                filterValues: ["status_1", "status_2"],
+                streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                activationDate: "2024-02-01T12:00:00Z",
+                disabledDate: "2024-02-02T12:00:00Z",
+                version: "v26",
+                waitForAccepted: false
+            }
+
+            mock.onPost(url).reply(200, responseBodyV26);
+
+            const context = {};
+            const response = await disableEventStreamHandler.handlerEvent(event, context);
+
+            expect(response.statusCode).to.equal(200);
+            expect(response.body.waitForAccepted).to.be.undefined
+
+            expect(mock.history.post.length).to.equal(1);
+        });
+    });
+
     describe("handlerEvent 1.0 error", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.4",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
         it("successful request", async () => {

@@ -63,7 +63,7 @@ describe("DeleteEventStreamHandler", () => {
         describe("handlerEvent", () => {
 
             process.env = Object.assign(process.env, {
-                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.3",
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
             });
 
             it("successful request", async () => {
