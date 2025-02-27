@@ -6,25 +6,19 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.StreamEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
-import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.TransactUpdateItemEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.*;
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
@@ -43,19 +37,23 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
 
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
+    private static final String RETRY_PREFIX = "RETRY#";
+
     public StreamEntityDaoDynamo(DynamoDbEnhancedAsyncClient dynamoDbEnhancedClient, DynamoDbAsyncClient dynamoDbAsyncClient, PnDeliveryPushConfigs cfg) {
-       this.table = dynamoDbEnhancedClient.table(cfg.getWebhookDao().getStreamsTableName(), TableSchema.fromBean(StreamEntity.class));
-       this.dynamoDbAsyncClient = dynamoDbAsyncClient;
-       this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
-       this.pnDeliveryPushConfigs = cfg;
+        this.table = dynamoDbEnhancedClient.table(cfg.getWebhookDao().getStreamsTableName(), TableSchema.fromBean(StreamEntity.class));
+        this.dynamoDbAsyncClient = dynamoDbAsyncClient;
+        this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
+        this.pnDeliveryPushConfigs = cfg;
     }
 
     @Override
     public Flux<StreamEntity> findByPa(String paId) {
         log.debug("findByPa paId={}", paId);
         Key hashKey = Key.builder().partitionValue(paId).build();
-        QueryConditional queryByHashKey = keyEqualTo( hashKey );
-        return Flux.from(table.query(queryByHashKey).flatMapIterable(Page::items));
+        QueryConditional queryByHashKey = keyEqualTo(hashKey);
+        return Flux.from(table.query(queryByHashKey)
+                        .flatMapIterable(Page::items))
+                .filter(entity -> !entity.getStreamId().startsWith(RETRY_PREFIX));
     }
 
     @Override
@@ -69,7 +67,9 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
     public Mono<Void> delete(String paId, String streamId) {
         log.info("delete paId={} streamId={}", paId, streamId);
         Key hashKey = Key.builder().partitionValue(paId).sortValue(streamId).build();
-        return Mono.fromFuture(table.deleteItem(hashKey)).then();
+        return Mono.fromFuture(table.deleteItem(hashKey))
+                .flatMap(entity -> Mono.fromFuture(table.deleteItem(Key.builder().partitionValue(paId).sortValue(RETRY_PREFIX + streamId).build())))
+                .then();
     }
 
     @Override
@@ -104,13 +104,13 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
                 .tableName(table.tableName())
                 .key(key)
                 .returnValues(ReturnValue.UPDATED_NEW)
-                .updateExpression("ADD " +StreamEntity.COL_EVENT_CURRENT_COUNTER + " :v")
+                .updateExpression("ADD " + StreamEntity.COL_EVENT_CURRENT_COUNTER + " :v")
                 .expressionAttributeValues(Map.of(":v", AttributeValue.builder().n("1").build()))
                 .conditionExpression("attribute_exists(" + StreamEntity.COL_PK + ")")
                 .build();
 
 
-        return Mono.fromFuture( dynamoDbAsyncClient.updateItem(updateRequest))
+        return Mono.fromFuture(dynamoDbAsyncClient.updateItem(updateRequest))
                 .map(resp -> {
                     Long newcounter = Long.parseLong(resp.attributes().get(StreamEntity.COL_EVENT_CURRENT_COUNTER).n());
                     log.info("updateAndGetAtomicCounter done paId={} streamId={} newcounter={}", streamEntity.getPaId(), streamEntity.getStreamId(), newcounter);
@@ -123,25 +123,25 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
 
 
     @Override
-    public Mono<StreamEntity> replaceEntity(StreamEntity replacedEntity, StreamEntity newEntity){
+    public Mono<StreamEntity> replaceEntity(StreamEntity replacedEntity, StreamEntity newEntity) {
 
         TransactUpdateItemEnhancedRequest<StreamEntity> updateRequest = TransactUpdateItemEnhancedRequest.builder(StreamEntity.class)
-            .item(disableStream(replacedEntity))
-            .ignoreNulls(true)
-            .build();
+                .item(disableStream(replacedEntity))
+                .ignoreNulls(true)
+                .build();
 
         TransactPutItemEnhancedRequest<StreamEntity> createRequest = TransactPutItemEnhancedRequest.builder(StreamEntity.class)
-            .item(newEntity)
-            .build();
+                .item(newEntity)
+                .build();
 
 
         TransactWriteItemsEnhancedRequest transactWriteItemsEnhancedRequest = TransactWriteItemsEnhancedRequest.builder()
-            .addUpdateItem(table, updateRequest)
-            .addPutItem(table, createRequest)
-            .build();
+                .addUpdateItem(table, updateRequest)
+                .addPutItem(table, createRequest)
+                .build();
 
         var f = dynamoDbEnhancedClient.transactWriteItems(transactWriteItemsEnhancedRequest);
-        return Mono.fromFuture(f.thenApply(r->newEntity));
+        return Mono.fromFuture(f.thenApply(r -> newEntity));
     }
 
     @Override
@@ -149,7 +149,7 @@ public class StreamEntityDaoDynamo implements StreamEntityDao {
         return update(disableStream(entity));
     }
 
-    private StreamEntity disableStream(StreamEntity streamEntity){
+    private StreamEntity disableStream(StreamEntity streamEntity) {
         streamEntity.setDisabledDate(Instant.now());
         streamEntity.setTtl(Instant.now().plus(pnDeliveryPushConfigs.getWebhook().getDisableTtl()).atZone(ZoneId.systemDefault()).toEpochSecond());
         streamEntity.setEventAtomicCounter(null);

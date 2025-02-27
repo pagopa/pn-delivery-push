@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatusV26;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV27;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategoryV26;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import java.time.Instant;
@@ -37,7 +37,7 @@ class PnWebhookEventsControllerTest {
     @Disabled
     void consumeEventStreamOk() {
         String streamId = UUID.randomUUID().toString();
-        List<ProgressResponseElementV26> timelineElements = Collections.singletonList(ProgressResponseElementV26.builder()
+        List<ProgressResponseElementV27> timelineElements = Collections.singletonList(ProgressResponseElementV27.builder()
                 .timestamp( Instant.now() )
                 .eventId( "event_id" )
                 .iun("")
@@ -67,7 +67,7 @@ class PnWebhookEventsControllerTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().valueEquals("retry-after", "0")
-                .expectBodyList(ProgressResponseElementV26.class);
+                .expectBodyList(ProgressResponseElementV27.class);
 
         Mockito.verify(service).consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(UUID.class), Mockito.any());
 
