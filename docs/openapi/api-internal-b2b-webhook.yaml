@@ -368,6 +368,8 @@ paths:
       tags:
         - Streams
       operationId: createEventStreamV26
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -412,6 +414,8 @@ paths:
       tags:
         - Streams
       operationId: listEventStreamsV26
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -451,6 +455,8 @@ paths:
         - Streams
       operationId: getEventStreamV26                             # NO EXTERNAL
 #      operationId: retrieveEventStreamV26                       # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       responses:
         '200':
           description: OK
@@ -489,6 +495,8 @@ paths:
       tags:
         - Streams
       operationId: updateEventStreamV26
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       requestBody:
         required: true
         content:
@@ -535,6 +543,8 @@ paths:
         - Streams
       operationId: deleteEventStreamV26                          # NO EXTERNAL
 #      operationId: removeEventStreamV26                         # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       responses:
         '204':
           description: OK
@@ -586,6 +596,8 @@ paths:
       tags:
         - Streams
       operationId: disableEventStreamV26
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -639,6 +651,8 @@ paths:
       tags:
         - Events
       operationId: consumeEventStreamV26
+      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
