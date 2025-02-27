@@ -184,6 +184,22 @@ describe("GetEventStreamHandler", () => {
                     disabledDate: "2024-02-02T12:00:00Z",
                     version: "v25"
                 }
+            },
+            {
+                version: "v2.6",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [
+                        { groupId: "group1", groupName: "Group One" },
+                        { groupId: "group2", groupName: "Group Two" }
+                    ],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    version: "v26"
+                }
             }
         ];
 
@@ -221,6 +237,51 @@ describe("GetEventStreamHandler", () => {
                     expect(response.statusCode).to.equal(200);
                     expect(response.body).to.equal(JSON.stringify(responseBody));
                     expect(mock.history.get.length).to.equal(1);
+                });
+            });
+        });
+
+        describe("handlerEvent flag url change", () => {
+
+            testCases.forEach(({ version, responseBody }) => {
+                it(`successful request ${version}`, async () => {
+                    process.env = Object.assign(process.env, {
+                        PN_STREAM_URL: "https://api.dev.notifichedigitali.it/delivery-progresses-2/v2.6",
+                        START_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z",
+                    });
+
+                    getEventStreamHandler = new GetEventStreamHandler();
+
+                    const streamId = "12345";
+                    const event = {
+                        path: `/delivery-progresses/${version}/streams/${streamId}`,
+                        pathParameters: { streamId: streamId },
+                        httpMethod: "GET",
+                        headers: {},
+                        requestContext: {
+                            authorizer: {},
+                        },
+                        body: {
+                            title: "stream name",
+                            eventType: "STATUS",
+                            filterValues: ["status_1", "status_2"]
+                        }
+                    };
+
+                    let url = `${process.env.PN_STREAM_URL}/streams/${streamId}`;
+
+                    mock.onGet(url).reply(200, responseBody);
+
+                    const context = {};
+                    const response = await getEventStreamHandler.handlerEvent(event, context);
+
+                    expect(response.statusCode).to.equal(200);
+                    expect(response.body).to.equal(JSON.stringify(responseBody));
+                    expect(mock.history.get.length).to.equal(1);
+
+                    process.env = Object.assign(process.env, {
+                        START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z"
+                    });
                 });
             });
         });

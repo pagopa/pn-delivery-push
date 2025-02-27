@@ -2175,8 +2175,11 @@ Resources:
         Variables:
           REGION: !Sub ${AWS::Region}
           PN_WEBHOOK_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses/v2.6"
+          PN_STREAM_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery-progresses-2/v2.6"
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
+          START_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref WebhookFeatureFlags ] } ]
+          STOP_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref WebhookFeatureFlags ] } ]
       TracingConfig:
         Mode: Active
       Layers:

@@ -56,12 +56,14 @@ describe("ConsumeEventStreamHandler", () => {
         });
     });
     describe("handlerEvent", () => {
-
-        process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.4",
-        });
-
         it("successful request - with element", async () => {
+            process.env = Object.assign(process.env, {
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+                PN_STREAM_URL: "https://api.dev.notifichedigitali.it/delivery-progresses-2/v2.6",
+                START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+                STOP_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z"
+            });
+
             const streamId = "12345";
             const event = {
                 path: "/delivery-progresses/streams/"+ streamId +"/events",
@@ -162,6 +164,13 @@ describe("ConsumeEventStreamHandler", () => {
         });
         
         it("successful request V24 to V23", async () => {
+            process.env = Object.assign(process.env, {
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+                PN_STREAM_URL: "https://api.dev.notifichedigitali.it/delivery-progresses-2/v2.6",
+                START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+                STOP_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z"
+            });
+
             const streamId = "12345";
             const event = {
                 path: "/delivery-progresses/v2.3/streams/"+ streamId +"/events",
@@ -284,6 +293,13 @@ describe("ConsumeEventStreamHandler", () => {
         });
 
         it("successful request V24 to V10", async () => {
+            process.env = Object.assign(process.env, {
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+                PN_STREAM_URL: "https://api.dev.notifichedigitali.it/delivery-progresses-2/v2.6",
+                START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+                STOP_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z"
+            });
+
             const streamId = "12345";
             const event = {
                 path: "/delivery-progresses/streams/"+ streamId +"/events",
@@ -571,6 +587,13 @@ describe("ConsumeEventStreamHandler", () => {
         });
 
         it("successful request V26 to V25", async () => {
+            process.env = Object.assign(process.env, {
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.6",
+                PN_STREAM_URL: "https://api.dev.notifichedigitali.it/delivery-progresses-2/v2.6",
+                START_READ_STREAM_TIMESTAMP: "2019-01-01T00:00:00Z",
+                STOP_READ_STREAM_TIMESTAMP: "2099-01-01T00:00:00Z"
+            });
+
             const streamId = "12345";
             const event = {
                 path: "/delivery-progresses/v2.5/streams/"+ streamId +"/events",
