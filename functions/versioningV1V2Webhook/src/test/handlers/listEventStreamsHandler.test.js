@@ -55,10 +55,52 @@ describe("ListEventStreamsHandler", () => {
     describe("handlerEvent", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.3",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
         it("successful request", async () => {
+            const event = {
+                path: "/delivery-progresses/streams",
+                httpMethod: "GET",
+                headers: {},
+                requestContext: {
+                    authorizer: {},
+                },
+            };
+
+            let url = `${process.env.PN_WEBHOOK_URL}/streams`;
+
+            const responseBody = [
+                {
+                title: "stream name 1",
+                streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv"
+                },
+                {
+                    title: "stream name 2",
+                    streamId: "abcdefgh-ijkl-mnop-qrst-uvwxyz123456"
+                }
+            ]
+
+            mock.onGet(url).reply(200, responseBody);
+
+            const context = {};
+            const response = await listEventStreamsHandler.handlerEvent(event, context);
+
+            expect(response.statusCode).to.equal(200);
+            expect(response.body).to.equal(JSON.stringify(responseBody));
+
+            expect(mock.history.get.length).to.equal(1);
+        });
+    });
+
+    describe("handlerEvent url change flag", () => {
+        it("successful request", async () => {
+            process.env = Object.assign(process.env, {
+                PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
+            });
+
+            listEventStreamsHandler = new ListEventStreamsHandler();
+
             const event = {
                 path: "/delivery-progresses/streams",
                 httpMethod: "GET",
