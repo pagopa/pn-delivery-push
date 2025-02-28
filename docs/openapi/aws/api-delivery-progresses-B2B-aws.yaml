@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: +at/qPkJpHHUIA9Esqx0vvmQVvygz9ZEAV48jPA81t4=
+  version: VuCxTMWP0BlvEj2Q+Rku8QFiul97ZNGi4oRn9CF0pMg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -3001,7 +3001,6 @@ components:
             pubblicati senza ritardo. Stream di tipo STATUS: se true pubblica
             gli stati garantendo che il primo stato sia l'ACCEPTED o il REFUSED
           type: boolean
-          default: false
     StreamGroup:
       type: string
       description: Identificativo del gruppo.

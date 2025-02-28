@@ -2060,7 +2060,6 @@ components:
         waitForAccepted:
           description: 'Stream di tipo TIMELINE: se true pubblica gli eventi sullo stream solo dopo la pubblicazione dell''evento di accettazione/rifiuto della notifica.  Tutti gli eventi dello stato IN_VALIDATION vengono pubblicati senza ritardo. Stream di tipo STATUS: se true pubblica gli stati garantendo che il primo stato sia l''ACCEPTED o il REFUSED'
           type: boolean
-          default: false
     StreamGroup:
       type: string
       description: Identificativo del gruppo.
