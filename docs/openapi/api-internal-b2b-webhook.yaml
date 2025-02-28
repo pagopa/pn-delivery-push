@@ -875,7 +875,6 @@ components:
             Tutti gli eventi dello stato IN_VALIDATION vengono pubblicati senza ritardo.
             Stream di tipo STATUS: se true pubblica gli stati garantendo che il primo stato sia l'ACCEPTED o il REFUSED
           type: boolean
-          default: false
 
     StreamGroup:
       type: string
