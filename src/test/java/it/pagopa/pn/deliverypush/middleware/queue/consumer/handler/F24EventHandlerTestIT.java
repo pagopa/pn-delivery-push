@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -31,7 +30,7 @@ import static org.mockito.ArgumentMatchers.*;
 
 @FunctionalSpringBootTest
 @Import(LocalStackTestConfig.class)
-class F24EventHandlerTest extends MockActionPoolTest {
+class F24EventHandlerTestIT extends MockActionPoolTest {
 
     @Autowired
     private FunctionCatalog functionCatalog;
