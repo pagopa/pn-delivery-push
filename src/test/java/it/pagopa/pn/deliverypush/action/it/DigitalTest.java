@@ -48,7 +48,7 @@ import java.util.List;
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static org.awaitility.Awaitility.await;
 
-class DigitalTestIT extends CommonTestConfiguration {
+class DigitalTest extends CommonTestConfiguration {
     @SpyBean
     ExternalChannelMock externalChannelMock;
     @SpyBean

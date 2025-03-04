@@ -49,7 +49,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.with;
 
-class AnalogTestIT extends CommonTestConfiguration {
+class AnalogTest extends CommonTestConfiguration {
 
     @SpyBean
     LegalFactGenerator legalFactGenerator;

@@ -37,7 +37,7 @@ import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 
-class NotificationCostDeceasedTestIT extends CommonTestConfiguration {
+class NotificationCostDeceasedTest extends CommonTestConfiguration {
     @Autowired
     StartWorkflowHandler startWorkflowHandler;
     @SpyBean

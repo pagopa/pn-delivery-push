@@ -35,8 +35,8 @@ import java.util.List;
 
 import static org.awaitility.Awaitility.await;
 
-@ContextConfiguration(classes = SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT.InnerTestConfiguration.class)
-class SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT extends SendAarAttachment {
+@ContextConfiguration(classes = SentAttachmentSimpleRegisteredLetterAarDocumentOldAAR.InnerTestConfiguration.class)
+class SentAttachmentSimpleRegisteredLetterAarDocumentOldAAR extends SendAarAttachment {
     static Instant sentNotificationTime = Instant.now();
 
     //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 10 minuti

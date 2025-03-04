@@ -42,7 +42,7 @@ import java.util.Optional;
 import static it.pagopa.pn.deliverypush.action.it.AbstractWorkflowTestConfiguration.SEND_FEE;
 import static org.awaitility.Awaitility.await;
 
-class NotificationCancelledTestIT extends CommonTestConfiguration{
+class NotificationCancelledTest extends CommonTestConfiguration{
     @SpyBean
     LegalFactGenerator legalFactGenerator;
     @Autowired
