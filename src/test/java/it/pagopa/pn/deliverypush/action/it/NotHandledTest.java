@@ -51,7 +51,7 @@ import static org.awaitility.Awaitility.with;
         locations ="classpath:/application-test.properties",
         properties = "pn.commons.features.is-mvp-default-value=true"
 )
-class NotHandledTestIT extends CommonTestConfiguration {
+class NotHandledTest extends CommonTestConfiguration {
     @SpyBean
     LegalFactGenerator legalFactGenerator;
     @SpyBean

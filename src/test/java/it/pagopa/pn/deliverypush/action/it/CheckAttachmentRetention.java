@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static org.awaitility.Awaitility.await;
 
-class CheckAttachmentRetentionIT extends CommonTestConfiguration {
+class CheckAttachmentRetention extends CommonTestConfiguration {
     @SpyBean
     SchedulerService schedulerService;
     @SpyBean

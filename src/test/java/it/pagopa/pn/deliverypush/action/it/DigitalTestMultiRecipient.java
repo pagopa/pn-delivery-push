@@ -43,7 +43,7 @@ import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @Disabled("Test fail sometimes")
-class DigitalTestMultiRecipientIT extends CommonTestConfiguration {
+class DigitalTestMultiRecipient extends CommonTestConfiguration {
     @SpyBean
     ExternalChannelMock externalChannelMock;
     @SpyBean

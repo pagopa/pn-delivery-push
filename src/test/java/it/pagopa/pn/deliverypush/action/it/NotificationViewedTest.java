@@ -46,7 +46,7 @@ import java.util.concurrent.Callable;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
 
-class NotificationViewedTestIT extends CommonTestConfiguration {
+class NotificationViewedTest extends CommonTestConfiguration {
     @SpyBean
     LegalFactGenerator legalFactGenerator;
     @Autowired
