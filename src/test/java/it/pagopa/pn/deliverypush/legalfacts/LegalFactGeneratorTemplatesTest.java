@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -132,6 +133,20 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
                 .thenReturn(templatesClientMock.notificationAarForSms(LanguageEnum.IT, new NotificationAarForSms()));
         var result = Assertions.assertDoesNotThrow(() -> legalFactGeneratorTemplatesTest.generateNotificationAARForSMS(notificationInt()));
         Assertions.assertEquals(TEST_RETURN, result);
+    }
+
+    @Test
+    void testBuildAarSenderLogo() {
+        // Arrange
+        String paId = "12345";
+        String expectedUrl =
+                "TO_BASE64_RESOLVER:https://selcpcheckoutsa.z6.web.core.windows.net/institutions/" + paId + "/logo.png";
+
+        // Act
+        String actualUrl = ReflectionTestUtils.invokeMethod(legalFactGeneratorTemplatesTest, "buildAarSenderLogo", paId);
+
+        // Assert
+        Assertions.assertEquals(expectedUrl, actualUrl);
     }
 
     private static SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetailsInt() {
