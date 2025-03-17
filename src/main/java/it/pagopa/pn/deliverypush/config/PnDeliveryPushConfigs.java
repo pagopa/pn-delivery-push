@@ -248,6 +248,7 @@ public class PnDeliveryPushConfigs {
         private String landingUrl;
         private Map<String, String> additional;
         private String raddPhoneNumber;
+        private String aarSenderLogoUrlTemplate;
    }
 
     @Data
