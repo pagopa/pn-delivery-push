@@ -32,6 +32,9 @@ import static it.pagopa.pn.deliverypush.service.mapper.TemplatesEngineMapper.*;
 @AllArgsConstructor
 public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
+    private static final String AAR_SENDER_LOGO_URL_TEMPLATE =
+            "TO_BASE64_RESOLVER:https://selcpcheckoutsa.z6.web.core.windows.net/institutions/<PA_ID>/logo.png";
+
     private final CustomInstantWriter instantWriter;
     private final PhysicalAddressWriter physicalAddressWriter;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
@@ -277,7 +280,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                     this.getAccessLinkLabel(),
                                     perfezionamentoLink,
                                     perfezionamentoLinkLabel,
-                                    pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber());
+                                    pnDeliveryPushConfigs.getWebapp().getRaddPhoneNumber(),
+                                    this.buildAarSenderLogo(notification.getSender().getPaId()));
                     bytesArrayGeneratedAar = templatesClient.notificationAarRaddAlt(language, notificationAARRADDalt);
                 }
                 case AAR_NOTIFICATION_RADD -> throw new PnInternalException("NotificationAAR_RADD not implemented", ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE);
@@ -506,6 +510,16 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     private LanguageEnum getLanguage(List<String> additionalLanguages) {
         return (!pnDeliveryPushConfigs.isAdditionalLangsEnabled() || CollectionUtils.isEmpty(additionalLanguages))
                 ? LanguageEnum.IT : LanguageEnum.fromValue(additionalLanguages.get(0));
+    }
+
+    /**
+     * Builds the URL for the AAR sender logo by replacing the placeholder in the template with the given PA ID.
+     *
+     * @param paId the PA ID to be inserted into the URL template
+     * @return the formatted URL containing the specified PA ID
+     */
+    private String buildAarSenderLogo(String paId) {
+        return AAR_SENDER_LOGO_URL_TEMPLATE.replace("<PA_ID>", paId);
     }
 
 }
