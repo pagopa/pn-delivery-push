@@ -30,7 +30,8 @@ public class TemplatesEngineMapper {
                                                                 String accessLinkLabel,
                                                                 String perfezionamentoLink,
                                                                 String perfezionamentoLinkLabel,
-                                                                String raddPhoneNumber) {
+                                                                String raddPhoneNumber,
+                                                                String senderLogoBase64) {
         AarRaddAltSender sender = new AarRaddAltSender()
                 .paDenomination(notification.getSender().getPaDenomination());
 
@@ -54,7 +55,8 @@ public class TemplatesEngineMapper {
                 .perfezionamentoURL(perfezionamentoLink)
                 .perfezionamentoURLLabel(perfezionamentoLinkLabel)
                 .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail)
-                .raddPhoneNumber(raddPhoneNumber);
+                .raddPhoneNumber(raddPhoneNumber)
+                .senderLogoBase64(senderLogoBase64);
     }
 
     public static NotificationAar notificationAAR(NotificationInt notification,
