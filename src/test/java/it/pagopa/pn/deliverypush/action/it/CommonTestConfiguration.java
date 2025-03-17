@@ -279,6 +279,7 @@ public class CommonTestConfiguration {
         additionalSetting.put("raddoperatorsailpost", "true");
         webapp.setAdditional(additionalSetting);
         webapp.setRaddPhoneNumber("06.4520.2323");
+        webapp.setAarSenderLogoUrlTemplate("TO_BASE64_RESOLVER:https://example.com/<PA_ID>/logo.png");
         Mockito.when(cfg.getWebapp()).thenReturn(webapp);
         
         // Impostazione delle proprietà ExternalChannel
