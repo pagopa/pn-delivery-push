@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.legalfacts;
 import it.pagopa.pn.deliverypush.action.it.CommonTestConfiguration;
 import it.pagopa.pn.deliverypush.action.it.mockbean.TemplatesClientMock;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -139,8 +140,17 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
     void testBuildAarSenderLogo() {
         // Arrange
         String paId = "12345";
-        String expectedUrl =
-                "TO_BASE64_RESOLVER:https://selcpcheckoutsa.z6.web.core.windows.net/institutions/" + paId + "/logo.png";
+        String templateUrl = "TO_BASE64_RESOLVER:https://example.com/<PA_ID>/logo.png";
+        String expectedUrl = "TO_BASE64_RESOLVER:https://example.com/" + paId + "/logo.png";
+
+        PnDeliveryPushConfigs mockPnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        PnDeliveryPushConfigs.Webapp mockWebapp = Mockito.mock(PnDeliveryPushConfigs.Webapp.class);
+
+        Mockito.when(mockPnDeliveryPushConfigs.getWebapp()).thenReturn(mockWebapp);
+        Mockito.when(mockWebapp.getAarSenderLogoUrlTemplate())
+                .thenReturn(templateUrl);
+
+        ReflectionTestUtils.setField(legalFactGeneratorTemplatesTest, "pnDeliveryPushConfigs", mockPnDeliveryPushConfigs);
 
         // Act
         String actualUrl = ReflectionTestUtils.invokeMethod(legalFactGeneratorTemplatesTest, "buildAarSenderLogo", paId);
@@ -212,6 +222,7 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
     private static NotificationSenderInt notificationSenderInt() {
         return NotificationSenderInt.builder()
                 .paDenomination("paDenomination_TEST_TEST")
+                .paId("paId_TEST")
                 .paTaxId("paTaxId_TEST_TEST")
                 .build();
     }

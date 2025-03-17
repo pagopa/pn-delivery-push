@@ -32,9 +32,6 @@ import static it.pagopa.pn.deliverypush.service.mapper.TemplatesEngineMapper.*;
 @AllArgsConstructor
 public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
-    private static final String AAR_SENDER_LOGO_URL_TEMPLATE =
-            "TO_BASE64_RESOLVER:https://selcpcheckoutsa.z6.web.core.windows.net/institutions/<PA_ID>/logo.png";
-
     private final CustomInstantWriter instantWriter;
     private final PhysicalAddressWriter physicalAddressWriter;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
@@ -519,7 +516,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * @return the formatted URL containing the specified PA ID
      */
     private String buildAarSenderLogo(String paId) {
-        return AAR_SENDER_LOGO_URL_TEMPLATE.replace("<PA_ID>", paId);
+        String aarUrlTemplate = pnDeliveryPushConfigs.getWebapp().getAarSenderLogoUrlTemplate();
+        return aarUrlTemplate.replace("<PA_ID>", paId);
     }
 
 }

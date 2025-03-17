@@ -873,7 +873,7 @@
 						</goals>
 						<configuration>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-templates-engine/129ce2bc9e868880d1ff22e1b36a5c7fb7807348/docs/openapi/pn-internal-templates-v1.yaml
+								https://raw.githubusercontent.com/pagopa/pn-templates-engine/117941ccfe88a71c8b70da72e602af069c16c9a2/docs/openapi/pn-internal-templates-v1.yaml
 							</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
@@ -907,7 +907,7 @@
 						</goals>
 						<configuration>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-templates-engine/129ce2bc9e868880d1ff22e1b36a5c7fb7807348/docs/openapi/pn-internal-templates-v1.yaml
+								https://raw.githubusercontent.com/pagopa/pn-templates-engine/117941ccfe88a71c8b70da72e602af069c16c9a2/docs/openapi/pn-internal-templates-v1.yaml
 							</inputSpec>
 							<generatorName>java</generatorName>
 							<library>webclient</library>
