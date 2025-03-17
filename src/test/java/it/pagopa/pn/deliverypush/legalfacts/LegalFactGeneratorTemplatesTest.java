@@ -33,8 +33,6 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
     LegalFactGenerator legalFactGeneratorTemplatesTest;
     @MockBean
     TemplatesClient templatesClient;
-    @MockBean
-    PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     TemplatesClientMock templatesClientMock = new TemplatesClientMock();
 
@@ -142,14 +140,17 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
     void testBuildAarSenderLogo() {
         // Arrange
         String paId = "12345";
-        String templateUrl =
-                "TO_BASE64_RESOLVER:https://example.com/<PA_ID>/logo.png";
-        String expectedUrl =
-                "TO_BASE64_RESOLVER:https://example.com/" + paId + "/logo.png";
+        String templateUrl = "TO_BASE64_RESOLVER:https://example.com/<PA_ID>/logo.png";
+        String expectedUrl = "TO_BASE64_RESOLVER:https://example.com/" + paId + "/logo.png";
 
+        PnDeliveryPushConfigs mockPnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
         PnDeliveryPushConfigs.Webapp mockWebapp = Mockito.mock(PnDeliveryPushConfigs.Webapp.class);
-        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(mockWebapp);
-        Mockito.when(mockWebapp.getAarSenderLogoUrlTemplate()).thenReturn(templateUrl);
+
+        Mockito.when(mockPnDeliveryPushConfigs.getWebapp()).thenReturn(mockWebapp);
+        Mockito.when(mockWebapp.getAarSenderLogoUrlTemplate())
+                .thenReturn(templateUrl);
+
+        ReflectionTestUtils.setField(legalFactGeneratorTemplatesTest, "pnDeliveryPushConfigs", mockPnDeliveryPushConfigs);
 
         // Act
         String actualUrl = ReflectionTestUtils.invokeMethod(legalFactGeneratorTemplatesTest, "buildAarSenderLogo", paId);
@@ -221,6 +222,7 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
     private static NotificationSenderInt notificationSenderInt() {
         return NotificationSenderInt.builder()
                 .paDenomination("paDenomination_TEST_TEST")
+                .paId("paId_TEST")
                 .paTaxId("paTaxId_TEST_TEST")
                 .build();
     }
