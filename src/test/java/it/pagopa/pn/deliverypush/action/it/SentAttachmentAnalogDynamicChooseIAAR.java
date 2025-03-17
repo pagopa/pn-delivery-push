@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
@@ -32,9 +33,10 @@ import java.util.List;
 
 import static org.awaitility.Awaitility.await;
 
-@ContextConfiguration(classes = SentAttachmentAnalogAarNewAARIT.InnerTestConfiguration.class)
-class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
-
+@ContextConfiguration(classes = SentAttachmentAnalogDynamicChooseIAAR.InnerTestConfiguration.class)
+class SentAttachmentAnalogDynamicChooseIAAR extends SendAarAttachment {
+    @Autowired
+    static DynamicRADDExperimentationChooseStrategy raddExperimentationChooseStrategy;
     @SpyBean
     LegalFactGenerator legalFactGenerator;
 
@@ -49,14 +51,16 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
             .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
             .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(notCurrentConfTemplateType))
             .build();
-
-    //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 1 giorni
+    
+    //La configurazione dell'AarTemplateType dipende da raddExperimentationChooseStrategy, quella attesa per questo test è AAR_NOTIFICATION_RADD
     static AarTemplateType currentConfAaarTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
+    
+    //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 1 giorni
     static PnSendMode currentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(1, ChronoUnit.DAYS))
             .analogSendAttachmentMode(SendAttachmentMode.AAR)
             .digitalSendAttachmentMode(SendAttachmentMode.AAR_DOCUMENTS_PAYMENTS)
-            .aarTemplateTypeChooseStrategy(new StaticAarTemplateChooseStrategy(currentConfAaarTemplateType))
+            .aarTemplateTypeChooseStrategy(raddExperimentationChooseStrategy)
             .build();
 
     @TestConfiguration
@@ -85,7 +89,7 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
     }
 
     @Test
-    void analogAarNewAAR() throws IOException {
+    void analogDynamicChooseAarIT() throws IOException {
         /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
@@ -165,6 +169,7 @@ class SentAttachmentAnalogAarNewAARIT extends SendAarAttachment {
             //Viene ottenuta la lista di tutti i documenti generati
             final List<DocumentComposition.TemplateType> listDocumentTypeGenerated = getListDocumentTypeGenerated(2);
             //Viene quindi verificato se nella lista dei documenti generati c'è il documento atteso
+
             Assertions.assertTrue(listDocumentTypeGenerated.contains(currentConfAaarTemplateType.getTemplateType()));
         }
     }
