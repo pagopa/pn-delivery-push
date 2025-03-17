@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.legalfacts;
 import it.pagopa.pn.deliverypush.action.it.CommonTestConfiguration;
 import it.pagopa.pn.deliverypush.action.it.mockbean.TemplatesClientMock;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -32,6 +33,8 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
     LegalFactGenerator legalFactGeneratorTemplatesTest;
     @MockBean
     TemplatesClient templatesClient;
+    @MockBean
+    PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     TemplatesClientMock templatesClientMock = new TemplatesClientMock();
 
@@ -139,8 +142,14 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
     void testBuildAarSenderLogo() {
         // Arrange
         String paId = "12345";
+        String templateUrl =
+                "TO_BASE64_RESOLVER:https://example.com/<PA_ID>/logo.png";
         String expectedUrl =
-                "TO_BASE64_RESOLVER:https://selcpcheckoutsa.z6.web.core.windows.net/institutions/" + paId + "/logo.png";
+                "TO_BASE64_RESOLVER:https://example.com/" + paId + "/logo.png";
+
+        PnDeliveryPushConfigs.Webapp mockWebapp = Mockito.mock(PnDeliveryPushConfigs.Webapp.class);
+        Mockito.when(pnDeliveryPushConfigs.getWebapp()).thenReturn(mockWebapp);
+        Mockito.when(mockWebapp.getAarSenderLogoUrlTemplate()).thenReturn(templateUrl);
 
         // Act
         String actualUrl = ReflectionTestUtils.invokeMethod(legalFactGeneratorTemplatesTest, "buildAarSenderLogo", paId);
