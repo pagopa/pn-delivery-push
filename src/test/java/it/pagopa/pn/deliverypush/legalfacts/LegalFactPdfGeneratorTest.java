@@ -639,7 +639,7 @@ class LegalFactPdfGeneratorTest {
                 notificationInt.getAdditionalLanguages().add("FR");
                 String quickAccessToken = "test";
                 NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder()
-                        .recipientType(RecipientTypeInt.PF).build();
+                        .recipientType(RecipientTypeInt.PG).build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                         pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 verify(documentComposition).executePdfTemplate(captor.capture(), any());
@@ -662,7 +662,7 @@ class LegalFactPdfGeneratorTest {
                 notificationInt.getAdditionalLanguages().add("DE");
                 String quickAccessToken = "test";
                 NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder()
-                        .recipientType(RecipientTypeInt.PF).build();
+                        .recipientType(RecipientTypeInt.PG).build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                         pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 verify(documentComposition).executePdfTemplate(captor.capture(), any());
@@ -685,7 +685,7 @@ class LegalFactPdfGeneratorTest {
                 notificationInt.getAdditionalLanguages().add("SL");
                 String quickAccessToken = "test";
                 NotificationRecipientInt recipient = notificationInt.getRecipients().get(0).toBuilder()
-                        .recipientType(RecipientTypeInt.PF).build();
+                        .recipientType(RecipientTypeInt.PG).build();
                 Assertions.assertDoesNotThrow(() -> Files.write(filePath,
                         pdfUtils.generateNotificationAAR(notificationInt, recipient, quickAccessToken).getBytesArrayGeneratedAar()));
                 verify(documentComposition).executePdfTemplate(captor.capture(), any());
@@ -809,7 +809,7 @@ class LegalFactPdfGeneratorTest {
                         .withZip("80078")
                         .build();
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
-                        .recipientType(RecipientTypeInt.PF)
+                        .recipientType(RecipientTypeInt.PG)
                         .denomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
                         .taxId("LRMPSM80A01H501U")
                         .physicalAddress(paPhysicalAddress)
@@ -848,7 +848,7 @@ class LegalFactPdfGeneratorTest {
                         .withZip("80078")
                         .build();
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
-                        .recipientType(RecipientTypeInt.PF)
+                        .recipientType(RecipientTypeInt.PG)
                         .denomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
                         .taxId("LRMPSM80A01H501U")
                         .physicalAddress(paPhysicalAddress)
@@ -891,7 +891,7 @@ class LegalFactPdfGeneratorTest {
                         .withZip("80078")
                         .build();
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
-                        .recipientType(RecipientTypeInt.PF)
+                        .recipientType(RecipientTypeInt.PG)
                         .denomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
                         .taxId("LRMPSM80A01H501U")
                         .physicalAddress(paPhysicalAddress)
@@ -934,7 +934,7 @@ class LegalFactPdfGeneratorTest {
                         .withZip("80078")
                         .build();
                 NotificationRecipientInt recipient = NotificationRecipientInt.builder()
-                        .recipientType(RecipientTypeInt.PF)
+                        .recipientType(RecipientTypeInt.PG)
                         .denomination("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitore")
                         .taxId("LRMPSM80A01H501U")
                         .physicalAddress(paPhysicalAddress)
