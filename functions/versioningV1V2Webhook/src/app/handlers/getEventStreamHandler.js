@@ -52,6 +52,7 @@ class GetEventStreamHandler extends EventHandler {
             case 24:
             case 25:
             case 26:
+            case 27:
                 transformedObject = createStreamMetadataResponseV26(response.data);
             break;
             default:

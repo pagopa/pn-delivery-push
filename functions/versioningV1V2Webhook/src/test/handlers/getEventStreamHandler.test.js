@@ -221,6 +221,23 @@ describe("GetEventStreamHandler", () => {
                     waitForAccepted: true,
                     version: "v26"
                 }
+            },
+            {
+                version: "v2.7",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [
+                        { groupId: "group1", groupName: "Group One" },
+                        { groupId: "group2", groupName: "Group Two" }
+                    ],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    waitForAccepted: true,
+                    version: "v27"
+                }
             }
         ];
 
