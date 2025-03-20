@@ -26,6 +26,8 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NORMALIZED_ADDRESS, NotificationStatusInt.IN_VALIDATION, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.VALIDATED_F24, NotificationStatusInt.IN_VALIDATION, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.VALIDATE_F24_REQUEST, NotificationStatusInt.IN_VALIDATION, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_CALL, NotificationStatusInt.IN_VALIDATION, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_RESPONSE, NotificationStatusInt.IN_VALIDATION, SINGLE_RECIPINET)
 
 
                 //STATE CHANGE

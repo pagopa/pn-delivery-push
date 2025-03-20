@@ -2178,7 +2178,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_WEBHOOK_URL: !Sub [ "http://${ApplicationLoadBalancerDomain}:8080/${SelectedPath}/v2.7", { SelectedPath: !Select [ 4, !Ref WebhookFeatureFlags ] } ]
+          PN_WEBHOOK_URL: !Sub [ "http://${ApplicationLoadBalancerDomain}:8080/${SelectedPath}/v2.8", { SelectedPath: !Select [ 4, !Ref WebhookFeatureFlags ] } ]
           NUM_RETRY: !Ref NumRetry
           ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
       TracingConfig:

@@ -4,7 +4,7 @@ components:
     TimelineElementId:
       type: string
     
-    TimelineElementCategoryV26:
+    TimelineElementCategoryV27:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
@@ -51,6 +51,8 @@ components:
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
           * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
+          * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
+          * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
 #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
 #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
 #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
@@ -100,8 +102,10 @@ components:
         - PREPARE_ANALOG_DOMICILE_FAILURE
         - NOTIFICATION_RADD_RETRIEVED
         - ANALOG_WORKFLOW_RECIPIENT_DECEASED
+        - PUBLIC_REGISTRY_VALIDATION_CALL
+        - PUBLIC_REGISTRY_VALIDATION_RESPONSE
 
-    TimelineElementV26:
+    TimelineElementV27:
       type: object
       additionalProperties: false
       properties:
@@ -136,11 +140,11 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV26'
+          $ref: '#/components/schemas/TimelineElementCategoryV27'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV26'
+          $ref: '#/components/schemas/TimelineElementDetailsV27'
 
-    TimelineElementDetailsV26:
+    TimelineElementDetailsV27:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
@@ -185,6 +189,8 @@ components:
         - "$ref": "#/components/schemas/NotificationCancelledDetails"
         - "$ref": "#/components/schemas/PrepareAnalogDomicileFailureDetails"
         - "$ref": "#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26"
+        - "$ref": "#/components/schemas/PublicRegistryValidationCallDetails"
+        - "$ref": "#/components/schemas/PublicRegistryValidationResponseDetails"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -1313,3 +1319,32 @@ components:
           example: 1220
           type: integer
           format: int64
+
+    PublicRegistryValidationCallDetails:
+      type: object
+      required:
+        - recIndexes
+        - deliveryMode
+        - sendDate
+      properties:
+        recIndexes:
+          description: Lista destinatari notifica
+          type: array
+          items:
+            type: integer
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+
+    PublicRegistryValidationResponseDetails:
+      allOf:
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - type: object
+          properties:
+            registry:
+              type: string
+              description: Nome del registro pubblico da cui è stato recuperato l'indirizzo
+              maxLength: 128
