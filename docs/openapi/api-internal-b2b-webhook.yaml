@@ -348,7 +348,7 @@ paths:
     ############################################################################################
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
-  '/delivery-progresses/v2.8/streams':
+  '/delivery-progresses/v2.7/streams':
     parameters:                                               # NO EXTERNAL
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -367,20 +367,20 @@ paths:
         invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStreamV28
+      operationId: createEventStreamV27
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StreamCreationRequestV28"
+              $ref: "#/components/schemas/StreamCreationRequestV27"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV28"
+                $ref: "#/components/schemas/StreamMetadataResponseV27"
         '400':
           description: Invalid input
           content:
@@ -411,7 +411,7 @@ paths:
         Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreamsV28
+      operationId: listEventStreamsV27
       responses:
         '200':
           description: OK
@@ -435,7 +435,7 @@ paths:
     ############################################################################################
     ###                        lEGGI METADATA DELLO STREAM                                   ###
     ############################################################################################
-  '/delivery-progresses/v2.8/streams/{streamId}':
+  '/delivery-progresses/v2.7/streams/{streamId}':
     parameters:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -449,15 +449,15 @@ paths:
         Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: getEventStreamV28                             # NO EXTERNAL
-#      operationId: retrieveEventStreamV28                       # ONLY EXTERNAL
+      operationId: getEventStreamV27                             # NO EXTERNAL
+#      operationId: retrieveEventStreamV27                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV28"
+                $ref: "#/components/schemas/StreamMetadataResponseV27"
         '400':
           description: Invalid input
           content:
@@ -488,20 +488,20 @@ paths:
         Modifica delle configurazioni dei filtri associati a uno stream di eventi
       tags:
         - Streams
-      operationId: updateEventStreamV28
+      operationId: updateEventStreamV27
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StreamRequestV28"
+              $ref: "#/components/schemas/StreamRequestV27"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV28"
+                $ref: "#/components/schemas/StreamMetadataResponseV27"
         '400':
           description: Invalid input
           content:
@@ -533,8 +533,8 @@ paths:
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: deleteEventStreamV28                          # NO EXTERNAL
-#      operationId: removeEventStreamV28                         # ONLY EXTERNAL
+      operationId: deleteEventStreamV27                          # NO EXTERNAL
+#      operationId: removeEventStreamV27                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -567,7 +567,7 @@ paths:
   ###                             DISABILITARE UNO STREAM                                  ###
   ############################################################################################
 
-  '/delivery-progresses/v2.8/streams/{streamId}/action/disable':
+  '/delivery-progresses/v2.7/streams/{streamId}/action/disable':
     post:
       summary: Disabilita uno stream
       description: >-
@@ -585,7 +585,7 @@ paths:
         eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
-      operationId: disableEventStreamV28
+      operationId: disableEventStreamV27
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -599,7 +599,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV28"
+                $ref: "#/components/schemas/StreamMetadataResponseV27"
         '400':
           description: Invalid input
           content:
@@ -629,7 +629,7 @@ paths:
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
     ############################################################################################
 
-  '/delivery-progresses/v2.8/streams/{streamId}/events':
+  '/delivery-progresses/v2.7/streams/{streamId}/events':
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -638,7 +638,7 @@ paths:
         e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStreamV28
+      operationId: consumeEventStreamV27
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -806,11 +806,11 @@ components:
     ############################################################################################
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
-    StreamCreationRequestV28:
+    StreamCreationRequestV27:
       description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV28'
+        - $ref: '#/components/schemas/StreamRequestV27'
         - type: object
           properties:
             replacedStreamId:
@@ -823,7 +823,7 @@ components:
               type: string
               format: uuid
 
-    StreamRequestV28:
+    StreamRequestV27:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di eventi di avanzamento delle notifiche.
         L'aggiornamento delle proprietà dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi.
@@ -881,10 +881,10 @@ components:
       description: >-
         Identificativo del gruppo.
 
-    StreamMetadataResponseV28:
+    StreamMetadataResponseV27:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV28'
+        - $ref: '#/components/schemas/StreamRequestV27'
         - type: object
           required:
             - streamId
