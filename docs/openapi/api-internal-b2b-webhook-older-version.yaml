@@ -292,7 +292,7 @@ paths:
 
   '/delivery-progresses/events':                                                              # NOT YET IMPLEMENTED
     post:                                                                                     # NOT YET IMPLEMENTED
-      deprecated: true
+      deprecated: true                                                                        # NOT YET IMPLEMENTED
       summary: Invio eventi da parte della PA                                                 # NOT YET IMPLEMENTED
       description: >-                                                                         # NOT YET IMPLEMENTED
         Questa API è a disposizione della Pubblica Amministrazione per inviare eventi, come   # NOT YET IMPLEMENTED
@@ -308,8 +308,6 @@ paths:
       tags:                                                                                   # NOT YET IMPLEMENTED
         - Events                                                                              # NOT YET IMPLEMENTED
       operationId: informOnExternalEvent                                                      # NOT YET IMPLEMENTED
-      x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
-      x-pagopa-lambda-account: core
       parameters:                                                                             # NOT YET IMPLEMENTED
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL                 # NOT YET IMPLEMENTED
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL                 # NOT YET IMPLEMENTED
@@ -1855,20 +1853,18 @@ paths:
     ############################################################################################
 
   '/delivery-progresses/v2.7/streams':
-    parameters: # NO EXTERNAL
+    parameters:                                               # NO EXTERNAL
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
-      - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
-      - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
+      - $ref: '#/components/parameters/cxGroupsAuthFleet'     # NO EXTERNAL
+      - $ref: '#/components/parameters/headerApiVersion'      # NO EXTERNAL
     post:
       deprecated: true
       summary: Crea nuovo stream di eventi
       description: >-
         Creazione di un flusso di eventi specificando se gli eventi saranno
         relativi ai cambi di stato o agli eventi di timeline.
-
-
         In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il 
         timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata 
         invocata l'operazione.
@@ -1953,8 +1949,8 @@ paths:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
       - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
-      - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
-      - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
+      - $ref: '#/components/parameters/cxGroupsAuthFleet'     # NO EXTERNAL
+      - $ref: '#/components/parameters/headerApiVersion'      # NO EXTERNAL
       - $ref: '#/components/parameters/pathStreamId'
     get:
       deprecated: true
@@ -1964,7 +1960,7 @@ paths:
       tags:
         - Streams
       operationId: getEventStreamV27                             # NO EXTERNAL
-      #      operationId: retrieveEventStreamV27                       # ONLY EXTERNAL
+#      operationId: retrieveEventStreamV27                       # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
       x-pagopa-lambda-account: core
       responses:
@@ -2054,7 +2050,7 @@ paths:
       tags:
         - Streams
       operationId: deleteEventStreamV27                          # NO EXTERNAL
-      #      operationId: removeEventStreamV27                         # ONLY EXTERNAL
+#      operationId: removeEventStreamV27                         # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
       x-pagopa-lambda-account: core
       responses:
@@ -2095,15 +2091,9 @@ paths:
       summary: Disabilita uno stream
       description: >-
         Disabilita uno stream.
-
-
         Da uno stream disabilitato è possibile leggere gli eventi presenti nello stream salvati prima
         della disabilitazione, ma non ne saranno aggiunti di nuovi.
-
-
         Non è possibile modificare o riabilitare uno stream disabilitato.
-
-
         Uno stream disabilitato non rientra nel conteggio degli stream massimi, non può essere riabilitato e verrà
         eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span> giorni.
       tags:
@@ -2115,8 +2105,8 @@ paths:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'     # NO EXTERNAL
+        - $ref: '#/components/parameters/headerApiVersion'      # NO EXTERNAL
         - $ref: '#/components/parameters/pathStreamId'
       responses:
         '200':
@@ -2171,8 +2161,8 @@ paths:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'     # NO EXTERNAL
+        - $ref: '#/components/parameters/headerApiVersion'      # NO EXTERNAL
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
       responses:
@@ -3121,7 +3111,7 @@ components:
           type: array                                                                                      # NO EXTERNAL
           description: eventuali errori di validazione associati all'evento                                # NO EXTERNAL
           items: # NO EXTERNAL
-            $ref: '#/components/schemas/RefusedReason'
+            $ref: '#/components/schemas/RefusedReason'                                                     # NO EXTERNAL
 
     ############################################################################################
     ###                        COMPONENT API VERSIONE 2.7                                    ###
