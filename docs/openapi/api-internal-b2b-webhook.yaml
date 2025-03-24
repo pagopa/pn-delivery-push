@@ -969,14 +969,14 @@ components:
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
         element:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV26'
+          $ref: './schemas-pn-timeline-older-version.yaml#/components/schemas/TimelineElementV26'
         # proprietà necessarie per retro compatibilità nel transitorio, ma che non saranno esposte nella V24 # NO EXTERNAL
         # potranno essere eliminate (assieme al RefusedReason) quando non saranno più presenti eventi della v1 # NO EXTERNAL
         timestamp:                                                                                         # NO EXTERNAL
           type: string                                                                                     # NO EXTERNAL
           format: date-time                                                                                # NO EXTERNAL
         timelineEventCategory:                                                                             # NO EXTERNAL
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV26'                # NO EXTERNAL
+          $ref: './schemas-pn-timeline-older-version.yaml#/components/schemas/TimelineElementCategoryV26'  # NO EXTERNAL
         recipientIndex:                                                                                    # NO EXTERNAL
           type: integer                                                                                    # NO EXTERNAL
           format: int32                                                                                    # NO EXTERNAL
