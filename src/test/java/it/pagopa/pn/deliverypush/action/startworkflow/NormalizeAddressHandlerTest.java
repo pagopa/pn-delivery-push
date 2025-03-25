@@ -1,34 +1,26 @@
 package it.pagopa.pn.deliverypush.action.startworkflow;
 
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
-import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.addressmanager.model.AcceptedResponse;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
+import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeItemsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.addressmanager.NormalizeResultInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
-import it.pagopa.pn.deliverypush.service.AddressManagerService;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opensaml.xmlsec.signature.P;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -48,8 +40,6 @@ class NormalizeAddressHandlerTest {
     private TimelineUtils timelineUtils;
     @Mock
     private ConfidentialInformationService confidentialInformationService;
-
-    private NormalizeItemsResultInt normalizeItemsResult;
     private NormalizeAddressHandler normalizeAddressHandler;
 
     @BeforeEach
