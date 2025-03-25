@@ -1340,11 +1340,19 @@ components:
           format: date-time
 
     PublicRegistryValidationResponseDetails:
-      allOf:
-        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
-        - type: object
-          properties:
-            registry:
-              type: string
-              description: Nome del registro pubblico da cui è stato recuperato l'indirizzo
-              maxLength: 128
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        registry:
+          type: string
+          description: Nome del registro pubblico da cui è stato recuperato l'indirizzo
+          maxLength: 128
