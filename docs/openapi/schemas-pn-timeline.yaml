@@ -1332,6 +1332,7 @@ components:
           type: array
           items:
             type: integer
+            format: int32
         deliveryMode:
           $ref: '#/components/schemas/DeliveryMode'
         sendDate:
