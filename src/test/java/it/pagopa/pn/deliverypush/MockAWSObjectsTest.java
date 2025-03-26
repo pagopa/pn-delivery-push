@@ -5,7 +5,6 @@ import io.awspring.cloud.autoconfigure.messaging.SqsAutoConfiguration;
 import it.pagopa.pn.api.dto.events.MomProducer;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.PnEventInboundService;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionEvent;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookEvent;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.function.context.config.ContextFunctionCatalogAutoConfiguration;
@@ -16,9 +15,6 @@ public abstract class MockAWSObjectsTest extends MockActionPoolTest {
 
     @MockBean(name = "actionsEventProducer")
     private MomProducer<ActionEvent> actionsEventProducer;
-
-    @MockBean(name = "webhookActionsEventProducer")
-    private MomProducer<WebhookEvent> webhookActionsEventProducer;
 
     @MockBean
     private AmazonSQSAsync amazonSQS;
