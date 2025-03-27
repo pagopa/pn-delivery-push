@@ -1,17 +1,13 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
-import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
-import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AddressDto;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.AnalogDomicile;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.BaseRecipientDto;
@@ -27,7 +23,6 @@ import org.mockito.Mockito;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,9 +53,6 @@ class ConfidentialInformationServiceImplTest {
         
         //GIVEN
         TimelineElementInternal element = getSendPaperDetailsTimelineElement(iun, elementId);
-        
-        //Mockito.when(pnDataVaultClient.updateNotificationTimelineByIunAndTimelineElementId(Mockito.anyString(), Mockito.any(ConfidentialTimelineElementDto.class)))
-       // .doNothing();
 
         //WHEN
         confidentialInformationService.saveTimelineConfidentialInformation(element);
@@ -276,56 +268,5 @@ class ConfidentialInformationServiceImplTest {
                 .iun(iun)
                 .details( details )
                 .build();
-    }
-
-    @Test
-    void getTimelineConfidentialInformationWithTimeline() {
-        TimelineElementInternal timelineElementInternal = getSendPaperDetailsTimelineElement("iun", "elementId");
-        timelineElementInternal.setCategory(TimelineElementCategoryInt.REQUEST_ACCEPTED);
-        timelineElementInternal.setTimestamp(Instant.now());
-        timelineElementInternal.setPaId("PaId");
-        timelineElementInternal.setStatusInfo(StatusInfoInternal.builder().build());
-        timelineElementInternal.setLegalFactsIds(List.of(LegalFactsIdInt.builder().build()));
-
-        ConfidentialTimelineElementDto confidentialTimelineElementDto = new ConfidentialTimelineElementDto();
-        confidentialTimelineElementDto.setTaxId("taxId");
-        confidentialTimelineElementDto.setDenomination("denomination");
-        confidentialTimelineElementDto.setTimelineElementId("timelineElementId");
-        confidentialTimelineElementDto.setDigitalAddress(AddressDto.builder().value("via addressDto").build());
-        AnalogDomicile analogDomicile = AnalogDomicile.builder()
-                .at("at")
-                .address("via address")
-                .municipality("municipality")
-                .build();
-        confidentialTimelineElementDto.setPhysicalAddress(analogDomicile);
-
-        Mockito.when(pnDataVaultClientReactive.getNotificationTimelines(Mockito.any()))
-                .thenReturn(Flux.just(confidentialTimelineElementDto));
-
-        Flux<ConfidentialTimelineElementDtoInt> fluxDto = confidentialInformationService.getTimelineConfidentialInformation(List.of(timelineElementInternal));
-        Assertions.assertNotNull(fluxDto);
-
-        ConfidentialTimelineElementDtoInt dto = fluxDto.blockFirst();
-        Assertions.assertEquals("denomination", dto.getDenomination());
-        Assertions.assertEquals("timelineElementId", dto.getTimelineElementId());
-        Assertions.assertEquals("taxId", dto.getTaxId());
-        Assertions.assertEquals("via addressDto", dto.getDigitalAddress());
-        Assertions.assertEquals(analogDomicile.getAddress(), dto.getPhysicalAddress().getAddress());
-        Assertions.assertEquals(analogDomicile.getAt(), dto.getPhysicalAddress().getAt());
-        Assertions.assertEquals(analogDomicile.getMunicipality(), dto.getPhysicalAddress().getMunicipality());
-    }
-
-    @Test
-    void getTimelineConfidentialInformationWithTimelineKo() {
-        TimelineElementInternal timelineElementInternal = getSendPaperDetailsTimelineElement("iun", "elementId");
-        timelineElementInternal.setCategory(TimelineElementCategoryInt.REQUEST_ACCEPTED);
-        timelineElementInternal.setTimestamp(Instant.now());
-        timelineElementInternal.setPaId("PaId");
-        timelineElementInternal.setStatusInfo(StatusInfoInternal.builder().build());
-        timelineElementInternal.setLegalFactsIds(List.of(LegalFactsIdInt.builder().build()));
-
-        Mockito.when(pnDataVaultClientReactive.getNotificationTimelines(Mockito.any())).thenThrow(PnInternalException.class);
-
-        assertThrows(PnInternalException.class, () -> confidentialInformationService.getTimelineConfidentialInformation(List.of(timelineElementInternal)).blockFirst());
     }
 }
