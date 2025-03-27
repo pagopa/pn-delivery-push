@@ -261,7 +261,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                                     accessUrl,
                                     accessUrlLabel,
                                     perfezionamentoLink,
-                                    perfezionamentoLinkLabel);
+                                    perfezionamentoLinkLabel,
+                                    this.buildAarSenderLogo(notification.getSender().getPaId()));
                     bytesArrayGeneratedAar = templatesClient.notificationAar(language, notificationAAR);
                 }
                 case AAR_NOTIFICATION_RADD_ALT -> {
