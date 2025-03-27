@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalreg
 import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
-import java.util.List;
 
 public interface PnExternalRegistryClient {
     String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_EXTERNAL_REGISTRIES;
@@ -11,5 +10,4 @@ public interface PnExternalRegistryClient {
     
     SendMessageResponse sendIOMessage(SendMessageRequest sendMessageRequest);
     String getRootSenderId(String senderId);
-    List<String> getGroups(String xPagopaPnUid, String xPagopaPnCxId );
 }
