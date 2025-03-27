@@ -11,7 +11,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.ActionEventType;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionEventType;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.MDC;
@@ -98,11 +97,7 @@ public class PnEventInboundService {
             if (ActionEventType.ACTION_GENERIC.name().equals(eventType)) {
                 //... e si tratta di una ACTION, viene gestito con l'handleActionGeneric
                 return handleGenericAction(message);
-            } else if (WebhookActionEventType.WEBHOOK_ACTION_GENERIC.name().equals(eventType)) {
-                //... e si tratta di una WEBHOOK ACTION, viene gestito con l'handleWebhookAction
-                return handleWebhookAction();
-            }
-            else if(eventType.equals("EXTERNAL_CHANNELS_EVENT")) {
+            } else if(eventType.equals("EXTERNAL_CHANNELS_EVENT")) {
                 //usato ora dal mock di external-channels, in futuro se viene modificato l'evento, adeguare anche il mock
                 eventType = handleOtherEvent(message);
             }
@@ -152,11 +147,6 @@ public class PnEventInboundService {
             throw new PnInternalException("eventType not present, cannot start scheduled action", ERROR_CODE_DELIVERYPUSH_EVENTTYPENOTSUPPORTED);
         }
         return eventType;
-    }
-
-    @NotNull
-    private String handleWebhookAction() {
-        return "pnDeliveryPushWebhookActionConsumer";
     }
 
     private String handleGenericAction(Message<?> message) {
