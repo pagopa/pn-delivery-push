@@ -15,10 +15,6 @@ Parameters:
     Type: String
     Description: URL da cui caricare i frammenti di template di infrastruttura
 
-  Version:
-    Type: String
-    Description: 'keep track of used projects commitIds'
-
   CdcKinesisSourceStreamArn:
     Type: String
     Description: 'Where to send CDC'
@@ -34,10 +30,6 @@ Parameters:
   LogRetention:
     Type: Number
     Default: 14
-
-  EnvironmentType:
-    Type: String
-    Description: Environment type
 
     ## KINESIS STREAM PARAMS USED FOR NEW kinesis-data-stream.yml fragment template
   CdcPnFutureActionShards:
@@ -69,36 +61,6 @@ Parameters:
     Type: Number
     Default: 2000000
     Description: Threshold for oncall alarms in milliseconds for pn-<xx>Action tables
-
-  CdcActionDatapointsToAlarmStandard:
-    Type: Number
-    Default: 10
-    Description: Number of datapoints to alarm for standard alarms for pn-<xx>Action tables
-
-  CdcActionStandardAlarmPeriodSeconds:
-    Type: Number
-    Default: 60
-    Description: Period to alarm for standard alarms for pn-<xx>Action tables
-
-  CdcActionStandardAlarmEvaluationPeriods:
-    Type: Number
-    Default: 60
-    Description: Evaluation periods for standard alarms for pn-<xx>Action tables
-
-  CdcActionDatapointsToAlarmOncall:
-    Type: Number
-    Default: 10
-    Description: Number of datapoints to alarm for oncall alarms for pn-<xx>Action tables
-
-  CdcActionOncallAlarmPeriodSeconds:
-    Type: Number
-    Default: 60
-    Description: Period to alarm for oncall alarms for pn-<xx>Action tables
-
-  CdcActionOncallAlarmEvaluationPeriods:
-    Type: Number
-    Default: 60
-    Description: Evaluation periods for oncall alarms for pn-<xx>Action tables
 
   AlarmSNSTopicArn:
     Type: String
@@ -186,21 +148,6 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_push_cdc_DLQ'
-        DelaySeconds: 1
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "false"
-        QueueHasAlarm: "true"
-
-
-  # internal queues DLQ
-  WebhookEventManagerDLQ:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
-      Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_webhook_DLQ'
         DelaySeconds: 1
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ: "false"
@@ -559,17 +506,6 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
-  WebhookEventManagerLambdaLogGroup:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
-      Parameters:
-        LogGroupName: !Sub "${ProjectName}-webhookEventManagerLambda"
-        LogGroupRetention: !Ref LogRetention
-        LogGroupPrefix: '/aws/lambda'
-
   PaperEventsCostUpdateLambdaLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -767,9 +703,6 @@ Outputs:
 
 
   # Lambda functions
-  WebhookEventManagerLambdaName:
-    Value: !Sub "${ProjectName}-webhookEventManagerLambda"
-
   VersioningV1V2WebhookLambdaName:
     Value: !Sub "${ProjectName}-versioningV1V2WebhookLambda"
 
@@ -788,21 +721,6 @@ Outputs:
 
   ValidationMessageEventBridgeToQueueLambdaName:
     Value: !Sub "${ProjectName}-validationMessageEventBridgeToQueueLambda"
-
-  # Webhook Step Manager DLQ
-  WebhookEventManagerDLQName:
-    Value: !GetAtt WebhookEventManagerDLQ.Outputs.QueueName
-    Description: pn-delivery-push_webhook_event_manager_DLQ queue name
-  WebhookEventManagerDLQURL:
-    Value: !GetAtt WebhookEventManagerDLQ.Outputs.QueueURL
-    Description: pn-delivery-push_webhook_event_manager_DLQ queue URL
-  WebhookEventManagerDLQARN:
-    Value: !GetAtt WebhookEventManagerDLQ.Outputs.QueueARN
-    Description: pn-delivery-push_webhook_event_manager_DLQ queue ARN
-  WebhookEventManagerDLQAlarmARN:
-    Value: !GetAtt WebhookEventManagerDLQ.Outputs.SqsDLQAlarmArn
-    Description: pn-delivery-push_webhook_event_manager_DLQ alarm ARN
-
 
   # Log group exports
   EcsLogGroup:
