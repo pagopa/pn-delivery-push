@@ -4,7 +4,6 @@ package it.pagopa.pn.deliverypush.action.it.mockbean;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,17 +46,6 @@ public class SchedulerServiceMock implements SchedulerService {
   @Override
   public void unscheduleEvent(String iun, Integer recIndex, ActionType actionType,
       String timelineId) {
-    // non usato come mock
-  }
-
-  @Override
-  public void scheduleWebhookEvent(String paId, String iun, String timelineId) {
-    // non usato come mock
-  }
-
-  @Override
-  public void scheduleWebhookEvent(String streamId, String eventId, Integer delay,
-      WebhookEventType actionType) {
     // non usato come mock
   }
 
