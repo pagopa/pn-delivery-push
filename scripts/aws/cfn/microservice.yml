@@ -820,6 +820,22 @@ Parameters:
     Default: ''
     Description: 'Applicative environment variable file checksum'
 
+  NationalRegistries2DeliveryPushValidationQueueName:
+    Type: String
+    Description: 'National Registries to delivery-push-validation queue name'
+
+  NationalRegistries2DeliveryPushValidationQueueARN:
+    Type: String
+    Description: 'National Registries to delivery-push-validation queue ARN'
+
+  NationalRegistries2DeliveryPushValidationQueueAlarmARN:
+    Type: String
+    Description: 'National Registries to delivery-push-validation queue dlq alarm'
+
+  NationalRegistries2DeliveryPushValidationQueueAgeAlarmARN:
+    Type: String
+    Description: 'National Registries to delivery-push-validation queue age alarm'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
 
@@ -947,6 +963,7 @@ Resources:
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESVALIDATIONEVENTS=${NationalRegistries2DeliveryPushValidationQueueName}'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
@@ -1020,7 +1037,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushValidationInputsQueueName},${ScheduledValidationActionsQueueName},${SafeStorageToDeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName}'
+        ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushValidationInputsQueueName},${ScheduledValidationActionsQueueName},${SafeStorageToDeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName},${NationalRegistries2DeliveryPushValidationQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
@@ -1085,6 +1102,7 @@ Resources:
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESVALIDATIONEVENTS=${NationalRegistries2DeliveryPushValidationQueueName}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
@@ -1229,6 +1247,7 @@ Resources:
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESVALIDATIONEVENTS=${NationalRegistries2DeliveryPushValidationQueueName}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
@@ -1280,6 +1299,7 @@ Resources:
               - !Ref NationalRegistries2DeliveryPushQueueARN
               - !Ref AddressManagerToDeliveryPushQueueARN
               - !Ref F24ToDeliveryPushQueueARN
+              - !Ref NationalRegistries2DeliveryPushValidationQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -2406,6 +2426,8 @@ Resources:
             - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V2WebhookLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningGetNotificationLegalFactsLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !Ref NationalRegistries2DeliveryPushValidationQueueAlarmARN
+            - !Ref NationalRegistries2DeliveryPushValidationQueueAgeAlarmARN
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
@@ -2425,6 +2447,7 @@ Resources:
             - !Ref NationalRegistries2DeliveryPushQueueARN
             - !Ref AddressManagerToDeliveryPushQueueARN
             - !Ref F24ToDeliveryPushQueueARN
+            - !Ref NationalRegistries2DeliveryPushValidationQueueARN
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
@@ -2502,6 +2525,17 @@ Resources:
           MetricStat:
             Metric:
               Dimensions:
+                - Name: QueueName
+                  Value: !Ref "NationalRegistries2DeliveryPushValidationQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m7
+          MetricStat:
+            Metric:
+              Dimensions:
                 - Name: TargetGroup
                   Value: !GetAtt DeliveryPushValidatorMicroservice.Outputs.TargetGroupName
                 - Name: LoadBalancer
@@ -2512,7 +2546,7 @@ Resources:
             Stat: Average
           ReturnData: False
         - Id: code
-          Expression: !Sub "IF(m6==0, 101, (100*(m1+m2+m3+m4+m5)) / (${ConsumedQueueMessagePerMinuteValidator} * m6) )"
+          Expression: !Sub "IF(m7==0, 101, (100*(m1+m2+m3+m4+m5+m6)) / (${ConsumedQueueMessagePerMinuteValidator} * m7) )"
           Label: !Sub "${ProjectName}-delivery-push-queue-validator-custom-metric"
           ReturnData: False
         - Id: e1
