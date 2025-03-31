@@ -410,10 +410,6 @@ Parameters:
     Type: String
     Description: 'national-registries to delivery-push queue ARN'
 
-  NationalRegistries2DeliveryPushValidationQueueDLQURL:
-    Type: String
-    Description: 'NationalRegistries2DeliveryPushValidation DLQ ARN'
-
   # Log group parameters
   EcsLogGroup:
     Type: String
@@ -2418,6 +2414,7 @@ Resources:
             - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V2WebhookLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningGetNotificationLegalFactsLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !Ref NationalRegistries2DeliveryPushValidationQueueARN
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
@@ -2690,7 +2687,7 @@ Resources:
             Action: 
               - "SQS:SendMessage"
             Resource:
-              - !Ref "NationalRegistries2DeliveryPushValidationQueueDLQURL"
+              - !Ref "NationalRegistries2DeliveryPushValidationQueueARN"
   
 
 Outputs:

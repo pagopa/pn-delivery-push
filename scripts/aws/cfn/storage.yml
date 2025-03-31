@@ -715,12 +715,6 @@ Outputs:
   NationalRegistries2DeliveryPushValidationQueueURL:
     Value: !GetAtt NationalRegistries2DeliveryPushValidationQueue.Outputs.QueueURL
     Description: Events from pn-national-registries TO pn-delivery-push-validation queue URL
-  NationalRegistries2DeliveryPushValidationQueueDLQName:
-    Value: !GetAtt NationalRegistries2DeliveryPushValidationQueue.Outputs.DeadLetterQueueName
-    Description: NationalRegistries2DeliveryPushValidationQueue queue name
-  NationalRegistries2DeliveryPushValidationQueueDLQURL:
-    Value: !GetAtt NationalRegistries2DeliveryPushValidationQueue.Outputs.DeadLetterQueueURL
-    Description: NationalRegistries2DeliveryPushValidationQueue queue url
   NationalRegistries2DeliveryPushValidationQueueARN:
     Value: !GetAtt NationalRegistries2DeliveryPushValidationQueue.Outputs.QueueARN
     Description: Events from pn-national-registries TO pn-delivery-push-validation queue ARN
