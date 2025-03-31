@@ -229,22 +229,6 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing'
 
-  PnDeliveryPushWebhookStreamsTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  PnDeliveryPushWebhookStreamsTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-  PnDeliveryPushWebhookEventsTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  PnDeliveryPushWebhookEventsTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
   DocumentCreationRequestTableName:
     Type: String
     Description: 'Name of dynamodb table containing unreacheble notifications recipients'
@@ -835,11 +819,7 @@ Resources:
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
         ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -911,7 +891,6 @@ Resources:
         ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
         ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
@@ -973,11 +952,7 @@ Resources:
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
         ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -1049,7 +1024,6 @@ Resources:
         ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
         ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
@@ -1117,11 +1091,7 @@ Resources:
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
         ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -1193,7 +1163,6 @@ Resources:
         ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
         ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
@@ -1293,8 +1262,6 @@ Resources:
               - !Sub "${FutureActionDynamoTableArn}"
               - !Sub "${LastPollForFutureActionDynamoTableArn}"
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
-              - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
-              - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
               - !Sub "${DocumentCreationRequestTableArn}"
   
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
@@ -2225,8 +2192,6 @@ Resources:
             - !Ref FutureActionDynamoTableName
             - !Ref LastPollForFutureActionDynamoTableName
             - !Ref PnDeliveryPushShedLockDynamoTableName
-            - !Ref PnDeliveryPushWebhookStreamsTableName
-            - !Ref PnDeliveryPushWebhookEventsTableName
             - !Ref DocumentCreationRequestTableName 
         RestApiStageArns: !Join
           - ','
