@@ -402,6 +402,18 @@ Parameters:
     Type: String
     Description: 'delivery-push to external-registries queue ARN'
 
+  NationalRegistries2DeliveryPushValidationQueueURL:
+    Type: String
+    Description: 'national-registries to delivery-push queue URL'
+
+  NationalRegistries2DeliveryPushValidationQueueARN:
+    Type: String
+    Description: 'national-registries to delivery-push queue ARN'
+
+  NationalRegistries2DeliveryPushValidationQueueDLQURL:
+    Type: String
+    Description: 'NationalRegistries2DeliveryPushValidation DLQ ARN'
+
   # Log group parameters
   EcsLogGroup:
     Type: String
@@ -2605,6 +2617,81 @@ Resources:
         - !GetAtt DeliveryPushWorkflowMicroservice.Outputs.ScaleUpPolicy
       OKActions:
         - !GetAtt DeliveryPushWorkflowMicroservice.Outputs.ScaleDownPolicy
+
+  #EventBridge rules
+  NationalRegistries2DeliveryPushValidationQueueRule:
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: Route Pn-NationalRegistries Events to NationalRegistries2DeliveryPushValidationQueuequeue
+      RoleArn: !GetAtt "EventBusEnqueueRole.Arn" 
+      EventBusName: !Sub '${ProjectName}-CoreEventBus'
+      EventPattern:
+        detail-type: [ "NationalRegistriesOutcomeEvent" ]
+        detail:
+          source: [ "pn-delivery-push-validation" ]
+      Targets: 
+        - Arn: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:PnCoreEventBusMatchedEventLogger
+          Id: !Sub ${ProjectName}-Logger-NationalRegistries2DeliveryPushValidation
+          InputTransformer:
+            InputPathsMap:
+              "timestamp": "$.time"
+            InputTemplate: |
+              {
+                  "timestamp": <timestamp>,
+                  "ruleArn": <aws.events.rule-arn>,
+                  "ruleName": <aws.events.rule-name>,
+                  "ingestionTime": <aws.events.event.ingestion-time>,
+                  "originalEvent": <aws.events.event.json>
+              }       
+        - Id: !Sub '${ProjectName}-CoreEventBus-NationalRegistries2DeliveryPushValidation'
+          Arn: !Ref NationalRegistries2DeliveryPushValidationQueueARN
+          InputPath: $.detail.body
+          DeadLetterConfig:
+            Arn: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:pn-CoreEventBus-DLQ
+
+
+  # Allow event bus rules to write to queues
+  EventBusEnqueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+        Version: "2012-10-17"
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-delivery-push-eventBusRuleQueuePolicy
+          PolicyDocument:
+            Statement:
+              - Sid: putEvents
+                Action:
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                Effect: Allow
+                Resource: 
+                  - !Ref NationalRegistries2DeliveryPushValidationQueueARN
+  
+  NationalRegistries2DeliveryPushValidationPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref NationalRegistries2DeliveryPushValidationQueueURL
+      PolicyDocument:
+        Statement:
+          - Sid: "SendEventsToDLQ"
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "events.amazonaws.com"
+            Action: 
+              - "SQS:SendMessage"
+            Resource:
+              - !Ref "NationalRegistries2DeliveryPushValidationQueueDLQURL"
+  
 
 Outputs:
 
