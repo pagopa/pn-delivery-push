@@ -581,17 +581,6 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
-  VersioningV1V2WebhookLambdaLogGroup:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
-      Parameters:
-        LogGroupName: !Sub "${ProjectName}-versioningV1V2WebhookLambda"
-        LogGroupRetention: !Ref LogRetention
-        LogGroupPrefix: '/aws/lambda'
-
   VersioningGetNotificationLegalFactsLambdaLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -769,9 +758,6 @@ Outputs:
   # Lambda functions
   WebhookEventManagerLambdaName:
     Value: !Sub "${ProjectName}-webhookEventManagerLambda"
-
-  VersioningV1V2WebhookLambdaName:
-    Value: !Sub "${ProjectName}-versioningV1V2WebhookLambda"
 
   VersioningGetNotificationLegalFactsLambdaName:
     Value: !Sub "${ProjectName}-versioningGetNotificationLegalFactsLambda"
