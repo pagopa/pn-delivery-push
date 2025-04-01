@@ -17,7 +17,7 @@ public class RecipientMapper {
     private RecipientMapper() {
     }
 
-    public static NotificationRecipientInt externalToInternal(NotificationRecipientV23 recipient) {
+    public static NotificationRecipientInt externalToInternal(NotificationRecipientV24 recipient) {
 
         NotificationRecipientInt.NotificationRecipientIntBuilder notificationRecIntBuilder = NotificationRecipientInt
                 .builder()
@@ -65,8 +65,8 @@ public class RecipientMapper {
         return notificationRecIntBuilder.build();
     }
 
-    public static NotificationRecipientV23 internalToExternal(NotificationRecipientInt recipient) {
-        NotificationRecipientV23 notificationRecipient = new NotificationRecipientV23();
+    public static NotificationRecipientV24 internalToExternal(NotificationRecipientInt recipient) {
+        NotificationRecipientV24 notificationRecipient = new NotificationRecipientV24();
         NotificationDigitalAddress notificationDigitalAddress = null;
 
         LegalDigitalAddressInt internalDigitalDomicile = recipient.getDigitalDomicile();
@@ -92,7 +92,7 @@ public class RecipientMapper {
         notificationRecipient.setPhysicalAddress(physicalAddress);
         notificationRecipient.setPayments(payment);
         notificationRecipient.setInternalId(recipient.getInternalId());
-        notificationRecipient.setRecipientType(NotificationRecipientV23.RecipientTypeEnum.valueOf(recipient.getRecipientType().name()));
+        notificationRecipient.setRecipientType(NotificationRecipientV24.RecipientTypeEnum.valueOf(recipient.getRecipientType().name()));
 
         return notificationRecipient;
     }

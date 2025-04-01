@@ -1,13 +1,10 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV24;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV25;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
 
 @Slf4j
 public class PnDeliveryClientReactiveMock implements PnDeliveryClientReactive {
@@ -21,13 +18,8 @@ public class PnDeliveryClientReactiveMock implements PnDeliveryClientReactive {
 
 
     @Override
-    public Mono<SentNotificationV24> getSentNotification(String iun) {
+    public Mono<SentNotificationV25> getSentNotification(String iun) {
         return Mono.just(pnDeliveryClientMock.getSentNotification(iun));
-    }
-
-    @Override
-    public Mono<Void> updateStatus(String iun, NotificationStatusInt notificationStatusInt, Instant updateStatusTimestamp) {
-        return Mono.empty();
     }
 
     @Override
