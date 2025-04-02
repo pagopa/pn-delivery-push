@@ -2,10 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.publicregis
 
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AddressApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AgenziaEntrateApi;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.AddressOK;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.AddressRequestBody;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.CheckTaxIdOK;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.CheckTaxIdRequestBody;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries.NationalRegistriesClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +13,10 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
 import java.time.Instant;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 class NationalRegistriesClientImplTest {
 
@@ -67,6 +68,28 @@ class NationalRegistriesClientImplTest {
         Assertions.assertEquals(taxIdTest, checkTaxIdOKResponse.getTaxId());
         Assertions.assertEquals(Boolean.TRUE, checkTaxIdOKResponse.getIsValid());
 
+    }
+
+    @Test
+    void sendRequestForGetPhysicalAddressesOK() {
+        Mockito.when(addressApi.getPhysicalAddresses(any(PhysicalAddressesRequestBody.class), eq("pn-delivery-push-validation")))
+                .thenReturn(Mono.just(new AddressOK().correlationId("002")));
+
+        publicRegistry.sendRequestForGetPhysicalAddresses(new PhysicalAddressesRequestBody().correlationId("002"));
+
+        Mockito.verify(addressApi, Mockito.times(1)).getPhysicalAddresses(any(PhysicalAddressesRequestBody.class), eq("pn-delivery-push-validation"));
+    }
+
+    @Test
+    void sendRequestForGetPhysicalAddressesKO() {
+        Mockito.when(addressApi.getPhysicalAddresses(any(PhysicalAddressesRequestBody.class), eq("pn-delivery-push-validation")))
+                .thenReturn(Mono.error(WebClientResponseException.create(502, "bad Gateway", null, null, Charset.defaultCharset())));
+
+        assertThrows(WebClientResponseException.BadGateway.class, () -> {
+            publicRegistry.sendRequestForGetPhysicalAddresses(new PhysicalAddressesRequestBody());
+        });
+
+        Mockito.verify(addressApi, Mockito.times(1)).getPhysicalAddresses(any(PhysicalAddressesRequestBody.class), eq("pn-delivery-push-validation"));
     }
 
 }

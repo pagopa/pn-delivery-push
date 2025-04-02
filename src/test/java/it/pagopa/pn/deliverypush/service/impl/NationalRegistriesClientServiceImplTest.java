@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -10,18 +12,26 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.PhysicalAddressesRequestBody;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries.NationalRegistriesClient;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.utils.PublicRegistryUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 class NationalRegistriesClientServiceImplTest {
 
@@ -34,6 +44,12 @@ class NationalRegistriesClientServiceImplTest {
     @Mock
     private NotificationUtils notificationUtils;
 
+    @Mock
+    private TimelineUtils timelineUtils;
+
+    @Mock
+    private TimelineService timelineService;
+
     private NationalRegistriesServiceImpl service;
 
     @BeforeEach
@@ -41,8 +57,10 @@ class NationalRegistriesClientServiceImplTest {
         publicRegistryUtils = Mockito.mock(PublicRegistryUtils.class);
         nationalRegistriesClient = Mockito.mock(NationalRegistriesClient.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
+        timelineUtils = Mockito.mock(TimelineUtils.class);
+        timelineService = Mockito.mock(TimelineService.class);
 
-        service = new NationalRegistriesServiceImpl(publicRegistryUtils, nationalRegistriesClient, notificationUtils);
+        service = new NationalRegistriesServiceImpl(publicRegistryUtils, nationalRegistriesClient, notificationUtils, timelineUtils,timelineService);
     }
 
     @Test
@@ -64,6 +82,38 @@ class NationalRegistriesClientServiceImplTest {
         Mockito.verify(nationalRegistriesClient, Mockito.times(1)).sendRequestForGetDigitalAddress(recipient.getTaxId(), recipient.getRecipientType().getValue(), correlationId, notification.getSentAt());
     }
 
+    @Test
+    void sendRequestForGetMultiplePhysicalAddress1() {
+        NotificationInt notification = mock(NotificationInt.class);
+        when(notification.getIun()).thenReturn("Example_IUN_1234_Test");
+        when(notification.getRecipients()).thenReturn(Collections.singletonList(buildRecipient()));
+
+        service.sendRequestForGetMultiplePhysicalAddress(notification);
+
+        ArgumentCaptor<PhysicalAddressesRequestBody> captor = ArgumentCaptor.forClass(PhysicalAddressesRequestBody.class);
+        Mockito.verify(nationalRegistriesClient, times(1)).sendRequestForGetPhysicalAddresses(captor.capture());
+
+        PhysicalAddressesRequestBody requestBody = captor.getValue();
+        assertNotNull(requestBody);
+        assertFalse(CollectionUtils.isEmpty(requestBody.getAddresses()));
+        assertEquals("NATIONAL_REGISTRY_VALIDATION_CALL.IUN_Example_IUN_1234_Test.DELIVERYMODE_ANALOG", requestBody.getCorrelationId());
+    }
+
+    @Test
+    void sendRequestForGetMultiplePhysicalAddress_emptyRecipientAddressRequests() {
+        NotificationInt notification = mock(NotificationInt.class);
+        when(notification.getIun()).thenReturn("Example_IUN_1234_Test");
+        when(notification.getRecipients()).thenReturn(Collections.emptyList());
+
+        assertThrows(PnInternalException.class, () -> service.sendRequestForGetMultiplePhysicalAddress(notification));
+    }
+
+    private NotificationRecipientInt buildRecipient() {
+        return NotificationRecipientInt.builder()
+                .taxId("taxId")
+                .recipientType(RecipientTypeInt.PF)
+                .build();
+    }
 
     private NotificationInt buildNotification(String denomination) {
         return NotificationInt.builder()

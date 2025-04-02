@@ -18,7 +18,8 @@ import java.time.Instant;
 public class NationalRegistriesClientImpl extends CommonBaseClient implements NationalRegistriesClient {
 
     public static final String PN_NATIONAL_REGISTRIES_CX_ID_VALUE = "pn-delivery-push";
-    
+    public static final String PN_NATIONAL_REGISTRIES_CX_ID_VALUE_VALIDATION = "pn-delivery-push-validation";
+
     private final AddressApi addressApi;
     private final AgenziaEntrateApi agenziaEntrateApi;
 
@@ -57,5 +58,16 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
         return MDCUtils.addMDCToContextAndExecute(
                 agenziaEntrateApi.checkTaxId(checkTaxIdRequestBody)
         ).block();
+    }
+
+    @Override
+    public void sendRequestForGetPhysicalAddresses(PhysicalAddressesRequestBody physicalAddressesRequestBody) {
+        String correlationId = physicalAddressesRequestBody.getCorrelationId();
+        log.logInvokingExternalService(CLIENT_NAME, GET_PHYSICAL_ADDRESSES);
+
+        MDCUtils.addMDCToContextAndExecute(
+                addressApi.getPhysicalAddresses(physicalAddressesRequestBody, PN_NATIONAL_REGISTRIES_CX_ID_VALUE_VALIDATION)
+                        .doOnError(throwable -> log.error(String.format("Error calling getPhysicalAddresses with correlationId: %s", correlationId), throwable)
+        )).block();
     }
 }
