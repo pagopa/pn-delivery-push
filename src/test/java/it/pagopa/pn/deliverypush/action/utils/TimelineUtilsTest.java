@@ -1507,6 +1507,8 @@ class TimelineUtilsTest {
                 .physicalAddress(buildPhysicalAddressInt())
                 //.registry("ANPR")
                 //.recIndex(0)
+                //.addressResolutionStart(Instant.now())
+                //.addressResolutionEnd(Instant.now())
                 .build();
         TimelineElementInternal actual = timelineUtils.buildNationalRegistryValidationResponse(notification, response);
         //TODO dopo aver rilasciato il task PN-14254, decommentare le righe sovrastanti e sostituire la riga sottostante con quella esistente.

@@ -1524,6 +1524,8 @@ public class TimelineUtils {
         PublicRegistryValidationResponseDetailsInt details = PublicRegistryValidationResponseDetailsInt.builder()
                 //.recIndex(response.getRecIndex())
                 //.registry(response.getRegistry())
+                //.addressResolutionStart(response.getAddressResolutionStart())
+                //.addressResolutionEnd(response.getAddressResolutionEnd())
                 .physicalAddress(response.getPhysicalAddress())
                 .build();
 
