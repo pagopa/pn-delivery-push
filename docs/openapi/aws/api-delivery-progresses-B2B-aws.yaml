@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: olwwuy3GIqj7VfN0y9OFNLYlrVLqIGHDjgsVsVxISDg=
+  version: 0lLFo4BCVu0ZJSP+VGbw2hRLfaZM7VaVA2EogU8QL8s=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -4916,6 +4916,20 @@ components:
               type: string
               description: Nome del registro pubblico da cui è stato recuperato l'indirizzo
               maxLength: 128
+            addressResolutionStart:
+              type: string
+              format: date-time
+              description: >-
+                Data/ora di inizio elaborazione richiesta ricerca indirizzi,
+                espressa in formato RFC3339.
+              example: '2022-06-21T11:44:28Z'
+            addressResolutionEnd:
+              type: string
+              format: date-time
+              description: >-
+                Data/ora di fine elaborazione richiesta ricerca indirizzi,
+                espressa in formato RFC3339.
+              example: '2022-06-21T11:44:28Z'
     TimelineElementDetailsV27:
       description: The raw event payload that will be different based on the event.
       oneOf:
