@@ -1479,4 +1479,41 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals("legalFactId=" + legalFactId, actual.getDetails().toLog())
         );
     }
+
+    @Test
+    void buildNationalRegistryValidationCall() {
+        NotificationInt notification = buildNotification();
+        List<Integer> recIndexes = new ArrayList<>();
+        TimelineElementInternal actual = timelineUtils.buildNationalRegistryValidationCall(notification, recIndexes, DeliveryModeInt.ANALOG);
+        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_CALL.IUN_Example_IUN_1234_Test.DELIVERYMODE_ANALOG";
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+    }
+
+    @Test
+    void buildNationalRegistryValidationResponse() {
+        NotificationInt notification = buildNotification();
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
+                .correlationId("CorrelationId")
+                .physicalAddress(buildPhysicalAddressInt())
+                //.registry("ANPR")
+                //.recIndex(0)
+                //.addressResolutionStart(Instant.now())
+                //.addressResolutionEnd(Instant.now())
+                .build();
+        TimelineElementInternal actual = timelineUtils.buildNationalRegistryValidationResponse(notification, response);
+        //TODO dopo aver rilasciato il task PN-14254, decommentare le righe sovrastanti e sostituire la riga sottostante con quella esistente.
+        //String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.CORRELATIONID_CorrelationId.RECINDEX_1";
+        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.CORRELATIONID_CorrelationId";
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+    }
 }

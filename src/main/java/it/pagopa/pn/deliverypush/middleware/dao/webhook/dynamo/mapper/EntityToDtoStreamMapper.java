@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.mapper;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV27;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.StreamMetadataResponseV28;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +17,11 @@ public class EntityToDtoStreamMapper {
         firstVersion = pnDeliveryPushConfigs.getWebhook().getFirstVersion();
     }
 
-    public static StreamMetadataResponseV27 entityToDto(StreamEntity entity ) {
-        StreamMetadataResponseV27 streamMetadataResponse = new StreamMetadataResponseV27();
+    public static StreamMetadataResponseV28 entityToDto(StreamEntity entity ) {
+        StreamMetadataResponseV28 streamMetadataResponse = new StreamMetadataResponseV28();
         streamMetadataResponse.setStreamId(UUID.fromString(entity.getStreamId()));
         streamMetadataResponse.setActivationDate(entity.getActivationDate());
-        streamMetadataResponse.setEventType(StreamMetadataResponseV27.EventTypeEnum.valueOf(entity.getEventType()));
+        streamMetadataResponse.setEventType(StreamMetadataResponseV28.EventTypeEnum.valueOf(entity.getEventType()));
         streamMetadataResponse.setTitle(entity.getTitle());
         streamMetadataResponse.setFilterValues(List.copyOf(Objects.requireNonNullElse(entity.getFilterValues(), new HashSet<>())));
         streamMetadataResponse.setGroups(entity.getGroups());

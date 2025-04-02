@@ -1496,6 +1496,48 @@ public class TimelineUtils {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
+    public TimelineElementInternal buildNationalRegistryValidationCall(NotificationInt notification, List<Integer> recIndexes, DeliveryModeInt deliveryMode) {
+
+        String eventId = TimelineEventId.NATIONAL_REGISTRY_VALIDATION_CALL.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .deliveryMode(deliveryMode)
+                        .build());
+
+        log.debug("buildNationalRegistryValidationCall - iun={}", notification.getIun());
+
+        PublicRegistryValidationCallDetailsInt details = PublicRegistryValidationCallDetailsInt.builder()
+                .recIndexes(recIndexes)
+                .deliveryMode(deliveryMode)
+                .sendDate(Instant.now())
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_CALL, eventId, details);
+    }
+
+    public TimelineElementInternal buildNationalRegistryValidationResponse(NotificationInt notification, NationalRegistriesResponse response) {
+
+        //TODO con il task PN-14254 sarà aggiunto il recIndex ed il registry nel NationalRegistriesResponse.
+        //Decommentare quindi le righe per il recIndex e registry e le righe nella classe di test TimelineUtilsTest (test buildNationalRegistryValidationResponse)
+        String eventId = TimelineEventId.NATIONAL_REGISTRY_VALIDATION_RESPONSE.buildEventId(
+                EventId.builder()
+                        .relatedTimelineId(response.getCorrelationId())
+                        //.recIndex(response.getRecIndex())
+                        .build());
+
+        log.debug("buildNationalRegistryValidationResponse - iun={}", notification.getIun());
+
+        PublicRegistryValidationResponseDetailsInt details = PublicRegistryValidationResponseDetailsInt.builder()
+                //.recIndex(response.getRecIndex())
+                //.registry(response.getRegistry())
+                //.addressResolutionStart(response.getAddressResolutionStart())
+                //.addressResolutionEnd(response.getAddressResolutionEnd())
+                .physicalAddress(response.getPhysicalAddress())
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_RESPONSE, eventId, details);
+    }
+
     public String getIunFromTimelineId(String timelineId) {
         //<timelineId = CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>...
         return timelineId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1].replace("IUN_", "");
