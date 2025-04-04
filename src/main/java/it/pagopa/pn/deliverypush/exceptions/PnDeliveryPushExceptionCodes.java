@@ -100,7 +100,9 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
         //quickWorkAroundForPN-9116
         SENDER_DISABLED_MORE_THAN_20_GRAMS("SENDER_DISABLED_MORE_THAN_20_GRAMS"),
 
-        FILE_GONE("FILE_GONE");
+        FILE_GONE("FILE_GONE"),
+
+        ADDRESS_NOT_FOUND("ADDRESS_NOT_FOUND"),;
 
         private final String value;
 
