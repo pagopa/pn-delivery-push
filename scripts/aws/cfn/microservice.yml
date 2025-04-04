@@ -807,8 +807,8 @@ Parameters:
 
   WebhookFeatureFlags:
     Type: CommaDelimitedList
-    Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestam, gateway override path
-    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,delivery-progresses-2'
+    Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestam
+    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
 
   pfNewWorkflowFeatureFlag:
     Type: CommaDelimitedList
@@ -1347,35 +1347,6 @@ Resources:
         IntendedUsage: B2B 
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
         Limit: !Ref B2bWafLimit
-
-  # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
-  DeliveryProgressMicroservicePublicAPI:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-progress'
-        IntendedUsage: B2B
-        DnsName: !Ref ApiDnsName
-        ProjectName: !Ref ProjectName
-        ServiceApiPathOverride: 'delivery-progresses'
-        ServiceApiPath: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 4, !Ref WebhookFeatureFlags ]} ]
-        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
-        OpenApiBucketName: !Ref MicroserviceBucketName
-        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-progresses-B2B-aws.yaml
-
-  DeliveryProgressMicroservicePublicApiWaf:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
-      Parameters:
-        WAFName: !Sub '${ProjectName}-delivery-progress-b2b'
-        IntendedUsage: B2B 
-        APIGatewayARNs: !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.APIGatewayARN
-        Limit: 600000
 
   # Expose PN-Delivery-push microservice public API with API-GW for B2B PG usage
   DeliveryProgressMicroserviceB2BPGAPI:
