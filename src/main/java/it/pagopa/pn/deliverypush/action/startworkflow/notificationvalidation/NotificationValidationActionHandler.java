@@ -47,6 +47,7 @@ public class NotificationValidationActionHandler {
     private static final int FIRST_VALIDATION_STEP = 1;
     private static final int SECOND_VALIDATION_STEP = 2;
     private static final int THIRD_VALIDATION_STEP = 3;
+    public static final String NOTIFICATION_IS_NOT_VALID_MSG = "Notification is not valid - iun={} ex={}";
     private final AttachmentUtils attachmentUtils;
     private final TaxIdPivaValidator taxIdPivaValidator;
     private final TimelineService timelineService;
@@ -105,7 +106,7 @@ public class NotificationValidationActionHandler {
                 logEvent.generateWarning("Validation need to be rescheduled - iun={} ex=", notification.getIun(), ex).log();
             handlePnValidationFileNotFoundException(iun, details, notification, ex, details.getStartWorkflowTime());
         } catch (PnValidationException ex){
-            logEvent.generateWarning("Notification is not valid - iun={} ex=", notification.getIun(), ex).log();
+            logEvent.generateWarning(NOTIFICATION_IS_NOT_VALID_MSG, notification.getIun(), ex).log();
             handleValidationError(notification, ex);
         } catch (RuntimeException ex){
             logEvent.generateWarning("Validation need to be rescheduled - iun={} ex=", notification.getIun(), ex).log();
@@ -224,7 +225,7 @@ public class NotificationValidationActionHandler {
                 logEvent.generateSuccess().log();
             }
         } catch (PnValidationException e) {
-            logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), e).log();
+            logEvent.generateWarning(NOTIFICATION_IS_NOT_VALID_MSG, notification.getIun(), e).log();
             handleValidationError(notification, e);
         }
     }
@@ -246,7 +247,7 @@ public class NotificationValidationActionHandler {
 
             logEvent.generateSuccess().log();
         } catch (PnValidationNotValidAddressException ex){
-            logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), ex).log();
+            logEvent.generateWarning(NOTIFICATION_IS_NOT_VALID_MSG, notification.getIun(), ex).log();
             handleValidationError(notification, ex);
         }
 
@@ -345,7 +346,7 @@ public class NotificationValidationActionHandler {
                         addressValidator.requestValidateAndNormalizeAddresses(refreshedNotification)
                 ).block();
             } catch (PnLookupAddressNotFoundException ex) {
-                logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), ex).log();
+                logEvent.generateWarning(NOTIFICATION_IS_NOT_VALID_MSG, notification.getIun(), ex).log();
                 handleValidationError(notification, ex);
             }
         }

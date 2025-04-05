@@ -57,9 +57,9 @@ class LookupAddressHandlerTest {
                 .physicalAddress(null)
                 .build();
 
-        assertThrows(PnLookupAddressNotFoundException.class, () -> {
-            lookupAddressHandler.validateAddresses(List.of(response));
-        });
+        List<NationalRegistriesResponse> responses = List.of(response);
+
+        assertThrows(PnLookupAddressNotFoundException.class, () -> lookupAddressHandler.validateAddresses(responses));
     }
 
     @Test

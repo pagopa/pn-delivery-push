@@ -8,7 +8,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.m
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class NationalRegistriesMessageUtil {
 
@@ -41,7 +40,7 @@ public class NationalRegistriesMessageUtil {
                         .addressResolutionStart(address.getAddressResolutionStart())
                         .addressResolutionEnd(address.getAddressResolutionEnd())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static PhysicalAddressInt mapToPhysicalAddressInt(PhysicalAddressSQSMessage message) {

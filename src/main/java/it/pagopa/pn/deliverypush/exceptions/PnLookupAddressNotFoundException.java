@@ -4,8 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 public class PnLookupAddressNotFoundException extends PnValidationException {
 
@@ -20,6 +18,6 @@ public class PnLookupAddressNotFoundException extends PnValidationException {
                 .code(PnDeliveryPushExceptionCodes.NotificationRefusedErrorCodeInt.ADDRESS_NOT_FOUND.getValue())
                 .detail(detail)
                 .build())
-            .collect(Collectors.toList());
+            .toList();
     }
 }
