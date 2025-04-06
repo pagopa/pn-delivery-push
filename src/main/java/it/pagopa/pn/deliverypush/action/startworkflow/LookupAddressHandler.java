@@ -54,6 +54,8 @@ public class LookupAddressHandler {
                 throw new PnInternalException(String.format("Recipient with recIndex %s not found in NotificationInt", response.getRecIndex()), ERROR_CODE_DELIVERYPUSH_LOOKUPADDRESS_INCONSISTENT_DATA);
             }
 
+            enrichAddressWithRecipientData(response, recipient);
+
             NotificationRecipientAddressesDtoInt foundAddress = NotificationRecipientAddressesDtoInt.builder()
                     .denomination(recipient.getDenomination())
                     .digitalAddress(recipient.getDigitalDomicile() != null ? recipient.getDigitalDomicile() : null)
@@ -63,6 +65,10 @@ public class LookupAddressHandler {
             recipientAddressesDtoList.add(foundAddress);
         }
         confidentialInformationService.updateNotificationAddresses(notification.getIun(), false,recipientAddressesDtoList);
+    }
+
+    private void enrichAddressWithRecipientData(NationalRegistriesResponse response, NotificationRecipientInt recipient) {
+        response.getPhysicalAddress().setFullname(recipient.getDenomination());
     }
 
 }
