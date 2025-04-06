@@ -67,10 +67,12 @@ class LookupAddressHandlerTest {
         NotificationInt notification = mock(NotificationInt.class);
         NotificationRecipientInt recipient = mock(NotificationRecipientInt.class);
         List<NotificationRecipientAddressesDtoInt> recipientAddressesDtoList = new ArrayList<>();
+        PhysicalAddressInt physicalAddressInt = getNationalRegistriesResponse().getPhysicalAddress();
+        physicalAddressInt.setFullname("denomination");
         recipientAddressesDtoList.add(NotificationRecipientAddressesDtoInt.builder()
                 .denomination("denomination")
                 .digitalAddress(null)
-                .physicalAddress(getNationalRegistriesResponse().getPhysicalAddress())
+                .physicalAddress(physicalAddressInt)
                 .recIndex(0)
                 .build());
 
