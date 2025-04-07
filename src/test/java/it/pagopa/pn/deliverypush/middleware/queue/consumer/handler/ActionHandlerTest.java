@@ -16,8 +16,6 @@ import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForR
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -50,8 +48,6 @@ class ActionHandlerTest {
     private AnalogWorkflowHandler analogWorkflowHandler;
     @Mock
     private RefinementHandler refinementHandler;
-    @Mock
-    private WebhookActionsEventHandler webhookActionsEventHandler;
     @Mock
     private StartWorkflowForRecipientHandler startWorkflowForRecipientHandler;
     @Mock
@@ -208,20 +204,6 @@ class ActionHandlerTest {
         //THEN
         Action action = message.getPayload();
         verify(digitalWorkFlowRetryHandler).elapsedExtChannelTimeout(action.getIun(), action.getRecipientIndex(), action.getTimelineId(), action.getNotBefore());
-    }
-
-    @Test
-    void pnDeliveryPushWebhookActionConsumer() {
-        //GIVEN
-        Message<WebhookAction> message = getWebhookActionMessage();
- 
-        //WHEN
-        Consumer<Message<WebhookAction>> consumer = actionHandler.pnDeliveryPushWebhookActionConsumer();
-        consumer.accept(message);
-
-        //THEN
-        WebhookAction action = message.getPayload();
-        verify(webhookActionsEventHandler).handleEvent(action);
     }
     
     @Test
@@ -391,25 +373,6 @@ class ActionHandlerTest {
                         .recipientIndex(0)
                         .timelineId("testTimelineId")
                         .notBefore(Instant.EPOCH)
-                        .build();
-            }
-
-            @Override
-            @NotNull
-            public MessageHeaders getHeaders() {
-                return new MessageHeaders(new HashMap<>());
-            }
-        };
-    }
-
-    @NotNull
-    private static Message<WebhookAction> getWebhookActionMessage() {
-        return new Message<>() {
-            @Override
-            @NotNull
-            public WebhookAction getPayload() {
-                return WebhookAction.builder()
-                        .iun("test")
                         .build();
             }
 
