@@ -1095,7 +1095,7 @@ paths:
         Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      # operationId: retrieveEventStreamV25                 # ONLY EXTERNAL
+      operationId: retrieveEventStreamV25                       # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
       x-pagopa-lambda-account: core
       responses:
@@ -1184,7 +1184,7 @@ paths:
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      #      operationId: removeEventStreamV25                         # ONLY EXTERNAL
+      operationId: removeEventStreamV25                         # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
       x-pagopa-lambda-account: core
       responses:
@@ -1449,7 +1449,7 @@ paths:
         Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      #      operationId: retrieveEventStreamV26                       # ONLY EXTERNAL
+      operationId: retrieveEventStreamV26                       # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
       x-pagopa-lambda-account: core
       responses:
@@ -1538,7 +1538,7 @@ paths:
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      #      operationId: removeEventStreamV26                         # ONLY EXTERNAL
+      operationId: removeEventStreamV26                         # ONLY EXTERNAL
       x-pagopa-lambda-name: 'pn-versioningV1V2WebhookLambda:live'
       x-pagopa-lambda-account: core
       responses:

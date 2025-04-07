@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: MRoLWoc162Lns7yksVMbhFY5yxOqebuOzLrb/fiUUFA=
+  version: U4J83s8hi1h8jGCLn8lEHo2xWcfBZFmy3sJG1PI2p6Q=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2029,6 +2029,7 @@ paths:
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
+      operationId: retrieveEventStreamV25
       x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
       x-pagopa-lambda-account: core
       responses:
@@ -2162,6 +2163,7 @@ paths:
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
+      operationId: removeEventStreamV25
       x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
       x-pagopa-lambda-account: core
       responses:
@@ -2528,6 +2530,7 @@ paths:
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
+      operationId: retrieveEventStreamV26
       x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
       x-pagopa-lambda-account: core
       responses:
@@ -2661,6 +2664,7 @@ paths:
         tutti gli eventi associati allo stream e non ancora consumati.
       tags:
         - Streams
+      operationId: removeEventStreamV26
       x-pagopa-lambda-name: pn-versioningV1V2WebhookLambda:live
       x-pagopa-lambda-account: core
       responses:
