@@ -39,6 +39,7 @@ public class PnEventInboundService {
     private final String addressManagerEventQueueName;
     private final String validateF24EventQueueName;
     private final String deliveryValidationEvents;
+    private final String nationalRegistriesValidationEventQueueName;
 
     public PnEventInboundService(EventHandler eventHandler, PnDeliveryPushConfigs cfg) {
         this.eventHandler = eventHandler;
@@ -48,6 +49,7 @@ public class PnEventInboundService {
         this.addressManagerEventQueueName = cfg.getTopics().getAddressManagerEvents();
         this.validateF24EventQueueName = cfg.getTopics().getF24Events();
         this.deliveryValidationEvents = cfg.getTopics().getDeliveryValidationEvents();
+        this.nationalRegistriesValidationEventQueueName = cfg.getTopics().getNationalRegistriesValidationEvents();
     }
 
     //Viene definita un implementazione (anonima) di MessageRoutingCallback. Nel contesto di Spring, quando viene ricevuto un messaggio da una coda gestita da Spring Cloud Stream,
@@ -146,6 +148,9 @@ public class PnEventInboundService {
         }
         else if(Objects.equals(queueName, deliveryValidationEvents)) {
             eventType = "NEW_NOTIFICATION";
+        }
+        else if(Objects.equals(queueName, nationalRegistriesValidationEventQueueName)) {
+            eventType = "NR_GATEWAY_VALIDATION_RESPONSE";
         }
         else {
             log.error("eventType not present, cannot start scheduled action headers={} payload={}", message.getHeaders(), message.getPayload());

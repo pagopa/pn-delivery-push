@@ -177,6 +177,8 @@ public class PnDeliveryPushConfigs {
         private String f24Events;
         
         private String deliveryValidationEvents;
+
+        private String nationalRegistriesValidationEvents;
     }
 
     @Data

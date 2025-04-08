@@ -1505,15 +1505,13 @@ class TimelineUtilsTest {
         NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .correlationId("CorrelationId")
                 .physicalAddress(buildPhysicalAddressInt())
-                //.registry("ANPR")
-                //.recIndex(0)
-                //.addressResolutionStart(Instant.now())
-                //.addressResolutionEnd(Instant.now())
+                .registry("ANPR")
+                .recIndex(1)
+                .addressResolutionStart(Instant.now())
+                .addressResolutionEnd(Instant.now())
                 .build();
         TimelineElementInternal actual = timelineUtils.buildNationalRegistryValidationResponse(notification, response);
-        //TODO dopo aver rilasciato il task PN-14254, decommentare le righe sovrastanti e sostituire la riga sottostante con quella esistente.
-        //String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.CORRELATIONID_CorrelationId.RECINDEX_1";
-        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.CORRELATIONID_CorrelationId";
+        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.RECINDEX_1.CORRELATIONID_CorrelationId";
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),

@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.AddressesSQSMessage;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.PhysicalAddressSQSMessage;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalregistries.NationalRegistriesClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
@@ -21,6 +24,7 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class NationalRegistriesEventHandler {
     private final NationalRegistriesResponseHandler nationalRegistriesResponseHandler;
+    private final NotificationValidationActionHandler notificationValidationActionHandler;
 
     @Bean
     public Consumer<Message<AddressSQSMessage>> pnNationalRegistriesEventInboundConsumer() {
@@ -32,6 +36,24 @@ public class NationalRegistriesEventHandler {
                 String correlationId = message.getPayload().getCorrelationId();
                 NationalRegistriesResponse response = NationalRegistriesMessageUtil.buildPublicRegistryResponse(correlationId, digitalAddresses);
                 nationalRegistriesResponseHandler.handleResponse(response);
+
+            } catch (Exception ex) {
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<AddressesSQSMessage>> pnNationalRegistriesValidationEventInboundConsumer() {
+        return message -> {
+            try {
+                log.debug("Handle message from {} with content {}", NationalRegistriesClient.CLIENT_NAME, message);
+
+                List<PhysicalAddressSQSMessage> addresses = message.getPayload().getAddresses();
+                String correlationId = message.getPayload().getCorrelationId();
+                List<NationalRegistriesResponse> responses = NationalRegistriesMessageUtil.buildPublicRegistryValidationResponse(correlationId, addresses);
+                notificationValidationActionHandler.handleValidateNationalRegistriesResponse(correlationId, responses);
 
             } catch (Exception ex) {
                 HandleEventUtils.handleException(message.getHeaders(), ex);

@@ -8,11 +8,13 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
 import it.pagopa.pn.deliverypush.action.it.utils.TestUtils;
+import it.pagopa.pn.deliverypush.action.startworkflow.LookupAddressHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -31,6 +33,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,6 +76,8 @@ class NotificationValidationActionHandlerTest {
 
     @Mock
     private DocumentComposition documentComposition;
+    @Mock
+    private LookupAddressHandler lookupAddressHandler;
 
     @Mock
     private NationalRegistriesService nationalRegistriesService;
@@ -81,6 +86,13 @@ class NotificationValidationActionHandlerTest {
     public void setup() {
         //quickWorkAroundForPN-9116
         ParameterConsumer parameterConsumerMock = Mockito.mock(ParameterConsumer.class);
+        timelineUtils = Mockito.mock(TimelineUtils.class);
+        notificationService = Mockito.mock(NotificationService.class);
+        auditLogService = Mockito.mock(AuditLogService.class);
+        addressValidator = Mockito.mock(AddressValidator.class);
+        lookupAddressHandler = Mockito.mock(LookupAddressHandler.class);
+        schedulerService = Mockito.mock(SchedulerService.class);
+        cfg = Mockito.mock(PnDeliveryPushConfigs.class);
         SendMoreThan20GramsParameterConsumer sendMoreThan20GramsParameterConsumer = new SendMoreThan20GramsParameterConsumer(parameterConsumerMock, cfg);
         handler = new NotificationValidationActionHandler(attachmentUtils, taxIdPivaValidator,
                 timelineService, timelineUtils, notificationService,
@@ -88,7 +100,7 @@ class NotificationValidationActionHandlerTest {
                 schedulerService, cfg, f24Validator, paymentValidator,
                 //quickWorkAroundForPN-9116
                 sendMoreThan20GramsParameterConsumer,
-                safeStorageService, documentComposition, nationalRegistriesService);
+                safeStorageService, documentComposition, nationalRegistriesService, lookupAddressHandler);
     }
 
     @ExtendWith(SpringExtension.class)
@@ -603,7 +615,7 @@ class NotificationValidationActionHandlerTest {
         Mockito.verify(taxIdPivaValidator, Mockito.never()).validateTaxIdPiva(notification);
         Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
     }
-    
+
     @ExtendWith(SpringExtension.class)
     @Test
     void validateNotificationErrorCheckRetry() {
@@ -788,4 +800,83 @@ class NotificationValidationActionHandlerTest {
         Mockito.verify(auditLogEvent).generateWarning(any(), any());
         Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
     }
+
+    @Test
+    void handleValidateNationalRegistriesResponse_success() {
+        String correlationId = "correlationId";
+        String iun = "iun";
+        List<NationalRegistriesResponse> responses = List.of(new NationalRegistriesResponse());
+        NotificationInt notification = Mockito.mock(NotificationInt.class);
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+
+        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString()))
+                .thenReturn(iun);
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
+        Mockito.when(addressValidator.requestValidateAndNormalizeAddresses(Mockito.any(NotificationInt.class))).thenReturn(Mono.empty());
+
+        handler.handleValidateNationalRegistriesResponse(correlationId, responses);
+
+        Mockito.verify(lookupAddressHandler).validateAddresses(responses);
+        Mockito.verify(lookupAddressHandler).saveAddresses(responses, notification);
+        Mockito.verify(auditLogEvent).generateSuccess();
+        Mockito.verify(addressValidator).requestValidateAndNormalizeAddresses(notification);
+    }
+
+    @Test
+    void handleValidateNationalRegistriesResponse_lookupAddressNotFound() {
+        String correlationId = "correlationId";
+        String iun = "iun";
+        List<NationalRegistriesResponse> responses = List.of(new NationalRegistriesResponse());
+        NotificationInt notification = Mockito.mock(NotificationInt.class);
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+
+        List<String> details = new ArrayList<>();
+        details.add("error detail");
+
+        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString()))
+                .thenReturn(iun);
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString()))
+                .thenReturn(notification);
+
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.eq(notification.getIun()), Mockito.eq(PnAuditLogEventType.AUD_NT_VALID), Mockito.anyString(), any()))
+                .thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateWarning(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+        doThrow(new PnLookupAddressNotFoundException(details)).when(lookupAddressHandler).validateAddresses(responses);
+
+        handler.handleValidateNationalRegistriesResponse(correlationId, responses);
+
+        Mockito.verify(addressValidator, Mockito.never()).requestValidateAndNormalizeAddresses(notification);
+        Mockito.verify(lookupAddressHandler, Mockito.never()).saveAddresses(responses, notification);
+        Mockito.verify(lookupAddressHandler).validateAddresses(responses);
+        Mockito.verify(auditLogEvent).generateWarning(any(), any());
+
+    }
+
+    @Test
+    void handleValidateNationalRegistriesResponse_cancellationRequested() {
+        // Arrange
+        String correlationId = "correlationId";
+        String iun = "iun";
+        List<NationalRegistriesResponse> responses = List.of(new NationalRegistriesResponse());
+
+        Mockito.when(timelineUtils.getIunFromTimelineId(Mockito.anyString()))
+                .thenReturn(iun);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString()))
+                .thenReturn(true);
+
+        // Act
+        handler.handleValidateNationalRegistriesResponse(correlationId, responses);
+
+        // Assert
+        Mockito.verify(timelineUtils).checkIsNotificationCancellationRequested(iun);
+        Mockito.verify(notificationService, Mockito.never()).getNotificationByIun(Mockito.anyString());
+        Mockito.verify(lookupAddressHandler, Mockito.never()).validateAddresses(Mockito.anyList());
+        Mockito.verify(lookupAddressHandler, Mockito.never()).saveAddresses(Mockito.anyList(), Mockito.any(NotificationInt.class));
+        Mockito.verify(auditLogService, Mockito.never()).buildAuditLogEvent(Mockito.anyString(), Mockito.any(PnAuditLogEventType.class), Mockito.anyString(), any());
+    }
+
 }
