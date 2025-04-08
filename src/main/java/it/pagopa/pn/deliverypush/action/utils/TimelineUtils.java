@@ -1496,13 +1496,7 @@ public class TimelineUtils {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
-    public TimelineElementInternal buildNationalRegistryValidationCall(NotificationInt notification, List<Integer> recIndexes, DeliveryModeInt deliveryMode) {
-
-        String eventId = TimelineEventId.NATIONAL_REGISTRY_VALIDATION_CALL.buildEventId(
-                EventId.builder()
-                        .iun(notification.getIun())
-                        .deliveryMode(deliveryMode)
-                        .build());
+    public TimelineElementInternal buildNationalRegistryValidationCall(String eventId, NotificationInt notification, List<Integer> recIndexes, DeliveryModeInt deliveryMode) {
 
         log.debug("buildNationalRegistryValidationCall - iun={}", notification.getIun());
 

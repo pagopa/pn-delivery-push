@@ -24,11 +24,8 @@ import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.exceptions.*;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.SafeStorageService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +44,8 @@ public class NotificationValidationActionHandler {
     private static final int FIRST_VALIDATION_STEP = 1;
     private static final int SECOND_VALIDATION_STEP = 2;
     private static final int THIRD_VALIDATION_STEP = 3;
-    public static final String NOTIFICATION_IS_NOT_VALID_MSG = "Notification is not valid - iun={} ex={}";
+    private static final int FOURTH_VALIDATION_STEP = 4;
+    private static final String NOTIFICATION_IS_NOT_VALID_MSG = "Notification is not valid - iun={} ex={}";
     private final AttachmentUtils attachmentUtils;
     private final TaxIdPivaValidator taxIdPivaValidator;
     private final TimelineService timelineService;
@@ -65,8 +63,9 @@ public class NotificationValidationActionHandler {
     private final SendMoreThan20GramsParameterConsumer parameterConsumer;
     private final SafeStorageService safeStorageService;
     private final DocumentComposition documentComposition;
+    private final NationalRegistriesService nationalRegistriesService;
     private final LookupAddressHandler lookupAddressHandler;
-    
+
     public void validateNotification(String iun, NotificationValidationActionDetails details){
         log.debug("Start validateNotification - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
@@ -94,9 +93,7 @@ public class NotificationValidationActionHandler {
                 String detail = " F24 does not exists, so F24 validation will be skipped";
                 generateSkipAuditLog(notification, SECOND_VALIDATION_STEP, detail).generateSuccess().log();
                 //La validazione dell'indirizzo è async
-                MDCUtils.addMDCToContextAndExecute(
-                        addressValidator.requestValidateAndNormalizeAddresses(notification)
-                ).block();
+                verifyVasLookUpAddressAndNormalizeAddress(notification);
             }
 
             logEvent.generateSuccess().log();
@@ -147,7 +144,7 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(NotificationInt notification, int validationStep) {
-        String message = "Notification validation step {} of 3.";
+        String message = "Notification validation step {} of 4.";
 
         if(! cfg.isCheckCfEnabled()){
             message += " TaxId validation will be skipped";
@@ -163,7 +160,7 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateSkipAuditLog(NotificationInt notification, int validationStep, String detail) {
-        String message = "Notification validation step {} of 3." + detail;
+        String message = "Notification validation step {} of 4." + detail;
 
         return auditLogService.buildAuditLogEvent(
                 notification.getIun(),
@@ -218,9 +215,7 @@ public class NotificationValidationActionHandler {
                         notification
                 );
 
-                MDCUtils.addMDCToContextAndExecute(
-                        addressValidator.requestValidateAndNormalizeAddresses(notification)
-                ).block();
+                verifyVasLookUpAddressAndNormalizeAddress(notification);
 
                 logEvent.generateSuccess().log();
             }
@@ -233,7 +228,7 @@ public class NotificationValidationActionHandler {
     public void handleValidateAndNormalizeAddressResponse(String iun, NormalizeItemsResultInt normalizeItemsResult) {
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        PnAuditLogEvent logEvent = generateAuditLog(notification, THIRD_VALIDATION_STEP);
+        PnAuditLogEvent logEvent = generateAuditLog(notification, FOURTH_VALIDATION_STEP);
 
         try {
             addressValidator.handleAddressValidation(iun, normalizeItemsResult);
@@ -325,6 +320,19 @@ public class NotificationValidationActionHandler {
 
     private boolean canSendMoreThan20Grams(String paTaxId) {
         return parameterConsumer.isPaEnabledToSendMoreThan20Grams(paTaxId);
+    }
+
+    private void verifyVasLookUpAddressAndNormalizeAddress(NotificationInt notification) {
+        log.debug("Start verifyVasLookUpAddressAndNormalizeAddress - iun={}", notification.getIun());
+        if (notification.getUsedServices() != null && notification.getUsedServices().getPhysicalAddressLookUp()) {
+            nationalRegistriesService.sendRequestForGetMultiplePhysicalAddress(notification);
+        } else {
+            String detail = "The notification did not use the physicalAddressLookUp, so the step of searching for physicalAddressLookUp will be skipped.";
+            generateSkipAuditLog(notification, THIRD_VALIDATION_STEP, detail).generateSuccess().log();
+            MDCUtils.addMDCToContextAndExecute(
+                    addressValidator.requestValidateAndNormalizeAddresses(notification)
+            ).block();
+        }
     }
 
     public void handleValidateNationalRegistriesResponse(String correlationId, List<NationalRegistriesResponse> responses) {
