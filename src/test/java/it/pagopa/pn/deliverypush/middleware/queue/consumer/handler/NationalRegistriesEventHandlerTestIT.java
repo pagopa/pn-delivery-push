@@ -2,9 +2,9 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.MockActionPoolTest;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.*;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.AddressSQSMessage;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.AddressSQSMessageDigitalAddress;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,6 +28,9 @@ class NationalRegistriesEventHandlerTestIT extends MockActionPoolTest {
 
     @MockBean
     private NationalRegistriesResponseHandler handler;
+
+    @MockBean
+    private NotificationValidationActionHandler notificationValidationActionHandler;
 
     @Test
     void consumeMessageOK() {
@@ -54,5 +57,43 @@ class NationalRegistriesEventHandlerTestIT extends MockActionPoolTest {
                 () -> pnNationalRegistriesEventInboundConsumer.accept(message));
     }
 
+    @Test
+    void validationConsumeMessageOK() {
+        Consumer<Message<AddressesSQSMessage>> pnNationalRegistriesValidationEventInboundConsumer = functionCatalog.lookup(Consumer.class, "pnNationalRegistriesValidationEventInboundConsumer");
+        AddressesSQSMessage addressesSQSMessage = new AddressesSQSMessage()
+                .correlationId("correlationId")
+                .addresses(getAddressesSQSMessage());
+        Message<AddressesSQSMessage> message = MessageBuilder.withPayload(addressesSQSMessage).build();
+        pnNationalRegistriesValidationEventInboundConsumer.accept(message);
+        Mockito.verify(notificationValidationActionHandler).handleValidateNationalRegistriesResponse(Mockito.eq("correlationId"), Mockito.anyList());
+    }
+
+    @Test
+    void validationConsumeMessageKO() {
+        Consumer<Message<AddressesSQSMessage>> pnNationalRegistriesValidationEventInboundConsumer = functionCatalog.lookup(Consumer.class, "pnNationalRegistriesValidationEventInboundConsumer");
+        AddressesSQSMessage addressesSQSMessage = new AddressesSQSMessage()
+                .correlationId("correlationId")
+                .addresses(getAddressesSQSMessage());
+        Message<AddressesSQSMessage> message = MessageBuilder.withPayload(addressesSQSMessage).build();
+        Mockito.doThrow(new RuntimeException()).when(notificationValidationActionHandler).handleValidateNationalRegistriesResponse(Mockito.eq("correlationId"), Mockito.anyList());
+        Assertions.assertThrows(RuntimeException.class,
+                () -> pnNationalRegistriesValidationEventInboundConsumer.accept(message));
+    }
+
+    private static List<PhysicalAddressSQSMessage> getAddressesSQSMessage() {
+        return List.of(new PhysicalAddressSQSMessage()
+                .recIndex("1")
+                .taxId("taxId1")
+                .registry("ANPR")
+                .physicalAddress(new PhysicalAddress()
+                        .address("address")
+                        .zip("zip")
+                        .province("province")
+                        .addressDetails("addressDetails")
+                        .municipality("municipality")
+                        .municipalityDetails("municipalityDetails")
+                        .at("at")
+                        .foreignState("foreignState")));
+    }
 
 }
