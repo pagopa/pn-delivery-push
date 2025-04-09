@@ -32,6 +32,7 @@ import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt.PF;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT;
 
 @Slf4j
@@ -91,7 +92,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), sendInformation.getDigitalAddress(), recIndex);
 
         try {
-            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, false);
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, isRetrieveAarOnly(notification,recIndex));
 
             if (!featureEnabledUtils.isPfNewWorkflowEnabled(notification.getSentAt())
                     && sendInformation.getDigitalAddress().getType().equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
@@ -236,6 +237,13 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         {
             return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DA_SEND_SMS, "sendSMSMessage eventId={}", eventId);
         }
+    }
+
+    private boolean isRetrieveAarOnly(NotificationInt notification, Integer recIndex) {
+        NotificationRecipientInt typeRec = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        boolean isRadd = attachmentUtils.getAarWithRadd(notification, recIndex);
+        boolean isPf = typeRec.getRecipientType() != null && PF.equals(typeRec.getRecipientType());
+        return isRadd && isPf;
     }
 
 
