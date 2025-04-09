@@ -104,6 +104,7 @@ public class NotificationMapper {
         sentNotification.setPaFee(notification.getPaFee());
         sentNotification.setVat(notification.getVat());
         sentNotification.setAdditionalLanguages(notification.getAdditionalLanguages());
+        sentNotification.setUsedServices(mapToUserSevicesInt(notification.getUsedServices()));
 
         ZonedDateTime time = DateFormatUtils.parseInstantToZonedDateTime(notification.getPaymentExpirationDate());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -168,6 +169,14 @@ public class NotificationMapper {
         document.setDigests(digests);
         document.setRef(ref);
         return document;
+    }
+    private static UsedServices mapToUserSevicesInt(UsedServicesInt usedServicesInt) {
+        if (usedServicesInt == null) {
+            return null;
+        }
+        UsedServices usedServices = new UsedServices();
+        usedServices.physicalAddressLookup(usedServicesInt.getPhysicalAddressLookUp());
+        return usedServices;
     }
     
 }

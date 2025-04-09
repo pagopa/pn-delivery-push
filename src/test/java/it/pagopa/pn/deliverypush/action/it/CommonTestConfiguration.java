@@ -111,7 +111,6 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         NotificationCost.class,
         ViewNotification.class,
         PnDeliveryClientReactiveMock.class,
-        PnDataVaultClientReactiveMock.class,
         DocumentCreationRequestServiceImpl.class,
         DocumentCreationRequestDaoMock.class,
         SafeStorageResponseHandler.class,

@@ -39,21 +39,22 @@ public class RecipientMapper {
         }
 
         NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-        notificationRecIntBuilder
-                .physicalAddress(
-                        PhysicalAddressInt.builder()
-                                .fullname(recipient.getDenomination())
-                                .at(physicalAddress.getAt())
-                                .address(physicalAddress.getAddress())
-                                .addressDetails(physicalAddress.getAddressDetails())
-                                .foreignState(physicalAddress.getForeignState())
-                                .municipality(physicalAddress.getMunicipality())
-                                .municipalityDetails(physicalAddress.getMunicipalityDetails())
-                                .province(physicalAddress.getProvince())
-                                .zip(physicalAddress.getZip())
-                                .build()
-                );
-
+        if (physicalAddress != null) {
+            notificationRecIntBuilder
+                    .physicalAddress(
+                            PhysicalAddressInt.builder()
+                                    .fullname(recipient.getDenomination())
+                                    .at(physicalAddress.getAt())
+                                    .address(physicalAddress.getAddress())
+                                    .addressDetails(physicalAddress.getAddressDetails())
+                                    .foreignState(physicalAddress.getForeignState())
+                                    .municipality(physicalAddress.getMunicipality())
+                                    .municipalityDetails(physicalAddress.getMunicipalityDetails())
+                                    .province(physicalAddress.getProvince())
+                                    .zip(physicalAddress.getZip())
+                                    .build()
+                    );
+        }
 
         List<NotificationPaymentInfoInt> payments = null;
         List<NotificationPaymentItem> paymentItemList = recipient.getPayments();

@@ -25,6 +25,8 @@ public class NotificationTestBuilder {
     private Integer paFee;
 
     private String group;
+
+    private UsedServicesInt usedServices;
     
     public NotificationTestBuilder() {
         sentAt = Instant.now();
@@ -85,6 +87,11 @@ public class NotificationTestBuilder {
 
     public NotificationTestBuilder withGroup(String group1) {
         this.group = group1;
+        return this;
+    }
+
+    public NotificationTestBuilder withUsedServices(UsedServicesInt usedServices) {
+        this.usedServices = usedServices;
         return this;
     }
 
@@ -163,6 +170,7 @@ public class NotificationTestBuilder {
                 .pagoPaIntMode(pagoPaIntMode)
                 .paFee(paFee)
                 .group(group)
+                .usedServices(usedServices)
                 .build();
     }
 
