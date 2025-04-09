@@ -41,7 +41,7 @@ public class NotificationLookupAddressTestIT extends CommonTestConfiguration {
 
     @Test
     void testNotificationAddressLookup_AddressFound() {
-        //Notifica monodestinatario con lookupAddress attivo che trova un indirizzo su National registries.
+        //Notifica monodestinatario con lookupAddress attivo che trova il physicalAddress su National Registries.
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
@@ -92,7 +92,7 @@ public class NotificationLookupAddressTestIT extends CommonTestConfiguration {
 
     @Test
     void testNotificationAddressLookup_AddressNotFound() {
-        //Notifica monodestinatario con lookupAddress attivo che non trova un indirizzo su National registries
+        //Notifica monodestinatario con lookupAddress attivo che non trova il physicalAddress su National Registries.
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
@@ -144,7 +144,7 @@ public class NotificationLookupAddressTestIT extends CommonTestConfiguration {
 
     @Test
     void testNotificationAddressLookup_AddressNotFoundJustForOneRecipient() {
-        //Notifica con 2 destinatari con lookupAddress attivo per entrambi; National Registries non trova un indirizzo per un destinatario.
+        //Notifica con lookupAddress attivo e con 2 destinatari. National Registries non trova il physicalAddress per un destinatario.
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
@@ -204,7 +204,8 @@ public class NotificationLookupAddressTestIT extends CommonTestConfiguration {
 
     @Test
     void testNotificationAddressLookup_defaultPhysicalAddressJustForOneRecipient() {
-        //Notifica con 2 destinatari con lookupAddress attivo per entrambi; National Registries trova l' indirizzo per un destinatario.
+        //Notifica con lookupAddress attivo e con 2 destinatari. Il recipient1 non ha il physicalAddress mentre il recipient2 si.
+        // National Registries trova il physicalAddress per il recipient1.
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
@@ -259,7 +260,7 @@ public class NotificationLookupAddressTestIT extends CommonTestConfiguration {
 
     @Test
     void testNotificationAddressLookup_AddressFoundWithoutLookupAddress() {
-        // Notifica monodestinatario con lookupAddress disattivo e indirizzo trovato su National Registries.
+        // Notifica monodestinatario con lookupAddress disattivo. La notifica dovrebbe seguire il flusso senza ricercare il physicalAddress su National Registries.
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
