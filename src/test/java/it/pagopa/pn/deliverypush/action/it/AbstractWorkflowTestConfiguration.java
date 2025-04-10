@@ -10,9 +10,11 @@ import freemarker.template.Version;
 import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
+import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.NotificationValidationActionHandler;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.legalfacts.*;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
@@ -63,7 +65,14 @@ public class AbstractWorkflowTestConfiguration {
 
     @Bean
     public PnDeliveryClient testPnDeliveryClient(PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
-        return new PnDeliveryClientMock(pnDataVaultClientReactiveMock);
+        PnDeliveryClientMock pnDeliveryClientMock = new PnDeliveryClientMock(pnDataVaultClientReactiveMock);
+        pnDataVaultClientReactiveMock.setPnDeliveryClientMock(pnDeliveryClientMock);
+        return pnDeliveryClientMock;
+    }
+
+    @Bean
+    public PnDataVaultClientReactive testPnDataVaultClient() {
+        return new PnDataVaultClientReactiveMock();
     }
 
     @Bean
@@ -130,9 +139,11 @@ public class AbstractWorkflowTestConfiguration {
 
     @Bean
     public NationalRegistriesClientMock publicRegistriesMapMock(@Lazy NationalRegistriesResponseHandler nationalRegistriesResponseHandler,
+                                                                @Lazy NotificationValidationActionHandler notificationValidationActionHandler,
                                                                 @Lazy TimelineService timelineService) {
         return new NationalRegistriesClientMock(
                 nationalRegistriesResponseHandler,
+                notificationValidationActionHandler,
                 timelineService
         );
     }

@@ -259,6 +259,22 @@ Resources:
         HasDLQ: "false"
         QueueHasAlarm: "true"
 
+  ### Communication FROM pn-national-registries TO pn-delivery-push ###
+  NationalRegistries2DeliveryPushValidationQueue:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain      
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-nationalregistries_to_deliverypush_validation'
+        DelaySeconds: 1
+        VisibilityTimeout: 60
+        MaxReceiveCount: 10        
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        QueueHasAlarm: "true"
+        HasDLQ: "true"
+
   # Notification Timeline DynamoDB Table
   TimelinesTable:
     Type: AWS::DynamoDB::Table
@@ -691,6 +707,23 @@ Outputs:
   DoneActionsQueueAgeAlarmARN:
     Value: !GetAtt DoneActionsQueue.Outputs.SqsAgeAlarmArn
     Description: pn-delivery-push actions done queue age alarm ARN
+
+  # NationalRegistries to DeliveryPush
+  NationalRegistries2DeliveryPushValidationQueueName:
+    Value: !GetAtt NationalRegistries2DeliveryPushValidationQueue.Outputs.QueueName
+    Description: Events from pn-national-registries TO pn-delivery-push-validation queue name
+  NationalRegistries2DeliveryPushValidationQueueURL:
+    Value: !GetAtt NationalRegistries2DeliveryPushValidationQueue.Outputs.QueueURL
+    Description: Events from pn-national-registries TO pn-delivery-push-validation queue URL
+  NationalRegistries2DeliveryPushValidationQueueARN:
+    Value: !GetAtt NationalRegistries2DeliveryPushValidationQueue.Outputs.QueueARN
+    Description: Events from pn-national-registries TO pn-delivery-push-validation queue ARN
+  NationalRegistries2DeliveryPushValidationQueueAlarmARN:
+    Value: !GetAtt NationalRegistries2DeliveryPushValidationQueue.Outputs.SqsDLQAlarmArn
+    Description: Events from pn-national-registries TO pn-delivery-push-validation alarm ARN
+  NationalRegistries2DeliveryPushValidationQueueAgeAlarmARN:
+    Value: !GetAtt NationalRegistries2DeliveryPushValidationQueue.Outputs.SqsAgeAlarmArn
+    Description: Events from pn-national-registries TO pn-delivery-push-validation age alarm ARN
 
   # Dynamo tables
   TimelinesDynamoTableName:

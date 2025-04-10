@@ -15,6 +15,7 @@ public class NotificationRecipientAddressesDtoMapper {
         dtoExt.setDenomination(dtoInt.getDenomination());
         dtoExt.setDigitalAddress(getAddressDtoFromDigitalAddress(dtoInt.getDigitalAddress()));
         dtoExt.setPhysicalAddress(getAnalogDomicileFromPhysical(dtoInt.getPhysicalAddress()));
+        dtoExt.setRecIndex(dtoInt.getRecIndex());
         return dtoExt;
     }
 

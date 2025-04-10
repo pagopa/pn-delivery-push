@@ -12,4 +12,6 @@ public interface NationalRegistriesService {
                                                 String relatedFeedbackTimelineId);
 
     CheckTaxIdOKInt checkTaxId(String taxId);
+
+    void sendRequestForGetMultiplePhysicalAddress(NotificationInt notification);
 }

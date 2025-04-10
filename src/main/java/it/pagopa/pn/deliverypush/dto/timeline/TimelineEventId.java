@@ -596,6 +596,7 @@ public enum TimelineEventId {
             return new TimelineEventIdBuilder()
                     .withCategory(this.getValue())
                     .withCorrelationId(eventId.getRelatedTimelineId())
+                    .withRecIndex(eventId.getRecIndex())
                     .build();
         }
     };
