@@ -815,6 +815,18 @@ Parameters:
     Description: List containing in order pfNewWorkflowStart, pfNewWorkflowStop
     Default: '2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
 
+  AAROnlyPECForRADDAndPF:
+    Type: String
+    Description: Feature flag for enabling only AAR via PEC with RADD and PF
+    AllowedValues:
+      - "true"
+      - "false"
+
+  TemplateURLforPEC:
+    Type: String
+    Description: Uri path for templates-engine body PEC
+    Default: '/templates-engine-private/v1/templates/notification-aar-for-pec'
+
   ApplicativeEnvFileChecksum:
     Type: String
     Default: ''

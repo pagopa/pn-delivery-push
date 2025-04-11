@@ -45,6 +45,8 @@
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
     "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z,delivery-progresses-2",
-    "pfNewWorkflowFeatureFlag": "2019-01-01T00:00:00Z,2099-02-01T00:00:00Z"
+    "pfNewWorkflowFeatureFlag": "2019-01-01T00:00:00Z,2099-02-01T00:00:00Z",
+    "AAROnlyPECForRADDAndPF": "false",
+    "TemplateURLforPEC":"/templates-engine-private/v1/templates/notification-aar-for-pec"
     }
 }

@@ -32,4 +32,9 @@ public class FeatureEnabledUtils {
         return isEnabled;
     }
 
+    public boolean isFeatureAAROnlyPECForRADDAndPFEnabled(){
+        String isEnabled = configs.getFeatureFlagAAROnlyPECForRADDAndPF();
+        return isEnabled.equalsIgnoreCase("true");
+    }
+
 }

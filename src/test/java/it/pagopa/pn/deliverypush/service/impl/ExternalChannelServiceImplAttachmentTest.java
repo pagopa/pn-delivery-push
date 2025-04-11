@@ -111,7 +111,7 @@ class ExternalChannelServiceImplAttachmentTest {
                 auditLogService,
                 timelineUtils,
                 attachmentUtils,
-                timelineService, featureEnabledUtils);
+                timelineService, featureEnabledUtils, pnDeliveryPushConfigs);
     }
 
 
@@ -120,6 +120,8 @@ class ExternalChannelServiceImplAttachmentTest {
     @ParameterizedTest
     @MethodSource("sendDigitalNotificationParams")
     void sendLegalNotificationAAR_DOCUMENTS_PAYMENTS(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType, String address) {
+        when(featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled()).thenReturn(true);
+
         //GIVEN
         String quickAccessToken = "test";
         String aarKey = "testKey";
@@ -202,6 +204,7 @@ class ExternalChannelServiceImplAttachmentTest {
     @ParameterizedTest
     @MethodSource("sendDigitalNotificationParams")
     void sendLegalNotificationAAR_DOCUMENTS(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType, String address) {
+        when(featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled()).thenReturn(true);
         //GIVEN
         String quickAccessToken = "test";
         String aarKey = "testKey";
@@ -281,6 +284,7 @@ class ExternalChannelServiceImplAttachmentTest {
     @ParameterizedTest
     @MethodSource("sendDigitalNotificationParams")
     void sendLegalNotificationAAR(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType, String address) {
+        when(featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled()).thenReturn(true);
         //GIVEN
         String quickAccessToken = "test";
         String aarKey = "testKey";

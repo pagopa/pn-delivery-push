@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.SendInformation;
@@ -48,13 +49,14 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final AttachmentUtils attachmentUtils;
     private final TimelineService timelineService;
     private final FeatureEnabledUtils featureEnabledUtils;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
                                       NotificationUtils notificationUtils,
                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
                                       NotificationService notificationService, AuditLogService auditLogService,
-                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService, FeatureEnabledUtils featureEnabledUtils) {
+                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService, FeatureEnabledUtils featureEnabledUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
@@ -65,6 +67,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         this.attachmentUtils = attachmentUtils;
         this.timelineService = timelineService;
         this.featureEnabledUtils = featureEnabledUtils;
+        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     /**
@@ -92,7 +95,15 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), sendInformation.getDigitalAddress(), recIndex);
 
         try {
-            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, isRetrieveAarOnly(notification,recIndex));
+            /* Se la featureFlag è attiva ed il destinatario è PF con copertura RADD (isRetrieveAarOnly), verranno inviati solo gli AAR
+            altrimenti verrà fatto un invio intero della PEC. La FeatureFlag determina quindi il passaggio da invio atto intero
+            o override dello stesso.
+             */
+            boolean isFeatureAarOnlyEnabled = featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled();
+            boolean shouldRetrieveAarOnly = isFeatureAarOnlyEnabled && isRetrieveAarOnly(notification, recIndex);
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, shouldRetrieveAarOnly);
+
+            log.info("Feature AAROnlyPECForRADDAndPF is {} - DigitalParameters: {}", isFeatureAarOnlyEnabled ? "true" : "false", digitalParameters);
 
             if (!featureEnabledUtils.isPfNewWorkflowEnabled(notification.getSentAt())
                     && sendInformation.getDigitalAddress().getType().equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
