@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Classe di configurazione per impostare i bean di Template Generator in base alle proprietà dell'applicazione.
@@ -42,6 +43,8 @@ public class LegalFactGeneratorConfig {
 
     private final DocumentComposition documentComposition;
     private final InstantNowSupplier instantNowSupplier;
+    private final RestTemplate restTemplate;
+
 
     @Bean
     @ConditionalOnProperty(name = "pn.delivery-push.enable-templates-engine", havingValue = "true", matchIfMissing = true)
@@ -51,7 +54,8 @@ public class LegalFactGeneratorConfig {
                 physicalAddressWriter,
                 pnDeliveryPushConfigs,
                 pnSendModeUtils,
-                templatesClient
+                templatesClient,
+                restTemplate
         );
     }
 

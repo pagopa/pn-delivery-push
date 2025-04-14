@@ -16,8 +16,12 @@ import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -37,6 +41,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final PnSendModeUtils pnSendModeUtils;
     private final TemplatesClient templatesClient;
+    private final RestTemplate restTemplate;
+
 
     /**
      * Generates the legal fact for a received notification.
@@ -356,7 +362,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 this.getAccessUrl(recipient),
                 this.getRecipientTypeForHTMLTemplate(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templatesClient.notificationAarForPec(language, notificationAAR);
+        return this.parametrizedNotificationAarForPec(language, notificationAAR).getBody();
     }
 
     /**
@@ -519,6 +525,32 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     private String buildAarSenderLogo(String paId) {
         String aarUrlTemplate = pnDeliveryPushConfigs.getWebapp().getAarSenderLogoUrlTemplate();
         return aarUrlTemplate.replace("<PA_ID>", paId);
+    }
+
+    private ResponseEntity<String> parametrizedNotificationAarForPec(LanguageEnum language, NotificationAarForPec notificationAarForPec) throws RestClientException {
+        if (language == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing 'language' param");
+        }
+
+        if (notificationAarForPec == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Missing 'notificationAarForPec' param");
+        }
+
+        String url = pnDeliveryPushConfigs.getTemplatesEngineBaseUrl() + pnDeliveryPushConfigs.getTemplateURLforPEC();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.TEXT_HTML, MediaType.APPLICATION_JSON));
+        headers.set("x-language", language.toString());
+
+        HttpEntity<NotificationAarForPec> entity = new HttpEntity<>(notificationAarForPec, headers);
+
+        return restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                entity,
+                String.class
+        );
     }
 
 }

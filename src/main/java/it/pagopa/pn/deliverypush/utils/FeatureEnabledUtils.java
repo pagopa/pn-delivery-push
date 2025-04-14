@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Component
@@ -33,8 +34,9 @@ public class FeatureEnabledUtils {
     }
 
     public boolean isFeatureAAROnlyPECForRADDAndPFEnabled(){
-        String isEnabled = configs.getFeatureFlagAAROnlyPECForRADDAndPF();
-        return isEnabled.equalsIgnoreCase("true");
+        return Optional.ofNullable(configs.getFeatureFlagAAROnlyPECForRADDAndPF())
+                .map("true"::equalsIgnoreCase)
+                .orElse(false);
     }
 
 }
