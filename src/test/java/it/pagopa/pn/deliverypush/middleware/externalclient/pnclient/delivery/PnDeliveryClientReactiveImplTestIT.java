@@ -3,9 +3,8 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.MockAWSObjectsTest;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV24;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV25;
 import org.junit.jupiter.api.*;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
@@ -15,8 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
 
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
@@ -50,7 +47,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void getSentNotification() throws JsonProcessingException {
         //Given
         String iun ="iunTest";
-        SentNotificationV24 notification = new SentNotificationV24();
+        SentNotificationV25 notification = new SentNotificationV25();
         notification.setIun(iun);
         
         String path = "/delivery-private/notifications/{iun}"
@@ -68,9 +65,9 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
                         .withContentType(MediaType.APPLICATION_JSON)
                         .withStatusCode(200));
         
-        Mono<SentNotificationV24> response = client.getSentNotification(iun);
+        Mono<SentNotificationV25> response = client.getSentNotification(iun);
 
-        SentNotificationV24 notificationResponse = response.block();
+        SentNotificationV25 notificationResponse = response.block();
         Assertions.assertNotNull(notificationResponse);
         Assertions.assertEquals(notification, notificationResponse);
     }
@@ -79,7 +76,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void getSentNotificationError(){
         //Given
         String iun ="iunTest";
-        SentNotificationV24 notification = new SentNotificationV24();
+        SentNotificationV25 notification = new SentNotificationV25();
         notification.setIun(iun);
 
         String path = "/delivery-private/notifications/{iun}"
@@ -105,7 +102,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void getSentNotificationError404(){
         //Given
         String iun ="iunTest";
-        SentNotificationV24 notification = new SentNotificationV24();
+        SentNotificationV25 notification = new SentNotificationV25();
         notification.setIun(iun);
 
         String path = "/delivery-private/notifications/{iun}"
@@ -132,7 +129,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void removeAllNotificationCostsByIun() throws JsonProcessingException {
         //Given
         String iun ="iunTest";
-        SentNotificationV24 notification = new SentNotificationV24();
+        SentNotificationV25 notification = new SentNotificationV25();
         notification.setIun(iun);
 
         String path = "/delivery-private/notification-cost/{iun}"
@@ -160,7 +157,7 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
     void removeAllNotificationCostsByIunError(){
         //Given
         String iun ="iunTest1";
-        SentNotificationV24 notification = new SentNotificationV24();
+        SentNotificationV25 notification = new SentNotificationV25();
         notification.setIun(iun);
 
         String path = "/delivery-private/notification-cost/{iun}"
@@ -176,72 +173,6 @@ class PnDeliveryClientReactiveImplTestIT extends MockAWSObjectsTest {
                         .withStatusCode(400));
 
         client.removeAllNotificationCostsByIun(iun).onErrorResume(
-                ex -> {
-                    Assertions.assertNotNull(ex);
-                    return Mono.empty();
-                }
-        );
-    }
-
-
-
-    @Test
-    void updateStatus() throws JsonProcessingException {
-        //Given
-        String iun ="iunTest";
-        SentNotificationV24 notification = new SentNotificationV24();
-        notification.setIun(iun);
-
-        String path = "/delivery-private/notifications/update-status";
-
-        ObjectMapper mapper = new ObjectMapper();
-        String respjson = mapper.writeValueAsString(notification);
-
-        mockServer.stop();
-        mockServer = startClientAndServer(9998);
-
-        new MockServerClient("localhost", 9998)
-                .when(request()
-                        .withMethod("POST")
-                        .withPath(path))
-                .respond(response()
-                        .withContentType(MediaType.APPLICATION_JSON)
-                        .withStatusCode(200));
-
-        NotificationStatusInt notificationStatus = NotificationStatusInt.CANCELLED;
-        Instant updateStatus = Instant.now();
-
-        Mono<Void> response = client.updateStatus (iun, notificationStatus, updateStatus);
-
-        Assertions.assertDoesNotThrow(() ->  response.block());
-    }
-
-    @Test
-    void updateStatusError(){
-        //Given
-        String iun ="iunTest1";
-        SentNotificationV24 notification = new SentNotificationV24();
-        notification.setIun(iun);
-
-        String path = "/delivery-private/notifications/update-status";
-
-        ObjectMapper mapper = new ObjectMapper();
-        mockServer.stop();
-        mockServer = startClientAndServer(9998);
-
-        new MockServerClient("localhost", 9998)
-                .when(request()
-                        .withMethod("POST")
-                        .withPath(path))
-                .respond(response()
-                        .withContentType(MediaType.APPLICATION_JSON)
-                        .withStatusCode(400));
-
-
-        NotificationStatusInt notificationStatus = NotificationStatusInt.CANCELLED;
-        Instant updateStatus = Instant.now();
-
-        client.updateStatus (iun, notificationStatus, updateStatus).onErrorResume(
                 ex -> {
                     Assertions.assertNotNull(ex);
                     return Mono.empty();

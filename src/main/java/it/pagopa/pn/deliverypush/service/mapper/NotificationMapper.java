@@ -16,7 +16,7 @@ import java.util.List;
 public class NotificationMapper {
     private NotificationMapper(){}
 
-    public static NotificationInt externalToInternal(SentNotificationV24 sentNotification) {
+    public static NotificationInt externalToInternal(SentNotificationV25 sentNotification) {
 
         List<NotificationRecipientInt> listNotificationRecipientInt = mapNotificationRecipient(sentNotification.getRecipients());
         List<NotificationDocumentInt> listNotificationDocumentIntInt = mapNotificationDocument(sentNotification.getDocuments());
@@ -53,6 +53,7 @@ public class NotificationMapper {
                 .pagoPaIntMode(sentNotification.getPagoPaIntMode() != null ? PagoPaIntMode.valueOf(sentNotification.getPagoPaIntMode().getValue()) : null)
                 .version(sentNotification.getVersion())
                 .additionalLanguages(sentNotification.getAdditionalLanguages())
+                .usedServices(UsedServicesMapper.externalToInternal(sentNotification.getUsedServices()))
                 .build();
     }
 
@@ -80,10 +81,10 @@ public class NotificationMapper {
         return list;
     }
 
-    private static List<NotificationRecipientInt> mapNotificationRecipient(List<NotificationRecipientV23> recipients) {
+    private static List<NotificationRecipientInt> mapNotificationRecipient(List<NotificationRecipientV24> recipients) {
         List<NotificationRecipientInt> list = new ArrayList<>();
 
-        for (NotificationRecipientV23 recipient : recipients){
+        for (NotificationRecipientV24 recipient : recipients){
             NotificationRecipientInt recipientInt = RecipientMapper.externalToInternal(recipient);
             list.add(recipientInt);
         }
@@ -92,8 +93,8 @@ public class NotificationMapper {
     }
     
     //Utilizzata a livello di test
-    public static SentNotificationV24 internalToExternal(NotificationInt notification) {
-        SentNotificationV24 sentNotification = new SentNotificationV24();
+    public static SentNotificationV25 internalToExternal(NotificationInt notification) {
+        SentNotificationV25 sentNotification = new SentNotificationV25();
 
         sentNotification.setIun(notification.getIun());
         sentNotification.setPaProtocolNumber(notification.getPaProtocolNumber());
@@ -103,6 +104,7 @@ public class NotificationMapper {
         sentNotification.setPaFee(notification.getPaFee());
         sentNotification.setVat(notification.getVat());
         sentNotification.setAdditionalLanguages(notification.getAdditionalLanguages());
+        sentNotification.setUsedServices(mapToUserSevicesInt(notification.getUsedServices()));
 
         ZonedDateTime time = DateFormatUtils.parseInstantToZonedDateTime(notification.getPaymentExpirationDate());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -110,11 +112,11 @@ public class NotificationMapper {
         sentNotification.setPaymentExpirationDate(formattedString);
         
         if(notification.getPagoPaIntMode() != null){
-            sentNotification.setPagoPaIntMode(SentNotificationV24.PagoPaIntModeEnum.valueOf(notification.getPagoPaIntMode().getValue()));
+            sentNotification.setPagoPaIntMode(SentNotificationV25.PagoPaIntModeEnum.valueOf(notification.getPagoPaIntMode().getValue()));
         }
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(
-                    SentNotificationV24.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
+                    SentNotificationV25.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
             );
         }
 
@@ -125,7 +127,7 @@ public class NotificationMapper {
             sentNotification.setSenderTaxId( sender.getPaTaxId() );
         }
 
-        List<NotificationRecipientV23> recipients = notification.getRecipients().stream()
+        List<NotificationRecipientV24> recipients = notification.getRecipients().stream()
                 .map(RecipientMapper::internalToExternal).toList();
 
         sentNotification.setRecipients(recipients);
@@ -136,7 +138,7 @@ public class NotificationMapper {
         sentNotification.setDocuments(documents);
 
         if(notification.getPhysicalCommunicationType() != null){
-            sentNotification.setPhysicalCommunicationType(SentNotificationV24.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
+            sentNotification.setPhysicalCommunicationType(SentNotificationV25.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
         }
         
         if(notification.getSender() != null){
@@ -168,5 +170,14 @@ public class NotificationMapper {
         document.setRef(ref);
         return document;
     }
-    
+
+    private static UsedServices mapToUserSevicesInt(UsedServicesInt usedServicesInt) {
+        if (usedServicesInt == null) {
+            return null;
+        }
+        UsedServices usedServices = new UsedServices();
+        usedServices.physicalAddressLookup(usedServicesInt.getPhysicalAddressLookUp());
+        return usedServices;
+    }
+
 }

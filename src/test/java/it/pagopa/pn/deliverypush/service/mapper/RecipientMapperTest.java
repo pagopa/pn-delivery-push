@@ -2,7 +2,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.*;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipientV23.RecipientTypeEnum;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationRecipientV24.RecipientTypeEnum;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
@@ -16,7 +16,7 @@ class RecipientMapperTest {
     @Test
     void externalToInternal() {
         //GIVEN
-        NotificationRecipientV23 given = buildNotificationRecipient();
+        NotificationRecipientV24 given = buildNotificationRecipient();
         
         //WHEN
         NotificationRecipientInt actual = RecipientMapper.externalToInternal(given);
@@ -31,9 +31,9 @@ class RecipientMapperTest {
 
         NotificationRecipientInt given = buildNotificationRecipientInt();
 
-        NotificationRecipientV23 actual = RecipientMapper.internalToExternal(given);
+        NotificationRecipientV24 actual = RecipientMapper.internalToExternal(given);
 
-        NotificationRecipientV23 expected = buildNotificationRecipient();
+        NotificationRecipientV24 expected = buildNotificationRecipient();
 
         Assertions.assertEquals(expected, actual);
     }
@@ -82,7 +82,7 @@ class RecipientMapperTest {
                 .build();
     }
 
-    private NotificationRecipientV23 buildNotificationRecipient() {
+    private NotificationRecipientV24 buildNotificationRecipient() {
         NotificationPhysicalAddress physicalAddress = new NotificationPhysicalAddress();
         physicalAddress.setAddress("001");
         physicalAddress.setAddressDetails("002");
@@ -92,7 +92,7 @@ class RecipientMapperTest {
         physicalAddress.setProvince("006");
         physicalAddress.setZip("007");
         
-        NotificationRecipientV23 recipient = new NotificationRecipientV23();
+        NotificationRecipientV24 recipient = new NotificationRecipientV24();
         recipient.setRecipientType(RecipientTypeEnum.PF);
         recipient.setTaxId("001");
         recipient.setInternalId("002");
