@@ -151,7 +151,7 @@ public class PnDeliveryPushConfigs {
 
     private Duration timelineLockDuration;
 
-    private String featureFlagAAROnlyPECForRADDAndPF;
+    private String AAROnlyPECForRADDAndPF;
 
     private String templateURLforPEC;
 

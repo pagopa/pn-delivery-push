@@ -34,7 +34,7 @@ public class FeatureEnabledUtils {
     }
 
     public boolean isFeatureAAROnlyPECForRADDAndPFEnabled(){
-        return Optional.ofNullable(configs.getFeatureFlagAAROnlyPECForRADDAndPF())
+        return Optional.ofNullable(configs.getAAROnlyPECForRADDAndPF())
                 .map("true"::equalsIgnoreCase)
                 .orElse(false);
     }
