@@ -1479,4 +1479,44 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals("legalFactId=" + legalFactId, actual.getDetails().toLog())
         );
     }
+
+    @Test
+    void buildNationalRegistryValidationCall() {
+        NotificationInt notification = buildNotification();
+        String eventId = TimelineEventId.NATIONAL_REGISTRY_VALIDATION_CALL.buildEventId(
+                EventId.builder()
+                        .iun("Example_IUN_1234_Test")
+                        .deliveryMode(DeliveryModeInt.ANALOG)
+                        .build());
+        List<Integer> recIndexes = new ArrayList<>();
+        TimelineElementInternal actual = timelineUtils.buildNationalRegistryValidationCall(eventId, notification, recIndexes, DeliveryModeInt.ANALOG);
+        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_CALL.IUN_Example_IUN_1234_Test.DELIVERYMODE_ANALOG";
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+    }
+
+    @Test
+    void buildNationalRegistryValidationResponse() {
+        // TODO Scommentare nel task di validazione
+        NotificationInt notification = buildNotification();
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
+                .correlationId("CorrelationId")
+                .physicalAddress(buildPhysicalAddressInt())
+                //.registry("ANPR")
+                //.recIndex(1)
+                .build();
+        TimelineElementInternal actual = timelineUtils.buildNationalRegistryValidationResponse(notification, response);
+        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.CORRELATIONID_CorrelationId";
+        //String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.RECINDEX_1.CORRELATIONID_CorrelationId";
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+    }
 }

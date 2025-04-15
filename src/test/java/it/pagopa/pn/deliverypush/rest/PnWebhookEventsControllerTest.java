@@ -4,8 +4,8 @@ import it.pagopa.pn.deliverypush.dto.webhook.ProgressResponseElementDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.NotificationStatusV26;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV27;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategoryV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV28;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.TimelineElementCategoryV27;
 import it.pagopa.pn.deliverypush.service.WebhookEventsService;
 import java.time.Instant;
 import java.util.Collections;
@@ -37,12 +37,12 @@ class PnWebhookEventsControllerTest {
     @Disabled
     void consumeEventStreamOk() {
         String streamId = UUID.randomUUID().toString();
-        List<ProgressResponseElementV27> timelineElements = Collections.singletonList(ProgressResponseElementV27.builder()
+        List<ProgressResponseElementV28> timelineElements = Collections.singletonList(ProgressResponseElementV28.builder()
                 .timestamp( Instant.now() )
                 .eventId( "event_id" )
                 .iun("")
                 .newStatus(NotificationStatusV26.ACCEPTED)
-                .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
+                .timelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED)
                 .build()
         );
         ProgressResponseElementDto dto = ProgressResponseElementDto.builder()
@@ -67,7 +67,7 @@ class PnWebhookEventsControllerTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().valueEquals("retry-after", "0")
-                .expectBodyList(ProgressResponseElementV27.class);
+                .expectBodyList(ProgressResponseElementV28.class);
 
         Mockito.verify(service).consumeEventStream(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(UUID.class), Mockito.any());
 

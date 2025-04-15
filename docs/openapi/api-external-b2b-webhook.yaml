@@ -347,7 +347,7 @@ paths:
     ############################################################################################
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
-  '/delivery-progresses/v2.7/streams':
+  '/delivery-progresses/v2.8/streams':
     post:
       summary: Crea nuovo stream di eventi
       description: >-
@@ -360,20 +360,20 @@ paths:
         invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStreamV27
+      operationId: createEventStreamV28
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StreamCreationRequestV27"
+              $ref: "#/components/schemas/StreamCreationRequestV28"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV27"
+                $ref: "#/components/schemas/StreamMetadataResponseV28"
         '400':
           description: Invalid input
           content:
@@ -404,7 +404,7 @@ paths:
         Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreamsV27
+      operationId: listEventStreamsV28
       responses:
         '200':
           description: OK
@@ -428,7 +428,7 @@ paths:
     ############################################################################################
     ###                        lEGGI METADATA DELLO STREAM                                   ###
     ############################################################################################
-  '/delivery-progresses/v2.7/streams/{streamId}':
+  '/delivery-progresses/v2.8/streams/{streamId}':
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
@@ -437,14 +437,14 @@ paths:
         Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: retrieveEventStreamV27                       # ONLY EXTERNAL
+      operationId: retrieveEventStreamV28                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV27"
+                $ref: "#/components/schemas/StreamMetadataResponseV28"
         '400':
           description: Invalid input
           content:
@@ -475,20 +475,20 @@ paths:
         Modifica delle configurazioni dei filtri associati a uno stream di eventi
       tags:
         - Streams
-      operationId: updateEventStreamV27
+      operationId: updateEventStreamV28
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StreamRequestV27"
+              $ref: "#/components/schemas/StreamRequestV28"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV27"
+                $ref: "#/components/schemas/StreamMetadataResponseV28"
         '400':
           description: Invalid input
           content:
@@ -520,7 +520,7 @@ paths:
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: removeEventStreamV27                         # ONLY EXTERNAL
+      operationId: removeEventStreamV28                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -553,7 +553,7 @@ paths:
   ###                             DISABILITARE UNO STREAM                                  ###
   ############################################################################################
 
-  '/delivery-progresses/v2.7/streams/{streamId}/action/disable':
+  '/delivery-progresses/v2.8/streams/{streamId}/action/disable':
     post:
       summary: Disabilita uno stream
       description: >-
@@ -571,7 +571,7 @@ paths:
         eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
-      operationId: disableEventStreamV27
+      operationId: disableEventStreamV28
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
       responses:
@@ -580,7 +580,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV27"
+                $ref: "#/components/schemas/StreamMetadataResponseV28"
         '400':
           description: Invalid input
           content:
@@ -610,7 +610,7 @@ paths:
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
     ############################################################################################
 
-  '/delivery-progresses/v2.7/streams/{streamId}/events':
+  '/delivery-progresses/v2.8/streams/{streamId}/events':
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -619,7 +619,7 @@ paths:
         e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStreamV27
+      operationId: consumeEventStreamV28
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
         - $ref: '#/components/parameters/queryLastEventId'
@@ -641,7 +641,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProgressResponseV27"
+                $ref: "#/components/schemas/ProgressResponseV28"
         '429':
           description: Too Many Requests
           headers:
@@ -725,11 +725,11 @@ components:
     ############################################################################################
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
-    StreamCreationRequestV27:
+    StreamCreationRequestV28:
       description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV27'
+        - $ref: '#/components/schemas/StreamRequestV28'
         - type: object
           properties:
             replacedStreamId:
@@ -742,7 +742,7 @@ components:
               type: string
               format: uuid
 
-    StreamRequestV27:
+    StreamRequestV28:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di eventi di avanzamento delle notifiche.
         L'aggiornamento delle proprietà dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi.
@@ -800,10 +800,10 @@ components:
       description: >-
         Identificativo del gruppo.
 
-    StreamMetadataResponseV27:
+    StreamMetadataResponseV28:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV27'
+        - $ref: '#/components/schemas/StreamRequestV28'
         - type: object
           required:
             - streamId
@@ -860,12 +860,12 @@ components:
     ###  - EVENTI GENERATI DA PN
     ###################################
 
-    ProgressResponseV27:
+    ProgressResponseV28:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV27'
+        $ref: '#/components/schemas/ProgressResponseElementV28'
 
-    ProgressResponseElementV27:
+    ProgressResponseElementV28:
       type: object
       required:
         - eventId
@@ -888,7 +888,7 @@ components:
         newStatus:
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
         element:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV26'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV27'
 
 
     ###  - EVENTI GENERATI DALLA P.A.

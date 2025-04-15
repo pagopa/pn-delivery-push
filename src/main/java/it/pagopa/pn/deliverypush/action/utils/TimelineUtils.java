@@ -1496,6 +1496,38 @@ public class TimelineUtils {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
+    public TimelineElementInternal buildNationalRegistryValidationCall(String eventId, NotificationInt notification, List<Integer> recIndexes, DeliveryModeInt deliveryMode) {
+
+        log.debug("buildNationalRegistryValidationCall - iun={}", notification.getIun());
+
+        PublicRegistryValidationCallDetailsInt details = PublicRegistryValidationCallDetailsInt.builder()
+                .recIndexes(recIndexes)
+                .deliveryMode(deliveryMode)
+                .sendDate(Instant.now())
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_CALL, eventId, details);
+    }
+
+    public TimelineElementInternal buildNationalRegistryValidationResponse(NotificationInt notification, NationalRegistriesResponse response) {
+        // TODO: Scommentare nel task di gestione validazione
+        String eventId = TimelineEventId.NATIONAL_REGISTRY_VALIDATION_RESPONSE.buildEventId(
+                EventId.builder()
+                        .relatedTimelineId(response.getCorrelationId())
+                        //.recIndex(response.getRecIndex())
+                        .build());
+
+        log.debug("buildNationalRegistryValidationResponse - iun={}", notification.getIun());
+
+        PublicRegistryValidationResponseDetailsInt details = PublicRegistryValidationResponseDetailsInt.builder()
+                //.recIndex(response.getRecIndex())
+                //.registry(response.getRegistry())
+                .physicalAddress(response.getPhysicalAddress())
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_RESPONSE, eventId, details);
+    }
+
     public String getIunFromTimelineId(String timelineId) {
         //<timelineId = CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>...
         return timelineId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1].replace("IUN_", "");
