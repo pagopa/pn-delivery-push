@@ -28,6 +28,8 @@ public class TemplatesClientPecImpl implements TemplatesClientPec{
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final TemplateApiConfiguration templateApiConfiguration;
 
+
+    //metodo per effettuare una chiamata con un endpoint per un template specifico verso pn-templates-engine. Il path dell'endpoint è definito come property
     @Override
     public String parametrizedNotificationAarForPec(LanguageEnum language, NotificationAarForPec notificationAarForPec) {
         log.info("parametrizedNotificationAarForPec - {} / {}", language, notificationAarForPec );
