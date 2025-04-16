@@ -49,7 +49,6 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
     private final AttachmentUtils attachmentUtils;
     private final TimelineService timelineService;
     private final FeatureEnabledUtils featureEnabledUtils;
-    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     public ExternalChannelServiceImpl(ExternalChannelUtils externalChannelUtils,
                                       ExternalChannelSendClient externalChannel,
@@ -67,7 +66,6 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         this.attachmentUtils = attachmentUtils;
         this.timelineService = timelineService;
         this.featureEnabledUtils = featureEnabledUtils;
-        this.pnDeliveryPushConfigs = pnDeliveryPushConfigs;
     }
 
     /**

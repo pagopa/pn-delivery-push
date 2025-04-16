@@ -815,18 +815,6 @@ Parameters:
     Description: List containing in order pfNewWorkflowStart, pfNewWorkflowStop
     Default: '2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
 
-  AAROnlyPECForRADDAndPF:
-    Type: String
-    Description: Feature flag for enabling only AAR via PEC with RADD and PF
-    AllowedValues:
-      - "true"
-      - "false"
-
-  TemplateURLforPEC:
-    Type: String
-    Description: Uri path for templates-engine body PEC
-    Default: '/templates-engine-private/v1/templates/notification-aar-for-pec'
-
   ApplicativeEnvFileChecksum:
     Type: String
     Default: ''
@@ -959,8 +947,6 @@ Resources:
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry94: !Sub 'PN_DELIVERY_PUSH_AARONLYPECFORRADDANDPF=${AAROnlyPECForRADDAndPF}'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERY_PUSH_TEMPLATEURLFORPEC=${TemplateURLforPEC}'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
@@ -1098,8 +1084,6 @@ Resources:
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
-        ContainerEnvEntry93: !Sub 'PN_DELIVERY_PUSH_AARONLYPECFORRADDANDPF=${AAROnlyPECForRADDAndPF}'
-        ContainerEnvEntry94: !Sub 'PN_DELIVERY_PUSH_TEMPLATEURLFORPEC=${TemplateURLforPEC}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
@@ -1244,8 +1228,6 @@ Resources:
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry94: !Sub 'PN_DELIVERY_PUSH_AARONLYPECFORRADDANDPF=${AAROnlyPECForRADDAndPF}'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERY_PUSH_TEMPLATEURLFORPEC=${TemplateURLforPEC}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
 
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
