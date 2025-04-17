@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: GWu8SxPG2dWj0Dc8sJEZJ6yEjwjUGixAB53hspWHxPs=
+  version: 9XqULdmaZ0SCAKu1uEjQMCRWdLDhYFOnIBi4GLbgg5c=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -4203,6 +4203,11 @@ components:
         detail:
           type: string
           maxLength: 2048
+        recIndex:
+          type: number
+          description: >-
+            Index destinatario notifica digitale con errore che ha portato al
+            rifiuto della notifica
     RequestRefusedDetailsV27:
       type: object
       properties:
