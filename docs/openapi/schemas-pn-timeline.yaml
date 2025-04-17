@@ -207,21 +207,17 @@ components:
           type: string
           description: >-
             Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
-          schema:
-            type: string
-            # wide range of characters
-            pattern: ^.*$
-            maxLength: 256
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
         idempotenceToken:
           type: string
           description: >-
             token usato per disambiguare "richieste di notificazione" effettuate con lo stesso 
             numero di protocollo.
-          schema:
-            type: string
-            # ASCII printable characters
-            pattern: ^[ -~]*$
-            maxLength: 256
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
 
     AnalogFailureWorkflowDetails:
       type: object
@@ -498,21 +494,17 @@ components:
           type: string
           description: >-
             Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
-          schema:
-            type: string
-            # wide range of characters
-            pattern: ^.*$
-            maxLength: 256
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
         idempotenceToken:
           type: string
           description: >-
             token usato per disambiguare "richieste di notificazione" effettuate con lo stesso 
             numero di protocollo.
-          schema:
-            type: string
-            # ASCII printable characters
-            pattern: ^[ -~]*$
-            maxLength: 256
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
 
     ScheduleAnalogWorkflowDetailsV23:
       type: object
