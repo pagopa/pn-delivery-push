@@ -5,7 +5,6 @@
     "WebhookEventManagerLambdaBatchSize": "60",
     "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
     "NotificationCancellationActionInsertLambdaBatchSize": "20",
-    "VersioningV1V2WebhookLambdaProvisionedConcurrency": "1",
     "VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency": "1",
     "EnhancedWebSecurityEnabled": "true",
     "CpuValue": "2048",
