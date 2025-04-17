@@ -1303,6 +1303,10 @@ components:
         detail:
           type: string
           maxLength: 2048
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale con errore che ha portato al rifiuto della notifica
+          format: int32
 
     AnalogWorkflowRecipientDeceasedDetailsV26:
       type: object
