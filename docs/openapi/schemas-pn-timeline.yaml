@@ -149,7 +149,7 @@ components:
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
         - "$ref": "#/components/schemas/NormalizedAddressDetails"
-        - "$ref": "#/components/schemas/NotificationRequestAcceptedDetails"
+        - "$ref": "#/components/schemas/NotificationRequestAcceptedDetailsV27"
         - "$ref": "#/components/schemas/AnalogFailureWorkflowDetails"
         - "$ref": "#/components/schemas/AnalogSuccessWorkflowDetails"
         - "$ref": "#/components/schemas/CompletelyUnreachableCreationRequestDetails"
@@ -192,13 +192,36 @@ components:
         - "$ref": "#/components/schemas/PublicRegistryValidationCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryValidationResponseDetails"
 
-    NotificationRequestAcceptedDetails:
+    NotificationRequestAcceptedDetailsV27:
       type: object
       properties:
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
+          schema:
+            type: string
+            # wide range of characters
+            pattern: ^.*$
+            maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate con lo stesso 
+            numero di protocollo.
+          schema:
+            type: string
+            # ASCII printable characters
+            pattern: ^[ -~]*$
+            maxLength: 256
 
     AnalogFailureWorkflowDetails:
       type: object
@@ -467,6 +490,29 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedErrorV27'
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo IUN
+        paProtocolNumber:
+          type: string
+          description: >-
+            Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
+          schema:
+            type: string
+            # wide range of characters
+            pattern: ^.*$
+            maxLength: 256
+        idempotenceToken:
+          type: string
+          description: >-
+            token usato per disambiguare "richieste di notificazione" effettuate con lo stesso 
+            numero di protocollo.
+          schema:
+            type: string
+            # ASCII printable characters
+            pattern: ^[ -~]*$
+            maxLength: 256
 
     ScheduleAnalogWorkflowDetailsV23:
       type: object
@@ -1353,5 +1399,9 @@ components:
           properties:
             registry:
               type: string
-              description: Nome del registro pubblico da cui è stato recuperato l'indirizzo
+              description: >
+                Rappresenta il registro consultato per ottenere l'indirizzo.
+                Può assumere i seguenti valori:
+                  - ANPR
+                  - REGISTRO_IMPRESE
               maxLength: 128
