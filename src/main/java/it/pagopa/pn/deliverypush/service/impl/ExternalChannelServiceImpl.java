@@ -9,6 +9,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.SendInformation;
@@ -32,6 +33,7 @@ import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt.PF;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINE_ELEMENT_NOT_PRESENT;
 
 @Slf4j
@@ -53,7 +55,7 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                       NotificationUtils notificationUtils,
                                       DigitalWorkFlowUtils digitalWorkFlowUtils,
                                       NotificationService notificationService, AuditLogService auditLogService,
-                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService, FeatureEnabledUtils featureEnabledUtils) {
+                                      TimelineUtils timelineUtils, AttachmentUtils attachmentUtils, TimelineService timelineService, FeatureEnabledUtils featureEnabledUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.externalChannelUtils = externalChannelUtils;
         this.externalChannel = externalChannel;
         this.notificationUtils = notificationUtils;
@@ -91,7 +93,15 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         PnAuditLogEvent logEvent = buildAuditLogEvent(notification.getIun(), sendInformation.getDigitalAddress(), recIndex);
 
         try {
-            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, false);
+            /* Se la featureFlag è attiva ed il destinatario è PF con copertura RADD (isRetrieveAarOnly), verranno inviati solo gli AAR
+            altrimenti verrà fatto un invio intero della PEC. La FeatureFlag determina quindi il passaggio da invio atto intero
+            o override dello stesso.
+             */
+            boolean isFeatureAarOnlyEnabled = featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled();
+            boolean shouldRetrieveAarOnly = isFeatureAarOnlyEnabled && isRetrieveAarOnly(notification, recIndex);
+            DigitalParameters digitalParameters = retrieveDigitalParameters(notification, recIndex, shouldRetrieveAarOnly);
+
+            log.info("Feature AAROnlyPECForRADDAndPF is {} - DigitalParameters: {}", isFeatureAarOnlyEnabled ? "true" : "false", digitalParameters);
 
             if (!featureEnabledUtils.isPfNewWorkflowEnabled(notification.getSentAt())
                     && sendInformation.getDigitalAddress().getType().equals(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ))
@@ -236,6 +246,13 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
         {
             return auditLogService.buildAuditLogEvent(iun, recIndex, PnAuditLogEventType.AUD_DA_SEND_SMS, "sendSMSMessage eventId={}", eventId);
         }
+    }
+
+    private boolean isRetrieveAarOnly(NotificationInt notification, Integer recIndex) {
+        NotificationRecipientInt typeRec = notificationUtils.getRecipientFromIndex(notification, recIndex);
+        boolean isRadd = attachmentUtils.getAarWithRadd(notification, recIndex);
+        boolean isPf = typeRec.getRecipientType() != null && PF.equals(typeRec.getRecipientType());
+        return isRadd && isPf;
     }
 
 
