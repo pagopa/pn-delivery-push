@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientPec;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
@@ -18,7 +19,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
@@ -37,6 +37,8 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final PnSendModeUtils pnSendModeUtils;
     private final TemplatesClient templatesClient;
+    private final TemplatesClientPec templatesClientPec;
+
 
     /**
      * Generates the legal fact for a received notification.
@@ -356,7 +358,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 this.getAccessUrl(recipient),
                 this.getRecipientTypeForHTMLTemplate(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templatesClient.notificationAarForPec(language, notificationAAR);
+        return templatesClientPec.parametrizedNotificationAarForPec(language, notificationAAR);
     }
 
     /**
@@ -520,5 +522,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
         String aarUrlTemplate = pnDeliveryPushConfigs.getWebapp().getAarSenderLogoUrlTemplate();
         return aarUrlTemplate.replace("<PA_ID>", paId);
     }
+
 
 }
