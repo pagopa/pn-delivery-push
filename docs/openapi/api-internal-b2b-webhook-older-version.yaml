@@ -1860,7 +1860,6 @@ paths:
       - $ref: '#/components/parameters/cxGroupsAuthFleet'     # NO EXTERNAL
       - $ref: '#/components/parameters/headerApiVersion'      # NO EXTERNAL
     post:
-      deprecated: true
       summary: Crea nuovo stream di eventi
       description: >-
         Creazione di un flusso di eventi specificando se gli eventi saranno
@@ -1911,7 +1910,6 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
     get:
-      deprecated: true
       summary: Elenca stream di eventi
       description: >-
         Elenca gli stream di eventi
@@ -1953,7 +1951,6 @@ paths:
       - $ref: '#/components/parameters/headerApiVersion'      # NO EXTERNAL
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      deprecated: true
       summary: Leggi metadata dello stream
       description: >-
         Lettura delle configurazioni di uno stream di eventi.
@@ -1995,7 +1992,6 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
     put:
-      deprecated: true
       summary: Update Stream metadata
       description: >-
         Modifica delle configurazioni dei filtri associati a uno stream di eventi
@@ -2042,7 +2038,6 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
     delete:
-      deprecated: true
       summary: Remove Event Stream
       description: >-
         Cancellazione dello steam di eventi: elimina sia le configurazioni sia tutti gli eventi
@@ -2087,7 +2082,6 @@ paths:
 
   '/delivery-progresses/v2.7/streams/{streamId}/action/disable':
     post:
-      deprecated: true
       summary: Disabilita uno stream
       description: >-
         Disabilita uno stream.
@@ -2146,7 +2140,6 @@ paths:
 
   '/delivery-progresses/v2.7/streams/{streamId}/events':
     get:
-      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Lettura degli eventi presenti nello stream di aggiornamenti con indicazione che
