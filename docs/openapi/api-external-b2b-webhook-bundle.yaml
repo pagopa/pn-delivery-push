@@ -2001,7 +2001,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.7/streams:
     post:
-      deprecated: true
       summary: Crea nuovo stream di eventi
       description: Creazione di un flusso di eventi specificando se gli eventi saranno relativi ai cambi di stato o agli eventi di timeline. In risposta, Piattaforma Notifiche, comunicherà un identificativo dello stream e il  timestamp di effettiva attivazione del flusso, tipicamente pochi secondi dopo che è stata  invocata l'operazione.
       tags:
@@ -2047,7 +2046,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      deprecated: true
       summary: Elenca stream di eventi
       description: Elenca gli stream di eventi
       tags:
@@ -2078,7 +2076,6 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      deprecated: true
       summary: Leggi metadata dello stream
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
@@ -2118,7 +2115,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     put:
-      deprecated: true
       summary: Update Stream metadata
       description: Modifica delle configurazioni dei filtri associati a uno stream di eventi
       tags:
@@ -2164,7 +2160,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     delete:
-      deprecated: true
       summary: Remove Event Stream
       description: 'Cancellazione dello steam di eventi: elimina sia le configurazioni sia tutti gli eventi associati allo stream e non ancora consumati.'
       tags:
@@ -2201,7 +2196,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.7/streams/{streamId}/action/disable:
     post:
-      deprecated: true
       summary: Disabilita uno stream
       description: Disabilita uno stream. Da uno stream disabilitato è possibile leggere gli eventi presenti nello stream salvati prima della disabilitazione, ma non ne saranno aggiunti di nuovi. Non è possibile modificare o riabilitare uno stream disabilitato. Uno stream disabilitato non rientra nel conteggio degli stream massimi, non può essere riabilitato e verrà eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span> giorni.
       tags:
@@ -2244,7 +2238,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery-progresses/v2.7/streams/{streamId}/events:
     get:
-      deprecated: true
       summary: Leggi progressi notifiche
       description: Lettura degli eventi presenti nello stream di aggiornamenti con indicazione che il mittente ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:

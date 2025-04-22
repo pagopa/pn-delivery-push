@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: cOsuyHNsDR5bwObuo3oDcOPjssdXDFbmYCn4nyZIE2s=
+  version: Q5Na2QkFFh6RHqgV3uf6hH6gv/fTUB+aXObkgPcQ+b4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2900,7 +2900,6 @@ paths:
         type: aws_proxy
   /v2.7/streams:
     post:
-      deprecated: true
       summary: Crea nuovo stream di eventi
       description: >-
         Creazione di un flusso di eventi specificando se gli eventi saranno
@@ -2972,7 +2971,6 @@ paths:
         type: aws_proxy
       parameters: []
     get:
-      deprecated: true
       summary: Elenca stream di eventi
       description: Elenca gli stream di eventi
       tags:
@@ -3024,7 +3022,6 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      deprecated: true
       summary: Leggi metadata dello stream
       description: Lettura delle configurazioni di uno stream di eventi.
       tags:
@@ -3086,7 +3083,6 @@ paths:
         type: aws_proxy
       parameters: []
     put:
-      deprecated: true
       summary: Update Stream metadata
       description: >-
         Modifica delle configurazioni dei filtri associati a uno stream di
@@ -3156,7 +3152,6 @@ paths:
         type: aws_proxy
       parameters: []
     delete:
-      deprecated: true
       summary: Remove Event Stream
       description: >-
         Cancellazione dello steam di eventi: elimina sia le configurazioni sia
@@ -3230,7 +3225,6 @@ paths:
         type: http_proxy
   /v2.7/streams/{streamId}/action/disable:
     post:
-      deprecated: true
       summary: Disabilita uno stream
       description: >-
         Disabilita uno stream. Da uno stream disabilitato è possibile leggere
@@ -3301,7 +3295,6 @@ paths:
         type: aws_proxy
   /v2.7/streams/{streamId}/events:
     get:
-      deprecated: true
       summary: Leggi progressi notifiche
       description: >-
         Lettura degli eventi presenti nello stream di aggiornamenti con
