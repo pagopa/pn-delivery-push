@@ -237,6 +237,8 @@ tags:
     description: 'Invocazioni per sapere lo stato del micro-servizio # il servizio è ancora in fase di sviluppo'
   - name: Streams
     description: Gestione degli stream di eventi che PN mette a disposizione
+  - name: Experimental
+    description: Api destinata alla sperimentazione
   - name: Events
     description: Metodi per la lettura degli eventi dagli stream
 paths:
@@ -453,6 +455,7 @@ paths:
         Uno stream disabilitato non rientra nel conteggio degli stream massimi, non può essere riabilitato e verrà eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
+        - Experimental
       operationId: disableEventStreamV28
       parameters:
         - $ref: '#/components/parameters/pathStreamId'

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Q5Na2QkFFh6RHqgV3uf6hH6gv/fTUB+aXObkgPcQ+b4=
+  version: f46qjwP7+47Ejspkp9ofxrbqepBlrL2T0A/IqPi4p8U=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -365,6 +365,7 @@ paths:
         id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
+        - Experimental
       operationId: disableEventStreamV28
       parameters:
         - $ref: '#/components/parameters/pathStreamId'
@@ -6569,6 +6570,8 @@ tags:
       in fase di sviluppo
   - name: Streams
     description: Gestione degli stream di eventi che PN mette a disposizione
+  - name: Experimental
+    description: Api destinata alla sperimentazione
   - name: Events
     description: Metodi per la lettura degli eventi dagli stream
 x-amazon-apigateway-gateway-responses:
