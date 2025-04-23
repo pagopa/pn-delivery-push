@@ -1501,17 +1501,15 @@ class TimelineUtilsTest {
 
     @Test
     void buildNationalRegistryValidationResponse() {
-        // TODO Scommentare nel task di validazione
         NotificationInt notification = buildNotification();
         NationalRegistriesResponse response = NationalRegistriesResponse.builder()
                 .correlationId("CorrelationId")
                 .physicalAddress(buildPhysicalAddressInt())
-                //.registry("ANPR")
-                //.recIndex(1)
+                .registry("ANPR")
+                .recIndex(1)
                 .build();
         TimelineElementInternal actual = timelineUtils.buildNationalRegistryValidationResponse(notification, response);
-        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.CORRELATIONID_CorrelationId";
-        //String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.RECINDEX_1.CORRELATIONID_CorrelationId";
+        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.RECINDEX_1.CORRELATIONID_CorrelationId";
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),

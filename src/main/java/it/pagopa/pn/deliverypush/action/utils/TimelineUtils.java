@@ -1510,18 +1510,17 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildNationalRegistryValidationResponse(NotificationInt notification, NationalRegistriesResponse response) {
-        // TODO: Scommentare nel task di gestione validazione
         String eventId = TimelineEventId.NATIONAL_REGISTRY_VALIDATION_RESPONSE.buildEventId(
                 EventId.builder()
                         .relatedTimelineId(response.getCorrelationId())
-                        //.recIndex(response.getRecIndex())
+                        .recIndex(response.getRecIndex())
                         .build());
 
         log.debug("buildNationalRegistryValidationResponse - iun={}", notification.getIun());
 
         PublicRegistryValidationResponseDetailsInt details = PublicRegistryValidationResponseDetailsInt.builder()
-                //.recIndex(response.getRecIndex())
-                //.registry(response.getRegistry())
+                .recIndex(response.getRecIndex())
+                .registry(response.getRegistry())
                 .physicalAddress(response.getPhysicalAddress())
                 .build();
 
