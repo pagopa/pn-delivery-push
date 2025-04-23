@@ -133,33 +133,6 @@ public class DigitalWorkFlowRetryHandler {
                     .eventDetails("expired timeout")
                     .build());
         }
-        else
-        {
-            // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
-            if(featureEnabledUtils.isPerformanceImprovementEnabled(notBeforeAction)) {
-                log.debug("Timeout expired but the sending attempt has ended. Not need to resend - iun={} recIdx={}", iun, recIndex);
-            }else {
-                NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-                SendInformation digitalAddressFeedback = SendInformation.builder()
-                        .retryNumber(originalRetryNumber)
-                        .eventTimestamp(Instant.now())
-                        .digitalAddressSource(originalAddressSource)
-                        .digitalAddress(originalAddressInfo)
-                        .isFirstSendRetry(null)
-                        .relatedFeedbackTimelineId(null)
-                        .build();
-
-                digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification,
-                        EventCodeInt.DP10,
-                        recIndex,
-                        false,
-                        null,
-                        digitalAddressFeedback);
-                
-                log.error("elapsedExtChannelTimeout Last timelineevent doesn't match original timelineevent source and retrynumber, skipping more actions iun={} recIdx={}", iun, recIndex);
-            }
-        }
     }
 
     /**

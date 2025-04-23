@@ -2,7 +2,6 @@ const { isRecordToSend, isFutureAction } = require("./utils/utils.js");
 const { getActionDestination } = require("./utils/getActionDestination.js");
 const { writeMessagesToQueue } = require("./sqs/writeToSqs.js");
 const { writeMessagesToDynamo } = require("./dynamo/writeToDynamo.js");
-const { insideWorkingWindow, getWorkingTime } = require("./utils/workingTimeUtils.js");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 const { ActionUtils } = require("pn-action-common");
 const config = require("config");
@@ -28,8 +27,6 @@ async function startHandleEvent(event, context) {
   let actionToSend = [];
   let lastActionType = undefined; //future or immediate
   let lastDestinationQueue = undefined;
-  const workingTime = await getWorkingTime();
-  console.log('workingTime for action is ', workingTime)
 
   for (var i = 0; i < event.Records.length; i++) {
     let record = event.Records[i];
@@ -40,10 +37,7 @@ async function startHandleEvent(event, context) {
       console.log('the record is to send ', decodedRecord );
 
       const action = mapMessageFromKinesisToAction(decodedRecord,sequenceNumber);
-      if(insideWorkingWindow(action, workingTime.start, workingTime.end)){
-        console.log('start handling specific action ', action.actionId)
-
-        let currentActionType;
+      let currentActionType;
         if(isFutureAction(action.notBefore)){
           //Se si tratta di un azione futura ...
           console.info('Start to check future action ', action.actionId)
@@ -103,7 +97,7 @@ async function startHandleEvent(event, context) {
         lastActionType = currentActionType;
         console.log('New lastActionType queue is ', lastDestinationQueue)
         console.info('Handling action completed ', action.actionId)
-      }else{
+      else{
         console.info('Action is not in working windows ', action.notBefore)
       }
     }else{

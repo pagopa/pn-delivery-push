@@ -1344,8 +1344,6 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void elapsedExtChannelTimeoutNoRetry() {
-        when(pnDeliveryPushConfigs.getPerformanceImprovementEndDate()).thenReturn("2099-02-13T23:00:00Z");
-        when(pnDeliveryPushConfigs.getPerformanceImprovementStartDate()).thenReturn("2099-02-14T23:00:00Z");
         //GIVEN
         DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
                 .lastAttemptDate(Instant.now())

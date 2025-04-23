@@ -16,10 +16,7 @@ public interface SchedulerService {
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType);
 
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineId);
-    
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, ActionDetails actionDetails);
-        
-    void unscheduleEvent(String iun, Integer recIndex, ActionType actionType, String timelineId);
 
     void scheduleWebhookEvent(String paId, String iun, String timelineId);
 

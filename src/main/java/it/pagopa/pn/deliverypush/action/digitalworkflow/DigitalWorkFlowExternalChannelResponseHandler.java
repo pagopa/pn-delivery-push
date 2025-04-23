@@ -121,9 +121,6 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         try {
             log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
 
-            // unschedulo eventuale timer programmato di invio
-            sendAndUnscheduleNotification.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
-
             SendInformation digitalAddressFeedback = SendInformation.builder()
                     .retryNumber(digitalResultInfos.getRetryNumber())
                     .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
@@ -160,10 +157,6 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
         try {
             //AVVENUTA CONSEGNA
-
-            // unschedulo eventuale timer programmato di invio
-            sendAndUnscheduleNotification.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
-
             SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(digitalResultInfos.getRetryNumber())
                 .eventTimestamp(digitalResultInfos.getResponse().getEventTimestamp())
@@ -251,10 +244,6 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
         {
             // salvo l'evento come progress
             handleStatusProgress(digitalResultInfos, true);
-
-            // unschedulo eventuale timer programmato di invio
-            sendAndUnscheduleNotification.unscheduleTimeoutAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
-
             // è richiesto di ritentare, schedulo un nuovo evento in coda e aggiunto un evento di progress nella timeline
             final DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
                     .digitalAddress(digitalResultInfos.getDigitalAddressInt())

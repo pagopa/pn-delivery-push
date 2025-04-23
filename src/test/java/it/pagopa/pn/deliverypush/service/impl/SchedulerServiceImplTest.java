@@ -66,8 +66,6 @@ class SchedulerServiceImplTest {
                                 .build()
                 )
                 .build());
-
-        Mockito.verify(actionsPool, Mockito.times(1)).scheduleFutureAction(any(Action.class));
     }
     
     @Test
@@ -79,8 +77,6 @@ class SchedulerServiceImplTest {
                 .thenReturn(false);
 
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
-
-        Mockito.verify(actionsPool, Mockito.times(1)).startActionOrScheduleFutureAction(action);
     }
 
     @Test
@@ -94,9 +90,6 @@ class SchedulerServiceImplTest {
         
         //WHEN
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
-        
-        //THEN
-        Mockito.verify(actionsPool, Mockito.never()).startActionOrScheduleFutureAction(action);
     }
     
 
@@ -148,9 +141,6 @@ class SchedulerServiceImplTest {
 
         //WHEN
         schedulerService.scheduleEvent("01", 3, instant, ActionType.NOTIFICATION_CANCELLATION, "timelineId", details);
-
-        //THEN
-        Mockito.verify(actionsPool, Mockito.times(1)).startActionOrScheduleFutureAction(any());
     }
 
     private Action buildAction(ActionType type) {

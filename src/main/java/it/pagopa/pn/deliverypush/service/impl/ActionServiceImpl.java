@@ -19,37 +19,7 @@ public class ActionServiceImpl implements ActionService {
     private final FeatureEnabledUtils featureEnabledUtils;
 
     @Override
-    public void addActionAndFutureActionIfAbsent(Action action, String timeSlot) {
-        actionDao.addActionAndFutureActionIfAbsent(action, timeSlot);
-    }
-
-    @Override
     public void addOnlyActionIfAbsent(Action action) {
          actionDao.addOnlyActionIfAbsent(action);
-    }
-
-    @Override
-    public void addOnlyAction(Action action) {
-        actionDao.addOnlyAction(action);
-    }
-
-    @Override
-    public Optional<Action> getActionById(String actionId) {
-        return actionDao.getActionById(actionId);
-    }
-
-    @Override
-    public List<Action> findActionsByTimeSlot(String timeSlot) {
-        return actionDao.findActionsByTimeSlot(timeSlot);
-    }
-
-    @Override
-    public void unSchedule(Action action, String timeSlot) {
-        if(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())) {
-            log.debug("unSchedule: performance improvement IS ENABLED; not need to unschedule futureAction - actionId={}", action.getActionId());
-        }else {
-            log.debug("unSchedule: performance improvement NOT ENABLED; need to unschedule futureAction - actionId={}", action.getActionId());
-            actionDao.unSchedule(action, timeSlot);
-        }
     }
 }

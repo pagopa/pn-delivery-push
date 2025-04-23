@@ -1,14 +1,5 @@
 const config = require("config");
 
-const getWorkingTime = async () => {
-  const workingTime = config.get("featureFlag");
-  console.info(
-    "[FUTURE_ACTIONS_REMOVER]",
-    `Operating window is from [${workingTime.start}, ${workingTime.end}]`
-  );
-  return workingTime;
-};
-
 const insideWorkingWindow = (action, startWw, endWs) => {
   if (action && action?.notBefore)
     return action.notBefore <= endWs && action.notBefore >= startWw;
@@ -16,4 +7,4 @@ const insideWorkingWindow = (action, startWw, endWs) => {
   return false;
 };
 
-module.exports = { insideWorkingWindow, getWorkingTime };
+module.exports = { insideWorkingWindow };

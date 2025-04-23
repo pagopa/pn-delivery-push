@@ -57,23 +57,10 @@ public class SendAndUnscheduleNotification {
                 sendAlreadyInProgress,
                 sendInformation);
 
-        unscheduleTimeoutAction(notification.getIun(), recIndex, sourceTimelineId);
-
         Duration digitalNoResponseTimeout = pnDeliveryPushConfigs.getExternalChannel().getDigitalSendNoresponseTimeout();
         Instant schedulingDate = Instant.now().plus(digitalNoResponseTimeout);
 
         this.schedulerService.scheduleEvent(notification.getIun(), recIndex, schedulingDate, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, timelineId);
         log.info("sendDigitalNotificationAndScheduleTimeoutAction scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} schedulingDate={}", notification.getIun(), recIndex, timelineId, schedulingDate);
-    }
-
-    void unscheduleTimeoutAction(String iun, int recIndex, String sourceTimelineId)
-    {
-        if (sourceTimelineId != null)
-        {
-            // se trovo un precedente sourceTimelineId, vuol dire che probabilmente sto rischedulando per un ritentativo di invio breve.
-            // vado ad de-schedulare l'eventuale action precedentemente schedulata, ma se non la trovo, fa niente, non è un errore!
-            this.schedulerService.unscheduleEvent(iun, recIndex, ActionType.DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION, sourceTimelineId);
-            log.info("unscheduleTimeoutAction UN-scheduled DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION for iun={} recIdx={} timelineId={} ", iun, recIndex, sourceTimelineId);
-        }
     }
 }

@@ -31,30 +31,29 @@ public class SchedulerServiceImpl implements SchedulerService {
 
     @Override
     public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType) {
-        this.scheduleEvent(iun, null, dateToSchedule, actionType, null, null, false);
+        this.scheduleEvent(iun, null, dateToSchedule, actionType, null, null);
     }
     
     @Override
     public void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails){
-        this.scheduleEvent(iun, null, dateToSchedule, actionType, null, actionDetails, false);
+        this.scheduleEvent(iun, null, dateToSchedule, actionType, null, actionDetails);
     }
 
     @Override
     public void scheduleEventNowOnlyIfAbsent(String iun, ActionType actionType, ActionDetails actionDetails){
-        this.scheduleEvent(iun, null, Instant.now(), actionType, null, actionDetails, true);
+        this.scheduleEvent(iun, null, Instant.now(), actionType, null, actionDetails);
     }
 
     @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails) {
-        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, actionDetails, false);
+        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, actionDetails);
     }
     
     @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType) {
-        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, null, false);
+        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, null, null);
     }
 
-    @Override
     public void scheduleEvent(
             String iun,
             Integer recIndex,
@@ -63,21 +62,9 @@ public class SchedulerServiceImpl implements SchedulerService {
             String timelineEventId,
             ActionDetails actionDetails
     ) {
-        this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, timelineEventId, actionDetails, false);
-    }
-
-    private void scheduleEvent(
-            String iun, 
-            Integer recIndex,
-            Instant dateToSchedule,
-            ActionType actionType,
-            String timelineEventId,
-            ActionDetails actionDetails,
-            boolean scheduleNowIfAbsent
-    ) {
         log.info("Schedule {} in schedulingDate={} - iun={}", actionType, dateToSchedule, iun);
 
-        if(! timelineUtils.checkIsNotificationCancellationRequested(iun) || checkIsDocumentForNotificationCancelled(actionDetails)) {
+        if (!timelineUtils.checkIsNotificationCancellationRequested(iun) || checkIsDocumentForNotificationCancelled(actionDetails)) {
             Action action = Action.builder()
                     .iun(iun)
                     .recipientIndex(recIndex)
@@ -90,21 +77,11 @@ public class SchedulerServiceImpl implements SchedulerService {
             action = action.toBuilder()
                     .actionId(action.getType().buildActionId(action))
                     .build();
-            
+
             log.debug("ScheduleEvent iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={} actionId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId, action.getActionId());
 
-            if(featureEnabledUtils.isPerformanceImprovementEnabled(action.getNotBefore())) {
-                log.debug("ScheduleEvent: performance improvement IS ENABLED for iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
-                actionsPool.addOnlyAction(action);
-            }else {
-                log.debug("ScheduleEvent: performance improvement NOT ENABLED for iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
-                //Da eliminare Una volta stabilizzata la feature miglioramento performance workflow, che include una gestione diverse per le action. Qui andrà sempre e solo inserita una action
-                if(! scheduleNowIfAbsent){
-                    this.actionsPool.startActionOrScheduleFutureAction(action);
-                } else {
-                    this.actionsPool.scheduleFutureAction(action);
-                }
-            }
+            log.debug("ScheduleEvent: performance improvement IS ENABLED for iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
+            actionsPool.addOnlyAction(action);
 
         } else {
             log.info("Notification is cancelled, the action {} will not be scheduled - iun={}", actionType, iun);
@@ -124,17 +101,6 @@ public class SchedulerServiceImpl implements SchedulerService {
         return documentCreationDetails;
     }
 
-    @Override
-    public void unscheduleEvent(String iun, Integer recIndex, ActionType actionType, String timelineEventId) {
-        Action action = Action.builder()
-                .iun(iun)
-                .recipientIndex(recIndex)
-                .type(actionType)
-                .timelineId(timelineEventId)
-                .build();
-
-        this.actionsPool.unscheduleFutureAction (action.getType().buildActionId(action));
-    }
 
     @Override
     public void scheduleWebhookEvent(String paId, String iun, String timelineId) {
@@ -166,7 +132,7 @@ public class SchedulerServiceImpl implements SchedulerService {
     @Override
     public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule,
         ActionType actionType, String timelineId) {
-      this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, timelineId, null, false);
+      this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, timelineId, null);
     }
     
 }
