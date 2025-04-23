@@ -356,8 +356,9 @@ paths:
       - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
       - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
     post:
-      summary: Crea nuovo stream di eventi
+      summary: EXPERIMENTAL - do not use - Crea nuovo stream di eventi
       description: >-
+        (EXPERIMENTAL)
         Creazione di un flusso di eventi specificando se gli eventi saranno
         relativi ai cambi di stato o agli eventi di timeline.
 
@@ -406,8 +407,9 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
     get:
-      summary: Elenca stream di eventi
+      summary: EXPERIMENTAL - do not use - Elenca stream di eventi
       description: >-
+        (EXPERIMENTAL)
         Elenca gli stream di eventi
       tags:
         - Streams
@@ -444,8 +446,9 @@ paths:
       - $ref: '#/components/parameters/headerApiVersion'         # NO EXTERNAL
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      summary: Leggi metadata dello stream
+      summary: EXPERIMENTAL - do not use - Leggi metadata dello stream
       description: >-
+        (EXPERIMENTAL)
         Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
@@ -483,8 +486,9 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
     put:
-      summary: Update Stream metadata
+      summary: EXPERIMENTAL - do not use - Update Stream metadata
       description: >-
+        (EXPERIMENTAL)
         Modifica delle configurazioni dei filtri associati a uno stream di eventi
       tags:
         - Streams
@@ -527,8 +531,9 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
     delete:
-      summary: Remove Event Stream
+      summary: EXPERIMENTAL - do not use - Remove Event Stream
       description: >-
+        (EXPERIMENTAL)
         Cancellazione dello steam di eventi: elimina sia le configurazioni sia tutti gli eventi
         associati allo stream e non ancora consumati.
       tags:
@@ -569,8 +574,9 @@ paths:
 
   '/delivery-progresses/v2.8/streams/{streamId}/action/disable':
     post:
-      summary: Disabilita uno stream
+      summary: EXPERIMENTAL - do not use - Disabilita uno stream
       description: >-
+        (EXPERIMENTAL)
         Disabilita uno stream.
 
 
@@ -631,8 +637,9 @@ paths:
 
   '/delivery-progresses/v2.8/streams/{streamId}/events':
     get:
-      summary: Leggi progressi notifiche
+      summary: EXPERIMENTAL - do not use - Leggi progressi notifiche
       description: >-
+        (EXPERIMENTAL)
         Lettura degli eventi presenti nello stream di aggiornamenti con indicazione che
         il mittente ha ricevuto e memorizzato l'evento identificato dal parametro _lastEventId_
         e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
