@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Q5Na2QkFFh6RHqgV3uf6hH6gv/fTUB+aXObkgPcQ+b4=
+  version: NMFvLq5qYfDePHJg+p7tHXLSSWw2IaPJhvb0X4hr7ps=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -13,10 +13,10 @@ servers:
 paths:
   /v2.8/streams:
     post:
-      summary: Crea nuovo stream di eventi
+      summary: EXPERIMENTAL - do not use - Crea nuovo stream di eventi
       description: >-
-        Creazione di un flusso di eventi specificando se gli eventi saranno
-        relativi ai cambi di stato o agli eventi di timeline.
+        (EXPERIMENTAL) Creazione di un flusso di eventi specificando se gli
+        eventi saranno relativi ai cambi di stato o agli eventi di timeline.
 
 
         In risposta, Piattaforma Notifiche, comunicherà un identificativo dello
@@ -85,8 +85,8 @@ paths:
         type: http_proxy
       parameters: []
     get:
-      summary: Elenca stream di eventi
-      description: Elenca gli stream di eventi
+      summary: EXPERIMENTAL - do not use - Elenca stream di eventi
+      description: (EXPERIMENTAL) Elenca gli stream di eventi
       tags:
         - Streams
       operationId: listEventStreamsV28
@@ -147,8 +147,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/pathStreamId'
     get:
-      summary: Leggi metadata dello stream
-      description: Lettura delle configurazioni di uno stream di eventi.
+      summary: EXPERIMENTAL - do not use - Leggi metadata dello stream
+      description: (EXPERIMENTAL) Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
       operationId: retrieveEventStreamV28
@@ -207,10 +207,10 @@ paths:
         type: http_proxy
       parameters: []
     put:
-      summary: Update Stream metadata
+      summary: EXPERIMENTAL - do not use - Update Stream metadata
       description: >-
-        Modifica delle configurazioni dei filtri associati a uno stream di
-        eventi
+        (EXPERIMENTAL) Modifica delle configurazioni dei filtri associati a uno
+        stream di eventi
       tags:
         - Streams
       operationId: updateEventStreamV28
@@ -275,10 +275,11 @@ paths:
         type: http_proxy
       parameters: []
     delete:
-      summary: Remove Event Stream
+      summary: EXPERIMENTAL - do not use - Remove Event Stream
       description: >-
-        Cancellazione dello steam di eventi: elimina sia le configurazioni sia
-        tutti gli eventi associati allo stream e non ancora consumati.
+        (EXPERIMENTAL) Cancellazione dello steam di eventi: elimina sia le
+        configurazioni sia tutti gli eventi associati allo stream e non ancora
+        consumati.
       tags:
         - Streams
       operationId: removeEventStreamV28
@@ -347,9 +348,9 @@ paths:
         type: http_proxy
   /v2.8/streams/{streamId}/action/disable:
     post:
-      summary: Disabilita uno stream
+      summary: EXPERIMENTAL - do not use - Disabilita uno stream
       description: >-
-        Disabilita uno stream.
+        (EXPERIMENTAL) Disabilita uno stream.
 
 
         Da uno stream disabilitato è possibile leggere gli eventi presenti nello
@@ -436,12 +437,12 @@ paths:
         type: http_proxy
   /v2.8/streams/{streamId}/events:
     get:
-      summary: Leggi progressi notifiche
+      summary: EXPERIMENTAL - do not use - Leggi progressi notifiche
       description: >-
-        Lettura degli eventi presenti nello stream di aggiornamenti con
-        indicazione che il mittente ha ricevuto e memorizzato l'evento
-        identificato dal parametro _lastEventId_ e tutti gli eventi precedenti.
-        Tali eventi potranno essere cancellati dallo stream.
+        (EXPERIMENTAL) Lettura degli eventi presenti nello stream di
+        aggiornamenti con indicazione che il mittente ha ricevuto e memorizzato
+        l'evento identificato dal parametro _lastEventId_ e tutti gli eventi
+        precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
       operationId: consumeEventStreamV28
