@@ -66,6 +66,7 @@ class SchedulerServiceImplTest {
                                 .build()
                 )
                 .build());
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
     }
     
     @Test
@@ -77,6 +78,8 @@ class SchedulerServiceImplTest {
                 .thenReturn(false);
 
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
+
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
     }
 
     @Test
@@ -90,6 +93,8 @@ class SchedulerServiceImplTest {
         
         //WHEN
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
+        Mockito.verify(actionsPool, Mockito.never()).addOnlyAction(action);
+
     }
     
 
@@ -111,21 +116,6 @@ class SchedulerServiceImplTest {
     }
 
     @Test
-    void testScheduleWebhookEvent() {
-        WebhookAction action = WebhookAction.builder()
-                .streamId("01")
-                .eventId("02")
-                .iun("nd")
-                .delay(4)
-                .type(WebhookEventType.REGISTER_EVENT)
-                .build();
-
-        schedulerService.scheduleWebhookEvent("01", "02", 4, WebhookEventType.REGISTER_EVENT);
-
-        Mockito.verify(webhooksPool, Mockito.times(1)).scheduleFutureAction(action);
-    }
-
-    @Test
     void testScheduleEventNotificationCancelled(){
         //GIVEN
         Action action = buildAction(ActionType.NOTIFICATION_CANCELLATION);
@@ -141,6 +131,8 @@ class SchedulerServiceImplTest {
 
         //WHEN
         schedulerService.scheduleEvent("01", 3, instant, ActionType.NOTIFICATION_CANCELLATION, "timelineId", details);
+
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
     }
 
     private Action buildAction(ActionType type) {

@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
-import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.ActionEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.DtoToEntityActionMapper;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
@@ -26,18 +25,13 @@ import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GE
 @Component
 @Slf4j
 @ConditionalOnProperty(name = ActionDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
-public class ActionDaoDynamo implements ActionDao { 
-    private final ActionEntityDao actionEntityDao;
-    private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
+public class ActionDaoDynamo implements ActionDao {
     private final DynamoDbTable<ActionEntity> dynamoDbTableAction;
     private final Duration actionTtl;
     
-    public ActionDaoDynamo(ActionEntityDao actionEntityDao,
-                           DynamoDbEnhancedClient dynamoDbEnhancedClient,
+    public ActionDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient,
                            PnDeliveryPushConfigs pnDeliveryPushConfigs) {
-        this.actionEntityDao = actionEntityDao;
-        this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
-        this.dynamoDbTableAction = dynamoDbEnhancedClient.table(  pnDeliveryPushConfigs.getActionDao().getTableName(), TableSchema.fromClass(ActionEntity.class));
+        this.dynamoDbTableAction = dynamoDbEnhancedClient.table(pnDeliveryPushConfigs.getActionDao().getTableName(), TableSchema.fromClass(ActionEntity.class));
         this.actionTtl = fromStringDaysToDuration(pnDeliveryPushConfigs.getActionTtlDays());
     }
 

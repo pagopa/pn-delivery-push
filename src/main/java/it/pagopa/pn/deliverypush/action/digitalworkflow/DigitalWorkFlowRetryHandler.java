@@ -131,6 +131,8 @@ public class DigitalWorkFlowRetryHandler {
                     .status(ExtChannelProgressEventCat.PROGRESS)
                     .eventDetails("expired timeout")
                     .build());
+        } else {
+            log.debug("Timeout expired but the sending attempt has ended. Not need to resend - iun={} recIdx={}", iun, recIndex);
         }
     }
 

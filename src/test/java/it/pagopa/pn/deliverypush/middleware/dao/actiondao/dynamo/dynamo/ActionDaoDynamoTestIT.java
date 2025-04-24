@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.actiondao.dynamo;
+package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.dynamo;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -6,7 +6,6 @@ import ch.qos.logback.core.read.ListAppender;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.MockActionPoolTest;
-import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.ActionDaoDynamo;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
@@ -24,9 +23,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -45,8 +42,6 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
     @Test
     @ExtendWith(SpringExtension.class)
     void addOnlyActionIfAbsentFailSilent() {
-        String timeslot = "2022-08-30T16:04:13.913859900Z";
-
         Action.ActionBuilder actionBuilder = Action.builder()
                 .iun("Test_addIfAbsentFailSilent_iun01")
                 .recipientIndex(1)

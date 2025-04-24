@@ -1365,8 +1365,6 @@ class DigitalWorkFlowHandlerTest {
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
 
         NotificationInt notification = getNotification();
-        when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
 
         when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
                 TimelineElementInternal.builder()

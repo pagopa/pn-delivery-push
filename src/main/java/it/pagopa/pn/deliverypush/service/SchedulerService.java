@@ -8,7 +8,7 @@ import java.time.Instant;
 
 public interface SchedulerService {
     void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType);
-    
+
     void scheduleEvent(String iun, Instant dateToSchedule, ActionType actionType, ActionDetails actionDetails);
 
     void scheduleEventNowOnlyIfAbsent(String iun, ActionType actionType, ActionDetails actionDetails);
@@ -16,6 +16,7 @@ public interface SchedulerService {
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType);
 
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineId);
+
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, ActionDetails actionDetails);
 
     void scheduleWebhookEvent(String paId, String iun, String timelineId);

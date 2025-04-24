@@ -222,7 +222,7 @@ public class DocumentComposition {
  
         return baos.toByteArray();
     }
-    
+    //TRANNE QUESTO
     public int getNumberOfPageFromPdfBytes(byte[] pdf ){
         try(PDDocument document = PDDocument.load(pdf)){
             return document.getNumberOfPages();
