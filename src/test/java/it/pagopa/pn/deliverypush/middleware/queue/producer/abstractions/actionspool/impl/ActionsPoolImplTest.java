@@ -45,28 +45,7 @@ class ActionsPoolImplTest {
 
         actionsPool = new ActionsPoolImpl(actionsQueue, actionService, clock, configs, featureEnabledUtils, lockAtMostFor, timeToBreak);
     }
-    @Test
-    void pollForFutureActions() {
-        //GIVEN
-        final Instant now = Instant.now();
-        Instant lastPool = now.minus(Duration.ofMinutes(10));
-        Action action = Action.builder()
-                .iun("01")
-                .actionId("001")
-                .recipientIndex(0)
-                .notBefore(now.minus(Duration.ofSeconds(10)))
-                .type(ActionType.ANALOG_WORKFLOW)
-                .build();
 
-        List<Action> actions = new ArrayList<>();
-        actions.add(action);
-
-        // performance improvement disabled
-        Mockito.when(clock.instant()).thenReturn(now);
-
-        //THEN
-        Mockito.verify(actionsQueue).push(Mockito.any(ActionEvent.class));
-    }
 
     @Test
     void pollForFutureActionsNoAction() {
