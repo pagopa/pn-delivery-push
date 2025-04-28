@@ -114,7 +114,11 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .build());
 
-        NotificationRequestAcceptedDetailsInt details = NotificationRequestAcceptedDetailsInt.builder().build();
+        NotificationRequestAcceptedDetailsInt details = NotificationRequestAcceptedDetailsInt.builder()
+                .paProtocolNumber(notification.getPaProtocolNumber())
+                .idempotenceToken(notification.getIdempotenceToken())
+                .notificationRequestId(Base64.getEncoder().encodeToString(notification.getIun().getBytes()))
+                .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(singleLegalFactId(legalFactId, LegalFactCategoryInt.SENDER_ACK));
@@ -928,6 +932,9 @@ public class TimelineUtils {
                 .refusalReasons(errors)
                 .numberOfRecipients(numberOfRecipients)
                 .notificationCost(notificationProcessCostService.getSendFee() * numberOfRecipients)
+                .paProtocolNumber(notification.getPaProtocolNumber())
+                .idempotenceToken(notification.getIdempotenceToken())
+                .notificationRequestId(Base64.getEncoder().encodeToString(notification.getIun().getBytes()))
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);

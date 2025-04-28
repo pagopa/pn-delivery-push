@@ -54,6 +54,7 @@ public class NotificationMapper {
                 .version(sentNotification.getVersion())
                 .additionalLanguages(sentNotification.getAdditionalLanguages())
                 .usedServices(UsedServicesMapper.externalToInternal(sentNotification.getUsedServices()))
+                .idempotenceToken(sentNotification.getIdempotenceToken())
                 .build();
     }
 
