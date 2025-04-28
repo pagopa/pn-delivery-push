@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
@@ -75,6 +76,77 @@ class SchedulerServiceImplTest {
                 .thenReturn(false);
 
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
+
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+    }
+
+    @Test
+    void unscheduleEvent() {
+        Action action = buildAction(ActionType.ANALOG_WORKFLOW);
+        String actionId = action.getType().buildActionId(action);
+
+        schedulerService.unscheduleEvent("01", 3, ActionType.ANALOG_WORKFLOW, "timelineEventId");
+
+        Mockito.verify(actionsPool, Mockito.times(1)).unscheduleFutureAction(actionId);
+    }
+
+    @Test
+    void scheduleEvent2(){
+        Action action = buildAction(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+        ActionDetails actionDetails = DocumentCreationResponseActionDetails.builder()
+                .documentCreationType(DocumentCreationTypeInt.NOTIFICATION_CANCELLED)
+                .key("key")
+                .timelineId("timelineId")
+                .build();
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(action.getIun()))
+                .thenReturn(false);
+
+        schedulerService.scheduleEvent("01", instant, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION,actionDetails);
+
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+    }
+    @Test
+    void scheduleEvent4(){
+        Action action = buildAction(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+        ActionDetails actionDetails = DocumentCreationResponseActionDetails.builder()
+                .documentCreationType(DocumentCreationTypeInt.NOTIFICATION_CANCELLED)
+                .key("key")
+                .timelineId("timelineId")
+                .build();
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(action.getIun()))
+                .thenReturn(false);
+
+        schedulerService.scheduleEvent("01", 3, instant, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION,actionDetails);
+
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+    }
+    @Test
+    void scheduleEvent8(){
+        Action action = buildAction(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(action.getIun()))
+                .thenReturn(false);
+
+        schedulerService.scheduleEvent("01", 3, instant, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION,"timelineEventId");
+
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+    }
+
+    @Test
+    void scheduleEvent1(){
+        Action action = buildAction(ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
+        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(action.getIun()))
+                .thenReturn(false);
+
+        schedulerService.scheduleEvent("01", instant, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
 
         Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
     }
