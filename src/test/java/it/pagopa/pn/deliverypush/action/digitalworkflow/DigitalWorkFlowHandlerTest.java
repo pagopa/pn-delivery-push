@@ -89,7 +89,7 @@ class DigitalWorkFlowHandlerTest {
                 pnDeliveryPushConfigs, digitalWorkflowFirstSendRepeatHandler, featureEnabledUtils);
 
         handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, pnDeliveryPushConfigs, auditLogService, sendAndUnscheduleNotification);
-        handlerRetry = new DigitalWorkFlowRetryHandler(notificationService, digitalWorkFlowUtils, sendAndUnscheduleNotification, handlerExtChannel, featureEnabledUtils);
+        handlerRetry = new DigitalWorkFlowRetryHandler(notificationService, digitalWorkFlowUtils, sendAndUnscheduleNotification, handlerExtChannel);
         Mockito.lenient().when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
         Mockito.lenient().when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010", "Q010", "DP10"));
         Mockito.lenient().when(externalChannel.getDigitalCodesSuccess()).thenReturn(List.of("C003", "Q003"));

@@ -23,7 +23,7 @@ const MAX_BATCH_SIZE = config.get("MAX_BATCH_SIZE");
 const SLEEP_FOR_UNPROCESSED = config.get("SLEEP_FOR_UNPROCESSED");
 async function getActionsByTimeSlot(
   tableName,
-  { timeSlot},
+  timeSlot,
   lastItem
 ) {
   const params = {
@@ -36,7 +36,7 @@ async function getActionsByTimeSlot(
 
   console.debug(
     "[FUTURE_ACTIONS_REMOVER]",
-    `Looking for data TS=${timeSlot}, START=${startTime}, END=${endTime}`
+    `Looking for data TS=${timeSlot}`
   );
   // starting from previous query result
   if (lastItem) {

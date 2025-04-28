@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,7 +28,6 @@ public class DigitalWorkFlowRetryHandler {
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
     private final SendAndUnscheduleNotification sendAndUnscheduleNotification;
     private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
-    private final FeatureEnabledUtils featureEnabledUtils;
 
     /**
      * Callback nel caso di ritentativo a breve termine di invio PEC

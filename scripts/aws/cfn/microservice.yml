@@ -1745,7 +1745,9 @@ Resources:
         Runtime: nodejs18.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
-        Layer1: !Ref ActionRemoverLambdaLibrariesLayer
+        Layer1: !Ref ActionRemoverLambdaLibrariesLayer 
+        EnvVariables:
+          "LAST_WORKED_KEY=2"
     
   # Lambda function role
   ActionRemoverLambdaRole:

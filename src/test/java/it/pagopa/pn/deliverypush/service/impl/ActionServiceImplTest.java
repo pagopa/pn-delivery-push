@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,21 +17,18 @@ class ActionServiceImplTest {
 
     @Mock
     private ActionDao actionDao;
-    @Mock
-    private FeatureEnabledUtils featureEnabledUtils;
     
     private ActionServiceImpl actionService;
 
     @BeforeEach
     public void setup() {
         actionDao = Mockito.mock(ActionDao.class);
-        actionService = new ActionServiceImpl(actionDao, featureEnabledUtils);
+        actionService = new ActionServiceImpl(actionDao);
     }
 
     @Test
     void addOnlyActionIfAbsent() {
         Action action = buildAction();
-        String time = "2021-09-16T15:24:00.00Z";
 
         actionService.addOnlyActionIfAbsent(action);
 

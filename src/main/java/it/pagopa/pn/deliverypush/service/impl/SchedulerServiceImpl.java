@@ -80,10 +80,7 @@ public class SchedulerServiceImpl implements SchedulerService {
                     .build();
 
             log.debug("ScheduleEvent iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={} actionId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId, action.getActionId());
-
-            log.debug("ScheduleEvent: performance improvement IS ENABLED for iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId);
             actionsPool.addOnlyAction(action);
-
         } else {
             log.info("Notification is cancelled, the action {} will not be scheduled - iun={}", actionType, iun);
         }
@@ -102,6 +99,17 @@ public class SchedulerServiceImpl implements SchedulerService {
         return documentCreationDetails;
     }
 
+    @Override
+    public void unscheduleEvent(String iun, Integer recIndex, ActionType actionType, String timelineEventId) {
+        Action action = Action.builder()
+                .iun(iun)
+                .recipientIndex(recIndex)
+                .type(actionType)
+                .timelineId(timelineEventId)
+                .build();
+
+        this.actionsPool.unscheduleFutureAction (action.getType().buildActionId(action));
+    }
 
     @Override
     public void scheduleWebhookEvent(String paId, String iun, String timelineId) {

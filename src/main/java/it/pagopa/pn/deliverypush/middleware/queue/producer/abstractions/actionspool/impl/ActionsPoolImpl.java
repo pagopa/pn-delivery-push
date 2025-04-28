@@ -38,4 +38,11 @@ public class ActionsPoolImpl implements ActionsPool {
         int minute = nowUtc.get( ChronoField.MINUTE_OF_HOUR );
         return String.format("%04d-%02d-%02dT%02d:%02d", year, month, day, hour, minute);
     }
+
+    @Override
+    public void unscheduleFutureAction(String actionId) {
+        // Il metodo non fa più nulla dopo la rimozione del feature flag di performance improvement
+        // Viene lasciato per ricostruire più facilmente i punti di impatto su cui intervenire per il bug
+        // https://pagopa.atlassian.net/browse/PN-13614
+    }
 }
