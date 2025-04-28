@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
@@ -12,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,7 +28,6 @@ public class DigitalWorkFlowRetryHandler {
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
     private final SendAndUnscheduleNotification sendAndUnscheduleNotification;
     private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
-    private final FeatureEnabledUtils featureEnabledUtils;
 
     /**
      * Callback nel caso di ritentativo a breve termine di invio PEC
@@ -132,33 +129,8 @@ public class DigitalWorkFlowRetryHandler {
                     .status(ExtChannelProgressEventCat.PROGRESS)
                     .eventDetails("expired timeout")
                     .build());
-        }
-        else
-        {
-            // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
-            if(featureEnabledUtils.isPerformanceImprovementEnabled(notBeforeAction)) {
-                log.debug("Timeout expired but the sending attempt has ended. Not need to resend - iun={} recIdx={}", iun, recIndex);
-            }else {
-                NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-                SendInformation digitalAddressFeedback = SendInformation.builder()
-                        .retryNumber(originalRetryNumber)
-                        .eventTimestamp(Instant.now())
-                        .digitalAddressSource(originalAddressSource)
-                        .digitalAddress(originalAddressInfo)
-                        .isFirstSendRetry(null)
-                        .relatedFeedbackTimelineId(null)
-                        .build();
-
-                digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification,
-                        EventCodeInt.DP10,
-                        recIndex,
-                        false,
-                        null,
-                        digitalAddressFeedback);
-                
-                log.error("elapsedExtChannelTimeout Last timelineevent doesn't match original timelineevent source and retrynumber, skipping more actions iun={} recIdx={}", iun, recIndex);
-            }
+        } else {
+            log.debug("Timeout expired but the sending attempt has ended. Not need to resend - iun={} recIdx={}", iun, recIndex);
         }
     }
 

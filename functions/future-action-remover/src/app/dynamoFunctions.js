@@ -23,23 +23,20 @@ const MAX_BATCH_SIZE = config.get("MAX_BATCH_SIZE");
 const SLEEP_FOR_UNPROCESSED = config.get("SLEEP_FOR_UNPROCESSED");
 async function getActionsByTimeSlot(
   tableName,
-  { timeSlot, startTime, endTime },
+  timeSlot,
   lastItem
 ) {
   const params = {
     TableName: tableName,
     KeyConditionExpression: "timeSlot = :ts",
     ExpressionAttributeValues: {
-      ":ts": timeSlot,
-      ":tS": startTime,
-      ":tE": endTime,
-    },
-    FilterExpression: "notBefore >= :tS AND notBefore <= :tE",
+      ":ts": timeSlot
+    }
   };
 
   console.debug(
     "[FUTURE_ACTIONS_REMOVER]",
-    `Looking for data TS=${timeSlot}, START=${startTime}, END=${endTime}`
+    `Looking for data TS=${timeSlot}`
   );
   // starting from previous query result
   if (lastItem) {

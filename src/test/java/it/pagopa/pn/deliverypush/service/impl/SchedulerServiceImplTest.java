@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
-import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,8 +34,6 @@ class SchedulerServiceImplTest {
     private Clock clock;
     @Mock
     private TimelineUtils timelineUtils;
-    @Mock
-    private FeatureEnabledUtils featureEnabledUtils;
 
     
     private SchedulerServiceImpl schedulerService;
@@ -47,7 +44,7 @@ class SchedulerServiceImplTest {
         webhooksPool = Mockito.mock(WebhooksPool.class);
         clock = Mockito.mock(Clock.class);
 
-        schedulerService = new SchedulerServiceImpl(actionsPool, webhooksPool, clock, timelineUtils, featureEnabledUtils);
+        schedulerService = new SchedulerServiceImpl(actionsPool, webhooksPool, clock, timelineUtils);
     }
 
     
@@ -66,8 +63,7 @@ class SchedulerServiceImplTest {
                                 .build()
                 )
                 .build());
-
-        Mockito.verify(actionsPool, Mockito.times(1)).scheduleFutureAction(any(Action.class));
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
     }
     
     @Test
@@ -80,7 +76,7 @@ class SchedulerServiceImplTest {
 
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
 
-        Mockito.verify(actionsPool, Mockito.times(1)).startActionOrScheduleFutureAction(action);
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
     }
 
     @Test
@@ -94,9 +90,8 @@ class SchedulerServiceImplTest {
         
         //WHEN
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
-        
-        //THEN
-        Mockito.verify(actionsPool, Mockito.never()).startActionOrScheduleFutureAction(action);
+
+        Mockito.verify(actionsPool, Mockito.never()).addOnlyAction(action);
     }
     
 
@@ -150,7 +145,7 @@ class SchedulerServiceImplTest {
         schedulerService.scheduleEvent("01", 3, instant, ActionType.NOTIFICATION_CANCELLATION, "timelineId", details);
 
         //THEN
-        Mockito.verify(actionsPool, Mockito.times(1)).startActionOrScheduleFutureAction(any());
+        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
     }
 
     private Action buildAction(ActionType type) {

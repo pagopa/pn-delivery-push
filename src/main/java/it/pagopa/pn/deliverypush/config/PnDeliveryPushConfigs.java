@@ -76,8 +76,6 @@ public class PnDeliveryPushConfigs {
 
     private WebhookDao webhookDao;
 
-    private FutureActionDao futureActionDao;
-    
     private LastPollForFutureActionDao lastPollForFutureActionDao;
 
     private DocumentCreationRequestDao documentCreationRequestDao;
@@ -132,10 +130,6 @@ public class PnDeliveryPushConfigs {
     private List<String> listCategoriesPa;
 
     private ErrorCorrectionLevel errorCorrectionLevelQrCode;
-
-    private String performanceImprovementStartDate;
-
-    private String performanceImprovementEndDate;
 
     private boolean additionalLangsEnabled;
 
@@ -278,11 +272,6 @@ public class PnDeliveryPushConfigs {
     }
 
     @Data
-    public static class FutureActionDao {
-        private String tableName;
-    }
-
-    @Data
     public static class WebhookDao {
         private String streamsTableName;
         private String eventsTableName;
@@ -290,7 +279,6 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class LastPollForFutureActionDao {
-        private String tableName;
         private String lockTableName;
     }
 
