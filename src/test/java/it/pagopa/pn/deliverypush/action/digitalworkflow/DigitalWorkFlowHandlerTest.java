@@ -46,8 +46,6 @@ import static org.mockito.Mockito.when;
 
 class DigitalWorkFlowHandlerTest {
     @Mock
-    private CompletionWorkFlowHandler completionWorkFlow;
-    @Mock
     private ExternalChannelService externalChannelService;
     @Mock
     private NotificationService notificationService;
@@ -945,10 +943,6 @@ class DigitalWorkFlowHandlerTest {
         String sourceTimelineId = "iun_something_1_somethingelse";
 
 
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
         NotificationInt notification = getNotification();
         when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -1026,10 +1020,6 @@ class DigitalWorkFlowHandlerTest {
         String sourceTimelineId = "iun_something_1_somethingelse";
 
 
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
         NotificationInt notification = getNotification();
         when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -1102,10 +1092,6 @@ class DigitalWorkFlowHandlerTest {
         String sourceTimelineId = "iun_something_1_somethingelse";
 
 
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
         NotificationInt notification = getNotification();
         when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -1175,11 +1161,6 @@ class DigitalWorkFlowHandlerTest {
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         String sourceTimelineId = "iun_something_1_somethingelse";
 
-
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
         NotificationInt notification = getNotification();
         when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -1227,24 +1208,11 @@ class DigitalWorkFlowHandlerTest {
     @Test
     void retryWorkFlowActionNOretry2() {
         //GIVEN
-        DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
-                .lastAttemptDate(Instant.now())
-                .sentAttemptMade(0)
-                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
-                .digitalAddress(LegalDigitalAddressInt.builder()
-                        .address("test@mail.it")
-                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
-                .build();
-
 
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         String sourceTimelineId = "iun_something_1_somethingelse";
 
-
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
 
         NotificationInt notification = getNotification();
 
@@ -1334,7 +1302,7 @@ class DigitalWorkFlowHandlerTest {
 
 
         //WHEN
-        handlerRetry.elapsedExtChannelTimeout(notification.getIun(), 0, sourceTimelineId, Instant.now());
+        handlerRetry.elapsedExtChannelTimeout(notification.getIun(), 0, sourceTimelineId);
 
         //THEN
 
@@ -1359,10 +1327,6 @@ class DigitalWorkFlowHandlerTest {
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         String sourceTimelineId = "iun_something_1_somethingelse";
 
-
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
 
         NotificationInt notification = getNotification();
 
@@ -1398,7 +1362,7 @@ class DigitalWorkFlowHandlerTest {
 
 
         //WHEN
-        handlerRetry.elapsedExtChannelTimeout(notification.getIun(), 0, sourceTimelineId, Instant.now());
+        handlerRetry.elapsedExtChannelTimeout(notification.getIun(), 0, sourceTimelineId);
 
         //THEN
 

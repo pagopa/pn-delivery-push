@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
@@ -80,7 +79,7 @@ public class DigitalWorkFlowRetryHandler {
      * @param recIndex id recipient
      * @param timelineId id timeline che ha generato la schedulazione
      */
-    public void elapsedExtChannelTimeout(String iun, int recIndex, String timelineId, Instant notBeforeAction) {
+    public void elapsedExtChannelTimeout(String iun, int recIndex, String timelineId) {
         log.info("elapsedExtChannelTimeout - iun={} recIndex={} timelineId={}", iun, recIndex, timelineId);
 
         // recupero il timelineId originale, del quale mi interessano retrynumber e addresssource
@@ -94,18 +93,7 @@ public class DigitalWorkFlowRetryHandler {
             return;
         }
 
-        Integer originalRetryNumber = -1;
-        DigitalAddressSourceInt originalAddressSource = null;
-        LegalDigitalAddressInt originalAddressInfo = null;
-
-        if (timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt)
-        {
-            // dovrebbe sempre essere instanceof di questo tipo
-            originalRetryNumber = sendDigitalProgressDetailsInt.getRetryNumber();
-            originalAddressSource = sendDigitalProgressDetailsInt.getDigitalAddressSource();
-            originalAddressInfo = sendDigitalProgressDetailsInt.getDigitalAddress();
-        }
-        else
+        if (!(timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails))
         {
             // caso decisamente strano...loggo ma non tiro errore perchè tanto, se non c'è l'evento non è che ritentando risolve
             log.error("elapsedExtChannelTimeout Original timelineevent not found, skipping actions iun={} recIdx={}", iun, recIndex);
