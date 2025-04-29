@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@AllArgsConstructor
 @Getter
 @Component
 public class PnTechnicalRefusalCostMode {
