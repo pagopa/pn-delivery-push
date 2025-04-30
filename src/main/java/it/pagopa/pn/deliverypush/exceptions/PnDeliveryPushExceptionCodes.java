@@ -75,6 +75,7 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE = "PN_DELIVERYPUSH_INVALID_TEMPLATE";
     public static final String ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED = "PN_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED";
     public static final String ERROR_CODE_DELIVERYPUSH_INVALID_PHYSICALADDRESS = "PN_DELIVERYPUSH_PHYSICALADDRESS_REQUIRED";
+    public static final String ERROR_CODE_DELIVERYPUSH_LOOKUPADDRESS_INCONSISTENT_DATA = "PN_DELIVERYPUSH_LOOKUPADDRESS_INCONSISTENT_DATA";
 
 
     @Getter
@@ -101,7 +102,12 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
         //quickWorkAroundForPN-9116
         SENDER_DISABLED_MORE_THAN_20_GRAMS("SENDER_DISABLED_MORE_THAN_20_GRAMS"),
 
-        FILE_GONE("FILE_GONE");
+        FILE_GONE("FILE_GONE"),
+
+        ADDRESS_NOT_FOUND("ADDRESS_NOT_FOUND"),
+
+        ADDRESS_SEARCH_FAILED("ADDRESS_SEARCH_FAILED");
+
 
         private final String value;
 
