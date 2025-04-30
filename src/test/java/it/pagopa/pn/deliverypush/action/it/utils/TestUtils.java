@@ -933,6 +933,10 @@ public class TestUtils {
     }
 
     public static NotificationInt getNotificationV2() {
+        return getNotificationV2(null);
+    }
+
+    public static NotificationInt getNotificationV2(UsedServicesInt usedServices) {
         return NotificationInt.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
@@ -967,6 +971,7 @@ public class TestUtils {
                                         .build()))
                                 .build()
                 ))
+                .usedServices(usedServices)
                 .build();
     }
 
@@ -1074,6 +1079,10 @@ public class TestUtils {
     }
 
     public static NotificationInt getNotificationV2WithF24() {
+        return getNotificationV2WithF24(null);
+    }
+
+    public static NotificationInt getNotificationV2WithF24(UsedServicesInt usedServices) {
         return NotificationInt.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
@@ -1118,6 +1127,7 @@ public class TestUtils {
                                         .build()))
                                 .build()
                 ))
+                .usedServices(usedServices)
                 .build();
     }
 
