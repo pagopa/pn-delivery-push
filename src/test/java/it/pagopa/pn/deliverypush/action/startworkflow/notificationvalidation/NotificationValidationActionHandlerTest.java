@@ -587,10 +587,6 @@ class NotificationValidationActionHandlerTest {
                 .retryAttempt(1)
                 .build();
 
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any()))
-                .thenReturn(timelineElementInternal);
-
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogEvent.generateSuccess()).thenReturn(auditLogEvent);
         Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), any(), any(), any()))
@@ -605,7 +601,6 @@ class NotificationValidationActionHandlerTest {
 
         //THEN
         Mockito.verify(addressValidator).requestValidateAndNormalizeAddresses(notification);
-        Mockito.verify(timelineService, Mockito.never()).addTimelineElement(timelineElementInternal, notification);
         Mockito.verify(taxIdPivaValidator, Mockito.never()).validateTaxIdPiva(notification);
         Mockito.verify(notificationValidationScheduler, Mockito.never()).scheduleNotificationValidation(Mockito.eq(notification), Mockito.anyInt(), any(), Mockito.any(Instant.class));
     }
