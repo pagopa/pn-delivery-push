@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>it.pagopa.pn</groupId>
 	<artifactId>pn-delivery-push</artifactId>
-	<version>2.16.1</version>
+	<version>2.17.1-SNAPSHOT</version>
 	<name>pn-delivery-push</name>
 	<description>Orchestrate Notification Workflow</description>
 	<scm>
@@ -873,7 +873,7 @@
 						</goals>
 						<configuration>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-templates-engine/117941ccfe88a71c8b70da72e602af069c16c9a2/docs/openapi/pn-internal-templates-v1.yaml
+								https://raw.githubusercontent.com/pagopa/pn-templates-engine/2745edd5b7bb2678e4f53008c38e1b3e83333425/docs/openapi/pn-internal-templates-v1.yaml
 							</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
@@ -907,7 +907,7 @@
 						</goals>
 						<configuration>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-templates-engine/117941ccfe88a71c8b70da72e602af069c16c9a2/docs/openapi/pn-internal-templates-v1.yaml
+								https://raw.githubusercontent.com/pagopa/pn-templates-engine/2745edd5b7bb2678e4f53008c38e1b3e83333425/docs/openapi/pn-internal-templates-v1.yaml
 							</inputSpec>
 							<generatorName>java</generatorName>
 							<library>webclient</library>

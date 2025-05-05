@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24
 import it.pagopa.pn.deliverypush.action.utils.ExternalChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -30,10 +31,7 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -88,6 +86,8 @@ class ExternalChannelServiceImplTest {
 
     @Mock
     private FeatureEnabledUtils featureEnabledUtils;
+    @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     @BeforeEach
     void setup() {
@@ -97,7 +97,7 @@ class ExternalChannelServiceImplTest {
                 notificationUtils,
                 digitalWorkFlowUtils,
                 notificationService, auditLogService,
-                timelineUtils, attachmentUtils, timelineService, featureEnabledUtils);
+                timelineUtils, attachmentUtils, timelineService, featureEnabledUtils, pnDeliveryPushConfigs);
     }
 
     @Test
@@ -1000,6 +1000,181 @@ class ExternalChannelServiceImplTest {
         Mockito.verify( auditLogEvent).generateFailure(any(), any());
     }
 
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    void sendDigitalNotificationWithSercQAndPfWorflowEnabledAAROnly() {
+        when(featureEnabledUtils.isPfNewWorkflowEnabled(any())).thenReturn(true);
+        when(featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled()).thenReturn(true);
+        //GIVEN
+        String iun = "IUN01";
+        String taxId = "taxId";
+        String quickAccessToken = "test";
+
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+                .address(SERCQ_ADDRESS)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ)
+                .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
+                .withDigitalDomicile(digitalDomicile)
+                .withPhysicalAddress(
+                        PhysicalAddressBuilder.builder()
+                                .withAddress("_Via Nuova")
+                                .build()
+                )
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        when(notificationUtils.getRecipientFromIndex(any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+        when(attachmentUtils.getAarWithRadd(any(NotificationInt.class),Mockito.anyInt())).thenReturn(Boolean.TRUE);
+
+        String aarKey = "testKey";
+
+        when( externalChannelUtils.getAarKey(anyString(),anyInt())).thenReturn("testKey");
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_SEND), Mockito.anyString())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+
+        Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
+        when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
+
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
+        int recIndex = 0;
+        int sentAttemptMade = 0;
+
+        //WHEN
+        final boolean isFirstSendRetry = false;
+
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalDomicile)
+                .digitalAddressSource(addressSource)
+                .retryNumber(sentAttemptMade)
+                .isFirstSendRetry(isFirstSendRetry)
+                .relatedFeedbackTimelineId(null)
+                .build();
+
+        externalChannelService.sendDigitalNotification(notification, recIndex, false, sendInformation);
+
+        //THEN
+        String eventIdExpected = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .source(addressSource)
+                        .sentAttemptMade(sentAttemptMade)
+                        .isFirstSendRetry(isFirstSendRetry)
+                        .build()
+        );
+
+        ArgumentCaptor<LegalDigitalAddressInt> captor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannel).sendLegalNotification(
+                eq(notification),
+                eq(recipient),
+                captor.capture(),
+                eq(eventIdExpected),
+                eq(Arrays.asList(aarKey)),
+                eq(quickAccessToken));
+        Assertions.assertEquals(SERCQ_ADDRESS, captor.getValue().getAddress());
+        Mockito.verify(externalChannelUtils).addSendDigitalNotificationToTimeline(notification, recIndex, sendInformation, eventIdExpected);
+        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), any());
+        Mockito.verify( auditLogEvent).log();
+        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(any());
+    }
+
+    @Test
+    @ExtendWith(MockitoExtension.class)
+    void sendDigitalNotificationWithSercQAndPfWorflowEnabledAAROnly_AAROnlyPECForRADDAndPF_NotEnabled() {
+       when(featureEnabledUtils.isPfNewWorkflowEnabled(any())).thenReturn(true);
+       when(featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled()).thenReturn(false);
+        //GIVEN
+        String iun = "IUN01";
+        String taxId = "taxId";
+        String quickAccessToken = "test";
+
+        LegalDigitalAddressInt digitalDomicile = LegalDigitalAddressInt.builder()
+                .address(SERCQ_ADDRESS)
+                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ)
+                .build();
+
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder()
+                .withTaxId(taxId)
+                .withInternalId("ANON_"+taxId)
+                .withDigitalDomicile(digitalDomicile)
+                .withPhysicalAddress(
+                        PhysicalAddressBuilder.builder()
+                                .withAddress("_Via Nuova")
+                                .build()
+                )
+                .build();
+
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .withPaId("paId01")
+                .withNotificationRecipient(recipient)
+                .build();
+
+        when(notificationUtils.getRecipientFromIndex(any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        String aarKey = "testKey";
+        String attachments = "test1";
+        when( attachmentUtils.retrieveAttachments(any(),any(),any(),eq(F24ResolutionMode.RESOLVE_WITH_TIMELINE),any(),any()) ).thenReturn(Arrays.asList(aarKey,attachments));
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DD_SEND), Mockito.anyString())).thenReturn(auditLogEvent);
+        when(auditLogEvent.generateSuccess(Mockito.anyString(), any())).thenReturn(auditLogEvent);
+
+        Map<String, String> quickLinkTestMap = Map.of(recipient.getInternalId(), quickAccessToken);
+        when(notificationService.getRecipientsQuickAccessLinkToken(iun)).thenReturn(quickLinkTestMap);
+
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
+        int recIndex = 0;
+        int sentAttemptMade = 0;
+
+        //WHEN
+        final boolean isFirstSendRetry = false;
+
+        SendInformation sendInformation = SendInformation.builder()
+                .digitalAddress(digitalDomicile)
+                .digitalAddressSource(addressSource)
+                .retryNumber(sentAttemptMade)
+                .isFirstSendRetry(isFirstSendRetry)
+                .relatedFeedbackTimelineId(null)
+                .build();
+
+        externalChannelService.sendDigitalNotification(notification, recIndex, false, sendInformation);
+
+        //THEN
+        String eventIdExpected = TimelineEventId.SEND_DIGITAL_DOMICILE.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .source(addressSource)
+                        .sentAttemptMade(sentAttemptMade)
+                        .isFirstSendRetry(isFirstSendRetry)
+                        .build()
+        );
+
+        ArgumentCaptor<LegalDigitalAddressInt> captor = ArgumentCaptor.forClass(LegalDigitalAddressInt.class);
+        Mockito.verify(externalChannel).sendLegalNotification(
+                eq(notification),
+                eq(recipient),
+                captor.capture(),
+                eq(eventIdExpected),
+                eq(Arrays.asList(aarKey,attachments)),
+                eq(quickAccessToken));
+        Assertions.assertEquals(SERCQ_ADDRESS, captor.getValue().getAddress());
+        Mockito.verify(externalChannelUtils).addSendDigitalNotificationToTimeline(notification, recIndex, sendInformation, eventIdExpected);
+        Mockito.verify( auditLogEvent).generateSuccess(Mockito.anyString(), any());
+        Mockito.verify( auditLogEvent).log();
+        Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(any());
+    }
+
     private void mockGetTimelineElement(String iun, int recIndex, Instant timestamp) {
         String aarGenEventIdExpected = TimelineEventId.AAR_GENERATION.buildEventId(
                 EventId.builder()
@@ -1014,5 +1189,6 @@ class ExternalChannelServiceImplTest {
         return Stream.of(
                 Arguments.of(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC, "digitalDomicile@test.it"),
                 Arguments.of(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ, SERCQ_ADDRESS));
+
     }
 }

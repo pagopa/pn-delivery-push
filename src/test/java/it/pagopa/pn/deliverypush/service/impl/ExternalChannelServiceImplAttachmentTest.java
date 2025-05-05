@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
@@ -28,6 +29,7 @@ import it.pagopa.pn.deliverypush.service.utils.FileUtils;
 import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,7 +111,7 @@ class ExternalChannelServiceImplAttachmentTest {
                 auditLogService,
                 timelineUtils,
                 attachmentUtils,
-                timelineService, featureEnabledUtils);
+                timelineService, featureEnabledUtils, pnDeliveryPushConfigs);
     }
 
 
@@ -118,6 +120,8 @@ class ExternalChannelServiceImplAttachmentTest {
     @ParameterizedTest
     @MethodSource("sendDigitalNotificationParams")
     void sendLegalNotificationAAR_DOCUMENTS_PAYMENTS(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType, String address) {
+        when(featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled()).thenReturn(true);
+
         //GIVEN
         String quickAccessToken = "test";
         String aarKey = "testKey";
@@ -149,6 +153,8 @@ class ExternalChannelServiceImplAttachmentTest {
                 .generatedAarUrl(aarKey).build();
         when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
         when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notificationRecipientInt);
+
+        when(aarUtils.getAarCreationRequestDetailsInt(any(NotificationInt.class),anyInt())).thenReturn(getAarCreationRequestDetailsInt(aarKey, recIndex));
 
         Instant now = Instant.now();
         if (channelType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
@@ -193,10 +199,12 @@ class ExternalChannelServiceImplAttachmentTest {
     }
 
 
+
     @ExtendWith(MockitoExtension.class)
     @ParameterizedTest
     @MethodSource("sendDigitalNotificationParams")
     void sendLegalNotificationAAR_DOCUMENTS(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType, String address) {
+        when(featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled()).thenReturn(true);
         //GIVEN
         String quickAccessToken = "test";
         String aarKey = "testKey";
@@ -228,6 +236,8 @@ class ExternalChannelServiceImplAttachmentTest {
                 .generatedAarUrl(aarKey).build();
         when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
         when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notificationRecipientInt);
+
+        when(aarUtils.getAarCreationRequestDetailsInt(any(NotificationInt.class),anyInt())).thenReturn(getAarCreationRequestDetailsInt(aarKey, recIndex));
 
         Instant now = Instant.now();
         if (channelType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
@@ -274,6 +284,7 @@ class ExternalChannelServiceImplAttachmentTest {
     @ParameterizedTest
     @MethodSource("sendDigitalNotificationParams")
     void sendLegalNotificationAAR(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE channelType, String address) {
+        when(featureEnabledUtils.isFeatureAAROnlyPECForRADDAndPFEnabled()).thenReturn(true);
         //GIVEN
         String quickAccessToken = "test";
         String aarKey = "testKey";
@@ -305,6 +316,8 @@ class ExternalChannelServiceImplAttachmentTest {
                 .generatedAarUrl(aarKey).build();
         when(aarUtils.getAarGenerationDetails(any(), Mockito.anyInt())).thenReturn(aarGenerationDetails);
         when(notificationUtils.getRecipientFromIndex(any(),anyInt())).thenReturn(notificationRecipientInt);
+
+        when(aarUtils.getAarCreationRequestDetailsInt(any(NotificationInt.class),anyInt())).thenReturn(getAarCreationRequestDetailsInt(aarKey, recIndex));
 
         Instant now = Instant.now();
         if (channelType == LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ) {
@@ -405,5 +418,15 @@ class ExternalChannelServiceImplAttachmentTest {
                 Arguments.of(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC, "digitalDomicile@test.it"),
                 Arguments.of(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ, SERCQ_ADDRESS));
     }
+
+    private static AarCreationRequestDetailsInt getAarCreationRequestDetailsInt(String aarKey, int recIndex) {
+        AarCreationRequestDetailsInt aarCreationRequestDetailsInt= new AarCreationRequestDetailsInt();
+        aarCreationRequestDetailsInt.setAarKey(aarKey);
+        aarCreationRequestDetailsInt.setAarTemplateType(AarTemplateType.AAR_NOTIFICATION_RADD);
+        aarCreationRequestDetailsInt.setNumberOfPages(0);
+        aarCreationRequestDetailsInt.setRecIndex(recIndex);
+        return aarCreationRequestDetailsInt;
+    }
+
 
 }
