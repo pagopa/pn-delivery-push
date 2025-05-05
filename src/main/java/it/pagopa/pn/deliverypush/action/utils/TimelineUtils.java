@@ -1522,6 +1522,7 @@ public class TimelineUtils {
                 .recIndex(response.getRecIndex())
                 .registry(response.getRegistry())
                 .physicalAddress(response.getPhysicalAddress())
+                .requestTimelineId(response.getCorrelationId())
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_RESPONSE, eventId, details);

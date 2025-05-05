@@ -554,7 +554,66 @@ public class TestUtils {
 
         return timelineElementOpt.isPresent();
     }
-    
+
+    public static boolean checkIsPresentNationalRegistryValidationCall(String iun, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                buildTimelineEventIdNationalRegistryValidationCall(iun)
+        );
+
+        return timelineElementOpt.isPresent();
+    }
+
+    public static String buildTimelineEventIdNationalRegistryValidationCall(String iun) {
+        return TimelineEventId.NATIONAL_REGISTRY_VALIDATION_CALL.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .deliveryMode(DeliveryModeInt.ANALOG)
+                        .build()
+        );
+    }
+
+    public static boolean checkIsPresentNationalRegistryValidationResponse(String correlationId, String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.NATIONAL_REGISTRY_VALIDATION_RESPONSE.buildEventId(
+                        EventId.builder()
+                                .relatedTimelineId(correlationId)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        return timelineElementOpt.isPresent();
+    }
+
+    public static boolean checkIsPresentRequestAccepted(String iun, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REQUEST_ACCEPTED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .build())
+        );
+
+        return timelineElementOpt.isPresent();
+    }
+
+    public static boolean checkIsPresentNotificationRejected(String iun, TimelineService timelineService) {
+        return getNotificationRejected(iun, timelineService).isPresent();
+    }
+
+    public static Optional<TimelineElementInternal> getNotificationRejected(String iun, TimelineService timelineService) {
+        return timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REQUEST_REFUSED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .build()
+                )
+        );
+    }
+
     public static Optional<TimelineElementInternal> getRefinement(String iun, Integer recIndex, TimelineService timelineService) {
         return timelineService.getTimelineElement(
                 iun,

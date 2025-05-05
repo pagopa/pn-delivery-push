@@ -352,8 +352,9 @@ public class NotificationValidationActionHandler {
             generateAuditLog(notificationInt, THIRD_VALIDATION_STEP).generateSuccess().log();
             try {
                 lookupAddressHandler.performValidation(notificationInt);
+                NotificationInt refreshedNotification = notificationService.getNotificationByIun(notificationInt.getIun());
                 MDCUtils.addMDCToContextAndExecute(
-                        addressValidator.requestValidateAndNormalizeAddresses(notificationInt)
+                        addressValidator.requestValidateAndNormalizeAddresses(refreshedNotification)
                 ).block();
             } catch (PnLookupAddressValidationFailedException ex) {
                 log.warn(String.format("Lookup address validation failed - iun=%s", notificationInt.getIun()), ex);
