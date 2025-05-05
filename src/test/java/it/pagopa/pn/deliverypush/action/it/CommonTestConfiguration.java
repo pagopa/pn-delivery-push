@@ -165,6 +165,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         SmartMapper.class,
         TimelineMapperFactory.class,
         PnEmdIntegrationClientMock.class,
+        RefusalCostCalculator.class,
+        PnTechnicalRefusalCostMode.class,
         LookupAddressHandler.class
 })
 @ExtendWith(SpringExtension.class)
