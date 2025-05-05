@@ -400,7 +400,7 @@ class NotificationValidationActionHandlerTest {
                 .build();
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any()))
+        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any(), any()))
                 .thenReturn(timelineElementInternal);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
@@ -437,7 +437,7 @@ class NotificationValidationActionHandlerTest {
                 .build();
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any()))
+        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any(), any()))
                 .thenReturn(timelineElementInternal);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
@@ -536,7 +536,7 @@ class NotificationValidationActionHandlerTest {
                 .build();
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any()))
+        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any(), any()))
                 .thenReturn(timelineElementInternal);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
@@ -579,7 +579,7 @@ class NotificationValidationActionHandlerTest {
                 .build();
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
-        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any()))
+        Mockito.when( timelineUtils.buildRefusedRequestTimelineElement(any(NotificationInt.class), any(), any()))
                 .thenReturn(timelineElementInternal);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
