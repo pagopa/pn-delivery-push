@@ -166,7 +166,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         TimelineMapperFactory.class,
         PnEmdIntegrationClientMock.class,
         RefusalCostCalculator.class,
-        PnTechnicalRefusalCostMode.class
+        PnTechnicalRefusalCostMode.class,
+        LookupAddressHandler.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:/application-testIT.properties")
