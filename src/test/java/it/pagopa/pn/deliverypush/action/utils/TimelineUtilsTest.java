@@ -1528,7 +1528,7 @@ class TimelineUtilsTest {
                 NotificationRefusedErrorInt.builder().errorCode("ADDRESS_SEARCH_FAILED").detail("Address search for recipient index: 1, encountered an error").recIndex(1).build()
         );
 
-        TimelineElementInternal result = timelineUtils.buildRefusedRequestTimelineElement(notification, errors);
+        TimelineElementInternal result = timelineUtils.buildRefusedRequestTimelineElement(notification, errors, 100);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Test_IUN_123", result.getIun()),
