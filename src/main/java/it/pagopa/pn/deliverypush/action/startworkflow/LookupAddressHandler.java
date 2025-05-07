@@ -43,15 +43,9 @@ public class LookupAddressHandler {
         log.info("Validating {} addresses retrieved by national registries", responses.size());
         List<ProblemError> errors = new ArrayList<>();
         for (NationalRegistriesResponse response : responses) {
-            if (response.getPhysicalAddress() == null) {
-                errors.add(
-                        ProblemError.builder()
-                                .code(ADDRESS_NOT_FOUND.getValue())
-                                .element(response.getRecIndex().toString())
-                                .detail("Address not found for recipient index: " + response.getRecIndex())
-                                .build()
-                );
-            }
+            /*
+             Effettuo prima il controllo sulla presenza di errori, perchè se ci sono errori non ci sono nemmeno indirizzi, ma in questo caso è giusto riportare solo l'errore
+             */
             if (StringUtils.isNotBlank(response.getError())) {
                 errors.add(
                         ProblemError.builder()
@@ -60,7 +54,16 @@ public class LookupAddressHandler {
                                 .detail("Address search for recipient index: " + response.getRecIndex() + ", encountered an error")
                                 .build()
                 );
+            } else if (response.getPhysicalAddress() == null) {
+                errors.add(
+                        ProblemError.builder()
+                                .code(ADDRESS_NOT_FOUND.getValue())
+                                .element(response.getRecIndex().toString())
+                                .detail("Address not found for recipient index: " + response.getRecIndex())
+                                .build()
+                );
             }
+
         }
         if (!errors.isEmpty()) {
             throw new PnLookupAddressValidationFailedException(errors);
@@ -91,7 +94,7 @@ public class LookupAddressHandler {
                     .build();
             recipientAddressesDtoList.add(foundAddress);
         }
-        confidentialInformationService.updateNotificationAddresses(notification.getIun(), false,recipientAddressesDtoList);
+        confidentialInformationService.updateNotificationAddresses(notification.getIun(), false, recipientAddressesDtoList);
     }
 
     private void enrichAddressWithRecipientData(NationalRegistriesResponse response, NotificationRecipientInt recipient) {

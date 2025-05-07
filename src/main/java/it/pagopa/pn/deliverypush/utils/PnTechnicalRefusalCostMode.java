@@ -22,7 +22,6 @@ public class PnTechnicalRefusalCostMode {
     private final Integer cost;
 
     public PnTechnicalRefusalCostMode(PnDeliveryPushConfigs configs, NotificationProcessCostService notificationProcessCostService) {
-        // Retrieve technical refusal cost mode from the configuration property "PN_DELIVERYPUSH_TECHNICAL_REFUSAL_COST_MODE"
         String technicalRefusalCostMode = configs.getTechnicalRefusalCostMode();
 
         // Configuration property example: PN_DELIVERYPUSH_TECHNICAL_REFUSAL_COST_MODE=RECIPIENT_BASED;50
