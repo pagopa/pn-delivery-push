@@ -1,18 +1,13 @@
 package it.pagopa.pn.deliverypush.action.it;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import freemarker.template.Configuration;
-import freemarker.template.Version;
-import freemarker.template._TemplateAPI;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.legalfacts.*;
+import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
+import it.pagopa.pn.deliverypush.legalfacts.LegalFactGeneratorTemplates;
+import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
@@ -27,15 +22,11 @@ import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseH
 import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.service.impl.NotificationProcessCostServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.SaveLegalFactsServiceImpl;
-import it.pagopa.pn.deliverypush.utils.HtmlSanitizer;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.mockito.Mockito;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,39 +71,11 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public HtmlSanitizer htmlSanitizer() {
-        return new HtmlSanitizer(buildObjectMapper(), HtmlSanitizer.SanitizeMode.DELETE_HTML);
-    }
-
-    private ObjectMapper buildObjectMapper() {
-        ObjectMapper objectMapper = ((JsonMapper.Builder) ((JsonMapper.Builder) JsonMapper.builder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)).build();
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
-    }
-
-    @Bean
-    public DocumentComposition documentCompositionTest(HtmlSanitizer htmlSanitizer) throws IOException {
-        Configuration freemarker = new Configuration(new Version(_TemplateAPI.VERSION_INT_2_3_0));
-        return new DocumentComposition(freemarker, htmlSanitizer);
-    }
-
-    @Bean
     public InstantNowSupplier instantNowSupplierTest() {
         return Mockito.mock(InstantNowSupplier.class);
     }
 
     @Bean
-    @ConditionalOnProperty(name = "pn.delivery-push.enable-templates-engine", havingValue = "false")
-    public LegalFactGenerator legalFactGeneratorDocComposition(DocumentComposition dc,
-                                                               @Lazy PnSendModeUtils pnSendModeUtils,
-                                                               PnDeliveryPushConfigs pnDeliveryPushConfigs) {
-        CustomInstantWriter instantWriter = new CustomInstantWriter();
-        PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
-        return new LegalFactGeneratorDocComposition(dc, instantWriter, physicalAddressWriter, pnDeliveryPushConfigs, instantNowSupplierTest(), pnSendModeUtils);
-    }
-
-    @Bean
-    @ConditionalOnProperty(name = "pn.delivery-push.enable-templates-engine", havingValue = "true", matchIfMissing = true)
     public LegalFactGenerator legalFactGeneratorTemplatesClient(@Lazy PnSendModeUtils pnSendModeUtils, PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         CustomInstantWriter instantWriter = new CustomInstantWriter();
         PhysicalAddressWriter physicalAddressWriter = new PhysicalAddressWriter();
