@@ -31,4 +31,5 @@ public class NotificationInt {
     private String version;
     private List<String> additionalLanguages;
     private UsedServicesInt usedServices;
+    private String idempotenceToken;
 }
