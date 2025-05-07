@@ -918,7 +918,7 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_REFINEMENT, elementId, details);
     }
 
-    public TimelineElementInternal buildRefusedRequestTimelineElement(NotificationInt notification, List<NotificationRefusedErrorInt> errors) {
+    public TimelineElementInternal buildRefusedRequestTimelineElement(NotificationInt notification, List<NotificationRefusedErrorInt> errors, Integer notificationCost) {
         log.debug("buildRefusedRequestTimelineElement - iun={}", notification.getIun());
 
         String elementId = TimelineEventId.REQUEST_REFUSED.buildEventId(
@@ -931,7 +931,7 @@ public class TimelineUtils {
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
                 .refusalReasons(errors)
                 .numberOfRecipients(numberOfRecipients)
-                .notificationCost(notificationProcessCostService.getSendFee() * numberOfRecipients)
+                .notificationCost(notificationCost)
                 .paProtocolNumber(notification.getPaProtocolNumber())
                 .idempotenceToken(notification.getIdempotenceToken())
                 .notificationRequestId(Base64.getEncoder().encodeToString(notification.getIun().getBytes()))
@@ -1517,19 +1517,19 @@ public class TimelineUtils {
     }
 
     public TimelineElementInternal buildNationalRegistryValidationResponse(NotificationInt notification, NationalRegistriesResponse response) {
-        // TODO: Scommentare nel task di gestione validazione
         String eventId = TimelineEventId.NATIONAL_REGISTRY_VALIDATION_RESPONSE.buildEventId(
                 EventId.builder()
                         .relatedTimelineId(response.getCorrelationId())
-                        //.recIndex(response.getRecIndex())
+                        .recIndex(response.getRecIndex())
                         .build());
 
         log.debug("buildNationalRegistryValidationResponse - iun={}", notification.getIun());
 
         PublicRegistryValidationResponseDetailsInt details = PublicRegistryValidationResponseDetailsInt.builder()
-                //.recIndex(response.getRecIndex())
-                //.registry(response.getRegistry())
+                .recIndex(response.getRecIndex())
+                .registry(response.getRegistry())
                 .physicalAddress(response.getPhysicalAddress())
+                .requestTimelineId(response.getCorrelationId())
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_RESPONSE, eventId, details);

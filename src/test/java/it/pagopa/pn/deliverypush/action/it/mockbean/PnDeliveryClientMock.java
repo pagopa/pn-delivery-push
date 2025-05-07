@@ -21,6 +21,13 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
 
     private final PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
 
+    public SentNotificationV25 getNotification(String iun) {
+        return this.notifications.stream()
+                .filter(notification -> iun.equals(notification.getIun()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Test error, iun is not present in getNotification IUN:" + iun));
+    }
+
     public PnDeliveryClientMock( @Lazy PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
         this.pnDataVaultClientReactiveMock = pnDataVaultClientReactiveMock;
     }
