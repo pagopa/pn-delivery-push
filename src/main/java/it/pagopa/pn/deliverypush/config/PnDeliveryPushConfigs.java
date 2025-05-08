@@ -147,6 +147,11 @@ public class PnDeliveryPushConfigs {
 
     private Duration timelineLockDuration;
 
+    private String AAROnlyPECForRADDAndPF;
+
+    private String templateURLforPEC;
+
+
     @Data
     public static class Topics {
 

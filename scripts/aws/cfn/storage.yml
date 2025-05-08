@@ -380,56 +380,6 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
 
-  # WebhookStreams table
-  PnDeliveryPushWebhookStreamsTable:
-    Type: AWS::DynamoDB::Table
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TableName: !Sub '${ProjectName}-WebhookStreams'
-      AttributeDefinitions:
-        - AttributeName: "hashKey"
-          AttributeType: "S"
-        - AttributeName: "sortKey"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "hashKey"
-          KeyType: "HASH"
-        - AttributeName: "sortKey"
-          KeyType: "RANGE"
-      BillingMode: "PAY_PER_REQUEST"
-      KinesisStreamSpecification:
-        StreamArn: !Ref CdcKinesisSourceStreamArn
-      TimeToLiveSpecification:
-        AttributeName: "ttl"
-        Enabled: true
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-
-  # WebhookEvents table
-  PnDeliveryPushWebhookEventsTable:
-    Type: AWS::DynamoDB::Table
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TableName: !Sub '${ProjectName}-WebhookEvents'
-      AttributeDefinitions:
-        - AttributeName: "hashKey"
-          AttributeType: "S"
-        - AttributeName: "sortKey"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "hashKey"
-          KeyType: "HASH"
-        - AttributeName: "sortKey"
-          KeyType: "RANGE"
-      BillingMode: "PAY_PER_REQUEST"
-      TimeToLiveSpecification:
-        AttributeName: "ttl"
-        Enabled: true
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-
   # Safe storage table containing request
   DocumentCreationRequestTable:
     Type: AWS::DynamoDB::Table
@@ -670,21 +620,6 @@ Outputs:
   PnDeliveryPushShedLockDynamoTableArn:
     Description: ARN of dynamodb table containing
     Value: !Sub '${PnDeliveryPushShedLockTable.Arn}'
-
-
-  PnDeliveryPushWebhookStreamsTableName:
-    Description: Name of dynamodb table containing
-    Value: !Ref PnDeliveryPushWebhookStreamsTable
-  PnDeliveryPushWebhookStreamsTableArn:
-    Description: ARN of dynamodb table containing
-    Value: !Sub '${PnDeliveryPushWebhookStreamsTable.Arn}'
-
-  PnDeliveryPushWebhookEventsTableName:
-    Description: Name of dynamodb table containing
-    Value: !Ref PnDeliveryPushWebhookEventsTable
-  PnDeliveryPushWebhookEventsTableArn:
-    Description: ARN of dynamodb table containing
-    Value: !Sub '${PnDeliveryPushWebhookEventsTable.Arn}'
 
   DocumentCreationRequestTableName:
     Description: Name of dynamodb table containing Document creation request to storage

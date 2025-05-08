@@ -65,7 +65,8 @@ public class TemplatesEngineMapper {
                                                   String piattaformaNotificheURL,
                                                   String accessUrlLabel,
                                                   String perfezionamentoLink,
-                                                  String perfezionamentoLinkLabel) {
+                                                  String perfezionamentoLinkLabel,
+                                                  String senderLogoBase64) {
         AarSender sender = new AarSender()
                 .paDenomination(notification.getSender().getPaDenomination());
 
@@ -85,7 +86,8 @@ public class TemplatesEngineMapper {
                 .piattaformaNotificheURLLabel(accessUrlLabel)
                 .perfezionamentoURL(perfezionamentoLink)
                 .perfezionamentoURLLabel(perfezionamentoLinkLabel)
-                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail);
+                .qrCodeQuickAccessLink(qrCodeQuickAccessUrlAarDetail)
+                .senderLogoBase64(senderLogoBase64);
     }
 
     public static NotificationAarForSms notificationAarForSms(NotificationInt notification) {
