@@ -229,22 +229,6 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing'
 
-  PnDeliveryPushWebhookStreamsTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  PnDeliveryPushWebhookStreamsTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-  PnDeliveryPushWebhookEventsTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  PnDeliveryPushWebhookEventsTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
   DocumentCreationRequestTableName:
     Type: String
     Description: 'Name of dynamodb table containing unreacheble notifications recipients'
@@ -861,8 +845,6 @@ Resources:
         #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
         #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -999,8 +981,6 @@ Resources:
         #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
         #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -1084,7 +1064,6 @@ Resources:
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
-        ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
@@ -1143,8 +1122,6 @@ Resources:
         #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
         #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -1230,6 +1207,7 @@ Resources:
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
+
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
@@ -1316,8 +1294,6 @@ Resources:
               - !Sub "${FutureActionDynamoTableArn}"
               - !Sub "${LastPollForFutureActionDynamoTableArn}"
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
-              - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
-              - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
               - !Sub "${DocumentCreationRequestTableArn}"
   
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
@@ -1375,35 +1351,6 @@ Resources:
         IntendedUsage: B2BPG
         APIGatewayARNs: !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.APIGatewayARN
         Limit: 600000
-
-  # Expose PN-Delivery-push microservice public API with API-GW for WEB usage
-  DeliveryPushMicroservicePublicWebAPI:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push'
-        IntendedUsage: WEB
-        DnsName: !Ref WebApiDnsName
-        ProjectName: !Ref ProjectName
-        ServiceApiPath: 'delivery-push'
-        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn  
-        OpenApiBucketName: !Ref MicroserviceBucketName
-        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-push-WEB-aws.yaml
-
-  DeliveryPushMicroservicePublicWebApiWaf:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
-      Parameters:
-        WAFName: !Sub '${ProjectName}-delivery--push-web'
-        IntendedUsage: WEB 
-        APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: !Ref WebWafLimit
-        EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   #########################################################
   ###              WebhookEventManagerLambda            ###
@@ -2328,22 +2275,18 @@ Resources:
             - !Ref FutureActionDynamoTableName
             - !Ref LastPollForFutureActionDynamoTableName
             - !Ref PnDeliveryPushShedLockDynamoTableName
-            - !Ref PnDeliveryPushWebhookStreamsTableName
-            - !Ref PnDeliveryPushWebhookEventsTableName
             - !Ref DocumentCreationRequestTableName 
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.RestApiStageArn
-            - !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiStageArn
         RestApiNames: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.RestApiName
-            - !GetAtt DeliveryPushMicroservicePublicWebAPI.Outputs.RestApiName
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
           - ','

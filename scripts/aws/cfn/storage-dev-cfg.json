@@ -1,0 +1,6 @@
+{
+  "Parameters": {
+    "CdcPnActionShards": "8",
+    "CdcPnFutureActionShards": "4"
+    }
+}
