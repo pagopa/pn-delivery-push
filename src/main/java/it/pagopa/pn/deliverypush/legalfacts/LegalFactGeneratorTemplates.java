@@ -356,7 +356,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 this.getPerfezionamentoLink(),
                 this.getFAQSendURL(),
                 this.getAccessUrl(recipient),
-                this.getRecipientTypeForHTMLTemplate(recipient));
+                recipient.getRecipientType().getValue());
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClientPec.parametrizedNotificationAarForPec(language, notificationAAR);
     }
