@@ -9,11 +9,7 @@ import java.util.HashMap;
 @Slf4j
 public class TimelineCounterDaoMock implements TimelineCounterEntityDao {
 
-    final HashMap<String, Long> counter = new HashMap<String, Long>();
-
-    public TimelineCounterDaoMock() {
-
-    }
+    final HashMap<String, Long> counter = new HashMap<>();
 
     public void clear() {
         this.counter.clear();

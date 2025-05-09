@@ -1210,7 +1210,6 @@ public class TestUtils {
         pnDataVaultClientReactiveMock.clear();
         documentCreationRequestDaoMock.clear();
         addressManagerClientMock.clear();
-        f24ClientMock.clear();
         actionPoolMock.clear();
         
         ConsoleAppenderCustom.initializeLog();
