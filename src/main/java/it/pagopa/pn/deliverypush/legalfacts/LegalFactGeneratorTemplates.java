@@ -476,17 +476,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     }
 
     /**
-     * Determines the recipient type for an HTML template based on the recipient's type.
-     *
-     * @param recipientInt the recipient object containing the recipient's type.
-     * @return a {@link String} representing the recipient type for use in an HTML template,
-     * either "giuridica" or "fisica".
-     */
-    private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
-        return recipientInt.getRecipientType() == RecipientTypeInt.PG ? "giuridica" : "fisica";
-    }
-
-    /**
      * Returns the appropriate access URL for a recipient based on their type.
      *
      * @param recipient the recipient object containing information about the recipient's type.
