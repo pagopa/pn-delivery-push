@@ -206,8 +206,6 @@ public class CommonTestConfiguration {
     @Autowired
     AddressManagerClientMock addressManagerClientMock;
     @Autowired
-    F24ClientMock f24ClientMock;
-    @Autowired
     PnDeliveryPushConfigs cfg;
     
     @BeforeEach
@@ -234,7 +232,6 @@ public class CommonTestConfiguration {
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
                 addressManagerClientMock,
-                f24ClientMock,
                 actionPoolMock
         );
     }

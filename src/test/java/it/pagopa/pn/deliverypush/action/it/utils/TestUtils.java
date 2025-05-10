@@ -1192,7 +1192,6 @@ public class TestUtils {
                                                PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock,
                                                DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
                                                AddressManagerClientMock addressManagerClientMock,
-                                               F24ClientMock f24ClientMock,
                                                ActionPoolMock actionPoolMock
     ) {
 
