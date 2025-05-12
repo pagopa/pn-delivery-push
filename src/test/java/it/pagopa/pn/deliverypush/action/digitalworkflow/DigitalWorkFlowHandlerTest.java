@@ -67,8 +67,6 @@ class DigitalWorkFlowHandlerTest {
     private DigitalWorkflowFirstSendRepeatHandler digitalWorkflowFirstSendRepeatHandler;
     @Mock
     private PnDeliveryPushConfigs.ExternalChannel externalChannel;
-    
-    private SendAndUnscheduleNotification sendAndUnscheduleNotification;
 
 
     private DigitalWorkFlowHandler handler;
@@ -79,8 +77,8 @@ class DigitalWorkFlowHandlerTest {
 
 
     @BeforeEach
-    public void setup() {
-        sendAndUnscheduleNotification = new SendAndUnscheduleNotification(externalChannelService, pnDeliveryPushConfigs, schedulerService);
+    void setup() {
+        SendAndUnscheduleNotification sendAndUnscheduleNotification = new SendAndUnscheduleNotification(externalChannelService, pnDeliveryPushConfigs, schedulerService);
         FeatureEnabledUtils featureEnabledUtils = new FeatureEnabledUtils(pnDeliveryPushConfigs);
         handler = new DigitalWorkFlowHandler(sendAndUnscheduleNotification, notificationService,
                 schedulerService, digitalWorkFlowUtils, completionWorkflow, nationalRegistriesService, instantNowSupplier,

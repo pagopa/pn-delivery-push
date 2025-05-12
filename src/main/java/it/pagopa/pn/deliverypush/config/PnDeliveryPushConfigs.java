@@ -150,10 +150,8 @@ public class PnDeliveryPushConfigs {
     public static class Topics {
 
         private String newNotifications;
-
+        // TODO: da rimuovere dopo l'eliminazione di webhook.
         private String scheduledActions;
-
-        private String executedActions;
 
         private String toExternalChannelPec;
         
