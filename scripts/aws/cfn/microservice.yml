@@ -1960,6 +1960,9 @@ Resources:
       FunctionName: !Ref NotificationCancellationActionInsertLambda
       FunctionResponseTypes:
         - ReportBatchItemFailures
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ] } }'
       MaximumBatchingWindowInSeconds: !Sub ${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
@@ -2066,6 +2069,9 @@ Resources:
       FunctionName: !Ref PaperEventsCostUpdateLambda
       FunctionResponseTypes:
         - ReportBatchItemFailures
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ] } }'
       MaximumBatchingWindowInSeconds: !Sub ${PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
