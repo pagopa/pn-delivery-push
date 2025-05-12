@@ -277,7 +277,7 @@ public class NotificationValidationActionHandler {
                             safeStorageService.getFile(ref.getKey(), false)
                                     .onErrorResume(PnFileNotFoundException.class, this::handleNotFoundError))
                     .block();
-            byte[] pieceOfContent = safeStorageService.downloadPieceOfContent(fd.getKey(), fd.getDownload().getUrl(), -1).block();
+            byte[] pieceOfContent = safeStorageService.downloadPieceOfContent(Objects.requireNonNull(fd).getKey(), fd.getDownload().getUrl(), -1).block();
             int actualPages = documentComposition.getNumberOfPageFromPdfBytes(pieceOfContent);
             if (actualPages > maxPages) {
                 final String errorDetail = String.format(messageFormat,

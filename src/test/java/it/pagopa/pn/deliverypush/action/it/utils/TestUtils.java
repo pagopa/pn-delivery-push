@@ -1261,7 +1261,6 @@ public class TestUtils {
                                                PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock,
                                                DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
                                                AddressManagerClientMock addressManagerClientMock,
-                                               F24ClientMock f24ClientMock,
                                                ActionPoolMock actionPoolMock
     ) {
 
@@ -1279,7 +1278,6 @@ public class TestUtils {
         pnDataVaultClientReactiveMock.clear();
         documentCreationRequestDaoMock.clear();
         addressManagerClientMock.clear();
-        f24ClientMock.clear();
         actionPoolMock.clear();
         
         ConsoleAppenderCustom.initializeLog();

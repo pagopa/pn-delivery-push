@@ -26,6 +26,7 @@ import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.config.SendMoreThan20GramsParameterConsumer;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
+import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
@@ -164,6 +165,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         SmartMapper.class,
         TimelineMapperFactory.class,
         PnEmdIntegrationClientMock.class,
+        DocumentComposition.class,
+        PnEmdIntegrationClientMock.class,
         RefusalCostCalculator.class,
         PnTechnicalRefusalCostMode.class,
         LookupAddressHandler.class
@@ -173,7 +176,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
 @DirtiesContext
 @EnableScheduling
 public class CommonTestConfiguration {
-    private final static String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-expeAAArimentation-zip-1", "radd-experimentation-zip-2", "radd-experimentation-zip-3", "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
+    private static final String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-expeAAArimentation-zip-1", "radd-experimentation-zip-2", "radd-experimentation-zip-3", "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
 
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
@@ -206,8 +209,6 @@ public class CommonTestConfiguration {
     @Autowired
     AddressManagerClientMock addressManagerClientMock;
     @Autowired
-    F24ClientMock f24ClientMock;
-    @Autowired
     PnDeliveryPushConfigs cfg;
     
     @BeforeEach
@@ -234,7 +235,6 @@ public class CommonTestConfiguration {
                 pnDataVaultClientReactiveMock,
                 documentCreationRequestDaoMock,
                 addressManagerClientMock,
-                f24ClientMock,
                 actionPoolMock
         );
     }
@@ -275,11 +275,6 @@ public class CommonTestConfiguration {
         webapp.setFaqUrlTemplateSuffix("faq.html");
         webapp.setQuickAccessUrlAarDetailSuffix("notifica?aar");
         webapp.setLandingUrl("https://www.dev.pn.pagopa.it");
-        Map<String, String> additionalSetting = new HashMap<>();
-        additionalSetting.put("raddoperatorcaf", "true");
-        additionalSetting.put("raddoperatormooney", "true");
-        additionalSetting.put("raddoperatorsailpost", "true");
-        webapp.setAdditional(additionalSetting);
         webapp.setRaddPhoneNumber("06.4520.2323");
         webapp.setAarSenderLogoUrlTemplate("TO_BASE64_RESOLVER:https://example.com/<PA_ID>/logo.png");
         Mockito.when(cfg.getWebapp()).thenReturn(webapp);
