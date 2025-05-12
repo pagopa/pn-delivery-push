@@ -59,8 +59,6 @@ public class PnDeliveryPushConfigs {
     private Instant actionPoolEpoch;
 
     private Duration actionPoolBeforeDelay;
-
-    private Webhook webhook;
     
     private Webapp webapp;
 
@@ -71,8 +69,6 @@ public class PnDeliveryPushConfigs {
     private FailedNotificationDao failedNotificationDao;
 
     private ActionDao actionDao;
-
-    private WebhookDao webhookDao;
 
     private LastPollForFutureActionDao lastPollForFutureActionDao;
 
@@ -173,21 +169,6 @@ public class PnDeliveryPushConfigs {
     }
 
     @Data
-    public static class Webhook {
-        private Long scheduleInterval;
-        private Integer maxLength;
-        private Integer purgeDeletionWaittime;
-        private Integer readBufferDelay;
-        private Integer maxStreams;
-        //Delta utilizzato per il counter di uno stream di sostituzione
-        private Integer deltaCounter;
-        private Duration ttl;
-        private Duration disableTtl;
-        private String firstVersion;
-        private String currentVersion;
-    }
-
-    @Data
     public static class ExternalChannel {
 
         private List<String> digitalCodesProgress;
@@ -261,12 +242,6 @@ public class PnDeliveryPushConfigs {
     @Data
     public static class ActionDao {
         private String tableName;
-    }
-
-    @Data
-    public static class WebhookDao {
-        private String streamsTableName;
-        private String eventsTableName;
     }
 
     @Data

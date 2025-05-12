@@ -31,7 +31,6 @@ import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStra
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
@@ -161,8 +160,6 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         FeatureEnabledUtils.class,
         AnalogFinalStatusResponseHandler.class,
         ActionHandler.class,
-        WebhookActionsEventHandler.class,
-        WebhookEventsServiceMock.class,
         SmartMapper.class,
         TimelineMapperFactory.class,
         PnEmdIntegrationClientMock.class,

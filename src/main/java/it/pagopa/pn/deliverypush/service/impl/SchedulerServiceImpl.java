@@ -7,9 +7,6 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +20,6 @@ import java.time.Instant;
 @Slf4j
 public class SchedulerServiceImpl implements SchedulerService {
     private final ActionsPool actionsPool;
-    private final WebhooksPool webhooksPool;
     private final Clock clock;
     private final TimelineUtils timelineUtils;
 
@@ -107,33 +103,6 @@ public class SchedulerServiceImpl implements SchedulerService {
                 .build();
 
         this.actionsPool.unscheduleFutureAction (action.getType().buildActionId(action));
-    }
-
-    @Override
-    public void scheduleWebhookEvent(String paId, String iun, String timelineId) {
-        WebhookAction action = WebhookAction.builder()
-                .iun(iun)
-                .paId(paId)
-                .timelineId(timelineId)
-                .eventId(clock.instant() + "_" + timelineId)
-                //.delay(null)
-                .type(WebhookEventType.REGISTER_EVENT)
-                .build();
-
-        this.webhooksPool.scheduleFutureAction(action);
-    }
-    
-    @Override
-    public void scheduleWebhookEvent(String streamId, String eventId, Integer delay, WebhookEventType actionType) {
-        WebhookAction action = WebhookAction.builder()
-                .streamId(streamId)
-                .eventId(eventId)
-                .iun("nd")
-                .delay(delay)
-                .type(actionType)
-                .build();
-
-        this.webhooksPool.scheduleFutureAction(action);
     }
 
     @Override
