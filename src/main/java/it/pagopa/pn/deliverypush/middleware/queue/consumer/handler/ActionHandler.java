@@ -242,7 +242,7 @@ public class ActionHandler {
                 log.logStartingProcess(processName);
                 checkNotificationCancelledAndExecute(
                         action,
-                        a -> digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(a.getIun(), a.getRecipientIndex(), a.getTimelineId(), action.getNotBefore())
+                        a -> digitalWorkFlowRetryHandler.elapsedExtChannelTimeout(a.getIun(), a.getRecipientIndex(), a.getTimelineId())
                 );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {

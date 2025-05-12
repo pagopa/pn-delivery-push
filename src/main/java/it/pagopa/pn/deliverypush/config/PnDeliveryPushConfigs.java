@@ -9,14 +9,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.unit.DataSize;
-import javax.annotation.PostConstruct;
 
+import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
-import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery-push")
@@ -76,8 +74,6 @@ public class PnDeliveryPushConfigs {
 
     private WebhookDao webhookDao;
 
-    private FutureActionDao futureActionDao;
-    
     private LastPollForFutureActionDao lastPollForFutureActionDao;
 
     private DocumentCreationRequestDao documentCreationRequestDao;
@@ -85,8 +81,6 @@ public class PnDeliveryPushConfigs {
     private ExternalChannel externalChannel;
 
     private PaperChannel paperChannel;
-    
-    private LegalFacts legalfacts;
 
     private Integer retentionAttachmentDaysAfterRefinement;
 
@@ -133,10 +127,6 @@ public class PnDeliveryPushConfigs {
 
     private ErrorCorrectionLevel errorCorrectionLevelQrCode;
 
-    private String performanceImprovementStartDate;
-
-    private String performanceImprovementEndDate;
-
     private boolean additionalLangsEnabled;
 
     private Instant featureUnreachableRefinementPostAARStartDate;
@@ -160,10 +150,8 @@ public class PnDeliveryPushConfigs {
     public static class Topics {
 
         private String newNotifications;
-
+        // TODO: da rimuovere dopo l'eliminazione di webhook.
         private String scheduledActions;
-
-        private String executedActions;
 
         private String toExternalChannelPec;
         
@@ -247,11 +235,9 @@ public class PnDeliveryPushConfigs {
         private String directAccessUrlTemplatePhysical;
         private String directAccessUrlTemplateLegal;
         private String faqUrlTemplateSuffix;
-        private String faqCompletionMomentHash;
         private String faqSendHash;
         private String quickAccessUrlAarDetailSuffix;
         private String landingUrl;
-        private Map<String, String> additional;
         private String raddPhoneNumber;
         private String aarSenderLogoUrlTemplate;
    }
@@ -278,11 +264,6 @@ public class PnDeliveryPushConfigs {
     }
 
     @Data
-    public static class FutureActionDao {
-        private String tableName;
-    }
-
-    @Data
     public static class WebhookDao {
         private String streamsTableName;
         private String eventsTableName;
@@ -290,18 +271,12 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class LastPollForFutureActionDao {
-        private String tableName;
         private String lockTableName;
     }
 
     @Data
     public static class DocumentCreationRequestDao {
         private String tableName;
-    }
-
-    @Data
-    public static class LegalFacts {
-        private SanitizeMode sanitizeMode;
     }
 
     private boolean safeStorageFileNotFoundRetry;
