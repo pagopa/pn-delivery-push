@@ -331,7 +331,7 @@ Parameters:
   ScheduledActionsQueueAgeAlarmARN:
     Type: String
     Description: delivery push actions done queue age alarm ARN
-  
+
   ScheduledValidationActionsQueueAlarmARN:
     Type: String
     Description: delivery push validation actions queue dlq alarm ARN
@@ -793,7 +793,7 @@ Resources:
         #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
+        #ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
@@ -921,7 +921,7 @@ Resources:
         #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
+        #ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
@@ -1054,7 +1054,7 @@ Resources:
         #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
+        #ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
