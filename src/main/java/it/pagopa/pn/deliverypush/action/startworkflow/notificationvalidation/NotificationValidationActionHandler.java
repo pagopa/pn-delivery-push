@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.details.NotificationRefusedActionDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationValidationActionDetails;
+import it.pagopa.pn.deliverypush.action.startworkflow.LookupAddressHandler;
 import it.pagopa.pn.deliverypush.action.startworkflow.NormalizeAddressHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
@@ -19,11 +20,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
-import it.pagopa.pn.deliverypush.exceptions.PnFileNotFoundException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationFileNotFoundException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationMoreThan20GramsException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidAddressException;
-import it.pagopa.pn.deliverypush.exceptions.PnValidationNotValidF24Exception;
+import it.pagopa.pn.deliverypush.exceptions.*;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
@@ -49,6 +46,8 @@ public class NotificationValidationActionHandler {
     private static final int FIRST_VALIDATION_STEP = 1;
     private static final int SECOND_VALIDATION_STEP = 2;
     private static final int THIRD_VALIDATION_STEP = 3;
+    private static final int FOURTH_VALIDATION_STEP = 4;
+    private static final String NOTIFICATION_IS_NOT_VALID_MSG = "Notification is not valid - iun={} ex={}";
     private final AttachmentUtils attachmentUtils;
     private final TaxIdPivaValidator taxIdPivaValidator;
     private final TimelineService timelineService;
@@ -66,6 +65,7 @@ public class NotificationValidationActionHandler {
     private final SendMoreThan20GramsParameterConsumer parameterConsumer;
     private final SafeStorageService safeStorageService;
     private final DocumentComposition documentComposition;
+    private final LookupAddressHandler lookupAddressHandler;
     
     public void validateNotification(String iun, NotificationValidationActionDetails details){
         log.debug("Start validateNotification - iun={}", iun);
@@ -93,10 +93,8 @@ public class NotificationValidationActionHandler {
             } else {
                 String detail = " F24 does not exists, so F24 validation will be skipped";
                 generateSkipAuditLog(notification, SECOND_VALIDATION_STEP, detail).generateSuccess().log();
-                //La validazione dell'indirizzo è async
-                MDCUtils.addMDCToContextAndExecute(
-                        addressValidator.requestValidateAndNormalizeAddresses(notification)
-                ).block();
+
+                verifyLookUpAddressAndNormalizeAddress(notification);
             }
 
             logEvent.generateSuccess().log();
@@ -106,7 +104,7 @@ public class NotificationValidationActionHandler {
                 logEvent.generateWarning("Validation need to be rescheduled - iun={} ex=", notification.getIun(), ex).log();
             handlePnValidationFileNotFoundException(iun, details, notification, ex, details.getStartWorkflowTime());
         } catch (PnValidationException ex){
-            logEvent.generateWarning("Notification is not valid - iun={} ex=", notification.getIun(), ex).log();
+            logEvent.generateWarning(NOTIFICATION_IS_NOT_VALID_MSG, notification.getIun(), ex).log();
             handleValidationError(notification, ex);
         } catch (RuntimeException ex){
             logEvent.generateWarning("Validation need to be rescheduled - iun={} ex=", notification.getIun(), ex).log();
@@ -147,7 +145,7 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateAuditLog(NotificationInt notification, int validationStep) {
-        String message = "Notification validation step {} of 3.";
+        String message = "Notification validation step {} of 4.";
 
         if(! cfg.isCheckCfEnabled()){
             message += " TaxId validation will be skipped";
@@ -163,7 +161,7 @@ public class NotificationValidationActionHandler {
 
     @NotNull
     private PnAuditLogEvent generateSkipAuditLog(NotificationInt notification, int validationStep, String detail) {
-        String message = "Notification validation step {} of 3." + detail;
+        String message = "Notification validation step {} of 4." + detail;
 
         return auditLogService.buildAuditLogEvent(
                 notification.getIun(),
@@ -218,14 +216,12 @@ public class NotificationValidationActionHandler {
                         notification
                 );
 
-                MDCUtils.addMDCToContextAndExecute(
-                        addressValidator.requestValidateAndNormalizeAddresses(notification)
-                ).block();
+                verifyLookUpAddressAndNormalizeAddress(notification);
 
                 logEvent.generateSuccess().log();
             }
         } catch (PnValidationException e) {
-            logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), e).log();
+            logEvent.generateWarning(NOTIFICATION_IS_NOT_VALID_MSG, notification.getIun(), e).log();
             handleValidationError(notification, e);
         }
     }
@@ -233,7 +229,7 @@ public class NotificationValidationActionHandler {
     public void handleValidateAndNormalizeAddressResponse(String iun, NormalizeItemsResultInt normalizeItemsResult) {
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
-        PnAuditLogEvent logEvent = generateAuditLog(notification, THIRD_VALIDATION_STEP);
+        PnAuditLogEvent logEvent = generateAuditLog(notification, FOURTH_VALIDATION_STEP);
 
         try {
             addressValidator.handleAddressValidation(iun, normalizeItemsResult);
@@ -247,7 +243,7 @@ public class NotificationValidationActionHandler {
 
             logEvent.generateSuccess().log();
         } catch (PnValidationNotValidAddressException ex){
-            logEvent.generateWarning("Notification is not valid - iun={} ex={}", notification.getIun(), ex).log();
+            logEvent.generateWarning(NOTIFICATION_IS_NOT_VALID_MSG, notification.getIun(), ex).log();
             handleValidationError(notification, ex);
         }
 
@@ -326,4 +322,50 @@ public class NotificationValidationActionHandler {
     private boolean canSendMoreThan20Grams(String paTaxId) {
         return parameterConsumer.isPaEnabledToSendMoreThan20Grams(paTaxId);
     }
+
+    private void handleLookupAddressValidationError(NotificationInt notification, PnLookupAddressValidationFailedException ex) {
+        List<NotificationRefusedErrorInt> errors = new ArrayList<>();
+        if (Objects.nonNull(ex.getProblem())) {
+            ex.getProblem().getErrors().forEach(elem -> {
+                NotificationRefusedErrorInt notificationRefusedError = NotificationRefusedErrorInt.builder()
+                        .errorCode(elem.getCode())
+                        .detail(elem.getDetail())
+                        .recIndex(Integer.valueOf(elem.getElement()))
+                        .build();
+
+                errors.add(notificationRefusedError);
+            });
+        }
+        log.info("Notification refused by lookupAddress error validation, errors {} - iun {}", errors, notification.getIun());
+        scheduleNotificationRefused(notification.getIun(), errors);
+    }
+
+    private void verifyLookUpAddressAndNormalizeAddress(NotificationInt notificationInt) {
+        log.debug("Start verifyLookUpAddressAndNormalizeAddress - iun={}", notificationInt.getIun());
+
+        if (timelineUtils.checkIsNotificationCancellationRequested(notificationInt.getIun())) {
+            log.warn("Process blocked: cancellation requested for iun {}", notificationInt.getIun());
+            return;
+        }
+
+        if (notificationInt.getUsedServices() != null && notificationInt.getUsedServices().getPhysicalAddressLookUp()) {
+            generateAuditLog(notificationInt, THIRD_VALIDATION_STEP).generateSuccess().log();
+            try {
+                lookupAddressHandler.performValidation(notificationInt);
+                NotificationInt refreshedNotification = notificationService.getNotificationByIun(notificationInt.getIun());
+                MDCUtils.addMDCToContextAndExecute(
+                        addressValidator.requestValidateAndNormalizeAddresses(refreshedNotification)
+                ).block();
+            } catch (PnLookupAddressValidationFailedException ex) {
+                log.warn(String.format("Lookup address validation failed - iun=%s", notificationInt.getIun()), ex);
+                handleLookupAddressValidationError(notificationInt, ex);
+            }
+        } else {
+            generateSkipAuditLog(notificationInt, THIRD_VALIDATION_STEP, "Lookup address validation will be skipped").generateSuccess().log();
+            MDCUtils.addMDCToContextAndExecute(
+                    addressValidator.requestValidateAndNormalizeAddresses(notificationInt)
+            ).block();
+        }
+    }
+
 }

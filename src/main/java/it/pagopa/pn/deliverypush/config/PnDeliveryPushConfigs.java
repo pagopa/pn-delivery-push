@@ -141,6 +141,7 @@ public class PnDeliveryPushConfigs {
 
     private String templateURLforPEC;
 
+    private String technicalRefusalCostMode;
 
     @Data
     public static class Topics {

@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGeneratorTemplates;
@@ -56,7 +57,14 @@ public class AbstractWorkflowTestConfiguration {
 
     @Bean
     public PnDeliveryClient testPnDeliveryClient(PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
-        return new PnDeliveryClientMock(pnDataVaultClientReactiveMock);
+        PnDeliveryClientMock pnDeliveryClientMock = new PnDeliveryClientMock(pnDataVaultClientReactiveMock);
+        pnDataVaultClientReactiveMock.setPnDeliveryClientMock(pnDeliveryClientMock);
+        return pnDeliveryClientMock;
+    }
+
+    @Bean
+    public PnDataVaultClientReactive testPnDataVaultClient() {
+        return new PnDataVaultClientReactiveMock();
     }
 
     @Bean

@@ -111,7 +111,6 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         NotificationCost.class,
         ViewNotification.class,
         PnDeliveryClientReactiveMock.class,
-        PnDataVaultClientReactiveMock.class,
         DocumentCreationRequestServiceImpl.class,
         DocumentCreationRequestDaoMock.class,
         SafeStorageResponseHandler.class,
@@ -163,7 +162,11 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         SmartMapper.class,
         TimelineMapperFactory.class,
         PnEmdIntegrationClientMock.class,
-        DocumentComposition.class
+        DocumentComposition.class,
+        PnEmdIntegrationClientMock.class,
+        RefusalCostCalculator.class,
+        PnTechnicalRefusalCostMode.class,
+        LookupAddressHandler.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:/application-testIT.properties")

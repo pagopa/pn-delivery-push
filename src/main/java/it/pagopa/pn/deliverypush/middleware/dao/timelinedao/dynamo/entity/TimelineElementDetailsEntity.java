@@ -89,4 +89,9 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("aarTemplateType")})) private AarTemplateTypeEntity aarTemplateType;
     @Getter(onMethod=@__({@DynamoDbAttribute("sourceChannel")})) private String sourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute("sourceChannelDetails")})) private String sourceChannelDetails;
+    @Getter(onMethod=@__({@DynamoDbAttribute("recIndexes")}))  private List<Integer> recIndexes;
+    @Getter(onMethod=@__({@DynamoDbAttribute("registry")})) private String registry;
+    @Getter(onMethod=@__({@DynamoDbAttribute("notificationRequestId")})) private String notificationRequestId;
+    @Getter(onMethod=@__({@DynamoDbAttribute("paProtocolNumber")})) private String paProtocolNumber;
+    @Getter(onMethod=@__({@DynamoDbAttribute("idempotenceToken")})) private String idempotenceToken;
 }
