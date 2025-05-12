@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.config;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientImpl;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientPecImpl;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -42,6 +43,7 @@ public class LegalFactGeneratorConfig {
 
     private final DocumentComposition documentComposition;
     private final InstantNowSupplier instantNowSupplier;
+    private final TemplatesClientPecImpl templatesClientPec;
 
     @Bean
     @ConditionalOnProperty(name = "pn.delivery-push.enable-templates-engine", havingValue = "true", matchIfMissing = true)
@@ -51,7 +53,8 @@ public class LegalFactGeneratorConfig {
                 physicalAddressWriter,
                 pnDeliveryPushConfigs,
                 pnSendModeUtils,
-                templatesClient
+                templatesClient,
+                templatesClientPec
         );
     }
 

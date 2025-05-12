@@ -151,6 +151,10 @@ public class PnDeliveryPushConfigs {
 
     private Duration timelineLockDuration;
 
+    private String AAROnlyPECForRADDAndPF;
+
+    private String templateURLforPEC;
+
     private String technicalRefusalCostMode;
 
     @Data
