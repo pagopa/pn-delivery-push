@@ -12,19 +12,19 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.deliverypush.legalfacts.*;
+import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
+import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
+import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -37,8 +37,6 @@ import static org.awaitility.Awaitility.await;
 class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
     @Autowired
     static DynamicRADDExperimentationChooseStrategy raddExperimentationChooseStrategy;
-    @SpyBean
-    LegalFactGenerator legalFactGenerator;
 
     static Instant sentNotificationTime = Instant.now();
 
@@ -89,7 +87,7 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
     }
 
     @Test
-    void analogDynamicChooseAarIT() throws IOException {
+    void analogDynamicChooseAarIT() {
         /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
@@ -164,13 +162,5 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
         final List<String> sendAttachmentKeySent = getSentAttachmentKeyFromPrepare();
         //Viene verificata che gli attachment inviati in fase di SEND siano esattamente quelli attesi
         checkSentAndExpectedAttachmentAreEquals(listAttachmentExpectedToSend, sendAttachmentKeySent);
-
-        if (legalFactGenerator instanceof LegalFactGeneratorDocComposition) {
-            //Viene ottenuta la lista di tutti i documenti generati
-            final List<DocumentComposition.TemplateType> listDocumentTypeGenerated = getListDocumentTypeGenerated(2);
-            //Viene quindi verificato se nella lista dei documenti generati c'è il documento atteso
-
-            Assertions.assertTrue(listDocumentTypeGenerated.contains(currentConfAaarTemplateType.getTemplateType()));
-        }
     }
 }

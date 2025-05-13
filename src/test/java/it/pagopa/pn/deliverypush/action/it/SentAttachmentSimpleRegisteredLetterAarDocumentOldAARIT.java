@@ -15,7 +15,6 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -26,7 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -87,7 +85,7 @@ class SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT extends SendAarAtt
 
     @Test
     @Disabled("Test fail sometimes")
-    void simpleRegisteredLetterAarDocumentOldAAR() throws IOException {
+    void simpleRegisteredLetterAarDocumentOldAAR(){
         /*
        - Platform address vuoto (Ottenuto non valorizzando il platformAddress in addressBookEntry)
        - Special address vuoto (Ottenuto non valorizzando il digitalDomicile del recipient)
@@ -169,11 +167,5 @@ class SentAttachmentSimpleRegisteredLetterAarDocumentOldAARIT extends SendAarAtt
         final List<String> sendAttachmentKeySent = getSentAttachmentKeyFromPrepare();
         //Viene verificata che gli attachment inviati in fase di SEND siano esattamente quelli attesi
         checkSentAndExpectedAttachmentAreEquals(listAttachmentExpectedToSend, sendAttachmentKeySent);
-
-        //Viene ottenuta la lista di tutti i documenti generati
-        final List<DocumentComposition.TemplateType> listDocumentTypeGenerated = getListDocumentTypeGenerated(3);
-        
-        //Viene quindi verificato se nella lista dei documenti generati c'è il documento atteso
-        Assertions.assertTrue(listDocumentTypeGenerated.contains(firstCurrentConfTemplateType.getTemplateType()));
     }
 }

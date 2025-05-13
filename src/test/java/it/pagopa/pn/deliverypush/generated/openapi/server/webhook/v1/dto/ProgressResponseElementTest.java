@@ -8,18 +8,18 @@ import org.junit.jupiter.api.Test;
 
 class ProgressResponseElementTest {
 
-    private ProgressResponseElementV27 responseElement;
+    private ProgressResponseElementV28 responseElement;
 
     @BeforeEach
     void setUp() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        responseElement = new ProgressResponseElementV27();
+        responseElement = new ProgressResponseElementV28();
         responseElement.setEventId("001");
         responseElement.setIun("002");
         responseElement.setNotificationRequestId("003");
         responseElement.setTimestamp(instant);
         responseElement.setNewStatus(NotificationStatusV26.ACCEPTED);
-        responseElement.setTimelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED);
+        responseElement.setTimelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED);
         responseElement.setRecipientIndex(1);
         responseElement.setChannel("channel");
         responseElement.setLegalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"));
@@ -28,12 +28,12 @@ class ProgressResponseElementTest {
     @Test
     void eventId() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV27 expected = ProgressResponseElementV27.builder()
+        ProgressResponseElementV28 expected = ProgressResponseElementV28.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
                 .newStatus(NotificationStatusV26.ACCEPTED)
-                .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
+                .timelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
                 .channel("channel")
@@ -50,12 +50,12 @@ class ProgressResponseElementTest {
     @Test
     void timestamp() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV27 expected = ProgressResponseElementV27.builder()
+        ProgressResponseElementV28 expected = ProgressResponseElementV28.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
                 .newStatus(NotificationStatusV26.ACCEPTED)
-                .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
+                .timelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
                 .channel("channel")
@@ -72,12 +72,12 @@ class ProgressResponseElementTest {
     @Test
     void notificationRequestId() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV27 expected = ProgressResponseElementV27.builder()
+        ProgressResponseElementV28 expected = ProgressResponseElementV28.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
                 .newStatus(NotificationStatusV26.ACCEPTED)
-                .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
+                .timelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
                 .channel("channel")
@@ -94,12 +94,12 @@ class ProgressResponseElementTest {
     @Test
     void iun() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV27 expected = ProgressResponseElementV27.builder()
+        ProgressResponseElementV28 expected = ProgressResponseElementV28.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
                 .newStatus(NotificationStatusV26.ACCEPTED)
-                .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
+                .timelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
                 .channel("channel")
@@ -116,12 +116,12 @@ class ProgressResponseElementTest {
     @Test
     void newStatus() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV27 expected = ProgressResponseElementV27.builder()
+        ProgressResponseElementV28 expected = ProgressResponseElementV28.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
                 .newStatus(NotificationStatusV26.ACCEPTED)
-                .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
+                .timelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
                 .channel("channel")
@@ -138,34 +138,34 @@ class ProgressResponseElementTest {
     @Test
     void timelineEventCategory() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV27 expected = ProgressResponseElementV27.builder()
+        ProgressResponseElementV28 expected = ProgressResponseElementV28.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
                 .newStatus(NotificationStatusV26.ACCEPTED)
-                .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
+                .timelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
                 .channel("channel")
                 .legalfactIds(List.of("PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q"))
                 .build();
-        Assertions.assertEquals(expected, responseElement.timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED));
+        Assertions.assertEquals(expected, responseElement.timelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED));
     }
 
     @Test
     void getTimelineEventCategory() {
-        Assertions.assertEquals(TimelineElementCategoryV26.REQUEST_ACCEPTED, responseElement.getTimelineEventCategory());
+        Assertions.assertEquals(TimelineElementCategoryV27.REQUEST_ACCEPTED, responseElement.getTimelineEventCategory());
     }
 
     @Test
     void testEquals() {
         Instant instant = Instant.parse("2021-09-16T15:23:00.00Z");
-        ProgressResponseElementV27 expected = ProgressResponseElementV27.builder()
+        ProgressResponseElementV28 expected = ProgressResponseElementV28.builder()
                 .eventId("001")
                 .iun("002")
                 .notificationRequestId("003")
                 .newStatus(NotificationStatusV26.ACCEPTED)
-                .timelineEventCategory(TimelineElementCategoryV26.REQUEST_ACCEPTED)
+                .timelineEventCategory(TimelineElementCategoryV27.REQUEST_ACCEPTED)
                 .timestamp(instant)
                 .recipientIndex(1)
                 .channel("channel")

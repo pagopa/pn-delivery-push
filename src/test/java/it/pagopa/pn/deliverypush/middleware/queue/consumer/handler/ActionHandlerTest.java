@@ -207,7 +207,7 @@ class ActionHandlerTest {
 
         //THEN
         Action action = message.getPayload();
-        verify(digitalWorkFlowRetryHandler).elapsedExtChannelTimeout(action.getIun(), action.getRecipientIndex(), action.getTimelineId(), action.getNotBefore());
+        verify(digitalWorkFlowRetryHandler).elapsedExtChannelTimeout(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
     }
 
     @Test

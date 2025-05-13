@@ -106,21 +106,18 @@ public class F24ClientMock implements PnF24Client {
                                 PnF24MetadataValidationIssue.builder()
                                         .code("ERROR_TEST")
                                         .detail("ERROR_DETAIL")
-                                        .element("rec0paym0")
+                                        .element("rec0pay0")
                                         .build(),
 
                                 PnF24MetadataValidationIssue.builder()
                                         .code("ERROR_TEST")
                                         .detail("ERROR_DETAIL_2")
-                                        .element("rec0paym1")
+                                        .element("rec0pay1")
                                         .build()))
                 .build();
     }
 
     private PnF24MetadataValidationEndEventPayload buildMetadataValidationEndOk(String setId) {
         return PnF24MetadataValidationEndEventPayload.builder().setId(setId).status("OK").build();
-    }
-
-    public void clear() {
     }
 }

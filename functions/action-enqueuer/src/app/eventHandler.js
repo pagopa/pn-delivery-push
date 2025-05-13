@@ -1,8 +1,6 @@
 const { putMessages } = require("./sqsFunctions");
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 const config = require("config");
-
-const { insideWorkingWindow, getWorkingTime } = require("./workingTimeUtils");
 const { ActionUtils } = require("pn-action-common");
 
 const TOLLERANCE_IN_MILLIS = config.get("RUN_TOLLERANCE_IN_MILLIS");
@@ -87,8 +85,6 @@ async function handleEvent(event, context) {
     batchItemFailures: [],
   };
 
-  const workingTime = await getWorkingTime();
-
   console.log("[ACTION_ENQUEUER]", "Started");
   console.log("[ACTION_ENQUEUER]", "Event DATA", event);
   if (!event.Records) {
@@ -107,8 +103,7 @@ async function handleEvent(event, context) {
       const action = mapMessageFromKinesisToAction(decodedRecord);
 
       // feature flag check
-      if (!insideWorkingWindow(action, workingTime.start, workingTime.end) || 
-          isActionLogicalDeleted(action))
+      if (isActionLogicalDeleted(action))
         continue;
 
       action.seqNo = record.kinesis.sequenceNumber;

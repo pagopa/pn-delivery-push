@@ -15,4 +15,6 @@ public class NotificationRefusedErrorEntity {
     private String errorCode;
     @Getter(onMethod = @__({@DynamoDbAttribute("detail")}))
     private String detail;
+    @Getter(onMethod = @__({@DynamoDbAttribute("recIndex")}))
+    private Integer recIndex;
 }

@@ -1,13 +1,10 @@
 package it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.mapper;
 
-import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.LegalFactCategoryEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.LegalFactsIdEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementEntity;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
@@ -16,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -191,7 +187,7 @@ class DtoToEntityTimelineMapperTest {
         assertThat(actual.getDetails().getAarKey()).isEqualTo(details.getAarKey());
         assertThat(actual.getDetails().getNumberOfPages()).isEqualTo(details.getNumberOfPages());
         assertThat(actual.getDetails().getRecIndex()).isEqualTo(details.getRecIndex());
-        assertThat(actual.getDetails().getAarTemplateType().name()).isEqualTo(details.getAarTemplateType().getTemplateType().name());
+        assertThat(actual.getDetails().getAarTemplateType().name()).isEqualTo(details.getAarTemplateType().name());
     }
 
     private TimelineElementInternal buildTimelineElementInternal() {
@@ -217,25 +213,6 @@ class DtoToEntityTimelineMapperTest {
                 .build();
     }
 
-    private TimelineElementInternal getSendPaperFeedbackTimelineElement(String iun, String elementId) {
-        SendAnalogFeedbackDetailsInt details = SendAnalogFeedbackDetailsInt.builder()
-                .newAddress(
-                        PhysicalAddressInt.builder()
-                                .province("province")
-                                .municipality("munic")
-                                .at("at")
-                                .build()
-                )
-                .recIndex(0)
-                .sentAttemptMade(0)
-                .build();
-        return TimelineElementInternal.builder()
-                .elementId(elementId)
-                .iun(iun)
-                .details(details)
-                .build();
-    }
-
     private TimelineElementDetailsInt parseDetailsFromEntity(TimelineElementDetailsEntity entity, TimelineElementCategoryInt category) {
         return SmartMapper.mapToClass(entity, category.getDetailsJavaClass());
     }
@@ -245,22 +222,5 @@ class DtoToEntityTimelineMapperTest {
                 .key("001")
                 .category(LegalFactCategoryInt.ANALOG_DELIVERY)
                 .build();
-    }
-
-    private List<LegalFactsIdEntity> convertLegalFactsToEntity(List<LegalFactsIdInt> dto) {
-        List<LegalFactsIdEntity> legalFactsIds = null;
-
-        if (dto != null) {
-            legalFactsIds = dto.stream().map(this::mapOneLegalFact).collect(Collectors.toList());
-        }
-
-        return legalFactsIds;
-    }
-
-    private LegalFactsIdEntity mapOneLegalFact(LegalFactsIdInt legalFactsId) {
-        LegalFactsIdEntity entity = new LegalFactsIdEntity();
-        entity.setKey(legalFactsId.getKey());
-        entity.setCategory(LegalFactCategoryEntity.valueOf(legalFactsId.getCategory().getValue()));
-        return entity;
     }
 }

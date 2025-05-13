@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 @WebFluxTest(PnNotificationViewController.class)
 class PnNotificationViewControllerTest {
 
-    private static final String FakeIUN = "fake_iun";
+    private static final String FAKE_IUN = "fake_iun";
 
     @MockBean
     private NotificationService notificationService;
@@ -46,10 +46,10 @@ class PnNotificationViewControllerTest {
                 .recipientType(RecipientType.PF)
                 .build();
         // WHEN
-        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenThrow(new PnHttpResponseException(FakeIUN, 404));
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenThrow(new PnHttpResponseException(FAKE_IUN, 404));
 
         webTestClient.post()
-                .uri("/delivery-push-private/" + FakeIUN + "/viewed")
+                .uri("/delivery-push-private/" + FAKE_IUN + "/viewed")
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .body(Mono.just(request), RequestNotificationViewedDto.class)
@@ -64,7 +64,7 @@ class PnNotificationViewControllerTest {
     void notifyNotificationViewedOk() {
         // GIVEN
         NotificationInt notification = NotificationTestBuilder.builder()
-                .withIun(FakeIUN)
+                .withIun(FAKE_IUN)
                 .build();
         RequestNotificationViewedDto request = RequestNotificationViewedDto.builder()
                 .recipientInternalId("recipientInternalId")
@@ -79,7 +79,7 @@ class PnNotificationViewControllerTest {
                 .thenReturn(Mono.empty());
 
         webTestClient.post()
-                .uri("/delivery-push-private/" + FakeIUN + "/viewed")
+                .uri("/delivery-push-private/" + FAKE_IUN + "/viewed")
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .body(Mono.just(request), RequestNotificationViewedDto.class)
@@ -87,7 +87,7 @@ class PnNotificationViewControllerTest {
                 .expectStatus()
                 .isOk()
                 .expectBody(ResponseNotificationViewedDto.class)
-                .isEqualTo(ResponseNotificationViewedDto.builder().iun(FakeIUN).build());
+                .isEqualTo(ResponseNotificationViewedDto.builder().iun(FAKE_IUN).build());
 
         // THEN
         Mockito.verify(notificationService).getNotificationByIun(Mockito.anyString());
@@ -108,7 +108,7 @@ class PnNotificationViewControllerTest {
                 .thenReturn(Mono.empty());
 
         webTestClient.post()
-                .uri("/delivery-push-private/" + FakeIUN + "/raddretrieved")
+                .uri("/delivery-push-private/" + FAKE_IUN + "/raddretrieved")
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .body(Mono.just(request), RequestNotificationViewedDto.class)
@@ -116,7 +116,7 @@ class PnNotificationViewControllerTest {
                 .expectStatus()
                 .isOk()
                 .expectBody(ResponseNotificationViewedDto.class)
-                .isEqualTo(ResponseNotificationViewedDto.builder().iun(FakeIUN).build());
+                .isEqualTo(ResponseNotificationViewedDto.builder().iun(FAKE_IUN).build());
 
         // THEN
         Mockito.verify(notificationViewedRequestHandler).handleNotificationRaddRetrieved(Mockito.any(), Mockito.any());

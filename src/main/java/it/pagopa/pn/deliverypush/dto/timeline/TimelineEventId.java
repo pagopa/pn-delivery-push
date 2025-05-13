@@ -577,6 +577,28 @@ public enum TimelineEventId {
                     .withIun(eventId.getIun())
                     .build();
         }
+    },
+
+    NATIONAL_REGISTRY_VALIDATION_CALL("NATIONAL_REGISTRY_VALIDATION_CALL") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withDeliveryMode(eventId.getDeliveryMode())
+                    .build();
+        }
+    },
+
+    NATIONAL_REGISTRY_VALIDATION_RESPONSE("NATIONAL_REGISTRY_VALIDATION_RESPONSE") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withCorrelationId(eventId.getRelatedTimelineId())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
+        }
     };
 
     public String buildEventId(EventId eventId) {

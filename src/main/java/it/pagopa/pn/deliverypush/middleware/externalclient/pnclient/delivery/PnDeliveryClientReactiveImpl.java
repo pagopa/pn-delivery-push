@@ -2,11 +2,8 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationStatusV26;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.RequestUpdateStatusDto;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV24;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV25;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery_reactive.api.InternalOnlyApi;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
 
@@ -26,7 +22,7 @@ public class PnDeliveryClientReactiveImpl extends CommonBaseClient implements Pn
     private final InternalOnlyApi pnDeliveryApi;
     
     @Override
-    public Mono<SentNotificationV24> getSentNotification(String iun) {
+    public Mono<SentNotificationV25> getSentNotification(String iun) {
         log.logInvokingExternalService(CLIENT_NAME, GET_NOTIFICATION);
         
         return pnDeliveryApi.getSentNotificationPrivate(iun)
@@ -43,21 +39,6 @@ public class PnDeliveryClientReactiveImpl extends CommonBaseClient implements Pn
                     return Mono.error(new PnInternalException("Get notification error - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED, error));
                 })
                 .doOnSuccess(res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, GET_NOTIFICATION));
-    }
-
-
-    @Override
-    public Mono<Void> updateStatus(String iun, NotificationStatusInt notificationStatusInt, Instant updateStatusTimestamp) {
-        log.logInvokingExternalService(CLIENT_NAME, UPDATE_STATUS_NOTIFICATION);
-
-        RequestUpdateStatusDto requestUpdateStatusDto = new RequestUpdateStatusDto();
-        requestUpdateStatusDto.setIun(iun);
-        requestUpdateStatusDto.setNextStatus(NotificationStatusV26.fromValue(notificationStatusInt.getValue()));
-        requestUpdateStatusDto.setTimestamp(updateStatusTimestamp);
-
-
-        return pnDeliveryApi.updateStatus(requestUpdateStatusDto)
-                .doOnSuccess(res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, UPDATE_STATUS_NOTIFICATION));
     }
 
     @Override

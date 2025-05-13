@@ -8,7 +8,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddress;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV27;
 import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +55,7 @@ class SmartMapperTest {
                         .build())
                 .build();
 
-        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV26.class);
+        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV27.class);
         
         Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(sendDigitalDetails.getDigitalAddress().getAddress(), details.getDigitalAddress().getAddress() );
@@ -63,7 +63,7 @@ class SmartMapperTest {
 
     @Test
     void fromExternalToInternalSendDigitalDetails() {
-        var timelineElementDetails = TimelineElementDetailsV26.builder()
+        var timelineElementDetails = TimelineElementDetailsV27.builder()
                 .recIndex(0)
                 .digitalAddressSource(DigitalAddressSource.PLATFORM)
                 .digitalAddress(DigitalAddress.builder()
@@ -91,7 +91,7 @@ class SmartMapperTest {
                         .build())
                 .build();
 
-        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV26.class);
+        var details = SmartMapper.mapToClass(sendDigitalDetails, TimelineElementDetailsV27.class);
 
         Assertions.assertEquals(sendDigitalDetails.getRecIndex(), details.getRecIndex());
         Assertions.assertEquals(sendDigitalDetails.getFoundAddress().getAddress(), details.getFoundAddress().getAddress() );
@@ -106,18 +106,18 @@ class SmartMapperTest {
         source.setNotRefinedRecipientIndexes(list);
         source.setNotificationCost(100);
 
-        TimelineElementDetailsV26 ret = SmartMapper.mapToClass(source, TimelineElementDetailsV26.class);
+        TimelineElementDetailsV27 ret = SmartMapper.mapToClass(source, TimelineElementDetailsV27.class);
 
         Assertions.assertEquals(1, ret.getNotRefinedRecipientIndexes().size());
 
         source.getNotRefinedRecipientIndexes().clear();
-        ret = SmartMapper.mapToClass(source, TimelineElementDetailsV26.class);
+        ret = SmartMapper.mapToClass(source, TimelineElementDetailsV27.class);
 
         Assertions.assertEquals(0, ret.getNotRefinedRecipientIndexes().size());
 
         NotHandledDetailsInt altro = new NotHandledDetailsInt();
         altro.setReason("test");
-        ret = SmartMapper.mapToClass(altro, TimelineElementDetailsV26.class);
+        ret = SmartMapper.mapToClass(altro, TimelineElementDetailsV27.class);
 
         Assertions.assertNull(ret.getNotRefinedRecipientIndexes());
     }

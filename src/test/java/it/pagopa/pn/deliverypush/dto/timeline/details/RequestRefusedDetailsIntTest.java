@@ -26,13 +26,16 @@ class RequestRefusedDetailsIntTest {
 
         request = RequestRefusedDetailsInt.builder()
                 .refusalReasons(errors)
+                .paProtocolNumber("paProtocolNumber")
+                .idempotenceToken("idempotenceToken")
+                .notificationRequestId("notificationRequestId")
                 .build();
     }
 
     @Test
     void toLog() {
         String log = request.toLog();
-        Assertions.assertEquals("errors=[NotificationRefusedErrorInt(errorCode=FILE_NOTFOUND, detail=details)]", log);
+        Assertions.assertEquals("errors=[NotificationRefusedErrorInt(errorCode=FILE_NOTFOUND, detail=details, recIndex=null)], notificationRequestId=notificationRequestId, paProtocolNumber=paProtocolNumber, idempotenceToken=idempotenceToken", log);
     }
 
     @Test

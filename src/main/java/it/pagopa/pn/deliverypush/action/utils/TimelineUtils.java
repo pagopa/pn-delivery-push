@@ -114,7 +114,11 @@ public class TimelineUtils {
                         .iun(notification.getIun())
                         .build());
 
-        NotificationRequestAcceptedDetailsInt details = NotificationRequestAcceptedDetailsInt.builder().build();
+        NotificationRequestAcceptedDetailsInt details = NotificationRequestAcceptedDetailsInt.builder()
+                .paProtocolNumber(notification.getPaProtocolNumber())
+                .idempotenceToken(notification.getIdempotenceToken())
+                .notificationRequestId(Base64.getEncoder().encodeToString(notification.getIun().getBytes()))
+                .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
                 .legalFactsIds(singleLegalFactId(legalFactId, LegalFactCategoryInt.SENDER_ACK));
@@ -914,7 +918,7 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SCHEDULE_REFINEMENT, elementId, details);
     }
 
-    public TimelineElementInternal buildRefusedRequestTimelineElement(NotificationInt notification, List<NotificationRefusedErrorInt> errors) {
+    public TimelineElementInternal buildRefusedRequestTimelineElement(NotificationInt notification, List<NotificationRefusedErrorInt> errors, Integer notificationCost) {
         log.debug("buildRefusedRequestTimelineElement - iun={}", notification.getIun());
 
         String elementId = TimelineEventId.REQUEST_REFUSED.buildEventId(
@@ -927,7 +931,10 @@ public class TimelineUtils {
         RequestRefusedDetailsInt details = RequestRefusedDetailsInt.builder()
                 .refusalReasons(errors)
                 .numberOfRecipients(numberOfRecipients)
-                .notificationCost(notificationProcessCostService.getSendFee() * numberOfRecipients)
+                .notificationCost(notificationCost)
+                .paProtocolNumber(notification.getPaProtocolNumber())
+                .idempotenceToken(notification.getIdempotenceToken())
+                .notificationRequestId(Base64.getEncoder().encodeToString(notification.getIun().getBytes()))
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.REQUEST_REFUSED, elementId, details);
@@ -1494,6 +1501,38 @@ public class TimelineUtils {
                         .recIndex(recIndex)
                         .build());
         return timelineService.getTimelineElement(iun, elementId);
+    }
+
+    public TimelineElementInternal buildNationalRegistryValidationCall(String eventId, NotificationInt notification, List<Integer> recIndexes, DeliveryModeInt deliveryMode) {
+
+        log.debug("buildNationalRegistryValidationCall - iun={}", notification.getIun());
+
+        PublicRegistryValidationCallDetailsInt details = PublicRegistryValidationCallDetailsInt.builder()
+                .recIndexes(recIndexes)
+                .deliveryMode(deliveryMode)
+                .sendDate(Instant.now())
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_CALL, eventId, details);
+    }
+
+    public TimelineElementInternal buildNationalRegistryValidationResponse(NotificationInt notification, NationalRegistriesResponse response) {
+        String eventId = TimelineEventId.NATIONAL_REGISTRY_VALIDATION_RESPONSE.buildEventId(
+                EventId.builder()
+                        .relatedTimelineId(response.getCorrelationId())
+                        .recIndex(response.getRecIndex())
+                        .build());
+
+        log.debug("buildNationalRegistryValidationResponse - iun={}", notification.getIun());
+
+        PublicRegistryValidationResponseDetailsInt details = PublicRegistryValidationResponseDetailsInt.builder()
+                .recIndex(response.getRecIndex())
+                .registry(response.getRegistry())
+                .physicalAddress(response.getPhysicalAddress())
+                .requestTimelineId(response.getCorrelationId())
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_RESPONSE, eventId, details);
     }
 
     public String getIunFromTimelineId(String timelineId) {

@@ -10,18 +10,18 @@ import java.util.Optional;
 
 public class AbstractCachedSsmParameterConsumerMock implements ParameterConsumer {
     private static final String RADD_EXPERIMENTATION_NAME = "radd-experimentation";
-    private static final String jsonRADDExperimentationParameterConsumer = "[\"80078\", \"80124\"]";
+    private static final String JSON_RADD_EXPERIMENTATION_PARAMETER_CONSUMER = "[\"80078\", \"80124\"]";
 
     @Override
     public <T> Optional<T> getParameterValue(String storeName, Class<T> aClass) {
         Optional<T> result = Optional.empty();
 
         if(storeName.startsWith(RADD_EXPERIMENTATION_NAME) &&
-                StringUtils.hasText(jsonRADDExperimentationParameterConsumer)){
+                StringUtils.hasText(JSON_RADD_EXPERIMENTATION_PARAMETER_CONSUMER)){
             ObjectMapper objectMapper = new ObjectMapper();
 
             try {
-                result = Optional.of(objectMapper.readValue(jsonRADDExperimentationParameterConsumer, aClass));
+                result = Optional.of(objectMapper.readValue(JSON_RADD_EXPERIMENTATION_PARAMETER_CONSUMER, aClass));
             } catch (JsonProcessingException var7) {
                 throw new PnInternalException("[TEST] Unable to deserialize object", "PN_GENERIC_ERROR", var7);
             }

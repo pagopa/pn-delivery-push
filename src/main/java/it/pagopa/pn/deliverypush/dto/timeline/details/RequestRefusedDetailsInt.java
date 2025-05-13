@@ -16,11 +16,17 @@ public class RequestRefusedDetailsInt implements TimelineElementDetailsInt {
     private List<NotificationRefusedErrorInt> refusalReasons;
     private Integer numberOfRecipients;
     private Integer notificationCost;
+    private String notificationRequestId;
+    private String paProtocolNumber;
+    private String idempotenceToken;
 
     public String toLog() {
         return String.format(
-                "errors=%s",
-                refusalReasons
+                "errors=%s, notificationRequestId=%s, paProtocolNumber=%s, idempotenceToken=%s",
+                refusalReasons,
+                notificationRequestId,
+                paProtocolNumber,
+                idempotenceToken
         );
     }
 }

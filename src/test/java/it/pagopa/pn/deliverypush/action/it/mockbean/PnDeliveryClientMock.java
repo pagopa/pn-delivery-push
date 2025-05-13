@@ -17,9 +17,16 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class PnDeliveryClientMock implements PnDeliveryClient {
-    private CopyOnWriteArrayList<SentNotificationV24> notifications;
+    private CopyOnWriteArrayList<SentNotificationV25> notifications;
 
     private final PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock;
+
+    public SentNotificationV25 getNotification(String iun) {
+        return this.notifications.stream()
+                .filter(notification -> iun.equals(notification.getIun()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Test error, iun is not present in getNotification IUN:" + iun));
+    }
 
     public PnDeliveryClientMock( @Lazy PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock) {
         this.pnDataVaultClientReactiveMock = pnDataVaultClientReactiveMock;
@@ -30,20 +37,20 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
     }
 
     public void addNotification(NotificationInt notification) {
-        SentNotificationV24 sentNotification = NotificationMapper.internalToExternal(notification);
+        SentNotificationV25 sentNotification = NotificationMapper.internalToExternal(notification);
         this.notifications.add(sentNotification);
         log.info("ADDED_IUN:" + notification.getIun());
     }
 
     @Override
-    public SentNotificationV24 getSentNotification(String iun) {
-        Optional<SentNotificationV24> sentNotificationOpt = notifications.stream().filter(notification -> iun.equals(notification.getIun())).findFirst();
+    public SentNotificationV25 getSentNotification(String iun) {
+        Optional<SentNotificationV25> sentNotificationOpt = notifications.stream().filter(notification -> iun.equals(notification.getIun())).findFirst();
         if(sentNotificationOpt.isPresent()){
-            SentNotificationV24 sentNotification = sentNotificationOpt.get();
-            List<NotificationRecipientV23> listRecipient = sentNotification.getRecipients();
+            SentNotificationV25 sentNotification = sentNotificationOpt.get();
+            List<NotificationRecipientV24> listRecipient = sentNotification.getRecipients();
             
             int recIndex = 0;
-            for (NotificationRecipientV23 recipient : listRecipient){
+            for (NotificationRecipientV24 recipient : listRecipient){
                 
                 NotificationRecipientAddressesDto recipientAddressesDto = pnDataVaultClientReactiveMock.getAddressFromRecipientIndex(iun, recIndex);
                 
@@ -75,11 +82,10 @@ public class PnDeliveryClientMock implements PnDeliveryClient {
 
     @Override
     public Map<String, String> getQuickAccessLinkTokensPrivate(String iun) {
-      Map<String, String> body = this.notifications.stream()
-      .filter(n->n.getIun().equals(iun))
-      .map(SentNotificationV24::getRecipients)
-      .flatMap(List::stream)
-      .collect(Collectors.toMap(NotificationRecipientV23::getInternalId, (n) -> "test"));
-      return body;
+        return this.notifications.stream()
+        .filter(n->n.getIun().equals(iun))
+        .map(SentNotificationV25::getRecipients)
+        .flatMap(List::stream)
+        .collect(Collectors.toMap(NotificationRecipientV24::getInternalId, (n) -> "test"));
     }
 }
