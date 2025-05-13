@@ -617,17 +617,6 @@ Parameters:
   ActionRemoverLambdaName:
     Type: String
 
-  WebhookEventManagerLambdaName:
-    Type: String
-  
-  WebhookEventManagerDLQARN:
-    Type: String
-    Description: 'DLQ ARN for WebhookEventManagerLambda'
-
-  WebhookEventManagerDLQAlarmARN:
-    Type: String
-    Description: 'DLQ Alarm ARN for WebhookEventManagerLambda'
-
   PaperEventsCostUpdateLambdaName:
     Type: String
 
@@ -666,18 +655,6 @@ Parameters:
   CdcKinesisSourceStreamKeyArn:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
-
-
-  #Webhook event manager lambda parameters
-  WebhookEventManagerLambdaMaximumBatchingWindowInSeconds:
-    Type: String
-    Default: "20"
-    Description: 'MaximumBatchingWindow asseveration event source mapping'
-
-  WebhookEventManagerLambdaBatchSize:
-    Type: String
-    Default: "60"
-    Description: 'BatchSize asseveration event source mapping'
 
 
   #Webhook event manager lambda parameters
@@ -816,10 +793,8 @@ Resources:
         #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'#DA COMMENTARE DOPO RIMOZIONE WEBHOOK
+        #ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
@@ -887,7 +862,6 @@ Resources:
         #ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
         #ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
@@ -947,10 +921,8 @@ Resources:
         #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}' #DA COMMENTARE DOPO RIMOZIONE WEBHOOK
+        #ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
@@ -1018,7 +990,6 @@ Resources:
         #ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
         #ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
@@ -1083,10 +1054,8 @@ Resources:
         #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}' #DA COMMENTARE DOPO RIMOZIONE WEBHOOK
+        #ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
         #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
@@ -1154,7 +1123,6 @@ Resources:
         #ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
         #ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
@@ -1311,115 +1279,6 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.APIGatewayARN
         Limit: 600000
 
-  #########################################################
-  ###              WebhookEventManagerLambda            ###
-  #########################################################
-
-  # Lambda function
-  WebhookEventManagerLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Ref WebhookEventManagerLambdaName
-      Runtime: nodejs18.x
-      Handler: "index.handler"
-      Code:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/webhookEventManager.zip"
-      Role: !GetAtt WebhookEventManagerLambdaRole.Arn
-      Environment:
-        Variables:
-          REGION: !Sub ${AWS::Region}
-          QUEUE_URL: !Ref DoneActionsQueueURL
-          START_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref WebhookFeatureFlags ]} ]
-          STOP_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref WebhookFeatureFlags ] } ]
-      TracingConfig:
-        Mode: Active
-      Layers:
-        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
-
-  # Lambda function role
-  WebhookEventManagerLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-webhookEventManagerLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  # Lambda function IAM policy
-  WebhookEventManagerLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-WebhookEventManagerLambdaPolicy
-      Roles:
-        - !Ref WebhookEventManagerLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcKinesisSourceStreamArn
-          - Action: kms:Decrypt
-            Effect: Allow
-            Resource: !Ref CdcKinesisSourceStreamKeyArn
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref DoneActionsQueueARN
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref WebhookEventManagerDLQARN
-
-
-  # CDC to Webhook Event Manager
-  WebhookEventManagerLambdaKinesisSource:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: !Sub ${WebhookEventManagerLambdaBatchSize}
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcKinesisSourceStreamArn
-      FunctionName: !Ref WebhookEventManagerLambda
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      MaximumBatchingWindowInSeconds: !Sub ${WebhookEventManagerLambdaMaximumBatchingWindowInSeconds}
-      StartingPosition: TRIM_HORIZON
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref WebhookEventManagerDLQARN
-
-  WebhookEventManagerLambdaAlarms:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
-      Parameters:
-        FunctionName: !Ref WebhookEventManagerLambda
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-  
   # CDC to Lambda action router
   ActionRouterKinesisSource:
     Type: AWS::Lambda::EventSourceMapping
@@ -2168,8 +2027,6 @@ Resources:
             - !Ref F24ToDeliveryPushQueueAgeAlarmARN
             - !Ref NotificationCancellationActionInsertDLQAlarmARN
             - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
-            - !Ref WebhookEventManagerDLQAlarmARN
-            - !GetAtt WebhookEventManagerLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PaperEventsCostUpdateDLQAlarmARN
             - !Ref ActionRouterDLQAlarmARN
             - !Ref ActionEnqueuerDLQAlarmARN
@@ -2179,7 +2036,6 @@ Resources:
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
-            - !GetAtt WebhookEventManagerLambda.Arn
             - !GetAtt PaperEventsCostUpdateLambda.Arn
             - !GetAtt VersioningGetNotificationLegalFactsLambda.Arn
         QueueArns: !Join
@@ -2198,7 +2054,6 @@ Resources:
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
             - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
-            - !Sub '/aws/lambda/${WebhookEventManagerLambdaName}'
             - !Sub '/aws/lambda/${PaperEventsCostUpdateLambdaName}'
             - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
 

@@ -9,9 +9,6 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookEventType;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhooksPool;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,8 +26,6 @@ class SchedulerServiceImplTest {
 
     private ActionsPool actionsPool;
 
-    private WebhooksPool webhooksPool;
-
     @Mock
     private Clock clock;
     @Mock
@@ -42,10 +37,9 @@ class SchedulerServiceImplTest {
     @BeforeEach
     void setup() {
         actionsPool = Mockito.mock(ActionsPool.class);
-        webhooksPool = Mockito.mock(WebhooksPool.class);
         clock = Mockito.mock(Clock.class);
 
-        schedulerService = new SchedulerServiceImpl(actionsPool, webhooksPool, clock, timelineUtils);
+        schedulerService = new SchedulerServiceImpl(actionsPool, clock, timelineUtils);
     }
 
     
@@ -164,39 +158,6 @@ class SchedulerServiceImplTest {
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
 
         Mockito.verify(actionsPool, Mockito.never()).addOnlyAction(action);
-    }
-    
-
-    @Test
-    void scheduleWebhookEvent() {
-        Instant instant = Instant.parse("2022-08-30T16:04:13.913859900Z");
-        Mockito.when(clock.instant()).thenReturn(instant);
-        WebhookAction action = WebhookAction.builder()
-                .iun("01")
-                .paId("02")
-                .eventId(instant + "_" + "03")
-                .timelineId("03")
-                .type(WebhookEventType.REGISTER_EVENT)
-                .build();
-
-        schedulerService.scheduleWebhookEvent("02", "01", "03");
-
-        Mockito.verify(webhooksPool, Mockito.times(1)).scheduleFutureAction(action);
-    }
-
-    @Test
-    void testScheduleWebhookEvent() {
-        WebhookAction action = WebhookAction.builder()
-                .streamId("01")
-                .eventId("02")
-                .iun("nd")
-                .delay(4)
-                .type(WebhookEventType.REGISTER_EVENT)
-                .build();
-
-        schedulerService.scheduleWebhookEvent("01", "02", 4, WebhookEventType.REGISTER_EVENT);
-
-        Mockito.verify(webhooksPool, Mockito.times(1)).scheduleFutureAction(action);
     }
 
     @Test
