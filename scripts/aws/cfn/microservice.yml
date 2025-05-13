@@ -222,22 +222,6 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing'
 
-  PnDeliveryPushWebhookStreamsTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  PnDeliveryPushWebhookStreamsTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-  PnDeliveryPushWebhookEventsTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  PnDeliveryPushWebhookEventsTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
   DocumentCreationRequestTableName:
     Type: String
     Description: 'Name of dynamodb table containing unreacheble notifications recipients'
@@ -846,8 +830,6 @@ Resources:
         #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
         #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -979,8 +961,6 @@ Resources:
         #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
         #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -1117,8 +1097,6 @@ Resources:
         #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
         #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -1284,8 +1262,6 @@ Resources:
             Resource:
               - !Sub "${PaperNotificationFailedDynamoTableArn}"
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
-              - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
-              - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
               - !Sub "${DocumentCreationRequestTableArn}"
   
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
@@ -2290,8 +2266,6 @@ Resources:
             - !Ref PaperNotificationFailedDynamoTableName
             - !Ref ActionDynamoTableName
             - !Ref PnDeliveryPushShedLockDynamoTableName
-            - !Ref PnDeliveryPushWebhookStreamsTableName
-            - !Ref PnDeliveryPushWebhookEventsTableName
             - !Ref DocumentCreationRequestTableName 
         RestApiStageArns: !Join
           - ','
