@@ -105,37 +105,6 @@ Parameters:
 
 Resources:
 
-  # Legal Facts S3 Storage
-  LegalFactsBucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-    Properties:
-      # No default retention neither legal hold.
-      # Can define retention period or legal hold when upload new object or version
-      ObjectLockEnabled: true
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      VersioningConfiguration:
-        Status: Enabled
-      CorsConfiguration:
-        CorsRules:
-          - AllowedHeaders:
-              - "*"
-            AllowedMethods:
-              - GET
-              - PUT
-              - POST
-              - DELETE
-              - HEAD
-            AllowedOrigins:
-              - "*"
-            ExposedHeaders:
-              - "x-amz-version-id"
-
   # Internal queues
   ScheduledActionsQueue:
     Type: AWS::CloudFormation::Stack
