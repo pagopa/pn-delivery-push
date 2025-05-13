@@ -203,45 +203,59 @@ describe("CreateEventStreamHandler", () => {
                     version: "v26",
                     waitForAccepted: false
                 }
-            }]
+            },
+            {
+                version: "v2.7",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    version: "v27",
+                    waitForAccepted: false
+                }
+            }
+        ]
 
-             testCases.forEach(({ version, responseBody }) => {
-                            it(`successful request ${version}`, async () => {
-                                const b = JSON.stringify({
-                                    title: "stream name",
-                                    eventType: "STATUS",
-                                    filterValues: ["status_1", "status_2"],
-                                    waitForAccepted: true
-                                });
+        testCases.forEach(({ version, responseBody }) => {
+            it(`successful request ${version}`, async () => {
+                const b = JSON.stringify({
+                    title: "stream name",
+                    eventType: "STATUS",
+                    filterValues: ["status_1", "status_2"],
+                    waitForAccepted: true
+                });
 
-                                const event = {
-                                    path: `/delivery-progresses/${version}/streams`,
-                                    httpMethod: "POST",
-                                    headers: {},
-                                    requestContext: {
-                                        authorizer: {},
-                                    },
-                                    body: b
-                                };
+                const event = {
+                    path: `/delivery-progresses/${version}/streams`,
+                    httpMethod: "POST",
+                    headers: {},
+                    requestContext: {
+                        authorizer: {},
+                    },
+                    body: b
+                };
 
-                                let url = `${process.env.PN_WEBHOOK_URL}/streams`;
-                                
-                                 mock.onPost(url).reply((config) => {
-                                    capturedRequestBody = JSON.parse(config.data); 
-                                    expect(capturedRequestBody.waitForAccepted).to.be.undefined
-                                    return [200, responseBody];
-                                  });
-                               
+                let url = `${process.env.PN_WEBHOOK_URL}/streams`;
 
-                                const context = {};
-                                const response = await createEventStreamHandler.handlerEvent(event, context);
+                    mock.onPost(url).reply((config) => {
+                    capturedRequestBody = JSON.parse(config.data);
+                    expect(capturedRequestBody.waitForAccepted).to.be.undefined
+                    return [200, responseBody];
+                    });
 
-                                expect(response.statusCode).to.equal(200);
-                                expect(mock.history.post.length).to.equal(1);;
-                                console.log(response.body)
-                                expect(response.body.waitForAccepted).to.be.undefined
-                            });
-                        });
+
+                const context = {};
+                const response = await createEventStreamHandler.handlerEvent(event, context);
+
+                expect(response.statusCode).to.equal(200);
+                expect(mock.history.post.length).to.equal(1);;
+                console.log(response.body)
+                expect(response.body.waitForAccepted).to.be.undefined
+            });
+        });
 
     });
 });

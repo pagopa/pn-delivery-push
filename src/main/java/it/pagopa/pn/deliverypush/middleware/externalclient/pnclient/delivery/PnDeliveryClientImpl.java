@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.api.InternalOnlyApi;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV24;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV25;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +16,10 @@ public class PnDeliveryClientImpl implements PnDeliveryClient{
     private final InternalOnlyApi pnDeliveryApi;
 
     @Override
-    public SentNotificationV24 getSentNotification(String iun) {
+    public SentNotificationV25 getSentNotification(String iun) {
         log.logInvokingExternalService(CLIENT_NAME, GET_NOTIFICATION);
 
-        ResponseEntity<SentNotificationV24> res = pnDeliveryApi.getSentNotificationPrivateWithHttpInfo(iun);
+        ResponseEntity<SentNotificationV25> res = pnDeliveryApi.getSentNotificationPrivateWithHttpInfo(iun);
         
         return res.getBody();
     }

@@ -12,4 +12,5 @@ import lombok.*;
 public class NotificationRefusedErrorInt {
     private String errorCode;
     private String detail;
+    private Integer recIndex;
 }

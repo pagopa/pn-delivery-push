@@ -570,10 +570,10 @@ describe("ConsumeEventStreamHandler", () => {
             expect(mock.history.get.length).to.equal(1);
         });
 
-        it("successful request V26 to V25", async () => {
+        it("successful request V28 to V27", async () => {
             const streamId = "12345";
             const event = {
-                path: "/delivery-progresses/v2.5/streams/"+ streamId +"/events",
+                path: "/delivery-progresses/v2.7/streams/"+ streamId +"/events",
                 pathParameters : { streamId: streamId },
                 queryStringParameters: null,
                 httpMethod: "GET",
@@ -585,74 +585,208 @@ describe("ConsumeEventStreamHandler", () => {
 
             let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}/events`;
 
-            const responseBodyV26 = [
+            const responseBodyV28 = [
                 {
                     eventId: "01234567890123456789012345678901234567",
                     notificationRequestId: "abcd1234",
                     iun: "ABCD-EFGH-IJKL-123456-M-7",
-                    newStatus: "IN_VALIDATION",
+                    newStatus: "ACCEPTED",
                     element: {
-                        elementId: "abcdef1234567890",
-                        timestamp: "2024-02-06T12:34:56Z",
-                        ingestionTimestamp: "2025-02-06T12:34:56Z",
-                        eventTimestamp: "2023-02-06T12:34:56Z",
-                        notificationSentAt: "2026-02-06T12:34:56Z",
-                        legalFactsIds: [
+                        timelineElementId: "REQUEST_ACCEPTED.IUN_ABCD-EFGH-IJKL-123456-M-7",
+                        iun: "ABCD-EFGH-IJKL-123456-M-7",
+                        statusInfo: {
+                            actual: "ACCEPTED",
+                            statusChangeTimestamp: "2025-04-23T04:43:22.982127473Z",
+                            statusChanged: true
+                        },
+                        notificationSentAt: "2025-04-23T04:38:41.007054121Z",
+                        ingestionTimestamp: "2025-04-23T04:43:22.945549968Z",
+                        paId: "17ff3e25-9d77-4f82-ad13-dc67c6b5f7f2",
+                        legalFactIds: [
                             {
-                                key: "safestorage://PN_LEGAL_FACTS-9c3eba7e5fb14c5b9f59635a8edd5714.pdf",
-                                category: "NOTIFICATION_CANCELLED"
+                                key: "safestorage://PN_LEGAL_FACTS-bbfaa285ed4b433197d70973758d3373.pdf",
+                                category: "SENDER_ACK"
                             }
                         ],
-                        category: "NOTIFICATION_CANCELLED",
                         details: {
-                            recIndex: 1,
-                            digitalAddress: {
-                                type: "EMAIL",
-                                address: "rec@example.com"
-                            },
-                            endWorkflowStatus: {},
-                            completionWorkflowDate: ""
+                            nextSourceAttemptsMade: 0,
+                            notificationRequestId: "abcd1234",
+                            paProtocolNumber: "1234567890",
+                            idempotenceToken: "abcdef1234567890"
                         },
+                        category: "REQUEST_ACCEPTED",
+                        timestamp: "2025-04-23T04:43:22.945549968Z",
+                        eventTimestamp: "2025-04-23T04:43:22.945549968Z"
                     }
                 },
                 {
                     eventId: "98765432109876543210987654321098765432",
                     notificationRequestId: "efgh5678",
                     iun: "EFGH-IJKL-MNOP-123456-N-8",
-                    newStatus: "IN_VALIDATION",
+                    newStatus: "REFUSED",
                     element: {
-                        elementId: "ghijkl0987654321",
-                        timestamp: "2024-02-07T14:45:32Z",
-                        ingestionTimestamp: "2025-02-06T12:34:56Z",
-                        eventTimestamp: "2023-02-06T12:34:56Z",
-                        notificationSentAt: "2026-02-06T12:34:56Z",
-                        legalFactsIds: [
-                            {
-                                key: "safestorage://PN_LEGAL_FACTS-9c3eba7e5fb14c5b9f59635a8edd5714.pdf",
-                                category: "DIGITAL_DELIVERY"
-                            }
-                        ],
-                        category: "SEND_DIGITAL_DOMICILE",
+                        iun: "EFGH-IJKL-MNOP-123456-N-8",
+                        timelineElementId: "REQUEST_REFUSED.IUN_EFGH-IJKL-MNOP-123456-N-8",
+                        category: "REQUEST_REFUSED",
                         details: {
-                            recIndex: 2,
-                            digitalAddress: {
-                                type: "PEC",
-                                address: "rec@example.com",
-                            },
-                            endWorkflowStatus: {},
-                            completionWorkflowDate: "",
+                            nextSourceAttemptsMade: 0,
+                            notificationCost: 100,
+                            numberOfRecipients: 2,
+                            refusalReasons: [
+                                {
+                                    detail: "Address not found for recipient index: 0",
+                                    errorCode: "ADDRESS_NOT_FOUND",
+                                    recIndex: 0
+                                },
+                                {
+                                    detail: "Address search for recipient index: 1, encountered an error",
+                                    errorCode: "ADDRESS_SEARCH_FAILED",
+                                    recIndex: 1
+                                }
+                            ],
+                            notificationRequestId: "abcd1234",
+                            paProtocolNumber: "1234567890",
+                            idempotenceToken: "abcdef1234567890"
                         },
+                        legalFactId: [],
+                        notificationSentAt: "2023-10-16T10:49:01.805828075Z",
+                        paId: "8bdd616c-6130-4f8b-b450-1035714433b5",
+                        statusInfo: {
+                            actual: "REFUSED",
+                            statusChanged: true,
+                            statusChangeTimestamp: "2023-10-16T10:49:25.481508477Z"
+                        },
+                        timestamp: "2023-10-16T10:49:25.430475874Z"
+                    },
+                },
+                {
+                    eventId: "98765432109876543210987654321098765432",
+                    notificationRequestId: "efgh5678",
+                    iun: "ZMNA-TREW-LOPI-123456-B-2",
+                    newStatus: "REFUSED",
+                    element: {
+                        iun: "ZMNA-TREW-LOPI-123456-B-2",
+                        timelineElementId: "REQUEST_REFUSED.IUN_ZMNA-TREW-LOPI-123456-B-2",
+                        category: "REQUEST_REFUSED",
+                        details: {
+                            nextSourceAttemptsMade: 0,
+                            notificationCost: 100,
+                            numberOfRecipients: 2,
+                            // caso impossibile senza refusalReasons
+                        },
+                        legalFactId: [],
+                        notificationSentAt: "2023-10-16T10:49:01.805828075Z",
+                        paId: "8bdd616c-6130-4f8b-b450-1035714433b5",
+                        statusInfo: {
+                            actual: "REFUSED",
+                            statusChanged: true,
+                            statusChangeTimestamp: "2023-10-16T10:49:25.481508477Z"
+                        },
+                        timestamp: "2023-10-16T10:49:25.430475874Z"
                     },
                 }
             ]
 
-            mock.onGet(url).reply(200, responseBodyV26);
+            const responseBodyV27 = [
+                {
+                    eventId: "01234567890123456789012345678901234567",
+                    notificationRequestId: "abcd1234",
+                    iun: "ABCD-EFGH-IJKL-123456-M-7",
+                    newStatus: "ACCEPTED",
+                    element: {
+                        timelineElementId: "REQUEST_ACCEPTED.IUN_ABCD-EFGH-IJKL-123456-M-7",
+                        iun: "ABCD-EFGH-IJKL-123456-M-7",
+                        statusInfo: {
+                            actual: "ACCEPTED",
+                            statusChangeTimestamp: "2025-04-23T04:43:22.982127473Z",
+                            statusChanged: true
+                        },
+                        notificationSentAt: "2025-04-23T04:38:41.007054121Z",
+                        ingestionTimestamp: "2025-04-23T04:43:22.945549968Z",
+                        paId: "17ff3e25-9d77-4f82-ad13-dc67c6b5f7f2",
+                        legalFactIds: [
+                            {
+                                key: "safestorage://PN_LEGAL_FACTS-bbfaa285ed4b433197d70973758d3373.pdf",
+                                category: "SENDER_ACK"
+                            }
+                        ],
+                        details: {
+                            "nextSourceAttemptsMade": 0
+                        },
+                        category: "REQUEST_ACCEPTED",
+                        timestamp: "2025-04-23T04:43:22.945549968Z",
+                        eventTimestamp: "2025-04-23T04:43:22.945549968Z"
+                    }
+                },
+                {
+                    eventId: "98765432109876543210987654321098765432",
+                    notificationRequestId: "efgh5678",
+                    iun: "EFGH-IJKL-MNOP-123456-N-8",
+                    newStatus: "REFUSED",
+                    element: {
+                        iun: "EFGH-IJKL-MNOP-123456-N-8",
+                        timelineElementId: "REQUEST_REFUSED.IUN_EFGH-IJKL-MNOP-123456-N-8",
+                        category: "REQUEST_REFUSED",
+                        details: {
+                            nextSourceAttemptsMade: 0,
+                            notificationCost: 100,
+                            numberOfRecipients: 2,
+                            refusalReasons: [
+                                {
+                                    detail: "Address not found for recipient index: 0",
+                                    errorCode: "ADDRESS_NOT_FOUND"
+                                },
+                                {
+                                    detail: "Address search for recipient index: 1, encountered an error",
+                                    errorCode: "ADDRESS_SEARCH_FAILED"
+                                }
+                            ]
+                        },
+                        legalFactId: [],
+                        notificationSentAt: "2023-10-16T10:49:01.805828075Z",
+                        paId: "8bdd616c-6130-4f8b-b450-1035714433b5",
+                        statusInfo: {
+                            actual: "REFUSED",
+                            statusChanged: true,
+                            statusChangeTimestamp: "2023-10-16T10:49:25.481508477Z"
+                        },
+                        timestamp: "2023-10-16T10:49:25.430475874Z"
+                    },
+                },
+                {
+                    eventId: "98765432109876543210987654321098765432",
+                    notificationRequestId: "efgh5678",
+                    iun: "ZMNA-TREW-LOPI-123456-B-2",
+                    newStatus: "REFUSED",
+                    element: {
+                        iun: "ZMNA-TREW-LOPI-123456-B-2",
+                        timelineElementId: "REQUEST_REFUSED.IUN_ZMNA-TREW-LOPI-123456-B-2",
+                        category: "REQUEST_REFUSED",
+                        details: {
+                            nextSourceAttemptsMade: 0,
+                            notificationCost: 100,
+                            numberOfRecipients: 2,
+                            // caso impossibile senza refusalReasons
+                        },
+                        legalFactId: [],
+                        notificationSentAt: "2023-10-16T10:49:01.805828075Z",
+                        paId: "8bdd616c-6130-4f8b-b450-1035714433b5",
+                        statusInfo: {
+                            actual: "REFUSED",
+                            statusChanged: true,
+                            statusChangeTimestamp: "2023-10-16T10:49:25.481508477Z"
+                        },
+                        timestamp: "2023-10-16T10:49:25.430475874Z"
+                    },
+                }
+            ]
+
+            mock.onGet(url).reply(200, responseBodyV28);
 
             const context = {};
             const response = await consumeEventStreamHandler.handlerEvent(event, context);
-
             expect(response.statusCode).to.equal(200);
-            expect(response.body).to.equal(JSON.stringify(responseBodyV26));
+            expect(response.body).to.equal(JSON.stringify(responseBodyV27));
 
             expect(mock.history.get.length).to.equal(1);
         });
@@ -841,6 +975,123 @@ describe("ConsumeEventStreamHandler", () => {
             expect(response.body).to.equal(JSON.stringify(responseBodyV10));
 
             expect(mock.history.get.length).to.equal(1);
+        });
+    });
+
+    // Gruppo di tests che servono principalmente a coprire il codice senza verificare particolari logiche di mapping
+    // Poichè ci sono diversi case di versioni che applicano lo stesso mapping, non ha senso duplicare i tests per ogni versione
+    describe("handlerEvent for versions which don't apply a mapping", () => {
+        let consumeEventStreamHandler;
+
+        beforeEach(() => {
+            consumeEventStreamHandler = new ConsumeEventStreamHandler();
+            mock = new MockAdapter(axios);
+        });
+
+        afterEach(() => {
+            mock.restore();
+        });
+
+        const commonResponseBody = [
+            {
+                eventId: "01234567890123456789012345678901234567",
+                notificationRequestId: "abcd1234",
+                iun: "ABCD-EFGH-IJKL-123456-M-7",
+                newStatus: "IN_VALIDATION",
+                element: {
+                    elementId: "abcdef1234567890",
+                    timestamp: "2024-02-06T12:34:56Z",
+                    ingestionTimestamp: "2025-02-06T12:34:56Z",
+                    eventTimestamp: "2023-02-06T12:34:56Z",
+                    notificationSentAt: "2026-02-06T12:34:56Z",
+                    legalFactsIds: [
+                        {
+                            key: "safestorage://PN_LEGAL_FACTS-9c3eba7e5fb14c5b9f59635a8edd5714.pdf",
+                            category: "NOTIFICATION_CANCELLED"
+                        }
+                    ],
+                    category: "NOTIFICATION_CANCELLED",
+                    details: {
+                        recIndex: 1,
+                        digitalAddress: {
+                            type: "EMAIL",
+                            address: "rec@example.com"
+                        },
+                        endWorkflowStatus: {},
+                        completionWorkflowDate: ""
+                    },
+                }
+            },
+            {
+                eventId: "98765432109876543210987654321098765432",
+                notificationRequestId: "efgh5678",
+                iun: "EFGH-IJKL-MNOP-123456-N-8",
+                newStatus: "IN_VALIDATION",
+                element: {
+                    elementId: "ghijkl0987654321",
+                    timestamp: "2024-02-07T14:45:32Z",
+                    ingestionTimestamp: "2025-02-06T12:34:56Z",
+                    eventTimestamp: "2023-02-06T12:34:56Z",
+                    notificationSentAt: "2026-02-06T12:34:56Z",
+                    legalFactsIds: [
+                        {
+                            key: "safestorage://PN_LEGAL_FACTS-9c3eba7e5fb14c5b9f59635a8edd5714.pdf",
+                            category: "DIGITAL_DELIVERY"
+                        }
+                    ],
+                    category: "SEND_DIGITAL_DOMICILE",
+                    details: {
+                        recIndex: 2,
+                        digitalAddress: {
+                            type: "PEC",
+                            address: "rec@example.com",
+                        },
+                        endWorkflowStatus: {},
+                        completionWorkflowDate: "",
+                    },
+                },
+            }
+        ];
+
+        const testCases = [
+            {
+                description: "successful request V26 to V25",
+                path: "/delivery-progresses/v2.5/streams/12345/events",
+                responseBody: commonResponseBody
+            },
+            {
+                description: "successful request V27 to V26",
+                path: "/delivery-progresses/v2.6/streams/12345/events",
+                responseBody: commonResponseBody
+            },
+        ];
+
+        testCases.forEach(({ description, path, responseBody }) => {
+            it(description, async () => {
+                const streamId = "12345";
+                const event = {
+                    path: path,
+                    pathParameters: { streamId: streamId },
+                    queryStringParameters: null,
+                    httpMethod: "GET",
+                    headers: {},
+                    requestContext: {
+                        authorizer: {},
+                    },
+                }
+
+                let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}/events`;
+
+                mock.onGet(url).reply(200, responseBody);
+
+                const context = {};
+                const response = await consumeEventStreamHandler.handlerEvent(event, context);
+
+                expect(response.statusCode).to.equal(200);
+                expect(response.body).to.equal(JSON.stringify(responseBody));
+
+                expect(mock.history.get.length).to.equal(1);
+            });
         });
     });
 

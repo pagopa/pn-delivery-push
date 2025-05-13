@@ -128,10 +128,7 @@ describe("dynamoFunctions tests", function () {
       KeyConditionExpression: "timeSlot = :ts",
       ExpressionAttributeValues: {
         ":ts": keyValue,
-        ":tS": keyValue,
-        ":tE": keyValue,
-      },
-      FilterExpression: "notBefore >= :tS AND notBefore <= :tE",
+      }
     };
 
     const resultItems = [];
@@ -139,11 +136,7 @@ describe("dynamoFunctions tests", function () {
     ddbMock.on(QueryCommand, params).resolves({
       Items: [],
     });
-    const result = await getActionsByTimeSlot(params.TableName, {
-      timeSlot: keyValue,
-      startTime: keyValue,
-      endTime: keyValue,
-    });
+    const result = await getActionsByTimeSlot(params.TableName, keyValue);
     expect(result).to.deep.equal({
       timeSlot: keyValue,
       items: resultItems,
@@ -158,22 +151,15 @@ describe("dynamoFunctions tests", function () {
       TableName: FUTURE_TABLE_NAME,
       KeyConditionExpression: "timeSlot = :ts",
       ExpressionAttributeValues: {
-        ":ts": keyValue,
-        ":tS": keyValue,
-        ":tE": keyValue,
+        ":ts": keyValue
       },
-      FilterExpression: "notBefore >= :tS AND notBefore <= :tE",
     };
     const resultItems = [{ iun: "iunTest" }];
 
     ddbMock.on(QueryCommand, params).resolves({
       Items: resultItems,
     });
-    const result = await getActionsByTimeSlot(params.TableName, {
-      timeSlot: keyValue,
-      startTime: keyValue,
-      endTime: keyValue,
-    });
+    const result = await getActionsByTimeSlot(params.TableName, keyValue);
 
     expect(result).to.deep.equal({
       timeSlot: keyValue,

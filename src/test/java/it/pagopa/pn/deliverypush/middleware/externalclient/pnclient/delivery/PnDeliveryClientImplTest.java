@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery;
 
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.api.InternalOnlyApi;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV24;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV25;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,12 +28,12 @@ class PnDeliveryClientImplTest {
     @Test
     @ExtendWith(SpringExtension.class)
     void getSentNotification() {
-        SentNotificationV24 notification = new SentNotificationV24();
+        SentNotificationV25 notification = new SentNotificationV25();
         notification.setIun("001");
         
         Mockito.when(pnDeliveryApi.getSentNotificationPrivateWithHttpInfo("001")).thenReturn(ResponseEntity.ok(notification));
 
-        SentNotificationV24 res = client.getSentNotification("001");
+        SentNotificationV25 res = client.getSentNotification("001");
 
         Assertions.assertEquals("001", res.getIun());
 
