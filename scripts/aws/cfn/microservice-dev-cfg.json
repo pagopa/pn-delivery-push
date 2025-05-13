@@ -1,11 +1,8 @@
 {
   "Parameters": {
     "ActionTtlDays": "1095",
-    "WebhookEventManagerLambdaMaximumBatchingWindowInSeconds": "20",
-    "WebhookEventManagerLambdaBatchSize": "60",
     "NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds": "60",
     "NotificationCancellationActionInsertLambdaBatchSize": "20",
-    "VersioningV1V2WebhookLambdaProvisionedConcurrency": "1",
     "VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency": "1",
     "EnhancedWebSecurityEnabled": "true",
     "CpuValue": "2048",
@@ -39,12 +36,10 @@
     "CdcActionStandardAlarmThresholdsMs": "2000000",
     "CdcActionOnCallAlarmThresholdsMs": "2000000",
     "ActionEnqueuerKinesisBatchSize": "10",
-    "PerformanceImprovementStartDate": "2024-06-01T00:00:00Z",
-    "PerformanceImprovementEndDate": "2099-07-14T20:00:00Z",
     "FutureActionTtlExtraDays": "10",
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
-    "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z,delivery-progresses-2",
+    "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z",
     "pfNewWorkflowFeatureFlag": "2019-01-01T00:00:00Z,2099-02-01T00:00:00Z"
     }
 }

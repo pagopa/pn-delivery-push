@@ -11,6 +11,10 @@ import lombok.*;
 @EqualsAndHashCode
 public class NationalRegistriesResponse {
     private String correlationId;
+    private Integer recIndex;
+    private String registry;
+    private String error;
+    private Integer errorStatus;
     private LegalDigitalAddressInt digitalAddress;
     private PhysicalAddressInt physicalAddress;
 }

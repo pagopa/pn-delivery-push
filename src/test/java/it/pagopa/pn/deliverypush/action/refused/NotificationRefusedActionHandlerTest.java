@@ -16,6 +16,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.RefusalCostCalculator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,11 +45,14 @@ class NotificationRefusedActionHandlerTest {
     @Mock
     private NotificationProcessCostService notificationProcessCostService;
 
+    @Mock
+    private RefusalCostCalculator refusalCostCalculator;
+
     private NotificationRefusedActionHandler notificationRefusedActionHandler;
 
     @BeforeEach
     public void setup() {
-        notificationRefusedActionHandler = new NotificationRefusedActionHandler(notificationService, timelineUtils, timelineService, notificationProcessCostService);
+        notificationRefusedActionHandler = new NotificationRefusedActionHandler(notificationService, timelineUtils, timelineService, notificationProcessCostService, refusalCostCalculator);
     }
 
     @Test
@@ -67,8 +71,10 @@ class NotificationRefusedActionHandlerTest {
         );
         Instant schedulingTime = Instant.now();
 
+        int notificationCost = refusalCostCalculator.calculateRefusalCost(notification,errors);
+
         TimelineElementInternal elementInternal = TimelineElementInternal.builder().build();
-        Mockito.when(timelineUtils.buildRefusedRequestTimelineElement(notification, errors)).thenReturn(elementInternal);
+        Mockito.when(timelineUtils.buildRefusedRequestTimelineElement(notification, errors, notificationCost)).thenReturn(elementInternal);
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
         
         //WHEN
@@ -140,8 +146,10 @@ class NotificationRefusedActionHandlerTest {
                 Mockito.any(UpdateCostPhaseInt.class)
         )).thenReturn(Mono.just(response));
 
+        int notificationCost = refusalCostCalculator.calculateRefusalCost(notification,errors);
+
         TimelineElementInternal elementInternal = TimelineElementInternal.builder().build();
-        Mockito.when(timelineUtils.buildRefusedRequestTimelineElement(notification, errors)).thenReturn(elementInternal);
+        Mockito.when(timelineUtils.buildRefusedRequestTimelineElement(notification, errors, notificationCost)).thenReturn(elementInternal);
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
 
         //WHEN
@@ -217,8 +225,10 @@ class NotificationRefusedActionHandlerTest {
                 Mockito.any(UpdateCostPhaseInt.class)
         )).thenReturn(Mono.just(response));
 
+        int notificationCost = refusalCostCalculator.calculateRefusalCost(notification,errors);
+
         TimelineElementInternal elementInternal = TimelineElementInternal.builder().build();
-        Mockito.when(timelineUtils.buildRefusedRequestTimelineElement(notification, errors)).thenReturn(elementInternal);
+        Mockito.when(timelineUtils.buildRefusedRequestTimelineElement(notification, errors, notificationCost)).thenReturn(elementInternal);
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
 
         //WHEN
@@ -296,8 +306,10 @@ class NotificationRefusedActionHandlerTest {
                 Mockito.any(UpdateCostPhaseInt.class)
         )).thenReturn(Mono.just(response));
 
+        int notificationCost = refusalCostCalculator.calculateRefusalCost(notification,errors);
+
         TimelineElementInternal elementInternal = TimelineElementInternal.builder().build();
-        Mockito.when(timelineUtils.buildRefusedRequestTimelineElement(notification, errors)).thenReturn(elementInternal);
+        Mockito.when(timelineUtils.buildRefusedRequestTimelineElement(notification, errors, notificationCost)).thenReturn(elementInternal);
         Mockito.when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
 
         //WHEN

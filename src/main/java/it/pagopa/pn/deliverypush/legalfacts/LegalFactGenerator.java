@@ -11,20 +11,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Interface for generating legal facts.
- * <p>
- * Each method may throw an {@link IOException}
- * if an error occurs during the generation process.
- * </p>
- * <p>
- * This interface is implemented by the following classes:
- * <ul>
- *     <li>{@link LegalFactGeneratorTemplates}</li>
- *     <li>{@link LegalFactGeneratorDocComposition}</li>
- * </ul>
- * </p>
- */
 public interface LegalFactGenerator {
 
     /**

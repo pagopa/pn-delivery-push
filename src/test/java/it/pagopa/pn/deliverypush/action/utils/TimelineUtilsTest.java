@@ -16,10 +16,7 @@ import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
+import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.TimelineElementDetailsEntity;
@@ -1477,6 +1474,68 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId()),
                 () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
                 () -> Assertions.assertEquals("legalFactId=" + legalFactId, actual.getDetails().toLog())
+        );
+    }
+
+    @Test
+    void buildNationalRegistryValidationCall() {
+        NotificationInt notification = buildNotification();
+        String eventId = TimelineEventId.NATIONAL_REGISTRY_VALIDATION_CALL.buildEventId(
+                EventId.builder()
+                        .iun("Example_IUN_1234_Test")
+                        .deliveryMode(DeliveryModeInt.ANALOG)
+                        .build());
+        List<Integer> recIndexes = new ArrayList<>();
+        TimelineElementInternal actual = timelineUtils.buildNationalRegistryValidationCall(eventId, notification, recIndexes, DeliveryModeInt.ANALOG);
+        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_CALL.IUN_Example_IUN_1234_Test.DELIVERYMODE_ANALOG";
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+    }
+
+    @Test
+    void buildNationalRegistryValidationResponse() {
+        NotificationInt notification = buildNotification();
+        NationalRegistriesResponse response = NationalRegistriesResponse.builder()
+                .correlationId("CorrelationId")
+                .physicalAddress(buildPhysicalAddressInt())
+                .registry("ANPR")
+                .recIndex(1)
+                .build();
+        TimelineElementInternal actual = timelineUtils.buildNationalRegistryValidationResponse(notification, response);
+        String timelineEventIdExpected = "NATIONAL_REGISTRY_VALIDATION_RESPONSE.RECINDEX_1.CORRELATIONID_CorrelationId";
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+    }
+
+    @Test
+    void buildRefusedRequestTimelineElement_ShouldBuildCorrectTimelineElement() {
+        NotificationInt notification = NotificationInt.builder()
+                .iun("Test_IUN_123")
+                .sender(NotificationSenderInt.builder().paId("TEST_PA_ID").build())
+                .recipients(buildRecipients())
+                .build();
+
+        List<NotificationRefusedErrorInt> errors = List.of(
+                NotificationRefusedErrorInt.builder().errorCode("ADDRESS_SEARCH_FAILED").detail("Address search for recipient index: 0, encountered an error").recIndex(0).build(),
+                NotificationRefusedErrorInt.builder().errorCode("ADDRESS_SEARCH_FAILED").detail("Address search for recipient index: 1, encountered an error").recIndex(1).build()
+        );
+
+        TimelineElementInternal result = timelineUtils.buildRefusedRequestTimelineElement(notification, errors, 100);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Test_IUN_123", result.getIun()),
+                () -> Assertions.assertTrue(result.getElementId().contains("REQUEST_REFUSED")),
+                () -> Assertions.assertEquals(TimelineElementCategoryInt.REQUEST_REFUSED, result.getCategory()),
+                () -> Assertions.assertNotNull(result.getDetails()),
+                () -> Assertions.assertEquals(errors, ((RequestRefusedDetailsInt) result.getDetails()).getRefusalReasons())
         );
     }
 }

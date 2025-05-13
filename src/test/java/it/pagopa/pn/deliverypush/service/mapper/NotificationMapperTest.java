@@ -34,7 +34,7 @@ class NotificationMapperTest {
                 .vat(22)
                 .build();
         
-        SentNotificationV24 sent = NotificationMapper.internalToExternal( expected );
+        SentNotificationV25 sent = NotificationMapper.internalToExternal( expected );
         NotificationInt actual = NotificationMapper.externalToInternal( sent );
         
         Assertions.assertEquals(expected, actual );
@@ -43,28 +43,28 @@ class NotificationMapperTest {
 
     @Test
     void externalToInternal() {
-        SentNotificationV24 expected = getExternalNotification();
+        SentNotificationV25 expected = getExternalNotification();
 
         NotificationInt internal = NotificationMapper.externalToInternal( expected );
-        SentNotificationV24 actual = NotificationMapper.internalToExternal( internal );
+        SentNotificationV25 actual = NotificationMapper.internalToExternal( internal );
         
         Assertions.assertEquals( expected, actual );
     }
 
-    private SentNotificationV24 getExternalNotification() {
-        return new SentNotificationV24()
+    private SentNotificationV25 getExternalNotification() {
+        return new SentNotificationV25()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
                 .senderPaId( "pa_02" )
-                .physicalCommunicationType(SentNotificationV24.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(SentNotificationV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .amount(18)
                 .paymentExpirationDate("2022-10-22")
                 .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .recipients( Collections.singletonList(
-                       new NotificationRecipientV23()
+                       new NotificationRecipientV24()
                                 .taxId("Codice Fiscale 01")
-                                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
+                                .recipientType(NotificationRecipientV24.RecipientTypeEnum.PF)
                                 .denomination("Nome Cognome/Ragione Sociale")
                                .digitalDomicile(
                                        new NotificationDigitalAddress()

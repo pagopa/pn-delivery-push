@@ -78,6 +78,7 @@ public class NormalizeAddressHandler {
                 .denomination(recipient.getDenomination())
                 .digitalAddress(recipient.getDigitalDomicile())
                 .physicalAddress(normalizedAddressEnriched)
+                .recIndex(recIndex)
                 .build();
         listNormalizedAddress.add(normalizedAddressInt);
 

@@ -13,6 +13,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFee
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.utils.RefusalCostCalculator;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.springframework.stereotype.Component;
@@ -31,10 +32,12 @@ public class NotificationRefusedActionHandler {
     private final TimelineUtils timelineUtils;
     private final TimelineService timelineService;
     private final NotificationProcessCostService notificationProcessCostService;
+    private final RefusalCostCalculator refusalCostCalculator;
     
     public void notificationRefusedHandler(String iun, List<NotificationRefusedErrorInt> errors, Instant schedulingTime){
         log.debug("Start notificationRefusedHandler - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
+        int notificationCost = refusalCostCalculator.calculateRefusalCost(notification, errors);
 
         if(NotificationFeePolicy.DELIVERY_MODE.equals(notification.getNotificationFeePolicy()) &&
                 PagoPaIntMode.ASYNC.equals(notification.getPagoPaIntMode())){
@@ -43,7 +46,7 @@ public class NotificationRefusedActionHandler {
             log.debug("don't need to update notification cost - iun={}", iun);
         }
         
-        addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors), notification);
+        addTimelineElement( timelineUtils.buildRefusedRequestTimelineElement(notification, errors, notificationCost), notification);
     }
 
     private void handleUpdateNotificationCost(Instant schedulingTime, NotificationInt notification) {
