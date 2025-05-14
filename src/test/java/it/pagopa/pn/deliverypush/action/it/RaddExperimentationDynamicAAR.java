@@ -36,8 +36,8 @@ import java.util.List;
 import static it.pagopa.pn.deliverypush.action.utils.AarUtils.*;
 import static org.awaitility.Awaitility.await;
 
-@ContextConfiguration(classes = RaddExperimentationDynamicAARIT.InnerTestConfiguration.class)
-class RaddExperimentationDynamicAARIT extends SendAarAttachment {
+@ContextConfiguration(classes = RaddExperimentationDynamicAAR.InnerTestConfiguration.class)
+class RaddExperimentationDynamicAAR extends SendAarAttachment {
     @Autowired
     private static CheckRADDExperimentation checkRADDExperimentation;
 

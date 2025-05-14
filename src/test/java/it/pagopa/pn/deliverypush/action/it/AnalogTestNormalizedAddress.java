@@ -34,7 +34,7 @@ import java.util.List;
 
 import static org.awaitility.Awaitility.await;
 
-class AnalogTestNormalizedAddressIT extends CommonTestConfiguration{
+class AnalogTestNormalizedAddress extends CommonTestConfiguration{
     @SpyBean
     LegalFactGenerator legalFactGenerator;
     @SpyBean

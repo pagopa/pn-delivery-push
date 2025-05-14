@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.util.Base64Utils;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +32,7 @@ import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.E
 import static it.pagopa.pn.deliverypush.action.it.mockbean.F24ClientMock.F24_VALIDATION_FAIL;
 import static org.awaitility.Awaitility.await;
 
-class ValidationTestIT extends CommonTestConfiguration{
+class ValidationTest extends CommonTestConfiguration{
     @Autowired
     StartWorkflowHandler startWorkflowHandler;
     @Autowired

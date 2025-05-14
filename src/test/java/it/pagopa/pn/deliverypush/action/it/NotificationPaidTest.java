@@ -40,7 +40,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.with;
 
-class NotificationPaidTestIT extends CommonTestConfiguration{
+class NotificationPaidTest extends CommonTestConfiguration{
     @SpyBean
     LegalFactGenerator legalFactGenerator;
     @SpyBean

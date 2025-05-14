@@ -41,7 +41,7 @@ import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 
-public class AnalogDeceasedTestIT extends CommonTestConfiguration {
+public class AnalogDeceasedTest extends CommonTestConfiguration {
 
     @SpyBean
     LegalFactGenerator legalFactGenerator;
