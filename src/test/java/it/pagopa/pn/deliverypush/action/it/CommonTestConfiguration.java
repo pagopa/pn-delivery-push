@@ -161,7 +161,6 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         AnalogFinalStatusResponseHandler.class,
         ActionHandler.class,
         WebhookActionsEventHandler.class,
-        WebhookEventsServiceMock.class,
         SmartMapper.class,
         TimelineMapperFactory.class,
         PnEmdIntegrationClientMock.class
@@ -171,7 +170,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
 @DirtiesContext
 @EnableScheduling
 public class CommonTestConfiguration {
-    private final static String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-expeAAArimentation-zip-1", "radd-experimentation-zip-2", "radd-experimentation-zip-3", "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
+    private static final String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-expeAAArimentation-zip-1", "radd-experimentation-zip-2", "radd-experimentation-zip-3", "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
 
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {
