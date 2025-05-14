@@ -4,6 +4,7 @@ const EventHandler  = require('./baseHandler.js');
 const {createProgressResponseV10} = require("./mapper/transformProgressResponseFromV23ToV10");
 const {createProgressResponseV23} = require("./mapper/transformProgressResponseFromV24ToV23");
 const {createProgressResponseV24} = require("./mapper/transformProgressResponseFromV25ToV24");
+const {createProgressResponseV25} = require("./mapper/transformProgressResponseFromV26ToV25");
 
 class ConsumeEventStreamHandler extends EventHandler {
     constructor() {
@@ -54,19 +55,19 @@ class ConsumeEventStreamHandler extends EventHandler {
                 switch(version) {
                     case 10:
                         console.debug('Mapping to v10')
-                        responseBody.push(createProgressResponseV10(createProgressResponseV23(createProgressResponseV24(data))));
+                        responseBody.push(createProgressResponseV10(createProgressResponseV23(createProgressResponseV24(await createProgressResponseV25(data)))));
                     break;
                     case 23:
                         console.debug('Mapping to v23')
-                        responseBody.push(createProgressResponseV23(createProgressResponseV24(data)));
+                        responseBody.push(createProgressResponseV23(createProgressResponseV24(await createProgressResponseV25(data))));
                     break;
                     case 24:
                         console.debug('Mapping to v24')
-                        responseBody.push(createProgressResponseV24(data));
+                        responseBody.push(createProgressResponseV24(await createProgressResponseV25(data)));
                     break;
                     case 25:
                         console.debug('Mapping to v25')
-                        responseBody.push(data);
+                        responseBody.push(await createProgressResponseV25(data));
                     break;
                     case 26:
                         console.debug('Mapping to v26')
