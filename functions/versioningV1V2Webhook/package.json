@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "aws-xray-sdk-core": "^3.5.3",
-    "axios": "^0.28.0",
+    "axios": "^0.30.0",
     "axios-retry": "^4.3.0"
   },
   "author": "",
