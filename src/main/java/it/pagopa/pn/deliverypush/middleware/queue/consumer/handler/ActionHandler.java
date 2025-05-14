@@ -22,10 +22,7 @@ import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.WebhookAction;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
-import it.pagopa.pn.deliverypush.utils.MdcKey;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.slf4j.MDC;
@@ -44,7 +41,6 @@ public class ActionHandler {
     private final DigitalWorkFlowRetryHandler digitalWorkFlowRetryHandler;
     private final AnalogWorkflowHandler analogWorkflowHandler;
     private final RefinementHandler refinementHandler;
-    private final WebhookActionsEventHandler webhookActionsEventHandler;
     private final StartWorkflowForRecipientHandler startWorkflowForRecipientHandler;
     private final ChooseDeliveryModeHandler chooseDeliveryModeHandler;
     private final DocumentCreationResponseHandler documentCreationResponseHandler;
@@ -247,32 +243,6 @@ public class ActionHandler {
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
-                HandleEventUtils.handleException(message.getHeaders(), ex);
-                throw ex;
-            }
-        };
-    }
-    
-    @Bean
-    public Consumer<Message<WebhookAction>> pnDeliveryPushWebhookActionConsumer() {
-        final String processName = "WEBHOOK ACTION";
-        
-        return message -> {
-            try {
-                MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.WEBHOOK_KEY);
-
-                log.debug("Handle action pnDeliveryPushWebhookActionConsumer, with content {}", message);log.debug("pnDeliveryPushWebhookActionConsumer, message={}", message);
-                WebhookAction action = message.getPayload();
-                HandleEventUtils.addIunToMdc(action.getIun());
-
-                log.logStartingProcess(processName);
-                webhookActionsEventHandler.handleEvent(action);
-                log.logEndingProcess(processName);
-
-                MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
-            } catch (Exception ex) {
-                log.logEndingProcess(processName, false, ex.getMessage());
-                MDC.remove(MDCUtils.MDC_PN_CTX_TOPIC);
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
