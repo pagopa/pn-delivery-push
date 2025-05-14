@@ -1206,19 +1206,6 @@ class DigitalWorkFlowHandlerTest {
 
         ));
 
-        Mockito.when(digitalWorkFlowUtils.getSendDigitalFeedbackFromSourceTimeline(Mockito.eq(notification.getIun()), Mockito.any())).thenReturn(
-                Optional.of(TimelineElementInternal.builder()
-                        .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
-
-        when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
-                .elementId(sourceTimelineId)
-                .iun(notification.getIun())
-                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
-                .details(NotificationViewedDetailsInt.builder()
-                        .recIndex(0)
-                        .build())
-        );
-
         //WHEN
         handlerRetry.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
 
@@ -1394,15 +1381,6 @@ class DigitalWorkFlowHandlerTest {
                         .build()
 
         ));
-
-        when(digitalWorkFlowUtils.getMostRecentTimelineElement(Mockito.anyString(), Mockito.anyInt())).thenReturn( TimelineElementInternal.builder()
-                .elementId(sourceTimelineId)
-                .iun(notification.getIun())
-                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
-                .details(NotificationViewedDetailsInt.builder()
-                        .recIndex(0)
-                        .build())
-        );
 
         //WHEN
         handlerRetry.elapsedExtChannelTimeout(notification.getIun(), 0, sourceTimelineId);

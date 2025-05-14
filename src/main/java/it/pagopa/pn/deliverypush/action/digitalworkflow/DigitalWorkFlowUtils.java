@@ -193,7 +193,7 @@ public class DigitalWorkFlowUtils {
      * @param recIndex indice recipient
      * @return Evento timeline più recente
      */
-/*    public TimelineElementInternal getMostRecentTimelineElement(String iun, Integer recIndex) {
+  /*  public TimelineElementInternal getMostRecentTimelineElement(String iun, Integer recIndex) {
         Set<TimelineElementInternal> timelineElementInternals = timelineService.getTimeline(iun, false);
         Optional<TimelineElementInternal> timelineElementInternal = timelineElementInternals.stream()
                 .filter(timeElementInternal -> !timeElementInternal.getCategory().equals(SEND_COURTESY_MESSAGE))    //potrebbe essere arrivato un evento di courtesy per esempio l'attivazione di IO che va ignorato. Tutti gli altri eventi vanno considerati invece.

@@ -327,4 +327,26 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         assertEquals(Level.WARN, logsList.get(0)
                 .getLevel());
     }
+
+
+    @Test
+    void unscheduleNotExistentFutureAction() {
+
+        String timeSlot = "2022-04-12T09:26";
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_addAndCheckAction_iun01")
+                .recipientIndex(1)
+                .type(ActionType.ANALOG_WORKFLOW);
+        String actionId = ActionType.ANALOG_WORKFLOW.buildActionId(
+                actionBuilder.build());
+
+        Action action = actionBuilder.actionId(actionId).build();
+
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.unScheduleFutureAction(action, timeSlot)
+        );
+
+    }
+
 }

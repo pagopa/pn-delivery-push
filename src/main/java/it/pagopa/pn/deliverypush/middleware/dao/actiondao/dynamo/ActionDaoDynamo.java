@@ -166,12 +166,26 @@ public class ActionDaoDynamo implements ActionDao {
                 .logicalDeleted(true)
                 .build();
 
+        String conditionExpression = String.format(
+                "attribute_exists(%s)",
+                FutureActionEntity.FIELD_TIME_SLOT
+        );
+
+        Expression condition = Expression.builder()
+                .expression(conditionExpression)
+                .build();
+
         UpdateItemEnhancedRequest<FutureActionEntity> updateItemEnhancedRequest =
                 UpdateItemEnhancedRequest.builder(FutureActionEntity.class)
                         .item(entity)
                         .ignoreNulls(true)
+                        .conditionExpression(condition)
                         .build();
-        dynamoDbTableFutureAction.updateItem(updateItemEnhancedRequest);
+        try {
+            dynamoDbTableFutureAction.updateItem(updateItemEnhancedRequest);
+        } catch (ConditionalCheckFailedException ex){
+            log.warn("Exception code ConditionalCheckFailed on update future action, letting flow continue actionId={} ", action.getActionId());
+        }
     }
 
 }
