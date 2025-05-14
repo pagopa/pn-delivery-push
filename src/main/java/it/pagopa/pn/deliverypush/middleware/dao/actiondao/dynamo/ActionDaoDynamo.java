@@ -11,15 +11,18 @@ import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.DtoToEnt
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.DtoToEntityFutureActionMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.EntityToDtoActionMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.EntityToDtoFutureActionMapper;
+import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEntity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.CancellationReason;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
@@ -142,18 +145,22 @@ public class ActionDaoDynamo implements ActionDao {
 
     @Override
     public void unScheduleFutureAction(Action action, String timeSlot) {
-        Key keyToDelete = Key.builder()
-                .partitionValue(timeSlot)
-                .sortValue(action.getActionId())
-                .build();
-
         updateItemLogicalDeleted(action, timeSlot);
-        futureActionEntityDao.delete(keyToDelete);
     }
 
     private void updateItemLogicalDeleted(Action action, String timeSlot) {
-        FutureActionEntity futureActionEntity = DtoToEntityFutureActionMapper.dtoToEntity(action, timeSlot);
-        futureActionEntity.setLogicalDeleted(true);
-        futureActionEntityDao.put(futureActionEntity);
+        FutureActionEntity entity = FutureActionEntity.builder()
+                .timeSlot(timeSlot)
+                .actionId(action.getActionId())
+                .logicalDeleted(true)
+                .build();
+
+        UpdateItemEnhancedRequest<FutureActionEntity> updateItemEnhancedRequest =
+                UpdateItemEnhancedRequest.builder(FutureActionEntity.class)
+                        .item(entity)
+                        .ignoreNulls(true)
+                        .build();
+        dynamoDbTableFutureAction.updateItem(updateItemEnhancedRequest);
     }
+
 }

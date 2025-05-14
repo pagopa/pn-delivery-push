@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.AddressBookService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -216,7 +217,7 @@ public class DigitalWorkFlowUtils {
                         .isFirstSendRetry(originalDigitalSendTimelineDetailsInt.getIsFirstSendRetry())
                         .build()
         );
-        
+
         return timelineService.getTimelineElement(iun, elementId);
     }
 
