@@ -30,7 +30,6 @@ import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStra
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.webhookspool.impl.WebhookActionsEventHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
 import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
@@ -160,8 +159,6 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         FeatureEnabledUtils.class,
         AnalogFinalStatusResponseHandler.class,
         ActionHandler.class,
-        WebhookActionsEventHandler.class,
-        WebhookEventsServiceMock.class,
         SmartMapper.class,
         TimelineMapperFactory.class,
         PnEmdIntegrationClientMock.class
@@ -171,7 +168,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
 @DirtiesContext
 @EnableScheduling
 public class CommonTestConfiguration {
-    private final static String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-expeAAArimentation-zip-1", "radd-experimentation-zip-2", "radd-experimentation-zip-3", "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
+    private static final String[] PARAMETER_STORES_MAP_ZIP_EXPERIMENTATION_LIST = {"radd-expeAAArimentation-zip-1", "radd-experimentation-zip-2", "radd-experimentation-zip-3", "radd-experimentation-zip-4", "radd-experimentation-zip-5"};
 
     @TestConfiguration
     static class SpringTestConfiguration extends AbstractWorkflowTestConfiguration {

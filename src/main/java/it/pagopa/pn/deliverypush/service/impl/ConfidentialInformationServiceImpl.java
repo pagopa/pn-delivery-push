@@ -1,14 +1,13 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementId;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.BaseRecipientDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.ConfidentialTimelineElementDto;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.datavault.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
@@ -16,7 +15,6 @@ import it.pagopa.pn.deliverypush.service.mapper.ConfidentialTimelineElementDtoMa
 import it.pagopa.pn.deliverypush.service.mapper.NotificationRecipientAddressesDtoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -51,13 +49,6 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
 
             log.debug("UpdateNotificationTimelineByIunAndTimelineElementId OK for - iun {} timelineElementId {}", iun, dtoInt.getTimelineElementId());
         }
-    }
-
-    @Override
-    public Flux<ConfidentialTimelineElementDtoInt> getTimelineConfidentialInformation(List<TimelineElementInternal> timelineElementInternal) {
-        List<ConfidentialTimelineElementId> request = timelineElementInternal.stream().map(this::getConfidentialElementId).toList();
-        return this.pnDataVaultClientReactive.getNotificationTimelines(request)
-                .map( ConfidentialTimelineElementDtoMapper::externalToInternal);
     }
 
     private ConfidentialTimelineElementDtoInt getConfidentialDtoFromTimeline(TimelineElementInternal timelineElement) {
@@ -158,12 +149,5 @@ public class ConfidentialInformationServiceImpl implements ConfidentialInformati
         ).toList();
         
         return pnDataVaultClientReactive.updateNotificationAddressesByIun(iun, normalized, listAddressExt);
-    }
-
-    private ConfidentialTimelineElementId getConfidentialElementId(TimelineElementInternal internal) {
-        return ConfidentialTimelineElementId.builder()
-                .iun(internal.getIun())
-                .timelineElementId(internal.getElementId())
-                .build();
     }
 }
