@@ -183,7 +183,7 @@ class PaperChannelSendClientImplTestIT extends MockAWSObjectsTest {
 
         // notare che il campo sentAt nel body non viene serializzato nel formato data
         String body = """
-                {"proposalProductType":"RS","notificationSentAt":0.057000000,"iun":"iun_12345","requestId":"requestId","receiverFiscalCode":"GeneratedTaxId_9ce24c59-862c-4024-aa75-40d888e6acac","receiverType":"PF","receiverAddress":{"fullname":null,"address":"test","city":null},"printType":"BN_FRONTE_RETRO","attachmentUrls":["Att"]}""";
+                {"proposalProductType":"RS","notificationSentAt":0.057000000,"iun":"iun_12345","requestId":"requestId","receiverFiscalCode":"GeneratedTaxId_9ce24c59-862c-4024-aa75-40d888e6acac","receiverType":"PF","receiverAddress":{"fullname":null,"address":"test","city":null},"printType":"BN_FRONTE_RETRO","attachmentUrls":["Att"],"senderPaId":"generatedPaId"}""";
 
         new MockServerClient("localhost", 9998)
                 .when(request()
