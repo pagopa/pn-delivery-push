@@ -626,7 +626,6 @@
     </div>
 </div>
 
-<#if recipient.recipientType=="PF">
 <!--------------------------- PAGE 2 --------------------------->
 
 <div id="main-page2">
@@ -647,14 +646,20 @@
                     <ul id="square-list" data-hide-on-it="true">
                         <li data-hide-on-it="true">diesen Bescheid;</li>
                         <li data-hide-on-it="true">dein Ausweisdokument;</li>
-                        <li data-hide-on-it="true">deine Steuernummer.</li>
+                        <li data-hide-on-it="true">deine Steuernummer<#if recipient.recipientType=="PF">.</li>
+                        <#else>;</li>
+                        <li data-hide-on-it="true">un documento che attesti il tuo ruolo di legale rappresentante.</li>
+                    </#if>
                     </ul>
                     </p>
                     <p class="language-less-margin">Porta con te:
                     <ul id="square-list">
                         <li>questo avviso;</li>
                         <li>un tuo documento di riconoscimento;</li>
-                        <li>il tuo codice fiscale.</li>
+                        <li>il tuo codice fiscale<#if recipient.recipientType=="PF">.</li>
+                        <#else>;</li>
+                        <li data-hide-on-it="true">un documento che attesti il tuo ruolo di legale rappresentante.</li>
+                    </#if>
                     </ul>
                     </p>
                 </li>
@@ -671,8 +676,17 @@
                 <span data-hide-on-it="true">MÖCHTEST DU JEMANDEN ZUR ABHOLUNG BEVOLLMÄCHTIGEN? &bull; </span>VUOI DELEGARE QUALCUNO?
             </div>
             <div id="mandate-box__form" class="nine-px">
-                <span data-hide-on-it="true">Ich &bull; </span>Io, ${recipient.denomination}
-                ${recipient.taxId}, <span data-hide-on-it="true">bevollmächtige &bull; </span>delego
+                <span data-hide-on-it="true">Ich &bull; </span>Io, <#if recipient.recipientType=="PF">${recipient.denomination}
+                ${recipient.taxId}, </li>
+                <#else>
+                <div><span style="display: inline-block; width: 84mm; margin-top: 0;" class="nine-px eleven-lh border-bottom mb-form">
+                    <p data-hide-on-it="true">Vor- und Nachname</p>
+                    <p>Nome e Cognome</p>
+                  </span></p>
+                    in qualità di legale rappresentante di ${recipient.denomination} ${recipient.taxId},
+
+            </#if>
+                <span data-hide-on-it="true">bevollmächtige &bull; </span>delego</div>
                 <div class="nine-px eleven-lh border-bottom mb-form">
                     <p data-hide-on-it="true">Vor- und Nachname</p>
                     <p>Nome e Cognome</p>
@@ -727,7 +741,6 @@
 </div>
 </div>
 </div>
-</#if>
 
 </body>
 
