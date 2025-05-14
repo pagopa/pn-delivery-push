@@ -12,16 +12,14 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
-import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
-import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
+import it.pagopa.pn.deliverypush.legalfacts.*;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
@@ -39,10 +37,13 @@ import static org.awaitility.Awaitility.await;
 class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
     @Autowired
     static DynamicRADDExperimentationChooseStrategy raddExperimentationChooseStrategy;
+    @SpyBean
+    LegalFactGenerator legalFactGenerator;
+
     static Instant sentNotificationTime = Instant.now();
 
     //Viene valorizzata la configurazione vecchia, cioè INSTANT.NOW meno 10 giorni
-    static AarTemplateType notCurrentConfTemplateType = AarTemplateType.AAR_NOTIFICATION;
+    static AarTemplateType notCurrentConfTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
 
     static PnSendMode notCurrentConf = PnSendMode.builder()
             .startConfigurationTime(sentNotificationTime.minus(10, ChronoUnit.DAYS))
@@ -52,7 +53,7 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
             .build();
     
     //La configurazione dell'AarTemplateType dipende da raddExperimentationChooseStrategy, quella attesa per questo test è AAR_NOTIFICATION_RADD
-    static AarTemplateType currentConfAaarTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD;
+    static AarTemplateType currentConfAaarTemplateType = AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
     
     //Viene valorizzata la configurazione attuale, cioè INSTANT.NOW meno 1 giorni
     static PnSendMode currentConf = PnSendMode.builder()
@@ -105,6 +106,13 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
 
         String pagoPaAttachment = "thisIsAnAttachment";
         List<NotificationDocumentInt> pagoPaAttachmentList = TestUtils.getDocumentList(pagoPaAttachment);
+        String fileDoc = "sha256_doc00";
+        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
+        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
+
+        List<TestUtils.DocumentWithContent> listAttachmentWithContent = TestUtils.getDocumentWithContents(pagoPaAttachment, pagoPaAttachmentList);
+        pagoPaAttachmentList = TestUtils.firstFileUploadFromNotification(listAttachmentWithContent, pagoPaAttachmentList, safeStorageClientMock);
 
         PagoPaInt paGoPaPayment= PagoPaInt.builder()
                 .creditorTaxId("cred")
@@ -123,13 +131,6 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
                 ))
                 .build();
 
-        String fileDoc = "sha256_doc00";
-        List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
-        List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
-
-        List<TestUtils.DocumentWithContent> listAttachmentWithContent = TestUtils.getDocumentWithContents(pagoPaAttachment, pagoPaAttachmentList);
-        TestUtils.firstFileUploadFromNotification(listAttachmentWithContent, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -164,10 +165,12 @@ class SentAttachmentAnalogDynamicChooseIAARIT extends SendAarAttachment {
         //Viene verificata che gli attachment inviati in fase di SEND siano esattamente quelli attesi
         checkSentAndExpectedAttachmentAreEquals(listAttachmentExpectedToSend, sendAttachmentKeySent);
 
-        //Viene ottenuta la lista di tutti i documenti generati
-        final List<DocumentComposition.TemplateType> listDocumentTypeGenerated = getListDocumentTypeGenerated(2);
-        //Viene quindi verificato se nella lista dei documenti generati c'è il documento atteso
-        
-        Assertions.assertTrue(listDocumentTypeGenerated.contains(currentConfAaarTemplateType.getTemplateType()));
+        if (legalFactGenerator instanceof LegalFactGeneratorDocComposition) {
+            //Viene ottenuta la lista di tutti i documenti generati
+            final List<DocumentComposition.TemplateType> listDocumentTypeGenerated = getListDocumentTypeGenerated(2);
+            //Viene quindi verificato se nella lista dei documenti generati c'è il documento atteso
+
+            Assertions.assertTrue(listDocumentTypeGenerated.contains(currentConfAaarTemplateType.getTemplateType()));
+        }
     }
 }

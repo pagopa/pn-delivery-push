@@ -348,7 +348,7 @@ paths:
     ############################################################################################
     ###                        CREAZIONE E CANCELLAZIONE STREAM EVENTI                       ###
     ############################################################################################
-  '/delivery-progresses/v2.5/streams':
+  '/delivery-progresses/v2.7/streams':
     parameters:                                               # NO EXTERNAL
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -367,20 +367,20 @@ paths:
         invocata l'operazione.
       tags:
         - Streams
-      operationId: createEventStreamV25
+      operationId: createEventStreamV27
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StreamCreationRequestV25"
+              $ref: "#/components/schemas/StreamCreationRequestV27"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV25"
+                $ref: "#/components/schemas/StreamMetadataResponseV27"
         '400':
           description: Invalid input
           content:
@@ -411,7 +411,7 @@ paths:
         Elenca gli stream di eventi
       tags:
         - Streams
-      operationId: listEventStreamsV25
+      operationId: listEventStreamsV27
       responses:
         '200':
           description: OK
@@ -435,7 +435,7 @@ paths:
     ############################################################################################
     ###                        lEGGI METADATA DELLO STREAM                                   ###
     ############################################################################################
-  '/delivery-progresses/v2.5/streams/{streamId}':
+  '/delivery-progresses/v2.7/streams/{streamId}':
     parameters:
       - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
       - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -449,15 +449,15 @@ paths:
         Lettura delle configurazioni di uno stream di eventi.
       tags:
         - Streams
-      operationId: getEventStreamV25                             # NO EXTERNAL
-#      operationId: retrieveEventStreamV25                       # ONLY EXTERNAL
+      operationId: getEventStreamV27                             # NO EXTERNAL
+#      operationId: retrieveEventStreamV27                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV25"
+                $ref: "#/components/schemas/StreamMetadataResponseV27"
         '400':
           description: Invalid input
           content:
@@ -488,20 +488,20 @@ paths:
         Modifica delle configurazioni dei filtri associati a uno stream di eventi
       tags:
         - Streams
-      operationId: updateEventStreamV25
+      operationId: updateEventStreamV27
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/StreamRequestV25"
+              $ref: "#/components/schemas/StreamRequestV27"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV25"
+                $ref: "#/components/schemas/StreamMetadataResponseV27"
         '400':
           description: Invalid input
           content:
@@ -533,8 +533,8 @@ paths:
         associati allo stream e non ancora consumati.
       tags:
         - Streams
-      operationId: deleteEventStreamV25                          # NO EXTERNAL
-#      operationId: removeEventStreamV25                         # ONLY EXTERNAL
+      operationId: deleteEventStreamV27                          # NO EXTERNAL
+#      operationId: removeEventStreamV27                         # ONLY EXTERNAL
       responses:
         '204':
           description: OK
@@ -567,7 +567,7 @@ paths:
   ###                             DISABILITARE UNO STREAM                                  ###
   ############################################################################################
 
-  '/delivery-progresses/v2.5/streams/{streamId}/action/disable':
+  '/delivery-progresses/v2.7/streams/{streamId}/action/disable':
     post:
       summary: Disabilita uno stream
       description: >-
@@ -585,7 +585,7 @@ paths:
         eliminato automaticamente dopo <span id="webhookTtlDisabled">14</span> giorni.
       tags:
         - Streams
-      operationId: disableEventStreamV25
+      operationId: disableEventStreamV27
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -599,7 +599,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/StreamMetadataResponseV25"
+                $ref: "#/components/schemas/StreamMetadataResponseV27"
         '400':
           description: Invalid input
           content:
@@ -629,7 +629,7 @@ paths:
     ###                             LETTURA EVENTI DA UNO STREAM                             ###
     ############################################################################################
 
-  '/delivery-progresses/v2.5/streams/{streamId}/events':
+  '/delivery-progresses/v2.7/streams/{streamId}/events':
     get:
       summary: Leggi progressi notifiche
       description: >-
@@ -638,7 +638,7 @@ paths:
         e tutti gli eventi precedenti. Tali eventi potranno essere cancellati dallo stream.
       tags:
         - Events
-      operationId: consumeEventStreamV25
+      operationId: consumeEventStreamV27
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
@@ -665,7 +665,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProgressResponseV25"
+                $ref: "#/components/schemas/ProgressResponseV27"
         '429':
           description: Too Many Requests
           headers:
@@ -806,11 +806,11 @@ components:
     ############################################################################################
     ###                          CREAZIONE E GESTIONE EVENT STREAM                           ###
     ############################################################################################
-    StreamCreationRequestV25:
+    StreamCreationRequestV27:
       description: Richiesta di creazione di uno stream di eventi di avanzamento delle notifiche. Lo stream verrà creato nello stato abilitato
       type: object
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV25'
+        - $ref: '#/components/schemas/StreamRequestV27'
         - type: object
           properties:
             replacedStreamId:
@@ -823,7 +823,7 @@ components:
               type: string
               format: uuid
 
-    StreamRequestV25:
+    StreamRequestV27:
       description: >-
         Struttura comune per eventi di creazione/aggiornamento di uno stream di eventi di avanzamento delle notifiche.
         L'aggiornamento delle proprietà dello stream è soggetta al controllo di autorizzazione dell'apiKey sui gruppi.
@@ -869,16 +869,22 @@ components:
             minLength: 4
             maxLength: 256
             pattern: ^[A-Z_]+$
+        waitForAccepted:
+          description: >-
+            Stream di tipo TIMELINE: se true pubblica gli eventi sullo stream solo dopo la pubblicazione dell'evento di accettazione/rifiuto della notifica. 
+            Tutti gli eventi dello stato IN_VALIDATION vengono pubblicati senza ritardo.
+            Stream di tipo STATUS: se true pubblica gli stati garantendo che il primo stato sia l'ACCEPTED o il REFUSED
+          type: boolean
 
     StreamGroup:
       type: string
       description: >-
         Identificativo del gruppo.
 
-    StreamMetadataResponseV25:
+    StreamMetadataResponseV27:
       description: Configurazioni di un flusso di eventi
       allOf:
-        - $ref: '#/components/schemas/StreamRequestV25'
+        - $ref: '#/components/schemas/StreamRequestV27'
         - type: object
           required:
             - streamId
@@ -935,12 +941,12 @@ components:
     ###  - EVENTI GENERATI DA PN
     ###################################
 
-    ProgressResponseV25:
+    ProgressResponseV27:
       type: array
       items:
-        $ref: '#/components/schemas/ProgressResponseElementV25'
+        $ref: '#/components/schemas/ProgressResponseElementV27'
 
-    ProgressResponseElementV25:
+    ProgressResponseElementV27:
       type: object
       required:
         - eventId
@@ -948,7 +954,7 @@ components:
       properties:
         eventId:
           description: >-
-            Elemento che garantisce univocità e ordinamento temporale all'interno dello stream
+            Elemento che garantisce univocità all'interno dello stream
           type: string
         notificationRequestId:
           description: Identificativo della richiesta di notifica
@@ -961,16 +967,16 @@ components:
           maxLength: 25
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         newStatus:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
         element:
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV25'
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV26'
         # proprietà necessarie per retro compatibilità nel transitorio, ma che non saranno esposte nella V24 # NO EXTERNAL
         # potranno essere eliminate (assieme al RefusedReason) quando non saranno più presenti eventi della v1 # NO EXTERNAL
         timestamp:                                                                                         # NO EXTERNAL
           type: string                                                                                     # NO EXTERNAL
           format: date-time                                                                                # NO EXTERNAL
         timelineEventCategory:                                                                             # NO EXTERNAL
-          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV23'                # NO EXTERNAL
+          $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementCategoryV26'                # NO EXTERNAL
         recipientIndex:                                                                                    # NO EXTERNAL
           type: integer                                                                                    # NO EXTERNAL
           format: int32                                                                                    # NO EXTERNAL

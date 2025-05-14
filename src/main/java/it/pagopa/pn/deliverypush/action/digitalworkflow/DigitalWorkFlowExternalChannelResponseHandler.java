@@ -191,7 +191,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
 
             log.info("Notification sent successfully - iun={} id={}",  digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex());
 
-            scheduleSendDigitalFinalStatusResponseHandling(digitalResultInfos, sendDigitalFeedbackTimelineId, null);
+            scheduleSendDigitalFinalStatusResponseHandling(digitalResultInfos, sendDigitalFeedbackTimelineId, digitalResultInfos.getRelatedFeedbackTimelineElement());
             
             logEvent.generateSuccess("Pec sent successfully, send digital feedback timelineId ={}", sendDigitalFeedbackTimelineId).log();
 

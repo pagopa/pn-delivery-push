@@ -4,7 +4,7 @@ components:
     TimelineElementId:
       type: string
     
-    TimelineElementCategoryV23:
+    TimelineElementCategoryV26:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
@@ -50,6 +50,7 @@ components:
           * `NOTIFICATION_CANCELLED` - Notifica annullata
           * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
           * `NOTIFICATION_RADD_RETRIEVED` - Accesso alla notifica tramite la rete RADD. Non perfeziona la notifica.
+          * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
 #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
 #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
 #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
@@ -98,8 +99,9 @@ components:
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
         - NOTIFICATION_RADD_RETRIEVED
+        - ANALOG_WORKFLOW_RECIPIENT_DECEASED
 
-    TimelineElementV25:
+    TimelineElementV26:
       type: object
       additionalProperties: false
       properties:
@@ -134,11 +136,11 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV23'
+          $ref: '#/components/schemas/TimelineElementCategoryV26'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV25'
+          $ref: '#/components/schemas/TimelineElementDetailsV26'
 
-    TimelineElementDetailsV25:
+    TimelineElementDetailsV26:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
@@ -182,6 +184,7 @@ components:
         - "$ref": "#/components/schemas/NotificationCancellationRequestDetails"
         - "$ref": "#/components/schemas/NotificationCancelledDetails"
         - "$ref": "#/components/schemas/PrepareAnalogDomicileFailureDetails"
+        - "$ref": "#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26"
 
     NotificationRequestAcceptedDetails:
       type: object
@@ -1292,3 +1295,21 @@ components:
         detail:
           type: string
           maxLength: 2048
+
+    AnalogWorkflowRecipientDeceasedDetailsV26:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica è stata precedentemente visualizzata
+          example: 1220
+          type: integer
+          format: int64

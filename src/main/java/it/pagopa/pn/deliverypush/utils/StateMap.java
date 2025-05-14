@@ -17,7 +17,7 @@ class StateMap {
     private final Map<MapKey, MapValue> mappings = new HashMap<>();
 
     public StateMap() {
-        
+
         // Received state
         this.fromState(NotificationStatusInt.IN_VALIDATION)
                 //STATE UNCHANGE
@@ -32,7 +32,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.REQUEST_ACCEPTED, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.REQUEST_REFUSED, NotificationStatusInt.REFUSED, SINGLE_RECIPINET)
         ;
-                
+
         this.fromState(NotificationStatusInt.ACCEPTED)
                 //STATE UNCHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.ACCEPTED, SINGLE_RECIPINET)
@@ -107,6 +107,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
         ;
 
@@ -153,12 +154,12 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_DIGITAL_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
-                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_REFINEMENT, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
-                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
-                .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
-                .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
-                .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
-                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT) 
+                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_REFINEMENT, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_COURTESY_MESSAGE, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_SIMPLE_REGISTERED_LETTER_PROGRESS, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
@@ -173,6 +174,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
 
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
@@ -204,7 +206,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_FAILURE_WORKFLOW, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
-                .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.VIEWED, SINGLE_RECIPINET) 
+                .withTimelineGoToState(TimelineElementCategoryInt.AAR_CREATION_REQUEST, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.AAR_GENERATION, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.SEND_DIGITAL_PROGRESS, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
@@ -220,8 +222,10 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.GENERATED_F24, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, NotificationStatusInt.VIEWED, ONLY_MULTI_RECIPIENT)
 
                 //STATE CHANGE
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
         ;
 
@@ -239,7 +243,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.REFINEMENT, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
         ;
-        
+
         //FINAL STATE
         this.fromState(NotificationStatusInt.PAID)
                 //STATE UNCHANGE
@@ -278,6 +282,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED, NotificationStatusInt.PAID, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST, NotificationStatusInt.PAID, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, NotificationStatusInt.PAID, SINGLE_RECIPINET)
 
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
@@ -319,14 +324,39 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET);
+
+
         this.fromState(NotificationStatusInt.REFUSED);
+
+        this.fromState(NotificationStatusInt.RETURNED_TO_SENDER)
+                //STATE UNCHANGE
+                // Inizio eventi in teoria non possibili
+                .withTimelineGoToState(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE_FAILURE, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE_CREATION_REQUEST, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SCHEDULE_ANALOG_WORKFLOW, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOT_HANDLED, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.COMPLETELY_UNREACHABLE, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                // Fine eventi in teoria non possibili
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.PAYMENT, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET) // Non più usato
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET) // Molto improbabile
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
+                // STATE CHANGE
+                .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED, NotificationStatusInt.CANCELLED, SINGLE_RECIPINET);
     }
 
     NotificationStatusInt getStateTransition(TransitionRequest transitionRequest) {
         NotificationStatusInt fromStatus = transitionRequest.getFromStatus();
         TimelineElementCategoryInt timelineRowType = transitionRequest.getTimelineRowType();
-        
+
         return handleStateTransition(transitionRequest, fromStatus, timelineRowType);
     }
 
@@ -334,14 +364,13 @@ class StateMap {
         boolean multiRecipient = transitionRequest.isMultiRecipient();
         MapKey key = new MapKey(fromStatus, timelineRowType, multiRecipient);
 
-        if(isValidTransition(key)) {
+        if (isValidTransition(key)) {
             return this.mappings.get(key).getStatus();
-        }
-        else {
+        } else {
             // se non è stata trovata la transizione nella mappa degli stati, controllo se siamo nel caso del multiRecipient,
             // perché potrebbe essere il caso in cui l'elemento è presente nella mappa con chiave multiRecipient = false
             // (StatiMultiDestinatario = StatiMonoDestinatario + statiAdHocMultiDestinatario)
-            if(multiRecipient == ONLY_MULTI_RECIPIENT) {
+            if (multiRecipient == ONLY_MULTI_RECIPIENT) {
                 log.trace("Transition for only multiRecipient not found, trying for singleRecipient key");
                 TransitionRequest transitionRequestForSingleRecipient = TransitionRequest.builder()
                         .fromStatus(transitionRequest.getFromStatus())
@@ -350,7 +379,7 @@ class StateMap {
                         .build();
                 return getStateTransition(transitionRequestForSingleRecipient);
             }
-            
+
             log.error("Illegal input \"" + timelineRowType + "\" in state \"" + fromStatus + "\"");
             return fromStatus;
         }

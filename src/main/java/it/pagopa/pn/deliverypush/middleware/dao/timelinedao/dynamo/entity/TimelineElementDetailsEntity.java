@@ -87,5 +87,6 @@ public class TimelineElementDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("failureCause")})) private String failureCause;
     @Getter(onMethod=@__({@DynamoDbAttribute("vat")})) private Integer vat;
     @Getter(onMethod=@__({@DynamoDbAttribute("aarTemplateType")})) private AarTemplateTypeEntity aarTemplateType;
-
+    @Getter(onMethod=@__({@DynamoDbAttribute("sourceChannel")})) private String sourceChannel;
+    @Getter(onMethod=@__({@DynamoDbAttribute("sourceChannelDetails")})) private String sourceChannelDetails;
 }

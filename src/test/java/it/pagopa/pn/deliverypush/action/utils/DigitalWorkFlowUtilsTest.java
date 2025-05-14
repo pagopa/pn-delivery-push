@@ -48,7 +48,7 @@ class DigitalWorkFlowUtilsTest {
         addressBookService = Mockito.mock(AddressBookService.class);
         timelineUtils = Mockito.mock(TimelineUtils.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
-        
+
         digitalWorkFlowUtils = new DigitalWorkFlowUtils(
                 timelineService,
                 addressBookService, 
@@ -57,7 +57,7 @@ class DigitalWorkFlowUtilsTest {
     }
 
     @Test
-    void getNextAddressInfo() {
+    void getNextAddressInfoFromSpecial() {
         // GIVEN
         DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.GENERAL;
         DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
@@ -76,9 +76,140 @@ class DigitalWorkFlowUtilsTest {
 
         Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
 
-        DigitalAddressInfoSentAttempt tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo);
+        DigitalAddressInfoSentAttempt tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo, false);
 
         Assertions.assertNotNull(tmp);
+        Assertions.assertEquals(addressSource, tmp.getDigitalAddressSource());
+    }
+
+    @Test
+    void getNextAddressInfoFromSpecialNewWorkflow() {
+        // GIVEN
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
+        DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
+                .lastAttemptDate(Instant.now())
+                .sentAttemptMade(0)
+                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
+                .digitalAddress(LegalDigitalAddressInt.builder()
+                        .address("test@mail.it")
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
+                .build();
+
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
+
+        Set<TimelineElementInternal> timeline = new HashSet<>();
+        timeline.add(timelineElementInternal);
+
+        Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
+
+        DigitalAddressInfoSentAttempt tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo, true);
+
+        Assertions.assertNotNull(tmp);
+        Assertions.assertEquals(addressSource, tmp.getDigitalAddressSource());
+    }
+
+    @Test
+    void getNextAddressInfoFromGeneral() {
+        // GIVEN
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
+        DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
+                .lastAttemptDate(Instant.now())
+                .sentAttemptMade(0)
+                .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
+                .digitalAddress(LegalDigitalAddressInt.builder()
+                        .address("test@mail.it")
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
+                .build();
+
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
+
+        Set<TimelineElementInternal> timeline = new HashSet<>();
+        timeline.add(timelineElementInternal);
+
+        Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
+
+        DigitalAddressInfoSentAttempt tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo, false);
+
+        Assertions.assertNotNull(tmp);
+        Assertions.assertEquals(addressSource, tmp.getDigitalAddressSource());
+    }
+
+    @Test
+    void getNextAddressInfoFromGeneralNewWorkflow() {
+        // GIVEN
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.SPECIAL;
+        DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
+                .lastAttemptDate(Instant.now())
+                .sentAttemptMade(0)
+                .digitalAddressSource(DigitalAddressSourceInt.GENERAL)
+                .digitalAddress(LegalDigitalAddressInt.builder()
+                        .address("test@mail.it")
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
+                .build();
+
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
+
+        Set<TimelineElementInternal> timeline = new HashSet<>();
+        timeline.add(timelineElementInternal);
+
+        Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
+
+        DigitalAddressInfoSentAttempt tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo, true);
+
+        Assertions.assertNotNull(tmp);
+        Assertions.assertEquals(addressSource, tmp.getDigitalAddressSource());
+    }
+
+    @Test
+    void getNextAddressInfoFromPlatform() {
+        // GIVEN
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.SPECIAL;
+        DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
+                .lastAttemptDate(Instant.now())
+                .sentAttemptMade(0)
+                .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
+                .digitalAddress(LegalDigitalAddressInt.builder()
+                        .address("test@mail.it")
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
+                .build();
+
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
+
+        Set<TimelineElementInternal> timeline = new HashSet<>();
+        timeline.add(timelineElementInternal);
+
+        Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
+
+        DigitalAddressInfoSentAttempt tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo, false);
+
+        Assertions.assertNotNull(tmp);
+        Assertions.assertEquals(addressSource, tmp.getDigitalAddressSource());
+    }
+
+    @Test
+    void getNextAddressInfoFromPlatformNewWorkflow() {
+        // GIVEN
+        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.GENERAL;
+        DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
+                .lastAttemptDate(Instant.now())
+                .sentAttemptMade(0)
+                .digitalAddressSource(DigitalAddressSourceInt.PLATFORM)
+                .digitalAddress(LegalDigitalAddressInt.builder()
+                        .address("test@mail.it")
+                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
+                .build();
+
+        TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
+
+        Set<TimelineElementInternal> timeline = new HashSet<>();
+        timeline.add(timelineElementInternal);
+
+        Mockito.when(timelineService.getTimeline("1", true)).thenReturn(timeline);
+
+        DigitalAddressInfoSentAttempt tmp = digitalWorkFlowUtils.getNextAddressInfo("1", 1, addressInfo, true);
+
+        Assertions.assertNotNull(tmp);
+        Assertions.assertEquals(addressSource, tmp.getDigitalAddressSource());
     }
 
     @Test
@@ -360,9 +491,9 @@ class DigitalWorkFlowUtilsTest {
     @Test
     void nextSource() {
         Assertions.assertAll(
-                () -> Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.PLATFORM)),
-                () -> Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.SPECIAL)),
-                () -> Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.GENERAL))
+                () -> Assertions.assertEquals(DigitalAddressSourceInt.GENERAL, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.SPECIAL, false)),
+                () -> Assertions.assertEquals(DigitalAddressSourceInt.SPECIAL, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.PLATFORM, false)),
+                () -> Assertions.assertEquals(DigitalAddressSourceInt.PLATFORM, DigitalWorkFlowUtils.nextSource(DigitalAddressSourceInt.GENERAL, false))
         );
     }
 
@@ -383,7 +514,7 @@ class DigitalWorkFlowUtilsTest {
                 .notificationSentAt(Instant.now())
                 .build();
     }
-    
+
     private NotificationInt getNotification() {
         return NotificationInt.builder()
                 .iun("IUN_01")

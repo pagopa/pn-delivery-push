@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
@@ -33,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore.ATTRIBUTE_NOT_EXISTS;
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_ERROR;
 
 @Component
 @Slf4j
@@ -54,7 +56,16 @@ public class ActionDaoDynamo implements ActionDao {
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.dynamoDbTableAction = dynamoDbEnhancedClient.table(  pnDeliveryPushConfigs.getActionDao().getTableName(), TableSchema.fromClass(ActionEntity.class));
         this.dynamoDbTableFutureAction = dynamoDbEnhancedClient.table( pnDeliveryPushConfigs.getFutureActionDao().getTableName(), TableSchema.fromClass(FutureActionEntity.class));
-        this.actionTtl = pnDeliveryPushConfigs.getActionTtl();
+        this.actionTtl = fromStringDaysToDuration(pnDeliveryPushConfigs.getActionTtlDays());
+    }
+
+    private static Duration fromStringDaysToDuration(String daysToFormat) {
+        if(daysToFormat != null){
+            long days = Long.parseLong(daysToFormat);
+            return Duration.ofDays(days);
+        }else {
+            throw new PnInternalException("TTL for action cannot be null", ERROR_CODE_PN_GENERIC_ERROR);
+        }
     }
 
     @Override

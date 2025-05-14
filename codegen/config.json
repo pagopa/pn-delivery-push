@@ -47,17 +47,6 @@
             ],
             "servicePath": "delivery-push",
             "generateBundle": true
-        },
-        {
-            "intendedUsage": "WEB",
-            "commonFiles": [
-                "schemas-pn-legal-facts.yaml",
-                "schemas-pn-legal-facts-older-version.yaml"
-            ],
-            "openapiFiles": [
-                "api-internal-pn-delivery-push.yaml"
-            ],
-            "servicePath": "delivery-push"
         }
     ],
     "openapiBundlePresenceCheck": [

@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV25;
+import it.pagopa.pn.deliverypush.generated.openapi.server.webhook.v1.dto.ProgressResponseElementV27;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.EventEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.RefusedReasonEntity;
 import java.time.Instant;
@@ -27,7 +27,7 @@ class ProgressResponseElementMapperTest {
         eventEntity.setTimelineEventCategory(TimelineElementCategoryInt.REQUEST_REFUSED.getValue());
 
         eventEntity.setValidationErrors( List.of(refusedReasonEntity) );
-        ProgressResponseElementV25 progressResponseElement = ProgressResponseElementMapper.internalToExternal(eventEntity);
+        ProgressResponseElementV27 progressResponseElement = ProgressResponseElementMapper.internalToExternal(eventEntity);
 
         Assertions.assertEquals( ERROR_CODE, progressResponseElement.getValidationErrors().get( 0 ).getErrorCode() );
         Assertions.assertEquals( DETAIL, progressResponseElement.getValidationErrors().get( 0 ).getDetail() );

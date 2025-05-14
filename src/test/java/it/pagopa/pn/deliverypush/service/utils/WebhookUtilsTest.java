@@ -17,6 +17,9 @@ import it.pagopa.pn.deliverypush.middleware.dao.webhook.dynamo.entity.StreamEnti
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.StatusService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineMapperFactory;
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +48,7 @@ class WebhookUtilsTest {
     private WebhookTimelineElementJsonConverter timelineElementJsonConverter;
     private ObjectMapper objectMapper;
     private EntityToDtoWebhookTimelineMapper entityToDtoTimelineMapper;
+    private FeatureEnabledUtils featureEnabledUtils;
 
     private WebhookUtils webhookUtils;
 
@@ -58,6 +62,8 @@ class WebhookUtilsTest {
         timelineMapper = new DtoToEntityWebhookTimelineMapper();
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         timelineElementJsonConverter = new WebhookTimelineElementJsonConverter(objectMapper);
+        featureEnabledUtils = Mockito.mock(FeatureEnabledUtils.class);
+        SmartMapper smartMapper = new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs), featureEnabledUtils);
 
         PnDeliveryPushConfigs.Webhook webhook = new PnDeliveryPushConfigs.Webhook();
         webhook.setScheduleInterval(1000L);
@@ -69,7 +75,7 @@ class WebhookUtilsTest {
         webhook.setCurrentVersion("v23");
         Mockito.when(pnDeliveryPushConfigs.getWebhook()).thenReturn(webhook);
 
-        webhookUtils = new WebhookUtils(timelineService, statusService, notificationService, pnDeliveryPushConfigs, timelineMapper, entityToDtoTimelineMapper, timelineElementJsonConverter);
+        webhookUtils = new WebhookUtils(timelineService, statusService, notificationService, pnDeliveryPushConfigs, timelineMapper, entityToDtoTimelineMapper, timelineElementJsonConverter, smartMapper);
     }
 
     @Test

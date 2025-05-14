@@ -1,6 +1,7 @@
 const { extractKinesisData } = require("./lib/kinesis.js");
 const { mapEvents } = require("./lib/eventMapper.js");
 const { SQSClient, SendMessageBatchCommand } = require("@aws-sdk/client-sqs");
+const { parseKinesisObjToJsonObj } = require("./lib/utils");
 
 const sqs = new SQSClient({ region: process.env.REGION });
 const QUEUE_URL = process.env.QUEUE_URL
@@ -17,25 +18,33 @@ exports.handleEvent = async (event) => {
     };
   }else{
     let batchItemFailures = [];
+    let startDate = new Date(`${process.env.START_READ_STREAM_TIMESTAMP}`);
+    let stopDate = new Date(`${process.env.STOP_READ_STREAM_TIMESTAMP}`);
     while(cdcEvents.length > 0){
       let currentCdcEvents = cdcEvents.splice(0,10);
+      if (currentCdcEvents.length == 0) {
+        return batchItemFailures;
+      }
+      let filteredItems = currentCdcEvents
+        .map(event => ({...parseKinesisObjToJsonObj(event), kinesisSeqNumber: event.kinesisSeqNumber}))
+        .filter((eventItem) => new Date(eventItem.dynamodb.NewImage.timestamp) >= startDate && new Date(eventItem.dynamodb.NewImage.timestamp) < stopDate)
       try{
-        let processedItems = await mapEvents(currentCdcEvents);
+        let processedItems = await mapEvents(filteredItems);
         if (processedItems.length > 0){
           let responseError = await sendMessages(processedItems);
 
           if(responseError.length > 0){
-            console.log('Error in persist current cdcEvents: ', currentCdcEvents);
+            console.log('Error in persist current cdcEvents: ', filteredItems);
             batchItemFailures = batchItemFailures.concat(responseError.map((i) => {
             return { itemIdentifier: i.kinesisSeqNumber };
             }));
           }
         }else{
-          console.log('No events to persist in current cdcEvents: ',currentCdcEvents);
+          console.log('No events to persist in current cdcEvents: ',filteredItems);
         }
       }catch(exc){
-        console.log('Error in persist current cdcEvents: ', currentCdcEvents);
-        batchItemFailures = batchItemFailures.concat(currentCdcEvents.map((i) => {
+        console.log('Error in persist current cdcEvents: ', filteredItems);
+        batchItemFailures = batchItemFailures.concat(filteredItems.map((i) => {
           return { itemIdentifier: i.kinesisSeqNumber };
         }));
       }

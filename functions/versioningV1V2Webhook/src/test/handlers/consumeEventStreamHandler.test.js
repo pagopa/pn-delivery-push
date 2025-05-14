@@ -58,7 +58,7 @@ describe("ConsumeEventStreamHandler", () => {
     describe("handlerEvent", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.4",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
         it("successful request - with element", async () => {
@@ -566,6 +566,93 @@ describe("ConsumeEventStreamHandler", () => {
 
             expect(response.statusCode).to.equal(200);
             expect(response.body).to.equal(JSON.stringify(responseBodyV24));
+
+            expect(mock.history.get.length).to.equal(1);
+        });
+
+        it("successful request V26 to V25", async () => {
+            const streamId = "12345";
+            const event = {
+                path: "/delivery-progresses/v2.5/streams/"+ streamId +"/events",
+                pathParameters : { streamId: streamId },
+                queryStringParameters: null,
+                httpMethod: "GET",
+                headers: {},
+                requestContext: {
+                    authorizer: {},
+                },
+            }
+
+            let url = `${process.env.PN_WEBHOOK_URL}/streams/${streamId}/events`;
+
+            const responseBodyV26 = [
+                {
+                    eventId: "01234567890123456789012345678901234567",
+                    notificationRequestId: "abcd1234",
+                    iun: "ABCD-EFGH-IJKL-123456-M-7",
+                    newStatus: "IN_VALIDATION",
+                    element: {
+                        elementId: "abcdef1234567890",
+                        timestamp: "2024-02-06T12:34:56Z",
+                        ingestionTimestamp: "2025-02-06T12:34:56Z",
+                        eventTimestamp: "2023-02-06T12:34:56Z",
+                        notificationSentAt: "2026-02-06T12:34:56Z",
+                        legalFactsIds: [
+                            {
+                                key: "safestorage://PN_LEGAL_FACTS-9c3eba7e5fb14c5b9f59635a8edd5714.pdf",
+                                category: "NOTIFICATION_CANCELLED"
+                            }
+                        ],
+                        category: "NOTIFICATION_CANCELLED",
+                        details: {
+                            recIndex: 1,
+                            digitalAddress: {
+                                type: "EMAIL",
+                                address: "rec@example.com"
+                            },
+                            endWorkflowStatus: {},
+                            completionWorkflowDate: ""
+                        },
+                    }
+                },
+                {
+                    eventId: "98765432109876543210987654321098765432",
+                    notificationRequestId: "efgh5678",
+                    iun: "EFGH-IJKL-MNOP-123456-N-8",
+                    newStatus: "IN_VALIDATION",
+                    element: {
+                        elementId: "ghijkl0987654321",
+                        timestamp: "2024-02-07T14:45:32Z",
+                        ingestionTimestamp: "2025-02-06T12:34:56Z",
+                        eventTimestamp: "2023-02-06T12:34:56Z",
+                        notificationSentAt: "2026-02-06T12:34:56Z",
+                        legalFactsIds: [
+                            {
+                                key: "safestorage://PN_LEGAL_FACTS-9c3eba7e5fb14c5b9f59635a8edd5714.pdf",
+                                category: "DIGITAL_DELIVERY"
+                            }
+                        ],
+                        category: "SEND_DIGITAL_DOMICILE",
+                        details: {
+                            recIndex: 2,
+                            digitalAddress: {
+                                type: "PEC",
+                                address: "rec@example.com",
+                            },
+                            endWorkflowStatus: {},
+                            completionWorkflowDate: "",
+                        },
+                    },
+                }
+            ]
+
+            mock.onGet(url).reply(200, responseBodyV26);
+
+            const context = {};
+            const response = await consumeEventStreamHandler.handlerEvent(event, context);
+
+            expect(response.statusCode).to.equal(200);
+            expect(response.body).to.equal(JSON.stringify(responseBodyV26));
 
             expect(mock.history.get.length).to.equal(1);
         });

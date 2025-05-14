@@ -75,7 +75,7 @@ class PnNotificationViewControllerTest {
 
         // WHEN
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notification);
-        Mockito.when(notificationViewedRequestHandler.handleViewNotificationRadd(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(notificationViewedRequestHandler.handleViewNotificationRadd(Mockito.any()))
                 .thenReturn(Mono.empty());
 
         webTestClient.post()

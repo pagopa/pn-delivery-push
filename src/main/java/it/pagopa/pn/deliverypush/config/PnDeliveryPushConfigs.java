@@ -24,6 +24,8 @@ import static it.pagopa.pn.deliverypush.utils.HtmlSanitizer.SanitizeMode;
 @Import({SharedAutoConfiguration.class})
 public class PnDeliveryPushConfigs {
 
+    private String templatesEngineBaseUrl;
+
     private String deliveryBaseUrl;
 
     private String paperChannelBaseUrl;
@@ -94,6 +96,8 @@ public class PnDeliveryPushConfigs {
 
     private String f24BaseUrl;
 
+    private String emdIntegrationBaseUrl;
+
     private String addressManagerApiKey;
     
     private Duration[] validationRetryIntervals;
@@ -102,7 +106,7 @@ public class PnDeliveryPushConfigs {
 
     private boolean checkPdfValidEnabled;
     
-    private Duration actionTtl;
+    private String actionTtlDays;
     
     private boolean checkCfEnabled;
 
@@ -120,6 +124,8 @@ public class PnDeliveryPushConfigs {
 
     private List<String> pnSendMode;
 
+    private String activationDeceasedWorkflowDate;
+
     //quickWorkAroundForPN-9116
     private boolean sendMoreThan20GramsDefaultValue;
 
@@ -132,6 +138,23 @@ public class PnDeliveryPushConfigs {
     private String performanceImprovementEndDate;
 
     private boolean additionalLangsEnabled;
+
+    private Instant featureUnreachableRefinementPostAARStartDate;
+
+    private Instant startWriteBusinessTimestamp;
+
+    private Instant stopWriteBusinessTimestamp;
+
+    private String pfNewWorkflowStart;
+
+    private String pfNewWorkflowStop;
+
+    private Duration timelineLockDuration;
+
+    private String AAROnlyPECForRADDAndPF;
+
+    private String templateURLforPEC;
+
 
     @Data
     public static class Topics {
@@ -230,6 +253,7 @@ public class PnDeliveryPushConfigs {
         private String landingUrl;
         private Map<String, String> additional;
         private String raddPhoneNumber;
+        private String aarSenderLogoUrlTemplate;
    }
 
     @Data

@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -113,7 +114,12 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
 
         //Simulazione visualizzazione della notifica per il secondo recipient
         Instant notificationViewDate2 = Instant.now();
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, 0, null, notificationViewDate2);
+        notificationViewedRequestHandler.handleViewNotificationDelivery(NotificationViewedInt.builder()
+                .iun(iun)
+                .recipientIndex(0)
+                .viewedDate(notificationViewDate2)
+                .build()
+        );
 
         await().atLeast(Duration.ofSeconds(1));
 
@@ -192,6 +198,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -203,7 +210,6 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
                 .build();
 
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -314,6 +320,7 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
 
         NotificationInt notification = NotificationTestBuilder.builder()
@@ -322,7 +329,6 @@ class NotificationCancelledTestIT extends CommonTestConfiguration{
                 .withIun(iun)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
         

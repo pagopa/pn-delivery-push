@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.utils;
 
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -9,6 +10,8 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.Notificati
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineMapperFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -22,11 +25,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+
+import static org.mockito.Mockito.mock;
+
 @DirtiesContext
 class StatusUtilsTest {
     @Mock
     private TimelineService timelineService;
-    
+
     private StatusUtils statusUtils;
 
     private static final String SERCQ_ADDRESS = "x-pagopa-pn-sercq:send-self:notification-already-delivered";
@@ -35,13 +41,20 @@ class StatusUtilsTest {
 
     @BeforeEach
     public void setup() {
-        this.statusUtils = new StatusUtils();
+        PnDeliveryPushConfigs pnDeliveryPushConfigs = Mockito.mock(PnDeliveryPushConfigs.class);
+        FeatureEnabledUtils featureEnabledUtils = mock(FeatureEnabledUtils.class);
+        this.statusUtils = new StatusUtils(new SmartMapper(new TimelineMapperFactory(pnDeliveryPushConfigs), featureEnabledUtils));
     }
 
     @Test
     void getTimelineHistoryTest() {
 
         SendDigitalDetailsInt sendDigtalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T17:00:00.00Z"))
+                .build();
 
         // GIVEN a timeline
         TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
@@ -69,6 +82,7 @@ class StatusUtilsTest {
                 .elementId("el6")
                 .timestamp((Instant.parse("2021-09-16T17:00:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
 
 
@@ -84,7 +98,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have same length
         Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
@@ -179,12 +194,13 @@ class StatusUtilsTest {
         Instant notificationCreatedAt = requestAccepted.getTimestamp().minus(Duration.ofHours(1));
 
         List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
-                timelineElementList, 
+                timelineElementList,
                 1,
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have same length
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -286,7 +302,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have same length
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -316,8 +333,8 @@ class StatusUtilsTest {
                         .status(NotificationStatusInt.DELIVERING)
                         .activeFrom(sendDigitalDomicile.getTimestamp())
                         .relatedTimelineElements(Arrays.asList(
-                                sendDigitalDomicile.getElementId(),
-                                sendDigitalFeedback.getElementId()
+                                        sendDigitalDomicile.getElementId(),
+                                        sendDigitalFeedback.getElementId()
                                 )
                         )
                         .build(),
@@ -339,7 +356,7 @@ class StatusUtilsTest {
                 "4rd status wrong"
         );
     }
-    
+
     // IN_VALIDATION - ACCEPTED - DELIVERING
     // un destinatario è in fase di SEND_DIGITAL_DOMICILE
     @Test
@@ -372,7 +389,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 5 elements
         Assertions.assertEquals(3, actualStatusHistory.size(), "Check length");
@@ -464,6 +482,10 @@ class StatusUtilsTest {
                 .elementId("viewedFromPNTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:30:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(NotificationViewedDetailsInt.builder()
+                        .recIndex(0)
+                        .eventTimestamp(Instant.parse("2021-09-16T15:30:00.00Z"))
+                        .build())
                 .build();
         //tutti e 3 destinatari ricevono con successo la notifica via PEC
         TimelineElementInternal pecReceivedFirstRecipientTimelineElement = TimelineElementInternal.builder()
@@ -486,6 +508,7 @@ class StatusUtilsTest {
                 .elementId("viewedFromPecTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T16:00:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(NotificationViewedDetailsInt.builder().recIndex(0).eventTimestamp(Instant.parse("2021-09-16T16:00:00.00Z")).build())
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendPecFirstRecipientTimelineElement, sendPecSecondRecipientTimelineElement, sendPecThirdRecipientTimelineElement,
@@ -502,7 +525,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 4 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -544,7 +568,7 @@ class StatusUtilsTest {
         Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.VIEWED)
                         .activeFrom(viewedFromPNTimelineElement.getTimestamp())
-                        .relatedTimelineElements(List.of("viewedFromPNTimelineElement","pecReceivedFirstRecipientTimelineElement", "pecReceivedSecondRecipientTimelineElement", "pecReceivedThirdRecipientTimelineElement", "viewedFromPecTimelineElement"))
+                        .relatedTimelineElements(List.of("viewedFromPNTimelineElement", "pecReceivedFirstRecipientTimelineElement", "pecReceivedSecondRecipientTimelineElement", "pecReceivedThirdRecipientTimelineElement", "viewedFromPecTimelineElement"))
                         .build(),
                 actualStatusHistory.get(3),
                 "4th status wrong"
@@ -609,6 +633,7 @@ class StatusUtilsTest {
                 .elementId("viewedFromPNTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:30:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(NotificationViewedDetailsInt.builder().recIndex(0).eventTimestamp(Instant.parse("2021-09-16T15:30:00.00Z")).build())
                 .build();
 
         //tutti e 3 destinatari ricevono con successo la notifica via PEC
@@ -631,11 +656,13 @@ class StatusUtilsTest {
                 .elementId("viewedSecondRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T18:35:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(NotificationViewedDetailsInt.builder().recIndex(1).eventTimestamp(Instant.parse("2021-09-16T18:35:00.00Z")).build())
                 .build();
         TimelineElementInternal viewedThirdRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("viewedThirdRecipientTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T18:36:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(NotificationViewedDetailsInt.builder().recIndex(2).eventTimestamp(Instant.parse("2021-09-16T18:36:00.00Z")).build())
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendPecFirstRecipientTimelineElement,
@@ -654,7 +681,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 5 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -696,7 +724,7 @@ class StatusUtilsTest {
         Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.VIEWED)
                         .activeFrom(viewedFromPNTimelineElement.getTimestamp())
-                        .relatedTimelineElements(List.of("viewedFromPNTimelineElement","pecReceivedFirstRecipientTimelineElement",
+                        .relatedTimelineElements(List.of("viewedFromPNTimelineElement", "pecReceivedFirstRecipientTimelineElement",
                                 "pecReceivedSecondRecipientTimelineElement", "pecReceivedThirdRecipientTimelineElement",
                                 "viewedSecondRecipientTimelineElement", "viewedThirdRecipientTimelineElement"))
                         .build(),
@@ -720,6 +748,10 @@ class StatusUtilsTest {
         SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
         SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
 
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T15:35:00.00Z"))
+                .build();
 
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
@@ -761,6 +793,7 @@ class StatusUtilsTest {
                 .elementId("viewedFromPNTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:35:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
         //PN riceve feedback positivo da External Channels per gli altri 2 destinatari
         TimelineElementInternal feedbackOKSecondRecipientTimelineElement = TimelineElementInternal.builder()
@@ -800,7 +833,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 4 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -859,6 +893,11 @@ class StatusUtilsTest {
 
         SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
         SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T15:50:00.00Z"))
+                .build();
 
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
@@ -922,6 +961,7 @@ class StatusUtilsTest {
                 .elementId("viewedFromPNTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:50:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement,
@@ -940,7 +980,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 5 elements
         Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
@@ -1008,8 +1049,13 @@ class StatusUtilsTest {
     void getTimelineHistoryMultiRecipientWithOneViewViaPecWithOneCompleteWorkflowWithAllFeedbacksTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T15:35:00.00Z"))
+                .build();
+
         SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
-        SendDigitalDetailsInt  sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+        SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
 
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
@@ -1062,6 +1108,7 @@ class StatusUtilsTest {
                 .elementId("viewedFromPNTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:35:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
         TimelineElementInternal pecReceivedSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("pecReceivedSecondRecipientTimelineElement")
@@ -1078,7 +1125,7 @@ class StatusUtilsTest {
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement,
                 sendPecFirstRecipientTimelineElement, sendPecSecondRecipientTimelineElement, sendPecThirdRecipientTimelineElement,
                 feedbackOKFirstRecipientTimelineElement, pecReceivedFirstRecipientTimelineElement, feedbackOKSecondRecipientTimelineElement,
-                feedbackOKThirdRecipientTimelineElement, viewedFromPNTimelineElement, pecReceivedSecondRecipientTimelineElement ,
+                feedbackOKThirdRecipientTimelineElement, viewedFromPNTimelineElement, pecReceivedSecondRecipientTimelineElement,
                 pecReceivedThirdRecipientTimelineElement);
 
 
@@ -1091,7 +1138,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 4 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -1146,7 +1194,8 @@ class StatusUtilsTest {
     // IN VALIDATION - ACCEPTED - DELIVERING - DELIVERED
     // 2 destinatari su 3 sono non raggiungibili, uno è raggiungibile, stato finale: DELIVERED
     @Test
-    @Disabled //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
+    @Disabled
+    //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
     void getTimelineHistoryMultiRecipientWithOneSuccessTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
@@ -1209,7 +1258,7 @@ class StatusUtilsTest {
                 sendPecSecondRecipientTimelineElement, sendPecThirdRecipientTimelineElement, feedbackKOFirstRecipientTimelineElement,
                 feedbackKOSecondRecipientTimelineElement, feedbackOKThirdRecipientTimelineElement, unreachableFirstRecipientTimelineElement,
                 unreachableSecondRecipientTimelineElement, pecReceivedTimelineElement
-                );
+        );
 
 
         // WHEN ask for status history
@@ -1221,7 +1270,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 4 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -1274,7 +1324,8 @@ class StatusUtilsTest {
     // IN VALIDATION - ACCEPTED - DELIVERING - DELIVERED
     // Un destinatario su 3 è non raggiungibile, 2 sono raggiungibili, stato finale: DELIVERED
     @Test
-    @Disabled //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
+    @Disabled
+    //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
     void getTimelineHistoryMultiRecipientWithTwoSuccessTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
@@ -1349,7 +1400,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 4 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -1405,7 +1457,8 @@ class StatusUtilsTest {
     // IN VALIDATION - ACCEPTED - DELIVERING - UNREACHABLE
     // tutti e 3 destinatari non sono raggiungibili e nessuno dei 3 visualizza la notifica su PN, stato finale: UNREACHABLE
     @Test
-    @Disabled //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
+    @Disabled
+    //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
     void getTimelineHistoryMultiRecipientWithAllUnreachableTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
 
@@ -1478,7 +1531,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 4 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -1532,9 +1586,15 @@ class StatusUtilsTest {
     // tutti e 3 destinatari non sono raggiungibili ma 1 dei 3 visualizza la notifica su PN, DOPO che PN ha ricevuto i
     // feedback negativi da External Channels. Stato finale: VIEWED
     @Test
-    @Disabled //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
+    @Disabled
+    //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
     void getTimelineHistoryMultiRecipientWithAllUnreachableButOneViewedAfterKOFeedbackFromPNTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
+
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T16:00:00.00Z"))
+                .build();
 
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
@@ -1599,6 +1659,7 @@ class StatusUtilsTest {
                 .elementId("viewedFromPNTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T16:00:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
 
 
@@ -1618,7 +1679,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 5 elements
         Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
@@ -1682,9 +1744,15 @@ class StatusUtilsTest {
     // tutti e 3 destinatari non sono raggiungibili ma 1 dei 3 visualizza la notifica su PN, PRIMA che PN ha ricevuto i
     // feedback negativi da External Channels. Stato finale: VIEWED
     @Test
-    @Disabled //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
+    @Disabled
+    //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
     void getTimelineHistoryMultiRecipientWithAllUnreachableButOneViewedBeforeKOFeedbackFromPNTest() {
         final int NUMBER_OF_RECIPIENTS = 3;
+
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T15:27:10.00Z"))
+                .build();
 
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
@@ -1716,6 +1784,7 @@ class StatusUtilsTest {
                 .elementId("viewedFromPNTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:27:10.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
         TimelineElementInternal feedbackKOSecondRecipientTimelineElement = TimelineElementInternal.builder()
                 .elementId("feedbackKOSecondRecipientTimelineElement")
@@ -1762,7 +1831,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 4 elements
         Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
@@ -1892,7 +1962,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 3 elements
         Assertions.assertEquals(3, actualStatusHistory.size(), "Check length");
@@ -1938,6 +2009,11 @@ class StatusUtilsTest {
     @Disabled
     void getTimelineHistoryMultiRecipientEffectiveDateAndViewedTest() {
         final int NUMBER_OF_RECIPIENTS = 2;
+
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T15:31:00.00Z"))
+                .build();
 
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
@@ -2003,6 +2079,7 @@ class StatusUtilsTest {
                 .elementId("viewedTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:31:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement,
@@ -2021,7 +2098,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 6 elements
         Assertions.assertEquals(6, actualStatusHistory.size(), "Check length");
@@ -2062,7 +2140,7 @@ class StatusUtilsTest {
         Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
                         .status(NotificationStatusInt.DELIVERED)
                         .activeFrom(pecReceivedSecondRecipientTimelineElement.getTimestamp())
-                        .relatedTimelineElements(List.of("pecReceivedSecondRecipientTimelineElement","scheduleRefinementFirstRecipientTimelineElement"))
+                        .relatedTimelineElements(List.of("pecReceivedSecondRecipientTimelineElement", "scheduleRefinementFirstRecipientTimelineElement"))
                         .build(),
                 actualStatusHistory.get(3),
                 "4rd status wrong"
@@ -2073,7 +2151,7 @@ class StatusUtilsTest {
                         .status(NotificationStatusInt.EFFECTIVE_DATE)
                         .activeFrom(scheduleRefinementSecondRecipientTimelineElement.getTimestamp())
                         .relatedTimelineElements(List.of("refinementFirstRecipientTimelineElement",
-                                "refinementSecondRecipientTimelineElement","scheduleRefinementSecondRecipientTimelineElement"))
+                                "refinementSecondRecipientTimelineElement", "scheduleRefinementSecondRecipientTimelineElement"))
                         .build(),
                 actualStatusHistory.get(4),
                 "5rd status wrong"
@@ -2094,9 +2172,15 @@ class StatusUtilsTest {
     // 2 destinatari non leggono la notifica entro la data di perfezionamento per decorrenza termini
     // poi uno la visualizza. Stato finale: VIEWED
     @Test
-    @Disabled //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
+    @Disabled
+    //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
     void getTimelineHistoryMultiRecipientEffectiveDateAfterDelivering() {
         final int NUMBER_OF_RECIPIENTS = 2;
+
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T15:31:00.00Z"))
+                .build();
 
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
@@ -2148,6 +2232,7 @@ class StatusUtilsTest {
                 .elementId("viewedTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:31:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement,
@@ -2166,7 +2251,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 6 elements
         Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
@@ -2224,14 +2310,20 @@ class StatusUtilsTest {
                 "5rd status wrong"
         );
     }
-    
+
     // IN VALIDATION - ACCEPTED - DELIVERING - DELIVERED - VIEWED
     // 1 destinatario legge la notifica via PEC, il secondo non legge la notifica entro la data di perfezionamento per decorrenza termini
     // Stato finale: VIEWED
     @Test
-    @Disabled //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
+    @Disabled
+    //non dovrebbe più esistere un COMPLETELY_UNREACHABLE senza SEND_ANALOG_FEEDBACK
     void getTimelineHistoryMultiRecipientViewedAndAfterEffectiveDateTest() {
         final int NUMBER_OF_RECIPIENTS = 2;
+
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T15:30:00.00Z"))
+                .build();
 
         // GIVEN a timeline
         TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
@@ -2273,6 +2365,7 @@ class StatusUtilsTest {
                 .elementId("viewedTimelineElement")
                 .timestamp((Instant.parse("2021-09-16T15:30:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
         TimelineElementInternal refinementTimelineElement = TimelineElementInternal.builder()
                 .elementId("refinementTimelineElement")
@@ -2295,7 +2388,8 @@ class StatusUtilsTest {
                 notificationCreatedAt
         );
 
-        printStatus(actualStatusHistory, new Object(){}.getClass().getEnclosingMethod().getName());
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
 
         // THEN status histories have 5 elements
         Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
@@ -2354,12 +2448,16 @@ class StatusUtilsTest {
     }
 
 
-
     @Test
     void getTimelineHistoryMoreRecipientTest() {
 
         SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
         SendDigitalDetailsInt sendDigitalDetailsIntSercq = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.SERCQ);
+
+        NotificationViewedDetailsInt detailsInt = NotificationViewedDetailsInt.builder()
+                .recIndex(0)
+                .eventTimestamp(Instant.parse("2021-09-16T17:00:00.00Z"))
+                .build();
 
         // GIVEN a timeline
         TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
@@ -2403,6 +2501,7 @@ class StatusUtilsTest {
                 .elementId("el9")
                 .timestamp((Instant.parse("2021-09-16T17:00:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(detailsInt)
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(timelineElement1,
@@ -2422,7 +2521,7 @@ class StatusUtilsTest {
         NotificationStatusHistoryElementInt historyElement1 = NotificationStatusHistoryElementInt.builder()
                 .status(NotificationStatusInt.ACCEPTED)
                 .activeFrom((Instant.parse("2021-09-16T15:24:00.00Z")))
-                .relatedTimelineElements(List.of("el1","el2"))
+                .relatedTimelineElements(List.of("el1", "el2"))
                 .build();
 
         NotificationStatusHistoryElementInt historyElement2 = NotificationStatusHistoryElementInt.builder()
@@ -2465,6 +2564,7 @@ class StatusUtilsTest {
                 .elementId("el2")
                 .timestamp((Instant.parse("2021-09-16T15:25:00.00Z")))
                 .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(NotificationViewedDetailsInt.builder().recIndex(0).eventTimestamp(Instant.parse("2021-09-16T15:25:00.00Z")).build())
                 .build();
 
         Set<TimelineElementInternal> timelineElementList = Set.of(timelineElement1,
@@ -2492,7 +2592,7 @@ class StatusUtilsTest {
 
 
         List<NotificationStatusHistoryElementInt> historyElementList = Arrays.asList(
-                historyElement1, historyElement2, historyElement3 );
+                historyElement1, historyElement2, historyElement3);
 
         // chiamare metodo di test
         List<NotificationStatusHistoryElementInt> resHistoryElementList = statusUtils.getStatusHistory(
@@ -2534,7 +2634,7 @@ class StatusUtilsTest {
                 .withIun("test")
                 .withNotificationRecipient(recipient)
                 .build();
-        
+
         TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
                 .elementId("el1")
                 .timestamp((Instant.parse("2021-09-16T15:24:00.00Z")))
@@ -2559,9 +2659,9 @@ class StatusUtilsTest {
 
         NotificationStatusInt response = statusUtils.getCurrentStatusFromNotification(notification, timelineService);
 
-        Assertions.assertEquals( NotificationStatusInt.VIEWED, response);
+        Assertions.assertEquals(NotificationStatusInt.VIEWED, response);
     }
-    
+
     private void printStatus(List<NotificationStatusHistoryElementInt> notificationHistoryElements, String methodName) {
         System.out.print(methodName + " - ");
         notificationHistoryElements.stream()
@@ -2580,5 +2680,479 @@ class StatusUtilsTest {
         return sendDigitalDetailsIntPec;
     }
 
+    /*
+        IN_VALIDATION - ACCEPTED - DELIVERING - RETURNED_TO_SENDER
+        Per Il destinatario arriva un evento di deceduto e successivamente visualizza la notifica.
+        Stato finale: RETURNED_TO_SENDER
+    */
+    @Test
+    void getTimelineHistorySingleRecipientWithOneDeceasedWorkflowAndViewTest() {
+        final int NUMBER_OF_RECIPIENTS = 1;
 
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+
+        // GIVEN a timeline
+        TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
+                .elementId("requestAcceptedTimelineElement")
+                .timestamp(Instant.parse("2021-09-10T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendAnalogFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendAnalogFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-12T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
+                .build();
+        TimelineElementInternal prepareAnalogDomicileSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("prepareAnalogDomicileSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-15T15:40:00.00Z")))
+                .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
+                .build();
+        Instant feedbackFirstRecipientBusinessDate = Instant.parse("2021-09-17T10:30:00.00Z");
+        TimelineElementInternal feedbackFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T18:00:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .details(SendAnalogFeedbackDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+        TimelineElementInternal deceasedWorkflowFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("deceasedWorkflowFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T18:01:00.00Z")))
+                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
+                .details(AnalogWorfklowRecipientDeceasedDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+
+        TimelineElementInternal firstRecViewedTimelineElement = TimelineElementInternal.builder()
+                .elementId("firstRecViewedTimelineElement")
+                .timestamp((Instant.parse("2021-09-18T12:00:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(NotificationViewedDetailsInt.builder()
+                        .recIndex(0)
+                        .eventTimestamp(Instant.parse("2021-09-18T12:00:00.00Z"))
+                        .build())
+                .build();
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendAnalogFirstRecipientTimelineElement,
+                feedbackFirstRecipientTimelineElement, deceasedWorkflowFirstRecipientTimelineElement,
+                prepareAnalogDomicileSecondRecipientTimelineElement, firstRecViewedTimelineElement );
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                NUMBER_OF_RECIPIENTS,
+                notificationCreatedAt
+        );
+
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
+
+        // THEN status histories have 4 elements
+        Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
+
+        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+
+        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAcceptedTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("requestAcceptedTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+
+        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendAnalogFirstRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("sendAnalogFirstRecipientTimelineElement", "prepareAnalogDomicileSecondRecipientTimelineElement",
+                                "feedbackFirstRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+
+        //  ... 4th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.RETURNED_TO_SENDER)
+                        .activeFrom(feedbackFirstRecipientBusinessDate)
+                        .relatedTimelineElements(List.of("deceasedWorkflowFirstRecipientTimelineElement", "firstRecViewedTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(3),
+                "4th status wrong"
+        );
+    }
+
+    /*
+        IN_VALIDATION - ACCEPTED - DELIVERING - VIEWED - RETURNED_TO_SENDER
+        Il destinatario visualizza la notifica e successivamente arriva un evento di deceduto.
+        Stato finale: RETURNED_TO_SENDER
+    */
+    @Test
+    void getTimelineHistorySingleRecipientWithViewAndDeceasedWorkflowTest() {
+        final int NUMBER_OF_RECIPIENTS = 1;
+
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+
+        // GIVEN a timeline
+        TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
+                .elementId("requestAcceptedTimelineElement")
+                .timestamp(Instant.parse("2021-09-10T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendAnalogFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendAnalogFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-12T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
+                .build();
+        TimelineElementInternal prepareAnalogDomicileSecondRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("prepareAnalogDomicileSecondRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-15T15:40:00.00Z")))
+                .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
+                .build();
+        TimelineElementInternal firstRecViewedTimelineElement = TimelineElementInternal.builder()
+                .elementId("firstRecViewedTimelineElement")
+                .timestamp((Instant.parse("2021-09-15T17:00:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .details(NotificationViewedDetailsInt.builder()
+                        .recIndex(0)
+                        .eventTimestamp(Instant.parse("2021-09-15T17:00:00.00Z"))
+                        .build())
+                .build();
+        Instant feedbackFirstRecipientBusinessDate = Instant.parse("2021-09-17T10:30:00.00Z");
+        TimelineElementInternal feedbackFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T18:00:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .details(SendAnalogFeedbackDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+        TimelineElementInternal deceasedWorkflowFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("deceasedWorkflowFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T18:01:00.00Z")))
+                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
+                .details(AnalogWorfklowRecipientDeceasedDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+
+
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendAnalogFirstRecipientTimelineElement,
+                feedbackFirstRecipientTimelineElement, deceasedWorkflowFirstRecipientTimelineElement,
+                prepareAnalogDomicileSecondRecipientTimelineElement, firstRecViewedTimelineElement );
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                NUMBER_OF_RECIPIENTS,
+                notificationCreatedAt
+        );
+
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
+
+        // THEN status histories have 4 elements
+        Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
+
+        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+
+        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAcceptedTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("requestAcceptedTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+
+        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendAnalogFirstRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("sendAnalogFirstRecipientTimelineElement", "prepareAnalogDomicileSecondRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+
+        //  ... 4th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.VIEWED)
+                        .activeFrom(firstRecViewedTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("firstRecViewedTimelineElement", "feedbackFirstRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(3),
+                "4th status wrong"
+        );
+
+        //  ... 5th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.RETURNED_TO_SENDER)
+                        .activeFrom(feedbackFirstRecipientBusinessDate)
+                        .relatedTimelineElements(List.of("deceasedWorkflowFirstRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(4),
+                "4th status wrong"
+        );
+    }
+
+    /*
+        IN_VALIDATION - ACCEPTED - DELIVERING - RETURNED_TO_SENDER - CANCELLED
+        Per il destinatario arriva un evento di deceduto e successivamente viene richiesta la cancellazione della notifica.
+        Stato finale: CANCELLED
+    */
+    @Test
+    void getTimelineHistorySingleRecipientWithOneDeceasedWorkflowBeforeCancellation() {
+        final int NUMBER_OF_RECIPIENTS = 1;
+
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+
+        // GIVEN a timeline
+        TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
+                .elementId("requestAcceptedTimelineElement")
+                .timestamp(Instant.parse("2021-09-10T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendAnalogFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendAnalogFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-12T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
+                .build();
+        TimelineElementInternal prepareAnalogDomicileFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("prepareAnalogDomicileFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-15T15:40:00.00Z")))
+                .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
+                .build();
+        Instant feedbackFirstRecipientBusinessDate = Instant.parse("2021-09-17T10:30:00.00Z");
+        TimelineElementInternal feedbackFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T18:00:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .details(SendAnalogFeedbackDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+        TimelineElementInternal deceasedWorkflowFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("deceasedWorkflowFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T18:01:00.00Z")))
+                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
+                .details(AnalogWorfklowRecipientDeceasedDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+        TimelineElementInternal cancelRequestTimelineElement = TimelineElementInternal.builder()
+                .elementId("cancelRequestTimelineElement")
+                .timestamp((Instant.parse("2021-09-17T18:00:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST)
+                .build();
+        TimelineElementInternal cancelledTimelineElement = TimelineElementInternal.builder()
+                .elementId("cancelledTimelineElement")
+                .timestamp((Instant.parse("2021-09-17T18:01:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_CANCELLED)
+                .build();
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendAnalogFirstRecipientTimelineElement,
+                feedbackFirstRecipientTimelineElement, deceasedWorkflowFirstRecipientTimelineElement,
+                prepareAnalogDomicileFirstRecipientTimelineElement, cancelRequestTimelineElement, cancelledTimelineElement);
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                NUMBER_OF_RECIPIENTS,
+                notificationCreatedAt
+        );
+
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
+
+        // THEN status histories have 5 elements
+        Assertions.assertEquals(5, actualStatusHistory.size(), "Check length");
+
+        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+
+        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAcceptedTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("requestAcceptedTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+
+        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendAnalogFirstRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("sendAnalogFirstRecipientTimelineElement", "prepareAnalogDomicileFirstRecipientTimelineElement",
+                                "feedbackFirstRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+
+        //  ... 4th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.RETURNED_TO_SENDER)
+                        .activeFrom(feedbackFirstRecipientBusinessDate)
+                        .relatedTimelineElements(List.of("deceasedWorkflowFirstRecipientTimelineElement", "cancelRequestTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(3),
+                "4th status wrong"
+        );
+
+        //  ... 5th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.CANCELLED)
+                        .activeFrom(cancelledTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("cancelledTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(4),
+                "5th status wrong"
+        );
+    }
+
+    /*
+        IN_VALIDATION - ACCEPTED - DELIVERING - CANCELLED
+        Viene richiesta la cancellazione della notifica e successivamente per il destinatario arriva un evento di deceduto.
+        Stato finale: CANCELLED
+    */
+    @Test
+    void getTimelineHistorySingleRecipientWithOneDeceasedWorkflowAfterCancellation() {
+        final int NUMBER_OF_RECIPIENTS = 1;
+
+        SendDigitalDetailsInt sendDigitalDetailsIntPec = getSendDigitalDetails(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC);
+
+        // GIVEN a timeline
+        TimelineElementInternal requestAcceptedTimelineElement = TimelineElementInternal.builder()
+                .elementId("requestAcceptedTimelineElement")
+                .timestamp(Instant.parse("2021-09-10T15:24:00.00Z"))
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
+                .build();
+        TimelineElementInternal sendAnalogFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("sendAnalogFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-12T15:26:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_DOMICILE)
+                .details(sendDigitalDetailsIntPec)
+                .build();
+        TimelineElementInternal prepareAnalogDomicileFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("prepareAnalogDomicileFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-15T15:40:00.00Z")))
+                .category(TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE)
+                .build();
+        TimelineElementInternal cancelRequestTimelineElement = TimelineElementInternal.builder()
+                .elementId("cancelRequestTimelineElement")
+                .timestamp((Instant.parse("2021-09-15T18:00:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST)
+                .build();
+        TimelineElementInternal cancelledTimelineElement = TimelineElementInternal.builder()
+                .elementId("cancelledTimelineElement")
+                .timestamp((Instant.parse("2021-09-15T18:01:00.00Z")))
+                .category(TimelineElementCategoryInt.NOTIFICATION_CANCELLED)
+                .build();
+        Instant feedbackFirstRecipientBusinessDate = Instant.parse("2021-09-17T10:30:00.00Z");
+        TimelineElementInternal feedbackFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("feedbackFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T18:00:00.00Z")))
+                .category(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK)
+                .details(SendAnalogFeedbackDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+        TimelineElementInternal deceasedWorkflowFirstRecipientTimelineElement = TimelineElementInternal.builder()
+                .elementId("deceasedWorkflowFirstRecipientTimelineElement")
+                .timestamp((Instant.parse("2021-09-16T18:01:00.00Z")))
+                .category(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED)
+                .details(AnalogWorfklowRecipientDeceasedDetailsInt.builder().recIndex(0).notificationDate(feedbackFirstRecipientBusinessDate).build())
+                .build();
+
+        Set<TimelineElementInternal> timelineElementList = Set.of(requestAcceptedTimelineElement, sendAnalogFirstRecipientTimelineElement,
+                feedbackFirstRecipientTimelineElement, deceasedWorkflowFirstRecipientTimelineElement,
+                prepareAnalogDomicileFirstRecipientTimelineElement, cancelRequestTimelineElement, cancelledTimelineElement);
+
+
+        // WHEN ask for status history
+        Instant notificationCreatedAt = Instant.parse("2021-09-16T15:20:00.00Z");
+
+        List<NotificationStatusHistoryElementInt> actualStatusHistory = statusUtils.getStatusHistory(
+                timelineElementList,
+                NUMBER_OF_RECIPIENTS,
+                notificationCreatedAt
+        );
+
+        printStatus(actualStatusHistory, new Object() {
+        }.getClass().getEnclosingMethod().getName());
+
+        // THEN status histories have 4 elements
+        Assertions.assertEquals(4, actualStatusHistory.size(), "Check length");
+
+        //  ... 1st initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.IN_VALIDATION)
+                        .activeFrom(notificationCreatedAt)
+                        .relatedTimelineElements(List.of())
+                        .build(),
+                actualStatusHistory.get(0),
+                "1st status wrong"
+        );
+
+        //  ... 2nd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.ACCEPTED)
+                        .activeFrom(requestAcceptedTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("requestAcceptedTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(1),
+                "2nd status wrong"
+        );
+
+        //  ... 3rd initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.DELIVERING)
+                        .activeFrom(sendAnalogFirstRecipientTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("sendAnalogFirstRecipientTimelineElement", "prepareAnalogDomicileFirstRecipientTimelineElement",
+                                "cancelRequestTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(2),
+                "3rd status wrong"
+        );
+
+        //  ... 4th initial status
+        Assertions.assertEquals(NotificationStatusHistoryElementInt.builder()
+                        .status(NotificationStatusInt.CANCELLED)
+                        .activeFrom(cancelledTimelineElement.getTimestamp())
+                        .relatedTimelineElements(List.of("cancelledTimelineElement", "feedbackFirstRecipientTimelineElement","deceasedWorkflowFirstRecipientTimelineElement"))
+                        .build(),
+                actualStatusHistory.get(3),
+                "4th status wrong"
+        );
+    }
 }

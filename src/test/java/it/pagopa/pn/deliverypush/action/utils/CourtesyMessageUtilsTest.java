@@ -7,10 +7,7 @@ import it.pagopa.pn.deliverypush.action.it.utils.PhysicalAddressBuilder;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -19,16 +16,19 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdBuilder;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendCourtesyMessageDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageRequestBody;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.emdintegration.PnEmdIntegrationClient;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.service.AddressBookService;
-import it.pagopa.pn.deliverypush.service.ExternalChannelService;
-import it.pagopa.pn.deliverypush.service.IoService;
-import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageResponse;
+import it.pagopa.pn.deliverypush.service.impl.AuditLogServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,6 +37,7 @@ import org.springframework.util.Base64Utils;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +51,7 @@ class CourtesyMessageUtilsTest {
     private TimelineUtils timelineUtils;
     private NotificationUtils notificationUtils;
     private IoService iOservice;
+    private PnEmdIntegrationClient pnEmdIntegrationClient;
 
     private CourtesyMessageUtils courtesyMessageUtils;
     private PnDeliveryPushConfigs mockConfig;
@@ -63,11 +65,12 @@ class CourtesyMessageUtilsTest {
         notificationUtils = Mockito.mock(NotificationUtils.class);
         iOservice = Mockito.mock(IoService.class);
         mockConfig = mock(PnDeliveryPushConfigs.class);
+        pnEmdIntegrationClient = mock(PnEmdIntegrationClient.class);
 
         courtesyMessageUtils = new CourtesyMessageUtils(addressBookService, externalChannelService,
-                timelineService, timelineUtils, notificationUtils, iOservice, mockConfig);
+                timelineService, timelineUtils, notificationUtils, iOservice, mockConfig, pnEmdIntegrationClient, new AuditLogServiceImpl());
     }
-    
+
     @Test
     void checkAddressesForSendCourtesyMessage() {
         //GIVEN
@@ -89,7 +92,7 @@ class CourtesyMessageUtilsTest {
                 .build();
 
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
+                .thenReturn(Collections.singletonList(courtesyDigitalAddressInt));
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
@@ -97,7 +100,7 @@ class CourtesyMessageUtilsTest {
         //THEN
         IoSendMessageResultInt sendMessageResultInt = IoSendMessageResultInt.valueOf(sentCourtesy.getValue());
         Mockito.verify(timelineUtils).buildSendCourtesyMessageTimelineElement(
-                Mockito.eq(0), Mockito.eq(notification), Mockito.eq(courtesyDigitalAddressInt) , Mockito.any(Instant.class),
+                Mockito.eq(0), Mockito.eq(notification), Mockito.eq(courtesyDigitalAddressInt), Mockito.any(Instant.class),
                 Mockito.anyString(), Mockito.eq(sendMessageResultInt));
 
         // viene verificato che viene generato anche l'eventId per il PROBABLE_SCHEDULING_ANALOG_DATE
@@ -112,6 +115,127 @@ class CourtesyMessageUtilsTest {
 
         // vengono salvati 2 elementi di timeline, PROBABLE_SCHEDULING_ANALOG_DATE e SEND_COURTESY_MESSAGE
         Mockito.verify(timelineService, times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+    }
+
+    // Method source to prepare 3 notifications, first without payments, second with PagoPa payment, third with F24 payment
+    private static Stream<Arguments> courtesyTPPArguments() {
+        return Stream.of(
+                Arguments.of(getNotificationRecipientInt(), getNotificationInt(getNotificationRecipientInt())),
+                Arguments.of(getNotificationRecipientInt(List.of(NotificationPaymentInfoInt.builder().pagoPA(PagoPaInt.builder().build()).build())), getNotificationInt(getNotificationRecipientInt(List.of(NotificationPaymentInfoInt.builder().pagoPA(PagoPaInt.builder().build()).build())))),
+                Arguments.of(getNotificationRecipientInt(List.of(NotificationPaymentInfoInt.builder().f24(F24Int.builder().build()).build())), getNotificationInt(getNotificationRecipientInt(List.of(NotificationPaymentInfoInt.builder().f24(F24Int.builder().build()).build()))))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("courtesyTPPArguments")
+    void checkAddressesForSendCourtesyMessageTPP(NotificationRecipientInt recipient, NotificationInt notification) {
+        //GIVEN
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        final it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse sentCourtesy = new it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse();
+        sentCourtesy.setOutcome(it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse.OutcomeEnum.OK);
+        Mockito.when(pnEmdIntegrationClient.sendMessage(Mockito.any(SendMessageRequestBody.class))).thenReturn(sentCourtesy);
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.TPP)
+                .address("indirizzo@test.it")
+                .build();
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Collections.singletonList(courtesyDigitalAddressInt));
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())).thenReturn(false);
+
+        //WHEN
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+
+        //THEN
+        Mockito.verify(pnEmdIntegrationClient).sendMessage(Mockito.any(SendMessageRequestBody.class));
+        Mockito.verify(timelineUtils).buildSendCourtesyMessageTimelineElement(
+                Mockito.eq(0), Mockito.eq(notification), Mockito.eq(courtesyDigitalAddressInt), Mockito.any(Instant.class),
+                Mockito.anyString(), Mockito.isNull());
+
+        // Verify eventId for PROBABLE_SCHEDULING_ANALOG_DATE
+        ArgumentCaptor<String> probableAnalogEventIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(timelineUtils).buildProbableDateSchedulingAnalogTimelineElement(Mockito.eq(0),
+                Mockito.eq(notification), probableAnalogEventIdArgumentCaptor.capture(), Mockito.any());
+
+        assertThat(probableAnalogEventIdArgumentCaptor.getValue()).isEqualTo(TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
+                .iun(notification.getIun())
+                .recIndex(0)
+                .build()));
+
+        // Verify timeline elements
+        Mockito.verify(timelineService, times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+    }
+
+    @Test
+    void checkAddressesForSendCourtesyMessageTPP_NotificationCancelled() {
+
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        final it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse sentCourtesy = new it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse();
+        sentCourtesy.setOutcome(it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse.OutcomeEnum.OK);
+        Mockito.when(pnEmdIntegrationClient.sendMessage(Mockito.any(SendMessageRequestBody.class))).thenReturn(sentCourtesy);
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.TPP)
+                .address("indirizzo@test.it")
+                .build();
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Collections.singletonList(courtesyDigitalAddressInt));
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())).thenReturn(true);
+
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+
+        Mockito.verifyNoInteractions(pnEmdIntegrationClient);
+
+        // vengono salvati 2 elementi di timeline, PROBABLE_SCHEDULING_ANALOG_DATE e SEND_COURTESY_MESSAGE
+        Mockito.verify(timelineService, times(0)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+    }
+
+    @Test
+    void checkAddressesForSendCourtesyMessageTPP_NoChannelsEnabled() {
+
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        final it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse sentCourtesy = new it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse();
+        sentCourtesy.setOutcome(it.pagopa.pn.deliverypush.generated.openapi.msclient.emd.integration.model.SendMessageResponse.OutcomeEnum.NO_CHANNELS_ENABLED);
+        Mockito.when(pnEmdIntegrationClient.sendMessage(Mockito.any(SendMessageRequestBody.class))).thenReturn(sentCourtesy);
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressInt = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.TPP)
+                .address("indirizzo@test.it")
+                .build();
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Collections.singletonList(courtesyDigitalAddressInt));
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())).thenReturn(false);
+
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+
+        Mockito.verify(pnEmdIntegrationClient).sendMessage(Mockito.any(SendMessageRequestBody.class));
     }
 
     @Test
@@ -129,8 +253,8 @@ class CourtesyMessageUtilsTest {
                 .address("indirizzo@test.it")
                 .build();
 
-        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(),Mockito.anyString()))
-                .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Collections.singletonList(courtesyDigitalAddressInt));
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
@@ -140,7 +264,7 @@ class CourtesyMessageUtilsTest {
 
 
         //THEN
-        Mockito.verify(timelineService,never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+        Mockito.verify(timelineService, never()).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
     @Test
@@ -168,7 +292,7 @@ class CourtesyMessageUtilsTest {
                 .build();
 
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(List.of(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms)));
+                .thenReturn(List.of(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms));
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
@@ -192,7 +316,7 @@ class CourtesyMessageUtilsTest {
 
         Assertions.assertEquals(firstIoMessageResult, IoSendMessageResultInt.valueOf(sentCourtesy.getValue()));
         Assertions.assertNull(secondIoMessageResult);
-        
+
         String firstEventIdExpected = TimelineEventId.SEND_COURTESY_MESSAGE.buildEventId(EventId.builder()
                 .iun(notification.getIun())
                 .recIndex(0)
@@ -251,10 +375,10 @@ class CourtesyMessageUtilsTest {
                 .build();
 
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(List.of(courtesyDigitalAddressSms, courtesyDigitalAddressAppIo)));
+                .thenReturn(List.of(courtesyDigitalAddressSms, courtesyDigitalAddressAppIo));
 
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(List.of(courtesyDigitalAddressSms, courtesyDigitalAddressAppIo)));
+                .thenReturn(List.of(courtesyDigitalAddressSms, courtesyDigitalAddressAppIo));
 
         String probableSchedulingAnalogElementIdExpected = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
                 .iun(notification.getIun())
@@ -316,21 +440,72 @@ class CourtesyMessageUtilsTest {
     }
 
     @Test
-    void checkAddressesForSendCourtesyMessageCourtesyEmpty() {
+    void checkAddressesForSendEmailAndSmsCourtesyWithNotificationCancelled() {
         //GIVEN
         NotificationRecipientInt recipient = getNotificationRecipientInt();
         NotificationInt notification = getNotificationInt(recipient);
 
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+
         Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
 
+        CourtesyDigitalAddressInt courtesyDigitalAddressSms = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.SMS)
+                .address("3331111333")
+                .build();
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressEmail = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.EMAIL)
+                .address("indirizzo@test.it")
+                .build();
+
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.empty());
+                .thenReturn(List.of(courtesyDigitalAddressSms, courtesyDigitalAddressEmail));
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())).thenReturn(true);
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
 
         //THEN
+        // non vengono inseriti elementi di timeline
+        Mockito.verify(timelineUtils, Mockito.times(0)).buildSendCourtesyMessageTimelineElement(Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(), Mockito.anyString(), Mockito.any());
         Mockito.verify(timelineService, Mockito.times(0)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+        Mockito.verify(externalChannelService, Mockito.times(0)).sendCourtesyNotification(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    void checkAddressesForSendAppIoCourtesyWithNotificationCancelled() {
+        //GIVEN
+        NotificationRecipientInt recipient = getNotificationRecipientInt();
+        NotificationInt notification = getNotificationInt(recipient);
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setWaitingForReadCourtesyMessage(Duration.ofDays(5));
+        Mockito.when(mockConfig.getTimeParams()).thenReturn(timeParams);
+
+        Mockito.when(notificationUtils.getRecipientFromIndex(Mockito.any(NotificationInt.class), Mockito.anyInt())).thenReturn(recipient);
+
+        CourtesyDigitalAddressInt courtesyDigitalAddressAppIo = CourtesyDigitalAddressInt.builder()
+                .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.APPIO)
+                .address("3331111333")
+                .build();
+
+        Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(List.of(courtesyDigitalAddressAppIo));
+
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(notification.getIun())).thenReturn(true);
+
+        //WHEN
+        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
+
+        //THEN
+        // non vengono inseriti elementi di timeline
+        Mockito.verify(timelineUtils, Mockito.times(0)).buildSendCourtesyMessageTimelineElement(Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(), Mockito.anyString(), Mockito.any());
+        Mockito.verify(timelineService, Mockito.times(0)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
+        Mockito.verify(externalChannelService, Mockito.times(0)).sendCourtesyNotification(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -347,9 +522,9 @@ class CourtesyMessageUtilsTest {
                 .build();
 
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(Collections.singletonList(courtesyDigitalAddressInt)));
+                .thenReturn(Collections.singletonList(courtesyDigitalAddressInt));
 
-        doThrow(new PnNotFoundException("Not found","","")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any());
+        doThrow(new PnNotFoundException("Not found", "", "")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any());
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
@@ -381,9 +556,9 @@ class CourtesyMessageUtilsTest {
                 .build();
 
         Mockito.when(addressBookService.getCourtesyAddress(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Optional.of(List.of(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms)));
+                .thenReturn(List.of(courtesyDigitalAddressAppIo, courtesyDigitalAddressSms));
 
-        doThrow(new PnNotFoundException("Not found","","")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any());
+        doThrow(new PnNotFoundException("Not found", "", "")).when(iOservice).sendIOMessage(Mockito.any(NotificationInt.class), Mockito.anyInt(), Mockito.any());
 
         //WHEN
         courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, 0);
@@ -415,9 +590,9 @@ class CourtesyMessageUtilsTest {
                 Mockito.eq(notification), probableAnalogEventIdArgumentCaptor.capture(), Mockito.any());
 
         assertThat(probableAnalogEventIdArgumentCaptor.getValue()).isEqualTo(TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
-                        .iun(notification.getIun())
-                        .recIndex(0)
-                        .build()));
+                .iun(notification.getIun())
+                .recIndex(0)
+                .build()));
 
         //Viene verificato che l'elemento in timeline inserito sia con address SMS
         CourtesyDigitalAddressInt courtesyDigitalAddressInsertedInTimeline = courtesyDigitalAddressCaptor.getValue();
@@ -428,7 +603,7 @@ class CourtesyMessageUtilsTest {
         Mockito.verify(timelineService, times(2)).addTimelineElement(Mockito.any(), Mockito.any(NotificationInt.class));
     }
 
-    private NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
+    private static NotificationInt getNotificationInt(NotificationRecipientInt recipient) {
         return NotificationTestBuilder.builder()
                 .withIun("iun_01")
                 .withPaId("paId01")
@@ -436,7 +611,11 @@ class CourtesyMessageUtilsTest {
                 .build();
     }
 
-    private NotificationRecipientInt getNotificationRecipientInt() {
+    private static NotificationRecipientInt getNotificationRecipientInt() {
+        return getNotificationRecipientInt(Collections.emptyList());
+    }
+
+    private static NotificationRecipientInt getNotificationRecipientInt(List<NotificationPaymentInfoInt> payments) {
         String taxId = "TaxId";
         return NotificationRecipientTestBuilder.builder()
                 .withTaxId(taxId)
@@ -452,6 +631,7 @@ class CourtesyMessageUtilsTest {
                                 .withAddress(EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
                                 .build()
                 )
+                .withPayments(payments)
                 .build();
     }
 
@@ -487,7 +667,7 @@ class CourtesyMessageUtilsTest {
 
         // THEN
         Mockito.verify(timelineUtils, Mockito.times(1)).buildSendCourtesyMessageTimelineElement(
-                Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(), 
+                Mockito.anyInt(), Mockito.any(NotificationInt.class), Mockito.any(CourtesyDigitalAddressInt.class), Mockito.any(),
                 eventIdArgumentCaptor.capture(), Mockito.any(IoSendMessageResultInt.class));
 
 
@@ -529,7 +709,7 @@ class CourtesyMessageUtilsTest {
                 .sentAt(Instant.now())
                 .iun("Example_IUN_1234_Test")
                 .subject("notification test subject")
-                .documents(Arrays.asList(
+                .documents(Collections.singletonList(
                                 NotificationDocumentInt.builder()
                                         .ref(NotificationDocumentInt.Ref.builder()
                                                 .key("doc00")

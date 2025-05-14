@@ -1,7 +1,7 @@
 components:
   schemas:
     
-    SearchableNotificationStatus:
+    SearchableNotificationStatusV26:
       type: string
       enum:
         - ACCEPTED
@@ -12,8 +12,9 @@ components:
         - EFFECTIVE_DATE
         - UNREACHABLE
         - CANCELLED
+        - RETURNED_TO_SENDER
     
-    NotificationStatus:
+    NotificationStatusV26:
       type: string
       description: >
         stato di avanzamento del processo di notifica:
@@ -27,6 +28,7 @@ components:
           * `UNREACHABLE` - Il destinatario non è reperibile
           * `CANCELLED` - L'ente ha annullato l'invio della notifica
           * `PAID` - [DEPRECATO] Uno dei destinatari ha pagato la notifica
+          * `RETURNED_TO_SENDER` - La notifica è stata restituita al mittente
       enum:
         - IN_VALIDATION 
         - ACCEPTED 
@@ -37,15 +39,16 @@ components:
         - EFFECTIVE_DATE 
         - PAID 
         - UNREACHABLE 
-        - CANCELLED 
+        - CANCELLED
+        - RETURNED_TO_SENDER
     
-    NotificationStatusHistory: 
+    NotificationStatusHistoryV26:
       description: elenco degli avanzamenti effettuati dal processo di notifica
       type: array
       items:
-        $ref: "#/components/schemas/NotificationStatusHistoryElement"
+        $ref: "#/components/schemas/NotificationStatusHistoryElementV26"
     
-    NotificationStatusHistoryElement:
+    NotificationStatusHistoryElementV26:
       description: elenco degli avanzamenti effettuati dal processo di notifica
       type: object
       required:
@@ -54,7 +57,7 @@ components:
         - relatedTimelineElements
       properties:
         status:
-          $ref: "#/components/schemas/NotificationStatus"
+          $ref: "#/components/schemas/NotificationStatusV26"
         activeFrom:
           type: string
           description: data e ora di raggiungimento dello stato di avanzamento

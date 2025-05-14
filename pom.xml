@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>it.pagopa.pn</groupId>
 	<artifactId>pn-delivery-push</artifactId>
-	<version>2.13.0-SNAPSHOT</version>
+	<version>2.17.0-SNAPSHOT</version>
 	<name>pn-delivery-push</name>
 	<description>Orchestrate Notification Workflow</description>
 	<scm>
@@ -28,13 +28,13 @@
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-model</artifactId>
-			<version>2.5.0</version>
+			<version>2.7.0</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-commons</artifactId>
-			<version>2.3.1</version>
+			<version>2.9.1</version>
 		</dependency>
 
 		
@@ -354,7 +354,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/78d5e316a3e184ddb55003da6543d488cf7db911/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/1e1201d3ad84013cd77f17c79cd560f897b6ca09/docs/openapi/api-private.yaml</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
@@ -385,7 +385,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/78d5e316a3e184ddb55003da6543d488cf7db911/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery/1e1201d3ad84013cd77f17c79cd560f897b6ca09/docs/openapi/api-private.yaml</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
 							<library>webclient</library>
@@ -832,9 +832,106 @@
 						</configuration>
 					</execution>
 
+					<!-- OPEN API CLIENT PN-EMD-INTEGRATION -->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-emd-integration</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-emd-integration/d3fd3b71639a4e5d6c257b3527b252d4f90bf832/docs/openapi/api-private.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>webclient</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+							<configOptions>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.emd.integration.api</apiPackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.emd.integration.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
+
+					<!-- OPEN API CLIENT TEMPLATE-ENGINE -->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-templates-engine</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>
+								https://raw.githubusercontent.com/pagopa/pn-templates-engine/2745edd5b7bb2678e4f53008c38e1b3e83333425/docs/openapi/pn-internal-templates-v1.yaml
+							</inputSpec>
+							<skipValidateSpec>true</skipValidateSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+								<typeMapping>file=byte[]</typeMapping>
+							</typeMappings>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+							<configOptions>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.templatesengine.api</apiPackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.templatesengine.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
+							</configOptions>
+						</configuration>
+					</execution>
+
+					<!-- OPEN API CLIENT TEMPLATE-ENGINE REACTIVE-->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-templates-engine-reactive</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>
+								https://raw.githubusercontent.com/pagopa/pn-templates-engine/2745edd5b7bb2678e4f53008c38e1b3e83333425/docs/openapi/pn-internal-templates-v1.yaml
+							</inputSpec>
+							<generatorName>java</generatorName>
+							<library>webclient</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/6.0.0/client</templateDirectory>
+							<configOptions>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.templatesengine-reactive.api</apiPackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.templatesengine.model</modelPackage>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
+
 				</executions>
-
-
 			</plugin>
 		</plugins>
 	</build>

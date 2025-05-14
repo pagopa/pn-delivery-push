@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.utils;
 import it.pagopa.pn.deliverypush.dto.address.*;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationpaid.NotificationPaidInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
@@ -542,6 +543,38 @@ public class TimelineUtils {
                 details, timelineBuilder);
     }
 
+    public TimelineElementInternal buildAnalogWorkflowRecipientDeceasedTimelineElement(
+            NotificationInt notification,
+            Integer recIndex,
+            Instant notificationDate,
+            PhysicalAddressInt address,
+            Integer notificationCost,
+            Boolean addNotificationCost
+    ) {
+
+        log.debug("buildAnalogWorkflowRecipientDeceasedTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        AnalogWorfklowRecipientDeceasedDetailsInt details = AnalogWorfklowRecipientDeceasedDetailsInt.builder()
+                .recIndex(recIndex)
+                .physicalAddress(address)
+                .notificationDate(notificationDate)
+                .build();
+
+        if (Boolean.TRUE.equals(addNotificationCost)) {
+            details.setNotificationCost(notificationCost);
+        }
+
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(Collections.emptyList());
+
+        return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, elementId, details, timelineBuilder);
+    }
 
     public TimelineElementInternal buildFailureAnalogWorkflowTimelineElement(NotificationInt notification, Integer recIndex, String generatedAarUrl) {
         log.debug("buildFailureAnalogWorkflowTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
@@ -754,26 +787,26 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildNotificationViewedLegalFactCreationRequestTimelineElement(
             NotificationInt notification,
-            Integer recIndex,
             String legalFactId,
-            RaddInfo raddInfo,
-            DelegateInfoInt delegateInfo,
-            Instant eventTimestamp) {
-        log.debug("buildNotificationViewedLegalFactCreationRequestTimelineElement - iun={} and id={}", notification.getIun(), recIndex);
+            NotificationViewedInt notificationViewed
+    ) {
+        log.debug("buildNotificationViewedLegalFactCreationRequestTimelineElement - iun={} and id={}", notification.getIun(), notificationViewed.getRecipientIndex());
 
         String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
-                        .recIndex(recIndex)
+                        .recIndex(notificationViewed.getRecipientIndex())
                         .build());
 
         NotificationViewedCreationRequestDetailsInt details = NotificationViewedCreationRequestDetailsInt.builder()
-                .recIndex(recIndex)
+                .recIndex(notificationViewed.getRecipientIndex())
                 .legalFactId(legalFactId)
-                .raddType(raddInfo != null ? raddInfo.getType() : null)
-                .raddTransactionId(raddInfo != null ? raddInfo.getTransactionId() : null)
-                .delegateInfo(delegateInfo)
-                .eventTimestamp(eventTimestamp)
+                .raddType(notificationViewed.getRaddInfo() != null ? notificationViewed.getRaddInfo().getType() : null)
+                .raddTransactionId(notificationViewed.getRaddInfo() != null ? notificationViewed.getRaddInfo().getTransactionId() : null)
+                .delegateInfo(notificationViewed.getDelegateInfo())
+                .eventTimestamp(notificationViewed.getViewedDate())
+                .sourceChannel(notificationViewed.getSourceChannel())
+                .sourceChannelDetails(notificationViewed.getSourceChannelDetails())
                 .build();
 
         TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
@@ -1198,22 +1231,25 @@ public class TimelineUtils {
                 .build());
     }
 
-    public boolean checkNotificationIsViewedOrRefinedOrCancelled(String iun, Integer recIndex) {
-        log.debug("checkNotificationIsViewedOrPaidOrRefinedOrCancelled - iun={} recIndex={}", iun, recIndex);
+    public boolean checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(String iun, Integer recIndex) {
+        log.debug("checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled - iun={} recIndex={}", iun, recIndex);
 
-        boolean isNotificationViewed = checkIsNotificationViewed(iun, recIndex);
-
-        if (!isNotificationViewed) {
-            log.debug("Notification is not viewed need to check if it is refined - iun={} recIndex={}", iun, recIndex);
-            boolean isNotificationRefined = checkIsNotificationRefined(iun, recIndex);
-
-            if (!isNotificationRefined) {
-                log.debug("Notification is not refined need to check if it is cancelled - iun={} recIndex={}", iun, recIndex);
-                return checkIsNotificationCancellationRequested(iun);
-            }
+        if (checkIsNotificationViewed(iun, recIndex)) {
+            return true;
         }
+        log.debug("Notification is not viewed need to check if it is refined - iun={} recIndex={}", iun, recIndex);
 
-        return true;
+        if (checkIsNotificationRefined(iun, recIndex)) {
+            return true;
+        }
+        log.debug("Notification is not refined need to check if it is deceased - iun={} recIndex={}", iun, recIndex);
+
+        if (checkIsRecipientDeceased(iun, recIndex)) {
+            return true;
+        }
+        log.debug("Notification is not deceased need to check if it is cancelled - iun={} recIndex={}", iun, recIndex);
+
+        return checkIsNotificationCancellationRequested(iun);
     }
 
     public boolean checkIsNotificationPaid(String iun, Integer recIndex) {
@@ -1273,6 +1309,14 @@ public class TimelineUtils {
 
         log.debug("check notification refined is {} - iun={} recIndex={}", notificationRefinedRequestOpt.isPresent(), iun, recIndex);
         return notificationRefinedRequestOpt.isPresent();
+    }
+
+    public boolean checkIsRecipientDeceased(String iun, Integer recIndex) {
+        log.debug("checkIsRecipientDeceased - iun={} recIndex={}", iun, recIndex);
+        Optional<TimelineElementInternal> elementInternalOptional = getNotificationRecipientDeceased(iun, recIndex);
+
+        log.debug("check recipient deceased is {} - iun={} recIndex={}", elementInternalOptional.isPresent(), iun, recIndex);
+        return elementInternalOptional.isPresent();
     }
 
     public boolean checkIsNotificationCancellationRequested(String iun) {
@@ -1368,6 +1412,14 @@ public class TimelineUtils {
                     notificationCost = Optional.ofNullable(refinementDetailsInt.getNotificationCost()).orElse(0);
                 }
             }
+            //If there is no notificationCost on Refinement we check the Deceased
+            if (notificationCost == 0) {
+                notificationOpt = getNotificationRecipientDeceased(notification.getIun(), recIndex);
+                if (notificationOpt.isPresent()) {
+                    AnalogWorfklowRecipientDeceasedDetailsInt recipientDeceasedDetailsInt = ((AnalogWorfklowRecipientDeceasedDetailsInt) notificationOpt.get().getDetails());
+                    notificationCost = Optional.ofNullable(recipientDeceasedDetailsInt.getNotificationCost()).orElse(0);
+                }
+            }
 
             if (notificationCost == 0) {
                 notRefinedRecipientList.add(recIndex);
@@ -1409,6 +1461,16 @@ public class TimelineUtils {
 
     private Optional<TimelineElementInternal> getNotificationRefinement(String iun, Integer recIndex) {
         String elementId = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        return timelineService.getTimelineElement(iun, elementId);
+    }
+
+    private Optional<TimelineElementInternal> getNotificationRecipientDeceased(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
                 EventId.builder()
                         .iun(iun)
                         .recIndex(recIndex)

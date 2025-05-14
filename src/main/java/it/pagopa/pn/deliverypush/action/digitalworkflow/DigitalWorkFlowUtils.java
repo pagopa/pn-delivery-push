@@ -42,13 +42,13 @@ public class DigitalWorkFlowUtils {
     private final TimelineUtils timelineUtils;
     private final NotificationUtils notificationUtils;
 
-    
 
-    public DigitalAddressInfoSentAttempt getNextAddressInfo(String iun, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade) {
+
+    public DigitalAddressInfoSentAttempt getNextAddressInfo(String iun, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, boolean isPfWorkflowEnabled) {
         log.debug("Start getNextAddressInfo - iun {} id {}", iun, recIndex);
 
         //Ottiene la source del prossimo indirizzo da utilizzare
-        DigitalAddressSourceInt nextAddressSource = nextSource(lastAttemptMade.getDigitalAddressSource()) ;
+        DigitalAddressSourceInt nextAddressSource = nextSource(lastAttemptMade.getDigitalAddressSource(), isPfWorkflowEnabled);
         log.debug("nextAddressSource {}", nextAddressSource);
 
         DigitalAddressInfoSentAttempt nextAddressInfo = getNextAddressInfo(iun, recIndex, nextAddressSource);
@@ -140,7 +140,7 @@ public class DigitalWorkFlowUtils {
     public LegalDigitalAddressInt getAddressFromSource(DigitalAddressSourceInt addressSource, Integer recIndex, NotificationInt notification) {
         log.info("GetAddressFromSource for source {} - iun {} id {}", addressSource, notification.getIun(), recIndex);
         NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification,recIndex);
-        
+
         if (addressSource != null) {
             switch (addressSource) {
                 case PLATFORM:
@@ -224,7 +224,7 @@ public class DigitalWorkFlowUtils {
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String eventId) {
         return timelineService.getTimelineElement(iun, eventId);
     }
-    
+
     public String addScheduledDigitalWorkflowToTimeline(NotificationInt notification, Integer recIndex, DigitalAddressInfoSentAttempt lastAttemptMade, Instant schedulingDate) {
         return addTimelineElement(
                 timelineUtils.buildScheduleDigitalWorkflowTimeline(notification, recIndex, lastAttemptMade, schedulingDate),
@@ -303,12 +303,12 @@ public class DigitalWorkFlowUtils {
 
     public void addDigitalDeliveringProgressTimelineElement(NotificationInt notification,
                                                             EventCodeInt eventCode,
-                                                            int recIndex, 
+                                                            int recIndex,
                                                             boolean shouldRetry,
                                                             DigitalMessageReferenceInt digitalMessageReference,
                                                             SendInformation digitalAddressFeedback) {
-        
-        int progressIndex = getPreviousTimelineProgress(notification, recIndex, digitalAddressFeedback.getRetryNumber(), 
+
+        int progressIndex = getPreviousTimelineProgress(notification, recIndex, digitalAddressFeedback.getRetryNumber(),
                 digitalAddressFeedback.getIsFirstSendRetry(), digitalAddressFeedback.getDigitalAddressSource()).size() + 1;
 
         addTimelineElement(
@@ -348,13 +348,21 @@ public class DigitalWorkFlowUtils {
         return timelineId;
     }
 
-    public static DigitalAddressSourceInt nextSource(DigitalAddressSourceInt source) {
-        return switch (source) {
-            case PLATFORM -> DigitalAddressSourceInt.SPECIAL;
-            case SPECIAL -> DigitalAddressSourceInt.GENERAL;
-            case GENERAL -> DigitalAddressSourceInt.PLATFORM;
-            default -> throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name(), ERROR_CODE_DELIVERYPUSH_INVALIDADDRESSSOURCE);
-        };
+    public static DigitalAddressSourceInt nextSource(DigitalAddressSourceInt source, boolean isPfNewWorkflowEnabled) {
+        if (isPfNewWorkflowEnabled) {
+            return switch (source) {
+                case GENERAL -> DigitalAddressSourceInt.SPECIAL;
+                case SPECIAL -> DigitalAddressSourceInt.PLATFORM;
+                case PLATFORM -> DigitalAddressSourceInt.GENERAL;
+                default -> throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name(), ERROR_CODE_DELIVERYPUSH_INVALIDADDRESSSOURCE);
+            };
+        } else {
+            return switch (source) {
+                case PLATFORM -> DigitalAddressSourceInt.SPECIAL;
+                case SPECIAL -> DigitalAddressSourceInt.GENERAL;
+                case GENERAL -> DigitalAddressSourceInt.PLATFORM;
+                default -> throw new PnInternalException(" BUG: add support to next for " + source.getClass() + "::" + source.name(), ERROR_CODE_DELIVERYPUSH_INVALIDADDRESSSOURCE);
+            };
+        }
     }
-    
 }

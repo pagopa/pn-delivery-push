@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.action.it;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
-import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtils;
+import it.pagopa.pn.deliverypush.action.choosedeliverymode.ChooseDeliveryModeUtilsImpl;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.action.it.mockbean.PaperChannelMock;
@@ -119,6 +119,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -128,7 +129,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
@@ -152,13 +152,13 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
         
         int sentPecAttemptNumber = checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
 
@@ -249,6 +249,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -258,7 +259,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
@@ -287,13 +287,13 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
         
         int sentPecAttemptNumber = checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
 
@@ -374,13 +374,13 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
@@ -398,13 +398,13 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         int sentPecAttemptNumber = checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
 
@@ -490,6 +490,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -498,7 +499,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
 
@@ -515,13 +515,13 @@ class DigitalTestIT extends CommonTestConfiguration {
         await().untilAsserted(() -> Assertions.assertTrue(TestUtils.checkIsPresentDigitalFailureWorkflowAndRefinement(iun, recIndex, timelineService)));
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         int sentPecAttemptNumber = checkAllAttemptsFails(platformAddress, digitalDomicile, pbDigitalAddress, iun, recIndex);
 
@@ -640,6 +640,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -648,7 +649,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -663,9 +663,9 @@ class DigitalTestIT extends CommonTestConfiguration {
         await().untilAsserted(() -> Assertions.assertTrue(TestUtils.checkIsPresentDigitalSuccessWorkflowAndRefinement(iun, recIndex, timelineService)));
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -734,6 +734,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         final NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -742,7 +743,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
 
@@ -758,8 +758,8 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, false, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -840,6 +840,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         final NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -848,7 +849,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         pnDeliveryClientMock.addNotification(notification);
@@ -866,9 +866,9 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -946,6 +946,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -954,7 +955,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -971,7 +971,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
         
         //Viene verificata la presenza dell'indirizzo di piattaforma
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         
         //Viene verificato che sia stata effettuata una sola chiamata ad external channel
         int sentPecAttemptNumber = 1;
@@ -1043,6 +1043,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -1051,7 +1052,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1067,8 +1067,8 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -1154,6 +1154,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -1162,7 +1163,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1180,13 +1180,13 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -1297,6 +1297,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -1305,7 +1306,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1323,11 +1323,11 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
 
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);
@@ -1428,6 +1428,7 @@ class DigitalTestIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -1436,7 +1437,6 @@ class DigitalTestIT extends CommonTestConfiguration {
                 .withNotificationRecipient(recipient)
                 .build();
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
 
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
@@ -1455,12 +1455,12 @@ class DigitalTestIT extends CommonTestConfiguration {
         );
         
         //Viene verificata la disponibilità degli indirizzi per il primo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtils.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.GENERAL, ChooseDeliveryModeUtilsImpl.ZERO_SENT_ATTEMPT_NUMBER, timelineService);
         //Viene verificata la disponibilità degli indirizzi per il secondo tentativo
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
-        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtils.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.PLATFORM, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
+        TestUtils.checkGetAddress(iun, recIndex, true, DigitalAddressSourceInt.SPECIAL, ChooseDeliveryModeUtilsImpl.ONE_SENT_ATTEMPT_NUMBER, timelineService);
 
         //Viene verificato il numero di send PEC verso external channel
         ArgumentCaptor<NotificationInt> notificationIntEventCaptor = ArgumentCaptor.forClass(NotificationInt.class);

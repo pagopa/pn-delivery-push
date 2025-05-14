@@ -57,18 +57,19 @@ describe("CreateEventStreamHandler", () => {
         });
     });
 
-    describe("handlerEvent", () => {
+    describe("handlerEvent that applies a map function for response body", () => {
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.3",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
-        it("successful request", async () => {
+        it("successful request v10", async () => {
 
             const b = JSON.stringify({
                                           title: "stream name",
                                           eventType: "STATUS",
-                                          filterValues: ["status_1", "status_2"]
+                                          filterValues: ["status_1", "status_2"],
+                                          waitForAccepted: true
                                       });
 
             const event = {
@@ -121,59 +122,126 @@ describe("CreateEventStreamHandler", () => {
         });
     });
 
-    describe("handlerEvent", () => {
+    describe("handlerEvent that applies a map function for waitForAccept in response and request body", () => {
+
+        let createEventStreamHandler;
 
         process.env = Object.assign(process.env, {
-            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.4",
+            PN_WEBHOOK_URL: "https://api.dev.notifichedigitali.it/delivery-progresses/v2.7",
         });
 
-        it("successful request 2.4", async () => {
-
-            const b = JSON.stringify({
-                                          title: "stream name",
-                                          eventType: "STATUS",
-                                          filterValues: ["status_1", "status_2"]
-                                      });
-
-            const event = {
-                path: "/delivery-progresses/v2.4/streams",
-                httpMethod: "POST",
-                headers: {},
-                requestContext: {
-                    authorizer: {},
-                },
-                body : b
-            };
-
-            let url = `${process.env.PN_WEBHOOK_URL}/streams`
-
-            const responseBodyV24 = {
-                title: "stream name",
-                eventType: "STATUS",
-                groups: [{
-                    groupId: "group1",
-                    groupName: "Group One"
-                },
-                {
-                    groupId: "group2",
-                    groupName: "Group Two"
-                }],
-                filterValues: ["status_1", "status_2"],
-                streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
-                activationDate: "2024-02-01T12:00:00Z",
-                disabledDate: "2024-02-02T12:00:00Z",
-                version: "v24"
-            }
-
-            mock.onPost(url).reply(200, responseBodyV24);
-
-            const context = {};
-            const response = await createEventStreamHandler.handlerEvent(event, context);
-
-            expect(response.statusCode).to.equal(200);
-            expect(response.body).to.equal(JSON.stringify(responseBodyV24));
-
-            expect(mock.history.post.length).to.equal(1);
+        beforeEach(() => {
+            createEventStreamHandler = new CreateEventStreamHandler();
+            mock = new MockAdapter(axios);
         });
+
+        afterEach(() => {
+            mock.restore();
+        });
+
+        const testCases = [
+            {
+                version: "v1.0",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    waitForAccepted: false
+                }
+            },
+            {
+                version: "v2.3",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    disabledDate: "2024-02-02T12:00:00Z",
+                    version: "v23",
+                    waitForAccepted: false
+                }
+            },
+            {
+                version: "v2.4",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    version: "v24",
+                    waitForAccepted: false
+                }
+            },
+            {
+                version: "v2.5",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    version: "v25",
+                    waitForAccepted: false
+                }
+            },
+            {
+                version: "v2.6",
+                responseBody: {
+                    title: "stream name",
+                    eventType: "STATUS",
+                    groups: [],
+                    filterValues: ["status_1", "status_2"],
+                    streamId: "12345678-90ab-cdef-ghij-klmnopqrstuv",
+                    activationDate: "2024-02-01T12:00:00Z",
+                    version: "v26",
+                    waitForAccepted: false
+                }
+            }]
+
+             testCases.forEach(({ version, responseBody }) => {
+                            it(`successful request ${version}`, async () => {
+                                const b = JSON.stringify({
+                                    title: "stream name",
+                                    eventType: "STATUS",
+                                    filterValues: ["status_1", "status_2"],
+                                    waitForAccepted: true
+                                });
+
+                                const event = {
+                                    path: `/delivery-progresses/${version}/streams`,
+                                    httpMethod: "POST",
+                                    headers: {},
+                                    requestContext: {
+                                        authorizer: {},
+                                    },
+                                    body: b
+                                };
+
+                                let url = `${process.env.PN_WEBHOOK_URL}/streams`;
+                                
+                                 mock.onPost(url).reply((config) => {
+                                    capturedRequestBody = JSON.parse(config.data); 
+                                    expect(capturedRequestBody.waitForAccepted).to.be.undefined
+                                    return [200, responseBody];
+                                  });
+                               
+
+                                const context = {};
+                                const response = await createEventStreamHandler.handlerEvent(event, context);
+
+                                expect(response.statusCode).to.equal(200);
+                                expect(mock.history.post.length).to.equal(1);;
+                                console.log(response.body)
+                                expect(response.body.waitForAccepted).to.be.undefined
+                            });
+                        });
+
     });
 });

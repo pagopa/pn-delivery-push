@@ -15,6 +15,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocum
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
@@ -45,7 +46,7 @@ import java.util.concurrent.Callable;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.eq;
 
-class NotificationViewedTestIT extends CommonTestConfiguration{
+class NotificationViewedTestIT extends CommonTestConfiguration {
     @SpyBean
     LegalFactGenerator legalFactGenerator;
     @Autowired
@@ -94,6 +95,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -103,7 +105,6 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
                 .build();
 
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -141,7 +142,8 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
                 .delegateType(RecipientTypeInt.valueOf(delegateType.getValue()))
                 .build();
 
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, delegateInfoInt, notificationViewDate);
+
+        notificationViewedRequestHandler.handleViewNotificationDelivery(buildNotificationViewedInt(iun, recIndex, delegateInfoInt, notificationViewDate));
 
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
@@ -160,7 +162,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Simulazione seconda visualizzazione della notifica
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, delegateInfoInt, Instant.now());
+        notificationViewedRequestHandler.handleViewNotificationDelivery(buildNotificationViewedInt(iun, recIndex, delegateInfoInt, Instant.now()));
 
         //Viene effettuata la verifica che i processi correlati alla visualizzazione non siano avvenuti, dunque che il numero d'invocazioni dei metodi sia rimasto lo stesso
         Mockito.verify(legalFactStore, Mockito.times(1)).sendCreationRequestForNotificationViewedLegalFact(eq(notification),eq(recipient), eq(delegateInfoInt), Mockito.any(Instant.class));
@@ -226,6 +228,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         
         NotificationInt notification = NotificationTestBuilder.builder()
@@ -236,7 +239,6 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
                 .build();
 
 
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress));
         nationalRegistriesClientMock.addDigital(recipient.getTaxId(), pbDigitalAddress);
@@ -254,7 +256,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
 
         //Simulazione visualizzazione della notifica
         Instant notificationViewDate = Instant.now();
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, notificationViewDate);
+        notificationViewedRequestHandler.handleViewNotificationDelivery(buildNotificationViewedInt(iun, recIndex, null, notificationViewDate));
 
         await().untilAsserted(() ->
                 Assertions.assertEquals(NotificationStatusInt.VIEWED, TestUtils.getNotificationStatus(notification, timelineService, statusUtils))
@@ -270,7 +272,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         Mockito.verify(paperNotificationFailedService, Mockito.times(1)).deleteNotificationFailed(recipient.getInternalId(), iun);
 
         //Viene simulata nuovamente la visualizzazione della notifica
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, Instant.now());
+        notificationViewedRequestHandler.handleViewNotificationDelivery(buildNotificationViewedInt(iun, recIndex, null, Instant.now()));
 
         checkIsNotificationViewed(iun, recIndex, notificationViewDate);
 
@@ -386,6 +388,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
 
         NotificationInt notification = NotificationTestBuilder.builder()
@@ -394,7 +397,6 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
                 .withNotificationRecipients(recipients)
                 .build();
         
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
         pnDeliveryClientMock.addNotification(notification);
         addressBookMock.addLegalDigitalAddresses(recipient1.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress1));
         addressBookMock.addLegalDigitalAddresses(recipient2.getInternalId(), notification.getSender().getPaId(), Collections.singletonList(platformAddress2));
@@ -413,7 +415,7 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
         
         //Simulazione visualizzazione della notifica per il primo recipient
         Instant notificationViewDate1 = Instant.now();
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex1, null, notificationViewDate1);
+        notificationViewedRequestHandler.handleViewNotificationDelivery(buildNotificationViewedInt(iun, recIndex1, null, notificationViewDate1));
 
         await().untilAsserted(() ->
                 Assertions.assertTrue(
@@ -443,7 +445,8 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
 
         //Simulazione visualizzazione della notifica per il secondo recipient
         Instant notificationViewDate2 = Instant.now();
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex2, null, notificationViewDate2);
+        NotificationViewedInt notificationViewedInt = buildNotificationViewedInt(iun, recIndex2, null, notificationViewDate2);
+        notificationViewedRequestHandler.handleViewNotificationDelivery(notificationViewedInt);
 
 
         await().untilAsserted(() ->
@@ -490,6 +493,15 @@ class NotificationViewedTestIT extends CommonTestConfiguration{
                 return false;
             }
         };
+    }
+
+    private NotificationViewedInt buildNotificationViewedInt(String iun, Integer recIndex, DelegateInfoInt delegateInfoInt, Instant eventTimestamp) {
+        return NotificationViewedInt.builder()
+                .iun(iun)
+                .recipientIndex(recIndex)
+                .delegateInfo(delegateInfoInt)
+                .viewedDate(eventTimestamp)
+                .build();
     }
 
 }

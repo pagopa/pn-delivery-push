@@ -41,6 +41,9 @@ class EventHandler {
         if (event.requestContext.authorizer["uid"]) {
             headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
         }
+        if (process.env._X_AMZN_TRACE_ID) {
+            headers['X-Amzn-Trace-Id'] = process.env._X_AMZN_TRACE_ID;
+        }
         
         let xPagopaPnApiVersion = 'v' + version;
         headers["x-pagopa-pn-api-version"] = xPagopaPnApiVersion;
@@ -64,6 +67,10 @@ class EventHandler {
 
         if (event["path"].includes("v2.5")) {
             version = 25;
+        }
+
+        if (event["path"].includes("v2.6")) {
+            version = 26;
         }
 
         console.log('version is ', version);

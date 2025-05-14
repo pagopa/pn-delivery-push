@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationDocumentInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
@@ -66,7 +67,7 @@ class CheckAttachmentRetentionIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)
@@ -100,7 +101,13 @@ class CheckAttachmentRetentionIT extends CommonTestConfiguration {
         await().untilAsserted(() -> Assertions.assertTrue(timelineService.getTimelineElement(iun, timelineId).isPresent()));
 
         //Simulazione visualizzazione della notifica, che comporta il perfezionamento
-        notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recIndex, null, Instant.now());
+
+        notificationViewedRequestHandler.handleViewNotificationDelivery(NotificationViewedInt.builder()
+                .iun(iun)
+                .recipientIndex(recIndex)
+                .viewedDate(Instant.now())
+                .build()
+        );
         
         //Si attende fino a che non scada il tempo di scheduling del check attachment
         TimelineElementInternal senderAckCreationRequest = timelineService.getTimelineElement(iun, timelineId).get();
@@ -137,7 +144,7 @@ class CheckAttachmentRetentionIT extends CommonTestConfiguration {
         String fileDoc = "sha256_doc00";
         List<NotificationDocumentInt> notificationDocumentList = TestUtils.getDocumentList(fileDoc);
         List<TestUtils.DocumentWithContent> listDocumentWithContent = TestUtils.getDocumentWithContents(fileDoc, notificationDocumentList);
-        TestUtils.firstFileUploadFromNotification(listDocumentWithContent, safeStorageClientMock);
+        notificationDocumentList = TestUtils.firstFileUploadFromNotification(listDocumentWithContent, notificationDocumentList, safeStorageClientMock);
 
         NotificationInt notification = NotificationTestBuilder.builder()
                 .withNotificationDocuments(notificationDocumentList)

@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.api.dto.events.PnDeliveryNotificationViewedEvent;
 import it.pagopa.pn.deliverypush.action.notificationview.NotificationViewedRequestHandler;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.RecipientTypeInt;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
@@ -47,7 +48,9 @@ public class NotificationViewedEventHandler {
                 Instant viewedDate = pnDeliveryNewNotificationEvent.getHeader().getCreatedAt();
                 NotificationViewDelegateInfo delegateBasicInfo = pnDeliveryNewNotificationEvent.getPayload().getDelegateInfo();
                 DelegateInfoInt delegateInfo = mapExternalToInternal(delegateBasicInfo);
-                notificationViewedRequestHandler.handleViewNotificationDelivery(iun, recipientIndex, delegateInfo, viewedDate);
+                String sourceChannel = pnDeliveryNewNotificationEvent.getPayload().getSourceChannel();
+                String sourceChannelDetail = pnDeliveryNewNotificationEvent.getPayload().getSourceChannelDetails();
+                notificationViewedRequestHandler.handleViewNotificationDelivery(buildNotificationViewedInt(iun, recipientIndex, delegateInfo, viewedDate, sourceChannel, sourceChannelDetail));
 
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
@@ -72,5 +75,16 @@ public class NotificationViewedEventHandler {
         }
 
         return delegateInfo;
+    }
+
+    private NotificationViewedInt buildNotificationViewedInt(String iun, int recipientIndex, DelegateInfoInt delegateInfo, Instant viewedDate, String sourceChannel, String sourceChannelDetail) {
+        return NotificationViewedInt.builder()
+                .iun(iun)
+                .recipientIndex(recipientIndex)
+                .delegateInfo(delegateInfo)
+                .viewedDate(viewedDate)
+                .sourceChannel(sourceChannel)
+                .sourceChannelDetails(sourceChannelDetail)
+                .build();
     }
 }
