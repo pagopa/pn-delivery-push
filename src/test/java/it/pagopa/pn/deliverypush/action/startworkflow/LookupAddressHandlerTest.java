@@ -14,6 +14,9 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import reactor.core.publisher.Mono;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,10 +61,14 @@ class LookupAddressHandlerTest {
         TimelineElementInternal timelineElement = mock(TimelineElementInternal.class);
         when(timelineUtils.buildNationalRegistryValidationResponse(eq(notification), eq(response))).thenReturn(timelineElement);
 
+        when(confidentialInformationService.updateNotificationAddresses(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.empty());
+
         lookupAddressHandler.performValidation(notification);
 
         verify(nationalRegistriesService, times(1)).getMultiplePhysicalAddress(notification);
         verify(timelineService, times(1)).addTimelineElement(eq(timelineElement), eq(notification));
+        verify(confidentialInformationService, times(1)).updateNotificationAddresses(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -74,6 +81,8 @@ class LookupAddressHandlerTest {
         when(nationalRegistriesService.getMultiplePhysicalAddress(notification)).thenReturn(List.of(response));
 
         assertThrows(PnLookupAddressValidationFailedException.class, () -> lookupAddressHandler.performValidation(notification));
+        verify(confidentialInformationService, times(0)).updateNotificationAddresses(Mockito.any(), Mockito.any(), Mockito.any());
+        verify(timelineService, times(0)).addTimelineElement(Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -86,6 +95,8 @@ class LookupAddressHandlerTest {
         when(nationalRegistriesService.getMultiplePhysicalAddress(notification)).thenReturn(List.of(response));
 
         assertThrows(PnLookupAddressValidationFailedException.class, () -> lookupAddressHandler.performValidation(notification));
+        verify(confidentialInformationService, times(0)).updateNotificationAddresses(Mockito.any(), Mockito.any(), Mockito.any());
+        verify(timelineService, times(0)).addTimelineElement(Mockito.any(), Mockito.any());
     }
 
     private static NotificationInt getNotification() {
