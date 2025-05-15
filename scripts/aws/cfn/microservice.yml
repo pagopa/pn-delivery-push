@@ -1995,13 +1995,11 @@ Resources:
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiStageArn
-            - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiStageArn
         RestApiNames: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiName
-            - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.RestApiName
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
