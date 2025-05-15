@@ -66,6 +66,8 @@ class ChooseDeliveryModeHandlerTest {
 
     @BeforeEach
     public void setup() {
+        digitalWorkFlowHandler = Mockito.mock(DigitalWorkFlowHandler.class);
+
         cfg = mock(PnDeliveryPushConfigs.class);
         FeatureEnabledUtils featureEnabledUtils = new FeatureEnabledUtils(cfg);
         handler = new ChooseDeliveryModeHandler(digitalWorkFlowHandler, schedulerService, nationalRegistriesService,

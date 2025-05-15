@@ -19,7 +19,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -42,21 +45,32 @@ class ActionDaoDynamoTest {
     private DynamoDbEnhancedClient dynamoDbEnhancedClient;
 
     @Mock
+    private DynamoDbTable<FutureActionEntity> dynamoDbTableFutureAction;
+
+    @Mock
     private ActionDaoDynamo dynamo;
 
     @BeforeEach
     void setup() {
-
+        // Configura i mock per PnDeliveryPushConfigs
         PnDeliveryPushConfigs.ActionDao actionDao = new PnDeliveryPushConfigs.ActionDao();
         actionDao.setTableName("Action");
-        PnDeliveryPushConfigs.FutureActionDao factionDao = new PnDeliveryPushConfigs.FutureActionDao();
-        factionDao.setTableName("FutureAction");
-        Mockito.when(pnDeliveryPushConfigs.getActionDao()).thenReturn(actionDao);
-        Mockito.when(pnDeliveryPushConfigs.getActionTtlDays()).thenReturn("1095");
-        Mockito.when(pnDeliveryPushConfigs.getFutureActionDao()).thenReturn(factionDao);
+        PnDeliveryPushConfigs.FutureActionDao futureActionDao = new PnDeliveryPushConfigs.FutureActionDao();
+        futureActionDao.setTableName("FutureAction");
 
-        dynamo = new ActionDaoDynamo(actionEntityDao, futureActionEntityDao,
-                dynamoDbEnhancedClient, pnDeliveryPushConfigs);
+        Mockito.when(pnDeliveryPushConfigs.getActionDao()).thenReturn(actionDao);
+        Mockito.when(pnDeliveryPushConfigs.getFutureActionDao()).thenReturn(futureActionDao);
+        Mockito.when(pnDeliveryPushConfigs.getActionTtlDays()).thenReturn("1095");
+
+        Mockito.when(dynamoDbEnhancedClient.table(
+                Mockito.any(),
+                Mockito.any(TableSchema.class))
+        ).thenReturn(dynamoDbTableFutureAction);
+
+        //TableSchema<FutureActionEntity> tableSchema = TableSchema.fromClass(FutureActionEntity.class);
+
+        // Inizializza l'istanza di ActionDaoDynamo con i mock
+        dynamo = new ActionDaoDynamo(actionEntityDao, futureActionEntityDao, dynamoDbEnhancedClient, pnDeliveryPushConfigs);
     }
 
     @Test
@@ -124,7 +138,7 @@ class ActionDaoDynamoTest {
 
         dynamo.unScheduleFutureAction(action, timeslot);
 
-        Mockito.verify(futureActionEntityDao, Mockito.times(1)).delete(keyToDelete);
+        Mockito.verify(dynamoDbTableFutureAction, Mockito.times(1)).updateItem(Mockito.any(UpdateItemEnhancedRequest.class));
     }
 
     private Action buildAction(ActionType type) {

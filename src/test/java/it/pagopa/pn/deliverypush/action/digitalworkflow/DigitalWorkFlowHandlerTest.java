@@ -1206,6 +1206,13 @@ class DigitalWorkFlowHandlerTest {
 
         ));
 
+        Mockito.when(digitalWorkFlowUtils.getSendDigitalFeedbackFromSourceTimeline(Mockito.eq(notification.getIun()), Mockito.any())).thenReturn(
+                Optional.of(TimelineElementInternal.builder()
+                        .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                        .build()
+                )
+        );
+
         //WHEN
         handlerRetry.startScheduledRetryWorkflow(notification.getIun(), 0, sourceTimelineId);
 
@@ -1341,8 +1348,6 @@ class DigitalWorkFlowHandlerTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void elapsedExtChannelTimeoutNoRetry() {
-        when(pnDeliveryPushConfigs.getPerformanceImprovementEndDate()).thenReturn("2099-02-13T23:00:00Z");
-        when(pnDeliveryPushConfigs.getPerformanceImprovementStartDate()).thenReturn("2099-02-14T23:00:00Z");
         //GIVEN
         DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
                 .lastAttemptDate(Instant.now())
@@ -1381,6 +1386,12 @@ class DigitalWorkFlowHandlerTest {
                         .build()
 
         ));
+        TimelineElementInternal elementToReturn = TimelineElementInternal.builder()
+                .category(TimelineElementCategoryInt.SEND_DIGITAL_FEEDBACK)
+                .build();
+        when(digitalWorkFlowUtils.getSendDigitalFeedbackFromSourceTimeline(Mockito.anyString(), Mockito.any(DigitalSendTimelineElementDetails.class))).thenReturn(
+                Optional.of(elementToReturn)
+        );
 
         //WHEN
         handlerRetry.elapsedExtChannelTimeout(notification.getIun(), 0, sourceTimelineId);
