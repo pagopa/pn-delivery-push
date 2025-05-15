@@ -1,10 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ElementTimestampTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NormalizedAddressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareAnalogDomicileFailureDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV27;
 import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -79,6 +76,9 @@ public class SmartMapper {
         postMappingTransformers.add( (source, result)-> {
             if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV27){
                 ((TimelineElementDetailsV27) result).setNotRefinedRecipientIndexes(null);
+            }
+            if (!(source instanceof PublicRegistryCallDetailsInt) && result instanceof TimelineElementDetailsV27){
+                ((TimelineElementDetailsV27) result).setRecIndexes(null);
             }
             return result;
         });
