@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.startworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.datavault.NotificationRecipientAddressesDtoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -94,7 +95,10 @@ public class LookupAddressHandler {
                     .build();
             recipientAddressesDtoList.add(foundAddress);
         }
-        confidentialInformationService.updateNotificationAddresses(notification.getIun(), false, recipientAddressesDtoList);
+
+        MDCUtils.addMDCToContextAndExecute(
+                confidentialInformationService.updateNotificationAddresses(notification.getIun(), false, recipientAddressesDtoList)
+        ).block();
     }
 
     private void enrichAddressWithRecipientData(NationalRegistriesResponse response, NotificationRecipientInt recipient) {
