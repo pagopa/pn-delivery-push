@@ -56,7 +56,7 @@ class PnSendModeUtilsTest {
         Instant correctConfigStartDate = Instant.parse(arrayObj[INDEX_START_DATE]);
         SendAttachmentMode correctAnalogSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[ANALOG_SEND_ATTACHMENT_MODE_INDEX]);
         SendAttachmentMode correctSimpleRegisteredLetterSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX]);
-        DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
+        AarTemplateType correctAarTemplateType = AarTemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
         configurationList.add(firstCorrectConfiguration);
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
         AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
@@ -74,7 +74,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
         
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
+        AarTemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build());
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
 
@@ -94,7 +94,7 @@ class PnSendModeUtilsTest {
         Instant correctConfigStartDate = Instant.parse(arrayObj[INDEX_START_DATE]);
         SendAttachmentMode correctAnalogSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[ANALOG_SEND_ATTACHMENT_MODE_INDEX]);
         SendAttachmentMode correctSimpleRegisteredLetterSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX]);
-        DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
+        AarTemplateType correctAarTemplateType = AarTemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
         AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
         Mockito.when(aarTemplateStrategyFactory.getAarTemplateStrategy(Mockito.anyString())).thenReturn(aarTemplateChooseStrategy);
@@ -110,7 +110,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
+        AarTemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build());
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
     
@@ -128,7 +128,7 @@ class PnSendModeUtilsTest {
         Instant correctConfigStartDate = Instant.parse(arrayObj[INDEX_START_DATE]);
         SendAttachmentMode correctAnalogSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[ANALOG_SEND_ATTACHMENT_MODE_INDEX]);
         SendAttachmentMode correctSimpleRegisteredLetterSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX]);
-        DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
+        AarTemplateType correctAarTemplateType = AarTemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
 
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
         AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
@@ -144,7 +144,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
+        AarTemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build());
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
 
@@ -162,7 +162,7 @@ class PnSendModeUtilsTest {
         Instant correctConfigStartDate = Instant.parse(arrayObj[INDEX_START_DATE]);
         SendAttachmentMode correctAnalogSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[ANALOG_SEND_ATTACHMENT_MODE_INDEX]);
         SendAttachmentMode correctSimpleRegisteredLetterSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX]);
-        DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
+        AarTemplateType correctAarTemplateType = AarTemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
 
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
         AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
@@ -180,7 +180,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
+        AarTemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build());
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
 
@@ -198,7 +198,7 @@ class PnSendModeUtilsTest {
         Instant correctConfigStartDate = Instant.parse(arrayObj[INDEX_START_DATE]);
         SendAttachmentMode correctAnalogSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[ANALOG_SEND_ATTACHMENT_MODE_INDEX]);
         SendAttachmentMode correctSimpleRegisteredLetterSendAttachmentMode = SendAttachmentMode.fromValue(arrayObj[SIMPLE_REGISTERED_LETTER_SEND_ATTACHMENT_MODE_INDEX]);
-        DocumentComposition.TemplateType correctAarTemplateType = DocumentComposition.TemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
+        AarTemplateType correctAarTemplateType = AarTemplateType.valueOf(arrayObj[AAR_TEMPLATE_TYPE_INDEX]);
 
         Mockito.when(pnDeliveryPushConfigs.getPnSendMode()).thenReturn(configurationList);
         AarTemplateChooseStrategy aarTemplateChooseStrategy = new StaticAarTemplateChooseStrategy(AarTemplateType.valueOf(correctAarTemplateType.name()));
@@ -218,7 +218,7 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
+        AarTemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build());
         Assertions.assertEquals(correctAarTemplateType, actualAaarTemplateType);
     }
 
@@ -257,8 +257,8 @@ class PnSendModeUtilsTest {
         Assertions.assertEquals(correctConfigStartDate, pnSendMode.getStartConfigurationTime());
         Assertions.assertEquals(correctAnalogSendAttachmentMode, pnSendMode.getAnalogSendAttachmentMode());
         Assertions.assertEquals(correctSimpleRegisteredLetterSendAttachmentMode, pnSendMode.getSimpleRegisteredLetterSendAttachmentMode());
-        DocumentComposition.TemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build()).getTemplateType();
-        Assertions.assertEquals(AarTemplateType.AAR_NOTIFICATION_RADD_ALT.getTemplateType(), actualAaarTemplateType);
+        AarTemplateType actualAaarTemplateType = pnSendMode.getAarTemplateTypeChooseStrategy().choose(PhysicalAddressInt.builder().build());
+        Assertions.assertEquals(AarTemplateType.AAR_NOTIFICATION_RADD_ALT, actualAaarTemplateType);
     }
 
     @Test

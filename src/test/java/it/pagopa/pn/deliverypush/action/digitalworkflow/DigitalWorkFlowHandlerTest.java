@@ -46,8 +46,6 @@ import static org.mockito.Mockito.when;
 
 class DigitalWorkFlowHandlerTest {
     @Mock
-    private CompletionWorkFlowHandler completionWorkFlow;
-    @Mock
     private ExternalChannelService externalChannelService;
     @Mock
     private NotificationService notificationService;
@@ -69,8 +67,6 @@ class DigitalWorkFlowHandlerTest {
     private DigitalWorkflowFirstSendRepeatHandler digitalWorkflowFirstSendRepeatHandler;
     @Mock
     private PnDeliveryPushConfigs.ExternalChannel externalChannel;
-    
-    private SendAndUnscheduleNotification sendAndUnscheduleNotification;
 
 
     private DigitalWorkFlowHandler handler;
@@ -81,15 +77,15 @@ class DigitalWorkFlowHandlerTest {
 
 
     @BeforeEach
-    public void setup() {
-        sendAndUnscheduleNotification = new SendAndUnscheduleNotification(externalChannelService, pnDeliveryPushConfigs, schedulerService);
+    void setup() {
+        SendAndUnscheduleNotification sendAndUnscheduleNotification = new SendAndUnscheduleNotification(externalChannelService, pnDeliveryPushConfigs, schedulerService);
         FeatureEnabledUtils featureEnabledUtils = new FeatureEnabledUtils(pnDeliveryPushConfigs);
         handler = new DigitalWorkFlowHandler(sendAndUnscheduleNotification, notificationService,
                 schedulerService, digitalWorkFlowUtils, completionWorkflow, nationalRegistriesService, instantNowSupplier,
                 pnDeliveryPushConfigs, digitalWorkflowFirstSendRepeatHandler, featureEnabledUtils);
 
         handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, pnDeliveryPushConfigs, auditLogService, sendAndUnscheduleNotification);
-        handlerRetry = new DigitalWorkFlowRetryHandler(notificationService, digitalWorkFlowUtils, sendAndUnscheduleNotification, handlerExtChannel, featureEnabledUtils);
+        handlerRetry = new DigitalWorkFlowRetryHandler(notificationService, digitalWorkFlowUtils, sendAndUnscheduleNotification, handlerExtChannel);
         Mockito.lenient().when(pnDeliveryPushConfigs.getExternalChannel()).thenReturn(externalChannel);
         Mockito.lenient().when(externalChannel.getDigitalCodesFatallog()).thenReturn(List.of("C008", "C010", "Q010", "DP10"));
         Mockito.lenient().when(externalChannel.getDigitalCodesSuccess()).thenReturn(List.of("C003", "Q003"));
@@ -945,10 +941,6 @@ class DigitalWorkFlowHandlerTest {
         String sourceTimelineId = "iun_something_1_somethingelse";
 
 
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
         NotificationInt notification = getNotification();
         when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -1026,10 +1018,6 @@ class DigitalWorkFlowHandlerTest {
         String sourceTimelineId = "iun_something_1_somethingelse";
 
 
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
         NotificationInt notification = getNotification();
         when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -1104,10 +1092,6 @@ class DigitalWorkFlowHandlerTest {
         String sourceTimelineId = "iun_something_1_somethingelse";
 
 
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
         NotificationInt notification = getNotification();
         when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -1179,11 +1163,6 @@ class DigitalWorkFlowHandlerTest {
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         String sourceTimelineId = "iun_something_1_somethingelse";
 
-
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
-
         NotificationInt notification = getNotification();
         when(notificationService.getNotificationByIun(Mockito.anyString()))
                 .thenReturn(notification);
@@ -1229,24 +1208,11 @@ class DigitalWorkFlowHandlerTest {
     @Test
     void retryWorkFlowActionNOretry2() {
         //GIVEN
-        DigitalAddressInfoSentAttempt lastAttemptMade = DigitalAddressInfoSentAttempt.builder()
-                .lastAttemptDate(Instant.now())
-                .sentAttemptMade(0)
-                .digitalAddressSource(DigitalAddressSourceInt.SPECIAL)
-                .digitalAddress(LegalDigitalAddressInt.builder()
-                        .address("test@mail.it")
-                        .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC).build())
-                .build();
-
 
         TimeParams times = new TimeParams();
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         String sourceTimelineId = "iun_something_1_somethingelse";
 
-
-        Instant lastAttemptDate = Instant.now().minus(times.getSecondNotificationWorkflowWaitingTime().plus(Duration.ofSeconds(10)));
-
-        DigitalAddressSourceInt addressSource = DigitalAddressSourceInt.PLATFORM;
 
         NotificationInt notification = getNotification();
 
@@ -1363,9 +1329,8 @@ class DigitalWorkFlowHandlerTest {
         times.setSecondNotificationWorkflowWaitingTime(Duration.ofSeconds(1));
         String sourceTimelineId = "iun_something_1_somethingelse";
 
+
         NotificationInt notification = getNotification();
-        when(notificationService.getNotificationByIun(Mockito.anyString()))
-                .thenReturn(notification);
 
         when(digitalWorkFlowUtils.getTimelineElement(Mockito.anyString(), Mockito.eq(sourceTimelineId))).thenReturn(Optional.of(
                 TimelineElementInternal.builder()

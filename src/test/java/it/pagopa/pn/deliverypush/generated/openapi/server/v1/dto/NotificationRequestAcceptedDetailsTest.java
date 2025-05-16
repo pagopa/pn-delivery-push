@@ -6,31 +6,32 @@ import org.junit.jupiter.api.Test;
 
 class NotificationRequestAcceptedDetailsTest {
 
-    private NotificationRequestAcceptedDetails details;
+    private NotificationRequestAcceptedDetailsV27 details;
 
     @BeforeEach
     void setUp() {
-        details = new NotificationRequestAcceptedDetails();
+        details = new NotificationRequestAcceptedDetailsV27();
         details.setRecIndex(1);
+        details.setNotificationRequestId("notificationRequestId");
+        details.setPaProtocolNumber("paProtocolNumber");
+        details.setIdempotenceToken("idempotenceToken");
     }
 
     @Test
-    void recIndex() {
-        NotificationRequestAcceptedDetails tmp = NotificationRequestAcceptedDetails.builder()
-                .recIndex(1)
-                .build();
-        Assertions.assertEquals(tmp, details.recIndex(1));
-    }
-
-    @Test
-    void getRecIndex() {
+    void verifyFields() {
         Assertions.assertEquals(1, details.getRecIndex());
+        Assertions.assertEquals("notificationRequestId", details.getNotificationRequestId());
+        Assertions.assertEquals("paProtocolNumber", details.getPaProtocolNumber());
+        Assertions.assertEquals("idempotenceToken", details.getIdempotenceToken());
     }
 
     @Test
     void testEquals() {
-        NotificationRequestAcceptedDetails tmp = NotificationRequestAcceptedDetails.builder()
+        NotificationRequestAcceptedDetailsV27 tmp = NotificationRequestAcceptedDetailsV27.builder()
                 .recIndex(1)
+                .notificationRequestId("notificationRequestId")
+                .paProtocolNumber("paProtocolNumber")
+                .idempotenceToken("idempotenceToken")
                 .build();
         Assertions.assertEquals(Boolean.TRUE, tmp.equals(details));
     }

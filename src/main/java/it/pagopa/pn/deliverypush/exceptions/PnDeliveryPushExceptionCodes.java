@@ -74,43 +74,62 @@ public class PnDeliveryPushExceptionCodes extends PnExceptionsCodes {
 
     public static final String ERROR_CODE_DELIVERYPUSH_INVALID_TEMPLATE = "PN_DELIVERYPUSH_INVALID_TEMPLATE";
     public static final String ERROR_CODE_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED = "PN_DELIVERY_PUSH_NOTIFICATION_NOT_ACCEPTED";
+    public static final String ERROR_CODE_DELIVERYPUSH_INVALID_PHYSICALADDRESS = "PN_DELIVERYPUSH_PHYSICALADDRESS_REQUIRED";
+    public static final String ERROR_CODE_DELIVERYPUSH_LOOKUPADDRESS_INCONSISTENT_DATA = "PN_DELIVERYPUSH_LOOKUPADDRESS_INCONSISTENT_DATA";
 
 
     @Getter
     public enum NotificationRefusedErrorCodeInt {
-        FILE_NOTFOUND("FILE_NOTFOUND"),
+        FILE_NOTFOUND("FILE_NOTFOUND", false),
 
-        FILE_SHA_ERROR( "FILE_SHA_ERROR"),
+        FILE_SHA_ERROR( "FILE_SHA_ERROR", false),
 
-        FILE_PDF_INVALID_ERROR( "FILE_PDF_INVALID_ERROR"),
+        FILE_PDF_INVALID_ERROR( "FILE_PDF_INVALID_ERROR", false),
 
-        FILE_PDF_TOOBIG_ERROR( "FILE_PDF_TOOBIG_ERROR"),
+        FILE_PDF_TOOBIG_ERROR( "FILE_PDF_TOOBIG_ERROR", false),
 
-        TAXID_NOT_VALID("TAXID_NOT_VALID"),
+        TAXID_NOT_VALID("TAXID_NOT_VALID", false),
 
-        NOT_VALID_ADDRESS("NOT_VALID_ADDRESS"),
+        NOT_VALID_ADDRESS("NOT_VALID_ADDRESS", false),
 
-        F24_METADATA_NOT_VALID("F24_METADATA_NOT_VALID"),
+        F24_METADATA_NOT_VALID("F24_METADATA_NOT_VALID", false),
         
-        SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE"),
+        SERVICE_UNAVAILABLE("SERVICE_UNAVAILABLE", false),
 
-        RECIPIENT_ID_NOT_VALID("RECIPIENT_ID_NOT_VALID"),
+        RECIPIENT_ID_NOT_VALID("RECIPIENT_ID_NOT_VALID", false),
 
-        PAYMENT_NOT_VALID("PAYMENT_NOT_VALID"),
+        PAYMENT_NOT_VALID("PAYMENT_NOT_VALID", false),
         //quickWorkAroundForPN-9116
-        SENDER_DISABLED_MORE_THAN_20_GRAMS("SENDER_DISABLED_MORE_THAN_20_GRAMS"),
+        SENDER_DISABLED_MORE_THAN_20_GRAMS("SENDER_DISABLED_MORE_THAN_20_GRAMS", false),
 
-        FILE_GONE("FILE_GONE");
+        FILE_GONE("FILE_GONE", false),
+
+        ADDRESS_NOT_FOUND("ADDRESS_NOT_FOUND", false),
+
+        ADDRESS_SEARCH_FAILED("ADDRESS_SEARCH_FAILED", true);
+
 
         private final String value;
 
-        NotificationRefusedErrorCodeInt(String value) {
+        private final Boolean isTechnicalRefusal;
+
+        NotificationRefusedErrorCodeInt(String value, Boolean isTechnicalRefusal) {
             this.value = value;
+            this.isTechnicalRefusal = isTechnicalRefusal;
         }
 
         @Override
         public String toString() {
             return String.valueOf(value);
+        }
+
+        public static NotificationRefusedErrorCodeInt fromValue(String value) {
+            for (NotificationRefusedErrorCodeInt b : NotificationRefusedErrorCodeInt.values()) {
+                if (b.value.equals(value)) {
+                    return b;
+                }
+            }
+            return null;
         }
     }
 }

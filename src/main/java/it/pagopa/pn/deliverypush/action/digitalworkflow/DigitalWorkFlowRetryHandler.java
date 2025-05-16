@@ -2,8 +2,6 @@ package it.pagopa.pn.deliverypush.action.digitalworkflow;
 
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.EventCodeInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelDigitalSentResponseInt;
@@ -11,7 +9,6 @@ import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ExtChannelProgressEvent
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalSendTimelineElementDetails;
 import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,7 +26,6 @@ public class DigitalWorkFlowRetryHandler {
     private final DigitalWorkFlowUtils digitalWorkFlowUtils;
     private final SendAndUnscheduleNotification sendAndUnscheduleNotification;
     private final DigitalWorkFlowExternalChannelResponseHandler digitalWorkFlowExternalChannelResponseHandler;
-    private final FeatureEnabledUtils featureEnabledUtils;
 
     /**
      * Callback nel caso di ritentativo a breve termine di invio PEC
@@ -39,10 +35,10 @@ public class DigitalWorkFlowRetryHandler {
      */
     public void startScheduledRetryWorkflow(String iun, Integer recIndex, String timelineId) {
         log.debug("startScheduledRetryWorkflow - iun={} recIndex={} timelineId={}", iun, recIndex, timelineId);
-        
+
         //Viene recuperato l'evento di timeline di SEND o eventualmente di Progress se si tratta di un retry
         Optional<TimelineElementInternal> timelineElement = digitalWorkFlowUtils.getTimelineElement(iun, timelineId);
-        
+
         if (timelineElement.isPresent() && timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails originalSendDigitalProgressDetailsInt) {
             NotificationInt notification = notificationService.getNotificationByIun(iun);
 

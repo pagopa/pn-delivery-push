@@ -554,7 +554,66 @@ public class TestUtils {
 
         return timelineElementOpt.isPresent();
     }
-    
+
+    public static boolean checkIsPresentNationalRegistryValidationCall(String iun, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                buildTimelineEventIdNationalRegistryValidationCall(iun)
+        );
+
+        return timelineElementOpt.isPresent();
+    }
+
+    public static String buildTimelineEventIdNationalRegistryValidationCall(String iun) {
+        return TimelineEventId.NATIONAL_REGISTRY_VALIDATION_CALL.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .deliveryMode(DeliveryModeInt.ANALOG)
+                        .build()
+        );
+    }
+
+    public static boolean checkIsPresentNationalRegistryValidationResponse(String correlationId, String iun, Integer recIndex, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.NATIONAL_REGISTRY_VALIDATION_RESPONSE.buildEventId(
+                        EventId.builder()
+                                .relatedTimelineId(correlationId)
+                                .recIndex(recIndex)
+                                .build()
+                )
+        );
+
+        return timelineElementOpt.isPresent();
+    }
+
+    public static boolean checkIsPresentRequestAccepted(String iun, TimelineService timelineService) {
+        Optional<TimelineElementInternal> timelineElementOpt = timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REQUEST_ACCEPTED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .build())
+        );
+
+        return timelineElementOpt.isPresent();
+    }
+
+    public static boolean checkIsPresentNotificationRejected(String iun, TimelineService timelineService) {
+        return getNotificationRejected(iun, timelineService).isPresent();
+    }
+
+    public static Optional<TimelineElementInternal> getNotificationRejected(String iun, TimelineService timelineService) {
+        return timelineService.getTimelineElement(
+                iun,
+                TimelineEventId.REQUEST_REFUSED.buildEventId(
+                        EventId.builder()
+                                .iun(iun)
+                                .build()
+                )
+        );
+    }
+
     public static Optional<TimelineElementInternal> getRefinement(String iun, Integer recIndex, TimelineService timelineService) {
         return timelineService.getTimelineElement(
                 iun,
@@ -933,6 +992,10 @@ public class TestUtils {
     }
 
     public static NotificationInt getNotificationV2() {
+        return getNotificationV2(null);
+    }
+
+    public static NotificationInt getNotificationV2(UsedServicesInt usedServices) {
         return NotificationInt.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
@@ -967,6 +1030,7 @@ public class TestUtils {
                                         .build()))
                                 .build()
                 ))
+                .usedServices(usedServices)
                 .build();
     }
 
@@ -1074,6 +1138,10 @@ public class TestUtils {
     }
 
     public static NotificationInt getNotificationV2WithF24() {
+        return getNotificationV2WithF24(null);
+    }
+
+    public static NotificationInt getNotificationV2WithF24(UsedServicesInt usedServices) {
         return NotificationInt.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
@@ -1118,6 +1186,7 @@ public class TestUtils {
                                         .build()))
                                 .build()
                 ))
+                .usedServices(usedServices)
                 .build();
     }
 
@@ -1192,7 +1261,6 @@ public class TestUtils {
                                                PnDataVaultClientReactiveMock pnDataVaultClientReactiveMock,
                                                DocumentCreationRequestDaoMock documentCreationRequestDaoMock,
                                                AddressManagerClientMock addressManagerClientMock,
-                                               F24ClientMock f24ClientMock,
                                                ActionPoolMock actionPoolMock
     ) {
 
@@ -1210,7 +1278,6 @@ public class TestUtils {
         pnDataVaultClientReactiveMock.clear();
         documentCreationRequestDaoMock.clear();
         addressManagerClientMock.clear();
-        f24ClientMock.clear();
         actionPoolMock.clear();
         
         ConsoleAppenderCustom.initializeLog();
