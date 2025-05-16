@@ -77,7 +77,7 @@ public class SmartMapper {
             if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV27){
                 ((TimelineElementDetailsV27) result).setNotRefinedRecipientIndexes(null);
             }
-            if (!(source instanceof PublicRegistryCallDetailsInt) && result instanceof TimelineElementDetailsV27){
+            if (!(source instanceof PublicRegistryValidationCallDetailsInt) && result instanceof TimelineElementDetailsV27){
                 ((TimelineElementDetailsV27) result).setRecIndexes(null);
             }
             return result;
