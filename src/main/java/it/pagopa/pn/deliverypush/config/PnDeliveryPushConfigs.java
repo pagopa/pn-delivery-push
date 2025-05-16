@@ -70,6 +70,8 @@ public class PnDeliveryPushConfigs {
 
     private ActionDao actionDao;
 
+    private FutureActionDao futureActionDao;
+
     private LastPollForFutureActionDao lastPollForFutureActionDao;
 
     private DocumentCreationRequestDao documentCreationRequestDao;
@@ -240,6 +242,11 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class ActionDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class FutureActionDao {
         private String tableName;
     }
 
