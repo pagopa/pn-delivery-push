@@ -5,4 +5,6 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 public interface ActionService {
 
     void addOnlyActionIfAbsent(Action action);
+
+    void unSchedule(Action action, String timeSlot);
 }
