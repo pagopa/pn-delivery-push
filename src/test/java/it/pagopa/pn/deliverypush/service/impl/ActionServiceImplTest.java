@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class ActionServiceImplTest {
@@ -24,6 +26,18 @@ class ActionServiceImplTest {
     public void setup() {
         actionDao = Mockito.mock(ActionDao.class);
         actionService = new ActionServiceImpl(actionDao);
+    }
+
+    @Test
+    void getActionById() {
+
+        Action action = buildAction();
+
+        Mockito.when(actionDao.getActionById("002")).thenReturn(Optional.of(action));
+
+        Optional<Action> actual = actionService.getActionById("002");
+
+        Assertions.assertEquals(action, actual.get());
     }
 
     @Test

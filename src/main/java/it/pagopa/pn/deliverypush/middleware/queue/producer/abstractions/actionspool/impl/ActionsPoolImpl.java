@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Optional;
 
 @Service
 @CustomLog
@@ -40,8 +41,9 @@ public class ActionsPoolImpl implements ActionsPool {
 
     @Override
     public void unscheduleFutureAction(String actionId) {
-        // Il metodo non fa più nulla dopo la rimozione del feature flag di performance improvement
-        // Viene lasciato per ricostruire più facilmente i punti di impatto su cui intervenire per il bug
-        // https://pagopa.atlassian.net/browse/PN-13614
+        Optional<Action> actionEntity = actionService.getActionById(actionId);
+        if (actionEntity.isPresent() && actionEntity.get().getTimeslot() != null) {
+            actionService.unSchedule(actionEntity.get(), actionEntity.get().getTimeslot());
+        }
     }
 }

@@ -1,9 +1,12 @@
 package it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
+import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.ActionEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.FutureActionEntity;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,13 +15,18 @@ import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 
 import java.time.Instant;
+import java.util.Optional;
 
 
 class ActionDaoDynamoTest {
+    @Mock
+    private ActionEntityDao actionEntityDao;
+
     @Mock
     private PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
@@ -51,9 +59,24 @@ class ActionDaoDynamoTest {
         //TableSchema<FutureActionEntity> tableSchema = TableSchema.fromClass(FutureActionEntity.class);
 
         // Inizializza l'istanza di ActionDaoDynamo con i mock
-        dynamo = new ActionDaoDynamo( dynamoDbEnhancedClient, pnDeliveryPushConfigs);
+        dynamo = new ActionDaoDynamo( actionEntityDao, dynamoDbEnhancedClient, pnDeliveryPushConfigs);
     }
 
+    @Test
+    @ExtendWith(SpringExtension.class)
+    void getActionById() {
+        Action action = buildAction(ActionType.ANALOG_WORKFLOW);
+        ActionEntity actionEntity = buildActionEntity(action);
+        Key keyToSearch = Key.builder()
+                .partitionValue("2")
+                .build();
+
+        Mockito.when(actionEntityDao.get(keyToSearch)).thenReturn(Optional.of(actionEntity));
+
+        Optional<Action> opt = dynamo.getActionById("2");
+
+        Assertions.assertEquals(ActionType.ANALOG_WORKFLOW, opt.get().getType());
+    }
 
     @Test
     @ExtendWith(SpringExtension.class)
@@ -80,5 +103,14 @@ class ActionDaoDynamoTest {
     }
 
 
+    private ActionEntity buildActionEntity(Action dto) {
+        ActionEntity.ActionEntityBuilder builder = ActionEntity.builder()
+                .actionId(dto.getActionId())
+                .notBefore(dto.getNotBefore())
+                .recipientIndex(dto.getRecipientIndex())
+                .type(dto.getType())
+                .iun(dto.getIun());
+        return builder.build();
+    }
 
 }
