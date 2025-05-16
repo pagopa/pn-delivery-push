@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.MockActionPoolTest;
 import it.pagopa.pn.deliverypush.action.details.RecipientsWorkflowDetails;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionDao;
+import it.pagopa.pn.deliverypush.middleware.dao.actiondao.FutureActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.ActionDaoDynamo;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
@@ -21,8 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.util.List;
@@ -41,7 +44,10 @@ import static org.junit.Assert.assertEquals;
 class ActionDaoDynamoTestIT extends MockActionPoolTest {
     @Autowired
     private ActionDao actionDao;
-    
+
+    @Autowired
+    private FutureActionEntityDao futureActionEntityDao;
+
     @Test
     void addAndCheckAction() {
         //GIVEN
@@ -82,8 +88,8 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         Assertions.assertTrue(actionOpt2.isPresent());
         Assertions.assertEquals(actionOpt2.get(),action2);
 
-        actionDao.unSchedule(action, timeSlot);
-        actionDao.unSchedule(action2, timeSlot);
+        deleteAction(action, timeSlot);
+        deleteAction(action2, timeSlot);
     }
 
     
@@ -112,7 +118,7 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         Assertions.assertEquals(actionOpt.get(),action);
      
 
-        actionDao.unSchedule(action, timeSlot);
+        deleteAction(action, timeSlot);
     }
 
     
@@ -145,8 +151,8 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
 
         Action action2 = actionBuilder2.actionId(actionId2).build();
 
-        actionDao.unSchedule(action, timeSlot);
-        actionDao.unSchedule(action2, timeSlot);
+        deleteAction(action, timeSlot);
+        deleteAction(action2, timeSlot);
 
         //WHEN
         actionDao.addAction(action, timeSlot);
@@ -158,8 +164,8 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         Assertions.assertTrue(actions.contains(action));
         Assertions.assertTrue(actions.contains(action2));
 
-        actionDao.unSchedule(action, timeSlot);
-        actionDao.unSchedule(action2, timeSlot);
+        deleteAction(action, timeSlot);
+        deleteAction(action2, timeSlot);
 
     }
 
@@ -191,13 +197,12 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         String timeSlot1 = "2022-04-12T09:26";
         String timeSlot2 = "2022-04-12T09:27";
         
-        List<Action> actionslist1 =  actionDao.findActionsByTimeSlot( timeSlot1 );
+        actionDao.findActionsByTimeSlot( timeSlot1 );
 
-        actionDao.unSchedule(action, timeSlot1);
-        actionDao.unSchedule(action2, timeSlot1);
-        actionDao.unSchedule(action2, timeSlot2);
+        deleteAction(action, timeSlot1);
+        deleteAction(action2, timeSlot1);
 
-        List<Action> actionslist2 =  actionDao.findActionsByTimeSlot( timeSlot1 );
+        actionDao.findActionsByTimeSlot( timeSlot1 );
 
         //WHEN
         actionDao.addAction(action, timeSlot1);
@@ -214,8 +219,8 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         Assertions.assertTrue(actions2.contains(action2));
         Assertions.assertFalse(actions2.contains(action));
 
-        actionDao.unSchedule(action, timeSlot1);
-        actionDao.unSchedule(action2, timeSlot2);
+        deleteAction(action, timeSlot1);
+        deleteAction(action2, timeSlot2);
     }
 
     @Test
@@ -327,4 +332,35 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         assertEquals(Level.WARN, logsList.get(0)
                 .getLevel());
     }
+
+
+    @Test
+    void unscheduleNotExistentFutureAction() {
+
+        String timeSlot = "2022-04-12T09:26";
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_addAndCheckAction_iun01")
+                .recipientIndex(1)
+                .type(ActionType.ANALOG_WORKFLOW);
+        String actionId = ActionType.ANALOG_WORKFLOW.buildActionId(
+                actionBuilder.build());
+
+        Action action = actionBuilder.actionId(actionId).build();
+
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.unScheduleFutureAction(action, timeSlot)
+        );
+
+    }
+
+    private void deleteAction(Action action, String timeSlot) {
+        Key keyToDelete = Key.builder()
+                .partitionValue(timeSlot)
+                .sortValue(action.getActionId())
+                .build();
+
+        futureActionEntityDao.delete(keyToDelete);
+    }
+
 }

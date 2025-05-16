@@ -19,5 +19,5 @@ public interface ActionDao {
 
     List<Action> findActionsByTimeSlot( String timeSlot );
 
-    void unSchedule( Action action, String timeSlot );
+    void unScheduleFutureAction(Action action, String timeSlot );
 }

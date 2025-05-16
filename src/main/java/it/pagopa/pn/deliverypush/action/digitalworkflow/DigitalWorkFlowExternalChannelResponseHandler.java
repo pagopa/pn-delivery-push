@@ -122,7 +122,11 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             log.debug("Response is for 'DELIVERY FAILURE' generatedMessage={} - iun={} id={}", digitalResultInfos.getResponse().getGeneratedMessage(), iun, digitalResultInfos.getRecIndex());
 
             // unschedulo eventuale timer programmato di invio
-            sendAndUnscheduleNotification.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+            sendAndUnscheduleNotification.unscheduleTimeoutAction(
+                    iun,
+                    digitalResultInfos.getRecIndex(),
+                    digitalResultInfos.getTimelineElementInternal() == null ? null : digitalResultInfos.getTimelineElementInternal().getElementId()
+            );
 
             SendInformation digitalAddressFeedback = SendInformation.builder()
                     .retryNumber(digitalResultInfos.getRetryNumber())
@@ -162,7 +166,11 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             //AVVENUTA CONSEGNA
 
             // unschedulo eventuale timer programmato di invio
-            sendAndUnscheduleNotification.unscheduleTimeoutAction(iun, digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+            sendAndUnscheduleNotification.unscheduleTimeoutAction(
+                    iun,
+                    digitalResultInfos.getRecIndex(),
+                    digitalResultInfos.getTimelineElementInternal() == null ? null : digitalResultInfos.getTimelineElementInternal().getElementId()
+            );
 
             SendInformation digitalAddressFeedback = SendInformation.builder()
                 .retryNumber(digitalResultInfos.getRetryNumber())
@@ -253,7 +261,11 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             handleStatusProgress(digitalResultInfos, true);
 
             // unschedulo eventuale timer programmato di invio
-            sendAndUnscheduleNotification.unscheduleTimeoutAction(digitalResultInfos.getNotification().getIun(), digitalResultInfos.getRecIndex(), digitalResultInfos.getTimelineElementInternal()==null?null:digitalResultInfos.getTimelineElementInternal().getElementId());
+            sendAndUnscheduleNotification.unscheduleTimeoutAction(
+                    digitalResultInfos.getNotification().getIun(),
+                    digitalResultInfos.getRecIndex(),
+                    digitalResultInfos.getTimelineElementInternal() == null ? null : digitalResultInfos.getTimelineElementInternal().getElementId()
+            );
 
             // è richiesto di ritentare, schedulo un nuovo evento in coda e aggiunto un evento di progress nella timeline
             final DigitalAddressInfoSentAttempt addressInfo = DigitalAddressInfoSentAttempt.builder()
@@ -266,7 +278,7 @@ public class DigitalWorkFlowExternalChannelResponseHandler {
             restartWorkflowAfterRetryTime(
                     digitalResultInfos.getNotification(),
                     digitalResultInfos.getRecIndex(),
-                    addressInfo, 
+                    addressInfo,
                     digitalResultInfos.getTimelineElementInternal()
             );
         }
