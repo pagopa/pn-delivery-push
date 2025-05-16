@@ -64,7 +64,7 @@ public class DigitalWorkFlowRetryHandler {
             }
             else
             {
-                log.info("startScheduledRetryWorkflow ABORTED because last status is not send or progress iun={} recIndex={}", iun, recIndex);
+                log.info("Don't need to send new attempt, already received feedback - iun={} recIndex={}", iun, recIndex);
             }
         }
         else
@@ -98,23 +98,6 @@ public class DigitalWorkFlowRetryHandler {
             return;
         }
 
-        Integer originalRetryNumber = -1;
-        DigitalAddressSourceInt originalAddressSource = null;
-        LegalDigitalAddressInt originalAddressInfo = null;
-
-        if (timelineElement.get().getDetails() instanceof DigitalSendTimelineElementDetails sendDigitalProgressDetailsInt)
-        {
-            // dovrebbe sempre essere instanceof di questo tipo
-            originalRetryNumber = sendDigitalProgressDetailsInt.getRetryNumber();
-            originalAddressSource = sendDigitalProgressDetailsInt.getDigitalAddressSource();
-            originalAddressInfo = sendDigitalProgressDetailsInt.getDigitalAddress();
-        }
-        else
-        {
-            // caso decisamente strano...loggo ma non tiro errore perchè tanto, se non c'è l'evento non è che ritentando risolve
-            log.error("elapsedExtChannelTimeout Original timelineevent not found, skipping actions iun={} recIdx={}", iun, recIndex);
-        }
-
         // devo controllare che il timeout scattato sia ancora rilevante.
         if (checkIfEventIsStillValid(iun, timelineElement.get()))
         {
@@ -122,13 +105,12 @@ public class DigitalWorkFlowRetryHandler {
             resendNewEventoToExtChannel(iun, recIndex, timelineId);
         }
         else {
-            // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
-            handleDontNeddToRetryCase(iun, recIndex, originalRetryNumber, originalAddressSource, originalAddressInfo);
+            log.info("elapsedExtChannelTimeout but don't need to retry, skipping more actions iun={} recIdx={}", iun, recIndex);
         }
     }
 
     private void resendNewEventoToExtChannel(String iun, int recIndex, String timelineId) {
-        log.info("Timeout expired and need to send new attempt - iun={} recIdx={}", iun, recIndex);
+        log.info("Timeout expired and need to send new attempt - iun={} recIdx={} timelineId={}", iun, recIndex, timelineId);
         // se lo è schedulo gestisco secondo configurazione
         // EMULO la response proveniente da ext-channel, così poi la logica sarà la stessa
         digitalWorkFlowExternalChannelResponseHandler.handleExternalChannelResponse(ExtChannelDigitalSentResponseInt.builder()
@@ -139,30 +121,6 @@ public class DigitalWorkFlowRetryHandler {
                 .status(ExtChannelProgressEventCat.PROGRESS)
                 .eventDetails("expired timeout")
                 .build());
-    }
-
-    private void handleDontNeddToRetryCase(String iun, int recIndex, Integer originalRetryNumber, DigitalAddressSourceInt originalAddressSource, LegalDigitalAddressInt originalAddressInfo) {
-        // salvo cmq in timeline il fatto che ho deciso di non rischedulare i tentativi
-
-        NotificationInt notification = notificationService.getNotificationByIun(iun);
-
-        SendInformation digitalAddressFeedback = SendInformation.builder()
-                .retryNumber(originalRetryNumber)
-                .eventTimestamp(Instant.now())
-                .digitalAddressSource(originalAddressSource)
-                .digitalAddress(originalAddressInfo)
-                .isFirstSendRetry(null)
-                .relatedFeedbackTimelineId(null)
-                .build();
-
-        digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(notification,
-                EventCodeInt.DP10,
-                recIndex,
-                false,
-                null,
-                digitalAddressFeedback);
-
-        log.info("elapsedExtChannelTimeout but don't need to retry, skipping more actions iun={} recIdx={}", iun, recIndex);
     }
 
     private boolean checkIfEventIsStillValid(String iun, TimelineElementInternal originalTimelineElement){
