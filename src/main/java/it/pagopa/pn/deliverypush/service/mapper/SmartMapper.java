@@ -1,11 +1,8 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ElementTimestampTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NormalizedAddressDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PrepareAnalogDomicileFailureDetailsInt;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV26;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV27;
 import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Converter;
@@ -38,7 +35,7 @@ public class SmartMapper {
     private static String SERCQ_SEND = "send-self";
 
 
-    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV26> addressDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV27> addressDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getNewAddress());
@@ -47,7 +44,7 @@ public class SmartMapper {
     };
 
 
-    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV26> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
+    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV27> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getPhysicalAddress());
@@ -77,8 +74,11 @@ public class SmartMapper {
 
         List<BiFunction> postMappingTransformers = new ArrayList<>();
         postMappingTransformers.add( (source, result)-> {
-            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV26){
-                ((TimelineElementDetailsV26) result).setNotRefinedRecipientIndexes(null);
+            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV27){
+                ((TimelineElementDetailsV27) result).setNotRefinedRecipientIndexes(null);
+            }
+            if (!(source instanceof PublicRegistryValidationCallDetailsInt) && result instanceof TimelineElementDetailsV27){
+                ((TimelineElementDetailsV27) result).setRecIndexes(null);
             }
             return result;
         });

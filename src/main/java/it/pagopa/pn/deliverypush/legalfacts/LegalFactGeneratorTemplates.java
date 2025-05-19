@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import java.net.MalformedURLException;
@@ -30,6 +31,7 @@ import static it.pagopa.pn.deliverypush.service.mapper.TemplatesEngineMapper.*;
 
 @Slf4j
 @AllArgsConstructor
+@Component
 public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     private final CustomInstantWriter instantWriter;

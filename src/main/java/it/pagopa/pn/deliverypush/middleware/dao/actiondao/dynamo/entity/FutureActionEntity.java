@@ -29,6 +29,7 @@ public class FutureActionEntity {
     private ActionType type;
     private Integer recipientIndex;
     private String timelineId;
+    private Boolean logicalDeleted;
     private ActionDetailsEntity details;
 
     @DynamoDbPartitionKey
@@ -97,5 +98,14 @@ public class FutureActionEntity {
     
     public void setDetails(ActionDetailsEntity details) {
       this.details = details;
+    }
+
+    public Boolean getLogicalDeleted() {
+        return logicalDeleted;
+    }
+
+    @DynamoDbAttribute(value = "logicalDeleted")
+    public void setLogicalDeleted(Boolean logicalDeleted) {
+        this.logicalDeleted = logicalDeleted;
     }
 }

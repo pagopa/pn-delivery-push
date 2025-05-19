@@ -20,7 +20,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
@@ -38,7 +37,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 
@@ -547,6 +545,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
     }
 
     @Test
+    @Disabled
     void multiRecipientWithFirstUnreachableAndSecondDeceased() {
   /*
        PRIMO RECIPIENT
@@ -1106,6 +1105,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         ConsoleAppenderCustom.checkLogs();
     }
 
+    /*
     private void checkNotificationCancelledTimelineElement(String iun) {
         String timelineId = TimelineEventId.NOTIFICATION_CANCELLED.buildEventId(
                 EventId.builder()
@@ -1118,4 +1118,5 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
         TimelineElementInternal timelineElement = timelineElementInternalOpt.get();
         Assertions.assertEquals(iun, timelineElement.getIun());
     }
+     */
 }

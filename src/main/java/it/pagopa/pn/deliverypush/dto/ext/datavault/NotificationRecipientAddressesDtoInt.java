@@ -14,4 +14,5 @@ public class NotificationRecipientAddressesDtoInt {
     private String denomination;
     private DigitalAddressInt digitalAddress;
     private PhysicalAddressInt physicalAddress;
+    private Integer recIndex;
 }
