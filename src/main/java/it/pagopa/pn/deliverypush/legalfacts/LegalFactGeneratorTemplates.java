@@ -358,7 +358,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 this.getPerfezionamentoLink(),
                 this.getFAQSendURL(),
                 this.getAccessUrl(recipient),
-                this.getRecipientTypeForHTMLTemplate(recipient));
+                recipient.getRecipientType().getValue());
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClientPec.parametrizedNotificationAarForPec(language, notificationAAR);
     }
@@ -475,17 +475,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     private String getFAQSendURL() {
         return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqSendHash();
-    }
-
-    /**
-     * Determines the recipient type for an HTML template based on the recipient's type.
-     *
-     * @param recipientInt the recipient object containing the recipient's type.
-     * @return a {@link String} representing the recipient type for use in an HTML template,
-     * either "giuridica" or "fisica".
-     */
-    private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
-        return recipientInt.getRecipientType() == RecipientTypeInt.PG ? "giuridica" : "fisica";
     }
 
     /**

@@ -920,7 +920,7 @@ public class AnalogDeceasedTestIT extends CommonTestConfiguration {
     }
 
     @Test
-    @Disabled
+    @Disabled("Test fail sometimes")
     void multiRecipientWithFirstAnalogOkAndSecondDeceasedWhichVisualizesTheNotification() {
   /*
        PRIMO RECIPIENT
