@@ -115,7 +115,7 @@ public class ActionDaoDynamo implements ActionDao {
         try {
             dynamoDbTableFutureAction.updateItem(updateItemEnhancedRequest);
         } catch (ConditionalCheckFailedException ex){
-            log.warn("Exception code ConditionalCheckFailed on update future action, letting flow continue actionId={} ", action.getActionId());
+            log.info("Exception code ConditionalCheckFailed on update future action, letting flow continue actionId={} ", action.getActionId());
         }
     }
 
