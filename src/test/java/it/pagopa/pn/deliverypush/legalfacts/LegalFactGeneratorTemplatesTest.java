@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.deliverypush.action.it.CommonTestConfiguration;
 import it.pagopa.pn.deliverypush.action.it.mockbean.TemplatesClientMock;
+import it.pagopa.pn.deliverypush.action.it.mockbean.TemplatesClientMockPec;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
@@ -13,6 +14,7 @@ import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.templatesengine.model.*;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientPec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,8 +35,11 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
     LegalFactGenerator legalFactGeneratorTemplatesTest;
     @MockBean
     TemplatesClient templatesClient;
+    @MockBean
+    TemplatesClientPec templatesClientPec;
 
     TemplatesClientMock templatesClientMock = new TemplatesClientMock();
+    TemplatesClientMockPec templatesClientMockPec = new TemplatesClientMockPec();
 
     private static final String IUN = "TEST_TEST";
     private static final String TEST_RETURN = "Templates As String Result";
@@ -121,8 +126,8 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
 
     @Test
     void generateNotificationAARPECBody() {
-        Mockito.when(templatesClient.notificationAarForPec(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForPec.class)))
-                .thenReturn(templatesClientMock.notificationAarForPec(LanguageEnum.IT, new NotificationAarForPec()));
+        Mockito.when(templatesClientPec.parametrizedNotificationAarForPec(Mockito.any(LanguageEnum.class), Mockito.any(NotificationAarForPec.class)))
+                .thenReturn(templatesClientMockPec.parametrizedNotificationAarForPec(LanguageEnum.IT, new NotificationAarForPec()));
         var result = Assertions.assertDoesNotThrow(() -> legalFactGeneratorTemplatesTest.generateNotificationAARPECBody(
                 notificationInt(), notificationRecipientInt(), QUICK_ACCESS_TOKEN));
         Assertions.assertEquals(TEST_RETURN, result);
