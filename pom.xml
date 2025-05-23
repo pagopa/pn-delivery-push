@@ -598,8 +598,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<!-- aggiornare con il commitId di develop-->
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-channel/2dcc72b743cc5a130bce9f4cc27901df028feed9/docs/openapi/api-internal-v1.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-channel/11f0b33722fa92e44c5c37032e6ebc938b1cb713/docs/openapi/api-internal-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
