@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import it.pagopa.pn.deliverypush.utils.QrCodeUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import java.net.MalformedURLException;
@@ -30,6 +31,7 @@ import static it.pagopa.pn.deliverypush.service.mapper.TemplatesEngineMapper.*;
 
 @Slf4j
 @AllArgsConstructor
+@Component
 public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     private final CustomInstantWriter instantWriter;
@@ -356,7 +358,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                 this.getPerfezionamentoLink(),
                 this.getFAQSendURL(),
                 this.getAccessUrl(recipient),
-                this.getRecipientTypeForHTMLTemplate(recipient));
+                recipient.getRecipientType().getValue());
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
         return templatesClientPec.parametrizedNotificationAarForPec(language, notificationAAR);
     }
@@ -473,17 +475,6 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
 
     private String getFAQSendURL() {
         return this.getFAQAccessLink() + "#" + pnDeliveryPushConfigs.getWebapp().getFaqSendHash();
-    }
-
-    /**
-     * Determines the recipient type for an HTML template based on the recipient's type.
-     *
-     * @param recipientInt the recipient object containing the recipient's type.
-     * @return a {@link String} representing the recipient type for use in an HTML template,
-     * either "giuridica" or "fisica".
-     */
-    private String getRecipientTypeForHTMLTemplate(NotificationRecipientInt recipientInt) {
-        return recipientInt.getRecipientType() == RecipientTypeInt.PG ? "giuridica" : "fisica";
     }
 
     /**

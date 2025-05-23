@@ -3,14 +3,17 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.nationalreg
 import it.pagopa.pn.commons.pnclients.CommonBaseClient;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AddressApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.api.AgenziaEntrateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.nationalregistries.model.*;
+import it.pagopa.pn.deliverypush.utils.NationalRegistriesMessageUtil;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -58,4 +61,18 @@ public class NationalRegistriesClientImpl extends CommonBaseClient implements Na
                 agenziaEntrateApi.checkTaxId(checkTaxIdRequestBody)
         ).block();
     }
+
+    @Override
+    public List<NationalRegistriesResponse> sendRequestForGetPhysicalAddresses(PhysicalAddressesRequestBody physicalAddressesRequestBody) {
+        String correlationId = physicalAddressesRequestBody.getCorrelationId();
+        log.logInvokingExternalService(CLIENT_NAME, GET_PHYSICAL_ADDRESSES);
+
+        return MDCUtils.addMDCToContextAndExecute(
+                addressApi.getPhysicalAddresses(physicalAddressesRequestBody)
+                        .doOnSuccess(response -> log.info("Completed getPhysicalAddresses response={} - correlationId={}", response, correlationId))
+                        .map(NationalRegistriesMessageUtil::buildPublicRegistryValidationResponse)
+                        .doOnError(throwable -> log.error(String.format("Error calling getPhysicalAddresses with correlationId: %s", correlationId), throwable))
+        ).block();
+    }
+
 }

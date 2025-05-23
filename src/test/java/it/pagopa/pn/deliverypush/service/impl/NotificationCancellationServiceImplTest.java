@@ -14,9 +14,7 @@ import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResponseInt;
 import it.pagopa.pn.deliverypush.dto.cost.UpdateNotificationCostResultInt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancelledDocumentCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnPaymentUpdateRetryException;
@@ -275,7 +273,6 @@ class NotificationCancellationServiceImplTest {
         Mockito.when(timelineService.getTimelineElement(any(), any())).thenReturn(Optional.of(timelineElement));
         Mockito.when(notificationService.removeAllNotificationCostsByIun(notification.getIun())).thenReturn(Mono.empty());
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
-        Mockito.when(notificationService.updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, timelineElement.getTimestamp())).thenReturn(Mono.empty());
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(2)))
                 .thenReturn(auditLogEvent);
@@ -444,7 +441,6 @@ class NotificationCancellationServiceImplTest {
         Mockito.when(timelineService.getTimelineElement(any(), any())).thenReturn(Optional.of(timelineElement));
         Mockito.when(notificationService.removeAllNotificationCostsByIun(notification.getIun())).thenReturn(Mono.empty());
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
-        Mockito.when(notificationService.updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, timelineElement.getTimestamp())).thenReturn(Mono.empty());
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(2)))
                 .thenReturn(auditLogEvent);
@@ -500,7 +496,6 @@ class NotificationCancellationServiceImplTest {
         Mockito.when(timelineService.getTimelineElement(any(), any())).thenReturn(Optional.of(timelineElementOLD));
         Mockito.when(notificationService.removeAllNotificationCostsByIun(notification.getIun())).thenReturn(Mono.empty());
         Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
-        Mockito.when(notificationService.updateStatus(notification.getIun(), NotificationStatusInt.CANCELLED, timelineElementOLD.getTimestamp())).thenReturn(Mono.empty());
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(eq(notification.getIun()), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(2)))
                 .thenReturn(auditLogEvent);

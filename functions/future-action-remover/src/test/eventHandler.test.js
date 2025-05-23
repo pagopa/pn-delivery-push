@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 const { expect } = require("chai");
-const { describe, it, before, after, afterEach } = require("mocha");
+const { describe, it } = require("mocha");
 const proxyquire = require("proxyquire").noPreserveCache();
 const {
   parseISO,
@@ -50,7 +50,7 @@ const testOverride = (
         timeslot.lastWorkedTimeslot = newTime,
       getActionsByTimeSlot: async (
         _unused1,
-        { timeSlot, _sub_unused1, _sub_unused2 },
+        timeSlot,
         _unused2
       ) => {
         let dataSet;

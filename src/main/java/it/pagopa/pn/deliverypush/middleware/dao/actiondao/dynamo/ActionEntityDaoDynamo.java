@@ -23,22 +23,6 @@ public class ActionEntityDaoDynamo extends AbstractDynamoKeyValueStore<ActionEnt
         return cfg.getActionDao().getTableName();
     }
 
-    public TransactPutItemEnhancedRequest<ActionEntity> preparePutIfAbsent(ActionEntity value){
-        String expression = String.format(
-                "%s(%s)",
-                ATTRIBUTE_NOT_EXISTS,
-                ActionEntity.FIELD_ACTION_ID
-        );
-
-        Expression conditionExpressionPut = Expression.builder()
-                .expression(expression)
-                .build();
-
-        return TransactPutItemEnhancedRequest.builder( ActionEntity.class )
-                .item( value )
-                .conditionExpression( conditionExpressionPut )
-                .build();
-    }
 
     @Override
     public void putIfAbsent(ActionEntity value) {

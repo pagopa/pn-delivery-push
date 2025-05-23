@@ -148,31 +148,31 @@ public class ExternalChannelServiceImpl implements ExternalChannelService {
                                 .build()
                 );
 
-            externalChannel.sendLegalNotification(
-                    notification,
-                    digitalParameters.recipientFromIndex,
-                    sendInformation.getDigitalAddress(), 
-                    eventId,
-                    digitalParameters.fileKeys,
-                    digitalParameters.quickAccessToken);
-
-                SendInformation digitalAddressFeedback = SendInformation.builder()
-                        .retryNumber(sendInformation.getRetryNumber())
-                        .eventTimestamp(Instant.now())
-                        .digitalAddressSource(sendInformation.getDigitalAddressSource())
-                        .digitalAddress(sendInformation.getDigitalAddress())
-                        .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
-                        .relatedFeedbackTimelineId(sendInformation.getRelatedFeedbackTimelineId())
-                        .build();
-
-                digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
+                externalChannel.sendLegalNotification(
                         notification,
-                        EventCodeInt.DP00,
-                        recIndex,
-                        false,
-                        null,
-                        digitalAddressFeedback
-                );
+                        digitalParameters.recipientFromIndex,
+                        sendInformation.getDigitalAddress(),
+                        eventId,
+                        digitalParameters.fileKeys,
+                        digitalParameters.quickAccessToken);
+
+                    SendInformation digitalAddressFeedback = SendInformation.builder()
+                            .retryNumber(sendInformation.getRetryNumber())
+                            .eventTimestamp(Instant.now())
+                            .digitalAddressSource(sendInformation.getDigitalAddressSource())
+                            .digitalAddress(sendInformation.getDigitalAddress())
+                            .isFirstSendRetry(sendInformation.getIsFirstSendRetry())
+                            .relatedFeedbackTimelineId(sendInformation.getRelatedFeedbackTimelineId())
+                            .build();
+
+                    digitalWorkFlowUtils.addDigitalDeliveringProgressTimelineElement(
+                            notification,
+                            EventCodeInt.DP00,
+                            recIndex,
+                            false,
+                            null,
+                            digitalAddressFeedback
+                    );
             }
 
             logEvent.generateSuccess("successful sent eventId={}", eventId).log();

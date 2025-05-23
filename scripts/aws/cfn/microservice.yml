@@ -213,9 +213,6 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing'
 
-  LastPollForFutureActionDynamoTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
 
   LastPollForFutureActionDynamoTableArn:
     Type: String
@@ -226,22 +223,6 @@ Parameters:
     Description: 'Name of dynamodb table containing'
 
   PnDeliveryPushShedLockDynamoTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-  PnDeliveryPushWebhookStreamsTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  PnDeliveryPushWebhookStreamsTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-  PnDeliveryPushWebhookEventsTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  PnDeliveryPushWebhookEventsTableArn:
     Type: String
     Description: 'ARN of dynamodb table containing'
 
@@ -613,15 +594,6 @@ Parameters:
     Type: String
     Default: ''
 
-  VersioningV1V2WebhookLambdaName:
-    Type: String
-    Description: 'VersioningV1V2WebhookLambdaName'
-
-  VersioningV1V2WebhookLambdaProvisionedConcurrency:
-    Type: Number
-    Description: 'VersioningV1V2WebhookLambdaProvisionedConcurrency'
-    Default: 1
-
   VersioningGetNotificationLegalFactsLambdaName:
     Type: String
     Description: 'VersioningGetNotificationLegalFactsLambda'
@@ -648,17 +620,6 @@ Parameters:
 
   ActionRemoverLambdaName:
     Type: String
-
-  WebhookEventManagerLambdaName:
-    Type: String
-  
-  WebhookEventManagerDLQARN:
-    Type: String
-    Description: 'DLQ ARN for WebhookEventManagerLambda'
-
-  WebhookEventManagerDLQAlarmARN:
-    Type: String
-    Description: 'DLQ Alarm ARN for WebhookEventManagerLambda'
 
   PaperEventsCostUpdateLambdaName:
     Type: String
@@ -698,18 +659,6 @@ Parameters:
   CdcKinesisSourceStreamKeyArn:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
-
-
-  #Webhook event manager lambda parameters
-  WebhookEventManagerLambdaMaximumBatchingWindowInSeconds:
-    Type: String
-    Default: "20"
-    Description: 'MaximumBatchingWindow asseveration event source mapping'
-
-  WebhookEventManagerLambdaBatchSize:
-    Type: String
-    Default: "60"
-    Description: 'BatchSize asseveration event source mapping'
 
 
   #Webhook event manager lambda parameters
@@ -782,14 +731,6 @@ Parameters:
       - "true"
       - "false"
 
-  PerformanceImprovementStartDate:
-    Type: String
-    Description: 'Start Date enable feature flag performance improvement'
-
-  PerformanceImprovementEndDate:
-    Type: String
-    Description: 'End date enable feature flag performance improvement'
-
   FutureActionTtlExtraDays:
     Default: 365
     Type: Number
@@ -807,8 +748,8 @@ Parameters:
 
   WebhookFeatureFlags:
     Type: CommaDelimitedList
-    Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestam, gateway override path
-    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,delivery-progresses-2'
+    Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestamp
+    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
 
   pfNewWorkflowFeatureFlag:
     Type: CommaDelimitedList
@@ -856,13 +797,9 @@ Resources:
         #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
-        ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
+        #ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
+        #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -888,7 +825,6 @@ Resources:
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
         ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
         ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
-        ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         #ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         #ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
@@ -904,7 +840,6 @@ Resources:
         #ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
         #ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
         ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
-        ContainerEnvEntry52: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
         #ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
         ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
         #ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
@@ -931,10 +866,7 @@ Resources:
         ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
         #ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
         #ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
-        ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
-        ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
@@ -994,13 +926,9 @@ Resources:
         #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
-        ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
+        #ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
+        #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -1026,7 +954,6 @@ Resources:
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
         ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
         ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
-        ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         #ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         #ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
@@ -1042,7 +969,6 @@ Resources:
         #ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
         #ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
         ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
-        ContainerEnvEntry52: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
         #ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
         ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
         #ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
@@ -1069,10 +995,7 @@ Resources:
         ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
         #ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
         #ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
-        ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
-        ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
@@ -1137,13 +1060,9 @@ Resources:
         #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
         ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
-        ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_WEBHOOK_SCHEDULEINTERVAL=${WebhookScanInterval}'
-        #ContainerEnvEntry10: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXLENGTH=${WebhookMaxLength}'
+        #ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
+        #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
         #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_EVENTSTABLENAME=${PnDeliveryPushWebhookEventsTableName}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_WEBHOOKDAO_STREAMSTABLENAME=${PnDeliveryPushWebhookStreamsTableName}'
         #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
         #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
         #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
@@ -1169,7 +1088,6 @@ Resources:
         ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
         ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
         ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
-        ContainerEnvEntry35: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_TABLENAME=${LastPollForFutureActionDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
         #ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         #ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
@@ -1185,7 +1103,6 @@ Resources:
         #ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
         #ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
         ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
-        ContainerEnvEntry52: 'PN_DELIVERYPUSH_WEBAPP_FAQCOMPLETIONMOMENTHASH=perfezionamento-quando'
         #ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
         ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
         #ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
@@ -1212,10 +1129,7 @@ Resources:
         ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
         #ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
         #ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
-        ContainerEnvEntry78: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTSTARTDATE=${PerformanceImprovementStartDate}'
-        ContainerEnvEntry79: !Sub 'PN_DELIVERYPUSH_PERFORMANCEIMPROVEMENTENDDATE=${PerformanceImprovementEndDate}'
         ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry81: !Sub 'PN_DELIVERYPUSH_WEBHOOK_MAXSTREAMS=${WebhookMaxStreams}'
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
@@ -1314,10 +1228,7 @@ Resources:
             Resource:
               - !Sub "${PaperNotificationFailedDynamoTableArn}"
               - !Sub "${FutureActionDynamoTableArn}"
-              - !Sub "${LastPollForFutureActionDynamoTableArn}"
               - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
-              - !Sub "${PnDeliveryPushWebhookStreamsTableArn}"
-              - !Sub "${PnDeliveryPushWebhookEventsTableArn}"
               - !Sub "${DocumentCreationRequestTableArn}"
   
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
@@ -1348,35 +1259,6 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.APIGatewayARN
         Limit: !Ref B2bWafLimit
 
-  # Expose PN-Delivery-progress microservice public API with API-GW for B2B usage
-  DeliveryProgressMicroservicePublicAPI:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-progress'
-        IntendedUsage: B2B
-        DnsName: !Ref ApiDnsName
-        ProjectName: !Ref ProjectName
-        ServiceApiPathOverride: 'delivery-progresses'
-        ServiceApiPath: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 4, !Ref WebhookFeatureFlags ]} ]
-        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
-        OpenApiBucketName: !Ref MicroserviceBucketName
-        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-progresses-B2B-aws.yaml
-
-  DeliveryProgressMicroservicePublicApiWaf:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
-      Parameters:
-        WAFName: !Sub '${ProjectName}-delivery-progress-b2b'
-        IntendedUsage: B2B 
-        APIGatewayARNs: !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.APIGatewayARN
-        Limit: 600000
-
   # Expose PN-Delivery-push microservice public API with API-GW for B2B PG usage
   DeliveryProgressMicroserviceB2BPGAPI:
     Type: AWS::CloudFormation::Stack
@@ -1405,115 +1287,6 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.APIGatewayARN
         Limit: 600000
 
-  #########################################################
-  ###              WebhookEventManagerLambda            ###
-  #########################################################
-
-  # Lambda function
-  WebhookEventManagerLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Ref WebhookEventManagerLambdaName
-      Runtime: nodejs18.x
-      Handler: "index.handler"
-      Code:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/webhookEventManager.zip"
-      Role: !GetAtt WebhookEventManagerLambdaRole.Arn
-      Environment:
-        Variables:
-          REGION: !Sub ${AWS::Region}
-          QUEUE_URL: !Ref DoneActionsQueueURL
-          START_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref WebhookFeatureFlags ]} ]
-          STOP_READ_STREAM_TIMESTAMP: !Sub [ '${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref WebhookFeatureFlags ] } ]
-      TracingConfig:
-        Mode: Active
-      Layers:
-        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
-
-  # Lambda function role
-  WebhookEventManagerLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-webhookEventManagerLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  # Lambda function IAM policy
-  WebhookEventManagerLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-WebhookEventManagerLambdaPolicy
-      Roles:
-        - !Ref WebhookEventManagerLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcKinesisSourceStreamArn
-          - Action: kms:Decrypt
-            Effect: Allow
-            Resource: !Ref CdcKinesisSourceStreamKeyArn
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref DoneActionsQueueARN
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref WebhookEventManagerDLQARN
-
-
-  # CDC to Webhook Event Manager
-  WebhookEventManagerLambdaKinesisSource:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: !Sub ${WebhookEventManagerLambdaBatchSize}
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcKinesisSourceStreamArn
-      FunctionName: !Ref WebhookEventManagerLambda
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      MaximumBatchingWindowInSeconds: !Sub ${WebhookEventManagerLambdaMaximumBatchingWindowInSeconds}
-      StartingPosition: TRIM_HORIZON
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref WebhookEventManagerDLQARN
-
-  WebhookEventManagerLambdaAlarms:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
-      Parameters:
-        FunctionName: !Ref WebhookEventManagerLambda
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-  
   # CDC to Lambda action router
   ActionRouterKinesisSource:
     Type: AWS::Lambda::EventSourceMapping
@@ -1564,14 +1337,12 @@ Resources:
         Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}###FEATURE_FLAG_START=${PerformanceImprovementStartDate}###FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
+            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
               FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
-              PerformanceImprovementStartDate: !Ref PerformanceImprovementStartDate,
-              PerformanceImprovementEndDate: !Ref PerformanceImprovementEndDate
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
             },
           ]
     
@@ -1682,13 +1453,11 @@ Resources:
         Layer1: !Ref ActionEnqueuerLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}###FEATURE_FLAG_START=${PerformanceImprovementStartDate}###FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
+            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
-              PerformanceImprovementStartDate: !Ref PerformanceImprovementStartDate,
-              PerformanceImprovementEndDate: !Ref PerformanceImprovementEndDate
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
             },
           ]
     
@@ -1748,7 +1517,7 @@ Resources:
               - "dynamodb:PutItem"
               - "dynamodb:BatchWriteItem"
             Resource:
-              - !Ref FutureActionDynamoTableArn            
+              - !Ref FutureActionDynamoTableArn
 
   ActionRemoverLambdaLibrariesLayer:
     Type: AWS::Lambda::LayerVersion
@@ -1779,14 +1548,8 @@ Resources:
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
         Layer1: !Ref ActionRemoverLambdaLibrariesLayer 
-        EnvVariables: 
-          !Sub [
-              "LAST_WORKED_KEY=2###FEATURE_FLAG_START=${PerformanceImprovementStartDate}###FEATURE_FLAG_END=${PerformanceImprovementEndDate}",
-              {
-                PerformanceImprovementStartDate: !Ref PerformanceImprovementStartDate,
-                PerformanceImprovementEndDate: !Ref PerformanceImprovementEndDate
-              },
-            ]
+        EnvVariables:
+          "LAST_WORKED_KEY=2"
     
   # Lambda function role
   ActionRemoverLambdaRole:
@@ -2002,6 +1765,9 @@ Resources:
       FunctionName: !Ref NotificationCancellationActionInsertLambda
       FunctionResponseTypes:
         - ReportBatchItemFailures
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ] } }'
       MaximumBatchingWindowInSeconds: !Sub ${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
@@ -2108,6 +1874,9 @@ Resources:
       FunctionName: !Ref PaperEventsCostUpdateLambda
       FunctionResponseTypes:
         - ReportBatchItemFailures
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ] } }'
       MaximumBatchingWindowInSeconds: !Sub ${PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
@@ -2121,103 +1890,6 @@ Resources:
       Parameters:
         FunctionName: !Ref PaperEventsCostUpdateLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-
-  #########################################################
-  ###              VersioningV1V2Webhook              ### # converte la risposta V2.3 a V1 e può essere estesa
-  #########################################################
-  VersioningV1V2WebhookSecGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub '${VersioningV1V2WebhookLambdaName}-sec-group'
-      VpcId: !Ref VpcId
-
-  # Lambda function
-  VersioningV1V2WebhookLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Ref VersioningV1V2WebhookLambdaName
-      Runtime: nodejs18.x
-      Handler: "index.handler"
-      Code:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2Webhook.zip"
-      Role: !GetAtt VersioningV1V2WebhookLambdaRole.Arn
-      VpcConfig:
-        SecurityGroupIds:
-          - !GetAtt VersioningV1V2WebhookSecGroup.GroupId
-        SubnetIds: !Ref SubnetsIds
-      Environment:
-        Variables:
-          REGION: !Sub ${AWS::Region}
-          PN_WEBHOOK_URL: !Sub [ "http://${ApplicationLoadBalancerDomain}:8080/${SelectedPath}/v2.7", { SelectedPath: !Select [ 4, !Ref WebhookFeatureFlags ] } ]
-          NUM_RETRY: !Ref NumRetry
-          BASE_PATH: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
-          ATTEMPT_TIMEOUT_SEC: !Ref AttemptTimeoutSec
-      TracingConfig:
-        Mode: Active
-      Layers:
-        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 30
-      MemorySize: 512
-      Tags:
-        - Key: "pn-eni-related"
-          Value: "true"
-        - Key: "pn-eni-related-groupName-regexp"
-          Value: !Base64 "^pn-delivery-microsvc-prod-VersioningV1V2WebhookSecGroup*$"
-
-  # a new version at each deploy, with provisioned concurrency set
-  # remember to set transform -> UpdateDeploymentTransform at beginning of the file
-  VersioningV1V2WebhookLambdaVersionPnPlaceholderEpochSeconds:
-    Type: AWS::Lambda::Version
-    Properties:
-      FunctionName: !Ref VersioningV1V2WebhookLambda
-
-  VersioningV1V2WebhookLambdaVersionAlias:
-    Type: AWS::Lambda::Alias
-    Properties: 
-      FunctionName: !Ref VersioningV1V2WebhookLambda
-      FunctionVersion: !GetAtt VersioningV1V2WebhookLambdaVersionPnPlaceholderEpochSeconds.Version
-      Name: live
-      ProvisionedConcurrencyConfig:
-        ProvisionedConcurrentExecutions: !Ref VersioningV1V2WebhookLambdaProvisionedConcurrency
-
-  # Lambda function role
-  VersioningV1V2WebhookLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-VersioningV1V2WebhookLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
-        # - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
-
-  VersioningV1V2WebhookLambdaAlarms:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
-      Parameters:
-        FunctionName: !Ref VersioningV1V2WebhookLambda
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        FilterPattern: "FATAL"
-
-  # Lambda access right
-  VersioningV1V2WebhookLambdaPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref VersioningV1V2WebhookLambdaVersionAlias
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
 
   VersioningGetNotificationLegalFactsSecGroup:
     Type: AWS::EC2::SecurityGroup
@@ -2327,21 +1999,16 @@ Resources:
             - !Ref PaperNotificationFailedDynamoTableName
             - !Ref ActionDynamoTableName
             - !Ref FutureActionDynamoTableName
-            - !Ref LastPollForFutureActionDynamoTableName
             - !Ref PnDeliveryPushShedLockDynamoTableName
-            - !Ref PnDeliveryPushWebhookStreamsTableName
-            - !Ref PnDeliveryPushWebhookEventsTableName
             - !Ref DocumentCreationRequestTableName 
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiStageArn
-            - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.RestApiStageArn
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiStageArn
         RestApiNames: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiName
-            - !GetAtt DeliveryProgressMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.RestApiName
             - !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
@@ -2367,21 +2034,16 @@ Resources:
             - !Ref F24ToDeliveryPushQueueAgeAlarmARN
             - !Ref NotificationCancellationActionInsertDLQAlarmARN
             - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
-            - !Ref WebhookEventManagerDLQAlarmARN
-            - !GetAtt WebhookEventManagerLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PaperEventsCostUpdateDLQAlarmARN
             - !Ref ActionRouterDLQAlarmARN
             - !Ref ActionEnqueuerDLQAlarmARN
             - !Ref ActionTimeoutErrorDLQAlarmARN
             - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
-            - !GetAtt VersioningV1V2WebhookLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningGetNotificationLegalFactsLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
           - - !GetAtt NotificationCancellationActionInsertLambda.Arn
-            - !GetAtt WebhookEventManagerLambda.Arn
             - !GetAtt PaperEventsCostUpdateLambda.Arn
-            - !GetAtt VersioningV1V2WebhookLambda.Arn
             - !GetAtt VersioningGetNotificationLegalFactsLambda.Arn
         QueueArns: !Join
           - ','
@@ -2399,9 +2061,7 @@ Resources:
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
             - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
-            - !Sub '/aws/lambda/${WebhookEventManagerLambdaName}'
             - !Sub '/aws/lambda/${PaperEventsCostUpdateLambdaName}'
-            - !Sub '/aws/lambda/${VersioningV1V2WebhookLambdaName}'
             - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
 
   #### Alarm for custom metric Autoscaling

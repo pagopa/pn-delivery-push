@@ -7,5 +7,4 @@ import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedReq
 
 public interface ActionEntityDao extends KeyValueStore<Key, ActionEntity> {
 
-    TransactPutItemEnhancedRequest<ActionEntity> preparePutIfAbsent(ActionEntity action);
 }

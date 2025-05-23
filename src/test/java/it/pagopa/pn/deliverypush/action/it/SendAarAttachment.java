@@ -9,8 +9,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
-import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
-import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
@@ -23,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -33,9 +30,6 @@ import java.util.Optional;
 import static it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient.SAFE_STORAGE_URL_PREFIX;
 
 public class SendAarAttachment extends CommonTestConfiguration{
-
-    @SpyBean
-    DocumentComposition documentComposition;
     @SpyBean
     PaperChannelMock paperChannelMock;
     @Autowired
@@ -57,12 +51,6 @@ public class SendAarAttachment extends CommonTestConfiguration{
                 return uriBuilder.replaceQuery("").toUriString();
             }).toList();
 
-    }
-    
-    List<DocumentComposition.TemplateType> getListDocumentTypeGenerated(int times) throws IOException {
-        ArgumentCaptor<DocumentComposition.TemplateType> documentTypeCaptor = ArgumentCaptor.forClass(DocumentComposition.TemplateType.class);
-        Mockito.verify(documentComposition, Mockito.times(times)).executePdfTemplate(documentTypeCaptor.capture(), Mockito.any());
-        return documentTypeCaptor.getAllValues();
     }
 
     @NotNull
@@ -108,7 +96,7 @@ public class SendAarAttachment extends CommonTestConfiguration{
                 conf.getAnalogSendAttachmentMode(),
                 conf.getSimpleRegisteredLetterSendAttachmentMode(),
                 conf.getDigitalSendAttachmentMode(),
-                aarTemplateType.getTemplateType().name());
+                aarTemplateType.name());
     }
 
     static String getStringConfiguration(PnSendMode conf, String aarTemplateType) {

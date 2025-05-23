@@ -16,8 +16,8 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
-import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.NationalRegistriesService;
+import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
@@ -29,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -42,7 +43,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ChooseDeliveryModeHandlerTest {
 
-    @Mock
     private DigitalWorkFlowHandler digitalWorkFlowHandler;
     @Mock
     private SchedulerService schedulerService;
@@ -57,7 +57,7 @@ class ChooseDeliveryModeHandlerTest {
 
     @Mock
     private DigitalWorkFlowUtils digitalWorkFlowUtils;
-    
+
     private ChooseDeliveryModeHandler handler;
 
     private NotificationUtils notificationUtils;
@@ -66,6 +66,8 @@ class ChooseDeliveryModeHandlerTest {
 
     @BeforeEach
     public void setup() {
+        digitalWorkFlowHandler = Mockito.mock(DigitalWorkFlowHandler.class);
+
         cfg = mock(PnDeliveryPushConfigs.class);
         FeatureEnabledUtils featureEnabledUtils = new FeatureEnabledUtils(cfg);
         handler = new ChooseDeliveryModeHandler(digitalWorkFlowHandler, schedulerService, nationalRegistriesService,
@@ -128,7 +130,7 @@ class ChooseDeliveryModeHandlerTest {
                 .thenReturn(Optional.empty());
         Mockito.when(chooseDeliveryUtils.retrieveSpecialAddress(Mockito.any(NotificationInt.class), Mockito.anyInt()))
                 .thenReturn(recipient.getDigitalDomicile());
-        
+
         handler.chooseDeliveryTypeAndStartWorkflow(notification.getIun(), recIndex);
 
         Mockito.verify(digitalWorkFlowHandler, times(1))
