@@ -1,4 +1,4 @@
-const { isRecordToSend, isFutureAction } = require("./utils/utils.js");
+const { isRecordToSend, isFutureAction, isLambdaDisabled } = require("./utils/utils.js");
 const { getActionDestination } = require("./utils/getActionDestination.js");
 const { writeMessagesToQueue } = require("./sqs/writeToSqs.js");
 const { writeMessagesToDynamo } = require("./dynamo/writeToDynamo.js");
@@ -8,11 +8,18 @@ const config = require("config");
 
 async function handleEvent(event, context){
   console.log('Start handling event')
+    const result = {
+      batchItemFailures: [],
+    };
+
+  // Controllo se la lambda è disabilitata
+  const featureFlag = config.get("featureFlag");
+  if (isLambdaDisabled(featureFlag)) {
+    console.warn("Lambda disabled. Flow interrupted.");
+    return result;
+  }
 
   let notSendedActions = await startHandleEvent(event, context);
-  const result = {
-    batchItemFailures: [],
-  };
   if (notSendedActions.length !== 0) {
     notSendedActions.forEach((element) =>
       result.batchItemFailures.push({ itemIdentifier: element.kinesisSeqNo })

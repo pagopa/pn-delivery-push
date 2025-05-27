@@ -14,5 +14,9 @@
 
   "QUEUE_ENDPOINTS_ENV_VARIABLE": "QUEUE_URL_MAP",
   "ACTION_MAP_ENV_VARIABLE": "ACTION_QUEUE_MAP",
-  "TIMEOUT_DLQ": "http://test"
+  "TIMEOUT_DLQ": "http://test",
+  "featureFlag": {
+    "start": "2019-04-30T12:00",
+    "end": "2025-04-30T12:00"
+  }
 }

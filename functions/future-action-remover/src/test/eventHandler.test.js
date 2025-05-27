@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 const { expect } = require("chai");
 const { describe, it } = require("mocha");
+const sison = require("sinon");
 const proxyquire = require("proxyquire").noPreserveCache();
 const {
   parseISO,
@@ -43,6 +44,9 @@ const testOverride = (
       isAfter,
       toString: (d) => dateToString(d),
     },
+     "./utils.js": {
+          isLambdaDisabled: () => false,
+        },
 
     "./dynamoFunctions.js": {
       getLastTimeSlotWorked: async (_unused1, _unused2) => timeslot.lastWorkedTimeslot,
@@ -277,4 +281,25 @@ describe("eventHandler tests", () => {
     expect(timeslot.lastWorkedTimeslot).to.be.equal("2024-05-22T11:59");
 
   });
+});
+
+describe("eventHandler tests (lambda disabled)", () => {
+
+  it("should return OK response when lambda is disabled (featureFlag)", async () => {
+    const lambda = proxyquire.noCallThru().load(
+      "../app/eventHandler.js",
+      {
+        "./utils.js": {
+          isLambdaDisabled: () => true,
+        },
+        "./dynamoFunctions.js": {},
+        "./timeHelper": {}
+      }
+    );
+
+    const result = await lambda.handleEvent(null, { getRemainingTimeInMillis: () => 10000 });
+    expect(result).to.not.be.null;
+    expect(result.statusCode).to.be.eq(200);
+  })
+
 });

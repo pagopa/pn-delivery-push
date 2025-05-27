@@ -4,5 +4,9 @@
   "MAX_BATCH_SIZE": 25,
   "LAST_WORKED_KEY": "1",
   "TOLLERANCE_IN_MILLIS": 3000,
-  "SLEEP_FOR_UNPROCESSED": 1000
+  "SLEEP_FOR_UNPROCESSED": 1000,
+  "featureFlag": {
+    "start": "2019-04-30T12:00",
+    "end": "2025-04-30T12:00"
+  }
 }
