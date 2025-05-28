@@ -86,6 +86,8 @@ public class PnDeliveryPushConfigs {
 
     private String addressManagerBaseUrl;
 
+    private String actionManagerBaseUrl;
+
     private String f24BaseUrl;
 
     private String emdIntegrationBaseUrl;
