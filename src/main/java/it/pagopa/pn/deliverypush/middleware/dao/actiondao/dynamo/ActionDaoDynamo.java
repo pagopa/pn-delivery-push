@@ -32,24 +32,15 @@ public class ActionDaoDynamo implements ActionDao {
     private final DynamoDbTable<ActionEntity> dynamoDbTableAction;
     private final DynamoDbTable<FutureActionEntity> dynamoDbTableFutureAction;
     private final Duration actionTtl;
-    
+
     public ActionDaoDynamo(
             ActionEntityDao actionEntityDao,
             DynamoDbEnhancedClient dynamoDbEnhancedClient,
-                           PnDeliveryPushConfigs pnDeliveryPushConfigs) {
+            PnDeliveryPushConfigs pnDeliveryPushConfigs) {
         this.actionEntityDao = actionEntityDao;
-        this.dynamoDbTableAction = dynamoDbEnhancedClient.table(  pnDeliveryPushConfigs.getActionDao().getTableName(), TableSchema.fromClass(ActionEntity.class));
-        this.dynamoDbTableFutureAction = dynamoDbEnhancedClient.table( pnDeliveryPushConfigs.getFutureActionDao().getTableName(), TableSchema.fromClass(FutureActionEntity.class));
+        this.dynamoDbTableAction = dynamoDbEnhancedClient.table(pnDeliveryPushConfigs.getActionDao().getTableName(), TableSchema.fromClass(ActionEntity.class));
+        this.dynamoDbTableFutureAction = dynamoDbEnhancedClient.table(pnDeliveryPushConfigs.getFutureActionDao().getTableName(), TableSchema.fromClass(FutureActionEntity.class));
         this.actionTtl = fromStringDaysToDuration(pnDeliveryPushConfigs.getActionTtlDays());
-    }
-
-    private static Duration fromStringDaysToDuration(String daysToFormat) {
-        if(daysToFormat != null){
-            long days = Long.parseLong(daysToFormat);
-            return Duration.ofDays(days);
-        }else {
-            throw new PnInternalException("TTL for action cannot be null", ERROR_CODE_PN_GENERIC_ERROR);
-        }
     }
 
     @Override
@@ -76,18 +67,19 @@ public class ActionDaoDynamo implements ActionDao {
     }
 
     @Override
-    public Optional<Action> getActionById(String actionId) {
+    public void unScheduleFutureAction(String actionId) {
+        getActionById(actionId)
+                .ifPresentOrElse(action -> updateItemLogicalDeleted(action, action.getTimeslot()),
+                        () -> log.info("Action with id {} not found, cannot update logical deleted", actionId));
+    }
+
+    private Optional<Action> getActionById(String actionId) {
         Key keyToSearch = Key.builder()
                 .partitionValue(actionId)
                 .build();
 
         return actionEntityDao.get(keyToSearch)
                 .map(EntityToDtoActionMapper::entityToDto);
-    }
-
-    @Override
-    public void unScheduleFutureAction(Action action, String timeSlot) {
-        updateItemLogicalDeleted(action, timeSlot);
     }
 
     private void updateItemLogicalDeleted(Action action, String timeSlot) {
@@ -114,8 +106,17 @@ public class ActionDaoDynamo implements ActionDao {
                         .build();
         try {
             dynamoDbTableFutureAction.updateItem(updateItemEnhancedRequest);
-        } catch (ConditionalCheckFailedException ex){
+        } catch (ConditionalCheckFailedException ex) {
             log.info("Exception code ConditionalCheckFailed on update future action, letting flow continue actionId={} ", action.getActionId());
+        }
+    }
+
+    private static Duration fromStringDaysToDuration(String daysToFormat) {
+        if (daysToFormat != null) {
+            long days = Long.parseLong(daysToFormat);
+            return Duration.ofDays(days);
+        } else {
+            throw new PnInternalException("TTL for action cannot be null", ERROR_CODE_PN_GENERIC_ERROR);
         }
     }
 

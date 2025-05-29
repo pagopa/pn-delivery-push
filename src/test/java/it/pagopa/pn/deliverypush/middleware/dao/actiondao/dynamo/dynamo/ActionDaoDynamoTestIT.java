@@ -55,7 +55,7 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
 
         // add the appender to the logger
         // addAppender is outdated now
-        ((ch.qos.logback.classic.Logger)fooLogger).addAppender(listAppender);
+        ((ch.qos.logback.classic.Logger) fooLogger).addAppender(listAppender);
 
 
         // non si riesce a mockare TransactWriteItemsEnhancedRequest
@@ -74,4 +74,54 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         Assertions.assertEquals(Level.WARN, logsList.get(0)
                 .getLevel());
     }
+
+    @Test
+    void unScheduleFutureAction_actionNotFound_shouldLogInfo() {
+        String actionIdFirst = "not_existing_action_id";
+
+        Logger logger = LoggerFactory.getLogger(ActionDaoDynamo.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        ((ch.qos.logback.classic.Logger) logger).addAppender(listAppender);
+
+        // Caso: action non trovata
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.unScheduleFutureAction(actionIdFirst)
+        );
+
+        List<ILoggingEvent> logsList1 = listAppender.list;
+        Assertions.assertTrue(
+                logsList1.stream().anyMatch(
+                        log -> log.getFormattedMessage().contains("Action with id " + actionIdFirst + " not found, cannot update logical deleted")
+                )
+        );
+
+        Action.ActionBuilder actionBuilder = Action.builder()
+                .iun("Test_addIfAbsentFailSilent_iun01")
+                .recipientIndex(1)
+                .type(ActionType.DIGITAL_WORKFLOW_RETRY_ACTION)
+                .timeslot("2024-06-01T10:00");
+        String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(actionBuilder.build());
+        Action action = actionBuilder.actionId(actionId).build();
+
+        actionDao.addOnlyActionIfAbsent(action);
+
+        Assertions.assertDoesNotThrow(() ->
+                actionDao.unScheduleFutureAction(action.getActionId())
+        );
+
+        List<ILoggingEvent> logsList = listAppender.list;
+        Assertions.assertTrue(
+                logsList.stream().anyMatch(
+                        log -> log.getFormattedMessage().contains("Exception code ConditionalCheckFailed on update future action, letting flow continue actionId=" + action.getActionId())
+                )
+        );
+        Assertions.assertTrue(
+                logsList.stream().anyMatch(
+                        log -> log.getLevel() == Level.INFO
+                )
+        );
+    }
+
+
 }

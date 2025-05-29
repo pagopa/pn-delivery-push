@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Optional;
 
 @Service
 @CustomLog
@@ -41,9 +40,6 @@ public class ActionsPoolImpl implements ActionsPool {
 
     @Override
     public void unscheduleFutureAction(String actionId) {
-        Optional<Action> actionEntity = actionService.getActionById(actionId);
-        if (actionEntity.isPresent() && actionEntity.get().getTimeslot() != null) {
-            actionService.unSchedule(actionEntity.get(), actionEntity.get().getTimeslot());
-        }
+        actionService.unSchedule(actionId);
     }
 }

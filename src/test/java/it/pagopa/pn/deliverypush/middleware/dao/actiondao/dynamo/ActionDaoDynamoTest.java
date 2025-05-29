@@ -4,9 +4,9 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.ActionEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.ActionEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.entity.FutureActionEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.actiondao.dynamo.mapper.EntityToDtoActionMapper;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,29 +64,42 @@ class ActionDaoDynamoTest {
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void getActionById() {
+    void unScheduleFutureAction_whenActionExists_shouldUpdateLogicalDeleted() {
+        String actionId = "02";
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);
         ActionEntity actionEntity = buildActionEntity(action);
+
         Key keyToSearch = Key.builder()
-                .partitionValue("2")
+                .partitionValue(actionId)
                 .build();
+
+        // Mock entity -> dto mapping
+        Mockito.mockStatic(EntityToDtoActionMapper.class)
+                .when(() -> EntityToDtoActionMapper.entityToDto(actionEntity))
+                .thenReturn(action);
 
         Mockito.when(actionEntityDao.get(keyToSearch)).thenReturn(Optional.of(actionEntity));
 
-        Optional<Action> opt = dynamo.getActionById("2");
+        dynamo.unScheduleFutureAction(actionId);
 
-        Assertions.assertEquals(ActionType.ANALOG_WORKFLOW, opt.get().getType());
+        Mockito.verify(actionEntityDao, Mockito.times(1)).get(keyToSearch);
+        Mockito.verify(dynamoDbTableFutureAction, Mockito.times(1)).updateItem(Mockito.any(UpdateItemEnhancedRequest.class));
     }
 
     @Test
     @ExtendWith(SpringExtension.class)
-    void unSchedule() {
-        String timeslot = "2022-08-30T16:04:13.913859900Z";
-        Action action = buildAction(ActionType.ANALOG_WORKFLOW);
+    void unScheduleFutureAction_whenActionDoesNotExist_shouldNotUpdate() {
+        String actionId = "03";
+        Key keyToSearch = Key.builder()
+                .partitionValue(actionId)
+                .build();
 
-        dynamo.unScheduleFutureAction(action, timeslot);
+        Mockito.when(actionEntityDao.get(keyToSearch)).thenReturn(Optional.empty());
 
-        Mockito.verify(dynamoDbTableFutureAction, Mockito.times(1)).updateItem(Mockito.any(UpdateItemEnhancedRequest.class));
+        dynamo.unScheduleFutureAction(actionId);
+
+        Mockito.verify(actionEntityDao, Mockito.times(1)).get(keyToSearch);
+        Mockito.verifyNoInteractions(dynamoDbTableFutureAction);
     }
 
     private Action buildAction(ActionType type) {
