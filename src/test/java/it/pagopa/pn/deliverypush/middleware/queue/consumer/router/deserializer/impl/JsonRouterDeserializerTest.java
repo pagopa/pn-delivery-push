@@ -14,13 +14,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class JsonRouterDeserializerTest {
+
+    private final JsonRouterDeserializer deserializer = new JsonRouterDeserializer(new ObjectMapper());
+
     @Test
     void deserializeThrowsExceptionWhenPayloadIsNotString() {
         Message<Integer> message = mock(Message.class);
         when(message.getPayload()).thenReturn(123);
 
         PnEventRouterException exception = assertThrows(PnEventRouterException.class,
-                () -> new JsonRouterDeserializer(new ObjectMapper()).deserialize(message, Object.class));
+                () -> deserializer.deserialize(message, Object.class));
         assertEquals(ERROR_CODE_DELIVERYPUSH_ROUTER_DESERIALIZATION, exception.getProblem().getErrors().get(0).getCode());
     }
 
@@ -30,7 +33,7 @@ class JsonRouterDeserializerTest {
         when(message.getPayload()).thenReturn("{invalidJson}");
 
         PnEventRouterException exception = assertThrows(PnEventRouterException.class,
-                () -> new JsonRouterDeserializer(new ObjectMapper()).deserialize(message, Object.class));
+                () -> deserializer.deserialize(message, Object.class));
         assertEquals(ERROR_CODE_DELIVERYPUSH_ROUTER_DESERIALIZATION, exception.getProblem().getErrors().get(0).getCode());
     }
 
@@ -39,14 +42,7 @@ class JsonRouterDeserializerTest {
         Message<String> message = mock(Message.class);
         when(message.getPayload()).thenReturn("{\"key\":\"value\"}");
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonRouterDeserializer deserializer = new JsonRouterDeserializer(objectMapper);
-
         Map result = deserializer.deserialize(message, Map.class);
         assertEquals("value", result.get("key"));
-    }
-
-    private void inspectErrorCode(String expectedErrorCode, PnEventRouterException exception) {
-
     }
 }
