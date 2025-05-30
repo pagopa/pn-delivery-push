@@ -97,11 +97,11 @@ class ActionDaoDynamoTestIT extends MockActionPoolTest {
         );
 
         Action.ActionBuilder actionBuilder = Action.builder()
-                .iun("Test_addIfAbsentFailSilent_iun01")
+                .iun("Test_unscheduleFutureAction_iun02")
                 .recipientIndex(1)
-                .type(ActionType.DIGITAL_WORKFLOW_RETRY_ACTION)
+                .type(ActionType.REFINEMENT_NOTIFICATION)
                 .timeslot("2024-06-01T10:00");
-        String actionId = ActionType.DIGITAL_WORKFLOW_NEXT_ACTION.buildActionId(actionBuilder.build());
+        String actionId = ActionType.REFINEMENT_NOTIFICATION.buildActionId(actionBuilder.build());
         Action action = actionBuilder.actionId(actionId).build();
 
         actionDao.addOnlyActionIfAbsent(action);
