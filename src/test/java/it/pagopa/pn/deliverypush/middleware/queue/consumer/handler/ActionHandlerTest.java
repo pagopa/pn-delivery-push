@@ -389,8 +389,9 @@ class ActionHandlerTest {
         Mockito.when(message.getPayload()).thenReturn(action);
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(Map.of("test", "headerValue")));
 
+        Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushValidationActionsInboundConsumer();
         assertThrows(RuntimeException.class, () ->
-                actionHandler.pnDeliveryPushValidationActionsInboundConsumer().accept(message)
+                consumer.accept(message)
         );
 
         Mockito.verify(eventRouter, Mockito.never()).route(Mockito.any(), Mockito.any());
