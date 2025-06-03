@@ -17,6 +17,12 @@ public class EventHandlerRegistry {
     private final List<EventHandler<?>> eventHandlers;
     private final Map<String, EventHandler<?>> handlerRegistry = new HashMap<>();
 
+    /**
+     * Costruttore che accetta una lista di EventHandler. Spring è in grado di iniettare automaticamente
+     * tutti i bean di tipo EventHandler registrati nel contesto dell'applicazione.
+     * E sfruttando questa lista, vengono registrati gli handler al momento della creazione del bean.
+     * @param eventHandlers la lista di EventHandler da registrare
+     */
     public EventHandlerRegistry(List<EventHandler<?>> eventHandlers) {
         this.eventHandlers = eventHandlers;
     }
