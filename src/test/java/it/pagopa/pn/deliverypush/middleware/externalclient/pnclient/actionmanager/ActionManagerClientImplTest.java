@@ -67,7 +67,7 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
                             .withContentType(MediaType.APPLICATION_JSON)
                     );
 
-            actionManagerClient.unscheduleAction(timeSlot, actionId);
+            actionManagerClient.unscheduleAction(actionId);
         } finally {
             mockServer.stop();
         }
@@ -106,7 +106,7 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
                             .withBody(responseJson)
                     );
 
-            Assertions.assertDoesNotThrow(() -> actionManagerClient.unscheduleAction(timeSlot, actionId));
+            Assertions.assertDoesNotThrow(() -> actionManagerClient.unscheduleAction(actionId));
         } finally {
             mockServer.stop();
             mockServer.close();
@@ -146,7 +146,7 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
                             .withBody(responseJson)
                     );
 
-            Assertions.assertThrows(Exception.class, () -> actionManagerClient.unscheduleAction(timeSlot, actionId));
+            Assertions.assertThrows(Exception.class, () -> actionManagerClient.unscheduleAction(actionId));
         } finally {
             mockServer.stop();
         }

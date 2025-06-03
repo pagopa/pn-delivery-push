@@ -45,8 +45,8 @@ class ActionServicerRestImplTest {
         Action action = mock(Action.class);
         String timeSlot = "2024-06-01T10:00";
 
-        actionServiceRest.unSchedule(action, timeSlot);
+        actionServiceRest.unSchedule(action.getActionId());
 
-        verify(actionManagerClient, times(1)).unscheduleAction(timeSlot, action.getActionId());
+        verify(actionManagerClient, times(1)).unscheduleAction(action.getActionId());
     }
 }

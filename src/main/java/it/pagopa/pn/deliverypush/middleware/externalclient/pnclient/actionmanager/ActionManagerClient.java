@@ -8,6 +8,6 @@ public interface ActionManagerClient {
     String UNSCHEDULE_ACTION_PROCESS_NAME = "UNSCHEDULE ACTION";
     String ADD_ONLY_ACTION_IF_ABSENT_PROCESS_NAME = "ADD ONLY ACTION IF ABSENT";
 
-    void unscheduleAction(String timeSlot, String actionId);
+    void unscheduleAction(String actionId);
     void addOnlyActionIfAbsent(NewAction action);
 }

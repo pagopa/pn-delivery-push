@@ -789,7 +789,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-action-manager/d00c67f33ba7402aa4d94b47c9d6bb3e1c781f17/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-action-manager/3b86cf92136ffeb03e473e6fe98bab765cf25012/docs/openapi/api-private.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

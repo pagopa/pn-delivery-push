@@ -20,10 +20,10 @@ public class ActionManagerClientImpl extends CommonBaseClient implements ActionM
     private final ActionApi actionManagerApi;
 
     @Override
-    public void unscheduleAction(String timeSlot, String actionId) {
+    public void unscheduleAction(String actionId) {
         log.logInvokingAsyncExternalService(CLIENT_NAME, UNSCHEDULE_ACTION_PROCESS_NAME, actionId);
         try {
-            actionManagerApi.unscheduleAction(timeSlot, actionId);
+            actionManagerApi.unscheduleAction(actionId);
         }
         catch (Exception exception) {
             if (exception instanceof PnHttpResponseException pnHttpResponseException

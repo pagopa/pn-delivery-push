@@ -844,7 +844,6 @@ Resources:
         ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
         #ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
         #ContainerEnvEntry56: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
-        #ContainerEnvEntry57: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
         #ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
         ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
@@ -879,6 +878,7 @@ Resources:
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
@@ -973,7 +973,6 @@ Resources:
         ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
         #ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
         #ContainerEnvEntry56: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
-        #ContainerEnvEntry57: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
         #ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
         ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
@@ -1007,6 +1006,7 @@ Resources:
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
+        ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
@@ -1107,7 +1107,6 @@ Resources:
         ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
         #ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
         #ContainerEnvEntry56: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
-        #ContainerEnvEntry57: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
         #ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
         ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
@@ -1142,6 +1141,7 @@ Resources:
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
 
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum

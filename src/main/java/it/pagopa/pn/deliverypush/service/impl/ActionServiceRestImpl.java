@@ -15,7 +15,7 @@ import java.util.Optional;
 @Slf4j
 @AllArgsConstructor
 @Service
-@ConditionalOnProperty(name = ActionService.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = "REST", matchIfMissing = true)
+@ConditionalOnProperty(name = ActionService.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = "REST")
 public class ActionServiceRestImpl implements ActionService
  {
     private final ActionManagerClient actionManagerClient;
@@ -27,16 +27,10 @@ public class ActionServiceRestImpl implements ActionService
          actionManagerClient.addOnlyActionIfAbsent(actionManagerMapper.fromActionInternalToActionDto(action));
     }
 
-    //non verrà richiamato
      @Override
-     public Optional<Action> getActionById(String actionId) {
-         return Optional.empty();
-     }
-
-     @Override
-     public void unSchedule(Action action, String timeSlot) {
-         log.info("Starting to unschedule action with ID: {}", action.getActionId());
-         actionManagerClient.unscheduleAction(timeSlot, action.getActionId());
+     public void unSchedule(String actionId) {
+         log.info("Starting to unschedule action with ID: {}", actionId);
+         actionManagerClient.unscheduleAction(actionId);
      }
 
 }
