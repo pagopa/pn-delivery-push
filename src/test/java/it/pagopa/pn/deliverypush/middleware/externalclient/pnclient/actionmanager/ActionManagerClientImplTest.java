@@ -54,8 +54,7 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
 
         try {
             String actionId = "action123";
-            String timeSlot = "2023-10-01T10:00";
-            String path = "/action-manager-private/action/" + timeSlot + "/" + actionId + "/unschedule";
+            String path = "/action-manager-private/action/"  + actionId + "/unschedule";
 
             new MockServerClient("localhost", 9999)
                     .when(request()
@@ -79,7 +78,7 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
         try {
             String actionId = "action123";
             String timeSlot = "2023-10-01T10:00";
-            String path = "/action-manager-private/action/" + timeSlot + "/" + actionId + "/unschedule";
+            String path = "/action-manager-private/action/" + actionId + "/unschedule";
 
             ObjectMapper mapper = new ObjectMapper();
 
