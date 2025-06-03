@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
@@ -18,6 +19,8 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templateseng
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientPec;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.deserializer.RouterDeserializer;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.deserializer.impl.JsonRouterDeserializer;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.SafeStorageResponseHandler;
 import it.pagopa.pn.deliverypush.service.*;
@@ -145,6 +148,11 @@ public class AbstractWorkflowTestConfiguration {
     @Bean
     public LockProviderMock lockProviderTimeline() {
         return new LockProviderMock();
+    }
+
+    @Bean("jsonRouterDeserializer")
+    public RouterDeserializer routerDeserializer() {
+        return new JsonRouterDeserializer(new ObjectMapper());
     }
 
 }
