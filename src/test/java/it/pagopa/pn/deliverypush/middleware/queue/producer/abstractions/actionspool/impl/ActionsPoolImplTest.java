@@ -4,7 +4,6 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.ActionService;
 import net.javacrumbs.shedlock.core.LockAssert;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,23 +41,10 @@ class ActionsPoolImplTest {
     }
 
     @Test
-    void unscheduleFutureAction() {
-        //GIVEN
-        final Instant now = Instant.now();
-        Action action = Action.builder()
-                .iun("01")
-                .actionId("001")
-                .recipientIndex(0)
-                .notBefore(now.minus(Duration.ofSeconds(10)))
-                .type(ActionType.ANALOG_WORKFLOW)
-                .timeslot("2023-10-01T12:00")
-                .build();
-        Mockito.when(actionService.getActionById(Mockito.any(String.class)))
-                .thenReturn(java.util.Optional.of(action));
-        //WHEN
-        actionsPool.unscheduleFutureAction("001");
-        //THEN
-        Mockito.verify(actionService).unSchedule(Mockito.eq(action), Mockito.any(String.class));
+    void unscheduleFutureAction_shouldCallUnScheduleOnService() {
+        String actionId = "test-action-id";
+        actionsPool.unscheduleFutureAction(actionId);
+        Mockito.verify(actionService, Mockito.times(1)).unSchedule(actionId);
     }
 
 }
