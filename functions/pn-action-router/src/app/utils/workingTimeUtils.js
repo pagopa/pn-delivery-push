@@ -1,6 +1,6 @@
 const config = require("config");
 
-const getWorkingTime = async () => {
+const getWorkingTime = () => {
   const workingTime = config.get("featureFlag");
   console.info(
     "[ACTION_ROUTER]",

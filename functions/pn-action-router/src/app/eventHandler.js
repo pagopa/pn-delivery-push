@@ -28,7 +28,7 @@ async function startHandleEvent(event, context) {
   let actionToSend = [];
   let lastActionType = undefined; //future or immediate
   let lastDestinationQueue = undefined;
-  const workingTime = await getWorkingTime();
+  const workingTime = getWorkingTime();
   console.log('workingTime for action is ', workingTime)
 
   for (var i = 0; i < event.Records.length; i++) {
