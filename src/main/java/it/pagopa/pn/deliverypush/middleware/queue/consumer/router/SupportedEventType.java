@@ -3,5 +3,8 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.router;
 // Dovranno essere censiti qui tutti i tipi di eventi supportati dal router.
 public enum SupportedEventType {
     NEW_NOTIFICATION,
-    START_RECIPIENT_WORKFLOW
+    START_RECIPIENT_WORKFLOW,
+    NOTIFICATION_PAID,
+    NOTIFICATION_VIEWED,
+    SEND_IO_MESSAGE_REQUEST
 }
