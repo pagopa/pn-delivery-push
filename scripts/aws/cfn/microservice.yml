@@ -650,6 +650,14 @@ Parameters:
     Type: Number
     Description: TTL in days for pn-Action table rows
 
+  ActionLambdasEnabledStart:
+    Type: String
+    Description: 'Start date for action lambdas enabled'
+
+  ActionLambdasEnabledEnd:
+    Type: String
+    Description: 'End date for action lambdas enabled'
+
   # CDC
 
   CdcKinesisSourceStreamArn:
@@ -1337,12 +1345,14 @@ Resources:
         Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}",
+            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}###LAMBDA_ENABLED_START=${actionLambdasEnabledStart}###LAMBDA_ENABLED_END=${actionLambdasEnabledEnd}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
               FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
+              actionLambdasEnabledStart: !Ref ActionLambdasEnabledStart,
+              actionLambdasEnabledEnd: !Ref ActionLambdasEnabledEnd
             },
           ]
     
@@ -1453,11 +1463,13 @@ Resources:
         Layer1: !Ref ActionEnqueuerLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
+            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}###LAMBDA_ENABLED_START=${actionLambdasEnabledStart}###LAMBDA_ENABLED_END=${actionLambdasEnabledEnd}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
+              actionLambdasEnabledStart: !Ref ActionLambdasEnabledStart,
+              actionLambdasEnabledEnd: !Ref ActionLambdasEnabledEnd
             },
           ]
     
@@ -1548,8 +1560,13 @@ Resources:
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
         Layer1: !Ref ActionRemoverLambdaLibrariesLayer 
-        EnvVariables:
-          "LAST_WORKED_KEY=2"
+        EnvVariables: !Sub [
+          "LAST_WORKED_KEY=2###LAMBDA_ENABLED_START=${actionLambdasEnabledStart}###LAMBDA_ENABLED_END=${actionLambdasEnabledEnd}",
+          {
+            actionLambdasEnabledStart: !Ref ActionLambdasEnabledStart,
+            actionLambdasEnabledEnd: !Ref ActionLambdasEnabledEnd
+          }
+        ]
     
   # Lambda function role
   ActionRemoverLambdaRole:
