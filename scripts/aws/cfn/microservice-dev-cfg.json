@@ -40,6 +40,8 @@
     "AttemptTimeoutSec": "7",
     "NumRetry": "3",
     "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z",
-    "pfNewWorkflowFeatureFlag": "2019-01-01T00:00:00Z,2099-02-01T00:00:00Z"
+    "pfNewWorkflowFeatureFlag": "2019-01-01T00:00:00Z,2099-02-01T00:00:00Z",
+    "ActionLambdasEnabledStart": "2019-01-01T00:00:00Z",
+    "ActionLambdasEnabledEnd": "2099-01-01T00:00:00Z"
     }
 }
