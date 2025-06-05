@@ -4,6 +4,9 @@ package it.pagopa.pn.deliverypush.middleware.queue.consumer.router;
 public enum SupportedEventType {
     NEW_NOTIFICATION,
     START_RECIPIENT_WORKFLOW,
+    NOTIFICATION_PAID,
+    NOTIFICATION_VIEWED,
+    SEND_IO_MESSAGE_REQUEST,
     NOTIFICATION_VALIDATION,
     NOTIFICATION_REFUSED,
     SCHEDULE_RECEIVED_LEGALFACT_GENERATION
