@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actions
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import it.pagopa.pn.deliverypush.service.ActionService;
+import it.pagopa.pn.deliverypush.service.impl.ActionServiceFactory;
 import lombok.CustomLog;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +14,10 @@ import java.time.ZoneOffset;
 @Service
 @CustomLog
 public class ActionsPoolImpl implements ActionsPool {
-    private final ActionService actionService;
+    private final ActionServiceFactory actionServiceFactory;
     
-    public ActionsPoolImpl( ActionService actionService) {
-        this.actionService = actionService;
+    public ActionsPoolImpl(ActionServiceFactory actionServiceFactory) {
+        this.actionServiceFactory = actionServiceFactory;
     }
 
     @Override
@@ -25,6 +26,7 @@ public class ActionsPoolImpl implements ActionsPool {
         action = action.toBuilder()
                 .timeslot( timeSlot)
                 .build();
+        ActionService actionService = actionServiceFactory.getActionService();
         actionService.addOnlyActionIfAbsent(action);
     }
 
@@ -40,6 +42,7 @@ public class ActionsPoolImpl implements ActionsPool {
 
     @Override
     public void unscheduleFutureAction(String actionId) {
+        ActionService actionService = actionServiceFactory.getActionService();
         actionService.unSchedule(actionId);
     }
 }

@@ -147,6 +147,10 @@ public class PnDeliveryPushConfigs {
 
     private String technicalRefusalCostMode;
 
+    private Instant startActionImplWithDaoTimestamp;
+
+    private Instant endActionImplWithDaoTimestamp;
+
     @Data
     public static class Topics {
 

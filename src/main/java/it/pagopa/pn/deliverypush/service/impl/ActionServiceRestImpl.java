@@ -7,13 +7,9 @@ import it.pagopa.pn.deliverypush.service.ActionService;
 import it.pagopa.pn.deliverypush.service.mapper.ActionManagerMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @AllArgsConstructor
-@Service
-@ConditionalOnProperty(name = ActionService.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = "REST")
 public class ActionServiceRestImpl implements ActionService
  {
     private final ActionManagerClient actionManagerClient;

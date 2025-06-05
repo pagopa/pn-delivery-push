@@ -25,13 +25,12 @@ public class ActionManagerClientImpl extends CommonBaseClient implements ActionM
         try {
             actionManagerApi.unscheduleAction(actionId);
         }
-        catch (Exception exception) {
-            if (exception instanceof PnHttpResponseException pnHttpResponseException
-                    && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
+        catch (PnHttpResponseException pnHttpResponseException) {
+            if (pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
                     && pnHttpResponseException.getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERYPUSH_FUTURE_ACTION_NOTFOUND)) {
                 log.warn("Exception code ConditionalCheckFailed on update future action, letting flow continue actionId={}  ", actionId);
             } else {
-                throw exception;
+                throw pnHttpResponseException;
             }
         }
     }
@@ -41,14 +40,13 @@ public class ActionManagerClientImpl extends CommonBaseClient implements ActionM
         log.logInvokingAsyncExternalService(CLIENT_NAME, ADD_ONLY_ACTION_IF_ABSENT_PROCESS_NAME, action.getActionId());
         try {
             actionManagerApi.insertAction(action);
-        } catch (Exception exception) {
-            if (exception instanceof PnHttpResponseException pnHttpResponseException
-                    && pnHttpResponseException.getStatusCode() == HttpStatus.CONFLICT.value()
+        } catch (PnHttpResponseException pnHttpResponseException) {
+            if (pnHttpResponseException.getStatusCode() == HttpStatus.CONFLICT.value()
                     && pnHttpResponseException.getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERYPUSH_ACTION_CONFLICT)) {
                 log.warn("Exception code ConditionalCheckFailed is expected for retry, letting flow continue actionId={}", action.getActionId());
             }
             else {
-                throw exception;
+                throw pnHttpResponseException;
             }
         }
     }
