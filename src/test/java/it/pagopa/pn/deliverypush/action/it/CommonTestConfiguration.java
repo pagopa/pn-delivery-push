@@ -30,6 +30,8 @@ import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.EventHandlerRegistry;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.EventRouter;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.*;
 import it.pagopa.pn.deliverypush.service.impl.*;
@@ -166,7 +168,9 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         PnEmdIntegrationClientMock.class,
         RefusalCostCalculator.class,
         PnTechnicalRefusalCostMode.class,
-        LookupAddressHandler.class
+        LookupAddressHandler.class,
+        EventRouter.class,
+        EventHandlerRegistry.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:/application-testIT.properties")

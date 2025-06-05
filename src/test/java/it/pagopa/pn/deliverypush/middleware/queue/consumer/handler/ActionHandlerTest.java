@@ -15,7 +15,9 @@ import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.Not
 import it.pagopa.pn.deliverypush.action.startworkflowrecipient.StartWorkflowForRecipientHandler;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.EventRouter;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -30,8 +32,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -66,6 +70,8 @@ class ActionHandlerTest {
     private SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
     @Mock
     private AnalogFinalStatusResponseHandler analogFinalResponseHandler;
+    @Mock
+    private EventRouter eventRouter;
 
 
     @Mock
@@ -359,6 +365,36 @@ class ActionHandlerTest {
         //THEN
         Action action = message.getPayload();
         verify(analogFinalResponseHandler).handleFinalResponse(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+    }
+
+    @Test
+    void pnDeliveryPushValidationActionsInboundConsumer_routesMessageSuccessfully() {
+        Action action = Action.builder().iun("test_IUN").recipientIndex(0).type(ActionType.NOTIFICATION_VALIDATION).build();
+        Message<Action> message = Mockito.mock(Message.class);
+        Mockito.when(message.getPayload()).thenReturn(action);
+        Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(Map.of("test", "headerValue")));
+
+        actionHandler.pnDeliveryPushValidationActionsInboundConsumer().accept(message);
+
+        EventRouter.RoutingConfig expectedConfig = EventRouter.RoutingConfig.builder()
+                .eventType(ActionType.NOTIFICATION_VALIDATION.name())
+                .build();
+        Mockito.verify(eventRouter).route(message, expectedConfig);
+    }
+
+    @Test
+    void pnDeliveryPushValidationActionsInboundConsumer_handlesExceptionGracefully() {
+        Action action = Action.builder().iun("test_IUN").recipientIndex(0).build();
+        Message<Action> message = Mockito.mock(Message.class);
+        Mockito.when(message.getPayload()).thenReturn(action);
+        Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(Map.of("test", "headerValue")));
+
+        Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushValidationActionsInboundConsumer();
+        assertThrows(RuntimeException.class, () ->
+                consumer.accept(message)
+        );
+
+        Mockito.verify(eventRouter, Mockito.never()).route(Mockito.any(), Mockito.any());
     }
 
 
