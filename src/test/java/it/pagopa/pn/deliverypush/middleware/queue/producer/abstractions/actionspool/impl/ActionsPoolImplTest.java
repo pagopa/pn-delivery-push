@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actions
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.ActionService;
+import it.pagopa.pn.deliverypush.service.impl.ActionServiceFactory;
 import net.javacrumbs.shedlock.core.LockAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,11 @@ class ActionsPoolImplTest {
     void setup() {
         LockAssert.TestHelper.makeAllAssertsPass(true);
         actionService = Mockito.mock(ActionService.class);
-        actionsPool = new ActionsPoolImpl( actionService);
+
+        ActionServiceFactory actionServiceFactory = Mockito.mock(ActionServiceFactory.class);
+        Mockito.when(actionServiceFactory.getActionService()).thenReturn(actionService);
+
+        actionsPool = new ActionsPoolImpl(actionServiceFactory);
     }
 
     @Test

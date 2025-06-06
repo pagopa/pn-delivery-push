@@ -86,6 +86,8 @@ public class PnDeliveryPushConfigs {
 
     private String addressManagerBaseUrl;
 
+    private String actionManagerBaseUrl;
+
     private String f24BaseUrl;
 
     private String emdIntegrationBaseUrl;
@@ -144,6 +146,10 @@ public class PnDeliveryPushConfigs {
     private String templateURLforPEC;
 
     private String technicalRefusalCostMode;
+
+    private Instant startActionImplWithDaoTimestamp;
+
+    private Instant endActionImplWithDaoTimestamp;
 
     @Data
     public static class Topics {
