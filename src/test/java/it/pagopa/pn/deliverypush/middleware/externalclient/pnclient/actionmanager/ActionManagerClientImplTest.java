@@ -46,17 +46,15 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
     @Autowired
     private ActionManagerClientImpl actionManagerClient;
 
-    private static ClientAndServer mockServer;
-
     @Test
     void unscheduleAction() {
-        mockServer = ClientAndServer.startClientAndServer(9999); // usa la stessa porta
+        try (ClientAndServer ignored = ClientAndServer.startClientAndServer(9999);
+             MockServerClient mockServerClient = new MockServerClient("localhost", 9999)) {
 
-        try {
             String actionId = "action123";
-            String path = "/action-manager-private/action/"  + actionId + "/unschedule";
+            String path = "/action-manager-private/action/" + actionId + "/unschedule";
 
-            new MockServerClient("localhost", 9999)
+            mockServerClient
                     .when(request()
                             .withMethod("PUT")
                             .withPath(path)
@@ -66,22 +64,16 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
                             .withContentType(MediaType.APPLICATION_JSON)
                     );
 
-            actionManagerClient.unscheduleAction(actionId);
-        } finally {
-            mockServer.stop();
+            Assertions.assertDoesNotThrow(() -> actionManagerClient.unscheduleAction(actionId));
         }
     }
+
     @Test
-    void unscheduleActionFailSilently() throws JsonProcessingException{
-        mockServer = ClientAndServer.startClientAndServer(9999); // usa la stessa porta
-
-        try {
+    void unscheduleActionFailsSilently() throws JsonProcessingException{
+        try (ClientAndServer ignored = startClientAndServer(9999);
+             MockServerClient mockServerClient = new MockServerClient("localhost", 9999)) {
             String actionId = "action123";
-            String timeSlot = "2023-10-01T10:00";
             String path = "/action-manager-private/action/" + actionId + "/unschedule";
-
-            ObjectMapper mapper = new ObjectMapper();
-
 
             ProblemError problemError = new ProblemError();
             problemError.setCode(ERROR_CODE_DELIVERYPUSH_FUTURE_ACTION_NOTFOUND);
@@ -91,10 +83,10 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
             Problem problem = new Problem();
             problem.setErrors(Collections.singletonList(problemError));
 
-
+            ObjectMapper mapper = new ObjectMapper();
             String responseJson = mapper.writeValueAsString(problem);
 
-            new MockServerClient("localhost", 9999)
+            mockServerClient
                     .when(request()
                             .withMethod("PUT")
                             .withPath(path)
@@ -106,22 +98,14 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
                     );
 
             Assertions.assertDoesNotThrow(() -> actionManagerClient.unscheduleAction(actionId));
-        } finally {
-            mockServer.stop();
-            mockServer.close();
         }
     }
     @Test
-    void unscheduleActionFail() throws JsonProcessingException{
-        mockServer = ClientAndServer.startClientAndServer(9999); // usa la stessa porta
-
-        try {
+    void unscheduleActionFails() throws JsonProcessingException{
+        try (ClientAndServer ignored = startClientAndServer(9999);
+             MockServerClient mockServerClient = new MockServerClient("localhost", 9999)) {
             String actionId = "action123";
-            String timeSlot = "2023-10-01T10:00";
-            String path = "/action-manager-private/action/" + timeSlot + "/" + actionId + "/unschedule";
-
-            ObjectMapper mapper = new ObjectMapper();
-
+            String path = "/action-manager-private/action/" + actionId + "/unschedule";
 
             ProblemError problemError = new ProblemError();
             problemError.setCode(ERROR_CODE_DELIVERYPUSH_FUTURE_ACTION_NOTFOUND);
@@ -131,10 +115,10 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
             Problem problem = new Problem();
             problem.setErrors(Collections.singletonList(problemError));
 
-
+            ObjectMapper mapper = new ObjectMapper();
             String responseJson = mapper.writeValueAsString(problem);
 
-            new MockServerClient("localhost", 9999)
+            mockServerClient
                     .when(request()
                             .withMethod("PUT")
                             .withPath(path)
@@ -146,16 +130,13 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
                     );
 
             Assertions.assertThrows(Exception.class, () -> actionManagerClient.unscheduleAction(actionId));
-        } finally {
-            mockServer.stop();
         }
     }
 
     @Test
     void testAddOnlyActionIfAbsentSuccess() throws JsonProcessingException {
-        mockServer = startClientAndServer(9999); // stessa porta del client
-
-        try {
+        try (ClientAndServer ignored = startClientAndServer(9999);
+             MockServerClient mockServerClient = new MockServerClient("localhost", 9999)) {
             NewAction actionRequest = new NewAction();
             actionRequest.setActionId("action456");
             actionRequest.setTimelineId("timeline123");
@@ -169,7 +150,7 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
 
             String requestJson = mapper.writeValueAsString(actionRequest);
 
-            new MockServerClient("localhost", 9999)
+            mockServerClient
                     .when(request()
                             .withMethod("POST")
                             .withPath("/action-manager-private/action")
@@ -179,18 +160,14 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
                             .withStatusCode(200)
                             .withContentType(MediaType.APPLICATION_JSON)
                     );
-            actionManagerClient.addOnlyActionIfAbsent(actionRequest);
-        } finally {
-            mockServer.stop();
-            mockServer.close();
+            Assertions.assertDoesNotThrow(() -> actionManagerClient.addOnlyActionIfAbsent(actionRequest));
         }
     }
 
     @Test
     void testAddOnlyActionIfAbsentFailSilently() throws JsonProcessingException {
-        mockServer = startClientAndServer(9999); // stessa porta del client
-
-        try {
+        try (ClientAndServer ignored = startClientAndServer(9999);
+             MockServerClient mockServerClient = new MockServerClient("localhost", 9999)) {
             NewAction actionRequest = new NewAction();
             actionRequest.setActionId("action456");
             actionRequest.setTimelineId("timeline123");
@@ -214,7 +191,7 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
 
             String responseJson = mapper.writeValueAsString(problem);
 
-            new MockServerClient("localhost", 9999)
+            mockServerClient
                     .when(request()
                             .withMethod("POST")
                             .withPath("/action-manager-private/action")
@@ -227,16 +204,13 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
                     );
 
             Assertions.assertDoesNotThrow(() -> actionManagerClient.addOnlyActionIfAbsent(actionRequest));
-        } finally {
-            mockServer.stop();
-            mockServer.close();
         }
     }
-    @Test
-    void testAddOnlyActionIfAbsentFail() throws JsonProcessingException {
-        mockServer = startClientAndServer(9999); // stessa porta del client
 
-        try {
+    @Test
+    void testAddOnlyActionIfAbsentFails() throws JsonProcessingException {
+        try (ClientAndServer ignored = startClientAndServer(9999);
+             MockServerClient mockServerClient = new MockServerClient("localhost", 9999)) {
             NewAction actionRequest = new NewAction();
             actionRequest.setActionId("action456");
             actionRequest.setTimelineId("timeline123");
@@ -260,7 +234,7 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
 
             String responseJson = mapper.writeValueAsString(problem);
 
-            new MockServerClient("localhost", 9999)
+            mockServerClient
                     .when(request()
                             .withMethod("POST")
                             .withPath("/action-manager-private/action")
@@ -273,10 +247,6 @@ class ActionManagerClientImplTest extends MockAWSObjectsTest {
                     );
 
             Assertions.assertThrows(Exception.class, () -> actionManagerClient.addOnlyActionIfAbsent(actionRequest));
-
-        } finally {
-            mockServer.stop();
-            mockServer.close();
         }
     }
 }
