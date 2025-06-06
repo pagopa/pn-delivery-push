@@ -58,7 +58,7 @@ public class ActionHandler {
     private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
     private final AnalogFinalStatusResponseHandler analogFinalResponseHandler;
     private final EventRouter eventRouter;
-    
+
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
         final String processName = ActionType.START_RECIPIENT_WORKFLOW.name();
@@ -474,6 +474,29 @@ public class ActionHandler {
             try {
                 log.debug("Handle action pnDeliveryPushValidationActionsInboundConsumer, with content {}", message);
                 String actionType = extractActionType(message.getPayload());
+
+                EventRouter.RoutingConfig routerConfig = EventRouter.RoutingConfig.builder()
+                        .eventType(actionType)
+                        .build();
+                eventRouter.route(message, routerConfig);
+                log.logEndingProcess(processName);
+            } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushActionsInboundConsumer() {
+        final String processName = "WORKFLOW_ACTIONS_INBOUND";
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushActionsInboundConsumer, with content {}", message);
+                String actionType = extractActionType(message.getPayload());
+
 
                 EventRouter.RoutingConfig routerConfig = EventRouter.RoutingConfig.builder()
                         .eventType(actionType)
