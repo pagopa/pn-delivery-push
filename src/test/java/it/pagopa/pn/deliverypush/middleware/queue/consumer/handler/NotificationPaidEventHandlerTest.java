@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-class CustomNotificationPaidEventHandlerTest {
+class NotificationPaidEventHandlerTest {
     @Mock
     private NotificationPaidHandler notificationPaidHandler;
 
@@ -23,7 +23,7 @@ class CustomNotificationPaidEventHandlerTest {
     private MessageHeaders headers;
 
     @InjectMocks
-    private CustomNotificationPaidEventHandler handler;
+    private NotificationPaidEventHandler handler;
 
     private static final PnDeliveryPaymentEvent.Payload PAYLOAD = PnDeliveryPaymentEvent.Payload.builder()
             .iun("iun_123")

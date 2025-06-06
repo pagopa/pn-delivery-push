@@ -49,13 +49,13 @@ class EventHandlerRegistryTest {
     void initializeRegistersAllHandlersCorrectly() {
         EventHandler<?> handler1 = mock(EventHandler.class);
         EventHandler<?> handler2 = mock(EventHandler.class);
-        when(handler1.getSupportedEventType()).thenReturn(SupportedEventType.NEW_NOTIFICATION);
+        when(handler1.getSupportedEventType()).thenReturn(SupportedEventType.NOTIFICATION_PAID);
         when(handler2.getSupportedEventType()).thenReturn(SupportedEventType.START_RECIPIENT_WORKFLOW);
 
         EventHandlerRegistry registry = new EventHandlerRegistry(List.of(handler1, handler2));
         registry.initialize();
 
-        assertTrue(registry.getHandler("NEW_NOTIFICATION").isPresent());
+        assertTrue(registry.getHandler("START_RECIPIENT_WORKFLOW").isPresent());
         assertTrue(registry.getHandler("START_RECIPIENT_WORKFLOW").isPresent());
     }
 
@@ -77,8 +77,8 @@ class EventHandlerRegistryTest {
     void registerHandlerThrowsExceptionForDuplicateEventType() {
         EventHandler<?> handler1 = mock(EventHandler.class);
         EventHandler<?> handler2 = mock(EventHandler.class);
-        when(handler1.getSupportedEventType()).thenReturn(SupportedEventType.NEW_NOTIFICATION);
-        when(handler2.getSupportedEventType()).thenReturn(SupportedEventType.NEW_NOTIFICATION);
+        when(handler1.getSupportedEventType()).thenReturn(SupportedEventType.START_RECIPIENT_WORKFLOW);
+        when(handler2.getSupportedEventType()).thenReturn(SupportedEventType.START_RECIPIENT_WORKFLOW);
 
         EventHandlerRegistry registry = new EventHandlerRegistry(List.of(handler1, handler2));
 
@@ -89,7 +89,7 @@ class EventHandlerRegistryTest {
     @Test
     void getHandlerReturnsEmptyOptionalForUnknownEventType() {
         EventHandler<?> handler = mock(EventHandler.class);
-        when(handler.getSupportedEventType()).thenReturn(SupportedEventType.NEW_NOTIFICATION);
+        when(handler.getSupportedEventType()).thenReturn(SupportedEventType.START_RECIPIENT_WORKFLOW);
 
         EventHandlerRegistry registry = new EventHandlerRegistry(List.of(handler));
         registry.initialize();

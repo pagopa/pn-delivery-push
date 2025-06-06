@@ -155,18 +155,6 @@ public class PnDeliveryPushConfigs {
         private String toExternalChannelEmail;
         
         private String toExternalChannelPaper;
-
-        private String fromExternalChannel;
-
-        private String safeStorageEvents;
-
-        private String nationalRegistriesEvents;
-
-        private String addressManagerEvents;
-
-        private String f24Events;
-        
-        private String deliveryValidationEvents;
     }
 
     @Data

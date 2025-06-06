@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-class CustomNotificationViewedEventHandlerTest {
+class NotificationViewedEventHandlerTest {
     @Mock
     private NotificationViewedRequestHandler notificationViewedRequestHandler;
 
@@ -24,7 +24,7 @@ class CustomNotificationViewedEventHandlerTest {
     private MessageHeaders headers;
 
     @InjectMocks
-    private CustomNotificationViewedEventHandler handler;
+    private NotificationViewedEventHandler handler;
 
     private static final PnDeliveryNotificationViewedEvent.Payload PAYLOAD = PnDeliveryNotificationViewedEvent.Payload.builder()
             .iun("iun_123")
