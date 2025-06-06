@@ -881,6 +881,38 @@
 						</configuration>
 					</execution>
 
+					<!-- OPEN API CLIENT PN-TIMELINE-SERVICE -->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-timeline-service</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<typeMappings>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+							</typeMappings>
+							<inputSpec>
+								https://raw.githubusercontent.com/pagopa/pn-timeline-service/67e0b443bc35e19b5dff74d540f22fad8ae59a00/docs/openapi/pn-timeline-service-private.yaml
+							</inputSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api</apiPackage>
+								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
+							</configOptions>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 		</plugins>

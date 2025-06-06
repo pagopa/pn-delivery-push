@@ -60,12 +60,14 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import org.slf4j.MDC;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = TimelineCounterEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = "IMPL")
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final TimelineCounterEntityDao timelineCounterEntityDao;
@@ -463,8 +465,7 @@ public class TimeLineServiceImpl implements TimelineService {
         throw new PnValidationRecipientIdNotValidException(String.format("Recipient %s not found", recipientId));
     }
 
-    @Override
-    public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
+    private void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
                                                                  ConfidentialTimelineElementDtoInt confidentialDto) {
 
         if (details instanceof CourtesyAddressRelatedTimelineElement courtesyAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null) {
