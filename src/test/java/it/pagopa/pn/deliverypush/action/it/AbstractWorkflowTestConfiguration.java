@@ -5,11 +5,11 @@ import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.deliverypush.action.it.mockbean.*;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.legalfacts.CustomInstantWriter;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGenerator;
 import it.pagopa.pn.deliverypush.legalfacts.LegalFactGeneratorTemplates;
 import it.pagopa.pn.deliverypush.legalfacts.PhysicalAddressWriter;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.datavault.PnDataVaultClientReactive;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistriesClientReactive;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
@@ -18,7 +18,6 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.templatesengine.TemplatesClientPec;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.userattributes.UserAttributesClient;
-import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.deserializer.RouterDeserializer;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.deserializer.impl.JsonRouterDeserializer;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.NationalRegistriesResponseHandler;
@@ -119,9 +118,8 @@ public class AbstractWorkflowTestConfiguration {
     }
 
     @Bean
-    public ActionHandlerMock ActionHandlerMock(@Lazy ActionHandler actionHandler
-    ) {
-        return new ActionHandlerMock(actionHandler);
+    public ActionHandlerMock ActionHandlerMock(ActionHandlerRegistry actionHandlerRegistry) {
+        return new ActionHandlerMock(actionHandlerRegistry);
     }
 
     @Bean
