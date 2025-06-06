@@ -65,7 +65,7 @@ class FeatureFlagUtilsTest {
         Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoTimestamp()).thenReturn(null);
         Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoTimestamp()).thenReturn(end);
 
-        PnInternalException ex = assertThrows(PnInternalException.class, () -> featureFlagUtils.isActionImplDao(now));
+        assertThrows(PnInternalException.class, () -> featureFlagUtils.isActionImplDao(now));
     }
 
     @Test
@@ -76,6 +76,6 @@ class FeatureFlagUtilsTest {
         Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoTimestamp()).thenReturn(start);
         Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoTimestamp()).thenReturn(null);
 
-        PnInternalException ex = assertThrows(PnInternalException.class, () -> featureFlagUtils.isActionImplDao(now));
+        assertThrows(PnInternalException.class, () -> featureFlagUtils.isActionImplDao(now));
     }
 }

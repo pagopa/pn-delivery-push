@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ActionServicerRestImplTest {
+class ActionServiceRestImplTest {
     @Mock
     private ActionManagerClient actionManagerClient;
     @Mock
@@ -43,7 +43,6 @@ class ActionServicerRestImplTest {
     @Test
     void unSchedule_shouldCallClient() {
         Action action = mock(Action.class);
-        String timeSlot = "2024-06-01T10:00";
 
         actionServiceRest.unSchedule(action.getActionId());
 
