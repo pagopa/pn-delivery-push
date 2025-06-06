@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.handler;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.EventRouter;
@@ -23,7 +22,7 @@ public class ExtChannelEventHandlerNew {
     }
     
     @Bean
-    public Consumer<Message<SingleStatusUpdate>> pnExtChannelEventInboundConsumer() {
+    public Consumer<Message<?>> pnExtChannelEventInboundConsumer() {
         return message -> {
             try {
                 log.debug("Handle message from {} with content {}", ExternalChannelSendClient.CLIENT_NAME, message);
@@ -42,7 +41,7 @@ public class ExtChannelEventHandlerNew {
         };
     }
 
-    private String extractEventType(Message<SingleStatusUpdate> message) {
+    private String extractEventType(Message<?> message) {
         String headerEventType = (String) message.getHeaders().get("eventType");
         /*
             * Se l'header eventType non è presente, viene utilizzato un event type prestabilito.
