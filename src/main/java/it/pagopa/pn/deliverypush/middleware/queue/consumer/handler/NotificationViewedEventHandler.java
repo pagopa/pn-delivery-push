@@ -8,57 +8,63 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.Notificatio
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.SupportedEventType;
+import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.function.Consumer;
 
-@Configuration
+@Component
 @CustomLog
-public class NotificationViewedEventHandler {
+@AllArgsConstructor
+public class NotificationViewedEventHandler implements EventHandler<PnDeliveryNotificationViewedEvent.Payload> {
     private final NotificationViewedRequestHandler notificationViewedRequestHandler;
 
-    public NotificationViewedEventHandler(NotificationViewedRequestHandler notificationViewedRequestHandler) {
-        this.notificationViewedRequestHandler = notificationViewedRequestHandler;
+    @Override
+    public SupportedEventType getSupportedEventType() {
+        return SupportedEventType.NOTIFICATION_VIEWED;
     }
 
-    @Bean
-    public Consumer<Message<PnDeliveryNotificationViewedEvent.Payload>> pnDeliveryNotificationViewedEventConsumer() {
+    @Override
+    public Class<PnDeliveryNotificationViewedEvent.Payload> getPayloadType() {
+        return PnDeliveryNotificationViewedEvent.Payload.class;
+    }
+
+
+    @Override
+    public void handle(PnDeliveryNotificationViewedEvent.Payload payload, MessageHeaders headers) {
         final String processName = "NOTIFICATION VIEWED EVENT";
 
-        return message -> {
-            try {
-                log.debug("Handle message from {} with content {}", PnDeliveryClient.CLIENT_NAME, message);
+        try {
+            log.debug("Handle message from {} with payload {} and headers {}", PnDeliveryClient.CLIENT_NAME, payload, headers);
 
-                PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
-                        .payload(message.getPayload())
-                        .header(HandleEventUtils.mapStandardEventHeader(message.getHeaders()))
-                        .build();
+            PnDeliveryNotificationViewedEvent pnDeliveryNewNotificationEvent = PnDeliveryNotificationViewedEvent.builder()
+                    .payload(payload)
+                    .header(HandleEventUtils.mapStandardEventHeader(headers))
+                    .build();
 
-                String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
-                int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
-                HandleEventUtils.addIunAndRecIndexToMdc(iun, recipientIndex);
+            String iun = pnDeliveryNewNotificationEvent.getHeader().getIun();
+            int recipientIndex = pnDeliveryNewNotificationEvent.getPayload().getRecipientIndex();
+            HandleEventUtils.addIunAndRecIndexToMdc(iun, recipientIndex);
 
-                log.logStartingProcess(processName);
+            log.logStartingProcess(processName);
 
-                Instant viewedDate = pnDeliveryNewNotificationEvent.getHeader().getCreatedAt();
-                NotificationViewDelegateInfo delegateBasicInfo = pnDeliveryNewNotificationEvent.getPayload().getDelegateInfo();
-                DelegateInfoInt delegateInfo = mapExternalToInternal(delegateBasicInfo);
-                String sourceChannel = pnDeliveryNewNotificationEvent.getPayload().getSourceChannel();
-                String sourceChannelDetail = pnDeliveryNewNotificationEvent.getPayload().getSourceChannelDetails();
-                notificationViewedRequestHandler.handleViewNotificationDelivery(buildNotificationViewedInt(iun, recipientIndex, delegateInfo, viewedDate, sourceChannel, sourceChannelDetail));
+            Instant viewedDate = pnDeliveryNewNotificationEvent.getHeader().getCreatedAt();
+            NotificationViewDelegateInfo delegateBasicInfo = pnDeliveryNewNotificationEvent.getPayload().getDelegateInfo();
+            DelegateInfoInt delegateInfo = mapExternalToInternal(delegateBasicInfo);
+            String sourceChannel = pnDeliveryNewNotificationEvent.getPayload().getSourceChannel();
+            String sourceChannelDetail = pnDeliveryNewNotificationEvent.getPayload().getSourceChannelDetails();
+            notificationViewedRequestHandler.handleViewNotificationDelivery(buildNotificationViewedInt(iun, recipientIndex, delegateInfo, viewedDate, sourceChannel, sourceChannelDetail));
 
-                log.logEndingProcess(processName);
-            } catch (Exception ex) {
-                log.logEndingProcess(processName, false, ex.getMessage());
-                HandleEventUtils.handleException(message.getHeaders(), ex);
-                throw ex;
-            }
-        };
+            log.logEndingProcess(processName);
+        } catch (Exception ex) {
+            log.logEndingProcess(processName, false, ex.getMessage());
+            HandleEventUtils.handleException(headers, ex);
+            throw ex;
+        }
     }
 
     @Nullable

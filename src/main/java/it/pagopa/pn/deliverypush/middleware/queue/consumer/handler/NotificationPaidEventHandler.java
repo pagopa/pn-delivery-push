@@ -4,40 +4,43 @@ import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import it.pagopa.pn.deliverypush.action.notificationpaid.NotificationPaidHandler;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.SupportedEventType;
+import lombok.AllArgsConstructor;
 import lombok.CustomLog;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.stereotype.Component;
 
-import java.util.function.Consumer;
-
-@Configuration
+@Component
 @CustomLog
-public class NotificationPaidEventHandler {
+@AllArgsConstructor
+public class NotificationPaidEventHandler implements EventHandler<PnDeliveryPaymentEvent.Payload> {
     private final NotificationPaidHandler notificationPaidHandler;
 
-    public NotificationPaidEventHandler(NotificationPaidHandler notificationPaidHandler) {
-        this.notificationPaidHandler = notificationPaidHandler;
+    @Override
+    public SupportedEventType getSupportedEventType() {
+        return SupportedEventType.NOTIFICATION_PAID;
     }
 
-    @Bean
-    public Consumer<Message<PnDeliveryPaymentEvent.Payload>> pnDeliveryNotificationPaidEventConsumer() {
+    @Override
+    public Class<PnDeliveryPaymentEvent.Payload> getPayloadType() {
+        return PnDeliveryPaymentEvent.Payload.class;
+    }
+
+    @Override
+    public void handle(PnDeliveryPaymentEvent.Payload paymentEventPayload, MessageHeaders headers) {
         final String processName = "NOTIFICATION PAID EVENT";
 
-        return message -> {
             try {
-                log.debug("Handle message from {} with content {}", PnDeliveryClient.CLIENT_NAME, message);
-                PnDeliveryPaymentEvent.Payload paymentEventPayload = message.getPayload();
+                log.debug("Handle message from {} with payload {}", PnDeliveryClient.CLIENT_NAME, paymentEventPayload);
                 HandleEventUtils.addIunAndRecIndexToMdc(paymentEventPayload.getIun(), paymentEventPayload.getRecipientIdx());
 
                 log.logStartingProcess(processName);
-                notificationPaidHandler.handleNotificationPaid(message.getPayload());
+                notificationPaidHandler.handleNotificationPaid(paymentEventPayload);
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());
-                HandleEventUtils.handleException(message.getHeaders(), ex);
+                HandleEventUtils.handleException(headers, ex);
                 throw ex;
             }
-        };
     }
 }
