@@ -13,6 +13,8 @@ const {
   batchDelete,
 } = require("./dynamoFunctions.js");
 
+const { getWorkingTime } = require("./workingTimeUtils.js");
+
 const { BatchOperationException, InvalidItemException } = require("./exceptions.js");
 const config = require("config");
 
@@ -57,6 +59,7 @@ async function handleEvent(event, context) {
   startTimeSlot = nextTimeSlot(startTimeSlot);
   console.debug("[FUTURE_ACTIONS_REMOVER]", "NEXT TIMESLOT", startTimeSlot);
 
+  const workingTime = getWorkingTime();
   while (isAfter(endTimeSlot, startTimeSlot)) {
     let lastEvaluatedKey = undefined;
 
@@ -79,7 +82,11 @@ async function handleEvent(event, context) {
 
       let result = await getActionsByTimeSlot(
         futureActionTable,
-        dateToString(startTimeSlot),
+        {
+          timeSlot: dateToString(startTimeSlot),
+          startTime: workingTime.start,
+          endTime: workingTime.end,
+        },
         lastEvaluatedKey
       );
 
