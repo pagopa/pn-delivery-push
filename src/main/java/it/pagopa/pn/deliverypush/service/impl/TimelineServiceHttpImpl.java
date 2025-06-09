@@ -1,9 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.InlineObject;
@@ -12,7 +10,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.mode
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timelineservice.TimelineServiceClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -84,7 +81,8 @@ public class TimelineServiceHttpImpl implements TimelineService {
         log.debug("getTimelineElementDetailForSpecificRecipient - IUN={}, recIndex={}, confidentialInfoRequired={}, category={}", iun, recIndex, confidentialInfoRequired, category);
 
         TimelineElementDetails timelineElementDetails = timelineServiceClient.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, TimelineCategory.fromValue(category.getValue()));
-        return Optional.ofNullable(timelineDetailsClass.cast(timelineElementDetails));
+        return Optional.ofNullable(timelineDetailsClass.cast(TimelineServiceMapper.toTimelineElementDetailsInt(
+                timelineElementDetails, TimelineElementCategoryInt.valueOf(timelineElementDetails.getCategoryType()))));
     }
 
     @Override
@@ -98,11 +96,6 @@ public class TimelineServiceHttpImpl implements TimelineService {
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("getTimeline - IUN={} and confidentialInfoRequired={}", iun, confidentialInfoRequired);
-
-//        return timelineServiceClient.getTimeline(iun, confidentialInfoRequired, false, null)
-//                .stream()
-//                .map(TimelineServiceMapper::toTimelineElementInternal)
-//                .collect(Collectors.toSet());
 
         return Optional.ofNullable(timelineServiceClient.getTimeline(iun, confidentialInfoRequired, false, null))
                 .orElseGet(Collections::emptyList)
@@ -140,18 +133,6 @@ public class TimelineServiceHttpImpl implements TimelineService {
         it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse =
                 timelineServiceClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
         return TimelineServiceMapper.toNotificationHistoryResponseDto(notificationHistoryResponse);
-    }
-
-    @Override
-    public boolean isPresentTimeLineElement(String iun, Integer recIndex, TimelineEventId timelineEventId) {
-        log.debug("isPresentTimeLineElement - IUN={}, recIndex={}, timelineEventId={}", iun, recIndex, timelineEventId);
-
-        EventId eventId = EventId.builder()
-                .iun(iun)
-                .recIndex(recIndex)
-                .build();
-        TimelineElement timelineElement = timelineServiceClient.getTimelineElement(iun, timelineEventId.buildEventId(eventId), false);
-        return timelineElement != null;
     }
 
     @Override

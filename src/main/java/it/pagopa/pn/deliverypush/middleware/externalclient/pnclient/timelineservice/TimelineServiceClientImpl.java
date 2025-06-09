@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.mode
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -22,77 +21,72 @@ public class TimelineServiceClientImpl implements TimelineServiceClient {
     public Boolean addTimelineElement(InlineObject inlineObject) {
         log.logInvokingExternalService(CLIENT_NAME, ADD_TIMELINE_ELEMENT);
 
-        ResponseEntity<Boolean> resp;
         try {
-            resp = timelineControllerApi.addTimelineElementWithHttpInfo(inlineObject);
+            timelineControllerApi.addTimelineElement(inlineObject);
         } catch (PnHttpResponseException ex) {
             log.error("Error while invoking {}: {}", ADD_TIMELINE_ELEMENT, ex.getMessage(), ex);
-            return ex.getStatusCode() == HttpStatus.SC_CONFLICT;
+            if (ex.getStatusCode() == HttpStatus.SC_CONFLICT) {
+                return true;
+            } else {
+                throw ex;
+            }
         }
-        return resp.getBody();
+        return false;
     }
 
     @Override
     public Long retrieveAndIncrementCounterForTimelineEvent(String timelineId) {
         log.logInvokingExternalService(CLIENT_NAME, RETRIEVE_AND_INCREMENT_COUNTER_FOR_TIMELINE_EVENT);
 
-        ResponseEntity<Long> resp = timelineControllerApi.retrieveAndIncrementCounterForTimelineEventWithHttpInfo(timelineId);
-        return resp.getBody();
+        return timelineControllerApi.retrieveAndIncrementCounterForTimelineEvent(timelineId);
     }
 
     @Override
     public TimelineElement getTimelineElement(String iun, String timelineId, Boolean strongly) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT);
 
-        ResponseEntity<TimelineElement> resp = timelineControllerApi.getTimelineElementWithHttpInfo(iun, timelineId, strongly);
-        return resp.getBody();
+        return timelineControllerApi.getTimelineElement(iun, timelineId, strongly);
     }
 
     @Override
     public TimelineElementDetails getTimelineElementDetails(String iun, String timelineId) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_DETAILS);
 
-        ResponseEntity<TimelineElementDetails> resp = timelineControllerApi.getTimelineElementDetailsWithHttpInfo(iun, timelineId);
-        return resp.getBody();
+        return timelineControllerApi.getTimelineElementDetails(iun, timelineId);
     }
 
     @Override
     public TimelineElementDetails getTimelineElementDetailForSpecificRecipient(String iun, Integer recIndex, Boolean confidentialInfoRequired, TimelineCategory category) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_DETAIL_FOR_SPECIFIC_RECIPIENT);
 
-        ResponseEntity<TimelineElementDetails> resp = timelineControllerApi.getTimelineElementDetailForSpecificRecipientWithHttpInfo(iun, recIndex, confidentialInfoRequired, category);
-        return resp.getBody();
+        return timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category);
     }
 
     @Override
     public TimelineElement getTimelineElementForSpecificRecipient(String iun, Integer recIndex, TimelineCategory category) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_FOR_SPECIFIC_RECIPIENT);
 
-        ResponseEntity<TimelineElement> resp = timelineControllerApi.getTimelineElementForSpecificRecipientWithHttpInfo(iun, recIndex, category);
-        return resp.getBody();
+        return timelineControllerApi.getTimelineElementForSpecificRecipient(iun, recIndex, category);
     }
 
     @Override
     public List<TimelineElement> getTimeline(String iun, Boolean confidentialInfoRequired, Boolean strongly, String timelineId) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE);
 
-        ResponseEntity<List<TimelineElement>> resp = timelineControllerApi.getTimelineWithHttpInfo(iun, confidentialInfoRequired, strongly, timelineId);
-        return resp.getBody();
+        return timelineControllerApi.getTimeline(iun, confidentialInfoRequired, strongly, timelineId);
     }
 
     @Override
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, Integer numberOfRecipients, Instant createdAt) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_AND_STATUS_HISTORY);
 
-        ResponseEntity<NotificationHistoryResponse> resp = timelineControllerApi.getTimelineAndStatusHistoryWithHttpInfo(iun, numberOfRecipients, createdAt);
-        return resp.getBody();
+        return timelineControllerApi.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
     }
 
     @Override
     public ProbableSchedulingAnalogDate getSchedulingAnalogDate(String iun, Integer recIndex) {
         log.logInvokingExternalService(CLIENT_NAME, GET_SCHEDULING_ANALOG_DATE);
 
-        ResponseEntity<ProbableSchedulingAnalogDate> resp = timelineControllerApi.getSchedulingAnalogDateWithHttpInfo(iun, recIndex);
-        return resp.getBody();
+        return timelineControllerApi.getSchedulingAnalogDate(iun, recIndex);
     }
 }

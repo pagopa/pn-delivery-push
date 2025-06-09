@@ -12,7 +12,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.mode
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import org.springframework.util.CollectionUtils;
 
-import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -74,38 +73,6 @@ public class TimelineServiceMapper {
                 .build();
     }
 
-// possiibile alternativa?
-//    public static it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse toNotificationHistoryResponse(
-//            it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse source) {
-//
-//        if (source == null) {
-//            return null;
-//        }
-//
-//        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26 notificationStatus =
-//                SmartMapper.mapToClass(source.getNotificationStatus(), it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26.class);
-//
-//        List<it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26> notificationStatusHistory = null;
-//        if (source.getNotificationStatusHistory() != null) {
-//            notificationStatusHistory = source.getNotificationStatusHistory().stream()
-//                    .map(item -> SmartMapper.mapToClass(item, it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26.class))
-//                    .toList();
-//        }
-//
-//        List<it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV27> timeline = null;
-//        if (source.getTimeline() != null) {
-//            timeline = source.getTimeline().stream()
-//                    .map(item -> SmartMapper.mapToClass(item, it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV27.class))
-//                    .toList();
-//        }
-//
-//        return it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse.builder()
-//                .notificationStatus(notificationStatus)
-//                .notificationStatusHistory(notificationStatusHistory)
-//                .timeline(timeline)
-//                .build();
-//    }
-
     private static List<TimelineElementV27> getTimelineElementV27List(NotificationHistoryResponse source) {
         List<TimelineElementV27> timeline = null;
         if (source.getTimeline() != null) {
@@ -164,10 +131,7 @@ public class TimelineServiceMapper {
                 .legalFactsIds(toLegalFactsIdList(timelineElementInternal.getLegalFactsIds()))
                 .category(TimelineCategory.valueOf(timelineElementInternal.getCategory().getValue()))
                 .details(toTimelineElementDetails(timelineElementInternal.getDetails()))
-                .statusInfo(toStatusInfo(timelineElementInternal.getStatusInfo()))
-                .notificationSentAt(timelineElementInternal.getNotificationSentAt())
-                .ingestionTimestamp(timelineElementInternal.getIngestionTimestamp())
-                .eventTimestamp(timelineElementInternal.getEventTimestamp());
+                .notificationSentAt(timelineElementInternal.getNotificationSentAt());
     }
 
     private static List<LegalFactsId> toLegalFactsIdList(List<LegalFactsIdInt> legalFactsIdIntList) {
@@ -179,14 +143,6 @@ public class TimelineServiceMapper {
                     .toList();
         }
         return Collections.emptyList();
-    }
-
-    private static StatusInfo toStatusInfo(StatusInfoInternal statusInfoInternal) {
-        if (statusInfoInternal == null) return null;
-        return new StatusInfo()
-                .actual(statusInfoInternal.getActual())
-                .statusChangeTimestamp(statusInfoInternal.getStatusChangeTimestamp())
-                .statusChanged(statusInfoInternal.isStatusChanged());
     }
 
     private static List<LegalFactsIdInt> toLegalFactsIdIntList(List<LegalFactsId> legalFactsIdList) {

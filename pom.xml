@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-commons</artifactId>
-			<version>2.9.1</version>
+			<version>2.13.0-SNAPSHOT</version>
 		</dependency>
 
 		
@@ -893,7 +893,7 @@
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-timeline-service/67e0b443bc35e19b5dff74d540f22fad8ae59a00/docs/openapi/pn-timeline-service-private.yaml
+								https://raw.githubusercontent.com/pagopa/pn-timeline-service/e8cf4d26e3e9532731ea9a7fb57a9cdfcbacad8d/docs/openapi/pn-timeline-service-private.yaml
 							</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
