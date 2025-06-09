@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = TimelineCounterEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = "HTTP")
+@ConditionalOnProperty(name = TimelineService.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = "HTTP")
 public class TimelineServiceHttpImpl implements TimelineService {
 
     private final TimelineServiceClient timelineServiceClient;

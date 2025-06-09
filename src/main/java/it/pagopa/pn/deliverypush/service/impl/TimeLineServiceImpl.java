@@ -67,7 +67,7 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = TimelineCounterEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = "IMPL")
+@ConditionalOnProperty(name = TimelineService.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = "DYNAMO", matchIfMissing = true)
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final TimelineCounterEntityDao timelineCounterEntityDao;
