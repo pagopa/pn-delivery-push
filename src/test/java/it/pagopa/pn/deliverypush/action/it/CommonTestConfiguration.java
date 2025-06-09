@@ -29,7 +29,7 @@ import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
-import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.*;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.EventHandlerRegistry;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.EventRouter;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
@@ -54,7 +54,10 @@ import org.springframework.util.unit.DataSize;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.awaitility.Awaitility.setDefaultTimeout;
 
@@ -160,7 +163,6 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         CheckRADDExperimentation.class,
         FeatureEnabledUtils.class,
         AnalogFinalStatusResponseHandler.class,
-        ActionHandler.class,
         SmartMapper.class,
         TimelineMapperFactory.class,
         PnEmdIntegrationClientMock.class,
@@ -170,7 +172,24 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         PnTechnicalRefusalCostMode.class,
         LookupAddressHandler.class,
         EventRouter.class,
-        EventHandlerRegistry.class
+        EventHandlerRegistry.class,
+        ActionHandlerRegistry.class,
+        StartRecipientWorkflowHandler.class,
+        NotificationRefusedHandler.class,
+        ChooseDeliveryModeEventHandler.class,
+        AnalogWorkflowEventHandler.class,
+        RefinementNotificationHandler.class,
+        DigitalWorkflowRetryActionHandler.class,
+        DigitalWorkflowNoResponseTimeoutActionHandler.class,
+        NotificationValidationHandler.class,
+        ReceivedLegalFactGenerationHandler.class,
+        CheckAttachmentRetentionEventHandler.class,
+        DigitalWorkflowNextActionHandler.class,
+        DigitalWorkflowNextExecuteActionHandler.class,
+        DocumentCreationResponseEventHandler.class,
+        SendDigitalFinalStatusResponseEventHandler.class,
+        PostAcceptedProcessingCompletedHandler.class,
+        SendAnalogFinalStatusResponseHandler.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:/application-testIT.properties")
