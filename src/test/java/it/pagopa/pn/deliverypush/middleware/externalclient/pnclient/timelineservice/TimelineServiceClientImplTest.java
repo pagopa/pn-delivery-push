@@ -28,26 +28,26 @@ public class TimelineServiceClientImplTest {
 
     @Test
     void addTimelineElementReturnsTrueWhenConflictOccurs() {
-        InlineObject inlineObject = new InlineObject();
+        NewTimelineElement newTimelineElement = new NewTimelineElement();
         PnHttpResponseException exception = new PnHttpResponseException("Conflict", HttpStatus.SC_CONFLICT);
 
-        Mockito.when(timelineControllerApi.addTimelineElementWithHttpInfo(inlineObject))
+        Mockito.when(timelineControllerApi.addTimelineElementWithHttpInfo(newTimelineElement))
                 .thenThrow(exception);
 
-        Boolean result = timelineServiceClient.addTimelineElement(inlineObject);
+        Boolean result = timelineServiceClient.addTimelineElement(newTimelineElement);
 
         assertTrue(result);
     }
 
     @Test
     void addTimelineElementReturnsFalseWhenOtherErrorOccurs() {
-        InlineObject inlineObject = new InlineObject();
+        NewTimelineElement newTimelineElement = new NewTimelineElement();
         PnHttpResponseException exception = new PnHttpResponseException("Bad Request", HttpStatus.SC_BAD_REQUEST);
 
-        Mockito.when(timelineControllerApi.addTimelineElementWithHttpInfo(inlineObject))
+        Mockito.when(timelineControllerApi.addTimelineElementWithHttpInfo(newTimelineElement))
                 .thenThrow(exception);
 
-        Boolean result = timelineServiceClient.addTimelineElement(inlineObject);
+        Boolean result = timelineServiceClient.addTimelineElement(newTimelineElement);
 
         assertFalse(result);
     }

@@ -18,7 +18,7 @@ public interface TimelineServiceClient {
     String GET_TIMELINE_AND_STATUS_HISTORY = "GET TIMELINE AND STATUS HISTORY";
     String GET_SCHEDULING_ANALOG_DATE = "GET SCHEDULING ANALOG DATE";
 
-    Boolean addTimelineElement(InlineObject inlineObject);
+    Boolean addTimelineElement(NewTimelineElement newTimelineElement);
 
     Long retrieveAndIncrementCounterForTimelineEvent(String timelineId);
 

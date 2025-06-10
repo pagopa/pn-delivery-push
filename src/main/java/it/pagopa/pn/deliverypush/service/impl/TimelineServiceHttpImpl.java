@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.InlineObject;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NewTimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineCategory;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElementDetails;
@@ -36,11 +36,11 @@ public class TimelineServiceHttpImpl implements TimelineService {
     private final NotificationService notificationService;
 
     @Override
-    public boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+    public Boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         log.debug("addTimelineElement - IUN={} and timelineId={}", element.getIun(), element.getElementId());
 
-        InlineObject inlineObject = TimelineServiceMapper.getInlineObject(element, notification);
-        return timelineServiceClient.addTimelineElement(inlineObject);
+        NewTimelineElement newTimelineElement = TimelineServiceMapper.getNewTimelineElement(element, notification);
+        return timelineServiceClient.addTimelineElement(newTimelineElement);
     }
 
     @Override

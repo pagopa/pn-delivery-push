@@ -20,9 +20,9 @@ public class TimelineServiceMapper {
     private TimelineServiceMapper() {
     }
 
-    public static InlineObject getInlineObject(TimelineElementInternal timelineElementInternal,
+    public static NewTimelineElement getNewTimelineElement(TimelineElementInternal timelineElementInternal,
                                                NotificationInt notificationInt) {
-        return new InlineObject()
+        return new NewTimelineElement()
                 .timelineElement(toTimelineElement(timelineElementInternal))
                 .notificationInfo(toNotificationInfo(notificationInt));
     }

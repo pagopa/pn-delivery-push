@@ -16,7 +16,7 @@ public interface TimelineService {
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.timeline-service";
 
 
-    boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification);
+    Boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification);
 
     Long retrieveAndIncrementCounterForTimelineEvent(String timelineId);
 
