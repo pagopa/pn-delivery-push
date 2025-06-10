@@ -31,8 +31,7 @@ public class TimelineServiceMapper {
         if (timelineElement == null) {
             return null;
         }
-        TimelineElementCategoryInt category = timelineElement.getCategory() != null ? TimelineElementCategoryInt.valueOf(timelineElement.getCategory().getValue()) : null;
-        assert category != null;
+        TimelineElementCategoryInt category = TimelineElementCategoryInt.valueOf(timelineElement.getCategory().getValue());
 
         return TimelineElementInternal.builder()
                 .iun(timelineElement.getIun())
@@ -81,7 +80,7 @@ public class TimelineServiceMapper {
                             .elementId(item.getElementId())
                             .timestamp(item.getTimestamp())
                             .legalFactsIds(toLegalFactsIdV20List(item.getLegalFactsIds()))
-                            .category(item.getCategory() != null ? TimelineElementCategoryV27.valueOf(item.getCategory().getValue()) : null)
+                            .category(TimelineElementCategoryV27.valueOf(item.getCategory().getValue()))
                             .details(toTimelineElementDetailsV27(item.getDetails()))
                             .notificationSentAt(item.getNotificationSentAt())
                             .ingestionTimestamp(item.getIngestionTimestamp())

@@ -18,18 +18,19 @@ public class TimelineServiceClientImpl implements TimelineServiceClient {
     private final TimelineControllerApi timelineControllerApi;
 
     @Override
-    public Boolean addTimelineElement(NewTimelineElement newTimelineElement) {
+    public boolean addTimelineElement(NewTimelineElement newTimelineElement) {
         log.logInvokingExternalService(CLIENT_NAME, ADD_TIMELINE_ELEMENT);
 
         try {
             timelineControllerApi.addTimelineElement(newTimelineElement);
         } catch (PnHttpResponseException ex) {
-            log.error("Error while invoking {}: {}", ADD_TIMELINE_ELEMENT, ex.getMessage(), ex);
             if (ex.getStatusCode() == HttpStatus.SC_CONFLICT) {
+                log.warn("Exception idconflict is expected for retry, letting flow continue");
                 return true;
-            } else {
-                throw ex;
             }
+
+            log.error("Error while invoking {}: {}", ADD_TIMELINE_ELEMENT, ex.getMessage(), ex);
+            throw ex;
         }
         return false;
     }

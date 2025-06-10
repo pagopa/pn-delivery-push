@@ -145,6 +145,8 @@ public class PnDeliveryPushConfigs {
 
     private String technicalRefusalCostMode;
 
+    private String timelineServiceBaseUrl;
+
     @Data
     public static class Topics {
 

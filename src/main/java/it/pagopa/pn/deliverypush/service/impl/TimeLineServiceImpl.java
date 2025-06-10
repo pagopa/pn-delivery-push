@@ -70,7 +70,7 @@ public class TimeLineServiceImpl implements TimelineService {
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
 
     @Override
-    public Boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
+    public boolean addTimelineElement(TimelineElementInternal dto, NotificationInt notification) {
         MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.TIMELINE_KEY);
 
         log.debug("addTimelineElement - IUN={} and timelineId={}", dto.getIun(), dto.getElementId());

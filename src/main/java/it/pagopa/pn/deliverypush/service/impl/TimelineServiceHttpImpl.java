@@ -36,7 +36,7 @@ public class TimelineServiceHttpImpl implements TimelineService {
     private final NotificationService notificationService;
 
     @Override
-    public Boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
+    public boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         log.debug("addTimelineElement - IUN={} and timelineId={}", element.getIun(), element.getElementId());
 
         NewTimelineElement newTimelineElement = TimelineServiceMapper.getNewTimelineElement(element, notification);

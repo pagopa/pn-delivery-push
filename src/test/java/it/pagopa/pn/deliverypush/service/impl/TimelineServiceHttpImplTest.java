@@ -22,8 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TimelineServiceHttpImplTest {
@@ -68,7 +68,7 @@ public class TimelineServiceHttpImplTest {
 
         Long result = timelineServiceHttp.retrieveAndIncrementCounterForTimelineEvent(timelineId);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     @Test
@@ -318,7 +318,6 @@ public class TimelineServiceHttpImplTest {
         ProbableSchedulingAnalogDateResponse mappedResponse = new ProbableSchedulingAnalogDateResponse();
 
         TimelineServiceClient timelineServiceClient = Mockito.mock(TimelineServiceClient.class);
-        NotificationService notificationService = Mockito.mock(NotificationService.class);
 
         Mockito.when(notificationService.getNotificationByIunReactive(iun)).thenReturn(
                 Mono.just(
