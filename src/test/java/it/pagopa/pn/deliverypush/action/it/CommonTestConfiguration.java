@@ -29,7 +29,7 @@ import it.pagopa.pn.deliverypush.legalfacts.AarTemplateStrategyFactory;
 import it.pagopa.pn.deliverypush.legalfacts.DocumentComposition;
 import it.pagopa.pn.deliverypush.legalfacts.DynamicRADDExperimentationChooseStrategy;
 import it.pagopa.pn.deliverypush.logtest.ConsoleAppenderCustom;
-import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.*;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.action.*;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.EventHandlerRegistry;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.EventRouter;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
