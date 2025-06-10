@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.*;
+import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.action.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
