@@ -22,7 +22,7 @@ public class ExtChannel {
     }
     
     @Bean
-    public Consumer<Message<?>> pnExtChannelEventInboundConsumer() {
+    public Consumer<Message<String>> pnExtChannelEventInboundConsumer() {
         return message -> {
             try {
                 log.debug("Handle message from {} with content {}", ExternalChannelSendClient.CLIENT_NAME, message);

@@ -77,7 +77,7 @@ class F24ChannelTest extends MockActionPoolTest {
     void handlePrepareResponseReceivedOK() {
         Consumer<Message<PnF24PdfSetReadyEvent.Detail>> pnF24EventInboundConsumer = functionCatalog.lookup(Consumer.class, "pnF24EventInboundConsumer");
 
-        List<PnF24PdfSetReadyEventItem> PnF24PdfSetReadyEventItems = List.of(
+        List<PnF24PdfSetReadyEventItem> pnF24PdfSetReadyEventItems = List.of(
                 PnF24PdfSetReadyEventItem.builder().pathTokens("0_0").uri("uri1").build(),
                 PnF24PdfSetReadyEventItem.builder().pathTokens("0_0").uri("uri2").build(),
                 PnF24PdfSetReadyEventItem.builder().pathTokens("1_0").uri("uri1").build(),
@@ -88,7 +88,7 @@ class F24ChannelTest extends MockActionPoolTest {
         String requestId = "GENERATE_F24_REQUEST.IUN_XWGR-MZJX-VNLW-202403-L-1";
         PnF24PdfSetReadyEventPayload pnF24PdfSetReadyEventPayload = PnF24PdfSetReadyEventPayload.builder()
                 .requestId(requestId)
-                .generatedPdfsUrls(PnF24PdfSetReadyEventItems)
+                .generatedPdfsUrls(pnF24PdfSetReadyEventItems)
                 .status("OK")
                 .build();
 

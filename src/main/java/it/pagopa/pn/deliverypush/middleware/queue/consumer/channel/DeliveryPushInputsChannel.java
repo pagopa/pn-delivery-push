@@ -17,7 +17,7 @@ public class DeliveryPushInputsChannel {
     private final EventRouter eventRouter;
 
     @Bean
-    public Consumer<Message<?>> pnDeliveryPushInputsInboundConsumer() {
+    public Consumer<Message<String>> pnDeliveryPushInputsInboundConsumer() {
 
         final String processName = "DELIVERY_PUSH_INPUTS_INBOUND_CONSUMER";
 

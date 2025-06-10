@@ -79,9 +79,8 @@ class ActionChannelTest {
         Mockito.when(message.getPayload()).thenReturn(action);
         Mockito.when(message.getHeaders()).thenReturn(new MessageHeaders(Map.of("test", "headerValue")));
 
-        assertThrows(RuntimeException.class, () ->
-                actionChannel.pnDeliveryPushActionsInboundConsumer().accept(message)
-        );
+        Consumer<Message<Action>> consumer = actionChannel.pnDeliveryPushActionsInboundConsumer();
+        assertThrows(RuntimeException.class, () ->consumer.accept(message));
 
         Mockito.verify(eventRouter, Mockito.never()).route(Mockito.any(), Mockito.any());
     }

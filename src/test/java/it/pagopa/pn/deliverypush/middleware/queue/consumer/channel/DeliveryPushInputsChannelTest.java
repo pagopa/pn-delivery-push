@@ -11,6 +11,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -45,9 +46,8 @@ class DeliveryPushInputsChannelTest {
         Mockito.doThrow(new RuntimeException("Test Exception"))
                 .when(eventRouter).route(Mockito.any(), Mockito.any());
 
-        assertThrows(RuntimeException.class, () ->
-                handler.pnDeliveryPushInputsInboundConsumer().accept(message)
-        );
+        Consumer<Message<String>> consumer = handler.pnDeliveryPushInputsInboundConsumer();
+        assertThrows(RuntimeException.class, () -> consumer.accept(message));
 
         EventRouter.RoutingConfig expectedConfig = EventRouter.RoutingConfig.builder()
                 .deserializePayload(true)

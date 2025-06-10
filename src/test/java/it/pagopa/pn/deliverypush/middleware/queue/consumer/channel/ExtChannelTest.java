@@ -1,12 +1,13 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.channel;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.SingleStatusUpdate;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.EventRouter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -15,6 +16,7 @@ class ExtChannelTest {
 
     private EventRouter eventRouter;
     private ExtChannel handler;
+    private final static String PAYLOAD = "payload";
 
     @BeforeEach
     void setUp() {
@@ -24,8 +26,7 @@ class ExtChannelTest {
 
     @Test
     void routesMessageWithEventTypeHeader() {
-        SingleStatusUpdate payload = new SingleStatusUpdate();
-        Message<SingleStatusUpdate> message = MessageBuilder.withPayload(payload)
+        Message<String> message = MessageBuilder.withPayload(PAYLOAD)
                 .setHeader("eventType", "CUSTOM_EVENT")
                 .build();
 
@@ -39,8 +40,7 @@ class ExtChannelTest {
 
     @Test
     void routesMessageWithDefaultEventTypeWhenHeaderMissing() {
-        SingleStatusUpdate payload = new SingleStatusUpdate();
-        Message<SingleStatusUpdate> message = MessageBuilder.withPayload(payload).build();
+        Message<String> message = MessageBuilder.withPayload(PAYLOAD).build();
 
         handler.pnExtChannelEventInboundConsumer().accept(message);
 
@@ -51,8 +51,7 @@ class ExtChannelTest {
 
     @Test
     void routesMessageWithDefaultEventTypeWhenHeaderEmpty() {
-        SingleStatusUpdate payload = new SingleStatusUpdate();
-        Message<SingleStatusUpdate> message = MessageBuilder.withPayload(payload)
+        Message<String> message = MessageBuilder.withPayload(PAYLOAD)
                 .setHeader("eventType", "")
                 .build();
 
@@ -65,13 +64,13 @@ class ExtChannelTest {
 
     @Test
     void handlesExceptionAndRethrows() {
-        SingleStatusUpdate payload = new SingleStatusUpdate();
-        Message<SingleStatusUpdate> message = MessageBuilder.withPayload(payload)
+        Message<String> message = MessageBuilder.withPayload(PAYLOAD)
                 .setHeader("eventType", "CUSTOM_EVENT")
                 .build();
 
         doThrow(new RuntimeException("fail")).when(eventRouter).route(any(), any());
 
-        assertThrows(RuntimeException.class, () -> handler.pnExtChannelEventInboundConsumer().accept(message));
+        Consumer<Message<String>> consumer = handler.pnExtChannelEventInboundConsumer();
+        assertThrows(RuntimeException.class, () -> consumer.accept(message));
     }
 }
