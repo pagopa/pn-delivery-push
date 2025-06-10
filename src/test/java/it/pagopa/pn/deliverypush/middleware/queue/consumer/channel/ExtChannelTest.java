@@ -16,7 +16,7 @@ class ExtChannelTest {
 
     private EventRouter eventRouter;
     private ExtChannel handler;
-    private final static String PAYLOAD = "payload";
+    private static final String PAYLOAD = "payload";
 
     @BeforeEach
     void setUp() {
