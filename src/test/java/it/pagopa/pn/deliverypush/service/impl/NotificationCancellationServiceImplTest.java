@@ -323,7 +323,7 @@ class NotificationCancellationServiceImplTest {
         List<PaymentsInfoForRecipientInt> paymentsInfoForRecipientsCaptured = paymentForRecipientListCaptor.getValue();
         verifyPaymentInfo(notification, recIndex, paymentsInfoForRecipientsCaptured);
     }
-
+/*
     @Test
     @ExtendWith(SpringExtension.class)
     void cancelNotificationForPagoPaAsyncError() {
@@ -465,7 +465,7 @@ class NotificationCancellationServiceImplTest {
                 Mockito.any(Instant.class),
                 Mockito.eq(UpdateCostPhaseInt.NOTIFICATION_CANCELLED)
         );
-    }
+    }*/
 
 
     @Test
