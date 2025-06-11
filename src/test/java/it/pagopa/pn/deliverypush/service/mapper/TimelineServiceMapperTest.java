@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
@@ -19,7 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TimelineServiceMapperTest {
+class TimelineServiceMapperTest {
 
     @Test
     void toTimelineElementDetailsInt() {
@@ -91,7 +90,6 @@ public class TimelineServiceMapperTest {
         assertNotNull(notificationViewedDetailsInt);
         assertEquals(details.getRecIndex(), notificationViewedDetailsInt.getRecIndex());
         assertEquals(details.getNotificationCost().intValue(), notificationViewedDetailsInt.getNotificationCost());
-//        assertEquals(details.getSendDate().toInstant(), result.getSendDate());
     }
 
     @Test
@@ -109,8 +107,9 @@ public class TimelineServiceMapperTest {
                 .ingestionTimestamp(Instant.now())
                 .eventTimestamp(Instant.now());
 
-//        TimelineElementDetailsInt result = TimelineServiceMapper.toTimelineElementDetailsInt(timelineElement, TimelineElementCategoryInt.NOTIFICATION_VIEWED);
-//        assertNotNull(result);
+        TimelineElementCategoryInt category = TimelineElementCategoryInt.NOTIFICATION_VIEWED;
+        TimelineElementDetailsInt result = TimelineServiceMapper.toTimelineElementDetailsInt(timelineElement.getDetails(), category);
+        assertNotNull(result);
     }
 
     @Test

@@ -25,7 +25,7 @@ public class TimelineServiceClientImplTest {
     private TimelineServiceClientImpl timelineServiceClient;
 
     @Test
-    public void addTimelineElementReturnsTrueWhenConflictOccurs() {
+    void addTimelineElementReturnsTrueWhenConflictOccurs() {
         NewTimelineElement newTimelineElement = Mockito.mock(NewTimelineElement.class);
         PnHttpResponseException exception = new PnHttpResponseException("Conflict", HttpStatus.SC_CONFLICT);
 
@@ -39,7 +39,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void addTimelineElementReturnsFalseWhenOtherErrorOccurs() {
+    void addTimelineElementReturnsFalseWhenOtherErrorOccurs() {
         NewTimelineElement newTimelineElement = new NewTimelineElement();
 
         Mockito.doNothing().when(timelineControllerApi).addTimelineElement(Mockito.any());
@@ -50,7 +50,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void addTimelineElement_throwsExceptionOnError() {
+    void addTimelineElement_throwsExceptionOnError() {
         NewTimelineElement newTimelineElement = Mockito.mock(NewTimelineElement.class);
         PnHttpResponseException exception = new PnHttpResponseException("Errore generico", HttpStatus.SC_INTERNAL_SERVER_ERROR);
 
@@ -66,7 +66,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void retrieveAndIncrementCounterForTimelineEvent_returnsExpectedCounter() {
+    void retrieveAndIncrementCounterForTimelineEvent_returnsExpectedCounter() {
         String timelineId = "timeline123";
         Long expectedCounter = 42L;
 
@@ -80,7 +80,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimelineElement_returnsExpectedElement() {
+    void getTimelineElement_returnsExpectedElement() {
         String iun = "iun123";
         String timelineId = "timeline123";
         Boolean strongly = true;
@@ -96,7 +96,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimelineElementDetails_returnsExpectedDetails() {
+    void getTimelineElementDetails_returnsExpectedDetails() {
         String iun = "iun123";
         String timelineId = "timeline123";
         TimelineElementDetails expectedDetails = new TimelineElementDetails();
@@ -111,7 +111,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimelineElementDetailForSpecificRecipient_returnsExpectedDetails() {
+    void getTimelineElementDetailForSpecificRecipient_returnsExpectedDetails() {
         String iun = "iun123";
         Integer recIndex = 1;
         Boolean confidentialInfoRequired = true;
@@ -128,7 +128,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimelineElementDetailForSpecificRecipient_throwsException() {
+    void getTimelineElementDetailForSpecificRecipient_throwsException() {
         String iun = "iun123";
         Integer recIndex = 1;
         Boolean confidentialInfoRequired = true;
@@ -143,7 +143,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimelineElementForSpecificRecipient_returnsExpectedElement() {
+    void getTimelineElementForSpecificRecipient_returnsExpectedElement() {
         String iun = "iun123";
         Integer recIndex = 1;
         TimelineCategory category = TimelineCategory.NOTIFICATION_VIEWED;
@@ -159,7 +159,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimelineElementForSpecificRecipient_throwsException() {
+    void getTimelineElementForSpecificRecipient_throwsException() {
         String iun = "iun123";
         Integer recIndex = 1;
         TimelineCategory category = TimelineCategory.NOTIFICATION_VIEWED;
@@ -173,7 +173,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimeline_returnsExpectedList() {
+    void getTimeline_returnsExpectedList() {
         String iun = "iun123";
         Boolean confidentialInfoRequired = true;
         Boolean strongly = false;
@@ -191,7 +191,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimeline_throwsException() {
+    void getTimeline_throwsException() {
         String iun = "iun123";
         Boolean confidentialInfoRequired = true;
         Boolean strongly = false;
@@ -206,7 +206,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimelineAndStatusHistory_returnsExpectedResponse() {
+    void getTimelineAndStatusHistory_returnsExpectedResponse() {
         String iun = "iun123";
         Integer numberOfRecipients = 5;
         Instant createdAt = Instant.now();
@@ -222,7 +222,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getTimelineAndStatusHistory_throwsException() {
+    void getTimelineAndStatusHistory_throwsException() {
         String iun = "iun123";
         Integer numberOfRecipients = 5;
         Instant createdAt = Instant.now();
@@ -236,7 +236,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getSchedulingAnalogDate_returnsExpectedDate() {
+    void getSchedulingAnalogDate_returnsExpectedDate() {
         String iun = "iun123";
         Integer recIndex = 1;
         ProbableSchedulingAnalogDate expectedDate = new ProbableSchedulingAnalogDate();
@@ -251,7 +251,7 @@ public class TimelineServiceClientImplTest {
     }
 
     @Test
-    public void getSchedulingAnalogDate_throwsException() {
+    void getSchedulingAnalogDate_throwsException() {
         String iun = "iun123";
         Integer recIndex = 1;
 

@@ -26,7 +26,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class TimelineServiceHttpImplTest {
+class TimelineServiceHttpImplTest {
 
     @Mock
     private TimelineServiceClient timelineServiceClient;
@@ -184,10 +184,10 @@ public class TimelineServiceHttpImplTest {
         timelineElementDetails.setCategoryType(category.name());
 
         Mockito.when(timelineServiceClient.getTimelineElementDetailForSpecificRecipient(
-                Mockito.eq(iun),
-                Mockito.eq(recIndex),
-                Mockito.eq(confidentialInfoRequired),
-                Mockito.eq(TimelineCategory.fromValue(category.getValue()))
+                iun,
+                recIndex,
+                confidentialInfoRequired,
+                TimelineCategory.fromValue(category.getValue())
         )).thenReturn(timelineElementDetails);
 
         TimelineElementDetailsInt mappedDetails = Mockito.mock(TimelineElementDetailsInt.class);
@@ -214,9 +214,9 @@ public class TimelineServiceHttpImplTest {
         TimelineElementInternal expectedElement = new TimelineElementInternal();
 
         Mockito.when(timelineServiceClient.getTimelineElementForSpecificRecipient(
-                Mockito.eq(iun),
-                Mockito.eq(recIndex),
-                Mockito.eq(TimelineCategory.fromValue(category.getValue()))
+                iun,
+                recIndex,
+                TimelineCategory.fromValue(category.getValue())
         )).thenReturn(timelineElement);
 
         try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
@@ -273,10 +273,10 @@ public class TimelineServiceHttpImplTest {
         TimelineElementInternal mappedElement = new TimelineElementInternal();
 
         Mockito.when(timelineServiceClient.getTimeline(
-                Mockito.eq(iun),
-                Mockito.eq(confidentialInfoRequired),
-                Mockito.eq(false),
-                Mockito.eq(timelineId)
+                iun,
+                confidentialInfoRequired,
+                false,
+                timelineId
         )).thenReturn(Collections.singletonList(timelineElement));
 
         try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
@@ -297,10 +297,10 @@ public class TimelineServiceHttpImplTest {
         boolean confidentialInfoRequired = true;
 
         Mockito.when(timelineServiceClient.getTimeline(
-                Mockito.eq(iun),
-                Mockito.eq(confidentialInfoRequired),
-                Mockito.eq(false),
-                Mockito.eq(timelineId)
+                iun,
+                confidentialInfoRequired,
+                false,
+                timelineId
         )).thenReturn(null);
 
         Set<TimelineElementInternal> result = timelineServiceHttp.getTimelineByIunTimelineId(iun, timelineId, confidentialInfoRequired);
@@ -317,7 +317,7 @@ public class TimelineServiceHttpImplTest {
         ProbableSchedulingAnalogDate probableSchedulingAnalogDate = new ProbableSchedulingAnalogDate();
         ProbableSchedulingAnalogDateResponse mappedResponse = new ProbableSchedulingAnalogDateResponse();
 
-        TimelineServiceClient timelineServiceClient = Mockito.mock(TimelineServiceClient.class);
+        TimelineServiceClient serviceClient = Mockito.mock(TimelineServiceClient.class);
 
         Mockito.when(notificationService.getNotificationByIunReactive(iun)).thenReturn(
                 Mono.just(
@@ -328,13 +328,13 @@ public class TimelineServiceHttpImplTest {
                                 ))
                                 .build()
                 ));
-        Mockito.when(timelineServiceClient.getSchedulingAnalogDate(iun, recIndex)).thenReturn(probableSchedulingAnalogDate);
+        Mockito.when(serviceClient.getSchedulingAnalogDate(iun, recIndex)).thenReturn(probableSchedulingAnalogDate);
 
         try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
             mockedMapper.when(() -> TimelineServiceMapper.toProbableSchedulingAnalogDateResponse(probableSchedulingAnalogDate))
                     .thenReturn(mappedResponse);
 
-            TimelineServiceHttpImpl service = new TimelineServiceHttpImpl(timelineServiceClient, notificationService);
+            TimelineServiceHttpImpl service = new TimelineServiceHttpImpl(serviceClient, notificationService);
 
             ProbableSchedulingAnalogDateResponse result = service.getSchedulingAnalogDate(iun, recipientId).block();
 
