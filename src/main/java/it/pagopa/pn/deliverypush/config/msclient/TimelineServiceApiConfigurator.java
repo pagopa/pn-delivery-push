@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 public class TimelineServiceApiConfigurator {
     @Bean
     @Primary
-    public TimelineControllerApi notificationsApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg){
+    public TimelineControllerApi timelineControllerApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg){
         ApiClient newApiClient = new ApiClient(restTemplate);
         newApiClient.setBasePath(cfg.getTimelineServiceBaseUrl());
         return new TimelineControllerApi( newApiClient );
