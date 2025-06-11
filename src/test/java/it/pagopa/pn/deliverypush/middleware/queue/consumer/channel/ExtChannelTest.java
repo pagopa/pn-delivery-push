@@ -50,6 +50,19 @@ class ExtChannelTest {
     }
 
     @Test
+    void routesMessageWithEventTypeMockExtChannel() {
+        Message<String> message = MessageBuilder.withPayload(PAYLOAD)
+                .setHeader("eventType", "EXTERNAL_CHANNELS_EVENT")
+                .build();
+
+        handler.pnExtChannelEventInboundConsumer().accept(message);
+
+        ArgumentCaptor<EventRouter.RoutingConfig> configCaptor = ArgumentCaptor.forClass(EventRouter.RoutingConfig.class);
+        verify(eventRouter).route(eq(message), configCaptor.capture());
+        assertEquals("SEND_PEC_RESPONSE", configCaptor.getValue().getEventType());
+    }
+
+    @Test
     void routesMessageWithDefaultEventTypeWhenHeaderEmpty() {
         Message<String> message = MessageBuilder.withPayload(PAYLOAD)
                 .setHeader("eventType", "")

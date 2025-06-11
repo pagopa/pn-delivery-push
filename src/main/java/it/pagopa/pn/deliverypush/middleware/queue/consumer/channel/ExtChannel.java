@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 @Slf4j
 public class ExtChannel {
     private static final String DEFAULT_EVENT_TYPE = "SEND_PEC_RESPONSE";
+    private static final String MOCK_EXT_CHANNEL_EVENT_TYPE = "EXTERNAL_CHANNELS_EVENT";
     private final EventRouter eventRouter;
 
     public ExtChannel(EventRouter eventRouter) {
@@ -49,7 +50,7 @@ public class ExtChannel {
             * In cui potevano arrivare 2 tipologie di eventi con eventType specificato, o in alternativa
             * un evento senza eventType, e in questo caso lo indirizzavamo noi assegnandogli un eventType specifico (SEND_PEC_RESPONSE).
          */
-        if(!StringUtils.hasText(headerEventType)) {
+        if(!StringUtils.hasText(headerEventType) || headerEventType.equals(MOCK_EXT_CHANNEL_EVENT_TYPE)) {
             log.info("Event type not specified in message headers, using default event type: {}", DEFAULT_EVENT_TYPE);
             return DEFAULT_EVENT_TYPE;
         }
