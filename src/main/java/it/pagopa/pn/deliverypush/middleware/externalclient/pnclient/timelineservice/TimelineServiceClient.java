@@ -16,7 +16,6 @@ public interface TimelineServiceClient {
     String GET_TIMELINE_ELEMENT_FOR_SPECIFIC_RECIPIENT = "GET TIMELINE ELEMENT FOR SPECIFIC RECIPIENT";
     String GET_TIMELINE = "GET TIMELINE";
     String GET_TIMELINE_AND_STATUS_HISTORY = "GET TIMELINE AND STATUS HISTORY";
-    String GET_SCHEDULING_ANALOG_DATE = "GET SCHEDULING ANALOG DATE";
 
     boolean addTimelineElement(NewTimelineElement newTimelineElement);
 
@@ -33,6 +32,4 @@ public interface TimelineServiceClient {
     List<TimelineElement> getTimeline(String iun, Boolean confidentialInfoRequired, Boolean strongly, String timelineId);
 
     NotificationHistoryResponse getTimelineAndStatusHistory(String iun, Integer numberOfRecipients, Instant createdAt);
-
-    ProbableSchedulingAnalogDate getSchedulingAnalogDate(String iun, Integer recIndex);
 }

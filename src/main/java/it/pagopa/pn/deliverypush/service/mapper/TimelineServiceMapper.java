@@ -48,16 +48,6 @@ public class TimelineServiceMapper {
                 .build();
     }
 
-    public static ProbableSchedulingAnalogDateResponse toProbableSchedulingAnalogDateResponse(ProbableSchedulingAnalogDate probableSchedulingAnalogDate) {
-        if (probableSchedulingAnalogDate == null) {
-            return null;
-        }
-        return new ProbableSchedulingAnalogDateResponse()
-                .iun(probableSchedulingAnalogDate.getIun())
-                .recIndex(probableSchedulingAnalogDate.getRecIndex())
-                .schedulingAnalogDate(probableSchedulingAnalogDate.getSchedulingAnalogDate());
-    }
-
     public static it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse toNotificationHistoryResponseDto(
             it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse source) {
 

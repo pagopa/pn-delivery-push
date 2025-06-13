@@ -83,11 +83,4 @@ public class TimelineServiceClientImpl implements TimelineServiceClient {
 
         return timelineControllerApi.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
     }
-
-    @Override
-    public ProbableSchedulingAnalogDate getSchedulingAnalogDate(String iun, Integer recIndex) {
-        log.logInvokingExternalService(CLIENT_NAME, GET_SCHEDULING_ANALOG_DATE);
-
-        return timelineControllerApi.getSchedulingAnalogDate(iun, recIndex);
-    }
 }

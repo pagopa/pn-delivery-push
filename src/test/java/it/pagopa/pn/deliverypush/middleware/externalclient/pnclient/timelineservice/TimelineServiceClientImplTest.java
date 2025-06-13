@@ -235,32 +235,6 @@ public class TimelineServiceClientImplTest {
         );
     }
 
-    @Test
-    void getSchedulingAnalogDate_returnsExpectedDate() {
-        String iun = "iun123";
-        Integer recIndex = 1;
-        ProbableSchedulingAnalogDate expectedDate = new ProbableSchedulingAnalogDate();
 
-        Mockito.when(timelineControllerApi.getSchedulingAnalogDate(iun, recIndex))
-                .thenReturn(expectedDate);
-
-        ProbableSchedulingAnalogDate result = timelineServiceClient.getSchedulingAnalogDate(iun, recIndex);
-
-        assertEquals(expectedDate, result);
-        Mockito.verify(timelineControllerApi).getSchedulingAnalogDate(iun, recIndex);
-    }
-
-    @Test
-    void getSchedulingAnalogDate_throwsException() {
-        String iun = "iun123";
-        Integer recIndex = 1;
-
-        Mockito.when(timelineControllerApi.getSchedulingAnalogDate(iun, recIndex))
-                .thenThrow(new RuntimeException("Errore"));
-
-        assertThrows(RuntimeException.class, () ->
-                timelineServiceClient.getSchedulingAnalogDate(iun, recIndex)
-        );
-    }
 
 }

@@ -2,7 +2,9 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NewTimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineCategory;
@@ -16,6 +18,7 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -25,6 +28,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
 @Service
 @Slf4j
@@ -72,6 +77,13 @@ public class TimelineServiceHttpImpl implements TimelineService {
 
         TimelineElementDetails timelineElementDetails = timelineServiceClient.getTimelineElementDetails(iun, timelineId);
 
+        return getTimelineElementDetailsInt(timelineDetailsClass, timelineElementDetails);
+    }
+
+    private static <T> @NotNull Optional<T> getTimelineElementDetailsInt(Class<T> timelineDetailsClass, TimelineElementDetails timelineElementDetails) {
+        if( timelineElementDetails == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(timelineDetailsClass.cast(TimelineServiceMapper.toTimelineElementDetailsInt(
                 timelineElementDetails, TimelineElementCategoryInt.valueOf(timelineElementDetails.getCategoryType()))));
     }
@@ -81,8 +93,7 @@ public class TimelineServiceHttpImpl implements TimelineService {
         log.debug("getTimelineElementDetailForSpecificRecipient - IUN={}, recIndex={}, confidentialInfoRequired={}, category={}", iun, recIndex, confidentialInfoRequired, category);
 
         TimelineElementDetails timelineElementDetails = timelineServiceClient.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, TimelineCategory.fromValue(category.getValue()));
-        return Optional.ofNullable(timelineDetailsClass.cast(TimelineServiceMapper.toTimelineElementDetailsInt(
-                timelineElementDetails, TimelineElementCategoryInt.valueOf(timelineElementDetails.getCategoryType()))));
+        return getTimelineElementDetailsInt(timelineDetailsClass,timelineElementDetails);
     }
 
     @Override
@@ -139,10 +150,19 @@ public class TimelineServiceHttpImpl implements TimelineService {
     public Mono<ProbableSchedulingAnalogDateResponse> getSchedulingAnalogDate(String iun, String recipientId) {
         log.debug("getSchedulingAnalogDate - IUN={}, recipientId={}", iun, recipientId);
 
+
         return notificationService.getNotificationByIunReactive(iun)
                 .map(notificationRecipientInts -> getRecipientIndex(notificationRecipientInts, recipientId))
-                .map(recIndex -> timelineServiceClient.getSchedulingAnalogDate(iun, recIndex))
-                .map(TimelineServiceMapper::toProbableSchedulingAnalogDateResponse);
+                .map(recIndex -> this.getTimelineElementDetailForSpecificRecipient(iun,recIndex,false, TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE, ProbableDateAnalogWorkflowDetailsInt.class))
+                .flatMap(optionalDetails -> optionalDetails.map(Mono::just).orElseGet(Mono::empty))
+                .map(details -> new ProbableSchedulingAnalogDateResponse()
+                        .iun(iun)
+                        .recIndex(details.getRecIndex())
+                        .schedulingAnalogDate(details.getSchedulingAnalogDate()))
+                .switchIfEmpty(Mono.error(() -> {
+                    String message = String.format("ProbableSchedulingDateAnalog not found for iun: %s, recipientId: %s", iun, recipientId);
+                    return new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
+                }));
     }
 
     private int getRecipientIndex(NotificationInt notificationInt, String recipientId) {

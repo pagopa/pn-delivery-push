@@ -144,27 +144,6 @@ class TimelineServiceMapperTest {
     }
 
     @Test
-    void toProbableSchedulingAnalogDateResponse_returnsExpectedResponse() {
-        ProbableSchedulingAnalogDate input = new ProbableSchedulingAnalogDate()
-                .iun("IUN_TEST")
-                .recIndex(1)
-                .schedulingAnalogDate(Instant.now());
-
-        ProbableSchedulingAnalogDateResponse result = TimelineServiceMapper.toProbableSchedulingAnalogDateResponse(input);
-
-        assertNotNull(result);
-        assertEquals(input.getIun(), result.getIun());
-        assertEquals(input.getRecIndex(), result.getRecIndex());
-        assertEquals(input.getSchedulingAnalogDate(), result.getSchedulingAnalogDate());
-    }
-
-    @Test
-    void toProbableSchedulingAnalogDateResponse_returnsNullOnNullInput() {
-        ProbableSchedulingAnalogDateResponse result = TimelineServiceMapper.toProbableSchedulingAnalogDateResponse(null);
-        assertNull(result);
-    }
-
-    @Test
     void toNotificationHistoryResponseDto_returnsExpectedResponse() {
         TimelineElementDetails details = new TimelineElementDetails().categoryType("TEST");
         LegalFactsId legalFactsId = new LegalFactsId().category(LegalFactsId.CategoryEnum.ANALOG_DELIVERY);
@@ -256,7 +235,7 @@ class TimelineServiceMapperTest {
         Object result = TimelineServiceMapper.toTimelineElementDetailsInt(timelineElement.getDetails(), category);
 
         assertNotNull(result);
-        assertTrue(result instanceof NotificationViewedDetailsInt);
+        assertInstanceOf(NotificationViewedDetailsInt.class, result);
         NotificationViewedDetailsInt viewedDetails = (NotificationViewedDetailsInt) result;
         assertEquals(5, viewedDetails.getRecIndex());
     }
