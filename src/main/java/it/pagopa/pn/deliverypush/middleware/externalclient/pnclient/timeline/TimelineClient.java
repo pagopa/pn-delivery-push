@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timelineservice;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline;
 
 import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.mode
 import java.time.Instant;
 import java.util.List;
 
-public interface TimelineServiceClient {
+public interface TimelineClient {
     String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_TIMELINE_SERVICE;
     String ADD_TIMELINE_ELEMENT = "ADD TIMELINE ELEMENT";
     String RETRIEVE_AND_INCREMENT_COUNTER_FOR_TIMELINE_EVENT = "RETRIEVE AND INCREMENT COUNTER FOR TIMELINE EVENT";

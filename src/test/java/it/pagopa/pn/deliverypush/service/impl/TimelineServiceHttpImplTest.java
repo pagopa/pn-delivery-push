@@ -13,7 +13,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timelineservice.TimelineServiceClient;
+import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
 import org.junit.jupiter.api.Assertions;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TimelineServiceHttpImplTest {
 
     @Mock
-    private TimelineServiceClient timelineServiceClient;
+    private TimelineClient timelineClient;
 
     @Mock
     private NotificationService notificationService;
@@ -49,7 +49,7 @@ class TimelineServiceHttpImplTest {
         TimelineElementInternal element = getTimelineElementInternal();
         NotificationInt notification = new NotificationInt();
 
-        Mockito.when(timelineServiceClient.addTimelineElement(Mockito.any(NewTimelineElement.class))).thenReturn(true);
+        Mockito.when(timelineClient.addTimelineElement(Mockito.any(NewTimelineElement.class))).thenReturn(true);
 
         boolean result = timelineServiceHttp.addTimelineElement(element, notification);
 
@@ -61,7 +61,7 @@ class TimelineServiceHttpImplTest {
         String timelineId = "timeline123";
         Long expectedCounter = 42L;
 
-        Mockito.when(timelineServiceClient.retrieveAndIncrementCounterForTimelineEvent(Mockito.anyString())).thenReturn(expectedCounter);
+        Mockito.when(timelineClient.retrieveAndIncrementCounterForTimelineEvent(Mockito.anyString())).thenReturn(expectedCounter);
 
         Long result = timelineServiceHttp.retrieveAndIncrementCounterForTimelineEvent(timelineId);
 
@@ -71,7 +71,7 @@ class TimelineServiceHttpImplTest {
     @Test
     void retrieveAndIncrementCounterForTimelineEventReturnsNull() {
         String timelineId = "timeline123";
-        Mockito.when(timelineServiceClient.retrieveAndIncrementCounterForTimelineEvent(Mockito.anyString())).thenReturn(null);
+        Mockito.when(timelineClient.retrieveAndIncrementCounterForTimelineEvent(Mockito.anyString())).thenReturn(null);
 
         Long result = timelineServiceHttp.retrieveAndIncrementCounterForTimelineEvent(timelineId);
 
@@ -85,7 +85,7 @@ class TimelineServiceHttpImplTest {
         TimelineElement timelineElement = new TimelineElement();
         TimelineElementInternal expectedElement = new TimelineElementInternal();
 
-        Mockito.when(timelineServiceClient.getTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(timelineClient.getTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(timelineElement);
 
         try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
@@ -106,7 +106,7 @@ class TimelineServiceHttpImplTest {
         TimelineElement timelineElement = new TimelineElement();
         TimelineElementInternal expectedElement = new TimelineElementInternal();
 
-        Mockito.when(timelineServiceClient.getTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(timelineClient.getTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(timelineElement);
 
         try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
@@ -127,7 +127,7 @@ class TimelineServiceHttpImplTest {
         TimelineElement timelineElement = new TimelineElement();
         TimelineElementInternal mappedElement = new TimelineElementInternal();
 
-        Mockito.when(timelineServiceClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(timelineClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Collections.singletonList(timelineElement));
 
         try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
@@ -146,7 +146,7 @@ class TimelineServiceHttpImplTest {
         String iun = "iun123";
         boolean confidentialInfoRequired = true;
 
-        Mockito.when(timelineServiceClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(timelineClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(null);
 
         Set<TimelineElementInternal> result = timelineServiceHttp.getTimeline(iun, confidentialInfoRequired);
@@ -163,7 +163,7 @@ class TimelineServiceHttpImplTest {
         TimelineElementCategoryInt category = TimelineElementCategoryInt.NOTIFICATION_VIEWED;
         TimelineElementDetailsInt mappedDetails = Mockito.mock(TimelineElementDetailsInt.class);
 
-        Mockito.when(timelineServiceClient.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(timelineClient.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(timelineElementDetails);
 
         // Simula il categoryType nel TimelineElementDetails
@@ -190,7 +190,7 @@ class TimelineServiceHttpImplTest {
         TimelineElementDetails timelineElementDetails = new TimelineElementDetails();
         timelineElementDetails.setCategoryType(category.name());
 
-        Mockito.when(timelineServiceClient.getTimelineElementDetailForSpecificRecipient(
+        Mockito.when(timelineClient.getTimelineElementDetailForSpecificRecipient(
                 iun,
                 recIndex,
                 confidentialInfoRequired,
@@ -220,7 +220,7 @@ class TimelineServiceHttpImplTest {
         TimelineElement timelineElement = new TimelineElement();
         TimelineElementInternal expectedElement = new TimelineElementInternal();
 
-        Mockito.when(timelineServiceClient.getTimelineElementForSpecificRecipient(
+        Mockito.when(timelineClient.getTimelineElementForSpecificRecipient(
                 iun,
                 recIndex,
                 TimelineCategory.fromValue(category.getValue())
@@ -244,7 +244,7 @@ class TimelineServiceHttpImplTest {
         TimelineElement timelineElement = new TimelineElement();
         TimelineElementInternal mappedElement = new TimelineElementInternal();
 
-        Mockito.when(timelineServiceClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.eq(true), Mockito.isNull()))
+        Mockito.when(timelineClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.eq(true), Mockito.isNull()))
                 .thenReturn(Collections.singletonList(timelineElement));
 
         try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
@@ -263,7 +263,7 @@ class TimelineServiceHttpImplTest {
         String iun = "iun123";
         boolean confidentialInfoRequired = true;
 
-        Mockito.when(timelineServiceClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.eq(true), Mockito.isNull()))
+        Mockito.when(timelineClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.eq(true), Mockito.isNull()))
                 .thenReturn(null);
 
         Set<TimelineElementInternal> result = timelineServiceHttp.getTimelineStrongly(iun, confidentialInfoRequired);
@@ -279,7 +279,7 @@ class TimelineServiceHttpImplTest {
         TimelineElement timelineElement = new TimelineElement();
         TimelineElementInternal mappedElement = new TimelineElementInternal();
 
-        Mockito.when(timelineServiceClient.getTimeline(
+        Mockito.when(timelineClient.getTimeline(
                 iun,
                 confidentialInfoRequired,
                 false,
@@ -303,7 +303,7 @@ class TimelineServiceHttpImplTest {
         String timelineId = "timelineIdTest";
         boolean confidentialInfoRequired = true;
 
-        Mockito.when(timelineServiceClient.getTimeline(
+        Mockito.when(timelineClient.getTimeline(
                 iun,
                 confidentialInfoRequired,
                 false,
@@ -346,7 +346,7 @@ class TimelineServiceHttpImplTest {
         details.setSchedulingAnalogDate(schedulingDate);
         details.setRecIndex(0);
         details.setCategoryType(TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE.name());
-        Mockito.when(timelineServiceClient.getTimelineElementDetailForSpecificRecipient(
+        Mockito.when(timelineClient.getTimelineElementDetailForSpecificRecipient(
                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(details);
         ProbableSchedulingAnalogDateResponse schedulingAnalogDateActual = timelineServiceHttp.getSchedulingAnalogDate(iun, recipientId).block();
 
@@ -370,7 +370,7 @@ class TimelineServiceHttpImplTest {
                                 .build()))
                         .build()));
 
-        Mockito.when(timelineServiceClient.getTimelineElementDetailForSpecificRecipient(
+        Mockito.when(timelineClient.getTimelineElementDetailForSpecificRecipient(
                         Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())
                 )
                 .thenReturn(null);
@@ -390,7 +390,7 @@ class TimelineServiceHttpImplTest {
         it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse expectedResponse =
                 Mockito.mock(it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse.class);
 
-        Mockito.when(timelineServiceClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt))
+        Mockito.when(timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt))
                 .thenReturn(clientResponse);
 
         try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {

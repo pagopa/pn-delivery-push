@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timelineservice;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api.TimelineControllerApi;
@@ -14,7 +14,7 @@ import java.util.List;
 @CustomLog
 @RequiredArgsConstructor
 @Component
-public class TimelineServiceClientImpl implements TimelineServiceClient {
+public class TimelineClientImpl implements TimelineClient {
     private final TimelineControllerApi timelineControllerApi;
 
     @Override

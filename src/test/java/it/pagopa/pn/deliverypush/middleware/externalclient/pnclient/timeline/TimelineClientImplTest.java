@@ -1,4 +1,4 @@
-package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timelineservice;
+package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api.TimelineControllerApi;
@@ -17,12 +17,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class TimelineServiceClientImplTest {
+class TimelineClientImplTest {
     @Mock
     private TimelineControllerApi timelineControllerApi;
 
     @InjectMocks
-    private TimelineServiceClientImpl timelineServiceClient;
+    private TimelineClientImpl timelineServiceClient;
 
     @Test
     void addTimelineElementReturnsTrueWhenConflictOccurs() {

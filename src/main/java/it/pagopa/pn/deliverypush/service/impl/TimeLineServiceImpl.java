@@ -40,7 +40,6 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import org.slf4j.MDC;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -56,7 +55,6 @@ import static it.pagopa.pn.deliverypush.utils.StatusUtils.COMPLETED_DELIVERY_WOR
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = TimelineService.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = "DYNAMO", matchIfMissing = true)
 public class TimeLineServiceImpl implements TimelineService {
     private final TimelineDao timelineDao;
     private final TimelineCounterEntityDao timelineCounterEntityDao;
@@ -308,18 +306,14 @@ public class TimeLineServiceImpl implements TimelineService {
             Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
             mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
 
-            if (mapConfOtp.isPresent()) {
-                Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
-
-                setTimelineElements.forEach(
-                        timelineElementInt -> {
-                            ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
-                            if (dtoInt != null) {
-                                enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
-                            }
+            mapConfOtp.ifPresent(mapConf -> setTimelineElements.forEach(
+                    timelineElementInt -> {
+                        ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
+                        if (dtoInt != null) {
+                            enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
                         }
-                );
-            }
+                    }
+            ));
         }
     }
 
@@ -371,19 +365,14 @@ public class TimeLineServiceImpl implements TimelineService {
             }
         }
 
-        if (inValidationStatusActiveFromOpt.isPresent()) {
-
-            //Viene sostituito il campo ActiveFrom dell'elemento ACCEPTED con quella dell'elemento eliminato IN_VALIDATION
-            Instant inValidationStatusActiveFrom = inValidationStatusActiveFromOpt.get();
-
-            statusHistory.stream()
-                    .filter(
-                            statusHistoryElement -> NotificationStatusInt.ACCEPTED.equals(statusHistoryElement.getStatus())
-                    ).findFirst()
-                    .ifPresent(
-                            el -> el.setActiveFrom(inValidationStatusActiveFrom)
-                    );
-        }
+        //Viene sostituito il campo ActiveFrom dell'elemento ACCEPTED con quella dell'elemento eliminato IN_VALIDATION
+        inValidationStatusActiveFromOpt.ifPresent(inValidationStatusActiveFrom -> statusHistory.stream()
+                .filter(
+                        statusHistoryElement -> NotificationStatusInt.ACCEPTED.equals(statusHistoryElement.getStatus())
+                ).findFirst()
+                .ifPresent(
+                        el -> el.setActiveFrom(inValidationStatusActiveFrom)
+                ));
     }
 
     private NotificationHistoryResponse createResponse(Set<TimelineElementInternal> timelineElements, List<NotificationStatusHistoryElementInt> statusHistory,
@@ -452,7 +441,7 @@ public class TimeLineServiceImpl implements TimelineService {
             CourtesyDigitalAddressInt address = courtesyAddressRelatedTimelineElement.getDigitalAddress();
 
             address = getCourtesyDigitalAddress(confidentialDto, address);
-            ((CourtesyAddressRelatedTimelineElement) details).setDigitalAddress(address);
+            courtesyAddressRelatedTimelineElement.setDigitalAddress(address);
         }
 
         if (details instanceof DigitalAddressRelatedTimelineElement digitalAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null) {
@@ -461,7 +450,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
             address = getDigitalAddress(confidentialDto, address);
 
-            ((DigitalAddressRelatedTimelineElement) details).setDigitalAddress(address);
+            digitalAddressRelatedTimelineElement.setDigitalAddress(address);
         }
 
         if (details instanceof PhysicalAddressRelatedTimelineElement physicalAddressRelatedTimelineElement && confidentialDto.getPhysicalAddress() != null) {
@@ -469,7 +458,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
             physicalAddress = getPhysicalAddress(physicalAddress, confidentialDto.getPhysicalAddress());
 
-            ((PhysicalAddressRelatedTimelineElement) details).setPhysicalAddress(physicalAddress);
+            physicalAddressRelatedTimelineElement.setPhysicalAddress(physicalAddress);
         }
 
         if (details instanceof NewAddressRelatedTimelineElement newAddressRelatedTimelineElement && confidentialDto.getNewPhysicalAddress() != null) {
@@ -478,7 +467,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
             newAddress = getPhysicalAddress(newAddress, confidentialDto.getNewPhysicalAddress());
 
-            ((NewAddressRelatedTimelineElement) details).setNewAddress(newAddress);
+            newAddressRelatedTimelineElement.setNewAddress(newAddress);
         }
 
         if (details instanceof PersonalInformationRelatedTimelineElement personalInformationRelatedTimelineElement) {

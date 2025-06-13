@@ -147,6 +147,8 @@ public class PnDeliveryPushConfigs {
 
     private String timelineServiceBaseUrl;
 
+    private Instant timelineClientEnabledStartDate;
+
     @Data
     public static class Topics {
 
