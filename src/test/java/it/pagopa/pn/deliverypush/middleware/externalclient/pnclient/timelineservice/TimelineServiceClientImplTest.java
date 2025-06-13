@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class TimelineServiceClientImplTest {
+class TimelineServiceClientImplTest {
     @Mock
     private TimelineControllerApi timelineControllerApi;
 
