@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-public class TimelineServiceApiConfigurator {
+public class TimelineApiConfigurator {
     @Bean
     @Primary
     public TimelineControllerApi timelineControllerApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg){
         ApiClient newApiClient = new ApiClient(restTemplate);
-        newApiClient.setBasePath(cfg.getTimelineServiceBaseUrl());
+        newApiClient.setBasePath(cfg.getTimelineClientBaseUrl());
         return new TimelineControllerApi( newApiClient );
     }
 }
