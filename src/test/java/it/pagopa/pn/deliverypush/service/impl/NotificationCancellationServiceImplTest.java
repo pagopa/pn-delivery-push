@@ -356,7 +356,7 @@ class NotificationCancellationServiceImplTest {
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when(auditLogService.buildAuditLogEvent(eq(iun), eq(PnAuditLogEventType.AUD_NT_CANCELLED), anyString(), eq(2)))
                 .thenReturn(auditLogEvent);
-        Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), (String) Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
 
         final int recIndex = 0;
         UpdateNotificationCostResponseInt response = UpdateNotificationCostResponseInt.builder()
@@ -386,7 +386,7 @@ class NotificationCancellationServiceImplTest {
         //THEN
         Mockito.verify(notificationService).removeAllNotificationCostsByIun(iun);
         Mockito.verify(timelineService, Mockito.never()).addTimelineElement(Mockito.any(), Mockito.eq(notification));
-        Mockito.verify(auditLogEvent).generateFailure(Mockito.anyString(), Mockito.any(), Mockito.any());
+        Mockito.verify(auditLogEvent).generateFailure(Mockito.anyString(), (String) Mockito.any(), Mockito.any());
 
         ArgumentCaptor<List<PaymentsInfoForRecipientInt>> paymentForRecipientListCaptor = ArgumentCaptor.forClass(List.class);
 

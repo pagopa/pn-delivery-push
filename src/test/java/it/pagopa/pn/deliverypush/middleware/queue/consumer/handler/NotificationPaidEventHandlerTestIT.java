@@ -70,11 +70,11 @@ class NotificationPaidEventHandlerTestIT extends MockActionPoolTest{
         final String IUN = "iun-value-12345-6789";
         final String CREDITOR_TAX_ID = "77777777777"; //stringa di 11 caratteri
         final String NOTICE_CODE = "123456789123456789"; //stringa di 18 caratteri
-        final PnDeliveryPaymentEvent.PaymentType PAYMENT_TYPE = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
+        final PnDeliveryPaymentEvent.PaymentType paymentType = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
         final String ELEMENT_ID_EXPECTED = "NOTIFICATION_PAID.IUN_" + IUN + ".CODE_PPA" + NOTICE_CODE + CREDITOR_TAX_ID;
 
         NotificationInt notificationIntMock = buildNotification(IUN);
-        Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
+        Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, paymentType);
         NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload());
         TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null, notificationProcessCostService).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
 
@@ -97,11 +97,11 @@ class NotificationPaidEventHandlerTestIT extends MockActionPoolTest{
         final String IUN = "iun-value-12345-6789";
         final String CREDITOR_TAX_ID = "77777777777"; //stringa di 11 caratteri
         final String NOTICE_CODE = "123456789123456789"; //stringa di 18 caratteri
-        final PnDeliveryPaymentEvent.PaymentType PAYMENT_TYPE = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
+        final PnDeliveryPaymentEvent.PaymentType paymentType = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
         final String ELEMENT_ID_EXPECTED = "NOTIFICATION_PAID.IUN_" + IUN + ".CODE_PPA" + NOTICE_CODE + CREDITOR_TAX_ID;
 
         NotificationInt notificationIntMock = buildNotification(IUN);
-        Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, PAYMENT_TYPE);
+        Message<PnDeliveryPaymentEvent.Payload> payloadMessage = buildMessage(IUN, CREDITOR_TAX_ID, NOTICE_CODE, paymentType);
         NotificationPaidInt notificationPaidInt = NotificationPaidMapper.messageToInternal(payloadMessage.getPayload());
         TimelineElementInternal timelineElementInternalExpected = new TimelineUtils(null, null, notificationProcessCostService).buildNotificationPaidTimelineElement(notificationIntMock, notificationPaidInt, ELEMENT_ID_EXPECTED);
 
@@ -149,10 +149,10 @@ class NotificationPaidEventHandlerTestIT extends MockActionPoolTest{
                 )
                 .build();
 
-        Message<PnDeliveryPaymentEvent.Payload> message = MessageBuilder
-                .createMessage(paymentEvent.getPayload(), new MessageHeaders(objectMapper.convertValue(paymentEvent.getHeader(), Map.class)));
 
-        return message;
+        return MessageBuilder
+                .createMessage(paymentEvent.getPayload(), new MessageHeaders(objectMapper.convertValue(paymentEvent.getHeader(), Map.class)
+                ));
     }
 
     private NotificationInt buildNotification(String iun) {
