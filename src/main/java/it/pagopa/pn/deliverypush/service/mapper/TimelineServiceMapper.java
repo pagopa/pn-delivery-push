@@ -119,7 +119,7 @@ public class TimelineServiceMapper {
                 .paId(timelineElementInternal.getPaId())
                 .legalFactsIds(toLegalFactsIdList(timelineElementInternal.getLegalFactsIds()))
                 .category(TimelineCategory.valueOf(timelineElementInternal.getCategory().getValue()))
-                .details(toTimelineElementDetails(timelineElementInternal.getDetails()))
+                .details(toTimelineElementDetails(timelineElementInternal.getDetails(), timelineElementInternal.getCategory().getValue()))
                 .notificationSentAt(timelineElementInternal.getNotificationSentAt());
     }
 
@@ -168,8 +168,14 @@ public class TimelineServiceMapper {
         return SmartMapper.mapToClass(timelineElement, category.getDetailsJavaClass());
     }
 
-    private static TimelineElementDetails toTimelineElementDetails(TimelineElementDetailsInt details) {
-        return SmartMapper.mapToClass(details, TimelineElementDetails.class);
+    private static TimelineElementDetails toTimelineElementDetails(TimelineElementDetailsInt detailsInt, String category) {
+        if (detailsInt == null) {
+            return null;
+        }
+
+        TimelineElementDetails details = SmartMapper.mapToClass(detailsInt, TimelineElementDetails.class);
+        details.setCategoryType(category);
+        return details;
     }
 
     public static TimelineElementDetailsInt toTimelineElementDetailsInt(TimelineElementDetails details, TimelineElementCategoryInt category) {
