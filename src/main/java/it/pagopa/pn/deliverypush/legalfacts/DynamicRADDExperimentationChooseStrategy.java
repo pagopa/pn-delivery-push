@@ -11,9 +11,9 @@ public class DynamicRADDExperimentationChooseStrategy implements AarTemplateChoo
     private final CheckRADDExperimentation checkRADDExperimentation;
     @Override
     public AarTemplateType choose(PhysicalAddressInt address) {
-        log.info("Choosing Dynamic AAR type for zip={}", address.getZip());
+        log.trace("Choosing Dynamic AAR type for zip={}", address.getZip());
         boolean isAddressInExperimentation = checkRADDExperimentation.checkAddress(address);
-        log.info("zip={} isAddressInExperimentation={}", address.getZip(), isAddressInExperimentation);
+        log.trace("zip={} isAddressInExperimentation={}", address.getZip(), isAddressInExperimentation);
 
         if(isAddressInExperimentation){
             return AarTemplateType.AAR_NOTIFICATION_RADD_ALT;
