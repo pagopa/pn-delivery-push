@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -78,7 +77,7 @@ class F24EventHandlerTest extends MockActionPoolTest {
     void handlePrepareResponseReceivedOK() {
         Consumer<Message<PnF24PdfSetReadyEvent.Detail>> pnF24EventInboundConsumer = functionCatalog.lookup(Consumer.class, "pnF24EventInboundConsumer");
 
-        List<PnF24PdfSetReadyEventItem> PnF24PdfSetReadyEventItems = List.of(
+        List<PnF24PdfSetReadyEventItem> pnF24PdfSetReadyEventItems = List.of(
                 PnF24PdfSetReadyEventItem.builder().pathTokens("0_0").uri("uri1").build(),
                 PnF24PdfSetReadyEventItem.builder().pathTokens("0_0").uri("uri2").build(),
                 PnF24PdfSetReadyEventItem.builder().pathTokens("1_0").uri("uri1").build(),
@@ -89,7 +88,7 @@ class F24EventHandlerTest extends MockActionPoolTest {
         String requestId = "GENERATE_F24_REQUEST.IUN_XWGR-MZJX-VNLW-202403-L-1";
         PnF24PdfSetReadyEventPayload pnF24PdfSetReadyEventPayload = PnF24PdfSetReadyEventPayload.builder()
                 .requestId(requestId)
-                .generatedPdfsUrls(PnF24PdfSetReadyEventItems)
+                .generatedPdfsUrls(pnF24PdfSetReadyEventItems)
                 .status("OK")
                 .build();
 
