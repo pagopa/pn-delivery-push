@@ -1311,7 +1311,7 @@ Resources:
     Type: AWS::Lambda::LayerVersion
     Properties:
       CompatibleRuntimes:
-        - nodejs18.x
+        - nodejs22.x
       Content:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
@@ -1331,7 +1331,7 @@ Resources:
         FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_code.zip"
         MemorySize: 512
         Timeout: 10
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRouterLambdaRole.Arn
         Layer1: !Ref ActionRouterLambdaLibrariesLayer
@@ -1427,7 +1427,7 @@ Resources:
     Type: AWS::Lambda::LayerVersion
     Properties:
       CompatibleRuntimes:
-        - nodejs18.x
+        - nodejs22.x
       Content:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_libs.zip"
@@ -1447,7 +1447,7 @@ Resources:
         FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_code.zip"
         MemorySize: 512
         Timeout: 10
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionEnqueuerLambdaRole.Arn
         Layer1: !Ref ActionEnqueuerLambdaLibrariesLayer
@@ -1523,7 +1523,7 @@ Resources:
     Type: AWS::Lambda::LayerVersion
     Properties:
       CompatibleRuntimes:
-        - nodejs18.x
+        - nodejs22.x
       Content:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_libs.zip"
@@ -1544,7 +1544,7 @@ Resources:
         FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_code.zip"
         MemorySize: 512
         Timeout: 10
-        Runtime: nodejs18.x
+        Runtime: nodejs22.x
         TracingConfigMode: "Active"
         RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
         Layer1: !Ref ActionRemoverLambdaLibrariesLayer 
@@ -1676,7 +1676,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref NotificationCancellationActionInsertLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1791,7 +1791,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref PaperEventsCostUpdateLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
@@ -1902,7 +1902,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Ref VersioningGetNotificationLegalFactsLambdaName
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
