@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.mode
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV27;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -23,9 +24,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
@@ -141,7 +140,23 @@ public class TimelineServiceHttpImpl implements TimelineService {
 
         it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse =
                 timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
+        removeDiagnosticElements(notificationHistoryResponse);
         return TimelineServiceMapper.toNotificationHistoryResponseDto(notificationHistoryResponse);
+    }
+
+    private void removeDiagnosticElements(it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse) {
+        if (notificationHistoryResponse.getTimeline() != null) {
+            notificationHistoryResponse.setTimeline(
+                    notificationHistoryResponse.getTimeline().stream()
+                            .filter(timelineElement -> isPublicElement(timelineElement.getCategory().getValue()))
+                            .collect(Collectors.toList())
+            );
+        }
+    }
+
+    private boolean isPublicElement(String elementCategory) {
+        return Arrays.stream(TimelineElementCategoryV27.values())
+                .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory));
     }
 
     @Override
