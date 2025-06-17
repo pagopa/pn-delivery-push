@@ -12,6 +12,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -26,7 +27,10 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -386,22 +390,73 @@ class TimelineServiceHttpImplTest {
         Instant createdAt = Instant.now();
 
         it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse clientResponse =
-                Mockito.mock(it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse.class);
-        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse expectedResponse =
-                Mockito.mock(it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse.class);
+                new NotificationHistoryResponse();
+
+        // BUILDING THE TIMELINE ELEMENTS
+        String elementId1 = "elementId1";
+        List<TimelineElement> setTimelineElement = new ArrayList<>();
+        Instant t = Instant.EPOCH.plus(1, ChronoUnit.DAYS);
+        TimelineElement elementDiagnostic = new TimelineElement();
+        elementDiagnostic.setIun(iun);
+        elementDiagnostic.setElementId(elementId1 + "DIAGNOSTIC");
+        elementDiagnostic.setTimestamp(t);
+        elementDiagnostic.setCategory(TimelineCategory.VALIDATE_F24_REQUEST);
+        setTimelineElement.add(elementDiagnostic);
+        TimelineElement elementFeedback = new TimelineElement();
+        elementFeedback.setIun(iun);
+        elementFeedback.setElementId(elementId1 + "FEEDBACK");
+        elementFeedback.setTimestamp(t);
+        elementFeedback.setCategory(TimelineCategory.SEND_ANALOG_FEEDBACK);
+        setTimelineElement.add(elementFeedback);
+        TimelineElement elementProg = new TimelineElement();
+        elementProg.setIun(iun);
+        elementProg.setElementId(elementId1 + "PROGRESS");
+        elementProg.setTimestamp(t);
+        elementProg.setCategory(TimelineCategory.SEND_ANALOG_PROGRESS);
+        setTimelineElement.add(elementProg);
+
+
+        clientResponse.setTimeline(setTimelineElement);
+
+        // BUILDING THE NOTIFICATION STATUS HISTORY ELEMENTS
+
+        Instant activeFromInValidation = Instant.now();
+        NotificationStatusHistoryElement inValidationElement = new NotificationStatusHistoryElement();
+        inValidationElement.status(NotificationStatus.IN_VALIDATION);
+        inValidationElement.activeFrom(activeFromInValidation);
+
+        Instant activeFromAccepted = activeFromInValidation.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElement acceptedElementElement = new NotificationStatusHistoryElement();
+        acceptedElementElement.status(NotificationStatus.ACCEPTED);
+        acceptedElementElement.activeFrom(activeFromAccepted);
+
+        Instant activeFromDelivering = activeFromAccepted.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElement deliveringElement = new NotificationStatusHistoryElement();
+        deliveringElement.status(NotificationStatus.DELIVERING);
+        deliveringElement.activeFrom(activeFromDelivering);
+
+
+        List<NotificationStatusHistoryElement> notificationStatusHistoryElements = new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
+        clientResponse.setNotificationStatusHistory(notificationStatusHistoryElements);
+
+        // BUILDING THE NOTIFICATION STATUS
+        clientResponse.setNotificationStatus(NotificationStatus.DELIVERING);
+
 
         Mockito.when(timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt))
                 .thenReturn(clientResponse);
 
-        try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
-            mockedMapper.when(() -> TimelineServiceMapper.toNotificationHistoryResponseDto(clientResponse))
-                    .thenReturn(expectedResponse);
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse result =
+                timelineServiceHttp.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
 
-            it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse result =
-                    timelineServiceHttp.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
+        assertNotNull(result);
+        assertEquals(2, result.getTimeline().size()); // Dovrebbe escludere l'elemento di diagnostica e dunque da 3 elementi di partenza a 2 elementi finali
+        assertEquals("elementId1FEEDBACK", result.getTimeline().get(0).getElementId());
+        assertEquals("elementId1PROGRESS", result.getTimeline().get(1).getElementId());
+        assertEquals(NotificationStatusV26.DELIVERING, result.getNotificationStatus());
 
-            assertEquals(expectedResponse, result);
-        }
     }
 
     private TimelineElementInternal getTimelineElementInternal() {
