@@ -40,7 +40,7 @@ public class TimelineServiceMapper {
                 .paId(timelineElement.getPaId())
                 .legalFactsIds(toLegalFactsIdIntList(timelineElement.getLegalFactsIds()))
                 .category(category)
-                .details(toTimelineElementDetailsInt(timelineElement, category))
+                .details(toTimelineElementDetailsInt(timelineElement.getDetails(), category))
                 .statusInfo(toStatusInfoInternal(timelineElement.getStatusInfo()))
                 .notificationSentAt(timelineElement.getNotificationSentAt())
                 .ingestionTimestamp(timelineElement.getIngestionTimestamp())
@@ -162,10 +162,6 @@ public class TimelineServiceMapper {
                     .toList();
         }
         return Collections.emptyList();
-    }
-
-    private static TimelineElementDetailsInt toTimelineElementDetailsInt(TimelineElement timelineElement, TimelineElementCategoryInt category) {
-        return SmartMapper.mapToClass(timelineElement, category.getDetailsJavaClass());
     }
 
     private static TimelineElementDetails toTimelineElementDetails(TimelineElementDetailsInt detailsInt, String category) {
