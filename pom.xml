@@ -893,13 +893,13 @@
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-timeline-service/9de4b10cdf83f8194f53581906f23ec104b803e8/docs/openapi/pn-timeline-service-private.yaml
+								https://raw.githubusercontent.com/pagopa/pn-timeline-service/12d51061ce088a0bfdd0d7b7102d9978d43c0f4f/docs/openapi/pn-timeline-service-private.yaml
 							</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
-							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+							<templateDirectory>${project.basedir}/src/main/resources/templates/5.4.0/client</templateDirectory>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api</apiPackage>
 								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model</modelPackage>
