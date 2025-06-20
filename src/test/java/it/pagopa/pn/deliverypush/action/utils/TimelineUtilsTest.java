@@ -38,6 +38,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
+import static it.pagopa.pn.deliverypush.dto.timeline.details.ServiceLevelInt.AR_REGISTERED_LETTER;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -1536,6 +1537,35 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals(TimelineElementCategoryInt.REQUEST_REFUSED, result.getCategory()),
                 () -> Assertions.assertNotNull(result.getDetails()),
                 () -> Assertions.assertEquals(errors, ((RequestRefusedDetailsInt) result.getDetails()).getRefusalReasons())
+        );
+    }
+
+    @Test
+    void buildSendAnalogTimeoutCreationRequest() {
+        NotificationInt notification = buildNotification();
+        String relatedRequestId = "relatedRequestIdExample";
+        int sentAttemptMade = 0;
+        int recIndex = 1;
+        Instant notificationDate = Instant.now();
+        SendAnalogDetailsInt sendAnalogDetailsInt = SendAnalogDetailsInt.builder()
+                .physicalAddress(buildPhysicalAddressInt())
+                .recIndex(recIndex)
+                .relatedRequestId(relatedRequestId)
+                .sentAttemptMade(sentAttemptMade)
+                .serviceLevel(AR_REGISTERED_LETTER)
+                .build();
+        String expectedIun = notification.getIun();
+        Instant notificationSentAt = notification.getSentAt();
+        String timelineEventIdExpected = "SEND_ANALOG_TIMEOUT_CREATION_REQUEST.IUN_Example_IUN_1234_Test.RECINDEX_1";
+
+        TimelineElementInternal result = timelineUtils.buildSendAnalogTimeoutCreationRequest(notification, sendAnalogDetailsInt, notificationDate);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(expectedIun, result.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, result.getElementId()),
+                () -> Assertions.assertEquals(notificationSentAt, result.getNotificationSentAt()),
+                () -> Assertions.assertEquals(TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, result.getCategory()),
+                () -> Assertions.assertNotNull(result.getDetails())
         );
     }
 }
