@@ -1535,6 +1535,28 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_RESPONSE, eventId, details);
     }
 
+    public TimelineElementInternal buildSendAnalogTimeoutCreationRequest(NotificationInt notification,
+                                                                         SendAnalogDetailsInt sendAnalogDetailsInt,
+                                                                         Instant notificationDate) {
+        Integer recIndex = sendAnalogDetailsInt.getRecIndex();
+        log.debug("buildSendAnalogTimeoutCreationRequest - IUN={} and id={} relatedRequestId={}", notification.getIun(), recIndex, sendAnalogDetailsInt.getRelatedRequestId());
+        String elementId = TimelineEventId.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        SendAnalogTimeoutCreationRequestDetailsInt details = SendAnalogTimeoutCreationRequestDetailsInt.builder()
+                .notificationDate(notificationDate)
+                .recIndex(recIndex)
+                .sentAttemptMade(sendAnalogDetailsInt.getSentAttemptMade())
+                .physicalAddress(sendAnalogDetailsInt.getPhysicalAddress())
+                .relatedRequestId(sendAnalogDetailsInt.getRelatedRequestId())
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, elementId, details);
+    }
+
     public String getIunFromTimelineId(String timelineId) {
         //<timelineId = CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>...
         return timelineId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1].replace("IUN_", "");
