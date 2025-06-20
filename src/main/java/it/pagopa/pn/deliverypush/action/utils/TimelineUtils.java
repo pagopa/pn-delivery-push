@@ -1552,6 +1552,7 @@ public class TimelineUtils {
                 .sentAttemptMade(sendAnalogDetailsInt.getSentAttemptMade())
                 .physicalAddress(sendAnalogDetailsInt.getPhysicalAddress())
                 .relatedRequestId(sendAnalogDetailsInt.getRelatedRequestId())
+                .serviceLevel(sendAnalogDetailsInt.getServiceLevel())
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, elementId, details);

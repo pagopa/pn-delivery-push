@@ -38,6 +38,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.NOTIFICATION_CANCELLATION_REQUEST;
+import static it.pagopa.pn.deliverypush.dto.timeline.details.ServiceLevelInt.AR_REGISTERED_LETTER;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -1551,6 +1552,7 @@ class TimelineUtilsTest {
                 .recIndex(recIndex)
                 .relatedRequestId(relatedRequestId)
                 .sentAttemptMade(sentAttemptMade)
+                .serviceLevel(AR_REGISTERED_LETTER)
                 .build();
         String expectedIun = notification.getIun();
         Instant notificationSentAt = notification.getSentAt();
