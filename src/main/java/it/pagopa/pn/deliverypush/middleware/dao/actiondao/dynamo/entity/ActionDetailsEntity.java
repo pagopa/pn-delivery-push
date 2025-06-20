@@ -26,4 +26,6 @@ public class ActionDetailsEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute("isFirstSendRetry")}))  private Boolean isFirstSendRetry;
     @Getter(onMethod=@__({@DynamoDbAttribute("alreadyPresentRelatedFeedbackTimelineId")}))  private String alreadyPresentRelatedFeedbackTimelineId;
     @Getter(onMethod=@__({@DynamoDbAttribute("lastAttemptAddressInfo")}))  private DigitalAddressInfoSentAttemptEntity lastAttemptAddressInfo;
+    @Getter(onMethod=@__({@DynamoDbAttribute("sendRequestDate")}))  private Instant sendRequestDate;
+    @Getter(onMethod=@__({@DynamoDbAttribute("sentAttemptMade")}))  private int sentAttemptMade;
 }
