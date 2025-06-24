@@ -102,6 +102,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLATION_REQUEST, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, NotificationStatusInt.DELIVERING, SINGLE_RECIPINET)
 
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.DIGITAL_DELIVERY_CREATION_REQUEST, NotificationStatusInt.DELIVERED, SINGLE_RECIPINET)
@@ -177,6 +178,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_RADD_RETRIEVED, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, NotificationStatusInt.EFFECTIVE_DATE, ONLY_MULTI_RECIPIENT)
 
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_VIEWED, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
@@ -225,6 +227,7 @@ class StateMap {
                 .withTimelineGoToState(TimelineElementCategoryInt.GENERATED_F24, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, NotificationStatusInt.VIEWED, ONLY_MULTI_RECIPIENT)
+                .withTimelineGoToState(TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, NotificationStatusInt.VIEWED, SINGLE_RECIPINET)
 
                 //STATE CHANGE
                 .withTimelineGoToState(TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED, NotificationStatusInt.RETURNED_TO_SENDER, SINGLE_RECIPINET)
