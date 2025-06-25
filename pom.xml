@@ -900,6 +900,7 @@
 							<generateApiTests>false</generateApiTests>
 							<generateModelTests>false</generateModelTests>
 							<templateDirectory>${project.basedir}/src/main/resources/templates/5.4.0/client</templateDirectory>
+							<additionalProperties>removeEnumValuePrefix=false</additionalProperties>
 							<configOptions>
 								<apiPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api</apiPackage>
 								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model</modelPackage>

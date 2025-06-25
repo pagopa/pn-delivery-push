@@ -10,6 +10,7 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode
 @Getter
+@Setter
 @ToString
 public class CategorizedAttachmentsResultInt {
 
