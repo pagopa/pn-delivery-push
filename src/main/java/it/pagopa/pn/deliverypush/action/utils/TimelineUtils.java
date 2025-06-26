@@ -1537,7 +1537,7 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildSendAnalogTimeoutCreationRequest(NotificationInt notification,
                                                                          SendAnalogDetailsInt sendAnalogDetailsInt,
-                                                                         Instant notificationDate) {
+                                                                         Instant timeoutDate) {
         Integer recIndex = sendAnalogDetailsInt.getRecIndex();
         log.debug("buildSendAnalogTimeoutCreationRequest - IUN={} and id={} relatedRequestId={}", notification.getIun(), recIndex, sendAnalogDetailsInt.getRelatedRequestId());
         String elementId = TimelineEventId.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.buildEventId(
@@ -1547,7 +1547,7 @@ public class TimelineUtils {
                         .build());
 
         SendAnalogTimeoutCreationRequestDetailsInt details = SendAnalogTimeoutCreationRequestDetailsInt.builder()
-                .notificationDate(notificationDate)
+                .timeoutDate(timeoutDate)
                 .recIndex(recIndex)
                 .sentAttemptMade(sendAnalogDetailsInt.getSentAttemptMade())
                 .physicalAddress(sendAnalogDetailsInt.getPhysicalAddress())

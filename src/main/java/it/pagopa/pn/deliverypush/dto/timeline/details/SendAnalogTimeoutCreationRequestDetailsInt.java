@@ -15,22 +15,22 @@ import java.time.Instant;
 @ToString
 public class SendAnalogTimeoutCreationRequestDetailsInt extends BaseAnalogDetailsInt implements ElementTimestampTimelineElementDetails {
 
-    private Instant notificationDate;
+    private Instant timeoutDate;
 
     public String toLog() {
         return String.format(
-                "recIndex=%d sentAttemptMade=%d relatedRequestId=%s physicalAddress=%s notificationDate=%s",
+                "recIndex=%d sentAttemptMade=%d relatedRequestId=%s physicalAddress=%s timeoutDate=%s",
                 recIndex,
                 sentAttemptMade,
                 relatedRequestId,
                 AuditLogUtils.SENSITIVE,
-                notificationDate
+                timeoutDate
         );
     }
 
     @Override
     public Instant getElementTimestamp() {
-        return notificationDate;
+        return timeoutDate;
     }
 
 }

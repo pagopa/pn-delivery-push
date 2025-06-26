@@ -11,6 +11,5 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AnalogWorkflowTimeoutDetails implements ActionDetails {
-    private Instant sendRequestDate;
     private int sentAttemptMade;
 }
