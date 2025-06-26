@@ -86,6 +86,8 @@ public class PnDeliveryPushConfigs {
 
     private String addressManagerBaseUrl;
 
+    private String actionManagerBaseUrl;
+
     private String f24BaseUrl;
 
     private String emdIntegrationBaseUrl;
@@ -145,6 +147,10 @@ public class PnDeliveryPushConfigs {
 
     private String technicalRefusalCostMode;
 
+    private Instant startActionImplWithDaoTimestamp;
+
+    private Instant endActionImplWithDaoTimestamp;
+
     @Data
     public static class Topics {
 
@@ -155,18 +161,6 @@ public class PnDeliveryPushConfigs {
         private String toExternalChannelEmail;
         
         private String toExternalChannelPaper;
-
-        private String fromExternalChannel;
-
-        private String safeStorageEvents;
-
-        private String nationalRegistriesEvents;
-
-        private String addressManagerEvents;
-
-        private String f24Events;
-        
-        private String deliveryValidationEvents;
     }
 
     @Data

@@ -1,23 +1,20 @@
 package it.pagopa.pn.deliverypush.action.it.mockbean;
 
-import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.ActionHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.utils.ThreadPool;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 
 import java.util.HashMap;
-import java.util.function.Consumer;
 
 @Slf4j
 public class ActionHandlerMock {
-    private final ActionHandler actionHandler;
+    private final ActionHandlerRegistry actionHandlerRegistry;
     
-    public ActionHandlerMock(@Lazy ActionHandler actionHandler) {
-        this.actionHandler = actionHandler;
+    public ActionHandlerMock(ActionHandlerRegistry actionHandlerRegistry) {
+        this.actionHandlerRegistry = actionHandlerRegistry;
     }
 
     public void handleSchedulingAction(Action action) {
@@ -26,83 +23,83 @@ public class ActionHandlerMock {
                 case START_RECIPIENT_WORKFLOW ->{
                     //WHEN
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushStartRecipientWorkflow();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getStartRecipientWorkflowHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case NOTIFICATION_REFUSED ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushNotificationRefused();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getNotificationRefusedHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case CHOOSE_DELIVERY_MODE ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushChooseDeliveryMode();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getChooseDeliveryModeEventHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case ANALOG_WORKFLOW ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushAnalogWorkflowConsumer();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getAnalogWorkflowEventHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case REFINEMENT_NOTIFICATION ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushRefinementConsumer();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getRefinementNotificationHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case DIGITAL_WORKFLOW_RETRY_ACTION ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushDigitalRetryActionConsumer();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getDigitalWorkflowRetryActionHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushElapsedExternalChannelNoResponseTimeoutActionConsumer();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getDigitalWorkflowNoResponseTimeoutActionHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case NOTIFICATION_VALIDATION ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushNotificationValidation();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getNotificationValidationHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case SCHEDULE_RECEIVED_LEGALFACT_GENERATION ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushReceivedLegalFactGeneration();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getReceivedLegalFactGenerationHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case CHECK_ATTACHMENT_RETENTION ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushCheckAttachmentRetention();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getCheckAttachmentRetentionEventHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case DIGITAL_WORKFLOW_NEXT_ACTION ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushDigitalNextActionConsumer();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getDigitalWorkflowNextActionHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushDigitalNextExecuteConsumer();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getDigitalWorkflowNextExecuteActionHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case DOCUMENT_CREATION_RESPONSE ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushDocumentCreationResponseConsumer();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getDocumentCreationResponseEventHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case SEND_DIGITAL_FINAL_STATUS_RESPONSE ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushSendDigitalFinalStatusResponse();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getSendDigitalFinalStatusResponseEventHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case POST_ACCEPTED_PROCESSING_COMPLETED ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushPostAcceptedProcessingCompleted();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getPostAcceptedProcessingCompletedHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 case SEND_ANALOG_FINAL_STATUS_RESPONSE ->{
                     final Message<Action> message = getBaseActionMessage(action);
-                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushSendAnalogFinalStatusResponse();
-                    consumer.accept(message);
+                    var handler = actionHandlerRegistry.getSendAnalogFinalStatusResponseHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
                 }
                 default ->
                         log.error("[TEST] actionType not found {}", action.getType());
