@@ -32,8 +32,7 @@ public class PrivateTestController {
         this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 
-    @RequestMapping(
-            method = RequestMethod.GET,
+    @GetMapping(
             value = "/delivery-push-private/test/old-impl/timeline/{iun}",
             produces = { "application/json", "application/problem+json" }
     )
@@ -49,8 +48,7 @@ public class PrivateTestController {
         return Mono.just(ResponseEntity.ok().body(writeJson(orderedTimeline)));
     }
 
-    @RequestMapping(
-            method = RequestMethod.GET,
+    @GetMapping(
             value = "/delivery-push-private/test/new-impl/timeline/{iun}",
             produces = { "application/json", "application/problem+json" }
     )
@@ -66,8 +64,7 @@ public class PrivateTestController {
         return Mono.just(ResponseEntity.ok().body(writeJson(orderedTimeline)));
     }
 
-    @RequestMapping(
-            method = RequestMethod.GET,
+    @GetMapping(
             value = "/delivery-push-private/test/old-impl/history/{iun}",
             produces = { "application/json", "application/problem+json" }
     )
@@ -82,7 +79,6 @@ public class PrivateTestController {
     }
 
     @RequestMapping(
-            method = RequestMethod.GET,
             value = "/delivery-push-private/test/new-impl/history/{iun}",
             produces = { "application/json", "application/problem+json" }
     )
