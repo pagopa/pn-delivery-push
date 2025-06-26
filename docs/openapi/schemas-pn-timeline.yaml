@@ -58,6 +58,7 @@ components:
 #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
 #   * `GENERATE_F24_REQUEST` - Invio della richiesta di generazione degli F24 presenti nella richiesta di notifica con costo base # NO EXTERNAL
 #   * `GENERATED_F24` - F24 generati # NO EXTERNAL
+#   * `SEND_ANALOG_TIMEOUT_CREATION_REQUEST` - Attestazione sostitutiva degli esiti in caso di mancato feedback dopo 120 giorni # NO EXTERNAL
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
