@@ -78,7 +78,7 @@ public class PrivateTestController {
         return Mono.just(ResponseEntity.ok().body(writeJson(history)));
     }
 
-    @RequestMapping(
+    @GetMapping(
             value = "/delivery-push-private/test/new-impl/history/{iun}",
             produces = { "application/json", "application/problem+json" }
     )
