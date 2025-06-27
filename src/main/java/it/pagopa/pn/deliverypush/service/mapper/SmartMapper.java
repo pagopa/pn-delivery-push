@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV27;
 import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -74,12 +75,20 @@ public class SmartMapper {
 
         List<BiFunction> postMappingTransformers = new ArrayList<>();
         postMappingTransformers.add( (source, result)-> {
-            if (!(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV27){
+            if (source instanceof TimelineElementDetailsInt && !(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV27){
                 ((TimelineElementDetailsV27) result).setNotRefinedRecipientIndexes(null);
             }
-            if (!(source instanceof PublicRegistryValidationCallDetailsInt) && result instanceof TimelineElementDetailsV27){
+            if (source instanceof TimelineElementDetailsInt && !(source instanceof PublicRegistryValidationCallDetailsInt) && result instanceof TimelineElementDetailsV27){
                 ((TimelineElementDetailsV27) result).setRecIndexes(null);
             }
+
+            if(source instanceof TimelineElementDetails && result instanceof TimelineElementDetailsV27 && !((TimelineElementDetails) source).getCategoryType().equals("NOTIFICATION_CANCELLED")) {
+                ((TimelineElementDetailsV27) result).setNotRefinedRecipientIndexes(null);
+            }
+            if(source instanceof TimelineElementDetails && result instanceof TimelineElementDetailsV27 && !((TimelineElementDetails) source).getCategoryType().equals("PUBLIC_REGISTRY_VALIDATION_CALL")) {
+                ((TimelineElementDetailsV27) result).setRecIndexes(null);
+            }
+
             return result;
         });
 
