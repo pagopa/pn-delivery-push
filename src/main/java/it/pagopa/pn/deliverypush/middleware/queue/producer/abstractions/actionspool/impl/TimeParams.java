@@ -17,4 +17,5 @@ public class TimeParams {
     private Duration attachmentRetentionTimeAfterValidation;
     private Duration checkAttachmentTimeBeforeExpiration;
     private Duration attachmentTimeToAddAfterExpiration;
+    private Duration scheduleAnalogWorkflowTimeoutOffset;
 }
