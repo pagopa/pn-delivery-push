@@ -1,17 +1,21 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.NewAction;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@AllArgsConstructor
 @Component
 public class ActionManagerMapper {
     private final ObjectMapper objectMapper;
+
+    public ActionManagerMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper.copy();
+        this.objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
 
     public NewAction fromActionInternalToActionDto(
             Action action) {
