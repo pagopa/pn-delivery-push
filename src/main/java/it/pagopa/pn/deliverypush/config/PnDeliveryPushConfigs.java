@@ -151,6 +151,10 @@ public class PnDeliveryPushConfigs {
 
     private Instant endActionImplWithDaoTimestamp;
 
+    private String timelineClientBaseUrl;
+
+    private Instant timelineClientEnabledStartDate;
+
     @Data
     public static class Topics {
 

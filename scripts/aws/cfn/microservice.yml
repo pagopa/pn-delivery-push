@@ -886,6 +886,7 @@ Resources:
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledStart}'
         ContainerEnvEntry96: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledEnd}'
@@ -1020,6 +1021,7 @@ Resources:
         ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledStart}'
         ContainerEnvEntry96: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledEnd}'
+        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
@@ -1154,6 +1156,7 @@ Resources:
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledStart}'
         ContainerEnvEntry96: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledEnd}'
