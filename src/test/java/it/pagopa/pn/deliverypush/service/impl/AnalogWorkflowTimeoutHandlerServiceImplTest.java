@@ -20,18 +20,18 @@ import java.util.Set;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.*;
 
-public class AnalogWorkflowTimoutHandlerServiceImplTest {
+public class AnalogWorkflowTimeoutHandlerServiceImplTest {
     private TimelineUtils timelineUtils;
     private NotificationService notificationService;
     private TimelineService timelineService;
-    private AnalogWorkflowTimoutHandlerServiceImpl service;
+    private AnalogWorkflowTimeoutHandlerService service;
 
     @BeforeEach
     void setUp() {
         timelineUtils = mock(TimelineUtils.class);
         notificationService = mock(NotificationService.class);
         timelineService = mock(TimelineService.class);
-        service = new AnalogWorkflowTimoutHandlerServiceImpl(notificationService, timelineService, timelineUtils);
+        service = new AnalogWorkflowTimeoutHandlerService(notificationService, timelineService, timelineUtils);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class AnalogWorkflowTimoutHandlerServiceImplTest {
         when(feedbackDetails.getRecIndex()).thenReturn(recIndex);
         when(feedbackDetails.getSentAttemptMade()).thenReturn(sentAttemptMade);
 
-        when(timelineService.getTimeline(iun, false)).thenReturn(Set.of(feedbackElement));
+        when(timelineService.getTimeline(iun, true)).thenReturn(Set.of(feedbackElement));
 
         service.handleAnalogWorkflowTimeout(iun, timelineId, recIndex, timeoutDetails, notBefore);
 

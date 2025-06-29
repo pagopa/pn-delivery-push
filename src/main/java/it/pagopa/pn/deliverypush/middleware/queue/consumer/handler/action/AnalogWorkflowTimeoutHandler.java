@@ -6,19 +6,19 @@ import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleE
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.SupportedEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.impl.AnalogWorkflowTimoutHandlerServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.AnalogWorkflowTimeoutHandlerService;
 import lombok.CustomLog;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;
 
 @Component
 @CustomLog
-public class AnalogWorkflowTimoutHandler extends AbstractActionEventHandler {
-    private final AnalogWorkflowTimoutHandlerServiceImpl analogWorkflowTimoutHandlerService;
+public class AnalogWorkflowTimeoutHandler extends AbstractActionEventHandler {
+    private final AnalogWorkflowTimeoutHandlerService analogWorkflowTimeoutHandlerService;
 
-    public AnalogWorkflowTimoutHandler(TimelineUtils timelineUtils, AnalogWorkflowTimoutHandlerServiceImpl analogWorkflowTimoutHandlerServiceImpl) {
+    public AnalogWorkflowTimeoutHandler(TimelineUtils timelineUtils, AnalogWorkflowTimeoutHandlerService analogWorkflowTimeoutHandlerService) {
         super(timelineUtils);
-        this.analogWorkflowTimoutHandlerService = analogWorkflowTimoutHandlerServiceImpl;
+        this.analogWorkflowTimeoutHandlerService = analogWorkflowTimeoutHandlerService;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class AnalogWorkflowTimoutHandler extends AbstractActionEventHandler {
             log.logStartingProcess(processName);
             checkNotificationCancelledAndExecute(
                     action,
-                    a -> analogWorkflowTimoutHandlerService.handleAnalogWorkflowTimeout(a.getIun(), a.getTimelineId(), a.getRecipientIndex(), (AnalogWorkflowTimeoutDetails) a.getDetails(), a.getNotBefore())
+                    a -> analogWorkflowTimeoutHandlerService.handleAnalogWorkflowTimeout(a.getIun(), a.getTimelineId(), a.getRecipientIndex(), (AnalogWorkflowTimeoutDetails) a.getDetails(), a.getNotBefore())
             );
             log.logEndingProcess(processName);
         } catch (Exception ex) {

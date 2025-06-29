@@ -101,6 +101,11 @@ public class ActionHandlerMock {
                     var handler = actionHandlerRegistry.getSendAnalogFinalStatusResponseHandler();
                     handler.handle(message.getPayload(), message.getHeaders());
                 }
+                case ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT -> {
+                    final Message<Action> message = getBaseActionMessage(action);
+                    var handler = actionHandlerRegistry.getAnalogWorkflowTimeoutHandler();
+                    handler.handle(message.getPayload(), message.getHeaders());
+                }
                 default ->
                         log.error("[TEST] actionType not found {}", action.getType());
             }

@@ -25,4 +25,5 @@ public class ActionHandlerRegistry {
     private final SendDigitalFinalStatusResponseEventHandler sendDigitalFinalStatusResponseEventHandler;
     private final PostAcceptedProcessingCompletedHandler postAcceptedProcessingCompletedHandler;
     private final SendAnalogFinalStatusResponseHandler sendAnalogFinalStatusResponseHandler;
+    private final AnalogWorkflowTimeoutHandler analogWorkflowTimeoutHandler;
 }

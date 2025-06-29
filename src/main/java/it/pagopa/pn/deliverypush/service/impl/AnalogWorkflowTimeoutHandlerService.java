@@ -8,7 +8,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.service.AnalogWorkflowTimoutHandlerService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -23,7 +22,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Component
 @AllArgsConstructor
 @Slf4j
-public class AnalogWorkflowTimoutHandlerServiceImpl implements AnalogWorkflowTimoutHandlerService {
+public class AnalogWorkflowTimeoutHandlerService implements it.pagopa.pn.deliverypush.service.AnalogWorkflowTimoutHandlerService {
     private final NotificationService notificationService;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
@@ -58,9 +57,8 @@ public class AnalogWorkflowTimoutHandlerServiceImpl implements AnalogWorkflowTim
 
     }
 
-    //Ricerca del SEND_ANALOG_FEEDBACK iterando la lista della timeline per iun, recIndex e sentAttemptMade
     private boolean isSendAnalogFeedbackPresentInTimeline(String iun, int recIndex, int sentAttemptMade) {
-        return timelineService.getTimeline(iun, false).stream()
+        return timelineService.getTimeline(iun, true).stream()
                 .filter(element -> TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK.equals(element.getCategory()))
                 .anyMatch(element -> {
                     SendAnalogFeedbackDetailsInt sendAnalogFeedbackDetailsInt = (SendAnalogFeedbackDetailsInt) element.getDetails();
