@@ -104,6 +104,11 @@ public class ActionHandlerMock {
                     Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushSendAnalogFinalStatusResponse();
                     consumer.accept(message);
                 }
+                case ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT ->{
+                    final Message<Action> message = getBaseActionMessage(action);
+                    Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushAnalogWorkflowNoFeedbackTimeout();
+                    consumer.accept(message);
+                }
                 default ->
                         log.error("[TEST] actionType not found {}", action.getType());
             }

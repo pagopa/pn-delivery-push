@@ -23,6 +23,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleE
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.service.AnalogWorkflowTimoutHandlerService;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.slf4j.MDC;
@@ -53,6 +54,7 @@ public class ActionHandler {
     private final SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
     private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
     private final AnalogFinalStatusResponseHandler analogFinalResponseHandler;
+    private final AnalogWorkflowTimoutHandlerService analogWorkflowTimoutHandlerService;
     
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
@@ -452,6 +454,31 @@ public class ActionHandler {
 
                 log.logStartingProcess(processName);
                 analogFinalResponseHandler.handleFinalResponse(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+                log.logEndingProcess(processName);
+            } catch (Exception ex) {
+                log.logEndingProcess(processName, false, ex.getMessage());
+                HandleEventUtils.handleException(message.getHeaders(), ex);
+                throw ex;
+            }
+        };
+    }
+
+    @Bean
+    public Consumer<Message<Action>> pnDeliveryPushAnalogWorkflowNoFeedbackTimeout(){
+        final String processName = ActionType.ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT.name();
+
+        return message -> {
+            try {
+                log.debug("Handle action pnDeliveryPushAnalogWorkflowNoFeedbackTimeout, with content {}", message);
+                Action action = message.getPayload();
+
+                HandleEventUtils.addIunAndRecIndexAndCorrIdToMdc(action.getIun(), action.getRecipientIndex(), action.getActionId());
+
+                log.logStartingProcess(processName);
+                checkNotificationCancelledAndExecute(
+                        action,
+                        a -> analogWorkflowTimoutHandlerService.handleAnalogWorkflowTimeout(a.getIun(), a.getTimelineId(), a.getRecipientIndex(), (AnalogWorkflowTimeoutDetails) a.getDetails(), a.getNotBefore())
+                );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
                 log.logEndingProcess(processName, false, ex.getMessage());

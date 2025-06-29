@@ -17,6 +17,7 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.timeline.NotificationRefusedErrorInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
+import it.pagopa.pn.deliverypush.service.AnalogWorkflowTimoutHandlerService;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,6 +67,8 @@ class ActionHandlerTest {
     private SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
     @Mock
     private AnalogFinalStatusResponseHandler analogFinalResponseHandler;
+    @Mock
+    private AnalogWorkflowTimoutHandlerService analogWorkflowTimoutHandlerService;
 
 
     @Mock
@@ -359,6 +362,21 @@ class ActionHandlerTest {
         //THEN
         Action action = message.getPayload();
         verify(analogFinalResponseHandler).handleFinalResponse(action.getIun(), action.getRecipientIndex(), action.getTimelineId());
+    }
+
+    @Test
+    void pnDeliveryPushAnalogWorkflowNoFeedbackTimeout() {
+        //GIVEN
+        Message<Action> message = getActionMessage();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
+
+        //WHEN
+        Consumer<Message<Action>> consumer = actionHandler.pnDeliveryPushAnalogWorkflowNoFeedbackTimeout();
+        consumer.accept(message);
+
+        //THEN
+        Action action = message.getPayload();
+        verify(analogWorkflowTimoutHandlerService).handleAnalogWorkflowTimeout(action.getIun(), action.getTimelineId(), action.getRecipientIndex(), (AnalogWorkflowTimeoutDetails) action.getDetails(), action.getNotBefore());
     }
 
 
