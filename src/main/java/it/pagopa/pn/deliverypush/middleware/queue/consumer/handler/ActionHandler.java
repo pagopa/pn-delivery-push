@@ -23,7 +23,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleE
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.responsehandler.DocumentCreationResponseHandler;
-import it.pagopa.pn.deliverypush.service.AnalogWorkflowTimoutHandlerService;
+import it.pagopa.pn.deliverypush.service.AnalogWorkflowTimeoutHandlerService;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.slf4j.MDC;
@@ -54,7 +54,7 @@ public class ActionHandler {
     private final SendDigitalFinalStatusResponseHandler sendDigitalFinalStatusResponseHandler;
     private final ScheduleRecipientWorkflow scheduleRecipientWorkflow;
     private final AnalogFinalStatusResponseHandler analogFinalResponseHandler;
-    private final AnalogWorkflowTimoutHandlerService analogWorkflowTimoutHandlerService;
+    private final AnalogWorkflowTimeoutHandlerService analogWorkflowTimeoutHandlerService;
     
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushStartRecipientWorkflow() {
@@ -477,7 +477,7 @@ public class ActionHandler {
                 log.logStartingProcess(processName);
                 checkNotificationCancelledAndExecute(
                         action,
-                        a -> analogWorkflowTimoutHandlerService.handleAnalogWorkflowTimeout(a.getIun(), a.getTimelineId(), a.getRecipientIndex(), (AnalogWorkflowTimeoutDetails) a.getDetails(), a.getNotBefore())
+                        a -> analogWorkflowTimeoutHandlerService.handleAnalogWorkflowTimeout(a.getIun(), a.getTimelineId(), a.getRecipientIndex(), (AnalogWorkflowTimeoutDetails) a.getDetails(), a.getNotBefore())
                 );
                 log.logEndingProcess(processName);
             } catch (Exception ex) {
