@@ -58,7 +58,7 @@ public class AnalogWorkflowTimeoutHandlerServiceImplTest {
 
         when(sendAnalogElement.getDetails()).thenReturn(sendAnalogDetails);
         TimelineElementInternal timeoutElement = mock(TimelineElementInternal.class);
-        when(timelineUtils.buildSendAnalogTimeoutCreationRequest(notification, sendAnalogDetails, notBefore)).thenReturn(timeoutElement);
+        when(timelineUtils.buildSendAnalogTimeoutCreationRequest(notification, sendAnalogDetails, timelineId, notBefore)).thenReturn(timeoutElement);
 
         service.handleAnalogWorkflowTimeout(iun, timelineId, recIndex, timeoutDetails, notBefore);
 
