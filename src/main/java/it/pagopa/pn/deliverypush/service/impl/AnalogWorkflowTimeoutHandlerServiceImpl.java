@@ -47,8 +47,9 @@ public class AnalogWorkflowTimeoutHandlerServiceImpl implements AnalogWorkflowTi
                 TimelineElementInternal timeoutElement = timelineUtils.buildSendAnalogTimeoutCreationRequest(
                         notification,
                         sendAnalogDetails,
+                        actionTimelineId,
                         notBefore
-                        );
+                );
                 timelineService.addTimelineElement(timeoutElement, notification);
             }
 
